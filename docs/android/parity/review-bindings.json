@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "3adef3be353dbca53b7d0b02784f7bae8b06210e1acdee638da15a7e14116465",
+  "proposal_sha256": "88890f39eb150942ea83bc7a5cda0aeadd1aec5d690090a6cdc9c0bf76ab13ac",
   "families": [
     {
       "group": "backup-envelope",
@@ -52208,6 +52208,444 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Cleanup duplicate remote node sessions keeps target and deletes others()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "1d38353d8dac7e970e106149566345028e19f77b0cc3a54a9222cabf660cd10e",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1543,
+          "expression": "#expect(kept != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1544,
+          "expression": "#expect(kept?.name == \"KeepRoom\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1548,
+          "expression": "#expect(deleted == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1552,
+          "expression": "#expect(messages.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "duplicateCleanupRetainsOriginalDistinctNamesZeroCoordinatesAndMessage",
+        "line": 221,
+        "end_line": 243,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "dcd270b3cc54bfdc1db26e12bbe2d989f323c8898b58013ef882201fb4a8b7f9",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNotNull",
+            "line": 239,
+            "expression": "assertNotNull(kept)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 240,
+            "expression": "assertEquals(\"KeepRoom\", kept.name)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 241,
+            "expression": "assertNull(store.fetchRemoteNodeSession(key(duplicate)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 242,
+            "expression": "assertTrue(store.fetchRoomMessages(key(duplicate)).isEmpty())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "radio",
+            "line": 222,
+            "expression": "radio()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 223,
+            "expression": "Bytes(ByteArray(32) { 0x55 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 223,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RemoteNodeSessionDTO",
+            "line": 224,
+            "expression": "RemoteNodeSessionDTO(\n            radioId = radio, publicKey = shared, name = \"KeepRoom\", role = RemoteNodeRole.ROOM_SERVER,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RemoteNodeSessionDTO",
+            "line": 227,
+            "expression": "RemoteNodeSessionDTO(\n            radioId = radio, publicKey = shared, name = \"DuplicateRoom\", role = RemoteNodeRole.ROOM_SERVER,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveRemoteNodeSessionDTO",
+            "line": 230,
+            "expression": "store.saveRemoteNodeSessionDTO(keep)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveRemoteNodeSessionDTO",
+            "line": 231,
+            "expression": "store.saveRemoteNodeSessionDTO(duplicate)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveRoomMessage",
+            "line": 232,
+            "expression": "store.saveRoomMessage(radio, RoomMessageDTO(\n            sessionID = duplicate.id, authorKeyPrefix = Bytes.of(1, 2, 3, 4),\n            authorName = \"Author\", text = \"Message on duplicate\", timestamp = Instant.now().epochSecond.toUInt(),\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RoomMessageDTO",
+            "line": 232,
+            "expression": "RoomMessageDTO(\n            sessionID = duplicate.id, authorKeyPrefix = Bytes.of(1, 2, 3, 4),\n            authorName = \"Author\", text = \"Message on duplicate\", timestamp = Instant.now().epochSecond.toUInt(),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 233,
+            "expression": "Bytes.of(1, 2, 3, 4)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 234,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 234,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.cleanupDuplicateRemoteNodeSessions",
+            "line": 236,
+            "expression": "store.cleanupDuplicateRemoteNodeSessions(shared, key(keep))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 236,
+            "expression": "key(keep)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 238,
+            "expression": "store.fetchRemoteNodeSession(key(keep))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 238,
+            "expression": "key(keep)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 241,
+            "expression": "store.fetchRemoteNodeSession(key(duplicate))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 241,
+            "expression": "key(duplicate)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRoomMessages",
+            "line": 242,
+            "expression": "store.fetchRoomMessages(key(duplicate))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 242,
+            "expression": "key(duplicate)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 242,
+            "expression": "isEmpty()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Cleanup duplicate remote node sessions keeps target and deletes others()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "duplicateCleanupRetainsOriginalDistinctNamesZeroCoordinatesAndMessage"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Disconnect then recover preserves permission level()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "9ea60f1b519fbce3a7c967f72bf060d854b4ce309adc1284033abd0abab93d75",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1328,
+          "expression": "#expect(fetched?.isConnected == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1329,
+          "expression": "#expect(fetched?.permissionLevel == .admin)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "recoveryRetainsTheOriginalConnectedDisconnectReconnectSequence",
+        "line": 139,
+        "end_line": 147,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "6384288dcf2b0305a320024057a7f0fc92e5098d124e1ef4a36affb4d9cf6c3a",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 145,
+            "expression": "assertEquals(true, fetched?.isConnected)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 146,
+            "expression": "assertEquals(RoomPermissionLevel.ADMIN, fetched?.permissionLevel)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 140,
+            "expression": "session(true, RoomPermissionLevel.ADMIN)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.markSessionDisconnected",
+            "line": 141,
+            "expression": "store.markSessionDisconnected(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 141,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.markRoomSessionConnected",
+            "line": 142,
+            "expression": "store.markRoomSessionConnected(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 142,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 144,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 144,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Disconnect then recover preserves permission level()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "recoveryRetainsTheOriginalConnectedDisconnectReconnectSequence"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "persistence-original-restored-hop-order-path-predicates",
       "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
       "source_file_family_count": 135,
@@ -53327,6 +53765,1173 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Mark room session connected changes isConnected and returns true()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "4587d5f7d663c7dd9da8ea17bd494a985923b9be0862363a2cc5d54523c259c4",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1222,
+          "expression": "#expect(result == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1225,
+          "expression": "#expect(fetched?.isConnected == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1227,
+          "expression": "#expect(fetched?.permissionLevel == .admin)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "connectingRetainsOriginalDisconnectedAdminAndAllThreePredicates",
+        "line": 103,
+        "end_line": 110,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "0ed8920c24e56140ae3ed23b8d406d2663c4bee7748cca0fb7d70a06fc3fc9e9",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 105,
+            "expression": "assertTrue(store.markRoomSessionConnected(key(session)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 108,
+            "expression": "assertEquals(true, fetched?.isConnected)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 109,
+            "expression": "assertEquals(RoomPermissionLevel.ADMIN, fetched?.permissionLevel)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 104,
+            "expression": "session(false, RoomPermissionLevel.ADMIN)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.markRoomSessionConnected",
+            "line": 105,
+            "expression": "store.markRoomSessionConnected(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 105,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 107,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 107,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Mark room session connected changes isConnected and returns true()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "connectingRetainsOriginalDisconnectedAdminAndAllThreePredicates"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Mark room session connected returns false when already connected()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "3ca721b820287db51e10e6765a5a94895eb256bf1237a9b16346be9b887591e1",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1250,
+          "expression": "#expect(result == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "alreadyConnectedRetainsTheOriginalGuestRatherThanAdminInput",
+        "line": 113,
+        "end_line": 116,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "d8cb2d66f973ce69f97c663f49eca81361ba0f401b4688ed04f62d5ed886a993",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertFalse",
+            "line": 115,
+            "expression": "assertFalse(store.markRoomSessionConnected(key(session)))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 114,
+            "expression": "session(true, RoomPermissionLevel.GUEST)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.markRoomSessionConnected",
+            "line": 115,
+            "expression": "store.markRoomSessionConnected(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 115,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Mark room session connected returns false when already connected()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "alreadyConnectedRetainsTheOriginalGuestRatherThanAdminInput"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Mark session disconnected is no-op when already disconnected()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "3d0bda373447f76c2df87f0f6cdc31b5e1ad807c182941ad0809143f533c5135",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1301,
+          "expression": "#expect(fetched?.isConnected == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1302,
+          "expression": "#expect(fetched?.permissionLevel == .admin)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "redundantDisconnectRetainsTheOriginalInitiallyDisconnectedAdmin",
+        "line": 129,
+        "end_line": 136,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "9e03c5b6a7103e5376e4ac6af49b815304103c2f834046d4b62e3bbf1def111c",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 134,
+            "expression": "assertEquals(false, fetched?.isConnected)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 135,
+            "expression": "assertEquals(RoomPermissionLevel.ADMIN, fetched?.permissionLevel)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 130,
+            "expression": "session(false, RoomPermissionLevel.ADMIN)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.markSessionDisconnected",
+            "line": 131,
+            "expression": "store.markSessionDisconnected(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 131,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 133,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 133,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Mark session disconnected is no-op when already disconnected()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "redundantDisconnectRetainsTheOriginalInitiallyDisconnectedAdmin"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Mark session disconnected preserves permission level()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "ab10de39cdc3aa9d6d18d46dad2af1a57e7b466ee1883f9b5929cb155c971ef3",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1275,
+          "expression": "#expect(fetched?.isConnected == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1276,
+          "expression": "#expect(fetched?.permissionLevel == .admin)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "disconnectRetainsTheOriginalConnectedAdminSetupAndBothFinalFields",
+        "line": 119,
+        "end_line": 126,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "07689b27f37067a82ead037d54f3b9108e5569530044d0735f69084296edb2bc",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 124,
+            "expression": "assertEquals(false, fetched?.isConnected)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 125,
+            "expression": "assertEquals(RoomPermissionLevel.ADMIN, fetched?.permissionLevel)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 120,
+            "expression": "session(true, RoomPermissionLevel.ADMIN)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.markSessionDisconnected",
+            "line": 121,
+            "expression": "store.markSessionDisconnected(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 121,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 123,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 123,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Mark session disconnected preserves permission level()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "disconnectRetainsTheOriginalConnectedAdminSetupAndBothFinalFields"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Room message deduplication()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "cd91c5da11906b608850304fa514dbd1b10755807945ab891453093e5563f2cb",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1488,
+          "expression": "#expect(messages.count == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "roomDedupRetainsTwoIndependentOriginalDtoConstructionsAndCount",
+        "line": 206,
+        "end_line": 218,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "e94750af4ba69fa702fbe3fa5f8729b0f6b357ccdb0570fe2e6d8263ebd88192",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 217,
+            "expression": "assertEquals(1, store.fetchRoomMessages(key(session)).size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 207,
+            "expression": "session()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 208,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 208,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 209,
+            "expression": "Bytes.of(1, 2, 3, 4)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveRoomMessage",
+            "line": 210,
+            "expression": "store.saveRoomMessage(session.radioId, RoomMessageDTO(\n            sessionID = session.id, authorKeyPrefix = author, text = \"Duplicate message\", timestamp = timestamp,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RoomMessageDTO",
+            "line": 210,
+            "expression": "RoomMessageDTO(\n            sessionID = session.id, authorKeyPrefix = author, text = \"Duplicate message\", timestamp = timestamp,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveRoomMessage",
+            "line": 213,
+            "expression": "store.saveRoomMessage(session.radioId, RoomMessageDTO(\n            sessionID = session.id, authorKeyPrefix = author, text = \"Duplicate message\", timestamp = timestamp,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RoomMessageDTO",
+            "line": 213,
+            "expression": "RoomMessageDTO(\n            sessionID = session.id, authorKeyPrefix = author, text = \"Duplicate message\", timestamp = timestamp,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRoomMessages",
+            "line": 217,
+            "expression": "store.fetchRoomMessages(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 217,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Room message deduplication()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "roomDedupRetainsTwoIndependentOriginalDtoConstructionsAndCount"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Room messages order primarily by wire timestamp()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "1d06b24833813957a17043a82e4154e55e3ec6c9cd72aec76c0d17884a901fad",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1452,
+          "expression": "#expect(messages.map(\\.text) == [\"oldest\", \"middle\", \"newest\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "roomWireOrderRetainsTheOriginalCurrentClockAndOppositeArrivalOffsets",
+        "line": 189,
+        "end_line": 203,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "2372d0745cd084c9e5453479227106fd85a9d2cb77efd9bb77ca4fdcdc1092aa",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 202,
+            "expression": "assertEquals(listOf(\"oldest\", \"middle\", \"newest\"), store.fetchRoomMessages(key(session)).map { it.text })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 190,
+            "expression": "session()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 191,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 191,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 192,
+            "expression": "Instant.ofEpochSecond(1_700_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 193,
+            "expression": "for ((text, sendOffset, arrivalOffset) in listOf(\n            Triple(\"newest\", 2u, 0L), Triple(\"oldest\", 0u, 2L), Triple(\"middle\", 1u, 1L),\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 193,
+            "expression": "listOf(\n            Triple(\"newest\", 2u, 0L), Triple(\"oldest\", 0u, 2L), Triple(\"middle\", 1u, 1L),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Triple",
+            "line": 194,
+            "expression": "Triple(\"newest\", 2u, 0L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Triple",
+            "line": 194,
+            "expression": "Triple(\"oldest\", 0u, 2L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Triple",
+            "line": 194,
+            "expression": "Triple(\"middle\", 1u, 1L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveRoomMessage",
+            "line": 196,
+            "expression": "store.saveRoomMessage(session.radioId, RoomMessageDTO(\n                sessionID = session.id, authorKeyPrefix = Bytes.of(1, 2, 3, 4), text = text,\n                timestamp = timestamp + sendOffset, createdAt = base.plusSeconds(arrivalOffset),\n            ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RoomMessageDTO",
+            "line": 196,
+            "expression": "RoomMessageDTO(\n                sessionID = session.id, authorKeyPrefix = Bytes.of(1, 2, 3, 4), text = text,\n                timestamp = timestamp + sendOffset, createdAt = base.plusSeconds(arrivalOffset),\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 197,
+            "expression": "Bytes.of(1, 2, 3, 4)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "base.plusSeconds",
+            "line": 198,
+            "expression": "base.plusSeconds(arrivalOffset)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 202,
+            "expression": "listOf(\"oldest\", \"middle\", \"newest\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRoomMessages",
+            "line": 202,
+            "expression": "store.fetchRoomMessages(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 202,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Room messages order primarily by wire timestamp()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "roomWireOrderRetainsTheOriginalCurrentClockAndOppositeArrivalOffsets"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Room messages tied on timestamp order deterministically by createdAt()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "8e8424cb6ffeb1d2bb3f711470120291e3ea46dc13be0dada1daf44ad7234ebd",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1419,
+          "expression": "#expect(messages.map(\\.text) == [\"first\", \"second\", \"third\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "tiedRoomWireTimesRetainTheOriginalWholeSecondArrivalInputs",
+        "line": 174,
+        "end_line": 186,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "53bb9e6e51c252728e836efcb17a28fe634e0ea23939a75be99633d1fc65c7ce",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 185,
+            "expression": "assertEquals(listOf(\"first\", \"second\", \"third\"), store.fetchRoomMessages(key(session)).map { it.text })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 175,
+            "expression": "session()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 176,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 176,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 177,
+            "expression": "Instant.ofEpochSecond(1_700_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 178,
+            "expression": "for ((text, offset) in listOf(\"second\" to 1L, \"third\" to 2L, \"first\" to 0L))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 178,
+            "expression": "listOf(\"second\" to 1L, \"third\" to 2L, \"first\" to 0L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveRoomMessage",
+            "line": 179,
+            "expression": "store.saveRoomMessage(session.radioId, RoomMessageDTO(\n                sessionID = session.id, authorKeyPrefix = Bytes.of(1, 2, 3, 4),\n                text = text, timestamp = timestamp, createdAt = base.plusSeconds(offset),\n            ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RoomMessageDTO",
+            "line": 179,
+            "expression": "RoomMessageDTO(\n                sessionID = session.id, authorKeyPrefix = Bytes.of(1, 2, 3, 4),\n                text = text, timestamp = timestamp, createdAt = base.plusSeconds(offset),\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 180,
+            "expression": "Bytes.of(1, 2, 3, 4)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "base.plusSeconds",
+            "line": 181,
+            "expression": "base.plusSeconds(offset)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 185,
+            "expression": "listOf(\"first\", \"second\", \"third\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRoomMessages",
+            "line": 185,
+            "expression": "store.fetchRoomMessages(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 185,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Room messages tied on timestamp order deterministically by createdAt()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "tiedRoomWireTimesRetainTheOriginalWholeSecondArrivalInputs"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "persistence-original-restored-rx-region-predicates",
       "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
       "source_file_family_count": 135,
@@ -53900,6 +55505,330 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Save and fetch remote node session()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "c07ace29e68e753c0eca9e3c0f324ad9902d9c3534fbf4dde70a06e99be492f6",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1125,
+          "expression": "#expect(fetched != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1126,
+          "expression": "#expect(fetched?.name == \"TestRoom\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1127,
+          "expression": "#expect(fetched?.role == .roomServer)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "sessionReadbackRetainsTheOriginalNameRoleAndNonNullPredicates",
+        "line": 55,
+        "end_line": 61,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "5fb1b1f158863af3d2976a8a656bcdaeaf26e6146cf0be5175d3e49f2fc3353e",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNotNull",
+            "line": 58,
+            "expression": "assertNotNull(fetched)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 59,
+            "expression": "assertEquals(\"TestRoom\", fetched.name)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 60,
+            "expression": "assertEquals(RemoteNodeRole.ROOM_SERVER, fetched.role)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 56,
+            "expression": "session()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 57,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 57,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Save and fetch remote node session()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "sessionReadbackRetainsTheOriginalNameRoleAndNonNullPredicates"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Save and fetch room messages()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "0bf4b391f9072d82408b9ab9a894e136930039820428a7816057b27ceafe31d7",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1386,
+          "expression": "#expect(messages.count == 3)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "roomMessagesRetainOriginalAuthorsTextsWireTimesAndCount",
+        "line": 160,
+        "end_line": 171,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "5f77735aee10da6da23c5c874c8cda05169c0f3bc30cfd3fd27a4d2636110206",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 170,
+            "expression": "assertEquals(3, store.fetchRoomMessages(key(session)).size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 161,
+            "expression": "session()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 162,
+            "expression": "for (index in 0 until 3)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveRoomMessage",
+            "line": 163,
+            "expression": "store.saveRoomMessage(session.radioId, RoomMessageDTO(\n                sessionID = session.id, authorKeyPrefix = Bytes.of(1, 2, 3, 4),\n                authorName = \"Author$index\", text = \"Room message $index\",\n                timestamp = Instant.now().epochSecond.toUInt() + index.toUInt(),\n            ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RoomMessageDTO",
+            "line": 163,
+            "expression": "RoomMessageDTO(\n                sessionID = session.id, authorKeyPrefix = Bytes.of(1, 2, 3, 4),\n                authorName = \"Author$index\", text = \"Room message $index\",\n                timestamp = Instant.now().epochSecond.toUInt() + index.toUInt(),\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 164,
+            "expression": "Bytes.of(1, 2, 3, 4)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 166,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 166,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "index.toUInt",
+            "line": 166,
+            "expression": "index.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRoomMessages",
+            "line": 170,
+            "expression": "store.fetchRoomMessages(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 170,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Save and fetch room messages()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "roomMessagesRetainOriginalAuthorsTextsWireTimesAndCount"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "persistence-original-restored-independent-predicates",
       "comparison_sha256": "a6480b364f3ca40f7a1006474ca8476658053cc07f94c4564512d4f92f6d75dc",
       "source_file_family_count": 135,
@@ -54133,6 +56062,756 @@
       "runner_identity": [
         "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
         "mutingRetainsTheInitialFalseAndBothOriginalTransitions"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Update remote node session connection can reset permission to guest()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "ca14bfc702b38b096b07c363a47362d14aa550fe5183d90bfa0024d9bbc0ee97",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1358,
+          "expression": "#expect(fetched?.isConnected == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1359,
+          "expression": "#expect(fetched?.permissionLevel == .guest)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "explicitLogoutRetainsBothOriginalDisconnectedAndGuestPredicates",
+        "line": 150,
+        "end_line": 157,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "5ff8f6e6b18da162b695d7c2fd585f2d223c1301f98610e00b5229eb22bce423",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 155,
+            "expression": "assertEquals(false, fetched?.isConnected)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 156,
+            "expression": "assertEquals(RoomPermissionLevel.GUEST, fetched?.permissionLevel)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 151,
+            "expression": "session(true, RoomPermissionLevel.ADMIN)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateRemoteNodeSessionConnection",
+            "line": 152,
+            "expression": "store.updateRemoteNodeSessionConnection(key(session), false, RoomPermissionLevel.GUEST)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 152,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 154,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 154,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Update remote node session connection can reset permission to guest()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "explicitLogoutRetainsBothOriginalDisconnectedAndGuestPredicates"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Update room activity advances sync timestamp and sets lastMessageDate()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2d870e05fd0eb5de3ba9c240aa083e9005578a92141b95dfe09bf626aa78cbfc",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1143,
+          "expression": "#expect(fetched?.lastSyncTimestamp == 1000)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1144,
+          "expression": "#expect(fetched?.lastMessageDate != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1152,
+          "expression": "#expect(fetched?.lastSyncTimestamp == 2000)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1153,
+          "expression": "#expect(fetched?.lastMessageDate != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1154,
+          "expression": "#expect(try #require(fetched?.lastMessageDate) >= firstDate!)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 1154,
+          "expression": "#require(fetched?.lastMessageDate)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "advancingActivityRetainsBothOriginalDatesAndTheMonotonicPredicate",
+        "line": 64,
+        "end_line": 77,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "1927a88708ba30c44983f171e9ae7469044845a59ad5e6eeab06c272cdd71db8",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 68,
+            "expression": "assertEquals(1000u, fetched?.lastSyncTimestamp)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 69,
+            "expression": "assertNotNull(fetched?.lastMessageDate)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 73,
+            "expression": "assertEquals(2000u, fetched?.lastSyncTimestamp)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 74,
+            "expression": "assertTrue(assertNotNull(fetched?.lastMessageDate) >= firstDate)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 74,
+            "expression": "assertNotNull(fetched?.lastMessageDate)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 76,
+            "expression": "assertNotNull(db.sessions().byId(session.radioId.value, session.id)?.lastMessageDate)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 65,
+            "expression": "session()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateRoomActivity",
+            "line": 66,
+            "expression": "store.updateRoomActivity(key(session), 1000u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 66,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 67,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 67,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateRoomActivity",
+            "line": 71,
+            "expression": "store.updateRoomActivity(key(session), 2000u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 71,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 72,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 72,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.flush",
+            "line": 75,
+            "expression": "store.flush()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "db.sessions",
+            "line": 76,
+            "expression": "db.sessions()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "byId",
+            "line": 76,
+            "expression": "byId(session.radioId.value, session.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Update room activity advances sync timestamp and sets lastMessageDate()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "advancingActivityRetainsBothOriginalDatesAndTheMonotonicPredicate"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Update room activity ignores older sync timestamps()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "9da102539b42796e398f8959386ea03c23a91b3af8d06ea8a25781be41485ec9",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1170,
+          "expression": "#expect(fetched?.lastSyncTimestamp == 5000)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1176,
+          "expression": "#expect(fetched?.lastSyncTimestamp == 5000)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1178,
+          "expression": "#expect(fetched?.lastMessageDate != nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "olderActivityRetainsTheOriginalFiveThousandThenThreeThousandInputs",
+        "line": 80,
+        "end_line": 89,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "46a901d7f64819adbad3d00bbd47d39dd641046c5134d1299dc7cc7bbded41e8",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 83,
+            "expression": "assertEquals(5000u, store.fetchRemoteNodeSession(key(session))?.lastSyncTimestamp)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 87,
+            "expression": "assertEquals(5000u, fetched?.lastSyncTimestamp)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 88,
+            "expression": "assertNotNull(fetched?.lastMessageDate)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 81,
+            "expression": "session()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateRoomActivity",
+            "line": 82,
+            "expression": "store.updateRoomActivity(key(session), 5000u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 82,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 83,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 83,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateRoomActivity",
+            "line": 85,
+            "expression": "store.updateRoomActivity(key(session), 3000u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 85,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 86,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 86,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Update room activity ignores older sync timestamps()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "olderActivityRetainsTheOriginalFiveThousandThenThreeThousandInputs"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-room-session-predicates",
+      "comparison_sha256": "631355684aa9f145e5309c502be6401e6ed469ce706f3b503a5031a3e8e4e62e",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 15,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Update room activity without sync timestamp does not change lastSyncTimestamp()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "ddfd7b049013abd1d710936293879f8ec0af0afde3b11e21d48b9c30a7232a02",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 1197,
+          "expression": "#expect(fetched?.lastSyncTimestamp == 5000)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 1198,
+          "expression": "#expect(fetched?.lastMessageDate != nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1",
+        "class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "method_or_family_name": "sendActivityRetainsTheOriginalFiveThousandBookmarkAndOmittedTimestamp",
+        "line": 92,
+        "end_line": 100,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "c228b4d24d0a702f7a5ff203954f3b019e443a855d92c5153b403c4da303cd97",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 98,
+            "expression": "assertEquals(5000u, fetched?.lastSyncTimestamp)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 99,
+            "expression": "assertNotNull(fetched?.lastMessageDate)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "session",
+            "line": 93,
+            "expression": "session()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateRoomActivity",
+            "line": 94,
+            "expression": "store.updateRoomActivity(key(session), 5000u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 94,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateRoomActivity",
+            "line": 95,
+            "expression": "store.updateRoomActivity(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 95,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchRemoteNodeSession",
+            "line": 97,
+            "expression": "store.fetchRemoteNodeSession(key(session))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 97,
+            "expression": "key(session)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Update room activity without sync timestamp does not change lastSyncTimestamp()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+          "sha256": "cd29b125f49af3a91197504cc7b978c88b671ce0a140b06b813e186396689664"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+          "sha256": "2a0f45ea4ff2dd5813d545275c2d93a85e806590828524314c4e28a1d8ed0b96"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+          "sha256": "f15933bc7cfd854af25bed633589bf4bda0808937303c4a8010fdc1685a04ae1"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+          "sha256": "4d279af2da5c5f9991c06415419224195983122820b7f5729120b1e2c7274f2c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+          "sha256": "535d9d2c142af3eb6e1ffb2b21ed054c370e036b8229c8bc9b136b0b4048b045"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+          "sha256": "65d8748a01084be412bd602f0addf8dcfb6af2a41e8cdbf11f0d972c7b790c09"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+          "sha256": "15361863778a405cc1709ccb6246ec0d872d01fb0f6a962314865fea519cda23"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+        "sendActivityRetainsTheOriginalFiveThousandBookmarkAndOmittedTimestamp"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },

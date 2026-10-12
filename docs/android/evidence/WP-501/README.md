@@ -12,6 +12,30 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Current room/session original predicates
+
+Current1395/5133 proposed/178groups/81mandatory/zero full approved adds15
+standalone room/session originals. Complete selected original/helper/
+constructor/projection/default and native repository/model/mapping/SQL/
+fixture bodies read; actual source/native room activity, incoming recovery,
+transient disconnect, explicit logout and native room adapter traced.
+Preserve5000->3000/omitted-sync after5000, already-connected GUEST versus
+admin, both connected/permission fields, original non-null dates and
+second>=first, source helper geography versus six reconstructed zero-
+coordinate DTOs, literal Author0..2/texts/count3, current wire clock and
+1700000000 whole-second arrivals, independent duplicate construction and
+actual KeepRoom/DuplicateRoom cleanup predicates. Both projections use
+legacy sync-date fallback; one flush/committed-column non-null supplement
+follows unchanged original preflush checks, no extra original credit.
+Actual inherited API31 Room/native SQLite/store replaces SwiftData.
+Disclosed fixed32-byte0x44 device/0x55 room keys replace source random keys;
+real current Date() is selected input, not elapsed/scheduler/universal
+clock/identity/hash evidence. No all-ties/races/cancellation/rollback/
+SwiftData/API37/device/mounted service/room consumer verdict.
+Same reservation32->33/owned-create retains immutable authorization/pins.
+New15-room exact selector pending;51/135 proposed/remaining84 unresolved;
+all earlier1380 objects and older executed inputs/witnesses unchanged.
+
 ## Actual reviewed197 adoption and disjoint registration checks
 
 Independently verified actual merge`9e5b4340022d5aae416ca2a2f6eafea564681860`,

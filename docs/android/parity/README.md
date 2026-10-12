@@ -1,6 +1,21 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current1380/5133 proposed comparisons/177groups/81mandatory/zero fully
+Current1395/5133 proposed comparisons/178groups/81mandatory/zero fully
+approved behavioral acceptances add15 room/session originals, preserving
+original5000->3000 and omitted-sync bookmarks, connected-guest versus
+admin setups, both stored disconnect/logout fields, date non-null AND
+monotonic predicates, current wire clocks/whole-second arrival offsets,
+Author0..2/texts/count, independent duplicate DTO construction and
+KeepRoom/DuplicateRoom names. Six reconstructed source connection DTOs
+use default zero coordinates, not the helper's37.7749/-122.4194.
+Both source/native DTOs have a legacy date fallback; one committed-column
+supplement ensures original preflush observations are not replaced by
+that projection. Actual API31 Room/native SQLite/store; fixed keys and
+real Date()/wall-clock limits disclosed. Supported reservation32->33;
+new15-room selector pending,51/135 proposed/remaining84 unresolved.
+All prior1380 bindings and older native witnesses/receipts unchanged.
+
+Previous1380/5133 proposed comparisons/177groups/81mandatory/zero fully
 approved behavioral acceptances add15 independent persistence originals:
 nine exact hop/nil/buffer/DTO inputs, four ordering families with source
 PENDING defaults and complete Live-last predicate, and two incoming/SENT

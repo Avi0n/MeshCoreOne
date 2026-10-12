@@ -5,6 +5,55 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "persistence-original-restored-room-session-predicates",
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+      "native_factory": null,
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "comparison": "Fifteen complete selected frozen originals have standalone real-Room counterparts, not credit from aggregate annotations. Session fetch retains non-null/TestRoom/roomServer. Advancing1000->2000 preserves BOTH non-null dates and explicit second>=first; older5000->3000 preserves initial5000/final5000/non-null date; omitted timestamp after 5000 preserves5000/non-null date. Six independent connection originals preserve disconnected admin->true+connected/admin, initially connected GUEST->false, connected admin->disconnected/admin, initially disconnected admin->disconnected/admin, connected admin->disconnect/recover->connected/admin, and explicit connected/admin logout->disconnected/GUEST BOTH fields. Save3 rooms retains Author0..2/Room message0..2/each currentUnix+i/count3. Shared current wire clock and1700000000 arrival+1,+2,0 seconds retain first/second/third. Current wire+2,+0,+1 versus arrival+0,+2,+1 seconds retain oldest/middle/newest. Two independent duplicate DTO constructors preserve current timestamp/01020304/Duplicate message/count1, not copy with reused key. Duplicate cleanup uses same key/KeepRoom/DuplicateRoom/zero coords and actual Author/Message on duplicate/current timestamp, preserving non-null kept/KeepRoom/nil duplicate/empty deleted room messages.",
+      "inputs": "Selected original nullable/default/raw role/permission/name/coordinate/connected/bookmark/message/date/author/bytes/count inputs and all predicates retained. Source room helper uses37.7749/-122.4194, disconnected/GUEST/bookmark0; the six source reconstructed connection DTOs intentionally use constructor-default ZERO coordinates rather than silently retaining helper geography. Cleanup's two sessions are also zero-coordinate/disconnected/GUEST/0. Source device firmware8/v1.11.0/TestDevice/TestMfg/01Jan2025/multiAcks0/inactive values preserved. Fixed32-byte0x44 device/0x55 session and shared keys replace source random keys; UUIDs remain random. Original Date() uses real current wall time here, not scheduler/elapsed timing evidence. Native dedup construction supplies fixture INPUTS only, never an expected hash/packet oracle; both duplicate DTOs compute independently as source does.",
+      "adaptations": "Inherited actual API31 RoomProcessTest/nativeSQLite/production store replaces isolated SwiftData actor. Immutable DTO copy faithfully models source reconstructed connection DTO defaults; Bytes/RadioId/EntityKey/Instant retain selected binary/partition/nullable/unsigned/date semantics. Both source and native DTO projections fall back to sync seconds when stored lastMessageDate is nil. An additional explicit flush/committed-column non-null check supplements the original advancing-activity preflush observations, so projection fallback cannot substitute for a real date write; not extra original credit. No universal random/UUID/hash/clock, all-ties/nanosecond/locale/partition races, concurrent transactions/cancellation/rollback, SwiftData engine/API37/device or mounted room consumer proof.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+        "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+Rooms.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomDaos.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RoomMappings.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt"
+      ],
+      "consumer": "Complete selected frozen source/helper/constructor/projection/default and native repository/model/mapping/DAO/fixture bodies read. Actual RoomServerServiceIncoming marks an incoming duplicate session connected before dedup; new stored incoming messages advance received sender-clock bookmark and room date. Send activity omits sync timestamp. RemoteNode logout explicitly writes disconnected/GUEST; transient disconnect preserves permission. AppChatsFeature room data delegates scoped message/session fetch and live events refetch persisted rows/connection state. These store-level originals do not prove service broadcasts, mounted room state/retry/login/reconnection, cancellation or universal wall-clock ordering. Fifteen-room-name native execution pending; all older executed inputs/witnesses unchanged.",
+      "unresolved": [
+        "Fifteen-room-name native execution and independent/full acceptance pending. Remaining84 of135 persistence originals still require full comparisons/restored missing predicates/inputs;51 proposed is not135 accepted. Incoming192/canonical196 failures, exact-current hosted checks and full1395/5133 proposed audit unresolved."
+      ],
+      "methods": [
+        "Save and fetch remote node session",
+        "Update room activity advances sync timestamp and sets lastMessageDate",
+        "Update room activity ignores older sync timestamps",
+        "Update room activity without sync timestamp does not change lastSyncTimestamp",
+        "Mark room session connected changes isConnected and returns true",
+        "Mark room session connected returns false when already connected",
+        "Mark session disconnected preserves permission level",
+        "Mark session disconnected is no-op when already disconnected",
+        "Disconnect then recover preserves permission level",
+        "Update remote node session connection can reset permission to guest",
+        "Save and fetch room messages",
+        "Room messages tied on timestamp order deterministically by createdAt",
+        "Room messages order primarily by wire timestamp",
+        "Room message deduplication",
+        "Cleanup duplicate remote node sessions keeps target and deletes others"
+      ]
+    },
+    {
       "id": "persistence-original-restored-hop-order-path-predicates",
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
