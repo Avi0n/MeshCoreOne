@@ -104,8 +104,19 @@ abstract class NativeAccessibilityHarness {
     }
 
     protected fun assertFont200Unclipped(node: SemanticsNodeInteraction) {
-        val layout = font200Layout(node)
-        assertFalse("Native text overflows: ${layout.layoutInput.text}", layout.hasVisualOverflow)
+        assertUnclippedContent(font200Layout(node))
+    }
+
+    protected fun assertUnclippedContent(layout: TextLayoutResult) {
+        assertFalse("Native text was truncated: ${layout.layoutInput.text}", layout.multiParagraph.didExceedMaxLines)
+        // The paragraph can retain its parent's maximum width after Text shrink-wraps. Check the actual lines, not that allocation.
+        for (line in 0 until layout.lineCount) {
+            assertFalse("Native line $line was ellipsized", layout.isLineEllipsized(line))
+            assertTrue("Native line $line clips horizontally: ${layout.layoutInput.text}",
+                layout.getLineLeft(line) >= 0f && layout.getLineRight(line) <= layout.size.width)
+            assertTrue("Native line $line clips vertically: ${layout.layoutInput.text}",
+                layout.getLineTop(line) >= 0f && layout.getLineBottom(line) <= layout.size.height)
+        }
     }
 
     protected fun assertVisibleClickTargetsAtLeast48Dp(): Int {
@@ -195,7 +206,7 @@ abstract class NativeAccessibilityHarness {
         }
     }
 
-    protected fun textPaintSummary(node: SemanticsNodeInteraction) {
+    protected fun assertFontPaintContainsInk(node: SemanticsNodeInteraction) {
         val bounds = node.fetchSemanticsNode().boundsInWindow
         val bitmap = nativeWindowBitmap()
         try {
@@ -210,8 +221,10 @@ abstract class NativeAccessibilityHarness {
                 colors[pixel] = (colors[pixel] ?: 0) + 1
             }
             val largest = requireNotNull(colors.maxByOrNull { it.value })
+            val ink = (right - left) * (bottom - top) - largest.value
             println("WP503_FONT_PAINT|label=${narrative(node.fetchSemanticsNode())}|bounds=$bounds" +
-                "|colors=${colors.size}|nonBackgroundPixels=${(right - left) * (bottom - top) - largest.value}")
+                "|colors=${colors.size}|nonBackgroundPixels=$ink")
+            assertTrue("No actual painted text within its native bounds", ink > 0)
         } finally {
             bitmap.recycle()
         }
