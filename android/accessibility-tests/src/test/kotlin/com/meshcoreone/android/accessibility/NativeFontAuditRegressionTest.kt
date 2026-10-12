@@ -1,11 +1,14 @@
 // AndroidOnly: WP-503 Reject genuine clipping without misclassifying shrink-wrapped native paragraph allocations.
 package com.meshcoreone.android.accessibility
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.style.TextAlign
@@ -76,15 +79,16 @@ class NativeFontAuditRegressionTest : NativeAccessibilityHarness() {
         content {
             MeshCoreTheme(motionScale = 0f) {
                 AuditSurface {
-                    Column {
-                        Text("clipped native text", Modifier.size(32.dp, 4.dp).testTag("font-paint-clipped"),
-                            style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+                    Box(Modifier.size(100.dp, 60.dp).clipToBounds()) {
+                        Text("No data was changed.", Modifier.requiredWidth(276.dp).testTag("font-paint-clipped"),
+                            style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
                     }
                 }
             }
         }
-        assertThrows(AssertionError::class.java) {
-            assertFont200PaintedUnclipped(compose.onNodeWithTag("font-paint-clipped"))
-        }
+        val node = compose.onNodeWithTag("font-paint-clipped")
+        assertTrue("This negative control is clipped by its actual ancestor, not maxLines", !textLayout(node).multiParagraph.didExceedMaxLines)
+        val failure = assertThrows(AssertionError::class.java) { assertFont200PaintedUnclipped(node) }
+        assertTrue(failure.message.orEmpty().contains("retain"))
     }
 }
