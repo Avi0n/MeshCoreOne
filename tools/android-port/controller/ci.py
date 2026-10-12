@@ -29,6 +29,7 @@ from controller.provision import provision
 from controller.runtime_inputs import verify_committed_inputs
 from controller.schema import decode_json, fields, load_json, positive_integer
 from controller.test_runner import run_suite
+from portmap import port_map
 
 TASK_GRAPH_GUARD = REPO / "tools" / "android-port" / "controller" / "verify_candidate_task_graph.gradle"
 
@@ -185,6 +186,8 @@ def preflight(state: dict, output: Path, *, local=False):
 
 
 def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None):
+    dispositions = port_map(load_manifest(REPO))
+    print(f"Verified Kotlin source dispositions and pinned provenance: {len(dispositions)} files", flush=True)
     if platform.python_version() != toolchain_lock()["python"]:
         raise PortError("Declared CI executor requires Python 3.12.4")
     environment = candidate_environment(state, local=local)
