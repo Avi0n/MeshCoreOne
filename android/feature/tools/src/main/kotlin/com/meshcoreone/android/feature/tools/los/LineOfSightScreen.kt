@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,6 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -285,7 +287,10 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
             Text(stringResource(AppToolsStrings.toolsLineOfSightPoints), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.weight(1f))
             if (state.isRelocating) {
-                OutlinedButton(onClick = { holder.setRelocatingPoint(null) }) {
+                OutlinedButton(
+                    onClick = { holder.setRelocatingPoint(null) },
+                    modifier = Modifier.heightIn(min = 48.dp),
+                ) {
                     Text(stringResource(AppToolsStrings.toolsLineOfSightCancel))
                 }
             }
@@ -300,6 +305,50 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
                 }
             }
             PointCard("B", state.pointB, PointID.POINT_B, state, holder)
+            if (state.repeatersWithLocation.isNotEmpty()) {
+                Text(
+                    stringResource(AppToolsStrings.toolsNodeDiscoveryRepeaters),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+                state.repeatersWithLocation.forEach { contact ->
+                    val selectedAs = state.selectionState[contact.id]?.selectedAs
+                    when (selectedAs) {
+                        PointID.POINT_A -> {
+                            Button(
+                                onClick = { holder.toggleContact(contact) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = ColorBlue,
+                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                ),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            ) {
+                                Text(contact.displayName)
+                            }
+                        }
+                        PointID.POINT_B -> {
+                            Button(
+                                onClick = { holder.toggleContact(contact) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = ColorGreen,
+                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                ),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            ) {
+                                Text(contact.displayName)
+                            }
+                        }
+                        else -> {
+                            OutlinedButton(
+                                onClick = { holder.toggleContact(contact) },
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            ) {
+                                Text(contact.displayName)
+                            }
+                        }
+                    }
+                }
+            }
             if (state.showsLongPressHint) {
                 Text(
                     stringResource(AppToolsStrings.toolsLineOfSightLongPressPointsHint),
