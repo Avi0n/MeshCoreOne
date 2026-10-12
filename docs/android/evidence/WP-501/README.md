@@ -14,6 +14,19 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Pending-maintenance original increment
 
+Actual clean5725f889d6966789a72ca8ea98c263d4c67db565/base d958 strict
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest --dependency-verification=strict --quiet`
+PASSED10discovered/10passed/0failures-errors-skips/all10 exact method identities.
+XML2026-10-12T14:41:33.966Z/native204b362682592030e35b3df260f2e5208b44f8bc/
+SHA2569e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba.
+All full original returned/persisted/nullable/independent radio/deletion/
+surviving UUID and exact-parent predicates execute on actual Room. Readiness
+PASS/zero notice normalizations/normal supported locks released/public records
+empty;29 input fingerprints/private raw XML/new receipt captured. Only ten new
+originals selected; both prior negative attempts retain zero discovery/credit.
+No prior selector replay/source-only/private certification/current hosted/
+fault rollback/queue/race/cancellation/mounted/API37/hardware/full audit credit.
+
 Ten complete new originals registered:1445/5133 proposals/184groups/83mandatory/
 0approved,101/135 PersistenceStore proposed/34remaining;85 qualified source-
 compared/new6+10 pending. Same producer reservation39->40 automatically
@@ -36,7 +49,7 @@ transaction/cascades/warmUp/save ordering read, not test-side cascades/save.
 Original two nil warmUp rows do not independently discriminate both purge
 implementations; original atomic titles are committed postconditions, not
 save-failure/rollback/race/cancellation/queue/mounted/API37/hardware proof.
-Ten-only strict native execution and independent source comparison pending;
+Ten-only strict native execution passed above; independent source comparison pending;
 all1435 incumbent native/vector/helper/identity fields retained, no replay.
 
 Actual initial clean1d4b11c004806dd414c8fa4679016ceee809eac0 ten-only
@@ -48,7 +61,7 @@ backupPageWithoutPreviewBlobs(radio,Long.MAX_VALUE,0), not a one-channel
 proxy or product edit. Also retain exact source parent UUID lookup through
 fetchDevice(device.id), not the distinct native RadioId overload that could
 find a replacement pairing. Other eight complete bodies unchanged; fresh
-corrected ten-only execution pending, no old XML/outcome relabel.
+corrected ten-only execution subsequently passed at5725, no old XML/outcome relabel.
 The6155056d1 launch was rejected before readiness/discovery because generated
 WP202 native hashes/actions had not been committed with the two corrected
 bodies. Zero native credit/no Gradle or hard-lock acquisition; persist the
@@ -121,7 +134,7 @@ unchanged selector was replayed for assignment/status or source-only reviews.
 
 | Issue | Repaired and bounded verification | Remaining |
 | --- | --- | --- |
-| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1445 proposals/184groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS each on its own receipt;85/135 qualified source-compared. | 34/135 persistence originals unprovided, new6+10 source comparisons/corrected ten-only execution and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
+| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1445 proposals/184groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS each on its own receipt;85/135 qualified source-compared. | 34/135 persistence originals unprovided, new6+10 source comparisons and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
 | [170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170) | Restored independent2s WiFi milestones/checked elapsed helper; historical906df6fb52App+37protocol PASS and bounded qualified source comparison. | Current PR165 exact verification/reviewed persistent merge; no present hardware/global certification. |
 | [171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171) | Original populated1A2B3C route restored; historical7a98f99d13 model identities PASS and qualified source review, not new native replay. | Current reviewed PR165 merge/full acceptance; historical model result not new candidate execution. |
 | [172](https://github.com/cbattlegear/MeshCoreOne-Android/issues/172) | Restored18 URL/coordinate/scalar original predicates; historical6e98b6e460 chats PASS/all57 original identities and bounded source comparison. | Current reviewed PR165 merge/full audit, not universal Unicode/device certification. |

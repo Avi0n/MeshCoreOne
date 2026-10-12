@@ -1,12 +1,20 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual clean5725/base d958 ten-only10PASS/0bad/all10 identities,
+XML14:41:33.966Z/native204b3626/SHA9e9802aa/29 fingerprints/private raw XML.
+All required nil/positive/independent radio/first-second return/forbidden UUID/
+full-radio emptiness/exact parent/surviving Contact2 membership predicates
+execute; readiness PASS/zero notices/normal supported locks released.
+Both first1d4 compile and615 dirty-generated preflight negatives stay zero
+credit; no old native replay/source/hosted/mounted/API37/full acceptance.
+
 Next ten complete pending-maintenance/cascade originals registered:
 1445/5133 proposals/184groups/83mandatory/0approved;101/135 PersistenceStore/
 34remaining,85 qualified source-compared/new6+10 pending. Ten bodies/joins/
 290helperrows/29inputs, all original nil/zero/positive attempts/independent
 returns/identity membership/parent-preservation/survivor counts retained.
 Same reservation40; only ten-new selector prepared, no old native replay.
-Native execution/source comparison pending, real-store committed predicates
+Native execution passed above/source comparison pending, real-store committed predicates
 not fault-injection/queue/mounted/API37/hardware certification.
 
 Initial clean1d4 ten-only compile failed at nonexistent fetchAllMessages,
