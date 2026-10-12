@@ -1,5 +1,28 @@
 # WP-501 source, case-family and consumer acceptance
 
+Ten complete contact/channel/sender deletion originals are newly registered:
+1478/5133 proposals/189groups/83mandatory/0approved,134/135 persistence
+proposed/one phone-clamp original unprovided. Qualified independent
+SOURCE-ONLY comparison remains106/135/29uncompared. All1468 incumbent
+complete bindings are unchanged; ten new bodies/joins have50 declared
+input fingerprints each. Same durable producer reservation44->45 admits
+only the unique core-data friend-access test path, not product ownership.
+Fresh strict ten-only execution and independent comparison are pending.
+Original early/late callbacks, single-message cascade, absent-parent cleanup,
+three-channel/sender inputs, fresh queued RX zero-before/fault/matchingID/
+finalflush and channel rollback followed by actual sibling piggyback retain
+all source predicates. Faults use staged AFTER DELETE FAIL/outer Room
+rollback, not a pre-mutation BEFORE trigger. Exact fixture substitutions and
+native/source engine differences are disclosed in the proposal/deviation.
+
+Actual public e888 three-result intake6128579048 preserves the PR template
+and returned head/body. Normal exact push succeeded; the installed advisory
+shared Gradle queue exceeded10s, so e888 local fast check is UNVERIFIED:
+Python/preflight/scaffold/inspect did not run there. No hook bypass,
+unchanged-native replay, predecessor green relabel or current hosted claim.
+
+Historical three-only outcome:
+
 Three complete channel-reaction/database warm-up originals registered:
 1468/5133/188groups/83mandatory/0approved,124/135 persistence proposed/
 11unprovided versus106/135 qualified source-compared/29uncompared.

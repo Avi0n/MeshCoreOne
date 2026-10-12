@@ -14389,6 +14389,7 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/DeviceContactSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/MessageSourceTest.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
@@ -34464,6 +34465,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
@@ -34481,6 +34486,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
@@ -34498,6 +34507,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
@@ -34557,6 +34570,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
@@ -34574,6 +34591,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
@@ -34591,6 +34612,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
@@ -34608,6 +34633,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
@@ -34835,6 +34864,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
@@ -34873,6 +34906,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
@@ -34890,6 +34927,10 @@
         {
           "kind": "candidate-case-marker",
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt"
+        },
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt"
         }
       ],
       "acceptance": "independent-family-review-required"
