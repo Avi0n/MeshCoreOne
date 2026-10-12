@@ -11,7 +11,7 @@ from .errors import PortError
 FIXTURE = "com.meshcoreone.android.benchmarktarget.WorkloadActivity"
 
 
-def verify_manifest(badging: str, tree: str, *, benchmark: bool):
+def verify_manifest(badging: str, tree: str, *, benchmark: bool, profile_source: bool = False):
     package = "com.meshcoreone.android" + (".benchmark" if benchmark else "")
     if not re.search(r"^package: name='" + re.escape(package) + r"'", badging, re.MULTILINE):
         raise PortError("WP-504 APK package mismatch")
@@ -28,8 +28,16 @@ def verify_manifest(badging: str, tree: str, *, benchmark: bool):
         profileable = re.search(r"E: profileable.*?(?=\n\s*E:|\Z)", tree, re.DOTALL)
         if not profileable or not re.search(r"android:shell[^=\n]*=.*0xffffffff", profileable.group()):
             raise PortError("Benchmark target is not shell-profileable")
-    elif FIXTURE in tree or "E: profileable" in tree:
+        metadata = re.findall(r"E: meta-data.*?(?=\n\s*E:|\Z)", tree, re.DOTALL)
+        identities = [element for element in metadata if '"wp504.profileSource"' in element]
+        expected = "0xffffffff" if profile_source else "0x0"
+        if len(identities) != 1 or not re.search(
+                r"android:value[^=\n]*=.*\(type 0x12\)" + expected + r"(?:\s|$)", identities[0]):
+            raise PortError("Missing/wrong typed profile-source variant identity")
+    elif FIXTURE in tree or "E: profileable" in tree or "wp504.profileSource" in tree:
         raise PortError("Test fixture/profileable overlay leaked into release")
+    elif re.search(r"android:testOnly[^=\n]*=.*0xffffffff", tree):
+        raise PortError("Ordinary release must not be test-only")
     return {"package": package, "min_sdk": 31, "target_sdk": 37, "debuggable": False}
 
 
@@ -59,6 +67,7 @@ def verify_build(repo: Path, sdk: Path, environment: dict):
             dump("badging", str(apks[0])),
             dump("xmltree", str(apks[0]), "--file", "AndroidManifest.xml"),
             benchmark=variant != "release",
+            profile_source=variant == "profile",
         )
         alignment = inspect_alignment(apks[0], sdk, environment, windows=windows)
         if not any(name.endswith("/libmaplibre.so") for name in alignment["elf_pt_load_alignment"]):

@@ -20,6 +20,8 @@ class PerformanceVerificationTests(unittest.TestCase):
             "  A: android:testOnly(0x01010272)=(type 0x12)0xffffffff\n"
             "  E: profileable\n    A: android:shell(0x0101056a)=(type 0x12)0xffffffff\n"
             "  E: activity\n    A: android:name=\"" + FIXTURE + "\"\n"
+            "  E: meta-data\n    A: android:name=\"wp504.profileSource\"\n"
+            "    A: android:value(0x01010024)=(type 0x12)0x0\n"
         )
 
     def test_actual_declared_benchmark_build_tasks(self):
@@ -58,3 +60,22 @@ class PerformanceVerificationTests(unittest.TestCase):
     def test_plain_release_is_not_claimed_profileable(self):
         result = verify_manifest(self.badging(False), "E: application\n", benchmark=False)
         self.assertEqual(result["package"], "com.meshcoreone.android")
+
+    def test_profile_collection_variant_has_true_typed_identity(self):
+        tree = self.tree().replace("0x01010024)=(type 0x12)0x0", "0x01010024)=(type 0x12)0xffffffff")
+        verify_manifest(self.badging(), tree, benchmark=True, profile_source=True)
+        with self.assertRaisesRegex(PortError, "variant identity"):
+            verify_manifest(self.badging(), tree, benchmark=True)
+
+    def test_missing_variant_identity_rejected(self):
+        with self.assertRaisesRegex(PortError, "variant identity"):
+            verify_manifest(self.badging(), self.tree().replace("wp504.profileSource", "unrelated"), benchmark=True)
+
+    def test_string_instead_of_boolean_identity_rejected(self):
+        with self.assertRaisesRegex(PortError, "variant identity"):
+            verify_manifest(self.badging(), self.tree().replace("(type 0x12)0x0\n", '"false"\n'), benchmark=True)
+
+    def test_test_only_release_rejected(self):
+        with self.assertRaisesRegex(PortError, "test-only"):
+            verify_manifest(self.badging(False),
+                "E: application\n A: android:testOnly(0x01010272)=(type 0x12)0xffffffff\n", benchmark=False)
