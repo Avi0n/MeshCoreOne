@@ -959,7 +959,7 @@
       "native_contracts": [
         {
           "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/ToolsDiagnosticsScreen.kt",
-          "sha256": "627c57a25da80aa7654e65826467594fd3e7a7aa5607b0d07a716bbf07c0c0f5",
+          "sha256": "f54537109326b50cdbfd1cf54d33bf4e7252a8e870c21b8fa3a236aec530f92a",
           "source_references": [
             "MC1/Views/Tools/CLI/CLITerminalView.swift",
             "MC1/Views/Tools/CLI/CLIToolView.swift",
@@ -969,58 +969,58 @@
           "methods": [
             {
               "name": "ToolsDiagnosticsScreen",
-              "line": 109,
-              "end_line": 142
+              "line": 110,
+              "end_line": 143
             },
             {
               "name": "CliScreen",
-              "line": 146,
-              "end_line": 259
+              "line": 147,
+              "end_line": 260
             },
             {
               "name": "RxLogScreen",
-              "line": 262,
-              "end_line": 376
+              "line": 263,
+              "end_line": 377
             },
             {
               "name": "FilterRows",
-              "line": 379,
-              "end_line": 403
+              "line": 380,
+              "end_line": 404
             },
             {
               "name": "NoiseFloorScreen",
-              "line": 406,
-              "end_line": 449
+              "line": 407,
+              "end_line": 453
             },
             {
               "name": "CurrentNoiseCard",
-              "line": 452,
-              "end_line": 466
+              "line": 456,
+              "end_line": 470
             },
             {
               "name": "NoiseChart",
-              "line": 469,
-              "end_line": 526
+              "line": 473,
+              "end_line": 530
             },
             {
               "name": "x",
-              "line": 503,
-              "end_line": 503
+              "line": 507,
+              "end_line": 507
             },
             {
               "name": "y",
-              "line": 504,
-              "end_line": 505
+              "line": 508,
+              "end_line": 509
             },
             {
               "name": "NoiseStatistics",
-              "line": 529,
-              "end_line": 542
+              "line": 533,
+              "end_line": 546
             },
             {
               "name": "DiagnosticMessage",
-              "line": 545,
-              "end_line": 550
+              "line": 549,
+              "end_line": 554
             }
           ]
         },
@@ -1189,7 +1189,7 @@
       "native_contracts": [
         {
           "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/ToolsDiagnosticsScreen.kt",
-          "sha256": "627c57a25da80aa7654e65826467594fd3e7a7aa5607b0d07a716bbf07c0c0f5",
+          "sha256": "f54537109326b50cdbfd1cf54d33bf4e7252a8e870c21b8fa3a236aec530f92a",
           "source_references": [
             "MC1/Views/Tools/CLI/CLITerminalView.swift",
             "MC1/Views/Tools/CLI/CLIToolView.swift",
@@ -1199,58 +1199,58 @@
           "methods": [
             {
               "name": "ToolsDiagnosticsScreen",
-              "line": 109,
-              "end_line": 142
+              "line": 110,
+              "end_line": 143
             },
             {
               "name": "CliScreen",
-              "line": 146,
-              "end_line": 259
+              "line": 147,
+              "end_line": 260
             },
             {
               "name": "RxLogScreen",
-              "line": 262,
-              "end_line": 376
+              "line": 263,
+              "end_line": 377
             },
             {
               "name": "FilterRows",
-              "line": 379,
-              "end_line": 403
+              "line": 380,
+              "end_line": 404
             },
             {
               "name": "NoiseFloorScreen",
-              "line": 406,
-              "end_line": 449
+              "line": 407,
+              "end_line": 453
             },
             {
               "name": "CurrentNoiseCard",
-              "line": 452,
-              "end_line": 466
+              "line": 456,
+              "end_line": 470
             },
             {
               "name": "NoiseChart",
-              "line": 469,
-              "end_line": 526
+              "line": 473,
+              "end_line": 530
             },
             {
               "name": "x",
-              "line": 503,
-              "end_line": 503
+              "line": 507,
+              "end_line": 507
             },
             {
               "name": "y",
-              "line": 504,
-              "end_line": 505
+              "line": 508,
+              "end_line": 509
             },
             {
               "name": "NoiseStatistics",
-              "line": 529,
-              "end_line": 542
+              "line": 533,
+              "end_line": 546
             },
             {
               "name": "DiagnosticMessage",
-              "line": 545,
-              "end_line": 550
+              "line": 549,
+              "end_line": 554
             }
           ]
         },
@@ -2422,7 +2422,7 @@
       "native_contracts": [
         {
           "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/ToolsDiagnosticsScreen.kt",
-          "sha256": "627c57a25da80aa7654e65826467594fd3e7a7aa5607b0d07a716bbf07c0c0f5",
+          "sha256": "f54537109326b50cdbfd1cf54d33bf4e7252a8e870c21b8fa3a236aec530f92a",
           "source_references": [
             "MC1/Views/Tools/CLI/CLITerminalView.swift",
             "MC1/Views/Tools/CLI/CLIToolView.swift",
@@ -2432,58 +2432,58 @@
           "methods": [
             {
               "name": "ToolsDiagnosticsScreen",
-              "line": 109,
-              "end_line": 142
+              "line": 110,
+              "end_line": 143
             },
             {
               "name": "CliScreen",
-              "line": 146,
-              "end_line": 259
+              "line": 147,
+              "end_line": 260
             },
             {
               "name": "RxLogScreen",
-              "line": 262,
-              "end_line": 376
+              "line": 263,
+              "end_line": 377
             },
             {
               "name": "FilterRows",
-              "line": 379,
-              "end_line": 403
+              "line": 380,
+              "end_line": 404
             },
             {
               "name": "NoiseFloorScreen",
-              "line": 406,
-              "end_line": 449
+              "line": 407,
+              "end_line": 453
             },
             {
               "name": "CurrentNoiseCard",
-              "line": 452,
-              "end_line": 466
+              "line": 456,
+              "end_line": 470
             },
             {
               "name": "NoiseChart",
-              "line": 469,
-              "end_line": 526
+              "line": 473,
+              "end_line": 530
             },
             {
               "name": "x",
-              "line": 503,
-              "end_line": 503
+              "line": 507,
+              "end_line": 507
             },
             {
               "name": "y",
-              "line": 504,
-              "end_line": 505
+              "line": 508,
+              "end_line": 509
             },
             {
               "name": "NoiseStatistics",
-              "line": 529,
-              "end_line": 542
+              "line": 533,
+              "end_line": 546
             },
             {
               "name": "DiagnosticMessage",
-              "line": 545,
-              "end_line": 550
+              "line": 549,
+              "end_line": 554
             }
           ]
         },
@@ -2637,7 +2637,7 @@
       "native_contracts": [
         {
           "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/ToolsDiagnosticsScreen.kt",
-          "sha256": "627c57a25da80aa7654e65826467594fd3e7a7aa5607b0d07a716bbf07c0c0f5",
+          "sha256": "f54537109326b50cdbfd1cf54d33bf4e7252a8e870c21b8fa3a236aec530f92a",
           "source_references": [
             "MC1/Views/Tools/CLI/CLITerminalView.swift",
             "MC1/Views/Tools/CLI/CLIToolView.swift",
@@ -2647,58 +2647,58 @@
           "methods": [
             {
               "name": "ToolsDiagnosticsScreen",
-              "line": 109,
-              "end_line": 142
+              "line": 110,
+              "end_line": 143
             },
             {
               "name": "CliScreen",
-              "line": 146,
-              "end_line": 259
+              "line": 147,
+              "end_line": 260
             },
             {
               "name": "RxLogScreen",
-              "line": 262,
-              "end_line": 376
+              "line": 263,
+              "end_line": 377
             },
             {
               "name": "FilterRows",
-              "line": 379,
-              "end_line": 403
+              "line": 380,
+              "end_line": 404
             },
             {
               "name": "NoiseFloorScreen",
-              "line": 406,
-              "end_line": 449
+              "line": 407,
+              "end_line": 453
             },
             {
               "name": "CurrentNoiseCard",
-              "line": 452,
-              "end_line": 466
+              "line": 456,
+              "end_line": 470
             },
             {
               "name": "NoiseChart",
-              "line": 469,
-              "end_line": 526
+              "line": 473,
+              "end_line": 530
             },
             {
               "name": "x",
-              "line": 503,
-              "end_line": 503
+              "line": 507,
+              "end_line": 507
             },
             {
               "name": "y",
-              "line": 504,
-              "end_line": 505
+              "line": 508,
+              "end_line": 509
             },
             {
               "name": "NoiseStatistics",
-              "line": 529,
-              "end_line": 542
+              "line": 533,
+              "end_line": 546
             },
             {
               "name": "DiagnosticMessage",
-              "line": 545,
-              "end_line": 550
+              "line": 549,
+              "end_line": 554
             }
           ]
         },

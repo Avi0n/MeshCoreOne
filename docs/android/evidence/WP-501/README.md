@@ -4,13 +4,34 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
+Current integrated base: `b621ed186b32f024dc4c7ddbdc60d18a449343f9`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
+
+## Actual main b621 integration and owner preservation
+
+Fetched actual origin/main b621ed186b32f024dc4c7ddbdc60d18a449343f9,
+parents d958471ab4835813881a5e7af36e8249a8b273a4/
+29c9b530d9da9312dc1306c3d84c8d783cf4fc05; actual merged
+[PR216](https://github.com/cbattlegear/MeshCoreOne-Android/pull/216)
+state/merge identity/time returned and read. Only landed WP316
+ToolsDiagnosticsScreen/noise-statistics and its deviation are integrated,
+both exact main blobs retained. Same durable typed reservation46->47
+automatically admitted disjoint merge-integration paths; actual local
+merge49d18b3e11420289fcbe002ed30cb87c0732ebd1 preserves producer attribution.
+Only affected owned WP316 generated provenance changes; all1479 complete
+source/native/helper/vector/runner bindings unchanged.
+
+Historical d958 executions, contexts and negatives remain immutable;
+integrating landed UI bytes does not replay or certify them at b621.
+Coordinator reports selected hosted38277362005/source-native5493735210/
+issue214 closure; this producer did not read those full logs here.
+No own device/large-font/hosted certification is inferred from merge status.
+Fresh final phone-clamp-only execution will bind to actual b621 successor.
 
 ## Final phone-clamp original: fresh execution pending
 

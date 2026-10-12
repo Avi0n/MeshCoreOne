@@ -1,5 +1,11 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual main b621/PR216 is integrated via same typed reservation46->47 and
+merge49d18b3e, retaining exact landed WP316 producer bytes on both paths.
+All1479 complete bindings unchanged; only affected generated WP316
+whole-file provenance refreshes. Historical d958 results stay historical,
+no unchanged7/8/3/10 replay or claimed source/hosted/device certification.
+
 Final phone-clamp original registered:1479/5133 proposals/190groups/
 83mandatory/0approved,135/135 persistence originals proposed/zero unprovided,
 NOT135 accepted. Qualified independent source-only remains106/135/
