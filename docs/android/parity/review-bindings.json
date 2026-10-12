@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "48a88af3ac95c357f99c436970280b0d43644c71822be0b4aa53646ad8e0c782",
+  "proposal_sha256": "86e1b0143872c384698d5c6980cde351208590b94a5b2917f8faff083c13662f",
   "families": [
     {
       "group": "backup-envelope",
@@ -51977,6 +51977,1767 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "persistence-original-restored-independent-predicates",
+      "comparison_sha256": "1e720c63869741a363e99e35402e9d27b1552272238c8588091223d73d3b2813",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Fetch contact by public key()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "413d5e25d5592cdb49fc4bcd763be1fc8381a0ab2e18c72b6d50a931743d2642",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 489,
+          "expression": "#expect(contact != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 490,
+          "expression": "#expect(contact?.name == \"Bob\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb",
+        "class": "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "method_or_family_name": "publicKeyLookupRetainsTheOriginalBobPredicate",
+        "line": 48,
+        "end_line": 57,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "0ca31cf9080268d968c9d21b29adf3ddfca9b561bd35f590739799ad70c67ce2",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNotNull",
+            "line": 55,
+            "expression": "assertNotNull(fetched)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 56,
+            "expression": "assertEquals(\"Bob\", fetched.name)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 49,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 50,
+            "expression": "store.saveDevice(device)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 51,
+            "expression": "frame(\"Bob\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 52,
+            "expression": "store.saveContact(device.radioId, frame)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 54,
+            "expression": "store.fetchContact(device.radioId, frame.publicKey)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Fetch contact by public key()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+          "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "publicKeyLookupRetainsTheOriginalBobPredicate"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-independent-predicates",
+      "comparison_sha256": "1e720c63869741a363e99e35402e9d27b1552272238c8588091223d73d3b2813",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Set contact muted()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "ffe4b76251d68e04eba1a0e30bc77f56e5d1942533d9741e165783ad683cf331",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3675,
+          "expression": "#expect(contact?.isMuted == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3680,
+          "expression": "#expect(contact?.isMuted == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3685,
+          "expression": "#expect(contact?.isMuted == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb",
+        "class": "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "method_or_family_name": "mutingRetainsTheInitialFalseAndBothOriginalTransitions",
+        "line": 162,
+        "end_line": 173,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "3d7bb5d1749096bae6259cdb9090dfda4a4e7c5a44e61ea0052da75abe5652c7",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertFalse",
+            "line": 168,
+            "expression": "assertFalse(assertNotNull(store.fetchContact(key)).isMuted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 168,
+            "expression": "assertNotNull(store.fetchContact(key))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 170,
+            "expression": "assertTrue(assertNotNull(store.fetchContact(key)).isMuted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 170,
+            "expression": "assertNotNull(store.fetchContact(key))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 172,
+            "expression": "assertFalse(assertNotNull(store.fetchContact(key)).isMuted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 172,
+            "expression": "assertNotNull(store.fetchContact(key))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 163,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 164,
+            "expression": "store.saveDevice(device)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 165,
+            "expression": "store.saveContact(device.radioId, frame(\"Alice\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 165,
+            "expression": "frame(\"Alice\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 166,
+            "expression": "EntityKey(device.radioId, id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 168,
+            "expression": "store.fetchContact(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.setContactMuted",
+            "line": 169,
+            "expression": "store.setContactMuted(key, true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 170,
+            "expression": "store.fetchContact(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.setContactMuted",
+            "line": 171,
+            "expression": "store.setContactMuted(key, false)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 172,
+            "expression": "store.fetchContact(key)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Set contact muted()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+          "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "mutingRetainsTheInitialFalseAndBothOriginalTransitions"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-independent-predicates",
+      "comparison_sha256": "1e720c63869741a363e99e35402e9d27b1552272238c8588091223d73d3b2813",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::deleteContactIfUnreferenced skips when messages exist and deletes when none()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "ea79a7fdcf8a8a989bae9b5ccf86dcf01dc012a0f755c73a803af68e3281962c",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3146,
+          "expression": "#expect(try await store.fetchContact(id: withMessagesID) != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3147,
+          "expression": "#expect(try await store.fetchMessages(contactID: withMessagesID, limit: 10, offset: 0).count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3153,
+          "expression": "#expect(try await store.fetchContact(id: bareID) == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb",
+        "class": "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "method_or_family_name": "aDistinctBareContactIsRemovedWithoutDeletingReferencedHistory",
+        "line": 83,
+        "end_line": 99,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "b404f56a4163a9e6157e85fce75d4de59228b818833e846152a815226cfa955c",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNotNull",
+            "line": 93,
+            "expression": "assertNotNull(store.fetchContact(referenced))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 94,
+            "expression": "assertEquals(1, store.fetchMessages(referenced, 10, 0).size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 98,
+            "expression": "assertNull(store.fetchContact(EntityKey(device.radioId, bare)))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 84,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 85,
+            "expression": "store.saveDevice(device)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 86,
+            "expression": "store.saveContact(device.radioId, frame(\"WithMsgs\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 86,
+            "expression": "frame(\"WithMsgs\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 87,
+            "expression": "store.saveMessage(MessageDTO(\n            radioId = device.radioId, contactID = withMessages, text = \"keep\",\n            timestamp = Instant.now().epochSecond.toUInt(),\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 87,
+            "expression": "MessageDTO(\n            radioId = device.radioId, contactID = withMessages, text = \"keep\",\n            timestamp = Instant.now().epochSecond.toUInt(),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 89,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 89,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 91,
+            "expression": "EntityKey(device.radioId, withMessages)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteContactIfUnreferenced",
+            "line": 92,
+            "expression": "store.deleteContactIfUnreferenced(referenced)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 93,
+            "expression": "store.fetchContact(referenced)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 94,
+            "expression": "store.fetchMessages(referenced, 10, 0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 96,
+            "expression": "store.saveContact(device.radioId, frame(\"Bare\", key(0x45)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 96,
+            "expression": "frame(\"Bare\", key(0x45))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 96,
+            "expression": "key(0x45)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteContactIfUnreferenced",
+            "line": 97,
+            "expression": "store.deleteContactIfUnreferenced(EntityKey(device.radioId, bare))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 97,
+            "expression": "EntityKey(device.radioId, bare)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 98,
+            "expression": "store.fetchContact(EntityKey(device.radioId, bare))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 98,
+            "expression": "EntityKey(device.radioId, bare)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::deleteContactIfUnreferenced skips when messages exist and deletes when none()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+          "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "aDistinctBareContactIsRemovedWithoutDeletingReferencedHistory"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-independent-predicates",
+      "comparison_sha256": "1e720c63869741a363e99e35402e9d27b1552272238c8588091223d73d3b2813",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::deleteContacts removes matching rows in one pass()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "5f4d0cfe0d379440e20870009ad1f3be77f5b004541dcb9008efe0bac9b7700a",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 2068,
+          "expression": "#expect(Set(deleted) == [savedA.id, savedB.id])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 2069,
+          "expression": "#expect(try await store.fetchContact(id: savedA.id) == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 2070,
+          "expression": "#expect(try await store.fetchContact(id: savedB.id) == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 2071,
+          "expression": "#expect(try await store.fetchMessages(contactID: savedA.id, limit: 10, offset: 0).isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb",
+        "class": "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "method_or_family_name": "aSingleBatchDeletesBothOriginalContactKeysAndTheirMessage",
+        "line": 60,
+        "end_line": 80,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "2940f42ab0bb7f5e2a04cf1e269a16444302080f27cb00770ba32e1e911e7cc9",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 76,
+            "expression": "assertEquals(setOf(a, b), deleted.toSet())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 77,
+            "expression": "assertNull(store.fetchContact(EntityKey(device.radioId, a)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 78,
+            "expression": "assertNull(store.fetchContact(EntityKey(device.radioId, b)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 79,
+            "expression": "assertTrue(store.fetchMessages(EntityKey(device.radioId, a), 10, 0).isEmpty())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 61,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 62,
+            "expression": "store.saveDevice(device)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 63,
+            "expression": "key(0xA1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 64,
+            "expression": "key(0xA2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 65,
+            "expression": "store.saveContact(device.radioId, ContactFrame(\n            keyA, ContactType.CHAT, 0u, 0u, Bytes.EMPTY, \"A\", 1u, 0.0, 0.0, 1u,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactFrame",
+            "line": 65,
+            "expression": "ContactFrame(\n            keyA, ContactType.CHAT, 0u, 0u, Bytes.EMPTY, \"A\", 1u, 0.0, 0.0, 1u,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 68,
+            "expression": "store.saveContact(device.radioId, ContactFrame(\n            keyB, ContactType.CHAT, 0u, 0u, Bytes.EMPTY, \"B\", 1u, 0.0, 0.0, 1u,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactFrame",
+            "line": 68,
+            "expression": "ContactFrame(\n            keyB, ContactType.CHAT, 0u, 0u, Bytes.EMPTY, \"B\", 1u, 0.0, 0.0, 1u,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 71,
+            "expression": "store.saveMessage(MessageDTO(\n            radioId = device.radioId, contactID = a, text = \"gone\", timestamp = Instant.now().epochSecond.toUInt(),\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 71,
+            "expression": "MessageDTO(\n            radioId = device.radioId, contactID = a, text = \"gone\", timestamp = Instant.now().epochSecond.toUInt(),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 72,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 72,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteContacts",
+            "line": 75,
+            "expression": "store.deleteContacts(device.radioId, listOf(keyA, keyB).snapshotSet())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 75,
+            "expression": "listOf(keyA, keyB)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "snapshotSet",
+            "line": 75,
+            "expression": "snapshotSet()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "setOf",
+            "line": 76,
+            "expression": "setOf(a, b)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "deleted.toSet",
+            "line": 76,
+            "expression": "deleted.toSet()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 77,
+            "expression": "store.fetchContact(EntityKey(device.radioId, a))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 77,
+            "expression": "EntityKey(device.radioId, a)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 78,
+            "expression": "store.fetchContact(EntityKey(device.radioId, b))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 78,
+            "expression": "EntityKey(device.radioId, b)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 79,
+            "expression": "store.fetchMessages(EntityKey(device.radioId, a), 10, 0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 79,
+            "expression": "EntityKey(device.radioId, a)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 79,
+            "expression": "isEmpty()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::deleteContacts removes matching rows in one pass()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+          "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "aSingleBatchDeletesBothOriginalContactKeysAndTheirMessage"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-independent-predicates",
+      "comparison_sha256": "1e720c63869741a363e99e35402e9d27b1552272238c8588091223d73d3b2813",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::newestUnreadIncomingMessage returns the newest unread incoming only()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "4c1aaf235f1481e9a6701583b61a672ccf60b565467492c7337097c7407c466d",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3262,
+          "expression": "#expect(result?.id == newest)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3263,
+          "expression": "#expect(result?.text == \"new unread incoming\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb",
+        "class": "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "method_or_family_name": "newestUnreadSelectionRetainsTheOriginalRowIdentityAndText",
+        "line": 102,
+        "end_line": 127,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "48d28ba743d272561ad272ccd887045feb88c1bab4cec2b3c7511cb838c45771",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 125,
+            "expression": "assertEquals(newest, result?.id)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 126,
+            "expression": "assertEquals(\"new unread incoming\", result?.text)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 103,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 104,
+            "expression": "store.saveDevice(device)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 105,
+            "expression": "store.saveContact(device.radioId, frame(\"A\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 105,
+            "expression": "frame(\"A\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 106,
+            "expression": "store.saveContact(device.radioId, frame(\"B\", key(0x45)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 106,
+            "expression": "frame(\"B\", key(0x45))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 106,
+            "expression": "key(0x45)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 107,
+            "expression": "Instant.ofEpochSecond(1_700_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "save",
+            "line": 108,
+            "expression": "save(text: String, contact: UUID, direction: MessageDirection, read: Boolean, offset: Long)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "base.plusSeconds",
+            "line": 109,
+            "expression": "base.plusSeconds(offset)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 110,
+            "expression": "MessageDTO(\n                radioId = device.radioId, contactID = contact, text = text,\n                timestamp = date.epochSecond.toUInt(), createdAt = date, sortDate = date,\n                direction = direction, isRead = read,\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "date.epochSecond.toUInt",
+            "line": 112,
+            "expression": "date.epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 115,
+            "expression": "store.saveMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "save",
+            "line": 118,
+            "expression": "save(\"old unread incoming\", a, MessageDirection.INCOMING, false, 10)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "save",
+            "line": 119,
+            "expression": "save(\"new unread incoming\", a, MessageDirection.INCOMING, false, 30)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "save",
+            "line": 120,
+            "expression": "save(\"newer but read\", a, MessageDirection.INCOMING, true, 40)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "save",
+            "line": 121,
+            "expression": "save(\"newer but outgoing\", a, MessageDirection.OUTGOING, false, 50)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "save",
+            "line": 122,
+            "expression": "save(\"other contact unread\", b, MessageDirection.INCOMING, false, 60)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.newestUnreadIncomingMessage",
+            "line": 124,
+            "expression": "store.newestUnreadIncomingMessage(EntityKey(device.radioId, a))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 124,
+            "expression": "EntityKey(device.radioId, a)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::newestUnreadIncomingMessage returns the newest unread incoming only()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+          "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "newestUnreadSelectionRetainsTheOriginalRowIdentityAndText"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-independent-predicates",
+      "comparison_sha256": "1e720c63869741a363e99e35402e9d27b1552272238c8588091223d73d3b2813",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::reconcileGhostIdentity rewrites current device when ghost matches publicKey()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "cbecb024bacb7b3dc13df61dc56fe5760514702f0a2f394ae79eed08ae22c143",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3777,
+          "expression": "#expect(result == ghostRadioID, \"Expected the ghost's radioID to be returned\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3780,
+          "expression": "#expect(updated?.radioID == ghostRadioID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3781,
+          "expression": "#expect(updated?.publicKey == oldPublicKey)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3784,
+          "expression": "#expect(ghostLookup == nil, \"Ghost row should be deleted after reconciliation\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb",
+        "class": "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "method_or_family_name": "aDifferentCurrentKeyIsRewrittenToTheOriginalGhostPartition",
+        "line": 146,
+        "end_line": 159,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "0732e068bb110910cff1f77b0320f97aac8fdbe97a61ecc6191afd9fd52c25a3",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 154,
+            "expression": "assertEquals(ghost.radioId, store.reconcileGhostIdentity(current.id, ghost.publicKey))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 156,
+            "expression": "assertEquals(ghost.radioId, updated?.radioId)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 157,
+            "expression": "assertEquals(ghost.publicKey, updated?.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 158,
+            "expression": "assertNull(store.fetchDevice(ghost.id))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 147,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 147,
+            "expression": "copy(radioId = RadioId(UUID.randomUUID()), publicKey = key(0x11))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 147,
+            "expression": "RadioId(UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 147,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 147,
+            "expression": "key(0x11)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "device",
+            "line": 148,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 148,
+            "expression": "copy(\n            radioId = RadioId(UUID.randomUUID()), publicKey = key(0x22), isActive = true,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 149,
+            "expression": "RadioId(UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 149,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key",
+            "line": 149,
+            "expression": "key(0x22)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 151,
+            "expression": "store.saveDevice(ghost)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 152,
+            "expression": "store.saveDevice(current)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.reconcileGhostIdentity",
+            "line": 154,
+            "expression": "store.reconcileGhostIdentity(current.id, ghost.publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 155,
+            "expression": "store.fetchDevice(current.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 158,
+            "expression": "store.fetchDevice(ghost.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::reconcileGhostIdentity rewrites current device when ghost matches publicKey()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+          "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "aDifferentCurrentKeyIsRewrittenToTheOriginalGhostPartition"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-independent-predicates",
+      "comparison_sha256": "1e720c63869741a363e99e35402e9d27b1552272238c8588091223d73d3b2813",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::shared updateMessageStatusUnlessDelivered still remaps .failed to .pending for the offline queue()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "05e6eed7dad9e2ce77fdf8c958db93fd6debde6aa29161da17ea1e8b20ba23a9",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3993,
+          "expression": "#expect(remapped == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3994,
+          "expression": "#expect(try await store.fetchMessage(id: messageID)?.status == .pending)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3998,
+          "expression": "#expect(try await store.fetchMessage(id: messageID)?.status == .delivered)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb",
+        "class": "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "method_or_family_name": "offlineRecoveryPersistsPendingBeforeTheSeparateSuccessfulAck",
+        "line": 130,
+        "end_line": 143,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "00fd3c2b931e53cf1730cfebe58ff848c6c5c92572c8be274950fbd2c4ff5932",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 139,
+            "expression": "assertTrue(store.updateMessageStatusUnlessDelivered(key, MessageStatus.PENDING))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 140,
+            "expression": "assertEquals(MessageStatus.PENDING, store.fetchMessage(key)?.status)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 142,
+            "expression": "assertEquals(MessageStatus.DELIVERED, store.fetchMessage(key)?.status)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "RadioId",
+            "line": 131,
+            "expression": "RadioId(UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 131,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 132,
+            "expression": "MessageDTO(\n            radioId = radio, contactID = UUID.randomUUID(), text = \"Test message\",\n            timestamp = Instant.now().epochSecond.toUInt(), status = MessageStatus.FAILED,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 133,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 134,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 134,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 136,
+            "expression": "store.saveMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 137,
+            "expression": "EntityKey(radio, message.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateMessageStatusUnlessDelivered",
+            "line": 139,
+            "expression": "store.updateMessageStatusUnlessDelivered(key, MessageStatus.PENDING)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessage",
+            "line": 140,
+            "expression": "store.fetchMessage(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateMessageAck",
+            "line": 141,
+            "expression": "store.updateMessageAck(key, 0x1234_5678u, MessageStatus.DELIVERED)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessage",
+            "line": 142,
+            "expression": "store.fetchMessage(key)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::shared updateMessageStatusUnlessDelivered still remaps .failed to .pending for the offline queue()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+          "sha256": "cc4cf0526cb03af88ab5b52885b44633ff7a32ae7bc8f95aff30dff5edd550bb"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
+        "offlineRecoveryPersistsPendingBeforeTheSeparateSuccessfulAck"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "rf-original-returned-frequency-and-refraction-fields",
       "comparison_sha256": "3212b1561775bb20cd2ac5029f9589017c18d388a6ccd6b71f51c3d104d450ae",
       "source_file_family_count": 44,
@@ -70067,7 +71828,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
-      "comparison_sha256": "6eb24f4360a93dbed6380c0cb1143fb97f31029b99a35a37aa4cf89c4ba115bc",
+      "comparison_sha256": "e04c376e250a09b5ab813732b83ccf774c316facdfe842fd08ec89f7c3d2c0e5",
       "source_file_family_count": 22,
       "group_compared_family_count": 9,
       "partial_source_file": true,
@@ -70298,7 +72059,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-processForRepeatsMatchingTests",
-      "comparison_sha256": "e4efa54fdbd06b0c179e5fed112b33ccdce012217c076037a4d1ae5a54a83821",
+      "comparison_sha256": "63313061f6da20df2120e86ea192bd440e3c6b6f6e0aad26961a02040a166fcb",
       "source_file_family_count": 22,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -70565,7 +72326,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
-      "comparison_sha256": "6eb24f4360a93dbed6380c0cb1143fb97f31029b99a35a37aa4cf89c4ba115bc",
+      "comparison_sha256": "e04c376e250a09b5ab813732b83ccf774c316facdfe842fd08ec89f7c3d2c0e5",
       "source_file_family_count": 22,
       "group_compared_family_count": 9,
       "partial_source_file": true,
@@ -70820,7 +72581,7 @@
     },
     {
       "group": "reaction-service-original-heard-repeat-real-room-exact-text-disambiguation",
-      "comparison_sha256": "9b8e4f51dafe7ea43710e306d4067468d08bc22b6e074e9d5fb01a10d2d33c6e",
+      "comparison_sha256": "b0397b01295a8e7fdca30063e2b3f5e757357eed22832dfe3df07d1c468a4f87",
       "source_file_family_count": 22,
       "group_compared_family_count": 1,
       "partial_source_file": true,
@@ -71111,7 +72872,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
-      "comparison_sha256": "6eb24f4360a93dbed6380c0cb1143fb97f31029b99a35a37aa4cf89c4ba115bc",
+      "comparison_sha256": "e04c376e250a09b5ab813732b83ccf774c316facdfe842fd08ec89f7c3d2c0e5",
       "source_file_family_count": 22,
       "group_compared_family_count": 9,
       "partial_source_file": true,
@@ -71372,7 +73133,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
-      "comparison_sha256": "6eb24f4360a93dbed6380c0cb1143fb97f31029b99a35a37aa4cf89c4ba115bc",
+      "comparison_sha256": "e04c376e250a09b5ab813732b83ccf774c316facdfe842fd08ec89f7c3d2c0e5",
       "source_file_family_count": 22,
       "group_compared_family_count": 9,
       "partial_source_file": true,
@@ -71675,7 +73436,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
-      "comparison_sha256": "6eb24f4360a93dbed6380c0cb1143fb97f31029b99a35a37aa4cf89c4ba115bc",
+      "comparison_sha256": "e04c376e250a09b5ab813732b83ccf774c316facdfe842fd08ec89f7c3d2c0e5",
       "source_file_family_count": 22,
       "group_compared_family_count": 9,
       "partial_source_file": true,
@@ -71984,7 +73745,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
-      "comparison_sha256": "6eb24f4360a93dbed6380c0cb1143fb97f31029b99a35a37aa4cf89c4ba115bc",
+      "comparison_sha256": "e04c376e250a09b5ab813732b83ccf774c316facdfe842fd08ec89f7c3d2c0e5",
       "source_file_family_count": 22,
       "group_compared_family_count": 9,
       "partial_source_file": true,
@@ -72281,7 +74042,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
-      "comparison_sha256": "6eb24f4360a93dbed6380c0cb1143fb97f31029b99a35a37aa4cf89c4ba115bc",
+      "comparison_sha256": "e04c376e250a09b5ab813732b83ccf774c316facdfe842fd08ec89f7c3d2c0e5",
       "source_file_family_count": 22,
       "group_compared_family_count": 9,
       "partial_source_file": true,
@@ -72518,7 +74279,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
-      "comparison_sha256": "6eb24f4360a93dbed6380c0cb1143fb97f31029b99a35a37aa4cf89c4ba115bc",
+      "comparison_sha256": "e04c376e250a09b5ab813732b83ccf774c316facdfe842fd08ec89f7c3d2c0e5",
       "source_file_family_count": 22,
       "group_compared_family_count": 9,
       "partial_source_file": true,
@@ -72773,7 +74534,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-processForRepeatsMatchingTests",
-      "comparison_sha256": "e4efa54fdbd06b0c179e5fed112b33ccdce012217c076037a4d1ae5a54a83821",
+      "comparison_sha256": "63313061f6da20df2120e86ea192bd440e3c6b6f6e0aad26961a02040a166fcb",
       "source_file_family_count": 22,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -72992,7 +74753,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-processForRepeatsMatchingTests",
-      "comparison_sha256": "e4efa54fdbd06b0c179e5fed112b33ccdce012217c076037a4d1ae5a54a83821",
+      "comparison_sha256": "63313061f6da20df2120e86ea192bd440e3c6b6f6e0aad26961a02040a166fcb",
       "source_file_family_count": 22,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -73175,7 +74936,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
-      "comparison_sha256": "962717a2ac5b6ef02dc5672e06a85b7caf67781c15062e4374cc67b862d1e6d0",
+      "comparison_sha256": "c2cfa65124849ef56b1a84a085843d688c9859d6213495bbc2a5f435ac2c1639",
       "source_file_family_count": 22,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -73316,7 +75077,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
-      "comparison_sha256": "962717a2ac5b6ef02dc5672e06a85b7caf67781c15062e4374cc67b862d1e6d0",
+      "comparison_sha256": "c2cfa65124849ef56b1a84a085843d688c9859d6213495bbc2a5f435ac2c1639",
       "source_file_family_count": 22,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -73463,7 +75224,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
-      "comparison_sha256": "962717a2ac5b6ef02dc5672e06a85b7caf67781c15062e4374cc67b862d1e6d0",
+      "comparison_sha256": "c2cfa65124849ef56b1a84a085843d688c9859d6213495bbc2a5f435ac2c1639",
       "source_file_family_count": 22,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -73604,7 +75365,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
-      "comparison_sha256": "962717a2ac5b6ef02dc5672e06a85b7caf67781c15062e4374cc67b862d1e6d0",
+      "comparison_sha256": "c2cfa65124849ef56b1a84a085843d688c9859d6213495bbc2a5f435ac2c1639",
       "source_file_family_count": 22,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -73739,7 +75500,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
-      "comparison_sha256": "962717a2ac5b6ef02dc5672e06a85b7caf67781c15062e4374cc67b862d1e6d0",
+      "comparison_sha256": "c2cfa65124849ef56b1a84a085843d688c9859d6213495bbc2a5f435ac2c1639",
       "source_file_family_count": 22,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -73892,7 +75653,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
-      "comparison_sha256": "962717a2ac5b6ef02dc5672e06a85b7caf67781c15062e4374cc67b862d1e6d0",
+      "comparison_sha256": "c2cfa65124849ef56b1a84a085843d688c9859d6213495bbc2a5f435ac2c1639",
       "source_file_family_count": 22,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -74045,7 +75806,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
-      "comparison_sha256": "962717a2ac5b6ef02dc5672e06a85b7caf67781c15062e4374cc67b862d1e6d0",
+      "comparison_sha256": "c2cfa65124849ef56b1a84a085843d688c9859d6213495bbc2a5f435ac2c1639",
       "source_file_family_count": 22,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -74180,7 +75941,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
-      "comparison_sha256": "962717a2ac5b6ef02dc5672e06a85b7caf67781c15062e4374cc67b862d1e6d0",
+      "comparison_sha256": "c2cfa65124849ef56b1a84a085843d688c9859d6213495bbc2a5f435ac2c1639",
       "source_file_family_count": 22,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -74339,7 +76100,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-processForRepeatsMatchingTests",
-      "comparison_sha256": "e4efa54fdbd06b0c179e5fed112b33ccdce012217c076037a4d1ae5a54a83821",
+      "comparison_sha256": "63313061f6da20df2120e86ea192bd440e3c6b6f6e0aad26961a02040a166fcb",
       "source_file_family_count": 22,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -74570,7 +76331,7 @@
     },
     {
       "group": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
-      "comparison_sha256": "6eb24f4360a93dbed6380c0cb1143fb97f31029b99a35a37aa4cf89c4ba115bc",
+      "comparison_sha256": "e04c376e250a09b5ab813732b83ccf774c316facdfe842fd08ec89f7c3d2c0e5",
       "source_file_family_count": 22,
       "group_compared_family_count": 9,
       "partial_source_file": true,
@@ -101401,7 +103162,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-dmReactionTests",
-      "comparison_sha256": "fc5c044885d96a419487209add4f9e736a0a7e0f2e7dd2cffa5455b34f78f3f3",
+      "comparison_sha256": "aed48159b65583b30c1f402f286179e560887cf58b193dca04d2bbce5fd48036",
       "source_file_family_count": 19,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -101584,7 +103345,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-wireFormatTests",
-      "comparison_sha256": "dda94fd5c1fbbe2cf39e7df4694849677283c98444e5bce93d0f70dce44dea47",
+      "comparison_sha256": "241097a5f4a86819e0fc7583577d836eb46349003630d63f467eaf045bad401c",
       "source_file_family_count": 19,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -101761,7 +103522,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-wireFormatTests",
-      "comparison_sha256": "dda94fd5c1fbbe2cf39e7df4694849677283c98444e5bce93d0f70dce44dea47",
+      "comparison_sha256": "241097a5f4a86819e0fc7583577d836eb46349003630d63f467eaf045bad401c",
       "source_file_family_count": 19,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -101950,7 +103711,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-dmReactionTests",
-      "comparison_sha256": "fc5c044885d96a419487209add4f9e736a0a7e0f2e7dd2cffa5455b34f78f3f3",
+      "comparison_sha256": "aed48159b65583b30c1f402f286179e560887cf58b193dca04d2bbce5fd48036",
       "source_file_family_count": 19,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -102151,7 +103912,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-pendingQueueTests",
-      "comparison_sha256": "b82dedbdfc725822f58a3e5ba5dbfa5aec8217fb7de5002abf6280745eb41102",
+      "comparison_sha256": "eaee4b8e9306ffc4ec8513163cdb9bc579aa36e50c10a3d91aa79e943fbc540c",
       "source_file_family_count": 19,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -102346,7 +104107,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-dmReactionTests",
-      "comparison_sha256": "fc5c044885d96a419487209add4f9e736a0a7e0f2e7dd2cffa5455b34f78f3f3",
+      "comparison_sha256": "aed48159b65583b30c1f402f286179e560887cf58b193dca04d2bbce5fd48036",
       "source_file_family_count": 19,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -102541,7 +104302,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-dmReactionTests",
-      "comparison_sha256": "fc5c044885d96a419487209add4f9e736a0a7e0f2e7dd2cffa5455b34f78f3f3",
+      "comparison_sha256": "aed48159b65583b30c1f402f286179e560887cf58b193dca04d2bbce5fd48036",
       "source_file_family_count": 19,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -102748,7 +104509,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-dmReactionTests",
-      "comparison_sha256": "fc5c044885d96a419487209add4f9e736a0a7e0f2e7dd2cffa5455b34f78f3f3",
+      "comparison_sha256": "aed48159b65583b30c1f402f286179e560887cf58b193dca04d2bbce5fd48036",
       "source_file_family_count": 19,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -102967,7 +104728,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-dmReactionTests",
-      "comparison_sha256": "fc5c044885d96a419487209add4f9e736a0a7e0f2e7dd2cffa5455b34f78f3f3",
+      "comparison_sha256": "aed48159b65583b30c1f402f286179e560887cf58b193dca04d2bbce5fd48036",
       "source_file_family_count": 19,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -103114,7 +104875,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-wireFormatTests",
-      "comparison_sha256": "dda94fd5c1fbbe2cf39e7df4694849677283c98444e5bce93d0f70dce44dea47",
+      "comparison_sha256": "241097a5f4a86819e0fc7583577d836eb46349003630d63f467eaf045bad401c",
       "source_file_family_count": 19,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -103261,7 +105022,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-disambiguationTests",
-      "comparison_sha256": "dd87939a941a0a48a466864e22db7777ad277b7dce142933ca1311abb31e5b96",
+      "comparison_sha256": "a64b8421f53d457c419f337654107618c8e59257328bb9e4cc809579c147c5c3",
       "source_file_family_count": 19,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -103438,7 +105199,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-wireFormatTests",
-      "comparison_sha256": "dda94fd5c1fbbe2cf39e7df4694849677283c98444e5bce93d0f70dce44dea47",
+      "comparison_sha256": "241097a5f4a86819e0fc7583577d836eb46349003630d63f467eaf045bad401c",
       "source_file_family_count": 19,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -103585,7 +105346,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-pendingQueueTests",
-      "comparison_sha256": "b82dedbdfc725822f58a3e5ba5dbfa5aec8217fb7de5002abf6280745eb41102",
+      "comparison_sha256": "eaee4b8e9306ffc4ec8513163cdb9bc579aa36e50c10a3d91aa79e943fbc540c",
       "source_file_family_count": 19,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -103774,7 +105535,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-dmReactionTests",
-      "comparison_sha256": "fc5c044885d96a419487209add4f9e736a0a7e0f2e7dd2cffa5455b34f78f3f3",
+      "comparison_sha256": "aed48159b65583b30c1f402f286179e560887cf58b193dca04d2bbce5fd48036",
       "source_file_family_count": 19,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -103939,7 +105700,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-pendingQueueTests",
-      "comparison_sha256": "b82dedbdfc725822f58a3e5ba5dbfa5aec8217fb7de5002abf6280745eb41102",
+      "comparison_sha256": "eaee4b8e9306ffc4ec8513163cdb9bc579aa36e50c10a3d91aa79e943fbc540c",
       "source_file_family_count": 19,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -104158,7 +105919,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-pendingQueueTests",
-      "comparison_sha256": "b82dedbdfc725822f58a3e5ba5dbfa5aec8217fb7de5002abf6280745eb41102",
+      "comparison_sha256": "eaee4b8e9306ffc4ec8513163cdb9bc579aa36e50c10a3d91aa79e943fbc540c",
       "source_file_family_count": 19,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -104365,7 +106126,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-pendingQueueTests",
-      "comparison_sha256": "b82dedbdfc725822f58a3e5ba5dbfa5aec8217fb7de5002abf6280745eb41102",
+      "comparison_sha256": "eaee4b8e9306ffc4ec8513163cdb9bc579aa36e50c10a3d91aa79e943fbc540c",
       "source_file_family_count": 19,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -104584,7 +106345,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-disambiguationTests",
-      "comparison_sha256": "dd87939a941a0a48a466864e22db7777ad277b7dce142933ca1311abb31e5b96",
+      "comparison_sha256": "a64b8421f53d457c419f337654107618c8e59257328bb9e4cc809579c147c5c3",
       "source_file_family_count": 19,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -104773,7 +106534,7 @@
     },
     {
       "group": "reaction-service-original-reactionservice-disambiguationTests",
-      "comparison_sha256": "dd87939a941a0a48a466864e22db7777ad277b7dce142933ca1311abb31e5b96",
+      "comparison_sha256": "a64b8421f53d457c419f337654107618c8e59257328bb9e4cc809579c147c5c3",
       "source_file_family_count": 19,
       "group_compared_family_count": 3,
       "partial_source_file": true,

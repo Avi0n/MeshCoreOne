@@ -1,5 +1,30 @@
 # WP-501 source, case-family and consumer acceptance
 
+Current1351/5133 proposed original comparisons /175groups /81mandatory /
+zero fully approved behavioral acceptances restore seven persistence
+counterparts using real API31 Room/native SQLite/production store: Bob
+full-key lookup; both A1/A2 contacts deleted in one batch; distinct Bare
+deletion while WithMsgs retains history; newest unread UUID AND text;
+failed-to-pending persisted before ACK; genuinely different current-key
+ghost reconciliation; initial-false/mute/unmute transitions. Complete135
+frozen bodies and six incumbent aggregate classes were read for gaps,
+not accepted from annotations; remaining128 comparisons stay unresolved.
+Fixed reproducible key bytes replace source random keys, explicitly not
+universal randomness/identity or SwiftData/cancellation/device parity.
+Actual seven-name native execution is pending. Same reservation29->30
+admits the owned file/create without changing immutable authorization/pins.
+
+Qualified independent COMMENTED5488555439/a953/base185466/09:05:53Z
+source-only review is read and reconciled into the eight service groups/
+41 originals, including real Room fixture/DTO/SQL. All selected18 native
+inputs/eight complete groups/41 rows were independently unchanged9cad->a953.
+Actual e8a/basee508 service41/Room1 evidence and extra fake-case/no-duplicate
+credit remain separate; no private certification/native replay or global
+approval. Clock/tie/Unicode/cancellation/hash-golden/consumer limits and
+default189/incoming192/canonical196 failures remain unchanged.
+
+## Historical CLI-completion increment
+
 Current proposals1344/5133families/174groups/81mandatory/0approved add86
 complete CLICompletionEngine original bodies. All independent local/remote/
 node flags, vocabulary/membership/exclusions/arity/trailing spaces/nested

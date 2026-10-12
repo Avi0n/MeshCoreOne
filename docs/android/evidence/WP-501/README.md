@@ -29,7 +29,38 @@ passed native/oracles; this worker has not read the six authoritative logs
 and creates no second hosted-result bundle. Empty automatic193 green and
 producer local EOCD failure remain separate evidence.
 
-## Current CLI-completion originals and independent canonical-prefix gap
+## Current restored persistence original predicates
+
+Current1351/5133 proposed comparisons/175groups/81mandatory/zero fully
+approved behavioral acceptances add seven complete original counterparts.
+Exact annotated-method joins bind Bob public-key lookup, A1/A2 one-pass
+batch removal, distinct WithMsgs/Bare contact protection, all five original
+unread-selection rows with newest UUID AND text, stored pending before ACK,
+different-current-key ghost rewrite, initial-false mute/unmute transitions.
+All135 frozen bodies and six incumbent aggregate native classes were read
+for gap discovery; remaining128 are not credited from registrations.
+Actual inherited API31 Room/native SQLite/production store/teardown,
+selected source/native helpers/DTO/repository/SQL/consumer boundaries read.
+Fixed distinct fixture keys replace source random bytes explicitly; no
+universal identity/randomness/SwiftData/cancellation/API37/device/mounted
+notification/queue/advertisement proof. Seven-name strict native execution
+is pending; immutable older execution/input bindings remain unchanged.
+Supported reservation29->30 admits only canonical owned test/create.
+Initial missing partial-source marker failed semantic generation closed;
+corrected marker explicitly declares seven of135, not135 accepted families.
+
+Qualified independent source-only
+[#5488555439](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5488555439)
+COMMENTED/a953/base185466/2026-10-12T09:05:53Z was fully read/reconciled
+into eight service groups/41 originals, including real Room fixture/DTO/
+SQL versus frozen predicate. Complete groups/41 binding rows/18 selected
+native inputs were independently unchanged9cad->a953. Actual e8a/basee508
+private service41/Room1 evidence remains separate; extra fake-case credit
+stays zero. No native replay/private certification/global approval; all
+clock/tie/Unicode/cancellation/hash-golden/consumer limits and189/192/196
+failure histories remain mandatory.
+
+## Historical CLI-completion originals and independent canonical-prefix gap
 
 Current1344/5133 proposed families/174groups/81mandatory/0approved add86
 complete original/native CLICompletionEngine comparisons, exact independent
