@@ -1,11 +1,13 @@
 """AndroidOnly: WP-501 Source-backed assertion/input/action proposals, never name-based equivalence."""
 
+import argparse
 from collections import defaultdict
 import bisect
 import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 
 import audit
 from controller.errors import PortError
@@ -378,13 +380,14 @@ def native_units(repo):
     return by_name, files
 
 
-def proposals(repo=audit.REPO):
+def proposals(repo=audit.REPO, *, source_maps=None):
     reference = FrozenReference(repo)
     originals = load_json(repo_path(repo, audit.DETAILS))
     original_text = reference.read_many(row["path"] for row in originals["files"])
     native, native_files = native_units(repo)
     groups = defaultdict(lambda: {"sources": [], "families": []})
-    source_maps = load_json(repo_path(repo, audit.OUTPUT))
+    if source_maps is None:
+        source_maps = load_json(repo_path(repo, audit.OUTPUT))
     for source in source_maps["sources"]:
         owner = source["owner"] or "scope-exclusions"
         groups[owner]["sources"].append({
@@ -607,35 +610,40 @@ def verify_execution(bindings, android):
             for directory, identities in sorted(directories.items())}
 
 
-def generate(check=False, repo=audit.REPO):
-    groups = proposals(repo)
-    actual = {path.stem for path in repo_path(repo, GROUP_ROOT).glob("*.json")}
-    if actual - groups.keys():
-        raise PortError("Unaccounted semantic source group output")
-    for owner, value in groups.items():
-        write_or_check(repo_path(repo, f"{GROUP_ROOT}/{owner}.json"), json_bytes(value), check=check)
+def generate(check=False, repo=audit.REPO, *, verify=False):
+    groups = proposals(repo, source_maps=audit.generate(repo) if check else None)
+    if not check:
+        actual = {path.stem for path in repo_path(repo, GROUP_ROOT).glob("*.json")}
+        if actual - groups.keys():
+            raise PortError("Unaccounted semantic source group output")
+        for owner, value in groups.items():
+            write_or_check(repo_path(repo, f"{GROUP_ROOT}/{owner}.json"), json_bytes(value), check=False)
     bindings = bind_reviews(groups, repo)
-    write_or_check(repo_path(repo, REVIEW_BINDINGS), json_bytes(bindings), check=check)
-    return {"groups": len(groups),
-            "families": sum(len(value["families"]) for value in groups.values()),
-            "with_native_assertion_proposals": sum(bool(case["native_proposals"]) for value in groups.values()
-                                                  for case in value["families"]),
-            "candidate_semantically_compared_families": len(bindings["families"]),
-            "scope": "actual source/native assertion/input/action bodies; independent semantic review still required"}
+    if not check:
+        write_or_check(repo_path(repo, REVIEW_BINDINGS), json_bytes(bindings), check=False)
+    result = {"groups": len(groups),
+              "families": sum(len(value["families"]) for value in groups.values()),
+              "with_native_assertion_proposals": sum(bool(case["native_proposals"]) for value in groups.values()
+                                                    for case in value["families"]),
+              "candidate_semantically_compared_families": len(bindings["families"]),
+              "scope": "actual source/native assertion/input/action bodies; independent semantic review still required"}
+    if verify:
+        result["execution"] = verify_execution(bindings, repo / "android")
+    return result
 
 
-if __name__ == "__main__":
-    import argparse
-    import sys
-
+def main(argv=None, repo=audit.REPO):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--verify-execution", action="store_true")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     try:
-        print(json.dumps(generate(check=args.check)))
-        if args.verify_execution:
-            print(json.dumps(verify_execution(load_json(repo_path(audit.REPO, REVIEW_BINDINGS)), audit.REPO / "android")))
+        print(json.dumps(generate(check=args.check or args.verify_execution, repo=repo, verify=args.verify_execution)))
+        return 0
     except (PortError, OSError, ValueError, KeyError) as error:
         print(f"BLOCKED: {error}", file=sys.stderr)
-        sys.exit(2)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,5 +1,8 @@
 """AndroidOnly: WP-501 Test assertion/input proposal extraction, including real Kotlin string/lambda syntax."""
 
+import contextlib
+import io
+import json
 import unittest
 import tempfile
 from pathlib import Path
@@ -435,6 +438,163 @@ class SemanticBindingTest(unittest.TestCase):
             value["groups"][0]["native_target_overrides"] = target
             with self.subTest(target=target), patch.object(semantic, "load_json", return_value=value), self.assertRaisesRegex(PortError, "target adaptation"):
                 semantic.bind_reviews(groups)
+
+
+class SemanticCommandTest(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.repo = Path(temporary.name)
+        self.groups, self.review = SemanticBindingTest().fixture()
+        self.source_maps = {"current_source_maps": True}
+
+    def load_review(self, path):
+        self.assertEqual(semantic.repo_path(self.repo, semantic.REVIEW_PROPOSALS), path)
+        return self.review
+
+    def run_check(self, arguments=("--check",), *, validation_error=None):
+        output, errors = io.StringIO(), io.StringIO()
+        with patch.object(semantic.audit, "generate", return_value=self.source_maps,
+                          side_effect=validation_error) as source, \
+                patch.object(semantic, "proposals", return_value=self.groups) as proposals, \
+                patch.object(semantic, "load_json", side_effect=self.load_review), \
+                patch.object(semantic, "write_or_check") as writer, \
+                contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
+            result = semantic.main(arguments, self.repo)
+        source.assert_called_once_with(self.repo)
+        if validation_error is None:
+            proposals.assert_called_once_with(self.repo, source_maps=self.source_maps)
+        else:
+            proposals.assert_not_called()
+        writer.assert_not_called()
+        return result, output.getvalue(), errors.getvalue()
+
+    def archived_outputs(self):
+        archives = (
+            semantic.repo_path(self.repo, f"{semantic.GROUP_ROOT}/WP-101.json"),
+            semantic.repo_path(self.repo, f"{semantic.GROUP_ROOT}/obsolete-owner.json"),
+            semantic.repo_path(self.repo, semantic.REVIEW_BINDINGS),
+            semantic.repo_path(self.repo, semantic.audit.OUTPUT),
+        )
+        for path in archives:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"deliberately stale archived output")
+        return {path: path.read_bytes() for path in archives}
+
+    def report(self, body='<testcase classname="Native" name="checked()"/>',
+               tests=1, failures=0, errors=0, skipped=0):
+        path = self.repo.joinpath("android", "core", "module", "build", "test-results", "test", "TEST-Native.xml")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            f'<testsuite tests="{tests}" failures="{failures}" errors="{errors}" skipped="{skipped}">{body}</testsuite>',
+            encoding="utf-8",
+        )
+        return path
+
+    def test_stale_and_extra_archives_neither_gate_check_nor_get_written(self):
+        before = self.archived_outputs()
+        status, output, errors = self.run_check()
+        self.assertEqual(0, status, errors)
+        self.assertEqual(1, json.loads(output)["candidate_semantically_compared_families"])
+        self.assertEqual(before, {path: path.read_bytes() for path in before})
+
+    def test_missing_archives_do_not_get_created_by_check(self):
+        status, _, errors = self.run_check()
+        self.assertEqual(0, status, errors)
+        self.assertEqual([], list(self.repo.rglob("*")))
+
+    def test_verify_execution_uses_current_bindings_not_stale_archive(self):
+        before = self.archived_outputs()
+        self.report()
+        status, output, errors = self.run_check(("--check", "--verify-execution"))
+        self.assertEqual(0, status, errors)
+        execution = json.loads(output)["execution"]["core/module/build/test-results/test"]
+        self.assertEqual(1, execution["passed"])
+        self.assertEqual(before, {path: path.read_bytes() for path in before})
+
+    def test_verify_execution_alone_is_read_only_and_uses_current_runner(self):
+        native = self.groups["WP-101"]["families"][0]["native_proposals"][0]
+        native["method_or_family_name"] = "renamedCurrent"
+        native["explicit_original_case_ids"] = ["Original::checked()"]
+        self.review["groups"][0]["runner_name"] = "annotated-method"
+        self.report('<testcase classname="Native" name="renamedCurrent"/>')
+        status, output, errors = self.run_check(("--verify-execution",))
+        self.assertEqual(0, status, errors)
+        self.assertEqual(1, json.loads(output)["execution"]["core/module/build/test-results/test"]["passed"])
+        self.assertFalse(semantic.repo_path(self.repo, semantic.REVIEW_BINDINGS).exists())
+
+    def test_check_preserves_source_and_policy_validation_failures(self):
+        for message in ("Manifest/reference pin drift", "Historical original inventory drift",
+                        "Coverage policy drift", "Unknown source or stale native provenance"):
+            with self.subTest(message=message):
+                status, _, errors = self.run_check(validation_error=PortError(message))
+                self.assertEqual(2, status)
+                self.assertIn(message, errors)
+
+    def test_check_rejects_review_source_drift(self):
+        self.review["source_sha"] = "a" * 40
+        status, _, errors = self.run_check()
+        self.assertEqual(2, status)
+        self.assertIn("source/schema drift", errors)
+
+    def test_check_rejects_ambiguous_current_assertions(self):
+        self.groups["WP-101"]["families"][0]["native_proposals"] *= 2
+        status, _, errors = self.run_check()
+        self.assertEqual(2, status)
+        self.assertIn("ambiguous actual native assertions", errors)
+
+    def test_check_rejects_missing_current_assertions(self):
+        self.groups["WP-101"]["families"][0]["native_proposals"][0]["assertions"] = []
+        status, _, errors = self.run_check()
+        self.assertEqual(2, status)
+        self.assertIn("actual native assertions", errors)
+
+    def test_check_rejects_zero_bindings(self):
+        self.review["groups"] = []
+        status, _, errors = self.run_check()
+        self.assertEqual(2, status)
+        self.assertIn("Zero source/native", errors)
+
+    def test_current_execution_missing_reports_fails(self):
+        status, _, errors = self.run_check(("--check", "--verify-execution"))
+        self.assertEqual(2, status)
+        self.assertIn("BLOCKED:", errors)
+
+    def test_current_execution_negatives_fail_without_archived_fallback(self):
+        cases = (
+            ("zero", "", 0, 0, 0, 0),
+            ("failed", '<testcase classname="Native" name="checked()"><failure/></testcase>', 1, 1, 0, 0),
+            ("error", '<testcase classname="Native" name="checked()"><error/></testcase>', 1, 0, 1, 0),
+            ("skipped", '<testcase classname="Native" name="checked()"><skipped/></testcase>', 1, 0, 0, 1),
+            ("hidden-skip", '<testcase classname="Native" name="checked()"><skipped/></testcase>', 1, 0, 0, 0),
+            ("wrong-identity", '<testcase classname="Archive" name="old()"/>', 1, 0, 0, 0),
+            ("duplicate", '<testcase classname="Native" name="checked()"/>' * 2, 2, 0, 0, 0),
+            ("count-mismatch", '<testcase classname="Native" name="checked()"/>', 2, 0, 0, 0),
+        )
+        for name, body, tests, failures, errors, skipped in cases:
+            with self.subTest(name=name):
+                self.report(body, tests, failures, errors, skipped)
+                status, _, output = self.run_check(("--check", "--verify-execution"))
+                self.assertEqual(2, status)
+                self.assertIn("BLOCKED:", output)
+
+    def test_current_execution_malformed_report_fails(self):
+        self.report().write_text("<testsuite", encoding="utf-8")
+        status, _, errors = self.run_check(("--verify-execution",))
+        self.assertEqual(2, status)
+        self.assertIn("BLOCKED:", errors)
+
+    def test_explicit_generation_keeps_writing_current_groups_and_bindings(self):
+        with patch.object(semantic, "proposals", return_value=self.groups), \
+                patch.object(semantic, "load_json", side_effect=self.load_review), \
+                patch.object(semantic.audit, "generate") as validator:
+            result = semantic.generate(repo=self.repo)
+        validator.assert_not_called()
+        self.assertEqual(1, result["candidate_semantically_compared_families"])
+        group = semantic.repo_path(self.repo, f"{semantic.GROUP_ROOT}/WP-101.json")
+        bindings = semantic.repo_path(self.repo, semantic.REVIEW_BINDINGS)
+        self.assertEqual(semantic.json_bytes(self.groups["WP-101"]), group.read_bytes())
+        self.assertEqual(["Native", "checked()"], json.loads(bindings.read_text())["families"][0]["runner_identity"])
 
 
 if __name__ == "__main__":

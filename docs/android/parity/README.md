@@ -1,5 +1,25 @@
 # WP-501 source, case-family and consumer acceptance
 
+## Read-only CI validation
+
+`python android\parity-tests\semantic.py --check` derives frozen-source,
+policy/provenance, actual native assertions and runner joins in memory. It does
+not compare, create or overwrite archived group/accounting/review-binding
+outputs. Changes to a legitimately merged consumer therefore do not require an
+archive refresh just to compile and run tests.
+
+`--verify-execution` checks the current in-memory bindings against actual JUnit
+reports and is also read-only, including when used without `--check`. Missing,
+malformed, zero, failed, errored, skipped or mismatched/duplicate runner reports
+remain failures. Source drift, missing assertions and ambiguous joins still
+fail closed. Explicit generation with no check/verification flag retains its
+existing behavior; CI does not invoke it.
+
+The notes below are preserved historical context, not ongoing acceptance
+tallies or a reason to restart passing checks.
+
+## Historical notes
+
 Actual historicale888/d958 SOURCE-ONLY COMMENTED review5493866283 returned
 fullbody/head/state read: seven orphan/eight RX/three reaction+warmUp full
 originals and native classes/factories/lifetimes/explicit joins compared.
