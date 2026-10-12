@@ -104,7 +104,7 @@ class NativeOnboardingAccessibilityTest : NativeAccessibilityHarness() {
         assertEquals(1, settings)
         for (id in listOf(O.permissionsNotificationsTitle, O.permissionsNotificationsDescription,
             O.permissionsLocationTitle, O.permissionsLocationDescription)) {
-            assertScrollableTextReadable(compose.onNodeWithText(host.get().getString(id), useUnmergedTree = true))
+            assertScrollableFont200Unclipped(compose.onNodeWithText(host.get().getString(id), useUnmergedTree = true))
         }
     }
 
@@ -225,28 +225,4 @@ class NativeOnboardingAccessibilityTest : NativeAccessibilityHarness() {
                 bounds.width == measured.size.width.toFloat() && bounds.height == measured.size.height.toFloat())
     }
 
-    private fun assertScrollableTextReadable(node: SemanticsNodeInteraction) {
-        node.performScrollTo()
-        val layout = font200Layout(node)
-        assertUnclippedContent(layout)
-        val scroll = generateSequence(node.fetchSemanticsNode().parent) { it.parent }.first {
-            it.config.contains(SemanticsActions.ScrollBy) && it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
-        }
-        val scrollAction = compose.onNode(SemanticsMatcher("Actual permission-card scroll viewport") { it.id == scroll.id },
-            useUnmergedTree = true)
-        for (line in 0 until layout.lineCount) {
-            val viewport = scrollAction.fetchSemanticsNode().boundsInRoot
-            val position = node.fetchSemanticsNode().positionInRoot
-            val top = position.y + layout.getLineTop(line)
-            val bottom = position.y + layout.getLineBottom(line)
-            val delta = if (bottom > viewport.bottom) bottom - viewport.bottom
-                else if (top < viewport.top) top - viewport.top else 0f
-            if (delta != 0f) scrollAction.performSemanticsAction(SemanticsActions.ScrollBy) { assertTrue(it(0f, delta)) }
-            val after = node.fetchSemanticsNode().positionInRoot
-            println("WP503_PERMISSION_LINE|text=${layout.layoutInput.text}|line=$line|position=$position->$after|viewport=$viewport")
-            assertTrue("Every actual text line must be reachable by non-gesture native scroll",
-                after.x + layout.getLineLeft(line) >= viewport.left && after.x + layout.getLineRight(line) <= viewport.right &&
-                    after.y + layout.getLineTop(line) >= viewport.top && after.y + layout.getLineBottom(line) <= viewport.bottom)
-        }
-    }
 }

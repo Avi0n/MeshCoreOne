@@ -26,6 +26,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.LayoutDirection
@@ -105,6 +106,31 @@ abstract class NativeAccessibilityHarness {
 
     protected fun assertFont200Unclipped(node: SemanticsNodeInteraction) {
         assertUnclippedContent(font200Layout(node))
+    }
+
+    protected fun assertScrollableFont200Unclipped(node: SemanticsNodeInteraction) {
+        node.performScrollTo()
+        val layout = font200Layout(node)
+        assertUnclippedContent(layout)
+        val scroll = generateSequence(node.fetchSemanticsNode().parent) { it.parent }.first {
+            it.config.contains(SemanticsActions.ScrollBy) && it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
+        }
+        val scrollAction = compose.onNode(SemanticsMatcher("Actual text scroll viewport") { it.id == scroll.id },
+            useUnmergedTree = true)
+        for (line in 0 until layout.lineCount) {
+            val viewport = scrollAction.fetchSemanticsNode().boundsInRoot
+            val position = node.fetchSemanticsNode().positionInRoot
+            val top = position.y + layout.getLineTop(line)
+            val bottom = position.y + layout.getLineBottom(line)
+            val delta = if (bottom > viewport.bottom) bottom - viewport.bottom
+                else if (top < viewport.top) top - viewport.top else 0f
+            if (delta != 0f) scrollAction.performSemanticsAction(SemanticsActions.ScrollBy) { assertTrue(it(0f, delta)) }
+            val after = node.fetchSemanticsNode().positionInRoot
+            println("WP503_SCROLL_LINE|text=${layout.layoutInput.text}|line=$line|position=$position->$after|viewport=$viewport")
+            assertTrue("Every actual text line must be reachable by non-gesture native scroll",
+                after.x + layout.getLineLeft(line) >= viewport.left && after.x + layout.getLineRight(line) <= viewport.right &&
+                    after.y + layout.getLineTop(line) >= viewport.top && after.y + layout.getLineBottom(line) <= viewport.bottom)
+        }
     }
 
     protected fun assertUnclippedContent(layout: TextLayoutResult) {
