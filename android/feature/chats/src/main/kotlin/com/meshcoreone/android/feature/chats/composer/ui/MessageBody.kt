@@ -22,7 +22,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.meshcoreone.android.core.designsystem.LocalMeshTheme
 import com.meshcoreone.android.core.designsystem.ThemeFrame
+import com.meshcoreone.android.core.designsystem.ThemeColor
+import com.meshcoreone.android.core.designsystem.WCAGContrast
+import com.meshcoreone.android.core.designsystem.accessibleForeground
 import com.meshcoreone.android.core.designsystem.toComposeColor
+import com.meshcoreone.android.core.designsystem.toThemeColor
 import com.meshcoreone.android.feature.chats.composer.FormattedMessage
 import com.meshcoreone.android.feature.chats.composer.LinkColor
 import com.meshcoreone.android.feature.chats.composer.LinkToken
@@ -32,29 +36,43 @@ import com.meshcoreone.android.feature.chats.composer.MessageTextFormatter
 private const val INCOMING_SELF_MENTION_ALPHA = 0.15f
 private const val OUTGOING_SELF_MENTION_ALPHA = 0.3f
 
-private fun tokenColor(token: LinkToken, base: Color, frame: ThemeFrame): Color = when (token.color) {
+private fun tokenColor(token: LinkToken, base: ThemeColor, frame: ThemeFrame, background: ThemeColor): ThemeColor = when (token.color) {
     LinkColor.BASE -> base
-    LinkColor.MENTION_IDENTITY -> token.colorKey?.let { frame.identityColor(it).toComposeColor() } ?: base
-    LinkColor.HASHTAG -> frame.hashtag.toComposeColor()
-    LinkColor.OUTGOING_TEXT -> frame.outgoingText.toComposeColor()
+    LinkColor.MENTION_IDENTITY -> token.colorKey?.let {
+        frame.theme.identityGamut.color(it, listOf(background.luminance), frame.highContrast)
+    } ?: base
+    LinkColor.HASHTAG -> frame.hashtag
+    LinkColor.OUTGOING_TEXT -> frame.outgoingText
 }
 
 /** One `AnnotatedString` from the token model: base color, then per-token color, underline, bold, self-mention fill. */
-internal fun FormattedMessage.toAnnotatedString(base: Color, frame: ThemeFrame, isOutgoing: Boolean, onLink: (String) -> Unit): AnnotatedString =
-    buildAnnotatedString {
+internal fun FormattedMessage.toAnnotatedString(
+    base: Color,
+    frame: ThemeFrame,
+    isOutgoing: Boolean,
+    background: Color,
+    onLink: (String) -> Unit,
+): AnnotatedString {
+    val bubble = background.toThemeColor()
+    val readableBase = accessibleForeground(base.toThemeColor(), bubble, WCAGContrast.AA_FLOOR)
+    return buildAnnotatedString {
         append(text)
-        addStyle(SpanStyle(color = base), 0, text.length)
+        addStyle(SpanStyle(color = readableBase.toComposeColor()), 0, text.length)
         for (token in tokens) {
-            val color = tokenColor(token, base, frame)
+            val floor = if (token.color == LinkColor.MENTION_IDENTITY) WCAGContrast.floor(frame.highContrast) else WCAGContrast.AA_FLOOR
+            val preferred = accessibleForeground(tokenColor(token, readableBase, frame, bubble), bubble, floor)
+            val fill = if (token.selfMention) {
+                preferred.copy(alpha = (if (isOutgoing) OUTGOING_SELF_MENTION_ALPHA else INCOMING_SELF_MENTION_ALPHA).toDouble())
+            } else {
+                null
+            }
+            // Freeze the source-opacity highlight before correcting its foreground, avoiding a circular color/fill dependency.
+            val color = accessibleForeground(preferred, fill?.compositeOver(bubble) ?: bubble, floor)
             val style = SpanStyle(
-                color = color,
+                color = color.toComposeColor(),
                 fontWeight = if (token.bold) FontWeight.Bold else null,
                 textDecoration = if (token.underline) TextDecoration.Underline else null,
-                background = if (token.selfMention) {
-                    color.copy(alpha = if (isOutgoing) OUTGOING_SELF_MENTION_ALPHA else INCOMING_SELF_MENTION_ALPHA)
-                } else {
-                    Color.Unspecified
-                },
+                background = fill?.toComposeColor() ?: Color.Unspecified,
             )
             val url = token.url
             if (url == null) {
@@ -66,6 +84,7 @@ internal fun FormattedMessage.toAnnotatedString(base: Color, frame: ThemeFrame, 
                 )
             }
         }
+}
     }
 
 /**
@@ -82,11 +101,14 @@ fun MessageBody(
     previewUrl: String? = null,
     style: TextStyle = MaterialTheme.typography.bodyLarge,
     baseColor: Color = LocalContentColor.current,
+    backgroundColor: Color = if (isOutgoing) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
 ) {
     val frame = LocalMeshTheme.current.frame
     val names = rememberLinkActionNames()
     val formatted = remember(text, isOutgoing, currentUserName) { MessageTextFormatter.format(text, isOutgoing, currentUserName) }
-    val annotated = remember(formatted, baseColor, frame, isOutgoing, onLink) { formatted.toAnnotatedString(baseColor, frame, isOutgoing, onLink) }
+    val annotated = remember(formatted, baseColor, frame, isOutgoing, backgroundColor, onLink) {
+        formatted.toAnnotatedString(baseColor, frame, isOutgoing, backgroundColor, onLink)
+    }
     val actions = remember(formatted, previewUrl, names) { MessageLinkAccessibility.actions(previewUrl, formatted, names) }
     BasicText(
         annotated,
