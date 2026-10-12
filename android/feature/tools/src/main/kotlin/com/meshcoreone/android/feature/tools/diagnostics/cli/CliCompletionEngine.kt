@@ -141,7 +141,7 @@ class CliCompletionEngine {
 
     private fun completeFirstArg(command: String, prefix: String): List<String> = when (command) {
         "session" -> completeSessionArgs(prefix)
-        "login" -> sorted(nodeNames.filter { lower(it).startsWith(prefix) })
+        "login" -> sorted(nodeNames.filter { SwiftStrings.hasPrefix(lower(it), prefix) })
         "log" -> matching(LOG_SUBCOMMANDS, prefix)
         "powersaving" -> matching(ON_OFF_VALUES, prefix)
         "clear" -> matching(CLEAR_SUBCOMMANDS, prefix)
@@ -162,7 +162,7 @@ class CliCompletionEngine {
     }
 
     private fun completeSessionArgs(prefix: String): List<String> =
-        sorted(SESSION_SUBCOMMANDS.filter { it.startsWith(prefix) } + nodeNames.filter { lower(it).startsWith(prefix) })
+        sorted(SESSION_SUBCOMMANDS.filter { it.startsWith(prefix) } + nodeNames.filter { SwiftStrings.hasPrefix(lower(it), prefix) })
 
     /**
      * Typed keys (lowercase, matched on the folded prefix) merged with learned custom-var keys
@@ -171,8 +171,8 @@ class CliCompletionEngine {
     private fun localKeyCompletions(typed: List<String>, parts: List<String>): List<String> {
         val lowered = lower(parts.getOrElse(1) { "" })
         val typedMatches = typed.filter { it.startsWith(lowered) }
-        val customMatches = customVarKeys.filter { lower(it).startsWith(lowered) }
-        return sorted((typedMatches + customMatches).distinct())
+        val customMatches = customVarKeys.filter { SwiftStrings.hasPrefix(lower(it), lowered) }
+        return sorted(SwiftStrings.distinct(typedMatches + customMatches))
     }
 
     private fun completeSetValue(param: String, prefix: String): List<String> = when (param) {

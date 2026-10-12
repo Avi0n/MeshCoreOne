@@ -74,7 +74,7 @@ data class CliTerminalState(
     fun withGhostText(firstSuggestion: String?): CliTerminalState {
         if (firstSuggestion == null) return copy(ghostText = "")
         val lastPart = SwiftStrings.split(currentInput, ' ', omittingEmptySubsequences = false).lastOrNull() ?: ""
-        val matches = SwiftStrings.lowercased(firstSuggestion).startsWith(SwiftStrings.lowercased(lastPart))
+        val matches = SwiftStrings.hasPrefix(SwiftStrings.lowercased(firstSuggestion), SwiftStrings.lowercased(lastPart))
         val ghost = if (matches) SwiftStrings.droppingFirstCharacters(firstSuggestion, SwiftStrings.characterCount(lastPart)) else ""
         return copy(ghostText = ghost)
     }

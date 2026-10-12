@@ -81,6 +81,10 @@ internal object SwiftStrings {
 
     fun sorted(values: Iterable<String>): List<String> = values.sortedWith(ORDER)
 
+    fun hasPrefix(value: String, prefix: String): Boolean = nfc(value).startsWith(nfc(prefix))
+
+    fun distinct(values: Iterable<String>): List<String> = values.distinctBy(::nfc)
+
     /** Swift `Character` (extended grapheme cluster) count. */
     fun characterCount(value: String): Int {
         val iterator = BreakIterator.getCharacterInstance()
