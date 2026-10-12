@@ -94,8 +94,9 @@ generation, not a strict verification result. Return only its generated
 in-scope metadata to this producer's worktree, then run `benchmark` strictly.
 Do not edit locks by hand or use another worker's caches/worktree.
 
-Because this changes the dependency/build graph, also run the existing complete
-local check before publication, not only the optional harness stage:
+Because this changes the dependency/build graph, merge requires exact-candidate
+complete verification, not only the optional harness stage. Run the existing
+complete local check when the serialized lane is available:
 
 ```powershell
 python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit HEAD
@@ -103,6 +104,17 @@ python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit 
 
 The default remains `python,preflight,scaffold,inspect`; the benchmark stage does
 not replace its actual module tests, lint, traceability and APK inspections.
+
+Ordinary feature-branch publication still uses the installed pre-push hook.
+Missing, failed or queued local checks record the exact commit/tree as
+**UNVERIFIED** and do not block normal publication. Advisory checks wait up to
+10 seconds for the shared lane and allow 180 seconds of execution, followed by
+owned-child cleanup while retaining the lane. These are publication latency
+bounds, not Android performance budgets. Full/manual checks remain strict and
+serialized without those advisory deadlines; hosted exact-head verification
+and applicable human/protected gates remain mandatory before merge. Synchronize
+helpers only through the supported reservation runtime installer; never bypass
+the hook or disturb a foreign lane holder.
 
 ## Device execution and genuine profiles
 
