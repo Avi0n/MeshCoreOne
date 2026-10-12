@@ -2,8 +2,10 @@
 package com.meshcoreone.android.accessibility
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Slider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -13,6 +15,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -36,6 +40,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.click
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
@@ -241,18 +246,15 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
             it.config.contains(SemanticsActions.ScrollBy) && it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
         }
         val viewport = scroll.boundsInRoot
-        val delta = measured.positionInRoot.y + measured.size.height - viewport.bottom
-        println("WP503_REMOTE_PENDING_PROGRESS|position=${measured.positionInRoot}|size=${measured.size}|viewport=$viewport|delta=$delta")
-        if (delta > 0f) {
-            compose.onNode(SemanticsMatcher("Actual authentication scroll viewport") { it.id == scroll.id },
-                useUnmergedTree = true).performSemanticsAction(SemanticsActions.ScrollBy) { assertTrue(it(0f, delta)) }
-        }
-        val visible = progress.assertIsDisplayed().fetchSemanticsNode()
-        assertTrue("The actual progress indicator must be wholly contained after bounded non-gesture scroll",
-            visible.boundsInRoot.width == visible.size.width.toFloat() &&
-                visible.boundsInRoot.height == visible.size.height.toFloat() &&
-                visible.boundsInRoot.left >= viewport.left && visible.boundsInRoot.right <= viewport.right &&
-                visible.boundsInRoot.top >= viewport.top && visible.boundsInRoot.bottom <= viewport.bottom)
+        val layout = measured.layoutInfo
+        val visual = layout.coordinates.boundsInRoot()
+        println("WP503_REMOTE_PENDING_PROGRESS|semantics=${measured.size}|allocation=${layout.width}x${layout.height}|visual=$visual|viewport=$viewport")
+        progress.assertIsDisplayed()
+        assertTrue("The actual visual progress allocation, not expanded noninteractive semantics, must be wholly contained",
+            layout.width > 0 && layout.height > 0 &&
+                visual.width == layout.width.toFloat() && visual.height == layout.height.toFloat() &&
+                visual.left >= viewport.left && visual.right <= viewport.right &&
+                visual.top >= viewport.top && visual.bottom <= viewport.bottom)
         cancelAuthentication()
         compose.waitUntil { rig.cancelledAuthentications == 1 }
         assertEquals(1, rig.loginAttempts)
@@ -290,6 +292,28 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         val field = compose.onNodeWithTag("secure-field-control").assertIsDisplayed()
         assertEquals("\u2022".repeat(12), field.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
         assertTrue(field.fetchSemanticsNode().config.contains(SemanticsProperties.Password))
+    }
+
+    @Test fun frameworkLinearProgressCalibratesExpandedSemanticsVersusActualNativeAllocation() {
+        var allocation = IntSize.Zero
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    Column(Modifier.padding(24.dp)) {
+                        LinearProgressIndicator(Modifier.fillMaxWidth().onSizeChanged { allocation = it }
+                            .testTag("framework-progress-control"))
+                    }
+                }
+            }
+        }
+        val node = compose.onNodeWithTag("framework-progress-control").assertIsDisplayed().fetchSemanticsNode()
+        val density = host.get().resources.displayMetrics.density
+        val visual = node.layoutInfo.coordinates.boundsInRoot()
+        println("WP503_FRAMEWORK_PROGRESS|semantics=${node.size}|allocation=$allocation|layout=${node.layoutInfo.width}x${node.layoutInfo.height}|visual=$visual")
+        assertEquals(4f, allocation.height / density, 0f)
+        assertEquals(allocation.height, node.layoutInfo.height)
+        assertEquals(24f, node.size.height / density, 0f)
+        assertEquals(allocation.height.toFloat(), visual.height, 0f)
     }
 
     private fun rememberToggle() = compose.onNode(hasText(host.get().getString(L.remoteNodesAuthRememberPassword)) and
