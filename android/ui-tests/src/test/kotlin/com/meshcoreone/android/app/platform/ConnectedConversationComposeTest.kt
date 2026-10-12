@@ -72,6 +72,7 @@ class ConnectedConversationComposeTest : RoomProcessTest() {
             h.settle()
             compose.waitForIdle()
             val failed = compose.activity.getString(C.chatsMessageStatusFailed)
+            println("WP502_CONNECTED_SEMANTICS|" + compose.onRoot(useUnmergedTree = true).printToString())
             compose.onNodeWithContentDescription("$original. $failed").assertIsDisplayed()
             assertNull(h.draftStore.draft(ChatConversationID.dm(radio, contact.id)))
             compose.onNodeWithText(compose.activity.getString(C.chatsMessageStatusRetry)).assertIsDisplayed()

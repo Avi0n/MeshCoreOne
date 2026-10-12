@@ -50,6 +50,26 @@ object CoverageMatrix {
         }
     }
 
+    val themeWindowFontCases = themeFrames.flatMapIndexed { frameIndex, frame ->
+        widths.mapIndexed { widthIndex, width ->
+            val font = fonts[(frameIndex + widthIndex) % fonts.size]
+            frame.copy(
+                id = "${frame.id}-w$width-f${font.toInt()}",
+                widthDp = width, fontScale = font, rtl = (frameIndex + widthIndex) % 2 != 0,
+            )
+        }
+    }
+
+    fun assertThemeWindowFontCoverage() {
+        check(themeWindowFontCases.size == 57)
+        for (frame in themeFrames) {
+            val cases = themeWindowFontCases.filter { it.theme == frame.theme && it.expectedScheme == frame.expectedScheme }
+            check(cases.map { it.widthDp }.toSet() == widths.toSet())
+            check(cases.map { it.fontScale }.toSet() == fonts.toSet())
+            check(cases.map { it.rtl }.toSet() == setOf(false, true))
+        }
+    }
+
     val pairwiseStates: List<ScreenCase> = locales.flatMapIndexed { localeIndex, locale ->
         ConversationState.entries.mapIndexed { stateIndex, state ->
             ScreenCase(

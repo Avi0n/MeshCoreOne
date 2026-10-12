@@ -7,10 +7,18 @@ import android.app.Activity
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Rect
+import android.os.Handler
 import android.os.LocaleList
+import android.os.Looper
+import android.view.PixelCopy
+import android.view.WindowInsets as AndroidWindowInsets
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -50,6 +58,10 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.math.ceil
+import kotlin.math.floor
 import org.junit.Assert.*
 
 class ConversationScreenCases(
@@ -104,7 +116,7 @@ class ConversationScreenCases(
                 ) {
                     val tokens = LocalMeshTheme.current
                     SideEffect { effectiveScheme = tokens.frame.colorScheme }
-                    Surface {
+                    Surface(if (useCurrentDeviceWindow) Modifier.windowInsetsPadding(WindowInsets.systemBars) else Modifier) {
                         Column(Modifier.width(case.widthDp.dp).height(case.heightDp.dp).testTag("wp502-screen")) {
                             val status = when (case.state) {
                                 ConversationState.PENDING -> MessageStatus.PENDING
@@ -162,7 +174,11 @@ class ConversationScreenCases(
         val current = if (useCurrentDeviceWindow) {
             val decor = activity.window.decorView
             val density = activity.resources.displayMetrics.density
-            case.copy(widthDp = (decor.width / density).toInt(), heightDp = (decor.height / density).toInt())
+            val insets = requireNotNull(decor.rootWindowInsets).getInsets(AndroidWindowInsets.Type.systemBars())
+            case.copy(
+                widthDp = ((decor.width - insets.left - insets.right) / density).toInt(),
+                heightDp = ((decor.height - insets.top - insets.bottom) / density).toInt(),
+            )
         } else case
         compose.runOnIdle { selected.value = current }
         compose.waitForIdle()
@@ -197,6 +213,7 @@ class ConversationScreenCases(
         assertFalse("${case.id}: vertical text clipping", layout.didOverflowHeight)
         for (line in 0 until layout.lineCount) assertFalse("${case.id}: ellipsized line $line", layout.isLineEllipsized(line))
         val text = layout.layoutInput.text.text
+        // RTL shrink-to-fit may allocate unused paragraph width; visible glyph bounds detect actual clipping.
         val glyphs = text.indices.filter { index ->
             !Character.isWhitespace(text[index]) && !Character.isSpaceChar(text[index]) &&
                 Character.getType(text[index]) != Character.FORMAT.toInt()
@@ -260,7 +277,7 @@ class ConversationScreenCases(
         File(directory, "${case.id}.png").writeBytes(png)
         val digest = MessageDigest.getInstance("SHA-256").digest(png)
             .joinToString("") { "%02x".format(it.toInt() and 255) }
-        println("WP502_RENDER|${case.id}|${first.width}|${first.height}|$digest")
+        println("WP502_RENDER|${case.id}|${first.width}|${first.height}|$digest|actualWidthDp=${selected.value.widthDp}")
         first.recycle()
         second.recycle()
     }
@@ -268,6 +285,23 @@ class ConversationScreenCases(
     private fun pixels(): Bitmap {
         compose.waitForIdle()
         val bounds = compose.onNodeWithTag("wp502-screen").fetchSemanticsNode().boundsInWindow
+        if (useCurrentDeviceWindow) {
+            val rect = Rect(floor(bounds.left).toInt(), floor(bounds.top).toInt(), ceil(bounds.right).toInt(), ceil(bounds.bottom).toInt())
+            val bitmap = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888)
+            val completed = CountDownLatch(1)
+            var result = PixelCopy.ERROR_UNKNOWN
+            compose.runOnUiThread {
+                val decor = activity.window.decorView
+                assertTrue(rect.left >= 0 && rect.top >= 0 && rect.right <= decor.width && rect.bottom <= decor.height)
+                PixelCopy.request(activity.window, rect, bitmap, {
+                    result = it
+                    completed.countDown()
+                }, Handler(Looper.getMainLooper()))
+            }
+            assertTrue("Native window capture timed out", completed.await(10, TimeUnit.SECONDS))
+            assertEquals("Native window capture failed", PixelCopy.SUCCESS, result)
+            return bitmap
+        }
         return compose.runOnUiThread {
             val decor = activity.window.decorView
             assertTrue(bounds.left >= 0 && bounds.top >= 0 && bounds.right <= decor.width && bounds.bottom <= decor.height)

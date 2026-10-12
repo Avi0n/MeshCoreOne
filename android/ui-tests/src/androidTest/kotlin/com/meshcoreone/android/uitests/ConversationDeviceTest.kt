@@ -33,7 +33,10 @@ class ConversationDeviceTest {
         cases.draftFocusAndRetrySurviveCurrentWindowChanges(widths = emptyList())
 
     @Test fun actualDeviceRendersEveryEffectiveThemeFrame() {
-        for (case in CoverageMatrix.themeFrames + CoverageMatrix.systemFrames) cases.capture(case, output("themes"))
+        val frames = CoverageMatrix.themeFrames.flatMap { frame ->
+            CoverageMatrix.fonts.map { font -> frame.copy(id = "${frame.id}-f${font.toInt()}", fontScale = font) }
+        }
+        for (case in frames + CoverageMatrix.systemFrames) cases.capture(case, output("themes"))
     }
 
     private fun output(group: String) = File(
