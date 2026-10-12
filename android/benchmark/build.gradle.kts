@@ -8,7 +8,7 @@ import java.security.MessageDigest
 
 plugins { id("mesh.android.library") }
 
-android {
+extensions.configure<com.android.build.api.dsl.LibraryExtension> {
     namespace = "com.meshcoreone.android.benchmark.runner"
     defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     sourceSets.getByName("test").kotlin.srcDir("dataset/kotlin")
