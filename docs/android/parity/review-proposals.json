@@ -5,6 +5,101 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "messaging-source-prefix-all-four-parameter-rows",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageKeyAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.MessageKeyAcceptanceTest",
+      "runner_name": "annotated-method",
+      "comparison": "One original parameter family, all four literal rows: AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE/null/null/1000/hello and exact canonical DM prefix; null/3/Alice/2000/test and ch-3-2000-Alice-; null/0/null/500/msg and ch-0-500--; allnull/100/x and dm-unknown-100-. Each original hasPrefix predicate is asserted on the real production key. Four assertions are not four new original families.",
+      "inputs": "Complete frozen four-row declaration/body and all three remaining originals, actual source/native production DeduplicationKey and existing four separate SourceValuesTest row registrations read. New owned annotated method binds the entire parameter family without selecting only one row or weakening ambiguous-row binding; all four existing row identities remain unchanged and also require positive covering discovery.",
+      "adaptations": "Native UUID/UInt/UTF8/SHA256/uppercase canonical UUID+hex preserve these exact inputs. One owned mandatory aggregate method replaces no existing registrations; no validator relaxation or denominator inflation. Source's three UUID() families use the disclosed deterministic CONTACT adaptation in their separate group.",
+      "helpers": [
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift"
+      ],
+      "consumer": "Actual sync and offline/backup key consumers use the content key; these direct selected-prefix cases do not certify persistence migration, collision freedom, live repeats or every Unicode input.",
+      "unresolved": ["Fresh immutable app/services covering execution and independent bounded review required; full WP501 unfinished. No production change."],
+      "methods": ["Content-based key uses the expected prefix for DM and channel scopes"]
+    },
+    {
+      "id": "messaging-source-dedup-suffix-determinism-empty",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+      "native_factory": "values",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All three remaining full originals retain timestamp1000/hello/eight-character suffix, timestamp1/aaa repeated equality versus bbb inequality, and timestamp0/emptycontent/DM-prefix/length>10. Native substringAfterLast and source split last compare the same generated ASCII eight-digit uppercase SHA256 suffix.",
+      "inputs": "Complete original declarations/bodies and real source/native DeduplicationKey helpers plus SourceValuesTest/CONTACT/original registration/runMessagingCase read. Original random UUID() values adapt to fixed valid canonical CONTACT, not changed source literal parameter rows.",
+      "adaptations": "Fixed CONTACT for source UUID() is explicitly bounded. Kotlin UTF16 length versus Swift grapheme count is equivalent for the generated ASCII suffix/prefix in selected inputs, not a universal text claim.",
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt"
+      ],
+      "consumer": "Content keys feed actual sync lookup/dedup and reviewed backup/offline routes. These three pure key cases do not execute those transactional/live consumers or prove arbitrary hash collision absence.",
+      "unresolved": ["Fresh immutable services positive original identities and independent review required; whole audit incomplete."],
+      "methods": [
+        "Content-based key has an 8-char hex hash suffix",
+        "Content-based key is deterministic and distinguishes different content",
+        "Empty content still produces a well-formed key"
+      ]
+    },
+    {
+      "id": "messaging-source-ack-formula-text-attempt-key-literals",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+      "native_factory": "values",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All four full originals retain LE32 0x6624AABB/attempt2/hello/AAx32 and independent complete5E399E8A, timestamp1/attempt0/hi-versus-bye/01x32 inequality, timestamp100/hi/02x32/attempts0..3/four unique codes, and timestamp100/hi/03x32/attempt0-versus4 exact equality. Restored distinct original02/03public keys, rather than shared SELF01 for the last two; no assertion/identity/production change.",
+      "inputs": "Complete frozen bodies/formula/helper and real source/native AckCodeBuilder, SELF01 and native registration read. Independent Python hashlib/struct reproduced the source firmware formula, not candidate output: SHA256(LE32timestamp||attempt&3||UTF8text||senderkey) first4=5e399e8a. Existing golden unchanged.",
+      "adaptations": "Frozen CryptoKit formula becomes a fixed independently verified literal in native test; explicit UByte/UInt/Bytes preserve source bytes. No recipient is part of the original hash; attempt4 reuses attempt0, not a fifth distinct tag.",
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt"
+      ],
+      "consumer": "Actual DM service predicts/registers ACK before wire send, merges firmware acceptance code, accumulates retry tags and removes failed pending ownership. These four pure formula cases do not execute that mailbox/cancellation/teardown consumer or prove arbitrary concurrent-message collision freedom.",
+      "unresolved": ["Fresh immutable services covering execution and independent bounded review required; no live radio/iOS/full acceptance claim."],
+      "methods": [
+        "matches firmware formula for known fixture",
+        "different texts produce different codes",
+        "attempts 0..3 produce four distinct codes",
+        "attempt 4 wraps to attempt 0's code"
+      ]
+    },
+    {
+      "id": "messaging-source-channel-rx-exact-path-time-body-inputs",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift",
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+      "native_factory": "values",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All five complete originals retain Bob/two/42/B2 versus Alice/one/42/A1 selection; exact Unix1000/2000 ascending A2/A1 ordering; fresh-identity C3 nildecodedText versus A1 valid row and original pathlistA1 (existing stronger wholeDTO equality also retained); nilkey/A1/empty; trailing Alice-space/hello/42/A1 against Alice/hello key. Restored four reduced-input families, all identities unchanged.",
+      "inputs": "Full makeDecodedGroupText/native rx/channelKey and real DTO constructors/matchers/format/key implementations read: SNR8/RSSI-70/raw01/FLOOD/GROUP_TEXT/v0/bits5/niltransport/pathcount1/payload010203/channel0/nameTest/SUCCESS/stamp42 and sender-colon-space-body retained. Native helper's omitted Test name restored; independently source-derived payload SHA256 prefix039058c6f2c0cb49 replaces unrelated fixture hash, not candidate-generated expected output. Source UUID() remains fresh entry UUID; source ambient Date()/radioUUID adapt to BASE_TIME/fixed RADIO except exact selected1000/2000dates restored.",
+      "adaptations": "Source String canonical equality maps to native NFC key equality, selected ASCII trimming/colon format preserved. Fixed ambient radio/date adaptation is explicit, not exact nondeterministic-input equivalence or a sorting-literal substitution. Snapshot list preserves stable receivedAt order. Manual native DTO helper retains source parsed fields.",
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelMessageFormat.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt"
+      ],
+      "consumer": "Actual AppContainer->RadioSessionContainerFactory->RadioSessionContainer SyncRetryServices injects syncMessageCodecs real messaging matcher; native/source sync lookup decodes and chooses earliest matching key/path metadata. Core HeardRepeatsService has real canonical adoption/later distinct-path persistence, but actual mounted SyncHeardRepeatsAdapter merely logs a named gap and returns Unit/null for harvest/record. This concrete production omission is routed separately to coordinator, never solved or excluded by five matcher unit cases. Adjacent reaction visibility gaps are not promoted to additional proven findings without separate bounded review.",
+      "unresolved": ["Fresh immutable services positive identities and independent bounded review required; actual mounted live-repeat adapter omission requires owner repair. No hardware/full graph/Unicode parity claimed."],
+      "methods": [
+        "keeps the 0x88 whose body matches the message key",
+        "sorts matches by receivedAt ascending",
+        "drops entries without decodedText",
+        "nil key matches nothing",
+        "matches when decoded sender has trailing space"
+      ]
+    },
+    {
       "id": "python-reference-original-exact-pinned-command-bytes",
       "source_path": "MeshCore/Tests/MeshCoreTests/Validation/PythonReferenceTests.swift",
       "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalPythonReferenceCasesTest.kt",

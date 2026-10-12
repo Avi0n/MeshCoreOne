@@ -12,6 +12,38 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Next messaging-key input/parameter increment
+
+Published e244primary38189308604 is now actualFAILURE: authoritative Linux
+log app716/715passed/1failed in unchangedInlineContentCancellationTest
+plainCancellation/StorageFailureOBSERVE:OwnerClosed, preference observation
+after ownerclose stack. Classifier/controller/codec successful; realSwiftData
+skipped/aggregatefailed. Actual producer test lifecycle intake routed, no
+rerun/secondbundle/worker Appedit. Source-only bounded review6115227237
+updated00:57:38Z found no six177/178or28PythonReference mismatch and
+verified executed3262testblobs match publishede244; not a privileged pass
+or substitute for failed current execution.
+Prior uncommitted messaging Python command's session/output was lost on
+runtime turn restart; no final result retained, not claimedPASS. A fresh
+clean immutable declared command will supply the required result.
+
+13complete originals/4newgroups ->856families/126groups/67mandatory,
+same automatically evolved reservation22,0approved/5133denominator
+unchanged. Exact ACK02/03keys and RX1000/2000/C3fresh-ID/A1nilkey/
+hello-trailing/Testchannel/payloadhash inputs restored. Frozen independent
+Python hashlib/struct formula checks produced5e399e8a and039058c6f2c0cb49,
+not candidate execution/expectation generation. One owned aggregate
+preserves all four literal prefix rows with one original parameter identity;
+all four existing row IDs remain required positive services discovery.
+FixedUUID/ambientdate/radio adaptations explicitly bounded. Generated
+fail-closed actual13source/native/runner bindings pass; fresh clean
+immutable app/services/Python execution still pending, not prior3262proof.
+Actual AppContainer/factory/SyncRetryServices adapter/handlers/realrepeat/
+RXdecode consumer trace identifies no-op incoming sync harvest/record,
+routed separately via existing PR. Source-derived pre-message A/B replay
+is not an executed device reproduction; known-message live repeats work.
+No worker production edit/new issue/worker/PR/privileged check/closure.
+
 ## Latest final-predicate execution
 
 Clean `3262d79b372c74841c995bd93451e2bf2d4672b8`, actual based3f:

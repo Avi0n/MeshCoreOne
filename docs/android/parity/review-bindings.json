@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "22440c57d6c5d4749fc8840c8d9709c0c9d2f8ed64464f7d696679ee52859d61",
+  "proposal_sha256": "a37df9c3d18e0d9bb926c5b7462244925e3bc94c0f6c5ba21e0350bf01f31dfd",
   "families": [
     {
       "group": "backup-envelope",
@@ -39047,6 +39047,448 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "messaging-source-dedup-suffix-determinism-empty",
+      "comparison_sha256": "73ba548c1d3c21584c42160e1e33848d68d26b22a14a8e430ebd6f54d7f37f94",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 3,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+      "source_blob_sha": "dc9afab2977aefcffd81521fe1ca1068c95af564",
+      "case_id": "DeduplicationKeyTests::Content-based key has an 8-char hex hash suffix()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "529d2eb49913d3aa9ea5c533b172b46f920e8d69a7be526e246bf9e3d5fb3ecd",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 62,
+          "expression": "#expect(hashSuffix.count == 8)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "Content-based key has an 8-char hex hash suffix",
+        "line": 40,
+        "end_line": 42,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "aafb66d8c9d87d85b1152a02dc5cb74104e08bd29832f04de55d64f1fd7faf46",
+        "registration": "original(\"DeduplicationKeyTests\", \"Content-based key has an 8-char hex hash suffix\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 41,
+            "expression": "assertEquals(8, DeduplicationKey.contentBased(CONTACT, null, null, 1000u, \"hello\").substringAfterLast('-').length)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 41,
+            "expression": "DeduplicationKey.contentBased(CONTACT, null, null, 1000u, \"hello\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "substringAfterLast",
+            "line": 41,
+            "expression": "substringAfterLast('-')",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DeduplicationKeyTests::Content-based key has an 8-char hex hash suffix()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "DeduplicationKeyTests::Content-based key has an 8-char hex hash suffix()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-dedup-suffix-determinism-empty",
+      "comparison_sha256": "73ba548c1d3c21584c42160e1e33848d68d26b22a14a8e430ebd6f54d7f37f94",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 3,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+      "source_blob_sha": "dc9afab2977aefcffd81521fe1ca1068c95af564",
+      "case_id": "DeduplicationKeyTests::Content-based key is deterministic and distinguishes different content()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "f0807fb6190b8981953d85d0e85b3c0a9fb912b2186f3cc5f97ce8bbbf010199",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 80,
+          "expression": "#expect(keyA1 == keyA2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 81,
+          "expression": "#expect(keyA1 != keyB)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "Content-based key is deterministic and distinguishes different content",
+        "line": 43,
+        "end_line": 47,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "787af8c661df552b69b889cce45957d103d1c75a045ce6656333542e8797fee0",
+        "registration": "original(\"DeduplicationKeyTests\", \"Content-based key is deterministic and distinguishes different content\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 45,
+            "expression": "assertEquals(key, DeduplicationKey.contentBased(CONTACT, null, null, 1u, \"aaa\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotEquals",
+            "line": 46,
+            "expression": "assertNotEquals(key, DeduplicationKey.contentBased(CONTACT, null, null, 1u, \"bbb\"))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 44,
+            "expression": "DeduplicationKey.contentBased(CONTACT, null, null, 1u, \"aaa\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 45,
+            "expression": "DeduplicationKey.contentBased(CONTACT, null, null, 1u, \"aaa\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 46,
+            "expression": "DeduplicationKey.contentBased(CONTACT, null, null, 1u, \"bbb\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DeduplicationKeyTests::Content-based key is deterministic and distinguishes different content()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "DeduplicationKeyTests::Content-based key is deterministic and distinguishes different content()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-prefix-all-four-parameter-rows",
+      "comparison_sha256": "b24877867f0dea03e7dfb72f892826900aa217358019c359eb15ea9fca2cd956",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 1,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+      "source_blob_sha": "dc9afab2977aefcffd81521fe1ca1068c95af564",
+      "case_id": "DeduplicationKeyTests::Content-based key uses the expected prefix for DM and channel scopes(contactID : UUID ? , channelIndex : UInt8 ? , senderNodeName : String ? , timestamp : UInt32 , content : String , expectedPrefix : String)",
+      "parameter_family": "arguments-sha256:cded4ef98a9bdbb1532027ccc8b1023f8480533075a3bf6dfc5cc6d7a7d008b7",
+      "original_declaration_sha256": "e00f0bf5d65e969da2ee8452556d0d9a8a9a810863ab8f934a310ce06db514a6",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 52,
+          "expression": "#expect(key.hasPrefix(expectedPrefix))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": {
+        "declaration": "@Test(\n    arguments: [\n      (contactID: UUID?.some(UUID(uuidString: \"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")!),\n       channelIndex: UInt8?.none,\n       senderNodeName: String?.none,\n       timestamp: UInt32(1000),\n       content: \"hello\",\n       expectedPrefix: \"dm-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE-1000-\"),\n      (contactID: UUID?.none,\n       channelIndex: UInt8?.some(3),\n       senderNodeName: String?.some(\"Alice\"),\n       timestamp: UInt32(2000),\n       content: \"test\",\n       expectedPrefix: \"ch-3-2000-Alice-\"),\n      (contactID: UUID?.none,\n       channelIndex: UInt8?.some(0),\n       senderNodeName: String?.none,\n       timestamp: UInt32(500),\n       content: \"msg\",\n       expectedPrefix: \"ch-0-500--\"),\n      (contactID: UUID?.none,\n       channelIndex: UInt8?.none,\n       senderNodeName: String?.none,\n       timestamp: UInt32(100),\n       content: \"x\",\n       expectedPrefix: \"dm-unknown-100-\")\n    ]\n  )",
+        "axes": [
+          {
+            "expression": "[ ( contactID : UUID ? . some ( UUID ( uuidString : \"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\" ) ! ) , channelIndex : UInt8 ? . none , senderNodeName : String ? . none , timestamp : UInt32 ( 1000 ) , content : \"hello\" , expectedPrefix : \"dm-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE-1000-\" ) , ( contactID : UUID ? . none , channelIndex : UInt8 ? . some ( 3 ) , senderNodeName : String ? . some ( \"Alice\" ) , timestamp : UInt32 ( 2000 ) , content : \"test\" , expectedPrefix : \"ch-3-2000-Alice-\" ) , ( contactID : UUID ? . none , channelIndex : UInt8 ? . some ( 0 ) , senderNodeName : String ? . none , timestamp : UInt32 ( 500 ) , content : \"msg\" , expectedPrefix : \"ch-0-500--\" ) , ( contactID : UUID ? . none , channelIndex : UInt8 ? . none , senderNodeName : String ? . none , timestamp : UInt32 ( 100 ) , content : \"x\" , expectedPrefix : \"dm-unknown-100-\" ) ]",
+            "kind": "literal-collection",
+            "declared_rows": [
+              "( contactID : UUID ? . some ( UUID ( uuidString : \"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\" ) ! ) , channelIndex : UInt8 ? . none , senderNodeName : String ? . none , timestamp : UInt32 ( 1000 ) , content : \"hello\" , expectedPrefix : \"dm-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE-1000-\" )",
+              "( contactID : UUID ? . none , channelIndex : UInt8 ? . some ( 3 ) , senderNodeName : String ? . some ( \"Alice\" ) , timestamp : UInt32 ( 2000 ) , content : \"test\" , expectedPrefix : \"ch-3-2000-Alice-\" )",
+              "( contactID : UUID ? . none , channelIndex : UInt8 ? . some ( 0 ) , senderNodeName : String ? . none , timestamp : UInt32 ( 500 ) , content : \"msg\" , expectedPrefix : \"ch-0-500--\" )",
+              "( contactID : UUID ? . none , channelIndex : UInt8 ? . none , senderNodeName : String ? . none , timestamp : UInt32 ( 100 ) , content : \"x\" , expectedPrefix : \"dm-unknown-100-\" )"
+            ],
+            "declared_count": 4,
+            "definition": null
+          }
+        ],
+        "combination": "collection",
+        "declared_count": 4
+      },
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageKeyAcceptanceTest.kt",
+        "sha256": "8427e1d416cf238809647f22af6788fea156ae76df1e1941373007efbfa287cb",
+        "class": "com.meshcoreone.android.parity.MessageKeyAcceptanceTest",
+        "method_or_family_name": "originalPrefixParameterFamilyRetainsAllFourRows",
+        "line": 12,
+        "end_line": 18,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "55cadaed126408053d6b28ea643b5d465f573807e75cc9520dfd51c38aa76d4e",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 13,
+            "expression": "assertTrue(DeduplicationKey.contentBased(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"),\n            null, null, 1000u, \"hello\").startsWith(\"dm-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE-1000-\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 15,
+            "expression": "assertTrue(DeduplicationKey.contentBased(null, 3u, \"Alice\", 2000u, \"test\").startsWith(\"ch-3-2000-Alice-\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 16,
+            "expression": "assertTrue(DeduplicationKey.contentBased(null, 0u, null, 500u, \"msg\").startsWith(\"ch-0-500--\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 17,
+            "expression": "assertTrue(DeduplicationKey.contentBased(null, null, null, 100u, \"x\").startsWith(\"dm-unknown-100-\"))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 13,
+            "expression": "DeduplicationKey.contentBased(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"),\n            null, null, 1000u, \"hello\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 13,
+            "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startsWith",
+            "line": 14,
+            "expression": "startsWith(\"dm-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE-1000-\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 15,
+            "expression": "DeduplicationKey.contentBased(null, 3u, \"Alice\", 2000u, \"test\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startsWith",
+            "line": 15,
+            "expression": "startsWith(\"ch-3-2000-Alice-\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 16,
+            "expression": "DeduplicationKey.contentBased(null, 0u, null, 500u, \"msg\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startsWith",
+            "line": 16,
+            "expression": "startsWith(\"ch-0-500--\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 17,
+            "expression": "DeduplicationKey.contentBased(null, null, null, 100u, \"x\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startsWith",
+            "line": 17,
+            "expression": "startsWith(\"dm-unknown-100-\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DeduplicationKeyTests::Content-based key uses the expected prefix for DM and channel scopes(contactID : UUID ? , channelIndex : UInt8 ? , senderNodeName : String ? , timestamp : UInt32 , content : String , expectedPrefix : String)"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.MessageKeyAcceptanceTest",
+        "originalPrefixParameterFamilyRetainsAllFourRows"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-dedup-suffix-determinism-empty",
+      "comparison_sha256": "73ba548c1d3c21584c42160e1e33848d68d26b22a14a8e430ebd6f54d7f37f94",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 3,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+      "source_blob_sha": "dc9afab2977aefcffd81521fe1ca1068c95af564",
+      "case_id": "DeduplicationKeyTests::Empty content still produces a well-formed key()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "7e0972067a6fc765d426a17899bc6fe2f1dfcfdd42a11a5f0279b0a13607dd59",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 90,
+          "expression": "#expect(key.hasPrefix(\"dm-\"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 91,
+          "expression": "#expect(key.count > 10)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "Empty content still produces a well-formed key",
+        "line": 48,
+        "end_line": 51,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "f3c5c9a4573a028737c5ded8fc2a71efc6210059671635cb18bc122ee459dda9",
+        "registration": "original(\"DeduplicationKeyTests\", \"Empty content still produces a well-formed key\")",
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 50,
+            "expression": "assertTrue(key.startsWith(\"dm-\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 50,
+            "expression": "assertTrue(key.length > 10)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 49,
+            "expression": "DeduplicationKey.contentBased(CONTACT, null, null, 0u, \"\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key.startsWith",
+            "line": 50,
+            "expression": "key.startsWith(\"dm-\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DeduplicationKeyTests::Empty content still produces a well-formed key()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "DeduplicationKeyTests::Empty content still produces a well-formed key()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "lifecycle-original-unstarted-stop-ownership",
       "comparison_sha256": "9daca0a1c032272ecd3142dedb0216e89ebaa72a9667a730ddae0bfb1bd3a152",
       "source_file_family_count": 2,
@@ -42773,6 +43215,1041 @@
       "runner_identity": [
         "com.meshcoreone.android.core.model.SourceModelCasesTest",
         "NodeLocationFixTests::Primary fix is the first valid GPS point()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-ack-formula-text-attempt-key-literals",
+      "comparison_sha256": "c3bc809b38592ab6fb3d9b70d42d8a8665331d36f2794b613834adb5af558600",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 4,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+      "source_blob_sha": "b8d8e85cd21a996a0e43a54eae3b348701d17a3f",
+      "case_id": "AckCodeBuilderTests::attempt 4 wraps to attempt 0's code()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "d5fc157dd6cb1f6325d0e864c45aba8bfee6b35401a48cd9572b9ec5a4bbde4e",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 62,
+          "expression": "#expect(attempt0 == attempt4)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "attempt 4 wraps to attempt 0's code",
+        "line": 85,
+        "end_line": 89,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "5be13fa9c4875d0e5aa04d9bf6951d7dfc73b5c7acce0a0204f402bf632d54a4",
+        "registration": "original(\"AckCodeBuilderTests\", \"attempt 4 wraps to attempt 0's code\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 87,
+            "expression": "assertEquals(AckCodeBuilder.expectedAck(100u, 0u, \"hi\", publicKey),\n                AckCodeBuilder.expectedAck(100u, 4u, \"hi\", publicKey))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes",
+            "line": 86,
+            "expression": "Bytes(ByteArray(32) { 0x03 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 86,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AckCodeBuilder.expectedAck",
+            "line": 87,
+            "expression": "AckCodeBuilder.expectedAck(100u, 0u, \"hi\", publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AckCodeBuilder.expectedAck",
+            "line": 88,
+            "expression": "AckCodeBuilder.expectedAck(100u, 4u, \"hi\", publicKey)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "AckCodeBuilderTests::attempt 4 wraps to attempt 0's code()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt",
+          "sha256": "a59de664cafc1d7ec3206445448157d29a4ca0bb3c658d4ff4819081a6548829"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "AckCodeBuilderTests::attempt 4 wraps to attempt 0's code()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-ack-formula-text-attempt-key-literals",
+      "comparison_sha256": "c3bc809b38592ab6fb3d9b70d42d8a8665331d36f2794b613834adb5af558600",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 4,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+      "source_blob_sha": "b8d8e85cd21a996a0e43a54eae3b348701d17a3f",
+      "case_id": "AckCodeBuilderTests::attempts 0..3 produce four distinct codes()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "063b3a3bddef275bc154a57cc4e63d0ab00f515994a3200aaa53125d133e9d21",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 50,
+          "expression": "#expect(Set(codes).count == 4)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "attempts 0..3 produce four distinct codes",
+        "line": 81,
+        "end_line": 84,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "3d7331916b61e9d5d97bb1518837d58311965a4ce96c75bcf976d5852bb34798",
+        "registration": "original(\"AckCodeBuilderTests\", \"attempts 0..3 produce four distinct codes\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 83,
+            "expression": "assertEquals(4, (0..3).map { AckCodeBuilder.expectedAck(100u, it.toUByte(), \"hi\", publicKey) }.toSet().size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes",
+            "line": 82,
+            "expression": "Bytes(ByteArray(32) { 0x02 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 82,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AckCodeBuilder.expectedAck",
+            "line": 83,
+            "expression": "AckCodeBuilder.expectedAck(100u, it.toUByte(), \"hi\", publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.toUByte",
+            "line": 83,
+            "expression": "it.toUByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toSet",
+            "line": 83,
+            "expression": "toSet()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "AckCodeBuilderTests::attempts 0..3 produce four distinct codes()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt",
+          "sha256": "a59de664cafc1d7ec3206445448157d29a4ca0bb3c658d4ff4819081a6548829"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "AckCodeBuilderTests::attempts 0..3 produce four distinct codes()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-ack-formula-text-attempt-key-literals",
+      "comparison_sha256": "c3bc809b38592ab6fb3d9b70d42d8a8665331d36f2794b613834adb5af558600",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 4,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+      "source_blob_sha": "b8d8e85cd21a996a0e43a54eae3b348701d17a3f",
+      "case_id": "AckCodeBuilderTests::different texts produce different codes()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "e946f935653e83ddad565396ce5f0a0b1c38581b7070ccae8e1ced31f2f65d3c",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 41,
+          "expression": "#expect(a != b)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "different texts produce different codes",
+        "line": 78,
+        "end_line": 80,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "262d6557b3b294af770139390d8cc9335eadd798e5ec2577beabb8b3b8a2fb51",
+        "registration": "original(\"AckCodeBuilderTests\", \"different texts produce different codes\")",
+        "assertions": [
+          {
+            "name": "assertNotEquals",
+            "line": 79,
+            "expression": "assertNotEquals(AckCodeBuilder.expectedAck(1u, 0u, \"hi\", SELF), AckCodeBuilder.expectedAck(1u, 0u, \"bye\", SELF))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "AckCodeBuilder.expectedAck",
+            "line": 79,
+            "expression": "AckCodeBuilder.expectedAck(1u, 0u, \"hi\", SELF)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AckCodeBuilder.expectedAck",
+            "line": 79,
+            "expression": "AckCodeBuilder.expectedAck(1u, 0u, \"bye\", SELF)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "AckCodeBuilderTests::different texts produce different codes()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt",
+          "sha256": "a59de664cafc1d7ec3206445448157d29a4ca0bb3c658d4ff4819081a6548829"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "AckCodeBuilderTests::different texts produce different codes()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-ack-formula-text-attempt-key-literals",
+      "comparison_sha256": "c3bc809b38592ab6fb3d9b70d42d8a8665331d36f2794b613834adb5af558600",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 4,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+      "source_blob_sha": "b8d8e85cd21a996a0e43a54eae3b348701d17a3f",
+      "case_id": "AckCodeBuilderTests::matches firmware formula for known fixture()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b6be65d9f32944557e7d82679acfe9e1841ffa0e804de631689644556d53a089",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 33,
+          "expression": "#expect(code == expected)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "matches firmware formula for known fixture",
+        "line": 74,
+        "end_line": 77,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "e9706f58490e247ea33f05acb2eb23b7d847d5dda7d5b6ea10b4afc3c70b941f",
+        "registration": "original(\"AckCodeBuilderTests\", \"matches firmware formula for known fixture\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 75,
+            "expression": "assertEquals(Bytes.of(0x5E, 0x39, 0x9E, 0x8A),\n                AckCodeBuilder.expectedAck(0x6624_AABBu, 2u, \"hello\", Bytes(ByteArray(32) { 0xAA.toByte() })))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes.of",
+            "line": 75,
+            "expression": "Bytes.of(0x5E, 0x39, 0x9E, 0x8A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AckCodeBuilder.expectedAck",
+            "line": 76,
+            "expression": "AckCodeBuilder.expectedAck(0x6624_AABBu, 2u, \"hello\", Bytes(ByteArray(32) { 0xAA.toByte() }))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 76,
+            "expression": "Bytes(ByteArray(32) { 0xAA.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 76,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 76,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "AckCodeBuilderTests::matches firmware formula for known fixture()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt",
+          "sha256": "a59de664cafc1d7ec3206445448157d29a4ca0bb3c658d4ff4819081a6548829"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "AckCodeBuilderTests::matches firmware formula for known fixture()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
+      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift",
+      "source_blob_sha": "44cda5de83e97de4b8dbee5821ef5d8a94f381b5",
+      "case_id": "ChannelRXCorrelationTests::drops entries without decodedText()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "f64a24f2d1ceddee9c8cc0d0fb0853e27e39ee7585140e1dddb6016bcfb91d70",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 56,
+          "expression": "#expect(matching.map(\\.pathNodes) == [Data([0xA1])])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "drops entries without decodedText",
+        "line": 130,
+        "end_line": 136,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "43cf06ea3ad04473a4e37b5872f9e8446f490486458727d18085e467c176b9f3",
+        "registration": "original(\"ChannelRXCorrelationTests\", \"drops entries without decodedText\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 134,
+            "expression": "assertEquals(listOf(Bytes.of(0xA1)), matches.map { it.pathNodes })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 135,
+            "expression": "assertEquals(listOf(a), matches)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "rx",
+            "line": 131,
+            "expression": "rx(\"Alice\", \"one\", 0xA1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "rx",
+            "line": 132,
+            "expression": "rx(\"Alice\", \"one\", 0xC3)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 132,
+            "expression": "copy(decodedText = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ChannelRXCorrelation.matching",
+            "line": 133,
+            "expression": "ChannelRXCorrelation.matching(listOf(missingText, a), channelKey())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 133,
+            "expression": "listOf(missingText, a)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "channelKey",
+            "line": 133,
+            "expression": "channelKey()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 134,
+            "expression": "listOf(Bytes.of(0xA1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 134,
+            "expression": "Bytes.of(0xA1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 135,
+            "expression": "listOf(a)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ChannelRXCorrelationTests::drops entries without decodedText()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+        },
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
+          "sha256": "b93a584a39306f7a331ff2fffd29e9ab68d1c59ccfeb434d4b4020fe42d17e56"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelMessageFormat.kt",
+          "sha256": "d72f7f260a467e1b78f0f63da922ef5eb20c253e10d75e912bfb819b44a0c48c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "ChannelRXCorrelationTests::drops entries without decodedText()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
+      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift",
+      "source_blob_sha": "44cda5de83e97de4b8dbee5821ef5d8a94f381b5",
+      "case_id": "ChannelRXCorrelationTests::keeps the 0x88 whose body matches the message key()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "5a3f306b2392b49e7ed22ca4cac0342bebef350088d54a7850a1a5c45f05ee52",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 17,
+          "expression": "#expect(matching.map(\\.pathNodes) == [Data([0xA1])])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "keeps the 0x88 whose body matches the message key",
+        "line": 120,
+        "end_line": 123,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "7a037fa17d14603ff1b58d11773dde7534084d5806bec33bb74c0267a9c6aeaf",
+        "registration": "original(\"ChannelRXCorrelationTests\", \"keeps the 0x88 whose body matches the message key\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 122,
+            "expression": "assertEquals(listOf(Bytes.of(0xA1)), matches.map { it.pathNodes })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "ChannelRXCorrelation.matching",
+            "line": 121,
+            "expression": "ChannelRXCorrelation.matching(listOf(rx(\"Bob\", \"two\", 0xB2), rx(\"Alice\", \"one\", 0xA1)), channelKey())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 121,
+            "expression": "listOf(rx(\"Bob\", \"two\", 0xB2), rx(\"Alice\", \"one\", 0xA1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "rx",
+            "line": 121,
+            "expression": "rx(\"Bob\", \"two\", 0xB2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "rx",
+            "line": 121,
+            "expression": "rx(\"Alice\", \"one\", 0xA1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "channelKey",
+            "line": 121,
+            "expression": "channelKey()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 122,
+            "expression": "listOf(Bytes.of(0xA1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 122,
+            "expression": "Bytes.of(0xA1)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ChannelRXCorrelationTests::keeps the 0x88 whose body matches the message key()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+        },
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
+          "sha256": "b93a584a39306f7a331ff2fffd29e9ab68d1c59ccfeb434d4b4020fe42d17e56"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelMessageFormat.kt",
+          "sha256": "d72f7f260a467e1b78f0f63da922ef5eb20c253e10d75e912bfb819b44a0c48c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "ChannelRXCorrelationTests::keeps the 0x88 whose body matches the message key()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
+      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift",
+      "source_blob_sha": "44cda5de83e97de4b8dbee5821ef5d8a94f381b5",
+      "case_id": "ChannelRXCorrelationTests::matches when decoded sender has trailing space()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b2a841d5a8ba29462b056c26ffbbf853b2556d92982b9ec12c279713f3506e90",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 76,
+          "expression": "#expect(matching.map(\\.pathNodes) == [Data([0xA1])])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "matches when decoded sender has trailing space",
+        "line": 138,
+        "end_line": 141,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "613d83614aa563da557464dd9415a9b29150baf5eeae36208050b7fadacf98e5",
+        "registration": "original(\"ChannelRXCorrelationTests\", \"matches when decoded sender has trailing space\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 140,
+            "expression": "assertEquals(listOf(Bytes.of(0xA1)), ChannelRXCorrelation.matching(listOf(rx(\"Alice \", \"hello\", 0xA1)), key).map { it.pathNodes })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 139,
+            "expression": "DeduplicationKey.contentBased(null, 0u, \"Alice\", 42u, \"hello\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 140,
+            "expression": "listOf(Bytes.of(0xA1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 140,
+            "expression": "Bytes.of(0xA1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ChannelRXCorrelation.matching",
+            "line": 140,
+            "expression": "ChannelRXCorrelation.matching(listOf(rx(\"Alice \", \"hello\", 0xA1)), key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 140,
+            "expression": "listOf(rx(\"Alice \", \"hello\", 0xA1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "rx",
+            "line": 140,
+            "expression": "rx(\"Alice \", \"hello\", 0xA1)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ChannelRXCorrelationTests::matches when decoded sender has trailing space()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+        },
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
+          "sha256": "b93a584a39306f7a331ff2fffd29e9ab68d1c59ccfeb434d4b4020fe42d17e56"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelMessageFormat.kt",
+          "sha256": "d72f7f260a467e1b78f0f63da922ef5eb20c253e10d75e912bfb819b44a0c48c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "ChannelRXCorrelationTests::matches when decoded sender has trailing space()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
+      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift",
+      "source_blob_sha": "44cda5de83e97de4b8dbee5821ef5d8a94f381b5",
+      "case_id": "ChannelRXCorrelationTests::nil key matches nothing()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "e7364d68ac96524945f29fd5c3358a4ad488fb8d8e7e715a8b0b838b0d449391",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 63,
+          "expression": "#expect(matching.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "nil key matches nothing",
+        "line": 137,
+        "end_line": 137,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "76a5ab606b7010cf6e994bfb349b5c613d544d2dbfaa74f1ae032347dd9f3343",
+        "registration": "original(\"ChannelRXCorrelationTests\", \"nil key matches nothing\")",
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 137,
+            "expression": "assertTrue(ChannelRXCorrelation.matching(listOf(rx(\"Alice\", \"one\", 0xA1)), null).isEmpty())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "ChannelRXCorrelation.matching",
+            "line": 137,
+            "expression": "ChannelRXCorrelation.matching(listOf(rx(\"Alice\", \"one\", 0xA1)), null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 137,
+            "expression": "listOf(rx(\"Alice\", \"one\", 0xA1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "rx",
+            "line": 137,
+            "expression": "rx(\"Alice\", \"one\", 0xA1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 137,
+            "expression": "isEmpty()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ChannelRXCorrelationTests::nil key matches nothing()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+        },
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
+          "sha256": "b93a584a39306f7a331ff2fffd29e9ab68d1c59ccfeb434d4b4020fe42d17e56"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelMessageFormat.kt",
+          "sha256": "d72f7f260a467e1b78f0f63da922ef5eb20c253e10d75e912bfb819b44a0c48c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "ChannelRXCorrelationTests::nil key matches nothing()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
+      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift",
+      "source_blob_sha": "44cda5de83e97de4b8dbee5821ef5d8a94f381b5",
+      "case_id": "ChannelRXCorrelationTests::sorts matches by receivedAt ascending()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2c1684eee5e08aded189e93dd092c59fe07a3e3d7d8b2403f17c17bd6464a666",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 38,
+          "expression": "#expect(matching.map(\\.pathNodes) == [Data([0xA2]), Data([0xA1])])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "sorts matches by receivedAt ascending",
+        "line": 124,
+        "end_line": 129,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "8881906f2fd37658c9e012372911f178f11a36126f43ca29a7d6184a9e0d866f",
+        "registration": "original(\"ChannelRXCorrelationTests\", \"sorts matches by receivedAt ascending\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 128,
+            "expression": "assertEquals(listOf(Bytes.of(0xA2), Bytes.of(0xA1)), matches.map { it.pathNodes })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "ChannelRXCorrelation.matching",
+            "line": 125,
+            "expression": "ChannelRXCorrelation.matching(listOf(\n                rx(\"Alice\", \"one\", 0xA1, Instant.ofEpochSecond(2000)),\n                rx(\"Alice\", \"one\", 0xA2, Instant.ofEpochSecond(1000))), channelKey())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 125,
+            "expression": "listOf(\n                rx(\"Alice\", \"one\", 0xA1, Instant.ofEpochSecond(2000)),\n                rx(\"Alice\", \"one\", 0xA2, Instant.ofEpochSecond(1000)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "rx",
+            "line": 126,
+            "expression": "rx(\"Alice\", \"one\", 0xA1, Instant.ofEpochSecond(2000))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 126,
+            "expression": "Instant.ofEpochSecond(2000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "rx",
+            "line": 127,
+            "expression": "rx(\"Alice\", \"one\", 0xA2, Instant.ofEpochSecond(1000))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 127,
+            "expression": "Instant.ofEpochSecond(1000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "channelKey",
+            "line": 127,
+            "expression": "channelKey()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 128,
+            "expression": "listOf(Bytes.of(0xA2), Bytes.of(0xA1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 128,
+            "expression": "Bytes.of(0xA2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 128,
+            "expression": "Bytes.of(0xA1)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ChannelRXCorrelationTests::sorts matches by receivedAt ascending()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+        },
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
+          "sha256": "b93a584a39306f7a331ff2fffd29e9ab68d1c59ccfeb434d4b4020fe42d17e56"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelMessageFormat.kt",
+          "sha256": "d72f7f260a467e1b78f0f63da922ef5eb20c253e10d75e912bfb819b44a0c48c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "ChannelRXCorrelationTests::sorts matches by receivedAt ascending()"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },

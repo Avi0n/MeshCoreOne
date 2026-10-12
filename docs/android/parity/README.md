@@ -51,6 +51,29 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Current publishede244primary38189308604actuallyfailed app716/715pass/1fail:
+existingInlineContentCancellationTest plainCancellation OBSERVE:OwnerClosed.
+Owner intake routed, classifier/controller/codecpassed, realSwiftDataskipped.
+No secondbundle/rerun/worker Appedit. Independent6115227237sixpredicate/
+28reference source comparison no bounded mismatch/blobs equal is not
+current-hosted acceptance. Uncommitted messaging Python final output
+unavailable after runtime restart; freshclean verification required.
+
+Next owned increment compares13full messaging-key/ACK/RX originals in4groups:
+856/126inspected,67mandatory methods, unchanged5133denominator/0approved.
+Same reservation automatically evolved22 for SourceValuesTest. Restored
+02/03ACK keys; exact1000/2000dates/C3fresh missing-text ID/A1nilkey/hello
+trailing-sender/Testchannel/sourcepayloadhash. One annotated aggregate
+asserts all four prefix parameter rows; all four existing row runners remain.
+Independent Python source-formula checks give5e399e8a/039058c6f2c0cb49,
+not candidate-generated goldens. Fresh clean app/services/Python execution
+and independent bounded review pending; prior3262passes do not cover this.
+Actual mounted SyncHeardRepeatsAdapter logs/returnsUnit-or-null instead of
+forwarding real incoming harvest/record methods. Source-derived premessage
+RX A/B case needs replay after save; normal live processing of already-known
+messages/sent echoes does work. Owner intake sent via existing PR, no worker
+production edit or speculative adjacent reaction defect.
+
 Clean exact3262d79b3/d3f executed the final six177/178predicates:
 73/73protocol/all70requiredidentities (28reference+8device/selfinfo+34BugFix),
 cleanPython363/363,0failure/error/skip/readinesspassed/locksreleased. The three

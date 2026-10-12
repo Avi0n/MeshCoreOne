@@ -11,6 +11,7 @@ import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.event.PayloadType
 import com.meshcoreone.android.core.protocol.event.RouteType
+import java.time.Instant
 import java.util.UUID
 import kotlin.test.*
 import kotlinx.coroutines.*
@@ -78,10 +79,13 @@ class SourceValuesTest {
             assertNotEquals(AckCodeBuilder.expectedAck(1u, 0u, "hi", SELF), AckCodeBuilder.expectedAck(1u, 0u, "bye", SELF))
         },
         original("AckCodeBuilderTests", "attempts 0..3 produce four distinct codes") {
-            assertEquals(4, (0..3).map { AckCodeBuilder.expectedAck(100u, it.toUByte(), "hi", SELF) }.toSet().size)
+            val publicKey = Bytes(ByteArray(32) { 0x02 })
+            assertEquals(4, (0..3).map { AckCodeBuilder.expectedAck(100u, it.toUByte(), "hi", publicKey) }.toSet().size)
         },
         original("AckCodeBuilderTests", "attempt 4 wraps to attempt 0's code") {
-            assertEquals(AckCodeBuilder.expectedAck(100u, 0u, "hi", SELF), AckCodeBuilder.expectedAck(100u, 4u, "hi", SELF))
+            val publicKey = Bytes(ByteArray(32) { 0x03 })
+            assertEquals(AckCodeBuilder.expectedAck(100u, 0u, "hi", publicKey),
+                AckCodeBuilder.expectedAck(100u, 4u, "hi", publicKey))
         },
         original("BLETransportOpenedSignalTests", "wait returns immediately when signal already armed") {
             val signal = BLETransportOpenedSignal(); signal.fire(); signal.wait(); assertEquals(0, signal.waiterCount)
@@ -118,23 +122,28 @@ class SourceValuesTest {
             assertEquals(listOf(Bytes.of(0xA1)), matches.map { it.pathNodes })
         },
         original("ChannelRXCorrelationTests", "sorts matches by receivedAt ascending") {
-            val matches = ChannelRXCorrelation.matching(listOf(rx("Alice", "one", 0xA1).copy(receivedAt = BASE_TIME.plusSeconds(1)),
-                rx("Alice", "one", 0xA2)), channelKey())
+            val matches = ChannelRXCorrelation.matching(listOf(
+                rx("Alice", "one", 0xA1, Instant.ofEpochSecond(2000)),
+                rx("Alice", "one", 0xA2, Instant.ofEpochSecond(1000))), channelKey())
             assertEquals(listOf(Bytes.of(0xA2), Bytes.of(0xA1)), matches.map { it.pathNodes })
         },
         original("ChannelRXCorrelationTests", "drops entries without decodedText") {
             val a = rx("Alice", "one", 0xA1)
-            assertEquals(listOf(a), ChannelRXCorrelation.matching(listOf(a.copy(decodedText = null), a), channelKey()))
+            val missingText = rx("Alice", "one", 0xC3).copy(decodedText = null)
+            val matches = ChannelRXCorrelation.matching(listOf(missingText, a), channelKey())
+            assertEquals(listOf(Bytes.of(0xA1)), matches.map { it.pathNodes })
+            assertEquals(listOf(a), matches)
         },
-        original("ChannelRXCorrelationTests", "nil key matches nothing") { assertTrue(ChannelRXCorrelation.matching(listOf(rx("Alice", "one", 1)), null).isEmpty()) },
+        original("ChannelRXCorrelationTests", "nil key matches nothing") { assertTrue(ChannelRXCorrelation.matching(listOf(rx("Alice", "one", 0xA1)), null).isEmpty()) },
         original("ChannelRXCorrelationTests", "matches when decoded sender has trailing space") {
-            assertEquals(listOf(Bytes.of(0xA1)), ChannelRXCorrelation.matching(listOf(rx("Alice ", "one", 0xA1)), channelKey()).map { it.pathNodes })
+            val key = DeduplicationKey.contentBased(null, 0u, "Alice", 42u, "hello")
+            assertEquals(listOf(Bytes.of(0xA1)), ChannelRXCorrelation.matching(listOf(rx("Alice ", "hello", 0xA1)), key).map { it.pathNodes })
         },
     )
     private fun channelKey() = DeduplicationKey.contentBased(null, 0u, "Alice", 42u, "one")
-    private fun rx(sender: String, body: String, path: Int) = RxLogEntryDTO(
-        UUID.randomUUID(), RADIO, BASE_TIME, 8.0, -70, RouteType.FLOOD, PayloadType.GROUP_TEXT, 0u, null,
-        1u, Bytes.of(path), Bytes.of(1, 2, 3), Bytes.of(1), "fixture", channelIndex = 0u,
+    private fun rx(sender: String, body: String, path: Int, receivedAt: Instant = BASE_TIME) = RxLogEntryDTO(
+        UUID.randomUUID(), RADIO, receivedAt, 8.0, -70, RouteType.FLOOD, PayloadType.GROUP_TEXT, 0u, null,
+        1u, Bytes.of(path), Bytes.of(1, 2, 3), Bytes.of(1), "039058c6f2c0cb49", channelIndex = 0u, channelName = "Test",
         decryptStatus = DecryptStatus.SUCCESS, senderTimestamp = 42u, payloadTypeBits = 5u, decodedText = "$sender: $body",
     )
 }

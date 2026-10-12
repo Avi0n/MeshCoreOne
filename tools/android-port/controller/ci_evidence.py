@@ -92,6 +92,8 @@ WP501_ACCEPTANCE_CASES = {
      "originalPublicFlagsSeamSaturatesAndWaitsForAcknowledgement"),
     ("com.meshcoreone.android.parity.ProtocolRoundTripAcceptanceTest",
      "originalBoundaryFramesRetainExactSourceInputs"),
+    ("com.meshcoreone.android.parity.MessageKeyAcceptanceTest",
+     "originalPrefixParameterFamilyRetainsAllFourRows"),
     ("com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
      "publicSessionFiltersBeforeCollectionAndEndsOnStop"),
     ("com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
