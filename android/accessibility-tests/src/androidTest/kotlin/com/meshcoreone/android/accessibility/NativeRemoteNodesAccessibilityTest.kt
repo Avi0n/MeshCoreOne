@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
@@ -238,14 +239,26 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
             L.remoteNodesAuthSecondsRemaining(activity.resources, 30), useUnmergedTree = true))
         val progress = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo) and
             hasAnyAncestor(isDialog()))
-        val measured = progress.fetchSemanticsNode()
+        var measured = progress.fetchSemanticsNode()
         val scroll = generateSequence(measured.parent) { it.parent }.first {
             it.config.contains(SemanticsActions.ScrollBy) && it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
         }
         val viewport = scroll.boundsInRoot
+        val before = measured.layoutInfo.coordinates.boundsInRoot()
+        val origin = measured.layoutInfo.coordinates.positionInRoot()
+        val bottom = origin.y + measured.layoutInfo.height
+        val delta = if (bottom > viewport.bottom) bottom - viewport.bottom
+            else if (origin.y < viewport.top) origin.y - viewport.top else 0f
+        if (delta != 0f) {
+            compose.onNode(SemanticsMatcher("Actual progress scroll viewport") { it.id == scroll.id },
+                useUnmergedTree = true).performSemanticsAction(SemanticsActions.ScrollBy) {
+                assertTrue("The actual visual bar must be reachable by non-gesture scroll", it(0f, delta))
+            }
+        }
+        measured = progress.fetchSemanticsNode()
         val layout = measured.layoutInfo
         val visual = layout.coordinates.boundsInRoot()
-        println("WP503_REMOTE_PENDING_PROGRESS|semantics=${measured.size}|allocation=${layout.width}x${layout.height}|visual=$visual|viewport=$viewport")
+        println("WP503_REMOTE_PENDING_PROGRESS|semantics=${measured.size}|allocation=${layout.width}x${layout.height}|before=$before|scroll=$delta|visual=$visual|viewport=$viewport")
         progress.assertIsDisplayed()
         assertTrue("The actual visual progress allocation, not expanded noninteractive semantics, must be wholly contained",
             layout.width > 0 && layout.height > 0 &&

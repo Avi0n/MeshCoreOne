@@ -7,7 +7,6 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
@@ -28,6 +27,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 
 @RunWith(AndroidJUnit4::class)
 class NativeMapRuntimeAccessibilityTest : DeviceAccessibilityHarness() {
@@ -84,7 +87,7 @@ class NativeMapRuntimeAccessibilityTest : DeviceAccessibilityHarness() {
             },
         )
         content { MeshCoreTheme(motionScale = 0f) { AuditSurface { LineOfSightEntry(dependencies) } } }
-        compose.onNodeWithContentDescription(activity.getString(T.toolsLineOfSight)).assertIsDisplayed()
+        onView(withContentDescription(activity.getString(T.toolsLineOfSight))).check(matches(isDisplayed()))
         val heading = compose.onNode(hasText(activity.getString(T.toolsLineOfSight)) and
             SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         assertScrollableFont200Unclipped(heading)
