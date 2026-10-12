@@ -1,13 +1,52 @@
 # WP-503 accessibility audit
 
-**Status: latest owned native cohort passes 78/78; broader coverage incomplete; device TalkBack unavailable.**
+**Status: new authentication and Map/LoS executions fail; PR205 remains draft and incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Latest native execution
+## Current execution and base refresh
 
-At OWN `d468c185db7766389c1582fb9db99b53c423e0a0`, the entire current owned native
+Actual live main `d8181418614a5acaa46f4acde54b741b492ac4b0` is adopted at
+`95ad80c13`; the landed room production/owning fixture bytes match the already integrated
+producer lineage. #207 and #220 are retired as active repairs. No historical producer
+result is relabeled as a new execution of a merge commit.
+
+New remote authentication mounts the real public entry/dialog/holder. Protected prefill
+requires twelve masked bullets and Password semantics, not plaintext. Exact 15-character
+truncation, typed failure/editing recovery, labelled toggles, disabled duplicate actions,
+textual countdown and real cancellation assertions are retained. An SDK37-only diagnostic
+at `36b3c57ddd5ea0588028ca74d68a0a7ac7ae68e7` passed three of four cases; pending
+authentication failed with `OutOfMemoryError` at the unchanged 512m heap.
+
+The both-API reduced-animation probe at `e2514783e2edc4b0ff6c25ea2a963242696f7e40`
+discovered four cases: one passed, three failed, zero errors/skips. SDK31's real dialog
+and independent minimal Material secure-dialog control both fail 60-second native idling.
+SDK37 pending authentication again exhausts the heap after its actual 30-second text,
+disabled actions and zero-clipped native scroll measurements. Public Android animator
+scale is set and asserted to zero before window creation; this did **not** solve either
+failure. No timeout/heap relaxation, omitted SDK or product defect inference is made.
+
+Real runtime probing disproves the earlier unsupported-architecture assumption:
+`Process.is64Bit()` and the product guard are both true on SDK31/37. Actual mounted
+MapEntry and LineOfSightEntry at `8de58a8102913b1826fcc879c211cfe760779741` discover
+four cases, all fail on missing MapLibre JNI entry points, zero errors/skips. Neither
+architecture spoofing nor a replacement renderer is used. Populated map/LoS accessibility
+cannot be measured by this runner; the intended assertions remain unexecuted after mount.
+
+Historical published head `33f355059ab9510fad736f386fc6299ca54777b9` has authoritative
+[run38294672952](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38294672952)
+SUCCESS across all six jobs, including SwiftData restore/export. It does not verify the
+new authentication, shared scroll or map changes. See [exact commands and failures](../evidence/WP-503/README.md).
+
+Issue [#218](https://github.com/cbattlegear/MeshCoreOne-Android/issues/218) has no verified
+active repair producer/PR in the inspected handoff. Merged PR161 closes #121, not #218.
+The ownership gap is recorded in [its existing thread](https://github.com/cbattlegear/MeshCoreOne-Android/issues/218#issuecomment-6131126281);
+no new worker or product repair is created here.
+
+## Historical positive native cohort
+
+At OWN `d468c185db7766389c1582fb9db99b53c423e0a0`, the then-current entire owned native
 cohort passes **78/78**, zero failures/errors/skips in one actual execution: messaging22,
 diagnostics10, backup8, onboarding8, Nodes8, remote nodes8, font controls8, shell4 and
 appearance2. Real Resources font2/RTL and native SDK31/37 are retained. Exactly **760
@@ -24,7 +63,8 @@ native framework control receives clicks2px beyond both vertical boundaries. The
 history slider independently receives all four corners of a **48x48dp** pointer square,
 inside its scrolled viewport, and each click selects the expected sample. No slider
 product defect, reduced target floor or synthetic graph substitute is claimed.
-Authentication, live status/telemetry and location/map flows remain unexecuted.
+Authentication was not included in this 78-case execution; its later outcomes are above.
+Live status/telemetry and populated location/map flows remain unverified.
 
 Authentic CLI product `270c9ea423637753b4f8475a3d6d5c58d4861e69` independently passes
 unchanged owned disconnected cases2 plus producer reconnect/focus/history cases4:

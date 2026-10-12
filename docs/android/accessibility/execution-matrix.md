@@ -1,6 +1,6 @@
 # WP-503 native execution matrix
 
-**Latest owned native execution78/78 passed; no full-matrix or device acceptance.** This matrix remains the
+**Current authentication and Map/LoS executions fail; historical cohort78/78 passed.** This matrix remains the
 full assertion/observation contract, not a passing result. The real App runner discovered
 24 audit tests on SDK31/37 at candidate86993ee65: 6 passed, 18 failed, no errors/skips.
 It covered all 38 rich-span/pixel frames, room distinctions, mixed-direction direct retry,
@@ -68,13 +68,33 @@ at OWN7890dda8, not the remaining unexecuted states or physical TalkBack require
 Remote nodes8 covers public catalog error/refresh recovery, offline real-holder cached
 history and empty explanation,3.9V/3.7V data-bound non-gesture selection, actual numeric
 scroll containment/font2, and framework/native pointer calibration. Both APIs verify all
-four corners of a48x48dp square despite44px semantic Slider allocation. Authentication,
-live status/sensors/location/map remain NOT RUN; fixture stores do not prove persistence.
+four corners of a48x48dp square despite44px semantic Slider allocation. Authentication was NOT RUN in that cohort; later bounded executions below do not establish
+both-API acceptance. Live status/sensors/populated location/map remain unverified; fixture
+stores do not prove persistence.
 
 Authentic product270 + unchanged owned auditb7fd independently passesCLI2 and producer
 reconnect/focus/history4 in one **6/6** native run. PR223/#220 landed as main726f00dd,
 adopted at OWN67e3daf31. #220 is retired as active, historical2 failures preserved;
 the78-case cohort already contains actual270 production, not a new landed-merge execution.
+
+Live maind818 is adopted locally, including the genuinely merged room repair. The exact
+published33 hosted run38294672952 subsequently completed SUCCESS in all six jobs;
+that historical candidate does not cover the new authentication/shared scroll/map tests.
+
+Remote authentication adds protected prefill/toggle/cancel, exact15-character warning/
+typed-failure/editing recovery and pending30-second countdown/duplicate gating/cancellation,
+plus an independent secure-dialog control. The SDK37-only36 diagnostic passed3/4 with
+pending authentication OOM. At e251, pending/control selectors discover4 on both APIs,
+pass1/fail3, zero errors/skips: SDK31 product and framework control fail60-second idling;
+SDK37 pending exhausts512m after its countdown/disabled/zero-clipped scroll assertions.
+The real system animator scale0 reduced-motion profile is asserted, but does not fix this.
+The earlier SDK31/37 declarations and all normative assertions remain enabled.
+
+Native runtime82 probing discovers4/fails4 because the unsupported-architecture assumption
+is false: both APIs actually report process64=true/product supported=true. Corrected mounted
+public Map/LoS tests at8de discover4/fail4 on unavailable MapLibre JNI symbols. No populated
+map, marker traversal, terrain analysis or graph acceptance is inferred. A real compatible
+Android native runtime is required; the guard/renderer is not bypassed here.
 
 ## Shared acceptance rules
 

@@ -1,6 +1,6 @@
 # WP-503 attempt evidence
 
-**Latest owned native cohort78/78 passed; broader coverage incomplete, not accepted.**
+**Current authentication and native-map executions fail; historical cohort78/78 passed.**
 Native suites execute through the existing App unit runner.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
@@ -43,6 +43,31 @@ No device/TalkBack claim.
 | OWN4252780a16457ec6a6a4553551b23302ca2871f7; same remote command | 8 discovered/6 passed/2 failed,0 errors/skips. Actual3.9V/3.7V SetProgress and fully contained42px numeric text already pass; independent framework Slider252x44px receives both native boundary clicks2px beyond the semantic box. Remaining two assertions still use the disproved44px proxy. |
 | OWNd468c185db7766389c1582fb9db99b53c423e0a0; same remote command | **8/8 passed**,0 failures/errors/skips. Actual public catalog error/refresh, saved/empty history and native font2/RTL SDK31/37. Real history Slider292x44px receives all four native pointer corners of a48x48dp square within its scrolled viewport, each selects3.7V; non-gesture progress and zero-clipped actual numeric alternative retained. No floor changed/product bug fabricated. |
 | Same OWNd468c185; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.*` | **78/78 passed**,0 failures/errors/skips, in a separate entire-cohort execution at this actual commit: messaging22/diagnostics10/backup8/onboarding8/Nodes8/remote8/font8/shell4/appearance2. Exactly760 painted records/0 below unchanged floors/min4.517812074094317. Not a sum of earlier runs or device certification. |
+| OWN6bfa6b763e75a8b00ec3be57beeead14e9dd350f; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest` | 22 discovered/16 passed/6 failed,0 errors/skips. Original remote8/onboarding8 pass; new auth6 fail counter synchronization. Shared line-by-line scroll oracle extraction preserves onboarding8. |
+| OWN2cd55ba8d08d315595e64914eebb8626ef2b436b; same22 command | 16 passed/6 failed,0 errors/skips. SDK31 auth idling; SDK37 plaintext wait was incorrect for protected EditableText. Corrected to actual twelve masked bullets plus Password semantics, not a product defect. |
+| OWN1be3e95adff05836f96bc08781270caceab35700; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.authenticationPrefills* --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.frameworkSecure*` | 4 discovered/2 passed(SDK37)/2 failed(SDK31),0 errors/skips. Minimal independent Material secure dialog reproduces the60-second idling failure. |
+| OWN36b3c57ddd5ea0588028ca74d68a0a7ac7ae68e7; `JAVA_TOOL_OPTIONS=-Drobolectric.enabledSdks=37` and `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.authentication* --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.pendingAuthentication* --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.frameworkSecure*` | Explicit SDK37-only diagnostic:4 discovered/3 passed/1 failed,0 errors/skips. Protected prefill/toggles/cancel, exact15-character warning/truncation/typed failure/editing recovery and framework control pass. Pending authentication fails `OutOfMemoryError: Java heap space` at unchanged512m. Not both-API acceptance. |
+| OWNe2514783e2edc4b0ff6c25ea2a963242696f7e40; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.pendingAuthentication* --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.frameworkSecure*` | 4 discovered/1 passed/3 failed,0 errors/skips. Real Settings.Global animator scale0 asserted before activity creation. SDK31 framework/product each fail `AppNotIdleException` after60s (175541/192963 attempts); SDK37 pending fails512m OOM. Actual countdown312x76px/two lines is scroll-contained in(24,88)-(336,764) with zero clipping before failure. No success inferred from the earlier filtered invocation's missing output. |
+| OWN82f2777937500c884803693a37544abb182c6128; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest` | 4 discovered/0 passed/4 failed,0 errors/skips. Unsupported-runtime assumption disproved: SDK31/37 both actually report process64=true/product supported=true. No product defect inferred; oracle corrected to mount the real supported branch. |
+| OWN8de58a8102913b1826fcc879c211cfe760779741; same map command | 4 discovered/0 passed/4 failed,0 errors/skips. Public MapEntry fails actual `TileServerOptions.mapLibreConfiguration()` JNI; public LineOfSightEntry fails actual `NativeConnectivityListener.initialize()` JNI on both APIs. No architecture/JNI guard bypass or copied renderer. Intended font/target/point assertions cannot execute after mount. |
+
+All later attempts above contain the genuinely adopted live main
+`d8181418614a5acaa46f4acde54b741b492ac4b0` (merge95ad80c13).
+The shared scroll helper preserves actual native line reachability and unchanged zero
+clipping thresholds. Android animator scale0 is now an explicit reduced-motion profile;
+it does not verify the default-motion profile or solve secure-dialog/progress idling.
+SDK31 remains declared; neither it nor the failed cancellation assertions are silently removed.
+
+Authoritative published33 [run38294672952](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38294672952)
+binds `33f355059ab9510fad736f386fc6299ca54777b9`, completed SUCCESS in all six jobs.
+The completed Linux job114963383530 reports App798 and all20 module suites positive,
+zero failures/errors/skips; SwiftData restore/export also succeeded. This historical
+result is not current authentication/map evidence. No duplicate CI result bundle is retained.
+
+The existing [issue218 handoff](https://github.com/cbattlegear/MeshCoreOne-Android/issues/218#issuecomment-6131126281)
+records the inspected ownership gap: no verified active repair producer/PR, and old merged
+PR161 closes121 rather than218. Missing runtime session tools prevent a broader activity
+claim; no new worker is authorized or launched.
 
 The room oracle now preserves **both** the source named accessibility action and the actual
 native pointer button. Cleared child speech is not native visibility. It measures the
