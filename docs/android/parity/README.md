@@ -1,6 +1,14 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current proposed inspection is1002/5133families/139groups/70mandatory/0approved.
+Current proposed inspection is1046/5133families/143groups/70mandatory/0approved.
+The new44 RFCalculator originals are four disjoint comparisons:29 independent
+formula/distance cases,11 terrain/path cases,two returned-field cases and two
+inclusive slice/segment cases. Their literal expectations, strict tolerances,
+sample profiles, invalid-input branches and real assertion-helper bodies are
+bound; six overlapping GeodesicDistance cases and Android supplements do not
+add original credit. Complete math/results and actual App analyzer projection
+were read, not mounted LOS UI/terrain/cancellation/60fps or physical RF proof.
+Current-candidate RF execution and independent acceptance remain pending.
 Actual190 mergeedc/parentsa4fa+5dda/candidate-equal treefe854720 is
 subsequently adopted with exactly its inherited three-path delta; worker/native
 bytes preserved. Explicit own two-path EOL refresh restores canonical bytes

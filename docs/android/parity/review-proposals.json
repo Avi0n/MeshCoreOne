@@ -4126,6 +4126,160 @@
       ]
     },
     {
+      "id": "rf-original-propagation-constants-formulas-and-distance",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RFCalculatorTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+      "native_factory": "rfCalculator",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.diagnostics.rf.RFCalculatorTest",
+      "runner_name": "original-case-id",
+      "comparison": "All29 complete RFCalculatorTests bodies preserve independent constants299792458/6371; wavelength910/2400/0/-100 and strict tolerances0.001; Fresnel midpoint3000+3000/quarter1500+4500/symmetry2000+4000/all four invalid branches; bulge0.25/1.33/symmetry1/all four invalid branches; loss6000/910/107.2 plus1000-2000-4000 independent monotonic and6.02dB delta guards,400-900-2400 frequency ordering/all four invalid branches. All six diffraction bodies retain independent negative50/grazing0/15.7/5-15-30/37.7 inputs, fixed expected0/6/13.9/20.5 and original strict tolerances1/0.5/0.7/all three invalid branches. Five distances retain exact SF/LA/Tokyo/short-point coordinates, same-point zero,559000 tolerance10000, symmetry0.001,8280000 tolerance100000 and1000 tolerance100; the stale source short-distance comment50 is not substituted for actual assertion100.",
+      "inputs": "Complete frozen/native29 bodies, strict IEEE exact and abs(actual-expected)<tolerance helpers, source/native constants/formulas/positive guards/operand order and selected actual App analyzer delegation read. Expectations are independent source literals, not calculated by candidate code. Multi-predicate/invalid-input branches remain inside their original one-family methods, not counted as extra discoveries.",
+      "adaptations": "CLLocationCoordinate2D becomes native Coordinate with identical selected Double values. Source Darwin log10 maps to existing RfLog10; these finite source tolerance cases do not establish universal bit-identical libm behavior or independently validate the supplemental comments claiming Darwin outputs. Source assertions use IEEE equality; native rfCalcAssertExact uses actual==expected rather than boxed Double equality. GeodesicDistanceTest's overlapping six-case donor slice and Android edge tests are not additional original credit.",
+      "checked_assertion_helpers": {
+        "rfCalcAssertExact": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+        "rfCalcAssertNear": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt"
+      },
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+        "MC1Services/Sources/MC1Services/RF/RFCalculator.swift",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculator.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RfLog10.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/rf/GeodesicDistanceTest.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
+      ],
+      "consumer": "Actual AppLineOfSightPathAnalyzer distance/full/segment calls delegate to the production RFCalculator, retaining coordinates/heights/frequency/k and feature result fields. These synchronous pure cases do not verify terrain-provider/network/elevation cancellation, rendered charts,60fps drag performance, physical RF reception or every IEEE input.",
+      "unresolved": ["New selected RF body proposals have not yet been independently reviewed or executed at this candidate. Existing registration/full-module totals are not promoted to44-family acceptance; actual required names/current hosted/persistent full acceptance remain required."],
+      "methods": [
+        "Speed of light constant is correct",
+        "Earth radius constant is correct",
+        "Wavelength at 910 MHz is approximately 0.3294m",
+        "Wavelength at 2400 MHz is approximately 0.125m",
+        "Wavelength returns 0 for zero frequency",
+        "Wavelength returns 0 for negative frequency",
+        "Fresnel radius at midpoint is approximately 22.23m for 6km at 910MHz",
+        "Fresnel radius at quarter point is smaller than at midpoint",
+        "Fresnel radius is symmetric",
+        "Fresnel radius returns 0 for invalid inputs",
+        "Earth bulge at midpoint with k=0.25 is approximately 2.82m for 6km",
+        "Earth bulge with standard atmosphere k=1.33 is smaller",
+        "Earth bulge is symmetric",
+        "Earth bulge returns 0 for invalid inputs",
+        "Path loss is approximately 107.2 dB for 6km at 910MHz",
+        "Path loss increases with distance",
+        "Path loss increases with frequency",
+        "Path loss returns 0 for invalid inputs",
+        "Diffraction loss is zero for clear line-of-sight (v below grazing)",
+        "Diffraction loss is approximately 6 dB for grazing (v near 0)",
+        "Diffraction loss increases for blocked path (v near 1)",
+        "Diffraction loss is greater for larger obstructions",
+        "Diffraction loss matches ITU-R P.526 reference value at strong obstruction (v ≈ 2.4)",
+        "Diffraction loss returns 0 for invalid inputs",
+        "Distance between same coordinates is zero",
+        "Haversine distance calculation is accurate",
+        "Haversine distance is symmetric",
+        "Distance across date line is correct",
+        "Short distance calculation is accurate"
+      ]
+    },
+    {
+      "id": "rf-original-profile-clearance-loss-and-degenerate-inputs",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RFCalculatorTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+      "native_factory": "pathAnalysis",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.diagnostics.rf.RFCalculatorTest",
+      "runner_name": "original-case-id",
+      "comparison": "All11 complete PathAnalysis bodies preserve helpers' default11 samples, SF basecoordinate/latitude offset0.01 and triangular midpoint profile, selected21samples/6000m/base0/heights50/frequency910/k1. Flat profile asserts CLEAR/worst>=80/empty obstructions/exact6000m and6km; loss107.2 tolerance1/no diffraction/exact total=FSPL.100m hill asserts BLOCKED/negative clearance/nonempty obstructions and independently peak>10/total>FSPL.25m hill preserves source CLEAR-or-MARGINAL disjunction and>=60, not an invented exact marginal predicate.45m hill requires PARTIAL_OBSTRUCTION/0<=clearance<60/nonempty obstructions. Empty/single/zero-total profiles retain source blocked/zero-distance predicates;100/20 asymmetry requires CLEAR/>=80.40m hill k0.25 vs1.33 independently requires greater standard-atmosphere clearance.",
+      "inputs": "Complete frozen/native11 bodies, both complete elevation helper algorithms and native default analyze wrapper50/50/910/1 read. All sample counts, coordinates,base/peak heights, distances, frequency, refraction and independent positive/negative/empty predicates match, not just method names.",
+      "adaptations": "Native List/Coordinate replaces Swift Array/CLLocationCoordinate2D without selected value/order changes. Source empty/invalid profiles deliberately produce a zeroed BLOCKED analysis result; this is matched specified domain behavior, not a new hidden error fallback. No claim that untested chart/elevation-provider paths are equivalent.",
+      "checked_assertion_helpers": {
+        "rfCalcAssertExact": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+        "rfCalcAssertNear": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt"
+      },
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+        "MC1Services/Sources/MC1Services/RF/RFCalculator.swift",
+        "MC1Services/Sources/MC1Services/RF/PathAnalysisResult.swift",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculator.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/PathAnalysisResult.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
+      ],
+      "consumer": "Source/native core both use origin0 for full analysis, skip endpointswithin1m, preserve original obstruction full-path distances, retain worst/min/peak loss and80/60/0 thresholds. Actual App result conversion retains distance,losses,status,clearance,obstructions,frequency,k. Provider/UI/cancellation/performance remain distinct.",
+      "unresolved": ["Current candidate actual RF discovery and independent/full acceptance remain pending; no model-only result certifies mounted LOS UI or physical propagation."],
+      "methods": [
+        "Clear path with flat terrain returns clear status",
+        "Clear path has only FSPL, no diffraction loss",
+        "Blocked path with 100m mountain returns blocked status",
+        "Blocked path has significant diffraction loss",
+        "Marginal path with partial obstruction returns marginal status",
+        "Partial obstruction path returns partial obstruction status",
+        "Empty profile returns blocked status",
+        "Single sample profile returns blocked status",
+        "Profile with zero total distance returns blocked status",
+        "Asymmetric antenna heights are handled correctly",
+        "Custom k-factor affects earth bulge calculation"
+      ]
+    },
+    {
+      "id": "rf-original-returned-frequency-and-refraction-fields",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RFCalculatorTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+      "native_factory": "pathAnalysisResultFields",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.diagnostics.rf.RFCalculatorTest",
+      "runner_name": "original-case-id",
+      "comparison": "Both complete PathAnalysisResultFields bodies preserve two samples SF37.7749/-122.4194 and37.7849/-122.4194/base0/distance0+1000/heights50+50. First passes915/k1.33 and independently asserts exact returned915; second passes906/k1.33 and independently asserts exact returned1.33. Source defaults are not replaced by a common915 frequency in both cases.",
+      "inputs": "Full original/native two bodies, two-sample helper, both DTO initializers/getters and actual App result conversion read; expected fields are independent input literals.",
+      "adaptations": "Native Coordinate/List/Double fields preserve selected source values. No extra credit for PathAnalysisResult supplemental equality/obstruction-region tests.",
+      "checked_assertion_helpers": {
+        "rfCalcAssertExact": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt"
+      },
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+        "MC1Services/Sources/MC1Services/RF/PathAnalysisResult.swift",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/PathAnalysisResult.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
+      ],
+      "consumer": "Actual feature projection retains returned frequencyMHz/refractionK, not reconstructed display defaults. These pure DTO assertions do not prove the mounted frequency/k controls update correctly.",
+      "unresolved": ["Actual selected RF execution, independent source comparison and persistent/full acceptance remain pending."],
+      "methods": [
+        "PathAnalysisResult includes frequency used in calculation",
+        "PathAnalysisResult includes k-factor used in calculation"
+      ]
+    },
+    {
+      "id": "rf-original-inclusive-array-slice-segment-origins",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RFCalculatorTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+      "native_factory": "segmentAnalysisWithSlices",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.diagnostics.rf.RFCalculatorTest",
+      "runner_name": "original-case-id",
+      "comparison": "Both complete SegmentAnalysis originals preserve11 samples i0...10/coordinates37+i*0.01,-122/elevation100/distancei*1000. Inclusive source0...5 becomes subList(0,6), heights50/50/frequency906/k1 and independent distance5000/CLEAR guards. Inclusive5...10 becomes subList(5,11), heights10/10/frequency906/k1 and exact distance5000, without adding a source-absent status requirement. Production segment origin uses the actual first selected sample's distance while recorded obstruction distances remain full-path.",
+      "inputs": "Full source/native slice bodies, kilometer sample helper and complete source/native shared analyze core/endpoint/empty handling and actual App full/segment delegates read.",
+      "adaptations": "Kotlin subList is a noncopying view replacing Swift ArraySlice, with explicit inclusive-to-exclusive end conversion and identical selected element order/coordinates. These cases do not measure60fps/allocations; App's explicit DTO map may copy and is not claimed zero-copy/performance parity.",
+      "checked_assertion_helpers": {
+        "rfCalcAssertExact": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt"
+      },
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculatorTest.kt",
+        "MC1Services/Sources/MC1Services/RF/RFCalculator.swift",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculator.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
+      ],
+      "consumer": "Actual App segment delegates selected coordinates/heights/frequency/k and maps resulting obstruction fields. Synchronous math preserves source selected segment origins; consumer drag/runtime/network/cancellation are separate unverified families.",
+      "unresolved": ["Actual selected RF discovery/independent/full acceptance pending; overlapping Geodesic tests/Android edge cases do not add original credit."],
+      "methods": [
+        "analyzePathSegment works with ArraySlice",
+        "analyzePathSegment handles overlapping slice indices"
+      ]
+    },
+    {
       "id": "node-location",
       "native_factory": "nodeLocations",
       "source_path": "MC1Services/Tests/MC1ServicesTests/NodeLocationFixTests.swift",

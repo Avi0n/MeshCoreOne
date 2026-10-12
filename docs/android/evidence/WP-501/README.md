@@ -14,6 +14,21 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current platform consumer audit and actual routing-repair adoption
 
+Current proposals1046/5133families/143groups/70mandatory/0approved include44
+new disjoint RFCalculator originals:29 propagation/constants/distance,
+11 full-profile/clearance/loss/invalid inputs,two returned frequency/k fields
+and two inclusive slice/segment origins. Complete frozen/native bodies and
+helpers, full shared analysis, result models and actual App analyzer/result
+projection were compared. Source numeric expectations and strict tolerances
+remain independent;11/21 samples, triangular terrain, antenna/frequency/k
+defaults and inclusive subList ends match. Native checked numeric assertions
+are explicitly byte/body-bound using the existing helper mechanism; initial
+generation rejected unbound rfCalc helpers, then ordinary bindings resolved it.
+No native product/test/input/golden bytes changed. Six overlapping Geodesic
+cases and native supplements add no original credit. Current RF discovery/
+independent acceptance remain pending; no universal Darwin log10 bit parity,
+mounted terrain/UI/cancellation/60fps/physical RF or full acceptance claim.
+
 Subsequent actual190 Windows-byte mergeedc was independently verified:
 parentsa4fa+5dda/candidate-equal treefe854720dfd0d8f77194b7cead3598951ab6d5a1,
 genuine MERGED identity; clean same-branch rebase changed only two module-local
@@ -40,7 +55,7 @@ Producer App661/services2647 are not new worker changedACK31/platform3 proof.
 Complete DevicePlatform49 original/existing App bodies, ordered source/native
 rules, normalization/units and actual query/platform/link/transport callers
 were read. New disjoint proposal group preserves43 known detections, three
-unknown strings and three independent pacing scalars. Current proposals
+unknown strings and three independent pacing scalars. That earlier stage had
 1002/5133families/139groups/70mandatory App methods/0approved full acceptance.
 CrossInputPolicy supplements are not additional originals.
 
