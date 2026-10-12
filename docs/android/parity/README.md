@@ -55,7 +55,7 @@ Adopted actual main `d3f942576e2406cf588cb491994297598e2af681` after
 coordinator-directed PR176 merge: parentsa19/a4e, actual tree0124b863
 equals revieweda4e, merge timestamp refreshed. All51owned commits rebase
 cleanly to d701d2c8; worker app/protocol/collector bytes unchanged.
-Regenerated accounting and WP312 worklist include actual inherited map
+Regenerated accounting and WP307/WP312/WP317 worklists include inherited map
 mounting, not additional semantic acceptance.173is inherited merged repair,
 not an open worker product blocker. Fresh current-base app70/hosted checks
 pending; olda19-base594/5f/AF2 passes are not promoted to new-base execution.

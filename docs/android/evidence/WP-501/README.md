@@ -22,12 +22,23 @@ Issue173 repair is now inherited production, not worker-created or an open
 product blocker. All51owned commits rebased cleanly; the actual rebase result
 was `d701d2c832a0d3941caa32402e8816e1ad5dac7d`, not yet published/executed.
 Owned app/protocol assertions and collector are byte-identical to a515;
-generated accounting/WP312 worklist reflects the actual newly inherited map
+generated accounting/WP307/WP312/WP317 worklists reflect actual inherited map
 consumers without promoting them to accepted families. Same reservation20/
 initial authorization/base250/source/manifest/policy remain unchanged.
 Prior594/5f/AF2 execution retains its a19-base identity; it is not new-base
 proof. Fresh declared app70 and exact-candidate hosted verification remain
 required. No other checkout, producer edit, additional worker or merge action.
+
+The first adoption check rejected stale WP307 output because accounting was
+generated after semantic worklists; the documented dependency order
+`audit.py --generate` then argument-free `semantic.py` restored deterministic
+checks without changing validators. The first7ca native invocation failed
+its unchanged clean-head guard before readiness/locks/Gradle because the
+generated WP317 settings worklist was not staged with the other adoption
+outputs. The simultaneous Python363/363passed, but that worktree was not
+fully clean and is not promoted as clean-candidate proof. Commit the omitted
+generated worklist before the unchanged native/current-head Python rerun;
+no input/threshold/check/cache bypass or product failure inferred.
 
 Latest completed hosted candidate: [af2f6f597 primary38183893582](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38183893582),
 actual SUCCESS/all six jobs/basea19. Full18868-line official log read directly:
