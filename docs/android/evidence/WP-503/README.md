@@ -1,7 +1,7 @@
 # WP-503 attempt evidence
 
-**Incomplete, not accepted.** Native suites now exist and are registered additively with the
-existing App unit runner. Actual execution is pending on the serialized Linux Gradle lane.
+**Incomplete, not accepted.** Native suites execute through the existing App unit runner:
+24 discovered/run, 6 passed, 18 assertion failures, no errors/skips at the candidate below.
 No screenshot golden comparison, device TalkBack observation or independent review occurred.
 
 ## Identity and revisions
@@ -51,7 +51,7 @@ Commands ran from this worktree on Windows on 2026-10-12.
 | `gh issue edit 136 --repo cbattlegear/MeshCoreOne-Android --add-assignee cbattlegear` | Passed; subsequent view confirmed assignee | Account owns tracking; dedicated worker identified in comment |
 | `gh pr view 164 --repo cbattlegear/MeshCoreOne-Android --json state,mergedAt,mergeCommit,headRefOid,url` | Passed; state MERGED, exact merge recorded above | Not a WP acceptance attestation |
 | `git merge-base --is-ancestor 250dd50ed259c5d9fe1006d4f45a637e4aea0aff HEAD` | Exit 0 | Actual merge ancestry only |
-| `python .\tools\android-port\controller\ci.py preflight` | Exit 2, BLOCKED: `Explicit --state/ANDROID_CI_STATE is required; failed cloud setup is not readiness` | Native environment not ready; no fallback installation |
+| `python .\tools\android-port\controller\ci.py preflight` | Exit 2, BLOCKED: `Explicit --state/ANDROID_CI_STATE is required; failed cloud setup is not readiness` | Initial invocation lacked explicit state; not proof of absent tools |
 | `python .\tools\android-port\controller\ci.py run --stage prepare` | Exit 2, same explicit-state blocker | No strict dependency preparation occurred |
 | `python .\tools\android-port\controller\validate.py` | Exit 0 | Manifest/source/ownership validation, not feature acceptance |
 | `python .\tools\android-port\portmap.py` | Exit 0 | Traceability only |
@@ -99,6 +99,51 @@ Only that hosted result/log is referenced; no CI bundle is retained.
 | `WP-503-boundaries` | Textual alternatives and missing message semantics documented; no golden changes | Data-bound graph/status assertions, approved deterministic screen evidence and distinct device observations |
 | `WP-503-source-test-parity` | All four WP-503 original test cross-references read, 23 source declarations inventoried | Executed acceptance, not a duplicate of WP-501's parity accounting |
 
+## Actual native execution
+
+The session-local targeted launcher uses the installed `local/run.sh` serialized
+bundle/ext4 snapshot, pinned state and `candidate_environment`, then invokes existing
+Gradle tasks. It is not a new canonical manifest runner. The installed adapter does not
+reject the verified project-handle/CLI alias; no identity guard blocked execution.
+
+| Exact task / candidate | Actual result |
+| --- | --- |
+| `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.* --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`, `b42c9a41e8ccc62b3c82f255dca7dc7065a2c472` | Native preflight succeeded; compilation failed on test-only `CustomActions` key location; zero discovery explicitly rejected, not success. Fixed to `SemanticsActions.CustomActions`. |
+| Same task/options, `86993ee65ca43fb5f7da26f537b3857e1cd4c1a9` | Compiled; discovered/run 24, passed 6, failed 18, errors/skips 0, SDK31/37. Passing families: disconnected diagnostics explanation, sent-room no retry, mixed CJK/Hebrew direct retry/font/targets. |
+| Same task/options, `4f8b6a5d324d2d13dcbbce2502c200992c7e325a` | Discovered/run 24, passed 6, failed 18, errors/skips 0. Added paragraph/viewport diagnostics; partial grid-target artifact is not promoted to an intrinsic control defect. |
+
+Both executing candidates measured **38 effective frames x 2 directions x 5 emitted ranges
+x 2 SDKs = 760** actual foreground/background records. **162 fail** unchanged thresholds,
+covering **81 distinct parameter segments**, including **22** high-contrast identity
+records below 7:1. Lowest ratio: **1.0435430264922168:1**, Fern/dark/standard/outgoing
+hashtag. Default/light/standard/outgoing hashtag: **1.285454842066801:1**. Each background
+comes from native window pixels and is verified against the actual emitted bubble role;
+effective overlapping base/link/span colors and mention fills come from `TextLayoutResult`.
+No source-palette proxy or sampled text foreground is substituted.
+
+Enabled targets on passing flows measured at least 48dp; observed examples include
+70x48, 114x48, 165x48, 86x54 and 110x54dp. This is not all-feature target acceptance.
+Real Resources font scale 2.0 was asserted; mixed-direction direct text was unclipped.
+Short-label width-overflow flags and zero visible noise-floor Minimum-row bounds are
+qualified diagnostics, not yet independently diagnosed visible clipping/new product issues.
+
+The confirmed contrast finding was filed/assigned as
+[#208](https://github.com/cbattlegear/MeshCoreOne-Android/issues/208) at coordinator direction.
+Four room findings remain assigned to #207. No product or WP-501 binding edit occurred.
+
+The coordinator identified a test assertion weakness: checking only the artificial
+`audit-root` does not prove actual timelines lack a broad live region. It is corrected in
+owned tests to inspect actual ancestors/subtrees of two real rows. A negative control puts
+a live region on the real `ChatTimeline`; a positive control permits a small failure-only
+region. These are harness regressions, not product bugs or expected-passing room defects.
+Focused verification of the changed harness, all-theme name/target enumeration and existing
+source/Material-role families is pending; unchanged room cases await genuinely repaired bytes.
+
+Hosted [run38264623000](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38264623000)
+for exact b42c9a41e failed at that test compilation error. Its authoritative result is not
+transferred to later repaired heads. No automated result/JUnit/image bundle is committed,
+uploaded, hashed or revalidated here.
+
 **Identity blocker withdrawn:** the coordinator verified the valid alias relationship.
 Implementation resumed with canonical identity/history unchanged. A session-local targeted
 launcher uses the existing `local/run.sh` bundle/ext4 snapshot adapter, shared Gradle lock,
@@ -121,7 +166,9 @@ published/merged. There is no protected product decision requesting new colors o
 relaxed thresholds. No nested worker, signing/release action or repository setting was changed.
 
 The audit and execution contract are in [accessibility documentation](../../accessibility/README.md).
-The live ownership/execution blocker was posted to
+The earlier hypothetical ownership/execution blocker was posted to
 [issue136](https://github.com/cbattlegear/MeshCoreOne-Android/issues/136#issuecomment-6125830322).
+It is withdrawn; the resumed measured handoff is
+[comment6126652467](https://github.com/cbattlegear/MeshCoreOne-Android/issues/136#issuecomment-6126652467).
 The native cross-session messaging tool is not exposed in this worker; this issue comment
 and the draft PR are the persistent coordinator handoff, not a fabricated message receipt.

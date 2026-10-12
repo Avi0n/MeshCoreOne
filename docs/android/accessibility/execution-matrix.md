@@ -1,9 +1,12 @@
 # WP-503 native execution matrix
 
-**Every row below is NOT RUN by WP-503.** This is the assertion/observation contract for
-resuming the existing worker, not a discovered suite, screenshot golden, or passing result.
-It must be attached to an admitted real runner before execution. Do not create a success
-record from this table or reuse historical screenshots as evidence for this candidate.
+**Partial native execution; no complete row or device acceptance.** This matrix remains the
+full assertion/observation contract, not a passing result. The real App runner discovered
+24 audit tests on SDK31/37 at candidate86993ee65: 6 passed, 18 failed, no errors/skips.
+It covered all 38 rich-span/pixel frames, room distinctions, mixed-direction direct retry,
+appearance and noise-floor states. See [exact evidence](../evidence/WP-503/README.md).
+The remaining states/flows/windows below are NOT RUN. Do not reuse historical screenshots
+or promote a partial automated check to observed TalkBack/whole-WP acceptance.
 
 ## Shared acceptance rules
 

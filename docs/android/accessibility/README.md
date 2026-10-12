@@ -1,6 +1,6 @@
 # WP-503 accessibility audit
 
-**Status: native audit suites implemented; execution pending; device TalkBack unavailable.**
+**Status: native suites executed with failures; acceptance incomplete; device TalkBack unavailable.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The inspected native tree is `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
@@ -11,7 +11,8 @@ Source inspection can establish missing labels/actions and identify the actual c
 It cannot measure a hit rectangle, prove text is unclipped, establish TalkBack traversal,
 or certify the colors painted by a native feature. Existing test assertions are reusable
 coverage, not tests executed by this worker. No numerical health score is assigned without
-those observations. Performance and visual redesign are outside this audit.
+those observations. The native measurements below are automated evidence, not device
+announcements/traversal. Performance and visual redesign are outside this audit.
 
 The [execution matrix](execution-matrix.md) records the required assertions and observations.
 [WP evidence](../evidence/WP-503/README.md) records actual commands and the execution gate.
@@ -45,7 +46,7 @@ consumer is `android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/
 which calls `RoomConversationRoute` and the authentication sheet. The findings are not
 based on the unused dependency-free scaffold registry.
 
-## Additional measurement risks, not confirmed runtime defects
+## Measured painted-feature contrast defect
 
 The mounted direct/channel path is `AppChatsContent` -> `AppChatConversationScreen:91-94`
 -> `ChatTimeline.MessageBubble` -> `MessageBody`. Its outgoing surface is
@@ -55,12 +56,35 @@ The mounted direct/channel path is `AppChatsContent` -> `AppChatConversationScre
 Material role pairs separately. Neither assertion proves these raw spans clear the
 different surface actually used by the feature. Measure every emitted span against
 its composited bubble, including self-mention fills, before calling all-theme contrast
-complete. No palette change or numerical contrast failure is asserted here.
+complete.
+
+The mounted native audit at exact `86993ee65ca43fb5f7da26f537b3857e1cd4c1a9` measured all
+38 effective frames, both message directions and five emitted text ranges on SDK31/37:
+**760 measurements, 162 below the unchanged floors, 81 distinct failing segments**.
+Minimum: **1.043543:1**, Fern/dark/standard/outgoing hashtag. There are 22 high-contrast
+identity records below 7:1. Pixel sampling verifies the feature's actual emitted bubble
+surface; link styles, full-range/base overrides and self-mention fills are resolved from
+the actual `TextLayoutResult`. Normal text retains 4.5:1.
+
+This confirmed finding is assigned in
+[#208](https://github.com/cbattlegear/MeshCoreOne-Android/issues/208). The coordinator owns
+repair routing across WP-308 spans, WP-307 bubbles and WP-301 roles. WP-503 makes no new
+palette/identity choice and does not edit those production surfaces.
+
+## Qualified font/viewport diagnostics
 
 The room authentication sheet is a non-scrolling Column. Appearance cards constrain
 theme-name text to one line. Map's first controls row does not wrap. These merit the
 compact-window/200%-font checks in the matrix; source shape alone is not evidence of
-clipping, overlap or an undersized effective hit target.
+clipping, overlap or an undersized effective hit target. Initial native TextLayout overflow
+flags on short English labels require paragraph/rounding diagnosis, not an immediate visual
+clipping claim. A partially revealed scroll-grid card is not classified as intrinsically
+undersized; the audit scrolls cards fully into view before measuring their effective bounds.
+
+The populated noise-floor audit exposes its actual count/minimum/maximum/average in the
+chart summary, but the numeric Minimum row has zero visible bounds in a 360x900dp/200%-font
+native window. This remains a qualified viewport finding pending owner/context diagnosis,
+not a new filed product defect or device observation.
 
 ## Existing strengths to preserve
 
