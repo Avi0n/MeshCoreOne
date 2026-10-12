@@ -51,13 +51,28 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Issue177 restores two original80byte DeviceInfo predicates before parsing
+unchanged v10withoutmode/v9defaultmode fixtures; fields/identities/helpers/
+production unchanged. Same reservation20->21 through trusted support rule,
+initial authorization/base/identity preserved. No new original families.
+Fresh declared covering execution pending;177staysopen through reviewed merge.
+Issue178 likewise restores each original59byte push predicate in existing
+legacy/default-repeater/room-server bodies before parsing unchanged bytes;
+first59/extended63guards/AABBprefix/RF/tails/decodedfields retained. Already
+admitted test path/reservation21; three restored predicates are not new
+families. Fresh BugFix discovery/rebinding/review required;178remainsopen.
+Exact8d26bd12b/d3f PythonReference28/28 and cleanPython363/363passed,
+0failure/error/skip, readiness/locks passed/released. Independent/full
+843of5133acceptance remains unfinished; prior47da hosted stillrunning.
+
 The next28PythonReference families retain31exact vector equalities, complete
 frozen inputs/fixtures/builders/helpers and selected live consumers read.
 Existing reference(name) registration is explicitly mapped to actual lambda
 bodies and source display identities; checked expect helper binds full byte
 equality. Declared independent49vector provenance check passed without Kotlin
 execution or expectation regeneration.843families/122groups/66mandatory,
-same reservation20; immutable28runner execution/independent review pending.
+same reservation20 at8d26; immutable28runner execution passed above,
+independent review pending.
 No assertion/product defect or native/golden change. Raw nilpath trace vector
 does not certify live trace: both public consumers reject nil/empty paths.
 The fixture-advertised Python generator is absent from the frozen pin; no fresh

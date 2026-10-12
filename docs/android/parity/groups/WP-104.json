@@ -1028,7 +1028,7 @@
         },
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
             "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
@@ -1053,37 +1053,37 @@
             {
               "name": "deviceAndContactRoundTrips",
               "line": 58,
-              "end_line": 114
+              "end_line": 118
             },
             {
               "name": "contactMessage",
-              "line": 116,
-              "end_line": 117
+              "line": 120,
+              "end_line": 121
             },
             {
               "name": "messagesAndChannels",
-              "line": 120,
-              "end_line": 159
+              "line": 124,
+              "end_line": 163
             },
             {
               "name": "statusStatsAndVariables",
-              "line": 162,
-              "end_line": 189
+              "line": 166,
+              "end_line": 193
             },
             {
               "name": "packetStats",
-              "line": 191,
-              "end_line": 198
+              "line": 195,
+              "end_line": 202
             },
             {
               "name": "originalLppSeams",
-              "line": 201,
-              "end_line": 236
+              "line": 205,
+              "end_line": 240
             },
             {
               "name": "wp106RouterSeam",
-              "line": 239,
-              "end_line": 244
+              "line": 243,
+              "end_line": 248
             }
           ]
         },
@@ -1291,7 +1291,7 @@
         },
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
             "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
@@ -1316,37 +1316,37 @@
             {
               "name": "deviceAndContactRoundTrips",
               "line": 58,
-              "end_line": 114
+              "end_line": 118
             },
             {
               "name": "contactMessage",
-              "line": 116,
-              "end_line": 117
+              "line": 120,
+              "end_line": 121
             },
             {
               "name": "messagesAndChannels",
-              "line": 120,
-              "end_line": 159
+              "line": 124,
+              "end_line": 163
             },
             {
               "name": "statusStatsAndVariables",
-              "line": 162,
-              "end_line": 189
+              "line": 166,
+              "end_line": 193
             },
             {
               "name": "packetStats",
-              "line": 191,
-              "end_line": 198
+              "line": 195,
+              "end_line": 202
             },
             {
               "name": "originalLppSeams",
-              "line": 201,
-              "end_line": 236
+              "line": 205,
+              "end_line": 240
             },
             {
               "name": "wp106RouterSeam",
-              "line": 239,
-              "end_line": 244
+              "line": 243,
+              "end_line": 248
             }
           ]
         },
@@ -5198,7 +5198,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "contactDeleted response code exists",
           "line": 31,
@@ -5276,7 +5276,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "contactsFull response code exists",
           "line": 32,
@@ -5342,7 +5342,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "contactDeleted category is push",
           "line": 33,
@@ -5401,7 +5401,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "contactsFull category is push",
           "line": 34,
@@ -5484,7 +5484,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "contactDeleted parses valid payload",
           "line": 35,
@@ -5598,7 +5598,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "contactDeleted parse failure for short payload",
           "line": 36,
@@ -5711,7 +5711,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "contactDeleted ignores extra bytes",
           "line": 37,
@@ -5813,7 +5813,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "contactsFull parses empty payload",
           "line": 38,
@@ -5891,7 +5891,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "contactsFull parses any payload",
           "line": 39,
@@ -6005,7 +6005,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "packetParser routes contactDeleted",
           "line": 40,
@@ -6101,7 +6101,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "packetParser routes contactsFull",
           "line": 41,
@@ -6215,7 +6215,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "packetParser contactDeleted parse failure for short payload",
           "line": 42,
@@ -7098,7 +7098,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "autoAddConfig response code exists",
           "line": 43,
@@ -7164,7 +7164,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "autoAddConfig category is device",
           "line": 44,
@@ -7253,7 +7253,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "autoAddConfig parses single-byte payload with default maxHops",
           "line": 45,
@@ -7373,7 +7373,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "autoAddConfig parses two-byte payload with maxHops",
           "line": 48,
@@ -7493,7 +7493,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "autoAddConfig parse failure for empty payload",
           "line": 51,
@@ -7594,7 +7594,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "autoAddConfig ignores extra bytes beyond maxHops",
           "line": 52,
@@ -9364,7 +9364,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "Contact round trip",
           "line": 59,
@@ -10170,7 +10170,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "Contact rejects reserved path length encoding",
           "line": 66,
@@ -11173,7 +11173,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "SelfInfo round trip",
           "line": 67,
@@ -11617,7 +11617,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "SelfInfo negative TX power round trip",
           "line": 76,
@@ -11959,7 +11959,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "SelfInfo parses minimum-length payload without device name",
           "line": 83,
@@ -12289,7 +12289,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "SelfInfo rejects truncated fixed-width payload",
           "line": 88,
@@ -13130,11 +13130,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "ContactMessage v3 round trip",
-          "line": 121,
-          "end_line": 125,
+          "line": 125,
+          "end_line": 129,
           "factory_method": "messagesAndChannels",
           "registration_identity_resolution": null,
           "body_sha256": "5e3abe2f3f644ab47fb8753852f423ffd698a859af2148e292a97628c14fbf51",
@@ -13142,37 +13142,37 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 122,
+              "line": 126,
               "expression": "assertIs<MeshEvent.ContactMessageReceived>(Parsers.ContactMessage.parse(contactMessage(), Parsers.ContactMessage.Version.V3))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 123,
+              "line": 127,
               "expression": "assertEquals(6.0, message.snr)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 123,
+              "line": 127,
               "expression": "assertEquals(hex(\"0123456789ab\"), message.senderPublicKeyPrefix)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 124,
+              "line": 128,
               "expression": "assertEquals(2u.toUByte(), message.pathLength)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 124,
+              "line": 128,
               "expression": "assertEquals(0u.toUByte(), message.textType)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 124,
+              "line": 128,
               "expression": "assertEquals(\"Hello World\", message.text)",
               "assertion_or_checked_wait": true
             }
@@ -13180,31 +13180,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Parsers.ContactMessage.parse",
-              "line": 122,
+              "line": 126,
               "expression": "Parsers.ContactMessage.parse(contactMessage(), Parsers.ContactMessage.Version.V3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "contactMessage",
-              "line": 122,
+              "line": 126,
               "expression": "contactMessage()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 123,
+              "line": 127,
               "expression": "hex(\"0123456789ab\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 124,
+              "line": 128,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 124,
+              "line": 128,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -13382,11 +13382,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "ContactMessage rejects truncated signature payload",
-          "line": 126,
-          "end_line": 128,
+          "line": 130,
+          "end_line": 132,
           "factory_method": "messagesAndChannels",
           "registration_identity_resolution": null,
           "body_sha256": "6d267a62db53dd7fc497c615b7c147668b5b989fb2f2ae7a10409832a3036928",
@@ -13395,25 +13395,25 @@
           "actions_and_helper_calls": [
             {
               "name": "expectFailure",
-              "line": 127,
+              "line": 131,
               "expression": "expectFailure(Parsers.ContactMessage.parse(contactMessage(hex(\"deadbe\"), 2u, \"\"), Parsers.ContactMessage.Version.V3), reason = \"signature truncated\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Parsers.ContactMessage.parse",
-              "line": 127,
+              "line": 131,
               "expression": "Parsers.ContactMessage.parse(contactMessage(hex(\"deadbe\"), 2u, \"\"), Parsers.ContactMessage.Version.V3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "contactMessage",
-              "line": 127,
+              "line": 131,
               "expression": "contactMessage(hex(\"deadbe\"), 2u, \"\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 127,
+              "line": 131,
               "expression": "hex(\"deadbe\")",
               "assertion_or_checked_wait": false
             }
@@ -14211,11 +14211,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "ChannelMessage v3 round trip",
-          "line": 129,
-          "end_line": 133,
+          "line": 133,
+          "end_line": 137,
           "factory_method": "messagesAndChannels",
           "registration_identity_resolution": null,
           "body_sha256": "10f93598041c9dc8260361cec18c398148b5ebc28fb720d807a38b7c6c3adf1f",
@@ -14223,31 +14223,31 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 130,
+              "line": 134,
               "expression": "assertIs<MeshEvent.ChannelMessageReceived>(Parsers.ChannelMessage.parse(hex(\"ec0000020000\") + le(1_704_067_200u) + Bytes.utf8(\"Broadcast message\"), Parsers.ChannelMessage.Version.V3))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 131,
+              "line": 135,
               "expression": "assertEquals(-5.0, message.snr)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 131,
+              "line": 135,
               "expression": "assertEquals(2u.toUByte(), message.channelIndex)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 132,
+              "line": 136,
               "expression": "assertEquals(0u.toUByte(), message.pathLength)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 132,
+              "line": 136,
               "expression": "assertEquals(\"Broadcast message\", message.text)",
               "assertion_or_checked_wait": true
             }
@@ -14255,37 +14255,37 @@
           "actions_and_helper_calls": [
             {
               "name": "Parsers.ChannelMessage.parse",
-              "line": 130,
+              "line": 134,
               "expression": "Parsers.ChannelMessage.parse(hex(\"ec0000020000\") + le(1_704_067_200u) + Bytes.utf8(\"Broadcast message\"), Parsers.ChannelMessage.Version.V3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 130,
+              "line": 134,
               "expression": "hex(\"ec0000020000\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "le",
-              "line": 130,
+              "line": 134,
               "expression": "le(1_704_067_200u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.utf8",
-              "line": 130,
+              "line": 134,
               "expression": "Bytes.utf8(\"Broadcast message\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 131,
+              "line": 135,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 132,
+              "line": 136,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -14835,11 +14835,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "StatusResponse round trip",
-          "line": 163,
-          "end_line": 167,
+          "line": 167,
+          "end_line": 171,
           "factory_method": "statusStatsAndVariables",
           "registration_identity_resolution": null,
           "body_sha256": "ece9d084d081c8a5f95889c6a3e0aa7d82ec1d12d6987b00e4ea22cc513c1b30",
@@ -14847,13 +14847,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 166,
+              "line": 170,
               "expression": "assertEquals(StatusResponse(prefix, 3800, 5, -110, -85, 1000u, 500u, 3600u, 86400u, 100u, 400u, 200u, 800u, 10, 6.0, 5, 15, 1800u), assertIs<MeshEvent.StatusResponse>(Parsers.StatusResponse.parse(body)).response)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 166,
+              "line": 170,
               "expression": "assertIs<MeshEvent.StatusResponse>(Parsers.StatusResponse.parse(body))",
               "assertion_or_checked_wait": true
             }
@@ -14861,43 +14861,43 @@
           "actions_and_helper_calls": [
             {
               "name": "hex",
-              "line": 164,
+              "line": 168,
               "expression": "hex(\"0123456789ab\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 165,
+              "line": 169,
               "expression": "Bytes.of(0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statusBody",
-              "line": 165,
+              "line": 169,
               "expression": "statusBody(3800u, 5u, -110, -85, listOf(1000u, 500u, 3600u, 86400u, 100u, 400u, 200u, 800u), 10u, 24, 5u, 15u, le(1800u))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 165,
+              "line": 169,
               "expression": "listOf(1000u, 500u, 3600u, 86400u, 100u, 400u, 200u, 800u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "le",
-              "line": 165,
+              "line": 169,
               "expression": "le(1800u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "StatusResponse",
-              "line": 166,
+              "line": 170,
               "expression": "StatusResponse(prefix, 3800, 5, -110, -85, 1000u, 500u, 3600u, 86400u, 100u, 400u, 200u, 800u, 10, 6.0, 5, 15, 1800u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Parsers.StatusResponse.parse",
-              "line": 166,
+              "line": 170,
               "expression": "Parsers.StatusResponse.parse(body)",
               "assertion_or_checked_wait": false
             }
@@ -15045,11 +15045,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "CoreStats round trip",
-          "line": 168,
-          "end_line": 171,
+          "line": 172,
+          "end_line": 175,
           "factory_method": "statusStatsAndVariables",
           "registration_identity_resolution": null,
           "body_sha256": "797388697d73994346a96f569f71f4738674a3f79312fbce628ea533e81ccb9f",
@@ -15057,31 +15057,31 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 169,
+              "line": 173,
               "expression": "assertIs<MeshEvent.StatsCore>(Parsers.CoreStats.parse(ByteWriter().appendUInt16LE(3750u).appendUInt32LE(86400u).appendUInt16LE(3u).appendUInt8(5u).toBytes()))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 170,
+              "line": 174,
               "expression": "assertEquals(3750u.toUShort(), stats.batteryMV)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 170,
+              "line": 174,
               "expression": "assertEquals(86400u, stats.uptimeSeconds)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 170,
+              "line": 174,
               "expression": "assertEquals(3u.toUShort(), stats.errors)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 170,
+              "line": 174,
               "expression": "assertEquals(5u.toUByte(), stats.queueLength)",
               "assertion_or_checked_wait": true
             }
@@ -15089,61 +15089,61 @@
           "actions_and_helper_calls": [
             {
               "name": "Parsers.CoreStats.parse",
-              "line": 169,
+              "line": 173,
               "expression": "Parsers.CoreStats.parse(ByteWriter().appendUInt16LE(3750u).appendUInt32LE(86400u).appendUInt16LE(3u).appendUInt8(5u).toBytes())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ByteWriter",
-              "line": 169,
+              "line": 173,
               "expression": "ByteWriter()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "appendUInt16LE",
-              "line": 169,
+              "line": 173,
               "expression": "appendUInt16LE(3750u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "appendUInt32LE",
-              "line": 169,
+              "line": 173,
               "expression": "appendUInt32LE(86400u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "appendUInt16LE",
-              "line": 169,
+              "line": 173,
               "expression": "appendUInt16LE(3u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "appendUInt8",
-              "line": 169,
+              "line": 173,
               "expression": "appendUInt8(5u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toBytes",
-              "line": 169,
+              "line": 173,
               "expression": "toBytes()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUShort",
-              "line": 170,
+              "line": 174,
               "expression": "u.toUShort()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUShort",
-              "line": 170,
+              "line": 174,
               "expression": "u.toUShort()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 170,
+              "line": 174,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -15321,11 +15321,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "RadioStats round trip",
-          "line": 172,
-          "end_line": 176,
+          "line": 176,
+          "end_line": 180,
           "factory_method": "statusStatsAndVariables",
           "registration_identity_resolution": null,
           "body_sha256": "0c12e8d7eed1af2f41089771183f2882bccf2b02189e1b05fcfe79f1b01f3f7a",
@@ -15333,37 +15333,37 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 173,
+              "line": 177,
               "expression": "assertIs<MeshEvent.StatsRadio>(Parsers.RadioStats.parse(ByteWriter().appendInt16LE(-115).appendInt8(-90).appendInt8(28).appendUInt32LE(1000u).appendUInt32LE(2000u).toBytes()))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 174,
+              "line": 178,
               "expression": "assertEquals((-115).toShort(), stats.noiseFloor)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 174,
+              "line": 178,
               "expression": "assertEquals((-90).toByte(), stats.lastRSSI)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 175,
+              "line": 179,
               "expression": "assertEquals(7.0, stats.lastSNR, 0.01)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 175,
+              "line": 179,
               "expression": "assertEquals(1000u, stats.txAirtimeSeconds)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 175,
+              "line": 179,
               "expression": "assertEquals(2000u, stats.rxAirtimeSeconds)",
               "assertion_or_checked_wait": true
             }
@@ -15371,61 +15371,61 @@
           "actions_and_helper_calls": [
             {
               "name": "Parsers.RadioStats.parse",
-              "line": 173,
+              "line": 177,
               "expression": "Parsers.RadioStats.parse(ByteWriter().appendInt16LE(-115).appendInt8(-90).appendInt8(28).appendUInt32LE(1000u).appendUInt32LE(2000u).toBytes())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ByteWriter",
-              "line": 173,
+              "line": 177,
               "expression": "ByteWriter()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "appendInt16LE",
-              "line": 173,
+              "line": 177,
               "expression": "appendInt16LE(-115)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "appendInt8",
-              "line": 173,
+              "line": 177,
               "expression": "appendInt8(-90)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "appendInt8",
-              "line": 173,
+              "line": 177,
               "expression": "appendInt8(28)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "appendUInt32LE",
-              "line": 173,
+              "line": 177,
               "expression": "appendUInt32LE(1000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "appendUInt32LE",
-              "line": 173,
+              "line": 177,
               "expression": "appendUInt32LE(2000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toBytes",
-              "line": 173,
+              "line": 177,
               "expression": "toBytes()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toShort",
-              "line": 174,
+              "line": 178,
               "expression": "toShort()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toByte",
-              "line": 174,
+              "line": 178,
               "expression": "toByte()",
               "assertion_or_checked_wait": false
             }
@@ -15639,11 +15639,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "PacketStats round trip (legacy 24-byte format)",
-          "line": 177,
-          "end_line": 177,
+          "line": 181,
+          "end_line": 181,
           "factory_method": "statusStatsAndVariables",
           "registration_identity_resolution": null,
           "body_sha256": "66cf6d34b38df0aebfb5395f29255761e13902dfa75decb34db643ed457a89a1",
@@ -15652,7 +15652,7 @@
           "actions_and_helper_calls": [
             {
               "name": "packetStats",
-              "line": 177,
+              "line": 181,
               "expression": "packetStats(receiveErrors = null)",
               "assertion_or_checked_wait": false
             }
@@ -15884,11 +15884,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "PacketStats round trip (28-byte format with receiveErrors)",
-          "line": 178,
-          "end_line": 178,
+          "line": 182,
+          "end_line": 182,
           "factory_method": "statusStatsAndVariables",
           "registration_identity_resolution": null,
           "body_sha256": "7e8c4d497d8b0853b1057c1eb16a94f9a79a54216e43f896d81f3771e60c83e8",
@@ -15897,7 +15897,7 @@
           "actions_and_helper_calls": [
             {
               "name": "packetStats",
-              "line": 178,
+              "line": 182,
               "expression": "packetStats(receiveErrors = 42u)",
               "assertion_or_checked_wait": false
             }
@@ -16027,11 +16027,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "ChannelInfo round trip",
-          "line": 134,
-          "end_line": 138,
+          "line": 138,
+          "end_line": 142,
           "factory_method": "messagesAndChannels",
           "registration_identity_resolution": null,
           "body_sha256": "3de34d4d4ac27a88507ec9cb7f4c691747b4e8bca85af189506a304acaf319c4",
@@ -16039,25 +16039,25 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 136,
+              "line": 140,
               "expression": "assertIs<MeshEvent.ChannelInfo>(Parsers.ChannelInfo.parse(Bytes.of(1) + Bytes.utf8(\"TestChannel\").paddedOrTruncated(32) + secret))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 137,
+              "line": 141,
               "expression": "assertEquals(1u.toUByte(), info.index)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 137,
+              "line": 141,
               "expression": "assertEquals(\"TestChannel\", info.name)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 137,
+              "line": 141,
               "expression": "assertEquals(secret, info.secret)",
               "assertion_or_checked_wait": true
             }
@@ -16065,49 +16065,49 @@
           "actions_and_helper_calls": [
             {
               "name": "Bytes",
-              "line": 135,
+              "line": 139,
               "expression": "Bytes(ByteArray(16) { it.toByte() })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ByteArray",
-              "line": 135,
+              "line": 139,
               "expression": "ByteArray(16)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "it.toByte",
-              "line": 135,
+              "line": 139,
               "expression": "it.toByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Parsers.ChannelInfo.parse",
-              "line": 136,
+              "line": 140,
               "expression": "Parsers.ChannelInfo.parse(Bytes.of(1) + Bytes.utf8(\"TestChannel\").paddedOrTruncated(32) + secret)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 136,
+              "line": 140,
               "expression": "Bytes.of(1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.utf8",
-              "line": 136,
+              "line": 140,
               "expression": "Bytes.utf8(\"TestChannel\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "paddedOrTruncated",
-              "line": 136,
+              "line": 140,
               "expression": "paddedOrTruncated(32)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 137,
+              "line": 141,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -16255,11 +16255,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "ChannelInfo handles garbage bytes after null",
-          "line": 139,
-          "end_line": 143,
+          "line": 143,
+          "end_line": 147,
           "factory_method": "messagesAndChannels",
           "registration_identity_resolution": null,
           "body_sha256": "8cf0805c1d3660a1dbc165bbe844f1f0e78ddd1274bf309e6f75864b3ca31789",
@@ -16267,25 +16267,25 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 141,
+              "line": 145,
               "expression": "assertIs<MeshEvent.ChannelInfo>(Parsers.ChannelInfo.parse(Bytes.of(2) + name + filled(0xcc, 16)))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 142,
+              "line": 146,
               "expression": "assertEquals(2u.toUByte(), info.index)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 142,
+              "line": 146,
               "expression": "assertEquals(\"Primary\", info.name)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 142,
+              "line": 146,
               "expression": "assertEquals(filled(0xcc, 16), info.secret)",
               "assertion_or_checked_wait": true
             }
@@ -16293,55 +16293,55 @@
           "actions_and_helper_calls": [
             {
               "name": "Bytes.utf8",
-              "line": 140,
+              "line": 144,
               "expression": "Bytes.utf8(\"Primary\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 140,
+              "line": 144,
               "expression": "hex(\"00fffe8081c0c1\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "filled",
-              "line": 140,
+              "line": 144,
               "expression": "filled(0xab, 32)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "prefix",
-              "line": 140,
+              "line": 144,
               "expression": "prefix(32)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Parsers.ChannelInfo.parse",
-              "line": 141,
+              "line": 145,
               "expression": "Parsers.ChannelInfo.parse(Bytes.of(2) + name + filled(0xcc, 16))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 141,
+              "line": 145,
               "expression": "Bytes.of(2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "filled",
-              "line": 141,
+              "line": 145,
               "expression": "filled(0xcc, 16)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 142,
+              "line": 146,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "filled",
-              "line": 142,
+              "line": 146,
               "expression": "filled(0xcc, 16)",
               "assertion_or_checked_wait": false
             }
@@ -16489,11 +16489,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "ChannelInfo lossy decodes invalid UTF-8 before null",
-          "line": 144,
-          "end_line": 148,
+          "line": 148,
+          "end_line": 152,
           "factory_method": "messagesAndChannels",
           "registration_identity_resolution": null,
           "body_sha256": "a626a9443287e8f416dd5df5c294f3ce54c1fae617f880f5a918c7a616e38c4f",
@@ -16501,31 +16501,31 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 145,
+              "line": 149,
               "expression": "assertIs<MeshEvent.ChannelInfo>(Parsers.ChannelInfo.parse(Bytes.of(3) + hex(\"507269ff6d617279\").paddedOrTruncated(32) + filled(0x55, 16)))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 146,
+              "line": 150,
               "expression": "assertEquals(3u.toUByte(), info.index)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 146,
+              "line": 150,
               "expression": "assertEquals(\"Pri\\ufffdmary\", info.name)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 147,
+              "line": 151,
               "expression": "assertTrue(info.name.isNotEmpty())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 147,
+              "line": 151,
               "expression": "assertEquals(filled(0x55, 16), info.secret)",
               "assertion_or_checked_wait": true
             }
@@ -16533,49 +16533,49 @@
           "actions_and_helper_calls": [
             {
               "name": "Parsers.ChannelInfo.parse",
-              "line": 145,
+              "line": 149,
               "expression": "Parsers.ChannelInfo.parse(Bytes.of(3) + hex(\"507269ff6d617279\").paddedOrTruncated(32) + filled(0x55, 16))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 145,
+              "line": 149,
               "expression": "Bytes.of(3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 145,
+              "line": 149,
               "expression": "hex(\"507269ff6d617279\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "paddedOrTruncated",
-              "line": 145,
+              "line": 149,
               "expression": "paddedOrTruncated(32)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "filled",
-              "line": 145,
+              "line": 149,
               "expression": "filled(0x55, 16)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 146,
+              "line": 150,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "info.name.isNotEmpty",
-              "line": 147,
+              "line": 151,
               "expression": "info.name.isNotEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "filled",
-              "line": 147,
+              "line": 151,
               "expression": "filled(0x55, 16)",
               "assertion_or_checked_wait": false
             }
@@ -16825,7 +16825,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "DeviceInfo v9 client repeat round trip",
           "line": 89,
@@ -17161,7 +17161,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "DeviceInfo v10 pathHashMode round trip",
           "line": 95,
@@ -17395,54 +17395,54 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "DeviceInfo v10 tolerates missing pathHashMode byte",
           "line": 101,
-          "end_line": 104,
+          "end_line": 106,
           "factory_method": "deviceAndContactRoundTrips",
           "registration_identity_resolution": null,
-          "body_sha256": "4b7b72a10c547dec9d5ac69d813107d7d507e77ba400267a57861beec3498c47",
+          "body_sha256": "7200ddc0e4878a51bfc518f9bcd7f0d9e1a4cd5d821f7498d2a95ddc4f6fa2aa",
           "registration": "roundTrip(\"DeviceInfo v10 tolerates missing pathHashMode byte\")",
           "assertions": [
             {
+              "name": "assertEquals",
+              "line": 103,
+              "expression": "assertEquals(80, body.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertIs",
-              "line": 102,
-              "expression": "assertIs<MeshEvent.DeviceInfo>(Parsers.DeviceInfo.parse(deviceBody(pin = 654_321u, build = \"\", model = \"\", hardwareVersion = \"\", extensions = Bytes.of(1))))",
+              "line": 104,
+              "expression": "assertIs<MeshEvent.DeviceInfo>(Parsers.DeviceInfo.parse(body))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 103,
+              "line": 105,
               "expression": "assertEquals(10u.toUByte(), info.firmwareVersion)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 103,
+              "line": 105,
               "expression": "assertEquals(100L, info.maxContacts)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 103,
+              "line": 105,
               "expression": "assertTrue(info.clientRepeat)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 103,
+              "line": 105,
               "expression": "assertEquals(0u.toUByte(), info.pathHashMode)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
-            {
-              "name": "Parsers.DeviceInfo.parse",
-              "line": 102,
-              "expression": "Parsers.DeviceInfo.parse(deviceBody(pin = 654_321u, build = \"\", model = \"\", hardwareVersion = \"\", extensions = Bytes.of(1)))",
-              "assertion_or_checked_wait": false
-            },
             {
               "name": "deviceBody",
               "line": 102,
@@ -17456,14 +17456,20 @@
               "assertion_or_checked_wait": false
             },
             {
+              "name": "Parsers.DeviceInfo.parse",
+              "line": 104,
+              "expression": "Parsers.DeviceInfo.parse(body)",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "u.toUByte",
-              "line": 103,
+              "line": 105,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 103,
+              "line": 105,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -17623,63 +17629,69 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "DeviceInfo v9 defaults pathHashMode to 0",
-          "line": 105,
-          "end_line": 108,
+          "line": 107,
+          "end_line": 112,
           "factory_method": "deviceAndContactRoundTrips",
           "registration_identity_resolution": null,
-          "body_sha256": "f5343087f795f58c7d053d74459cd6e54eb0de49b2fdbd0b31bc1d3af854c40b",
+          "body_sha256": "1bc1b43e47986d652a150edc34baeb433835698ebd8e17d25be394611f310448",
           "registration": "roundTrip(\"DeviceInfo v9 defaults pathHashMode to 0\")",
           "assertions": [
             {
+              "name": "assertEquals",
+              "line": 109,
+              "expression": "assertEquals(80, body.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertIs",
-              "line": 106,
-              "expression": "assertIs<MeshEvent.DeviceInfo>(Parsers.DeviceInfo.parse(deviceBody(9u, pin = 0u, build = \"\", model = \"\", hardwareVersion = \"\", extensions = Bytes.of(0))))",
+              "line": 110,
+              "expression": "assertIs<MeshEvent.DeviceInfo>(Parsers.DeviceInfo.parse(body))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 107,
+              "line": 111,
               "expression": "assertEquals(9u.toUByte(), info.firmwareVersion)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 107,
+              "line": 111,
               "expression": "assertEquals(0u.toUByte(), info.pathHashMode)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
-              "name": "Parsers.DeviceInfo.parse",
-              "line": 106,
-              "expression": "Parsers.DeviceInfo.parse(deviceBody(9u, pin = 0u, build = \"\", model = \"\", hardwareVersion = \"\", extensions = Bytes.of(0)))",
-              "assertion_or_checked_wait": false
-            },
-            {
               "name": "deviceBody",
-              "line": 106,
+              "line": 108,
               "expression": "deviceBody(9u, pin = 0u, build = \"\", model = \"\", hardwareVersion = \"\", extensions = Bytes.of(0))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 106,
+              "line": 108,
               "expression": "Bytes.of(0)",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "Parsers.DeviceInfo.parse",
+              "line": 110,
+              "expression": "Parsers.DeviceInfo.parse(body)",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "u.toUByte",
-              "line": 107,
+              "line": 111,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 107,
+              "line": 111,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -17833,11 +17845,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "DeviceInfo v8 no client repeat round trip",
-          "line": 109,
-          "end_line": 113,
+          "line": 113,
+          "end_line": 117,
           "factory_method": "deviceAndContactRoundTrips",
           "registration_identity_resolution": null,
           "body_sha256": "a42efe2b3499b5a7852504722b8284a2ca867ed6e75775f96d6ed693bb46b1a5",
@@ -17845,25 +17857,25 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 110,
+              "line": 114,
               "expression": "assertEquals(79, body.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 111,
+              "line": 115,
               "expression": "assertIs<MeshEvent.DeviceInfo>(Parsers.DeviceInfo.parse(body))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 112,
+              "line": 116,
               "expression": "assertEquals(8u.toUByte(), info.firmwareVersion)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 112,
+              "line": 116,
               "expression": "assertFalse(info.clientRepeat)",
               "assertion_or_checked_wait": true
             }
@@ -17871,19 +17883,19 @@
           "actions_and_helper_calls": [
             {
               "name": "deviceBody",
-              "line": 110,
+              "line": 114,
               "expression": "deviceBody(8u, 25u, 4u, 0u, \"\", \"\", \"\", Bytes.EMPTY)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Parsers.DeviceInfo.parse",
-              "line": 111,
+              "line": 115,
               "expression": "Parsers.DeviceInfo.parse(body)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 112,
+              "line": 116,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -18019,11 +18031,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "AllowedRepeatFreq round trip",
-          "line": 179,
-          "end_line": 184,
+          "line": 183,
+          "end_line": 188,
           "factory_method": "statusStatsAndVariables",
           "registration_identity_resolution": null,
           "body_sha256": "0b6ef502f3e5c79aa158daaea735e13a0ddd0f90569bff0f67536a45b6010af9",
@@ -18031,37 +18043,37 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 181,
+              "line": 185,
               "expression": "assertIs<MeshEvent.AllowedRepeatFreq>(Parsers.AllowedRepeatFreq.parse(body))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 182,
+              "line": 186,
               "expression": "assertEquals(3, ranges.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 182,
+              "line": 186,
               "expression": "assertEquals(433_000u, ranges[0].lowerKHz)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 182,
+              "line": 186,
               "expression": "assertEquals(433_000u, ranges[0].upperKHz)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 183,
+              "line": 187,
               "expression": "assertEquals(869_000u, ranges[1].lowerKHz)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 183,
+              "line": 187,
               "expression": "assertEquals(918_000u, ranges[2].lowerKHz)",
               "assertion_or_checked_wait": true
             }
@@ -18069,43 +18081,43 @@
           "actions_and_helper_calls": [
             {
               "name": "le",
-              "line": 180,
+              "line": 184,
               "expression": "le(433_000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "le",
-              "line": 180,
+              "line": 184,
               "expression": "le(433_000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "le",
-              "line": 180,
+              "line": 184,
               "expression": "le(869_000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "le",
-              "line": 180,
+              "line": 184,
               "expression": "le(869_000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "le",
-              "line": 180,
+              "line": 184,
               "expression": "le(918_000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "le",
-              "line": 180,
+              "line": 184,
               "expression": "le(918_000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Parsers.AllowedRepeatFreq.parse",
-              "line": 181,
+              "line": 185,
               "expression": "Parsers.AllowedRepeatFreq.parse(body)",
               "assertion_or_checked_wait": false
             }
@@ -18966,11 +18978,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "CustomVars round trip",
-          "line": 185,
-          "end_line": 188,
+          "line": 189,
+          "end_line": 192,
           "factory_method": "statusStatsAndVariables",
           "registration_identity_resolution": null,
           "body_sha256": "ccb9ec6928993fa7a5caee8a5a6b8b4f571ad56d49cb4c24d3ac7ecc8b0c5cf3",
@@ -18978,25 +18990,25 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 186,
+              "line": 190,
               "expression": "assertIs<MeshEvent.CustomVars>(Parsers.CustomVars.parse(Bytes.utf8(\"key1:value1,key2:value2,mode:auto\")))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 187,
+              "line": 191,
               "expression": "assertEquals(\"value1\", values[\"key1\"])",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 187,
+              "line": 191,
               "expression": "assertEquals(\"value2\", values[\"key2\"])",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 187,
+              "line": 191,
               "expression": "assertEquals(\"auto\", values[\"mode\"])",
               "assertion_or_checked_wait": true
             }
@@ -19004,13 +19016,13 @@
           "actions_and_helper_calls": [
             {
               "name": "Parsers.CustomVars.parse",
-              "line": 186,
+              "line": 190,
               "expression": "Parsers.CustomVars.parse(Bytes.utf8(\"key1:value1,key2:value2,mode:auto\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.utf8",
-              "line": 186,
+              "line": 190,
               "expression": "Bytes.utf8(\"key1:value1,key2:value2,mode:auto\")",
               "assertion_or_checked_wait": false
             }
@@ -19116,11 +19128,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "LPP encoder/decoder temperature round trip",
-          "line": 202,
-          "end_line": 207,
+          "line": 206,
+          "end_line": 211,
           "factory_method": "originalLppSeams",
           "registration_identity_resolution": null,
           "body_sha256": "aa37f525fe9df14db5ed10403923eb273be43d68e710b0f7778d6702f1a2c1f5",
@@ -19128,31 +19140,31 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 205,
+              "line": 209,
               "expression": "assertEquals(1, points.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 205,
+              "line": 209,
               "expression": "assertEquals(1u.toUByte(), points[0].channel)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 205,
+              "line": 209,
               "expression": "assertEquals(LPPSensorType.TEMPERATURE, points[0].type)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 206,
+              "line": 210,
               "expression": "assertEquals(22.5, assertIs<LPPValue.Float>(points[0].value).value, 0.1)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 206,
+              "line": 210,
               "expression": "assertIs<LPPValue.Float>(points[0].value)",
               "assertion_or_checked_wait": true
             }
@@ -19160,37 +19172,37 @@
           "actions_and_helper_calls": [
             {
               "name": "LPPEncoder",
-              "line": 203,
+              "line": 207,
               "expression": "LPPEncoder()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.addTemperature",
-              "line": 203,
+              "line": 207,
               "expression": "encoder.addTemperature(1u, 22.5)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "LPPDecoder.decode",
-              "line": 204,
+              "line": 208,
               "expression": "LPPDecoder.decode(encoder.encode())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.encode",
-              "line": 204,
+              "line": 208,
               "expression": "encoder.encode()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "requireComplete",
-              "line": 204,
+              "line": 208,
               "expression": "requireComplete()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 205,
+              "line": 209,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -19320,11 +19332,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "LPP encoder/decoder GPS round trip",
-          "line": 208,
-          "end_line": 214,
+          "line": 212,
+          "end_line": 218,
           "factory_method": "originalLppSeams",
           "registration_identity_resolution": null,
           "body_sha256": "949d6dddd009b73e0c5669b010d5ffa617636fd32b89a3e420ae72579ef05c1a",
@@ -19332,43 +19344,43 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 211,
+              "line": 215,
               "expression": "assertEquals(1, points.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 211,
+              "line": 215,
               "expression": "assertEquals(3u.toUByte(), points[0].channel)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 211,
+              "line": 215,
               "expression": "assertEquals(LPPSensorType.GPS, points[0].type)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 212,
+              "line": 216,
               "expression": "assertIs<LPPValue.Gps>(points[0].value)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 212,
+              "line": 216,
               "expression": "assertEquals(37.7749, gps.latitude, 0.0001)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 213,
+              "line": 217,
               "expression": "assertEquals(-122.4194, gps.longitude, 0.0001)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 213,
+              "line": 217,
               "expression": "assertEquals(50.0, gps.altitude, 0.01)",
               "assertion_or_checked_wait": true
             }
@@ -19376,37 +19388,37 @@
           "actions_and_helper_calls": [
             {
               "name": "LPPEncoder",
-              "line": 209,
+              "line": 213,
               "expression": "LPPEncoder()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.addGPS",
-              "line": 209,
+              "line": 213,
               "expression": "encoder.addGPS(3u, 37.7749, -122.4194, 50.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "LPPDecoder.decode",
-              "line": 210,
+              "line": 214,
               "expression": "LPPDecoder.decode(encoder.encode())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.encode",
-              "line": 210,
+              "line": 214,
               "expression": "encoder.encode()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "requireComplete",
-              "line": 210,
+              "line": 214,
               "expression": "requireComplete()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 211,
+              "line": 215,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -19578,11 +19590,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "LPP encoder/decoder multi-sensor round trip",
-          "line": 215,
-          "end_line": 223,
+          "line": 219,
+          "end_line": 227,
           "factory_method": "originalLppSeams",
           "registration_identity_resolution": null,
           "body_sha256": "2844e6034cfb0fa68c79f3dd2f83f8cbf6830deac90bf206b9eb0bfcb908ce5c",
@@ -19590,55 +19602,55 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 218,
+              "line": 222,
               "expression": "assertEquals(3, points.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 218,
+              "line": 222,
               "expression": "assertEquals(listOf(1, 2, 3), points.map { it.channel.toInt() })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 219,
+              "line": 223,
               "expression": "assertEquals(listOf(LPPSensorType.TEMPERATURE, LPPSensorType.HUMIDITY, LPPSensorType.VOLTAGE), points.map { it.type })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 220,
+              "line": 224,
               "expression": "assertEquals(25.0, assertIs<LPPValue.Float>(points[0].value).value, 0.1)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 220,
+              "line": 224,
               "expression": "assertIs<LPPValue.Float>(points[0].value)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 221,
+              "line": 225,
               "expression": "assertEquals(60.0, assertIs<LPPValue.Float>(points[1].value).value, 0.5)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 221,
+              "line": 225,
               "expression": "assertIs<LPPValue.Float>(points[1].value)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 222,
+              "line": 226,
               "expression": "assertEquals(3.7, assertIs<LPPValue.Float>(points[2].value).value, 0.01)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 222,
+              "line": 226,
               "expression": "assertIs<LPPValue.Float>(points[2].value)",
               "assertion_or_checked_wait": true
             }
@@ -19646,61 +19658,61 @@
           "actions_and_helper_calls": [
             {
               "name": "LPPEncoder",
-              "line": 216,
+              "line": 220,
               "expression": "LPPEncoder()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.addTemperature",
-              "line": 216,
+              "line": 220,
               "expression": "encoder.addTemperature(1u, 25.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.addHumidity",
-              "line": 216,
+              "line": 220,
               "expression": "encoder.addHumidity(2u, 60.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.addVoltage",
-              "line": 216,
+              "line": 220,
               "expression": "encoder.addVoltage(3u, 3.7)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "LPPDecoder.decode",
-              "line": 217,
+              "line": 221,
               "expression": "LPPDecoder.decode(encoder.encode())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.encode",
-              "line": 217,
+              "line": 221,
               "expression": "encoder.encode()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "requireComplete",
-              "line": 217,
+              "line": 221,
               "expression": "requireComplete()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 218,
+              "line": 222,
               "expression": "listOf(1, 2, 3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "it.channel.toInt",
-              "line": 218,
+              "line": 222,
               "expression": "it.channel.toInt()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 219,
+              "line": 223,
               "expression": "listOf(LPPSensorType.TEMPERATURE, LPPSensorType.HUMIDITY, LPPSensorType.VOLTAGE)",
               "assertion_or_checked_wait": false
             }
@@ -19794,11 +19806,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "LPP encoder/decoder negative temperature round trip",
-          "line": 224,
-          "end_line": 228,
+          "line": 228,
+          "end_line": 232,
           "factory_method": "originalLppSeams",
           "registration_identity_resolution": null,
           "body_sha256": "17ae4d660c2e9ba1e0c261382b48e2a4deef2516e1c32860e7db2cc0d15000dd",
@@ -19806,19 +19818,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 226,
+              "line": 230,
               "expression": "assertEquals(1, points.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 227,
+              "line": 231,
               "expression": "assertEquals(-15.5, assertIs<LPPValue.Float>(points[0].value).value, 0.1)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 227,
+              "line": 231,
               "expression": "assertIs<LPPValue.Float>(points[0].value)",
               "assertion_or_checked_wait": true
             }
@@ -19826,31 +19838,31 @@
           "actions_and_helper_calls": [
             {
               "name": "LPPEncoder",
-              "line": 225,
+              "line": 229,
               "expression": "LPPEncoder()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.addTemperature",
-              "line": 225,
+              "line": 229,
               "expression": "encoder.addTemperature(1u, -15.5)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "LPPDecoder.decode",
-              "line": 226,
+              "line": 230,
               "expression": "LPPDecoder.decode(encoder.encode())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.encode",
-              "line": 226,
+              "line": 230,
               "expression": "encoder.encode()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "requireComplete",
-              "line": 226,
+              "line": 230,
               "expression": "requireComplete()",
               "assertion_or_checked_wait": false
             }
@@ -19974,11 +19986,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "LPP encoder/decoder accelerometer round trip",
-          "line": 229,
-          "end_line": 235,
+          "line": 233,
+          "end_line": 239,
           "factory_method": "originalLppSeams",
           "registration_identity_resolution": null,
           "body_sha256": "427aaceb8b4397f2ca1ea566cbc453a023cafb581ad09d40ee7c1edf2c5d3fbb",
@@ -19986,37 +19998,37 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 232,
+              "line": 236,
               "expression": "assertEquals(1, points.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 232,
+              "line": 236,
               "expression": "assertEquals(LPPSensorType.ACCELEROMETER, points[0].type)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 233,
+              "line": 237,
               "expression": "assertIs<LPPValue.Vector3>(points[0].value)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 234,
+              "line": 238,
               "expression": "assertEquals(-0.5, vector.x, 0.001)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 234,
+              "line": 238,
               "expression": "assertEquals(0.25, vector.y, 0.001)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 234,
+              "line": 238,
               "expression": "assertEquals(1.0, vector.z, 0.001)",
               "assertion_or_checked_wait": true
             }
@@ -20024,31 +20036,31 @@
           "actions_and_helper_calls": [
             {
               "name": "LPPEncoder",
-              "line": 230,
+              "line": 234,
               "expression": "LPPEncoder()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.addAccelerometer",
-              "line": 230,
+              "line": 234,
               "expression": "encoder.addAccelerometer(5u, -0.5, 0.25, 1.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "LPPDecoder.decode",
-              "line": 231,
+              "line": 235,
               "expression": "LPPDecoder.decode(encoder.encode())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encoder.encode",
-              "line": 231,
+              "line": 235,
               "expression": "encoder.encode()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "requireComplete",
-              "line": 231,
+              "line": 235,
               "expression": "requireComplete()",
               "assertion_or_checked_wait": false
             }
@@ -20202,11 +20214,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "ChannelMessage v3 empty-text broadcast parses at firmware-minimum size",
-          "line": 149,
-          "end_line": 153,
+          "line": 153,
+          "end_line": 157,
           "factory_method": "messagesAndChannels",
           "registration_identity_resolution": null,
           "body_sha256": "5eb8c60b313f512353b0d6ce0168a3535a432e8b77447997f3d41f39137082f9",
@@ -20214,31 +20226,31 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 150,
+              "line": 154,
               "expression": "assertEquals(10, body.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 151,
+              "line": 155,
               "expression": "assertIs<MeshEvent.ChannelMessageReceived>(Parsers.ChannelMessage.parse(body, Parsers.ChannelMessage.Version.V3))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 152,
+              "line": 156,
               "expression": "assertEquals(2u.toUByte(), message.channelIndex)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 152,
+              "line": 156,
               "expression": "assertEquals(0u.toUByte(), message.pathLength)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 152,
+              "line": 156,
               "expression": "assertTrue(message.text.isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -20246,37 +20258,37 @@
           "actions_and_helper_calls": [
             {
               "name": "hex",
-              "line": 150,
+              "line": 154,
               "expression": "hex(\"ec0000020000\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "le",
-              "line": 150,
+              "line": 154,
               "expression": "le(1_704_067_200u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Parsers.ChannelMessage.parse",
-              "line": 151,
+              "line": 155,
               "expression": "Parsers.ChannelMessage.parse(body, Parsers.ChannelMessage.Version.V3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 152,
+              "line": 156,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 152,
+              "line": 156,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message.text.isEmpty",
-              "line": 152,
+              "line": 156,
               "expression": "message.text.isEmpty()",
               "assertion_or_checked_wait": false
             }
@@ -20400,11 +20412,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "ChannelMessage v1 empty-text broadcast parses at firmware-minimum size",
-          "line": 154,
-          "end_line": 158,
+          "line": 158,
+          "end_line": 162,
           "factory_method": "messagesAndChannels",
           "registration_identity_resolution": null,
           "body_sha256": "7e8f3e799517baa55a74e17c499fad66b5712370594b016812b0cd19bab62902",
@@ -20412,31 +20424,31 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 155,
+              "line": 159,
               "expression": "assertEquals(7, body.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 156,
+              "line": 160,
               "expression": "assertIs<MeshEvent.ChannelMessageReceived>(Parsers.ChannelMessage.parse(body, Parsers.ChannelMessage.Version.V1))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 157,
+              "line": 161,
               "expression": "assertEquals(3u.toUByte(), message.channelIndex)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 157,
+              "line": 161,
               "expression": "assertEquals(0u.toUByte(), message.pathLength)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 157,
+              "line": 161,
               "expression": "assertTrue(message.text.isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -20444,37 +20456,37 @@
           "actions_and_helper_calls": [
             {
               "name": "hex",
-              "line": 155,
+              "line": 159,
               "expression": "hex(\"030000\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "le",
-              "line": 155,
+              "line": 159,
               "expression": "le(1_704_067_200u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Parsers.ChannelMessage.parse",
-              "line": 156,
+              "line": 160,
               "expression": "Parsers.ChannelMessage.parse(body, Parsers.ChannelMessage.Version.V1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 157,
+              "line": 161,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 157,
+              "line": 161,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message.text.isEmpty",
-              "line": 157,
+              "line": 161,
               "expression": "message.text.isEmpty()",
               "assertion_or_checked_wait": false
             }

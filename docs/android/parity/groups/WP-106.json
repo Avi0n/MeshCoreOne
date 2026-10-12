@@ -1839,7 +1839,7 @@
         },
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
             "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
@@ -1864,37 +1864,37 @@
             {
               "name": "deviceAndContactRoundTrips",
               "line": 58,
-              "end_line": 114
+              "end_line": 118
             },
             {
               "name": "contactMessage",
-              "line": 116,
-              "end_line": 117
+              "line": 120,
+              "end_line": 121
             },
             {
               "name": "messagesAndChannels",
-              "line": 120,
-              "end_line": 159
+              "line": 124,
+              "end_line": 163
             },
             {
               "name": "statusStatsAndVariables",
-              "line": 162,
-              "end_line": 189
+              "line": 166,
+              "end_line": 193
             },
             {
               "name": "packetStats",
-              "line": 191,
-              "end_line": 198
+              "line": 195,
+              "end_line": 202
             },
             {
               "name": "originalLppSeams",
-              "line": 201,
-              "end_line": 236
+              "line": 205,
+              "end_line": 240
             },
             {
               "name": "wp106RouterSeam",
-              "line": 239,
-              "end_line": 244
+              "line": 243,
+              "end_line": 248
             }
           ]
         },
@@ -4241,11 +4241,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
-          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
           "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
           "method_or_family_name": "PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code",
-          "line": 240,
-          "end_line": 243,
+          "line": 244,
+          "end_line": 247,
           "factory_method": "wp106RouterSeam",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "cc0ec73e2e9a8af133313751df46e45a9b101a9192aa22b800829c5cf71f35f1",
@@ -4253,19 +4253,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 241,
+              "line": 245,
               "expression": "assertEquals(ErrorCode.ILLEGAL_ARGUMENT, event.errorCode)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 242,
+              "line": 246,
               "expression": "assertEquals(6u.toUByte(), assertIs<MeshEvent.Error>(event).code)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 242,
+              "line": 246,
               "expression": "assertIs<MeshEvent.Error>(event)",
               "assertion_or_checked_wait": true
             }
@@ -4273,19 +4273,19 @@
           "actions_and_helper_calls": [
             {
               "name": "PacketParser.parse",
-              "line": 241,
+              "line": 245,
               "expression": "PacketParser.parse(hex(\"0106\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 241,
+              "line": 245,
               "expression": "hex(\"0106\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 242,
+              "line": 246,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }

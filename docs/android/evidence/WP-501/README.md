@@ -14,6 +14,13 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Python-reference original command comparison
 
+Clean `8d26bd12b178b2b4e7634041d62a39b1e3946196`, actual based3f:
+`python <session-files>\wp501-native-check.py --head 8d26bd12b178b2b4e7634041d62a39b1e3946196 --python-reference-only`
+executes `:core:protocol:test --tests com.meshcoreone.android.core.protocol.parser.OriginalPythonReferenceCasesTest --dependency-verification=strict --quiet`.
+Actual28required/discovered/run/passed,0failure/error/skip; readiness/supported
+locks passed/released. Declared clean combined Python command below passed
+363/363,0failure/error/skip. No app/other protocol/current-hosted/iOS rerun.
+
 Complete28frozen originals/31builder equalities and complete fixture blob
 `6535c34bed8e45a5ba9f8cf5b7dbb3b72a244832` compared with actual native
 factory/reference/original/expect/catalog/scalar/byte/key/date/text helpers
@@ -25,8 +32,33 @@ runner identities without teaching the validator to guess computed names.
 not a freshly executed meshcore_py generator (advertised script absent at pin).
 Raw nilpath trace vector stays distinct from both public consumers' typed
 pre-send rejection.843families/122groups/66mandatory/same reservation20,
-immutable28runner execution and independent review pending. No native/iOS/
+immutable28runner execution passed above; independent review pending. No iOS/
 hardware/full acceptance claim from source inspection or vector validation.
+
+## Issue177 original DeviceInfo input guards
+
+[#177](https://github.com/cbattlegear/MeshCoreOne-Android/issues/177) restores
+the two frozen independent80byte predicates in unchanged v10withoutmode/
+v9defaultmode fixtures, before parsing each local body. All literal/default/
+decoded-field/case identities preserved; no production defect/new families.
+Same owner reservation20->21 through installed trusted merge-integration/
+merge-disjoint-semantic-edits capability; immutable initial authorization/
+base250/identity/source/manifest/policy retained. Fresh declared covering
+execution/rebinding/independent review/persistent accepted merge still required.
+Historical138case predecessor is not execution of these restored assertions.
+Other33remaining RoundTrip cases received coordinator bounded source review,
+not new execution or full acceptance; issue177remainsopen.
+
+## Issue178 original status-push input guards
+
+[#178](https://github.com/cbattlegear/MeshCoreOne-Android/issues/178) restores
+three independent59byte predicates before parsing unchanged local push bodies
+in existing legacy/default-repeater/room-server families. AABBprefix/all RF/
+tails/field/layout/identity assertions and first59/extended63guards retained.
+Same already-admitted OriginalBugFixCasesTest path/owner/reservation21, no new
+families/product defect/golden/threshold edit. Fresh declared BugFix selector/
+positive discovery/rebinding/independent review/persistent merge required.
+Prior34/58case passes retain their exact old assertion bytes;178remainsopen.
 
 ## Latest actual new-base execution
 

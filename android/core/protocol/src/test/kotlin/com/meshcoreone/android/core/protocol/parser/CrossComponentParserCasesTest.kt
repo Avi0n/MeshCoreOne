@@ -99,11 +99,15 @@ class CrossComponentParserCasesTest {
             assertEquals(654_321u, info.blePin); assertTrue(info.clientRepeat); assertEquals(2u.toUByte(), info.pathHashMode)
         },
         roundTrip("DeviceInfo v10 tolerates missing pathHashMode byte") {
-            val info = assertIs<MeshEvent.DeviceInfo>(Parsers.DeviceInfo.parse(deviceBody(pin = 654_321u, build = "", model = "", hardwareVersion = "", extensions = Bytes.of(1)))).info
+            val body = deviceBody(pin = 654_321u, build = "", model = "", hardwareVersion = "", extensions = Bytes.of(1))
+            assertEquals(80, body.size)
+            val info = assertIs<MeshEvent.DeviceInfo>(Parsers.DeviceInfo.parse(body)).info
             assertEquals(10u.toUByte(), info.firmwareVersion); assertEquals(100L, info.maxContacts); assertTrue(info.clientRepeat); assertEquals(0u.toUByte(), info.pathHashMode)
         },
         roundTrip("DeviceInfo v9 defaults pathHashMode to 0") {
-            val info = assertIs<MeshEvent.DeviceInfo>(Parsers.DeviceInfo.parse(deviceBody(9u, pin = 0u, build = "", model = "", hardwareVersion = "", extensions = Bytes.of(0)))).info
+            val body = deviceBody(9u, pin = 0u, build = "", model = "", hardwareVersion = "", extensions = Bytes.of(0))
+            assertEquals(80, body.size)
+            val info = assertIs<MeshEvent.DeviceInfo>(Parsers.DeviceInfo.parse(body)).info
             assertEquals(9u.toUByte(), info.firmwareVersion); assertEquals(0u.toUByte(), info.pathHashMode)
         },
         roundTrip("DeviceInfo v8 no client repeat round trip") {

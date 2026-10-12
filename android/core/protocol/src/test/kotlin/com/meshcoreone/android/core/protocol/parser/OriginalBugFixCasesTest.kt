@@ -89,20 +89,26 @@ class OriginalBugFixCasesTest {
             assertEquals(1000L, response.battery); assertEquals(7u, response.receiveErrors)
         },
         source("statusResponse parse legacy size defaults receiveErrors") {
-            val response = status(push()); assertEquals(1000L, response.battery); assertEquals(0u, response.receiveErrors)
+            val body = push()
+            assertEquals(59, body.size)
+            val response = status(body); assertEquals(1000L, response.battery); assertEquals(0u, response.receiveErrors)
         },
         source("statusResponse parse extended size parses receiveErrors") {
             val body = push() + le(99u); assertEquals(63, body.size)
             val response = status(body); assertEquals(1000L, response.battery); assertEquals(99u, response.receiveErrors)
         },
         source("statusResponse parse room server layout decodes post counters") {
-            val response = status(push(tail = hex("11000900")), StatusResponse.Layout.ROOM_SERVER)
+            val body = push(tail = hex("11000900"))
+            assertEquals(59, body.size)
+            val response = status(body, StatusResponse.Layout.ROOM_SERVER)
             assertEquals(StatusResponse.Layout.ROOM_SERVER, response.layout)
             assertEquals(17u.toUShort(), response.roomServerPostedCount); assertEquals(9u.toUShort(), response.roomServerPostPushCount)
             assertEquals(0u, response.rxAirtime); assertEquals(0u, response.receiveErrors); assertEquals(1000L, response.battery)
         },
         source("statusResponse parse defaults to repeater layout") {
-            val response = status(push(tail = hex("11000900")))
+            val body = push(tail = hex("11000900"))
+            assertEquals(59, body.size)
+            val response = status(body)
             assertEquals(StatusResponse.Layout.REPEATER, response.layout); assertEquals(0x00090011u, response.rxAirtime)
             assertNull(response.roomServerPostedCount); assertNull(response.roomServerPostPushCount)
         },
