@@ -14,6 +14,42 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current platform consumer audit and actual routing-repair adoption
 
+## Incoming reaction composition gap and mounted witnesses
+
+Source-confirmed [#192](https://github.com/cbattlegear/MeshCoreOne-Android/issues/192)
+routes integrated reaction forwarding to WP303/necessaryWP216. Actual
+RadioSessionContainer binds null cache lookup/no-op pending queue and an
+UnavailableMeshCoreOpenParsing that recognizes no v3/v1 input. Complete frozen
+parser/tests/handlers and actual native parser/service/handlers/caller bodies
+were read. Pocket DB fallback can work for existing targets; late-target
+Pocket reactions are consumed without an actual pending entry. MeshCoreOpen
+never reaches implemented matching, instead saves ordinary wire text.
+Unmatched MeshCoreOpen source policy has no pending queue and must not change.
+
+New AndroidOnly IncomingReactionAcceptanceTest mounts the real Room/process/
+connection/sync graph and normal GetMessage polling, not substituted codecs.
+Six mandatory consumers cover Pocket late-target DM/channel plus v3/v1
+DM/channel. Two supplemental known-target Pocket controls calibrate actual DB
+fallback despite the named missing cache bridge; they add no original credit.
+Required App identities70->76, same typed reservation26->27 retained.
+Frozen source SHA256(UTF8Hello+LE32(1704067200)) first5 bytes590b6611d3
+encode to independent b45pc4ek. Independent frozen Dart32-wrapping algorithm
+is calibrated by source hello=150804507: v3timestamp+Alice+Hello ->aa61,
+DMtimestamp+Hello ->92c7; v1Alice210078619/Hello828172268. Test uses fixed
+literal wire/hash expectations, not candidate-produced expected packets.
+All real target/reaction radio/contact/channel IDs, raw text,emoji,sender,
+hash,summary and ordinary-row absence are asserted. Executable witnesses
+not yet run at this candidate; no source family, hardware or full acceptance
+credit. All original/fresh ACK and three pacing failures stay unchanged.
+
+Exact previous356/baseedc authoritative run38213469724/Linux114693124335/
+final114696520348 is actually FAILURE: App732completed3FAIL, exactly the three
+default-config BLE pacing consumers expected[0s]/actual[0s,0s]. Actually read
+the authoritative log, not copied/uploaded/revalidated a second result bundle.
+No unchanged native replay;189 stays serialized with its product owner.
+Bounded191/f61 two-path source-only review6119373639 is posted without
+native replay, fabricated approval or unexecuted producer-evidence credit.
+
 Current proposals1046/5133families/143groups/70mandatory/0approved include44
 new disjoint RFCalculator originals:29 propagation/constants/distance,
 11 full-profile/clearance/loss/invalid inputs,two returned frequency/k fields

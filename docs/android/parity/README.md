@@ -1,6 +1,11 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current proposed inspection is1046/5133families/143groups/70mandatory/0approved.
+Current proposed inspection is1046/5133families/143groups/76mandatory/0approved.
+Incoming reaction bridge defect192 is separately routed WP303/necessaryWP216:
+Pocket late-target queue writes are no-ops; MeshCoreOpen v3/v1 is never parsed
+by actual App composition. Six mandatory real Room/normal-polling consumers and
+two supplemental existing-target Pocket DB-fallback controls use independent
+fixed source hashes. Execution pending, no additional original family credit.
 The new44 RFCalculator originals are four disjoint comparisons:29 independent
 formula/distance cases,11 terrain/path cases,two returned-field cases and two
 inclusive slice/segment cases. Their literal expectations, strict tolerances,

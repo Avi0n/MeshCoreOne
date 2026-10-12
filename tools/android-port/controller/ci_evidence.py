@@ -162,6 +162,18 @@ WP501_ACCEPTANCE_CASES = {
      "configuredNrf52LinkPacesAcknowledgedWritesForTwentyFiveMilliseconds"),
     ("com.meshcoreone.android.parity.BlePacingAcceptanceTest",
      "configuredUnknownBluetoothLinkKeepsConservativeSixtyMillisecondPacing"),
+    ("com.meshcoreone.android.parity.IncomingReactionAcceptanceTest",
+     "mountedPocketChannelReactionSurvivesArrivalBeforeItsTarget"),
+    ("com.meshcoreone.android.parity.IncomingReactionAcceptanceTest",
+     "mountedPocketDirectReactionSurvivesArrivalBeforeItsTarget"),
+    ("com.meshcoreone.android.parity.IncomingReactionAcceptanceTest",
+     "mountedMeshCoreOpenV3ChannelReactionReachesTheActualStoredTarget"),
+    ("com.meshcoreone.android.parity.IncomingReactionAcceptanceTest",
+     "mountedMeshCoreOpenV3DirectReactionReachesTheActualStoredTarget"),
+    ("com.meshcoreone.android.parity.IncomingReactionAcceptanceTest",
+     "mountedMeshCoreOpenV1ChannelReactionReachesTheActualStoredTarget"),
+    ("com.meshcoreone.android.parity.IncomingReactionAcceptanceTest",
+     "mountedMeshCoreOpenV1DirectReactionReachesTheActualStoredTarget"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",
