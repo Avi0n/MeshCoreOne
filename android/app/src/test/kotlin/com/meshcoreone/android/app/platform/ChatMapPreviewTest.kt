@@ -216,7 +216,10 @@ class ChatMapPreviewTest : RoomProcessTest() {
             val active = MapSnapshotRequest(1.0, 2.0, false, false)
             val queued = MapSnapshotRequest(3.0, 4.0, false, false)
             compose.runOnIdle { previews.request(active); previews.request(queued) }
-            compose.waitForIdle()
+            compose.waitUntil(10_000) {
+                compose.onAllNodesWithContentDescription(label).fetchSemanticsNodes()
+                requests.isNotEmpty()
+            }
             assertEquals(listOf(active), requests)
             storage.preferences.set(AppStorageKey.showMapPreviewThumbnails, false)
             compose.runOnIdle { first.complete(bitmap()) }
