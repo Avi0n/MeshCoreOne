@@ -43,12 +43,16 @@ class NativeDiagnosticsAccessibilityTest : NativeAccessibilityHarness() {
             summary.any { Regex("-110").findAll(it).count() == 3 })
         compose.onNodeWithTag("diagnostics-page:NOISE_FLOOR").assertIsSelected()
         compose.onNodeWithText("-110 dBm").assertIsDisplayed()
-        for (id in listOf(T.toolsNoiseFloorMinimum, T.toolsNoiseFloorMaximum, T.toolsNoiseFloorAverage)) {
+        val values = listOf(T.toolsNoiseFloorMinimum, T.toolsNoiseFloorMaximum, T.toolsNoiseFloorAverage).map { id ->
             val label = host.get().getString(id)
             val node = compose.onNode(hasText(label, substring = true) and
                 SemanticsMatcher("Numeric data is present") { it.config[SemanticsProperties.Text].any { text -> text.text.contains("-110") } })
-            println("WP503_GRAPH_VALUE|label=$label|bounds=${node.fetchSemanticsNode().boundsInRoot}" +
+            val measured = node.fetchSemanticsNode()
+            println("WP503_GRAPH_VALUE|label=$label|bounds=${measured.boundsInRoot}|size=${measured.size}" +
                 "|viewport=${compose.onNodeWithTag("audit-root").fetchSemanticsNode().boundsInRoot}")
+            node
+        }
+        for (node in values) {
             node.assertIsDisplayed()
             assertFont200Unclipped(node)
         }

@@ -108,6 +108,7 @@ abstract class NativeAccessibilityHarness {
     }
 
     protected fun assertUnclippedContent(layout: TextLayoutResult) {
+        assertTrue("Nonempty audit text must have actual measured lines", layout.layoutInput.text.isNotEmpty() && layout.lineCount > 0)
         assertFalse("Native text was truncated: ${layout.layoutInput.text}", layout.multiParagraph.didExceedMaxLines)
         // The paragraph can retain its parent's maximum width after Text shrink-wraps. Check the actual lines, not that allocation.
         for (line in 0 until layout.lineCount) {
