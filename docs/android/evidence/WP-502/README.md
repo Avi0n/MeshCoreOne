@@ -19,7 +19,7 @@ Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-The existing typed reservation was evolved to revision 7, not replaced.
+The existing typed reservation was evolved to revision 9, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -68,6 +68,21 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+Current functional check at `fdbcc3472`: the installed serialized ext4 lane ran
+`:app:testDebugUnitTest` with `ConversationComposeTest`,
+`ConnectedConversationComposeTest`, `QueuedComposerIntegrationTest`,
+`ShortcutQueueIntegrationTest` and the existing `DurableRetryIntegrationTest`.
+**30 discovered, 30 passed, zero failed/errors/skipped** (1m15s). This includes
+terminal timeline recovery and failure-before-seen ordering, honest paging,
+24 mounted hardware key families, durable direct/channel shortcut acceptance,
+real transaction rejection, typed preconditions, disconnect/different-radio
+confirmation, exact cancellation provenance, SYNCING drain and file-store reopen.
+At `f1c2a8fb7`, shortcut discovery was seven/five passed/two failed; at
+`cbf9adaaf`, eight/seven passed/one failed. These are not relabeled as passes.
+The fixes wait for a real held contact query and use a genuinely distinct
+connection target for different-radio confirmation. Matching current-device
+execution and exact hosted checks are separate prerequisites.
 
 The installed supported lane is the Git-bundle/ext4 snapshot launcher:
 
