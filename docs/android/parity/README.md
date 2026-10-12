@@ -1,5 +1,11 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual204 corrected original clean504d/base d958 one-method strict core-data
+1PASS/zero bad/XML13:43:31.251Z/native31a794ec/body1968ede1. Assigned8 plus
+required matching m.id row plus its sequence8 all execute; no unchanged15 replay/
+b58d relabel/product edit/new original credit. Current source comparison/hosted
+verification/full acceptance pending; counts1429/182/83/0 unchanged.
+
 Actual a7d/base d958 unchanged mandatory deletion two-only2PASS/zero bad,
 XML13:34:30.850Z/native7d891e99, real changed App bytes/new nine-input receipt.
 Both full existing final list predicates now execute, historical64e/0c9 negatives

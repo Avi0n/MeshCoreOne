@@ -14,6 +14,26 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Contact/history input increment and qualified reviews
 
+Qualified SOURCE-ONLY5491644594 at0c9/baseab1 fully read/reconciled for one
+prefix parameter family/all four literal rows/four predicates/one join/two
+unchanged helper inputs/comparisonb4c1ade3. Complete registrations/CONTACT/
+canonical uppercase UUID/dynamic names read; no selected-source blocker/private
+0081 certification/APPROVED/current execution/full audit. Four rows remain one
+original family, no unchanged native replay or independently manufactured hash.
+
+Issue204 corrected original at clean504de99be205ea603b2b23e0cefe1ac1649534c2/
+base d958:
+`:core:data:testDebugUnitTest --tests com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest.otherRadioSequenceCannotAdvanceThisRadio --dependency-verification=strict --quiet`
+PASSED1discovered/1passed/0failures-errors-skips/exact selected identity.
+XML2026-10-12T13:43:31.251Z/nativeblob31a794ecb0b2cc677078f9cf4897e60412924689/
+bodySHA1968ede12292cadb872f55fc1cb6b74b199160bfac7ca2587f6c4f99eab91886.
+Returned8, required matching m.id row and its sequence8 all execute with unchanged
+failed/isReadtrue/retry me/source7-versus99/fromEnvelope inputs. Readiness PASS/
+zero notice normalizations/normal supported locks released/public records empty;
+raw private XML/actual binding/new receipt captured. Only one changed method,
+no unchanged15 replay/b58d relabel/extra original credit/product edit/current
+independent source or hosted certification.1429/182/83/0 remains unchanged.
+
 Actual clean a7d12d8ebe218e8222b0d9e1b25e456890e46dbf/base d958 strict
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.ConversationDeletionAcceptanceTest --dependency-verification=strict --quiet`
 PASSED2discovered/2passed/0failures-errors-skips/all2 exact unchanged methods.
