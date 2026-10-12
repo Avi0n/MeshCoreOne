@@ -1,5 +1,14 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual historicale888/d958 SOURCE-ONLY COMMENTED review5493866283 returned
+fullbody/head/state read: seven orphan/eight RX/three reaction+warmUp full
+originals and native classes/factories/lifetimes/explicit joins compared.
+All18 current complete bindings equal actual historicale888,528helperrows;
+qualified106->124/135 SOURCE-COMPARED/11uncompared, not approvals or native
+private XML certification. Fixed-key/typed-corruption/staged-SQLite/
+independent-hash/implicit-no-throw adaptations remain explicit.
+No unchanged7/8/3 replay or historical result rebind.
+
 Actual main b621/PR216 is integrated via same typed reservation46->47 and
 merge49d18b3e, retaining exact landed WP316 producer bytes on both paths.
 All1479 complete bindings unchanged; only affected generated WP316
@@ -8,15 +17,20 @@ no unchanged7/8/3/10 replay or claimed source/hosted/device certification.
 
 Final phone-clamp original registered:1479/5133 proposals/190groups/
 83mandatory/0approved,135/135 persistence originals proposed/zero unprovided,
-NOT135 accepted. Qualified independent source-only remains106/135/
-29uncompared. One body/join/22fingerprints/reservation46; fresh strict one-only
-execution and independent comparison pending. First current Unix UInt32
+NOT135 accepted. Qualified independent source-only is124/135/11uncompared.
+One body/join/22fingerprints/reservation46; actual clean d65f7f4868159a59467697a55f13549fe7d387ac/
+base b621 strict one-only1PASS/0bad/exactidentity/XML17:05:28.043Z/
+native188544c1/canonical-LF SHA2bb740c2/private22-input raw receipt.
+ReadinessPASS/zero notices/normal supported own locks released.
+Independent comparison/current successor hosted pending. First current Unix UInt32
 wrapping30-day future plus separately sampled second now are preserved;
 static result is compared to the actual stored contact reached through public
 backup import/real Room restore under that same clock, not two static calls.
 Source equality/less-than predicates remain; literal300 tolerance and actual
 row/identity/input preservation are supplemental, not iOS/bidirectional proof.
 All1478 incumbent complete bindings unchanged on this additive registration.
+Outcome/source-review update guards all1479 original/native/helper/vector/
+runner fields unchanged; only one+18 comparison digests change.
 
 Historical ten-only outcome:
 
