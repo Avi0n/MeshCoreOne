@@ -27,8 +27,18 @@ Locale.US substitutes source ambient locale only for selected membership/set
 predicates. Encoding fixture region NorthAmerica->Europe and hashmode fixture
 availability countriesNL->continentEurope are disclosed inert-field different
 inputs, not whole DTO parity. Numeric expectations remain frozen literals;
-six native supplements/catalog rows add no original credit. New selected
-native execution/independent/persistent acceptance pending, not green totals.
+six native supplements/catalog rows add no original credit. Actual clean
+`4fc90f6b5ccbf3025b637f77bebbad9a3e1d5ad8` /basee508 strict Windows
+`:core:services:test --tests com.meshcoreone.android.core.services.device.RadioPresetTest --dependency-verification=strict --quiet`
+discovers82/82PASS/zeroFAIL-error-skip/all76 distinct original IDs checked
+in real XML at08:12:35Z. Native blobaadba158183cfefc517e723ba781755c8c9a5ae8
+preserves actual test/helper inputs. ReadinessPASS JDK21.0.12.1/SDK37.2/tools37/
+explicit own private state; supported locks released normally. No services41/
+Room1/parser97/incoming8/pacing53/protocol replay. Independent/persistent/
+current-hosted full acceptance remains pending, not green-total equivalence.
+An auxiliary human-readable XML-name dump hit Windows cp1252 arrow encoding;
+the completed guarded runner had already verified all76 Unicode IDs from XML.
+This output error is not a native discovery/failure or a locale-input rewrite.
 No product/test/helper/input/golden edit or replay of incoming192/pacing189
 failures; those and full acceptance remain blocked.
 Actual binding inspection initially found zero attached assertRF definitions:

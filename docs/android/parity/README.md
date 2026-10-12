@@ -13,7 +13,10 @@ availability is continentEurope rather than countriesNL. These are explicit
 different-input counterparts only for selected membership/set and pure getter
 predicates, not whole DTO or universal locale/order equivalence. Six native
 supplements/28 catalog rows add no original credit. Selected execution and
-independent/full acceptance pending;189/192 witnesses are unchanged.
+Actual clean4fc/basee508 strict Windows RadioPresetTest82/82PASS/zero
+FAIL-error-skip/all76 unique original names checked in real XML. Six
+supplements add no original credit. ReadinessPASS/locksreleased; no other
+native selector/replay. Independent/full acceptance pending;189/192 unchanged.
 The audit caught a real helper-binding omission: assert-prefixed checked
 wrappers were classified as assertions, so their nested definitions were
 not attached. The binder now searches both call categories. New regression
