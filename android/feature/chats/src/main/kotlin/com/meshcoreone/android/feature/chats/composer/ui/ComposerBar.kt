@@ -149,9 +149,9 @@ private fun ComposerField(
         modifier = modifier
             .focusRequester(focusRequester)
             .onPreviewKeyEvent { event ->
-                // Hardware keyboard: Enter sends, Shift+Enter inserts a newline (iOS `onSend` hardware path).
+                // Hardware Return sends only when the button is enabled; otherwise normal multiline editing handles it.
                 val isEnter = event.key == Key.Enter || event.key == Key.NumPadEnter
-                if (isEnter && !event.isShiftPressed) {
+                if (state.canSend && isEnter && !event.isShiftPressed) {
                     if (event.type == KeyEventType.KeyDown) actions.onSend()
                     true
                 } else {
