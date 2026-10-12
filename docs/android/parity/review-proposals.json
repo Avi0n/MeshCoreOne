@@ -5,6 +5,53 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "persistence-original-restored-channel-reaction-and-database-warmup-predicates",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceReactionAndWarmupOriginalPredicateTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.PersistenceReactionAndWarmupOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "Find channel message for reaction within timestamp window",
+        "Find outgoing channel message for reaction using local node name",
+        "Database warm-up"
+      ],
+      "comparison": "Three separate complete original joins, not prior aggregate/one annotation proof. Incoming original120 independently fresh rows/index0..<120/channel1/Message i/UInt1700000000+i/epochcreated/incoming-delivered/RemoteNode/readfalse retain required target index80, actual fresh ReactionService.buildReactionText(thumbsup,RemoteNode,Message80,1700000080), required actual ReactionParser.parse, original now>300 clipped subtraction/+300 inclusive window/LocalNode/limit200/found optional exact targetID. Outgoing original channel2/Local message/1700000200/epochcreated/outgoing-sent/nil sender/readfalse retains actual fresh builder(fire,LocalNode)/required parser/same independent window+limit200/found optional originalID. Empty database original warmUp retains actual completed nonthrowing invocation, assertion Unit merely exposes that implicit original contract to body accounting; no stronger history/maintenance failure proof or extra original credited.",
+      "inputs": "Exact sourcecreateTestDevice firmware8/v1.11.0/TestDevice/TestMfg/01Jan2025/SF37.7749,-122.4194/multi0/inactive/native remaining delegated defaults/fresh id=radio, disclosed fixed44 instead of source random32bytes. Complete MessageDTO fresh UUID/nilcontact/channel1or2/originaltext+timestamp/createdUnix/direction+status/plain/acknil/path0/snrnil/pathNodesnil/senderprefixnil/sender RemoteNodeornil/readfalse/replynil/RTTnil/heards0/sendCount1/retry0/max0/sortDatecreated/other defaults preserved. Exact literals unicode thumbsup andfire represented ASCII escaped Kotlin surrogate pairs. Supplemental independent wire goldens dxm1cz0e andz6j5gpmd come from full-read frozen ReactionParser.swift195-200/encoder29-46/actual lowercase alphabet7: Python hashlib SHA256(textUTF8+struct.pack('<I',timestamp)),prefix5/MSB-first8x5bit Crockford, inputs4d65737361676520383050f15365 and4c6f63616c206d657373616765c8f15365/digest5 6f68167c0e andf9a4585a8d. Not actual Swift execution/candidate Kotlin expected-packet generation; all actual builder text+parsed hashes checked against independent literals.",
+      "adaptations": "Inherited actual nativeSQLite/API31 RoomProcessTest/production process store replaces SwiftData; immutable RadioId/UUID/Bytes/Instant/windowRange/nativeLong mapping explicit. Native builder and store independently hash, both pinned by Python-transcribed frozen independent input/hash/wire literals, not mutually self-certifying generated expected results. Exact original no-throw empty warmUp is checked via Unit completion, does not replace prior separate paired/unpaired maintenance warmUp original or replay it. No random identity/timestamp ties/cancellation/error warmUp/deadline/mounted/API37/hardware/backup or actual CryptoKit execution claim.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceReactionAndWarmupOriginalPredicateTest.kt",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Models/Device.swift",
+        "MC1Services/Sources/MC1Services/Models/Message.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionService.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionParser.swift",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionParser.kt",
+        "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/RepositoryValues.kt"
+      ],
+      "consumer": "Complete three source test bodies/sourceDeviceDTO fixture/modeldefaults/sourceReactionService builder/parser/encoder/lowercasealphabet/source persistence reaction candidate-window sender selection/hash policy/warmUp initialization+both reported maintenance predicates read against actual native DTO defaults/ReactionService public builder/ReactionParser actual parse/public RoomPersistenceStore/MessageRepository candidate query/RepositoryReactionPolicy independent hash/current-radio Room DAO and context. No product edit/old aggregate/previous14 RX/original callback replay.",
+      "unresolved": [
+        "Three-only strict native discovery and independent complete-source comparison pending.1468/5133 proposals/188groups/83mandatory/0approved;124/135 persistence proposed/11unprovided versus106 qualified source-compared/29uncompared. New seven+eight source reviews still pending; pre-read/independent Python vectors are not original acceptance/current hosted/Swift execution."
+      ]
+    },
+    {
       "id": "persistence-original-restored-rx-maintenance-predicates",
       "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
       "partial_source_file": true,

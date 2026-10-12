@@ -1,5 +1,21 @@
 # WP-501 source, case-family and consumer acceptance
 
+Three complete channel-reaction/database warm-up originals registered:
+1468/5133/188groups/83mandatory/0approved,124/135 persistence proposed/
+11unprovided versus106/135 qualified source-compared/29uncompared.
+Three bodies/joins/72helperrows/24inputs/reservation44; native three-only
+execution pending. Original120 incoming/channel1/required target80/RemoteNode
+and outgoing/channel2/Local message/nil sender both retain actual fresh
+builder/required parser/clipped300 window/limit200/optional exact foundID.
+Independent source-transcribed Python SHA256+little-endian UInt+prefix5+
+lowercase Crockford literals dxm1cz0e/z6j5gpmd check BOTH actual builder text
+and parser hash; not Kotlin-generated expected packets or actual Swift execution.
+Empty database warmUp actual completion exposes its original implicit
+no-throw contract via Unit; no extra original or paired/unpaired warmUp replay.
+Actual publice2dd normal push0/localfastUNVERIFIED/intake6128306540 retained.
+
+Historical eight-only outcome/source106 provenance:
+
 Eight new separately joined complete RX maintenance originals registered:
 1465/5133 proposals/187groups/83mandatory/0approved,121/135 persistence
 proposed/14unprovided;106/135 qualified source-compared/29uncompared.

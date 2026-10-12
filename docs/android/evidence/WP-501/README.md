@@ -12,7 +12,43 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-## Eight independent RX maintenance originals: actual eight-only PASS
+## Three independent reaction/warm-up originals: execution pending
+
+Same producer reservation44 admits the new owned class, no product changes.
+Three complete original bodies/joins/72helperrows/24inputs register1468/5133
+proposals/188groups/83mandatory/0approved,124/135 persistence proposed/
+11unprovided; qualified source comparison remains106/135/29uncompared.
+Original120 incoming channel1 rows retain required target index80/RemoteNode/
+epoch timestamps/actual fresh reaction builder/required parser/clipped
+inclusive +/-300 window/LocalNode/limit200/exact optional foundID.
+Outgoing original channel2/Local message/1700000200/nil sender/outgoing-sent
+uses actual builder/fire/LocalNode/parser/window200/found originalID.
+Empty source database warmUp retains its completed nonthrowing invocation;
+Unit assertion only exposes that implicit original contract, not extra
+maintenance/error/cancellation acceptance or replay of paired/unpaired warmUp.
+
+Supplemental literal wire hashes dxm1cz0e and z6j5gpmd are independently
+derived from the full read frozen ReactionParser.swift alphabet7/encoder29-46/
+hash195-200: Python hashlib SHA256(text UTF8 + struct.pack('<I', timestamp)),
+prefix5, MSB-first8x5-bit lowercase Crockford. Inputs
+4d65737361676520383050f15365/4c6f63616c206d657373616765c8f15365 and
+digest prefixes6f68167c0e/f9a4585a8d verified, not actual Swift execution
+or candidate Kotlin generating its own expected packet/hash. Actual builder
+wire text and actual parsed hashes each assert the independent literals.
+Original device/message/default/fresh UUID input families retained; fixed44
+instead of source random public-key bytes explicitly disclosed.
+
+Declared new three-only command:
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceReactionAndWarmupOriginalPredicateTest --dependency-verification=strict --quiet`;
+native execution pending. Metadata93PASS; every old native suite/receipt
+unreplayed/unrebound. Actual public e2dd eight-result normal publicationEXIT0,
+Python15/parity93/local21/preflightPASS/scaffold35seconds FAILED incumbent
+BLE JAR transform lock Expected3/found0/inspectunrun/localfastUNVERIFIED;
+template/head/returned body and
+[6128306540](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6128306540)
+bounded8/8/232/29 intake verified. Current three are not in public e2dd.
+
+## Historical eight independent RX maintenance originals: actual eight-only PASS
 
 Actual clean1264896548d974afc39b3603489405fbf35aac63/base d958 strict
 `:core:data:testDebugUnitTest --tests com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest --dependency-verification=strict --quiet`

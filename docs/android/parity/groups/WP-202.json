@@ -8035,6 +8035,7 @@
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceReactionAndWarmupOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt"
@@ -9042,6 +9043,40 @@
               "name": "originalThreeContactOneRowsRetainOnlyContactTwoPendingIdentityAndMessageCount",
               "line": 184,
               "end_line": 213
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceReactionAndWarmupOriginalPredicateTest.kt",
+          "sha256": "65bbd877fc4cdb844d6897591c03e113840518927ae87279dc0233adbb5cbc03",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "radio",
+              "line": 22,
+              "end_line": 32
+            },
+            {
+              "name": "message",
+              "line": 34,
+              "end_line": 43
+            },
+            {
+              "name": "original120IncomingRowsRetainRequiredTarget80ActualReactionBuilderParserWindow200AndFoundId",
+              "line": 46,
+              "end_line": 69
+            },
+            {
+              "name": "originalOutgoingLocalMessageRetainsNilSenderActualBuilderParserWindow200AndFoundId",
+              "line": 72,
+              "end_line": 90
+            },
+            {
+              "name": "originalEmptyStoreWarmUpRetainsCompletedNonThrowingInvocation",
+              "line": 93,
+              "end_line": 95
             }
           ]
         },
@@ -33813,6 +33848,125 @@
             "PersistenceStoreTests::Find outgoing channel message for reaction using local node name()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceReactionAndWarmupOriginalPredicateTest.kt",
+          "sha256": "65bbd877fc4cdb844d6897591c03e113840518927ae87279dc0233adbb5cbc03",
+          "class": "com.meshcoreone.android.parity.PersistenceReactionAndWarmupOriginalPredicateTest",
+          "method_or_family_name": "original120IncomingRowsRetainRequiredTarget80ActualReactionBuilderParserWindow200AndFoundId",
+          "line": 46,
+          "end_line": 69,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "14dbbcfd8d4abf5a5c82f49b6e38c42ce6ac63ffb898f918b6552a56f0fb0d1a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 57,
+              "expression": "assertNotNull(target)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 61,
+              "expression": "assertEquals(\"@[RemoteNode]\\uD83D\\uDC4D\\ndxm1cz0e\", reaction)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 62,
+              "expression": "assertNotNull(ReactionParser.parse(reaction))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 63,
+              "expression": "assertEquals(\"dxm1cz0e\", parsed.messageHash)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 68,
+              "expression": "assertEquals(requiredTarget.id, found?.id)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 47,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 49,
+              "expression": "for (index in 0 until 120)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 50,
+              "expression": "message(\n                radio, 1u, \"Message $index\", 1_700_000_000u + index.toUInt(),\n                MessageDirection.INCOMING, MessageStatus.DELIVERED, \"RemoteNode\",\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toUInt",
+              "line": 51,
+              "expression": "index.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 54,
+              "expression": "store.saveMessage(dto)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 55,
+              "expression": "if (index == 80)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ReactionService",
+              "line": 58,
+              "expression": "ReactionService()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "buildReactionText",
+              "line": 58,
+              "expression": "buildReactionText(\n            \"\\uD83D\\uDC4D\", \"RemoteNode\", requiredTarget.text, requiredTarget.timestamp,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ReactionParser.parse",
+              "line": 62,
+              "expression": "ReactionParser.parse(reaction)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 65,
+              "expression": "if (now > 300u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.findChannelMessageForReaction",
+              "line": 66,
+              "expression": "store.findChannelMessageForReaction(radio, 1u, parsed, \"LocalNode\", start..(now + 300u), 200)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Find channel message for reaction within timestamp window()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -34051,6 +34205,101 @@
           ],
           "explicit_original_case_ids": [
             "PersistenceStoreTests::Find channel message for reaction within timestamp window()",
+            "PersistenceStoreTests::Find outgoing channel message for reaction using local node name()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceReactionAndWarmupOriginalPredicateTest.kt",
+          "sha256": "65bbd877fc4cdb844d6897591c03e113840518927ae87279dc0233adbb5cbc03",
+          "class": "com.meshcoreone.android.parity.PersistenceReactionAndWarmupOriginalPredicateTest",
+          "method_or_family_name": "originalOutgoingLocalMessageRetainsNilSenderActualBuilderParserWindow200AndFoundId",
+          "line": 72,
+          "end_line": 90,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "60c9a6ac07168cf2a190aa80d1ccc817b2a4be61a89fa0ed1201305def828b0c",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 82,
+              "expression": "assertEquals(\"@[LocalNode]\\uD83D\\uDD25\\nz6j5gpmd\", reaction)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 83,
+              "expression": "assertNotNull(ReactionParser.parse(reaction))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 84,
+              "expression": "assertEquals(\"z6j5gpmd\", parsed.messageHash)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 89,
+              "expression": "assertEquals(outgoing.id, found?.id)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 73,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 74,
+              "expression": "message(\n            radio, 2u, \"Local message\", 1_700_000_200u,\n            MessageDirection.OUTGOING, MessageStatus.SENT, null,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 78,
+              "expression": "store.saveMessage(outgoing)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ReactionService",
+              "line": 79,
+              "expression": "ReactionService()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "buildReactionText",
+              "line": 79,
+              "expression": "buildReactionText(\n            \"\\uD83D\\uDD25\", \"LocalNode\", outgoing.text, outgoing.timestamp,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ReactionParser.parse",
+              "line": 83,
+              "expression": "ReactionParser.parse(reaction)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 86,
+              "expression": "if (now > 300u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.findChannelMessageForReaction",
+              "line": 87,
+              "expression": "store.findChannelMessageForReaction(radio, 2u, parsed, \"LocalNode\", start..(now + 300u), 200)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::Find outgoing channel message for reaction using local node name()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -43120,6 +43369,41 @@
             "PersistenceStoreTests::warmUp runs both purgeOrphanPendingSends and purgeLegacyAttemptCountRows()",
             "PersistenceStoreTests::purgeLegacyAttemptCountRows deletes only legacy nil rows()",
             "PersistenceStoreTests::purgeLegacyAttemptCountRows is idempotent()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceReactionAndWarmupOriginalPredicateTest.kt",
+          "sha256": "65bbd877fc4cdb844d6897591c03e113840518927ae87279dc0233adbb5cbc03",
+          "class": "com.meshcoreone.android.parity.PersistenceReactionAndWarmupOriginalPredicateTest",
+          "method_or_family_name": "originalEmptyStoreWarmUpRetainsCompletedNonThrowingInvocation",
+          "line": 93,
+          "end_line": 95,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "192096e3bc89a99f568efb8be36bd10f618d2f008e7a1c6632707297f1a4c323",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 94,
+              "expression": "assertEquals(Unit, store.warmUp())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "store.warmUp",
+              "line": 94,
+              "expression": "store.warmUp()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Database warm-up()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
