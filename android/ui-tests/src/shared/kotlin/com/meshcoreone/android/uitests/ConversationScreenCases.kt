@@ -104,7 +104,7 @@ class ConversationScreenCases(
         setContent {
             val case = selected.value
             val context = LocalContext.current
-            val configuration = Configuration(context.resources.configuration).apply {
+            val configuration = Configuration(LocalConfiguration.current).apply {
                 setLocales(LocaleList(Locale.forLanguageTag(case.locale)))
             }
             val localized = context.createConfigurationContext(configuration)
