@@ -1,11 +1,12 @@
 // AndroidOnly: WP-308 JVM fakes: scripted send port, environment, virtual-clock timer and draft store.
 package com.meshcoreone.android.feature.chats.composer
 
-import com.meshcoreone.android.core.contracts.domain.ChannelSendReceipt
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
+import com.meshcoreone.android.core.model.ChannelMessageEnvelope
 import com.meshcoreone.android.core.model.ChatConversationID
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.Coordinate
+import com.meshcoreone.android.core.model.DirectMessageEnvelope
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.MessageDirection
 import com.meshcoreone.android.core.model.MessageStatus
@@ -73,49 +74,49 @@ internal class FakeEnvironment(
 /** Records calls in order; each stage can be scripted to throw or to suspend on a gate. */
 internal class FakeSendPort(val radio: RadioId) : ComposerSendPort {
     val calls = ArrayList<String>()
+    val pendingMessages = ArrayList<MessageDTO>()
+    val directEnvelopes = ArrayList<DirectMessageEnvelope>()
+    val channelEnvelopes = ArrayList<ChannelMessageEnvelope>()
     var createFailure: Throwable? = null
+    var createGate: CompletableDeferred<Unit>? = null
     var sendFailure: Throwable? = null
     var sendGate: CompletableDeferred<Unit>? = null
 
-    private fun row(text: String, contactId: UUID?) = MessageDTO(
-        id = UUID.nameUUIDFromBytes("row-${calls.size}".toByteArray()), radioId = radio, contactID = contactId, text = text,
+    private fun row(text: String, contactId: UUID?, channelIndex: UByte? = null) = MessageDTO(
+        id = UUID.nameUUIDFromBytes("row-${calls.size}".toByteArray()), radioId = radio, contactID = contactId,
+        channelIndex = channelIndex, text = text,
         timestamp = 1u, createdAt = Instant.EPOCH, sortDate = Instant.EPOCH, direction = MessageDirection.OUTGOING,
         status = MessageStatus.PENDING,
     )
 
     override suspend fun createPendingDirect(text: String, contact: ContactDTO, textType: TextType, replyToId: UUID?): MessageDTO {
         calls += "createPendingDirect:$text"
+        createGate?.await()
         createFailure?.let { throw it }
-        return row(text, contact.id)
+        return row(text, contact.id).also(pendingMessages::add)
     }
 
-    override suspend fun sendPendingDirect(messageId: UUID, contact: ContactDTO, preserveTimestamp: Boolean): MessageDTO {
-        calls += "sendPendingDirect"
+    override suspend fun enqueueDM(envelope: DirectMessageEnvelope) {
+        calls += "enqueueDM"
+        directEnvelopes += envelope
         sendGate?.await()
         sendFailure?.let { throw it }
-        return row("", contact.id)
     }
 
-    override suspend fun sendDirect(text: String, contact: ContactDTO, textType: TextType, replyToId: UUID?): MessageDTO =
-        error("composer sends through pending rows")
-
-    override suspend fun resendDirect(messageId: UUID, contact: ContactDTO, preserveTimestamp: Boolean): MessageDTO =
-        error("resend belongs to the timeline retry path")
+    override suspend fun signalDMEnqueued(envelope: DirectMessageEnvelope) =
+        error("signal-only retry belongs to the timeline retry path")
 
     override suspend fun createPendingChannel(text: String, channelIndex: UByte, radioId: RadioId, textType: TextType): MessageDTO {
         calls += "createPendingChannel:$channelIndex:$text"
+        createGate?.await()
         createFailure?.let { throw it }
-        return row(text, null)
+        return row(text, null, channelIndex).also(pendingMessages::add)
     }
 
-    override suspend fun sendPendingChannel(messageId: UUID) {
-        calls += "sendPendingChannel"
+    override suspend fun enqueueChannel(envelope: ChannelMessageEnvelope) {
+        calls += "enqueueChannel"
+        channelEnvelopes += envelope
         sendGate?.await()
         sendFailure?.let { throw it }
     }
-
-    override suspend fun sendChannel(text: String, channelIndex: UByte, radioId: RadioId, textType: TextType): ChannelSendReceipt =
-        error("composer sends through pending rows")
-
-    override suspend fun resendChannel(messageId: UUID, preserveTimestamp: Boolean): UInt = error("timeline retry path")
 }

@@ -1,11 +1,19 @@
 // PortedFrom: MC1/Views/Chats/Components/ChatInputBar.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/ChatConversationInputBar.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Mentions/ChatConversationMentionOverlay.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+Channels.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.feature.chats.composer
 
+import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceError
+import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceException
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
+import com.meshcoreone.android.core.model.ChannelMessageEnvelope
 import com.meshcoreone.android.core.model.ContactDTO
+import com.meshcoreone.android.core.model.DirectMessageEnvelope
+import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.TextType
 import com.meshcoreone.android.feature.chats.timeline.TimelineDraftStore
 import java.util.UUID
@@ -26,9 +34,9 @@ import kotlinx.coroutines.launch
  *
  * Send contract (iOS `ChatInputBar.send`): the trimmed draft is captured, the field clears at once,
  * and the button stays disabled for [ComposerLimits.SEND_COOLDOWN_MILLIS] and while a send is in
- * flight. A pending row is created first so a later failure leaves a visible failed message that the
- * timeline retries; when creating that row fails nothing exists, so the captured text returns to the
- * draft (unless the user already typed something new).
+ * flight to durable enqueue acceptance. A pending row is created first so a later failure leaves a
+ * visible failed message that the timeline retries; when creating that row fails nothing exists,
+ * so the captured text returns to the draft (unless the user already typed something new).
  */
 class ComposerStateHolder(
     private val target: ComposerTarget,
@@ -179,8 +187,9 @@ class ComposerStateHolder(
     private suspend fun deliver(text: String) {
         var pendingId: UUID? = null
         try {
-            pendingId = createPending(text).id
-            sendPending(pendingId)
+            val pending = createPending(text)
+            pendingId = pending.id
+            enqueuePending(pending)
             mutableState.update { it.copy(sendPhase = ComposerSendPhase.Idle) }
         } catch (cancelled: CancellationException) {
             throw cancelled
@@ -200,18 +209,34 @@ class ComposerStateHolder(
         is ComposerTarget.Channel -> sendPort.createPendingChannel(text, target.channel.index, target.channel.radioId, TextType.PLAIN)
     }
 
-    private suspend fun sendPending(id: UUID) {
+    private suspend fun enqueuePending(message: MessageDTO) {
         when (target) {
-            is ComposerTarget.Direct -> sendPort.sendPendingDirect(id, target.contact)
-            is ComposerTarget.Channel -> sendPort.sendPendingChannel(id)
+            is ComposerTarget.Direct -> sendPort.enqueueDM(DirectMessageEnvelope(message.id, target.contact.id))
+            is ComposerTarget.Channel -> sendPort.enqueueChannel(
+                ChannelMessageEnvelope(
+                    messageID = message.id,
+                    channelIndex = target.channel.index,
+                    isResend = false,
+                    messageText = message.text,
+                    messageTimestamp = message.timestamp,
+                    localNodeName = environment.device.value?.nodeName,
+                ),
+            )
         }
     }
 
-    private fun classify(failure: Throwable): ComposerSendFailure = when ((failure as? MessageServiceException)?.error) {
-        MessageServiceError.NotConnected -> ComposerSendFailure.NOT_CONNECTED
-        MessageServiceError.MessageTooLong -> ComposerSendFailure.MESSAGE_TOO_LONG
-        MessageServiceError.ContactNotFound, MessageServiceError.ChannelNotFound,
-        MessageServiceError.InvalidRecipient -> ComposerSendFailure.RECIPIENT_NOT_FOUND
+    private fun classify(failure: Throwable): ComposerSendFailure = when (failure) {
+        is ChatSendQueueServiceException -> when (failure.error) {
+            ChatSendQueueServiceError.NotConnected -> ComposerSendFailure.NOT_CONNECTED
+            is ChatSendQueueServiceError.PersistFailed -> ComposerSendFailure.OTHER
+        }
+        is MessageServiceException -> when (failure.error) {
+            MessageServiceError.NotConnected -> ComposerSendFailure.NOT_CONNECTED
+            MessageServiceError.MessageTooLong -> ComposerSendFailure.MESSAGE_TOO_LONG
+            MessageServiceError.ContactNotFound, MessageServiceError.ChannelNotFound,
+            MessageServiceError.InvalidRecipient -> ComposerSendFailure.RECIPIENT_NOT_FOUND
+            else -> ComposerSendFailure.OTHER
+        }
         else -> ComposerSendFailure.OTHER
     }
 

@@ -1,12 +1,13 @@
 // AndroidOnly: WP-308 Feature-owned seams (type-placement decision: feature modules may not depend on core:services/data/runtime, so the composer declares what it needs and the app layer binds it).
 package com.meshcoreone.android.feature.chats.composer
 
-import com.meshcoreone.android.core.contracts.domain.ChannelSendReceipt
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.model.ChannelDTO
+import com.meshcoreone.android.core.model.ChannelMessageEnvelope
 import com.meshcoreone.android.core.model.ChatConversationID
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.Coordinate
+import com.meshcoreone.android.core.model.DirectMessageEnvelope
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.model.TextType
@@ -29,27 +30,23 @@ sealed interface ComposerTarget {
 }
 
 /**
- * Send surface the composer drives. Signatures mirror `MessagingSendPort` (core:contracts, implemented
- * by `MessageService`, WP-208) without its session token and status stream; the app layer adapts it.
- * Implementations must validate length again (`MessageServiceError.MessageTooLong`).
+ * Pending creation followed by the service-owned durable queue, as in `ChatViewModel+SendQueues`.
+ * The app binds creation to MessageService and enqueue/signalling to ChatSendQueuePort. Enqueue
+ * returns after durable acceptance, not wire delivery; attempts and timestamp policy belong to
+ * the queue. Implementations validate length again and surface typed creation/enqueue failures.
  */
 interface ComposerSendPort {
     suspend fun createPendingDirect(
         text: String, contact: ContactDTO, textType: TextType = TextType.PLAIN, replyToId: UUID? = null,
     ): MessageDTO
-    suspend fun sendPendingDirect(messageId: UUID, contact: ContactDTO, preserveTimestamp: Boolean = false): MessageDTO
-    suspend fun sendDirect(
-        text: String, contact: ContactDTO, textType: TextType = TextType.PLAIN, replyToId: UUID? = null,
-    ): MessageDTO
-    suspend fun resendDirect(messageId: UUID, contact: ContactDTO, preserveTimestamp: Boolean = false): MessageDTO
     suspend fun createPendingChannel(
         text: String, channelIndex: UByte, radioId: RadioId, textType: TextType = TextType.PLAIN,
     ): MessageDTO
-    suspend fun sendPendingChannel(messageId: UUID)
-    suspend fun sendChannel(
-        text: String, channelIndex: UByte, radioId: RadioId, textType: TextType = TextType.PLAIN,
-    ): ChannelSendReceipt
-    suspend fun resendChannel(messageId: UUID, preserveTimestamp: Boolean = false): UInt
+    suspend fun enqueueDM(envelope: DirectMessageEnvelope)
+    suspend fun enqueueChannel(envelope: ChannelMessageEnvelope)
+
+    /** The caller already persisted the retry row; signal the queue without inserting it again. */
+    suspend fun signalDMEnqueued(envelope: DirectMessageEnvelope)
 }
 
 /** The connected node as the composer sees it (iOS `appState.connectedDevice` subset). */
