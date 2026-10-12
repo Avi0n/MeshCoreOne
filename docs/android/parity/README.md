@@ -1,5 +1,18 @@
 # WP-501 source, case-family and consumer acceptance
 
+Seven new complete orphan-DM/unread originals registered independently:
+1457/5133 proposals/186groups/83mandatory/0approved,113/135 PersistenceStore
+proposed/22unprovided versus101/135 source-compared/34uncompared.
+Seven bodies/joins/224helperrows/32inputs retain all24 source expectations/
+7 required rows, positive canonicalUUID rekey/idempotence/counters, actual
+read incoming before nil query, required channel/outgoing/reaction rows,
+affirmative reaction precondition, wrapping byte6/shared prefix and distinct
+blocked testContact reset/defaults/required before-after rows/history.
+Source TestFetch and ReactionParser dependencies declared; all1450 incumbent
+bindings unchanged, no existing aggregate/newest-positive replay/product edit.
+Same reservation42; only new seven-only strict execution/source comparison
+pending, coordinator pre-read is not extra compared/accepted credit.
+
 Actual clean543/base d958 corrected warmUp-ONLY1PASS/0bad/exact identity,
 XML15:18:10.456Z/native0e895b51/SHA855eed2f/bodybc8ccefcb/30 fingerprints/
 private raw XML. Exact delegated01/FW9/v1.13.0/multi2/active/latlon0 and

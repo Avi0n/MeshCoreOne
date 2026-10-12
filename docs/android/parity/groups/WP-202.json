@@ -8032,6 +8032,7 @@
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
@@ -8843,6 +8844,70 @@
               "name": "mutingRetainsTheInitialFalseAndBothOriginalTransitions",
               "line": 162,
               "end_line": 173
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "device",
+              "line": 32,
+              "end_line": 40
+            },
+            {
+              "name": "frame",
+              "line": 42,
+              "end_line": 45
+            },
+            {
+              "name": "orphan",
+              "line": 47,
+              "end_line": 67
+            },
+            {
+              "name": "allMessages",
+              "line": 69,
+              "end_line": 70
+            },
+            {
+              "name": "originalLinkAndIdempotenceRetainReturnedCountsRequiredRowsCanonicalRekeyAndBothCounters",
+              "line": 73,
+              "end_line": 100
+            },
+            {
+              "name": "originalNilUnreadResultRetainsActualReadIncomingRowNotAnEmptyStore",
+              "line": 103,
+              "end_line": 112
+            },
+            {
+              "name": "originalChannelSkipRetainsEmptyAdoptionRequiredMessageContactNilAndChannelOne",
+              "line": 115,
+              "end_line": 132
+            },
+            {
+              "name": "originalOutgoingSkipRetainsSentReadInputEmptyAdoptionRequiredOriginalRowAndContactNil",
+              "line": 135,
+              "end_line": 151
+            },
+            {
+              "name": "originalReactionSkipRetainsAffirmativeDmParserSoleMatchRequiredOriginalRowAndContactNil",
+              "line": 154,
+              "end_line": 170
+            },
+            {
+              "name": "originalAmbiguousPrefixRetainsWrappingByteSixMutationTwoFullContactsAndOptionalUnlinkedRead",
+              "line": 173,
+              "end_line": 193
+            },
+            {
+              "name": "originalBlockedAdoptionRetainsDistinctResetDtoRequiredBeforeAfterRowsCountAndHistoryWithoutUnread",
+              "line": 196,
+              "end_line": 221
             }
           ]
         },
@@ -61374,6 +61439,227 @@
             "PersistenceStoreTests::adoptOrphanedDirectMessages links orphan DM and updates unread()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+          "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+          "method_or_family_name": "originalLinkAndIdempotenceRetainReturnedCountsRequiredRowsCanonicalRekeyAndBothCounters",
+          "line": 73,
+          "end_line": 100,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "b4abe48d829a26be9a3cedcf4e93838edf4db6204eb6daaca8ccd948a4a5c5fa",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 85,
+              "expression": "assertEquals(1L, adopted[contactID])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 87,
+              "expression": "assertEquals(1, messages.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 88,
+              "expression": "assertEquals(contactID, messages[0].contactID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 89,
+              "expression": "assertEquals(true, messages[0].deduplicationKey?.contains(contactID.canonicalString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 90,
+              "expression": "assertNotNull(store.fetchContact(EntityKey(device.radioId, contactID)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 91,
+              "expression": "assertEquals(1L, contact.unreadCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 92,
+              "expression": "assertEquals(1L, contact.unreadMentionCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 93,
+              "expression": "assertNotNull(contact.lastMessageDate)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 96,
+              "expression": "assertTrue(second.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 97,
+              "expression": "assertNotNull(store.fetchContact(EntityKey(device.radioId, contactID)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 98,
+              "expression": "assertEquals(1L, after.unreadCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 99,
+              "expression": "assertEquals(1L, after.unreadMentionCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 74,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 75,
+              "expression": "frame(\"LateContact\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 76,
+              "expression": "store.saveContact(device.radioId, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 78,
+              "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"hello orphan\", stamp,\n            date = Instant.ofEpochSecond(stamp.toLong()), selfMention = true,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "orphan",
+              "line": 78,
+              "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"hello orphan\", stamp,\n            date = Instant.ofEpochSecond(stamp.toLong()), selfMention = true,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame.publicKey.prefix",
+              "line": 79,
+              "expression": "frame.publicKey.prefix(6)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 80,
+              "expression": "Instant.ofEpochSecond(stamp.toLong())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "stamp.toLong",
+              "line": 80,
+              "expression": "stamp.toLong()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 82,
+              "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactIdentity",
+              "line": 82,
+              "expression": "ContactIdentity(contactID, frame.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.adoptOrphanedDirectMessages",
+              "line": 84,
+              "expression": "store.adoptOrphanedDirectMessages(device.radioId, identities)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 86,
+              "expression": "store.fetchMessages(EntityKey(device.radioId, contactID), 10, 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 86,
+              "expression": "EntityKey(device.radioId, contactID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "deduplicationKey?.contains",
+              "line": 89,
+              "expression": "deduplicationKey?.contains(contactID.canonicalString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "contactID.canonicalString",
+              "line": 89,
+              "expression": "contactID.canonicalString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 90,
+              "expression": "store.fetchContact(EntityKey(device.radioId, contactID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 90,
+              "expression": "EntityKey(device.radioId, contactID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.adoptOrphanedDirectMessages",
+              "line": 95,
+              "expression": "store.adoptOrphanedDirectMessages(device.radioId, identities)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "second.isEmpty",
+              "line": 96,
+              "expression": "second.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 97,
+              "expression": "store.fetchContact(EntityKey(device.radioId, contactID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 97,
+              "expression": "EntityKey(device.radioId, contactID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::adoptOrphanedDirectMessages links orphan DM and updates unread()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -62203,6 +62489,77 @@
             "PersistenceStoreTests::newestUnreadIncomingMessage returns nil when no unread incoming exists()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+          "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+          "method_or_family_name": "originalNilUnreadResultRetainsActualReadIncomingRowNotAnEmptyStore",
+          "line": 103,
+          "end_line": 112,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "beac75db8ede03d43318e845824d14b4269f0a47ab520580825eedc3404c4b9a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 111,
+              "expression": "assertNull(store.newestUnreadIncomingMessage(EntityKey(device.radioId, contactID)))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 104,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 105,
+              "expression": "store.saveContact(device.radioId, frame())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 105,
+              "expression": "frame()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 106,
+              "expression": "store.saveMessage(MessageDTO(\n            radioId = device.radioId, contactID = contactID, text = \"already read\",\n            timestamp = 1_700_000_100u, direction = MessageDirection.INCOMING, isRead = true,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 106,
+              "expression": "MessageDTO(\n            radioId = device.radioId, contactID = contactID, text = \"already read\",\n            timestamp = 1_700_000_100u, direction = MessageDirection.INCOMING, isRead = true,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.newestUnreadIncomingMessage",
+              "line": 111,
+              "expression": "store.newestUnreadIncomingMessage(EntityKey(device.radioId, contactID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 111,
+              "expression": "EntityKey(device.radioId, contactID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::newestUnreadIncomingMessage returns nil when no unread incoming exists()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -62535,6 +62892,131 @@
             "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts reaction wire text()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+          "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+          "method_or_family_name": "originalChannelSkipRetainsEmptyAdoptionRequiredMessageContactNilAndChannelOne",
+          "line": 115,
+          "end_line": 132,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "9dc44a6e808817d3e25c642ef16826aa18bee2de4a3b71d9e9982cd0a3c31c77",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 128,
+              "expression": "assertTrue(adopted.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 129,
+              "expression": "assertNotNull(allMessages(device.radioId).firstOrNull { it.id == messageID })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 130,
+              "expression": "assertNull(row.contactID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 131,
+              "expression": "assertEquals(1.toUByte(), row.channelIndex)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 116,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 117,
+              "expression": "frame(\"Only\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 118,
+              "expression": "store.saveContact(device.radioId, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 119,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 120,
+              "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"channel\", 1_700_000_300u,\n            id = messageID, channel = 1u, senderName = \"Sender\",\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "orphan",
+              "line": 120,
+              "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"channel\", 1_700_000_300u,\n            id = messageID, channel = 1u, senderName = \"Sender\",\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame.publicKey.prefix",
+              "line": 121,
+              "expression": "frame.publicKey.prefix(6)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.adoptOrphanedDirectMessages",
+              "line": 125,
+              "expression": "store.adoptOrphanedDirectMessages(\n            device.radioId, SnapshotList.of(ContactIdentity(contactID, frame.publicKey)),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 126,
+              "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactIdentity",
+              "line": 126,
+              "expression": "ContactIdentity(contactID, frame.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "adopted.isEmpty",
+              "line": 128,
+              "expression": "adopted.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "allMessages",
+              "line": 129,
+              "expression": "allMessages(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 131,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts a channel message()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -62859,6 +63341,119 @@
             "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts a channel message()",
             "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts an outgoing message()",
             "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts reaction wire text()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+          "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+          "method_or_family_name": "originalOutgoingSkipRetainsSentReadInputEmptyAdoptionRequiredOriginalRowAndContactNil",
+          "line": 135,
+          "end_line": 151,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "b9b2a1cef98f52c91b6c23facd15b361c1c7fafd266f8de6de97fb2c6cdc2ba6",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 148,
+              "expression": "assertTrue(adopted.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 149,
+              "expression": "assertNotNull(allMessages(device.radioId).firstOrNull { it.id == messageID })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 150,
+              "expression": "assertNull(row.contactID)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 136,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 137,
+              "expression": "frame(\"Only\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 138,
+              "expression": "store.saveContact(device.radioId, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 139,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 140,
+              "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"outgoing\", 1_700_000_301u,\n            id = messageID, direction = MessageDirection.OUTGOING, status = MessageStatus.SENT, isRead = true,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "orphan",
+              "line": 140,
+              "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"outgoing\", 1_700_000_301u,\n            id = messageID, direction = MessageDirection.OUTGOING, status = MessageStatus.SENT, isRead = true,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame.publicKey.prefix",
+              "line": 141,
+              "expression": "frame.publicKey.prefix(6)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.adoptOrphanedDirectMessages",
+              "line": 145,
+              "expression": "store.adoptOrphanedDirectMessages(\n            device.radioId, SnapshotList.of(ContactIdentity(contactID, frame.publicKey)),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 146,
+              "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactIdentity",
+              "line": 146,
+              "expression": "ContactIdentity(contactID, frame.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "adopted.isEmpty",
+              "line": 148,
+              "expression": "adopted.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "allMessages",
+              "line": 149,
+              "expression": "allMessages(device.radioId)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts an outgoing message()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -63199,6 +63794,131 @@
             "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts reaction wire text()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+          "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+          "method_or_family_name": "originalReactionSkipRetainsAffirmativeDmParserSoleMatchRequiredOriginalRowAndContactNil",
+          "line": 154,
+          "end_line": 170,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "9ee71832ed4d26988f5a5238b8821594221a1b6ceb0f29a094ee20116c09f50d",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 159,
+              "expression": "assertTrue(ReactionParser.isReactionText(\"r:abcd:01\", isDM = true))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 167,
+              "expression": "assertTrue(adopted.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 168,
+              "expression": "assertNotNull(allMessages(device.radioId).firstOrNull { it.id == messageID })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 169,
+              "expression": "assertNull(row.contactID)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 155,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 156,
+              "expression": "frame(\"Only\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 157,
+              "expression": "store.saveContact(device.radioId, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 158,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ReactionParser.isReactionText",
+              "line": 159,
+              "expression": "ReactionParser.isReactionText(\"r:abcd:01\", isDM = true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 160,
+              "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"r:abcd:01\", 1_700_000_302u, id = messageID,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "orphan",
+              "line": 160,
+              "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"r:abcd:01\", 1_700_000_302u, id = messageID,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame.publicKey.prefix",
+              "line": 161,
+              "expression": "frame.publicKey.prefix(6)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.adoptOrphanedDirectMessages",
+              "line": 164,
+              "expression": "store.adoptOrphanedDirectMessages(\n            device.radioId, SnapshotList.of(ContactIdentity(contactID, frame.publicKey)),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 165,
+              "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactIdentity",
+              "line": 165,
+              "expression": "ContactIdentity(contactID, frame.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "adopted.isEmpty",
+              "line": 167,
+              "expression": "adopted.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "allMessages",
+              "line": 168,
+              "expression": "allMessages(device.radioId)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts reaction wire text()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -63471,6 +64191,155 @@
               "name": "entity",
               "line": 65,
               "expression": "entity(id = m.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::adoptOrphanedDirectMessages skips multi-match prefix()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+          "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+          "method_or_family_name": "originalAmbiguousPrefixRetainsWrappingByteSixMutationTwoFullContactsAndOptionalUnlinkedRead",
+          "line": 173,
+          "end_line": 193,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "47c01c6c9a25edbc77422a235a9ba4efea53ec6df2fc64eb3ee87d86d5899753",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 191,
+              "expression": "assertTrue(multi.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 192,
+              "expression": "assertNull(allMessages(device.radioId).firstOrNull { it.id == messageID }?.contactID)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 174,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 175,
+              "expression": "frame(\"A\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 176,
+              "expression": "store.saveContact(device.radioId, frameA)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 177,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 177,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 177,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFrame",
+              "line": 178,
+              "expression": "ContactFrame(\n            Bytes(keyB), frameA.type, frameA.flags, 0u, Bytes.EMPTY, \"B\",\n            frameA.lastAdvertTimestamp, 0.0, 0.0, frameA.lastModified,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 179,
+              "expression": "Bytes(keyB)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 182,
+              "expression": "store.saveContact(device.radioId, frameB)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 183,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 184,
+              "expression": "store.saveMessage(orphan(\n            device.radioId, frameA.publicKey.prefix(6), \"ambiguous\", 1_700_000_303u, id = messageID,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "orphan",
+              "line": 184,
+              "expression": "orphan(\n            device.radioId, frameA.publicKey.prefix(6), \"ambiguous\", 1_700_000_303u, id = messageID,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frameA.publicKey.prefix",
+              "line": 185,
+              "expression": "frameA.publicKey.prefix(6)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.adoptOrphanedDirectMessages",
+              "line": 188,
+              "expression": "store.adoptOrphanedDirectMessages(device.radioId, SnapshotList.of(\n            ContactIdentity(idA, frameA.publicKey), ContactIdentity(idB, frameB.publicKey),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 188,
+              "expression": "SnapshotList.of(\n            ContactIdentity(idA, frameA.publicKey), ContactIdentity(idB, frameB.publicKey),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactIdentity",
+              "line": 189,
+              "expression": "ContactIdentity(idA, frameA.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactIdentity",
+              "line": 189,
+              "expression": "ContactIdentity(idB, frameB.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "multi.isEmpty",
+              "line": 191,
+              "expression": "multi.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "allMessages",
+              "line": 192,
+              "expression": "allMessages(device.radioId)",
               "assertion_or_checked_wait": false
             }
           ],
@@ -63789,6 +64658,161 @@
               "name": "entity",
               "line": 78,
               "expression": "entity()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::adoptOrphanedDirectMessages adopts blocked contact without unread bump()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+          "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+          "method_or_family_name": "originalBlockedAdoptionRetainsDistinctResetDtoRequiredBeforeAfterRowsCountAndHistoryWithoutUnread",
+          "line": 196,
+          "end_line": 221,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "4f561db0181c2a1c3159a80aa29c97b964aab8f01344af9cc79ab505ec7a5f3e",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 200,
+              "expression": "assertNotNull(store.fetchContact(EntityKey(device.radioId, contactID)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 217,
+              "expression": "assertEquals(1L, adopted[contactID])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 218,
+              "expression": "assertNotNull(store.fetchContact(EntityKey(device.radioId, contactID)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 219,
+              "expression": "assertEquals(0L, blocked.unreadCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 220,
+              "expression": "assertEquals(1, store.fetchMessages(EntityKey(device.radioId, contactID), 5, 0).size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 197,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 198,
+              "expression": "frame(\"Blocked\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 199,
+              "expression": "store.saveContact(device.radioId, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 200,
+              "expression": "store.fetchContact(EntityKey(device.radioId, contactID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 200,
+              "expression": "EntityKey(device.radioId, contactID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 201,
+              "expression": "store.saveContact(ContactDTO(\n            id = contactID, radioId = device.radioId, publicKey = frame.publicKey, name = \"Blocked\",\n            typeRawValue = blockedDTO.typeRawValue, flags = blockedDTO.flags,\n            outPathLength = blockedDTO.outPathLength, outPath = blockedDTO.outPath,\n            lastAdvertTimestamp = blockedDTO.lastAdvertTimestamp, latitude = 0.0, longitude = 0.0,\n            lastModified = blockedDTO.lastModified, lastHeardTimestamp = null, isBlocked = true,\n            nickname = null, isMuted = false, isFavorite = false, lastMessageDate = null,\n            unreadCount = 0, unreadMentionCount = 0, avatarImageData = null,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactDTO",
+              "line": 201,
+              "expression": "ContactDTO(\n            id = contactID, radioId = device.radioId, publicKey = frame.publicKey, name = \"Blocked\",\n            typeRawValue = blockedDTO.typeRawValue, flags = blockedDTO.flags,\n            outPathLength = blockedDTO.outPathLength, outPath = blockedDTO.outPath,\n            lastAdvertTimestamp = blockedDTO.lastAdvertTimestamp, latitude = 0.0, longitude = 0.0,\n            lastModified = blockedDTO.lastModified, lastHeardTimestamp = null, isBlocked = true,\n            nickname = null, isMuted = false, isFavorite = false, lastMessageDate = null,\n            unreadCount = 0, unreadMentionCount = 0, avatarImageData = null,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 210,
+              "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"blocked orphan\", 1_700_000_304u,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "orphan",
+              "line": 210,
+              "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"blocked orphan\", 1_700_000_304u,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame.publicKey.prefix",
+              "line": 211,
+              "expression": "frame.publicKey.prefix(6)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.adoptOrphanedDirectMessages",
+              "line": 214,
+              "expression": "store.adoptOrphanedDirectMessages(\n            device.radioId, SnapshotList.of(ContactIdentity(contactID, frame.publicKey)),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 215,
+              "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactIdentity",
+              "line": 215,
+              "expression": "ContactIdentity(contactID, frame.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 218,
+              "expression": "store.fetchContact(EntityKey(device.radioId, contactID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 218,
+              "expression": "EntityKey(device.radioId, contactID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 220,
+              "expression": "store.fetchMessages(EntityKey(device.radioId, contactID), 5, 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 220,
+              "expression": "EntityKey(device.radioId, contactID)",
               "assertion_or_checked_wait": false
             }
           ],

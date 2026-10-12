@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "d63205a8163c354e0d52b3c3c9e4535227150abb4d76d3558d90cd4ac78647a3",
+  "proposal_sha256": "ec5326d7e6a5d7e7a6ef582654fa30b5e3a885238e3ab80e39a49e3bc1f82a9b",
   "families": [
     {
       "group": "backup-envelope",
@@ -62633,6 +62633,1986 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "persistence-original-restored-orphan-adoption-predicates",
+      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::adoptOrphanedDirectMessages adopts blocked contact without unread bump()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b45e9e290d637ceb4547eeb84af52701ef60531d6f1580bf5d1b739d04ea3feb",
+      "original_assertions": [
+        {
+          "name": "#require",
+          "line": 3496,
+          "expression": "#require(await store.fetchContact(id: idC))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3543,
+          "expression": "#expect(blockedAdopted[idC] == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 3544,
+          "expression": "#require(await store.fetchContact(id: idC))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3545,
+          "expression": "#expect(blocked.unreadCount == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3546,
+          "expression": "#expect(try await store.fetchMessages(contactID: idC, limit: 5, offset: 0).count == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+        "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+        "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "method_or_family_name": "originalBlockedAdoptionRetainsDistinctResetDtoRequiredBeforeAfterRowsCountAndHistoryWithoutUnread",
+        "line": 196,
+        "end_line": 221,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "4f561db0181c2a1c3159a80aa29c97b964aab8f01344af9cc79ab505ec7a5f3e",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNotNull",
+            "line": 200,
+            "expression": "assertNotNull(store.fetchContact(EntityKey(device.radioId, contactID)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 217,
+            "expression": "assertEquals(1L, adopted[contactID])",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 218,
+            "expression": "assertNotNull(store.fetchContact(EntityKey(device.radioId, contactID)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 219,
+            "expression": "assertEquals(0L, blocked.unreadCount)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 220,
+            "expression": "assertEquals(1, store.fetchMessages(EntityKey(device.radioId, contactID), 5, 0).size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 197,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 198,
+            "expression": "frame(\"Blocked\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 199,
+            "expression": "store.saveContact(device.radioId, frame)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 200,
+            "expression": "store.fetchContact(EntityKey(device.radioId, contactID))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 200,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 201,
+            "expression": "store.saveContact(ContactDTO(\n            id = contactID, radioId = device.radioId, publicKey = frame.publicKey, name = \"Blocked\",\n            typeRawValue = blockedDTO.typeRawValue, flags = blockedDTO.flags,\n            outPathLength = blockedDTO.outPathLength, outPath = blockedDTO.outPath,\n            lastAdvertTimestamp = blockedDTO.lastAdvertTimestamp, latitude = 0.0, longitude = 0.0,\n            lastModified = blockedDTO.lastModified, lastHeardTimestamp = null, isBlocked = true,\n            nickname = null, isMuted = false, isFavorite = false, lastMessageDate = null,\n            unreadCount = 0, unreadMentionCount = 0, avatarImageData = null,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactDTO",
+            "line": 201,
+            "expression": "ContactDTO(\n            id = contactID, radioId = device.radioId, publicKey = frame.publicKey, name = \"Blocked\",\n            typeRawValue = blockedDTO.typeRawValue, flags = blockedDTO.flags,\n            outPathLength = blockedDTO.outPathLength, outPath = blockedDTO.outPath,\n            lastAdvertTimestamp = blockedDTO.lastAdvertTimestamp, latitude = 0.0, longitude = 0.0,\n            lastModified = blockedDTO.lastModified, lastHeardTimestamp = null, isBlocked = true,\n            nickname = null, isMuted = false, isFavorite = false, lastMessageDate = null,\n            unreadCount = 0, unreadMentionCount = 0, avatarImageData = null,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 210,
+            "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"blocked orphan\", 1_700_000_304u,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "orphan",
+            "line": 210,
+            "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"blocked orphan\", 1_700_000_304u,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame.publicKey.prefix",
+            "line": 211,
+            "expression": "frame.publicKey.prefix(6)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.adoptOrphanedDirectMessages",
+            "line": 214,
+            "expression": "store.adoptOrphanedDirectMessages(\n            device.radioId, SnapshotList.of(ContactIdentity(contactID, frame.publicKey)),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 215,
+            "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactIdentity",
+            "line": 215,
+            "expression": "ContactIdentity(contactID, frame.publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 218,
+            "expression": "store.fetchContact(EntityKey(device.radioId, contactID))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 218,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 220,
+            "expression": "store.fetchMessages(EntityKey(device.radioId, contactID), 5, 0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 220,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::adoptOrphanedDirectMessages adopts blocked contact without unread bump()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/ReactionParser.swift",
+          "sha256": "871f7f20d35f8cf1d8e21f8e76914c95f79884e0051047b58f90e954f6078e4d"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MeshCoreOpenReactionParser.swift",
+          "sha256": "ffa3ecef8cf8b1cc85763a9de6ffe72d361ad80fadf726f7d3ab33ffa594c9fc"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/AdvertisementService+DeltaSync.swift",
+          "sha256": "4097c26e8950a3fee5466193edb4e2f0ed2b53b5c73bf016e1d1b64bfd25b34c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+          "sha256": "5f56d8d3fef14d94b5916cd888da9c69222eda448ad7375c64718b190ae463b2"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/Identity.kt",
+          "sha256": "48eef33f72b1d7129bb5e26ebfd4c22cb843740b9f98f0ddf54cfa7028ff0e7c"
+        },
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/RepositoryValues.kt",
+          "sha256": "7bd340d26d0400d2d8384fe92124be183fa469105c8f4aa8db628038772c3afe"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionParser.kt",
+          "sha256": "6506dfd1424c1fa8b94765c18b242a13c4cfa4cf9f708cae4d5d276ed28b4b1e"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/MeshCoreOpenReactionParser.kt",
+          "sha256": "29111f206be9e16f518d0c4507dfd912495dcad8ab050af664abb14485ccddcc"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/contacts/AdvertisementDeltaSync.kt",
+          "sha256": "e99b42709d56c54f1660ca894938fdfa14225d2497c74e8281173219b4a1220f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "originalBlockedAdoptionRetainsDistinctResetDtoRequiredBeforeAfterRowsCountAndHistoryWithoutUnread"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-orphan-adoption-predicates",
+      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::adoptOrphanedDirectMessages links orphan DM and updates unread()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b7afa1a4abf57635960887afac42d7129a66614882e5ed0e2f60b8838d73264e",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3201,
+          "expression": "#expect(adopted[contactID] == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3204,
+          "expression": "#expect(messages.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3205,
+          "expression": "#expect(messages[0].contactID == contactID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3206,
+          "expression": "#expect(messages[0].deduplicationKey?.contains(contactID.uuidString) == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 3208,
+          "expression": "#require(await store.fetchContact(id: contactID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3209,
+          "expression": "#expect(contact.unreadCount == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3210,
+          "expression": "#expect(contact.unreadMentionCount == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3211,
+          "expression": "#expect(contact.lastMessageDate != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3218,
+          "expression": "#expect(second.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 3219,
+          "expression": "#require(await store.fetchContact(id: contactID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3220,
+          "expression": "#expect(after.unreadCount == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3221,
+          "expression": "#expect(after.unreadMentionCount == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+        "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+        "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "method_or_family_name": "originalLinkAndIdempotenceRetainReturnedCountsRequiredRowsCanonicalRekeyAndBothCounters",
+        "line": 73,
+        "end_line": 100,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "b4abe48d829a26be9a3cedcf4e93838edf4db6204eb6daaca8ccd948a4a5c5fa",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 85,
+            "expression": "assertEquals(1L, adopted[contactID])",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 87,
+            "expression": "assertEquals(1, messages.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 88,
+            "expression": "assertEquals(contactID, messages[0].contactID)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 89,
+            "expression": "assertEquals(true, messages[0].deduplicationKey?.contains(contactID.canonicalString()))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 90,
+            "expression": "assertNotNull(store.fetchContact(EntityKey(device.radioId, contactID)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 91,
+            "expression": "assertEquals(1L, contact.unreadCount)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 92,
+            "expression": "assertEquals(1L, contact.unreadMentionCount)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 93,
+            "expression": "assertNotNull(contact.lastMessageDate)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 96,
+            "expression": "assertTrue(second.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 97,
+            "expression": "assertNotNull(store.fetchContact(EntityKey(device.radioId, contactID)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 98,
+            "expression": "assertEquals(1L, after.unreadCount)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 99,
+            "expression": "assertEquals(1L, after.unreadMentionCount)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 74,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 75,
+            "expression": "frame(\"LateContact\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 76,
+            "expression": "store.saveContact(device.radioId, frame)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 78,
+            "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"hello orphan\", stamp,\n            date = Instant.ofEpochSecond(stamp.toLong()), selfMention = true,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "orphan",
+            "line": 78,
+            "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"hello orphan\", stamp,\n            date = Instant.ofEpochSecond(stamp.toLong()), selfMention = true,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame.publicKey.prefix",
+            "line": 79,
+            "expression": "frame.publicKey.prefix(6)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 80,
+            "expression": "Instant.ofEpochSecond(stamp.toLong())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "stamp.toLong",
+            "line": 80,
+            "expression": "stamp.toLong()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 82,
+            "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactIdentity",
+            "line": 82,
+            "expression": "ContactIdentity(contactID, frame.publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.adoptOrphanedDirectMessages",
+            "line": 84,
+            "expression": "store.adoptOrphanedDirectMessages(device.radioId, identities)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 86,
+            "expression": "store.fetchMessages(EntityKey(device.radioId, contactID), 10, 0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 86,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "deduplicationKey?.contains",
+            "line": 89,
+            "expression": "deduplicationKey?.contains(contactID.canonicalString())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "contactID.canonicalString",
+            "line": 89,
+            "expression": "contactID.canonicalString()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 90,
+            "expression": "store.fetchContact(EntityKey(device.radioId, contactID))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 90,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.adoptOrphanedDirectMessages",
+            "line": 95,
+            "expression": "store.adoptOrphanedDirectMessages(device.radioId, identities)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "second.isEmpty",
+            "line": 96,
+            "expression": "second.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 97,
+            "expression": "store.fetchContact(EntityKey(device.radioId, contactID))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 97,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::adoptOrphanedDirectMessages links orphan DM and updates unread()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/ReactionParser.swift",
+          "sha256": "871f7f20d35f8cf1d8e21f8e76914c95f79884e0051047b58f90e954f6078e4d"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MeshCoreOpenReactionParser.swift",
+          "sha256": "ffa3ecef8cf8b1cc85763a9de6ffe72d361ad80fadf726f7d3ab33ffa594c9fc"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/AdvertisementService+DeltaSync.swift",
+          "sha256": "4097c26e8950a3fee5466193edb4e2f0ed2b53b5c73bf016e1d1b64bfd25b34c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+          "sha256": "5f56d8d3fef14d94b5916cd888da9c69222eda448ad7375c64718b190ae463b2"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/Identity.kt",
+          "sha256": "48eef33f72b1d7129bb5e26ebfd4c22cb843740b9f98f0ddf54cfa7028ff0e7c"
+        },
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/RepositoryValues.kt",
+          "sha256": "7bd340d26d0400d2d8384fe92124be183fa469105c8f4aa8db628038772c3afe"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionParser.kt",
+          "sha256": "6506dfd1424c1fa8b94765c18b242a13c4cfa4cf9f708cae4d5d276ed28b4b1e"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/MeshCoreOpenReactionParser.kt",
+          "sha256": "29111f206be9e16f518d0c4507dfd912495dcad8ab050af664abb14485ccddcc"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/contacts/AdvertisementDeltaSync.kt",
+          "sha256": "e99b42709d56c54f1660ca894938fdfa14225d2497c74e8281173219b4a1220f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "originalLinkAndIdempotenceRetainReturnedCountsRequiredRowsCanonicalRekeyAndBothCounters"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-orphan-adoption-predicates",
+      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts a channel message()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "7bf18125b0b10c097b7c4fca481b6a22f2049c74f4f187b7a6985a5e26202e46",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3326,
+          "expression": "#expect(adopted.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 3328,
+          "expression": "#require(all.first { $0.id == messageID })",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3329,
+          "expression": "#expect(row.contactID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3330,
+          "expression": "#expect(row.channelIndex == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+        "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+        "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "method_or_family_name": "originalChannelSkipRetainsEmptyAdoptionRequiredMessageContactNilAndChannelOne",
+        "line": 115,
+        "end_line": 132,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "9dc44a6e808817d3e25c642ef16826aa18bee2de4a3b71d9e9982cd0a3c31c77",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 128,
+            "expression": "assertTrue(adopted.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 129,
+            "expression": "assertNotNull(allMessages(device.radioId).firstOrNull { it.id == messageID })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 130,
+            "expression": "assertNull(row.contactID)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 131,
+            "expression": "assertEquals(1.toUByte(), row.channelIndex)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 116,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 117,
+            "expression": "frame(\"Only\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 118,
+            "expression": "store.saveContact(device.radioId, frame)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 119,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 120,
+            "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"channel\", 1_700_000_300u,\n            id = messageID, channel = 1u, senderName = \"Sender\",\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "orphan",
+            "line": 120,
+            "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"channel\", 1_700_000_300u,\n            id = messageID, channel = 1u, senderName = \"Sender\",\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame.publicKey.prefix",
+            "line": 121,
+            "expression": "frame.publicKey.prefix(6)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.adoptOrphanedDirectMessages",
+            "line": 125,
+            "expression": "store.adoptOrphanedDirectMessages(\n            device.radioId, SnapshotList.of(ContactIdentity(contactID, frame.publicKey)),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 126,
+            "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactIdentity",
+            "line": 126,
+            "expression": "ContactIdentity(contactID, frame.publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "adopted.isEmpty",
+            "line": 128,
+            "expression": "adopted.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "allMessages",
+            "line": 129,
+            "expression": "allMessages(device.radioId)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toUByte",
+            "line": 131,
+            "expression": "toUByte()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts a channel message()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/ReactionParser.swift",
+          "sha256": "871f7f20d35f8cf1d8e21f8e76914c95f79884e0051047b58f90e954f6078e4d"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MeshCoreOpenReactionParser.swift",
+          "sha256": "ffa3ecef8cf8b1cc85763a9de6ffe72d361ad80fadf726f7d3ab33ffa594c9fc"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/AdvertisementService+DeltaSync.swift",
+          "sha256": "4097c26e8950a3fee5466193edb4e2f0ed2b53b5c73bf016e1d1b64bfd25b34c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+          "sha256": "5f56d8d3fef14d94b5916cd888da9c69222eda448ad7375c64718b190ae463b2"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/Identity.kt",
+          "sha256": "48eef33f72b1d7129bb5e26ebfd4c22cb843740b9f98f0ddf54cfa7028ff0e7c"
+        },
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/RepositoryValues.kt",
+          "sha256": "7bd340d26d0400d2d8384fe92124be183fa469105c8f4aa8db628038772c3afe"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionParser.kt",
+          "sha256": "6506dfd1424c1fa8b94765c18b242a13c4cfa4cf9f708cae4d5d276ed28b4b1e"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/MeshCoreOpenReactionParser.kt",
+          "sha256": "29111f206be9e16f518d0c4507dfd912495dcad8ab050af664abb14485ccddcc"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/contacts/AdvertisementDeltaSync.kt",
+          "sha256": "e99b42709d56c54f1660ca894938fdfa14225d2497c74e8281173219b4a1220f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "originalChannelSkipRetainsEmptyAdoptionRequiredMessageContactNilAndChannelOne"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-orphan-adoption-predicates",
+      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts an outgoing message()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "8e4d3f3e542324afc06da0833bd9acad698af8bdd7bd09573c1da327c05c0aa7",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3373,
+          "expression": "#expect(adopted.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 3375,
+          "expression": "#require(all.first { $0.id == messageID })",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3376,
+          "expression": "#expect(row.contactID == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+        "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+        "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "method_or_family_name": "originalOutgoingSkipRetainsSentReadInputEmptyAdoptionRequiredOriginalRowAndContactNil",
+        "line": 135,
+        "end_line": 151,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "b9b2a1cef98f52c91b6c23facd15b361c1c7fafd266f8de6de97fb2c6cdc2ba6",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 148,
+            "expression": "assertTrue(adopted.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 149,
+            "expression": "assertNotNull(allMessages(device.radioId).firstOrNull { it.id == messageID })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 150,
+            "expression": "assertNull(row.contactID)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 136,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 137,
+            "expression": "frame(\"Only\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 138,
+            "expression": "store.saveContact(device.radioId, frame)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 139,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 140,
+            "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"outgoing\", 1_700_000_301u,\n            id = messageID, direction = MessageDirection.OUTGOING, status = MessageStatus.SENT, isRead = true,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "orphan",
+            "line": 140,
+            "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"outgoing\", 1_700_000_301u,\n            id = messageID, direction = MessageDirection.OUTGOING, status = MessageStatus.SENT, isRead = true,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame.publicKey.prefix",
+            "line": 141,
+            "expression": "frame.publicKey.prefix(6)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.adoptOrphanedDirectMessages",
+            "line": 145,
+            "expression": "store.adoptOrphanedDirectMessages(\n            device.radioId, SnapshotList.of(ContactIdentity(contactID, frame.publicKey)),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 146,
+            "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactIdentity",
+            "line": 146,
+            "expression": "ContactIdentity(contactID, frame.publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "adopted.isEmpty",
+            "line": 148,
+            "expression": "adopted.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "allMessages",
+            "line": 149,
+            "expression": "allMessages(device.radioId)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts an outgoing message()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/ReactionParser.swift",
+          "sha256": "871f7f20d35f8cf1d8e21f8e76914c95f79884e0051047b58f90e954f6078e4d"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MeshCoreOpenReactionParser.swift",
+          "sha256": "ffa3ecef8cf8b1cc85763a9de6ffe72d361ad80fadf726f7d3ab33ffa594c9fc"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/AdvertisementService+DeltaSync.swift",
+          "sha256": "4097c26e8950a3fee5466193edb4e2f0ed2b53b5c73bf016e1d1b64bfd25b34c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+          "sha256": "5f56d8d3fef14d94b5916cd888da9c69222eda448ad7375c64718b190ae463b2"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/Identity.kt",
+          "sha256": "48eef33f72b1d7129bb5e26ebfd4c22cb843740b9f98f0ddf54cfa7028ff0e7c"
+        },
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/RepositoryValues.kt",
+          "sha256": "7bd340d26d0400d2d8384fe92124be183fa469105c8f4aa8db628038772c3afe"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionParser.kt",
+          "sha256": "6506dfd1424c1fa8b94765c18b242a13c4cfa4cf9f708cae4d5d276ed28b4b1e"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/MeshCoreOpenReactionParser.kt",
+          "sha256": "29111f206be9e16f518d0c4507dfd912495dcad8ab050af664abb14485ccddcc"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/contacts/AdvertisementDeltaSync.kt",
+          "sha256": "e99b42709d56c54f1660ca894938fdfa14225d2497c74e8281173219b4a1220f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "originalOutgoingSkipRetainsSentReadInputEmptyAdoptionRequiredOriginalRowAndContactNil"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-orphan-adoption-predicates",
+      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts reaction wire text()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "698e47960aaa5992cde395766676b6948232d1164dfc963373e9c967084751bf",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3389,
+          "expression": "#expect(ReactionParser.isReactionText(\"r:abcd:01\", isDM: true))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3421,
+          "expression": "#expect(adopted.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 3423,
+          "expression": "#require(all.first { $0.id == messageID })",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3424,
+          "expression": "#expect(row.contactID == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+        "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+        "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "method_or_family_name": "originalReactionSkipRetainsAffirmativeDmParserSoleMatchRequiredOriginalRowAndContactNil",
+        "line": 154,
+        "end_line": 170,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "9ee71832ed4d26988f5a5238b8821594221a1b6ceb0f29a094ee20116c09f50d",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 159,
+            "expression": "assertTrue(ReactionParser.isReactionText(\"r:abcd:01\", isDM = true))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 167,
+            "expression": "assertTrue(adopted.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 168,
+            "expression": "assertNotNull(allMessages(device.radioId).firstOrNull { it.id == messageID })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 169,
+            "expression": "assertNull(row.contactID)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 155,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 156,
+            "expression": "frame(\"Only\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 157,
+            "expression": "store.saveContact(device.radioId, frame)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 158,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ReactionParser.isReactionText",
+            "line": 159,
+            "expression": "ReactionParser.isReactionText(\"r:abcd:01\", isDM = true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 160,
+            "expression": "store.saveMessage(orphan(\n            device.radioId, frame.publicKey.prefix(6), \"r:abcd:01\", 1_700_000_302u, id = messageID,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "orphan",
+            "line": 160,
+            "expression": "orphan(\n            device.radioId, frame.publicKey.prefix(6), \"r:abcd:01\", 1_700_000_302u, id = messageID,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame.publicKey.prefix",
+            "line": 161,
+            "expression": "frame.publicKey.prefix(6)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.adoptOrphanedDirectMessages",
+            "line": 164,
+            "expression": "store.adoptOrphanedDirectMessages(\n            device.radioId, SnapshotList.of(ContactIdentity(contactID, frame.publicKey)),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 165,
+            "expression": "SnapshotList.of(ContactIdentity(contactID, frame.publicKey))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactIdentity",
+            "line": 165,
+            "expression": "ContactIdentity(contactID, frame.publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "adopted.isEmpty",
+            "line": 167,
+            "expression": "adopted.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "allMessages",
+            "line": 168,
+            "expression": "allMessages(device.radioId)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::adoptOrphanedDirectMessages never adopts reaction wire text()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/ReactionParser.swift",
+          "sha256": "871f7f20d35f8cf1d8e21f8e76914c95f79884e0051047b58f90e954f6078e4d"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MeshCoreOpenReactionParser.swift",
+          "sha256": "ffa3ecef8cf8b1cc85763a9de6ffe72d361ad80fadf726f7d3ab33ffa594c9fc"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/AdvertisementService+DeltaSync.swift",
+          "sha256": "4097c26e8950a3fee5466193edb4e2f0ed2b53b5c73bf016e1d1b64bfd25b34c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+          "sha256": "5f56d8d3fef14d94b5916cd888da9c69222eda448ad7375c64718b190ae463b2"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/Identity.kt",
+          "sha256": "48eef33f72b1d7129bb5e26ebfd4c22cb843740b9f98f0ddf54cfa7028ff0e7c"
+        },
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/RepositoryValues.kt",
+          "sha256": "7bd340d26d0400d2d8384fe92124be183fa469105c8f4aa8db628038772c3afe"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionParser.kt",
+          "sha256": "6506dfd1424c1fa8b94765c18b242a13c4cfa4cf9f708cae4d5d276ed28b4b1e"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/MeshCoreOpenReactionParser.kt",
+          "sha256": "29111f206be9e16f518d0c4507dfd912495dcad8ab050af664abb14485ccddcc"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/contacts/AdvertisementDeltaSync.kt",
+          "sha256": "e99b42709d56c54f1660ca894938fdfa14225d2497c74e8281173219b4a1220f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "originalReactionSkipRetainsAffirmativeDmParserSoleMatchRequiredOriginalRowAndContactNil"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-orphan-adoption-predicates",
+      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::adoptOrphanedDirectMessages skips multi-match prefix()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "54b30e190c2e78fb2fa4cd4f52aec18112e8f5a02053a5a5f670eaab601691f2",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3483,
+          "expression": "#expect(multi.isEmpty, \"shared prefix must leave orphans unlinked\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3485,
+          "expression": "#expect(all.first { $0.id == messageID }?.contactID == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+        "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+        "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "method_or_family_name": "originalAmbiguousPrefixRetainsWrappingByteSixMutationTwoFullContactsAndOptionalUnlinkedRead",
+        "line": 173,
+        "end_line": 193,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "47c01c6c9a25edbc77422a235a9ba4efea53ec6df2fc64eb3ee87d86d5899753",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 191,
+            "expression": "assertTrue(multi.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 192,
+            "expression": "assertNull(allMessages(device.radioId).firstOrNull { it.id == messageID }?.contactID)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 174,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 175,
+            "expression": "frame(\"A\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 176,
+            "expression": "store.saveContact(device.radioId, frameA)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 177,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toInt",
+            "line": 177,
+            "expression": "toInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 177,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactFrame",
+            "line": 178,
+            "expression": "ContactFrame(\n            Bytes(keyB), frameA.type, frameA.flags, 0u, Bytes.EMPTY, \"B\",\n            frameA.lastAdvertTimestamp, 0.0, 0.0, frameA.lastModified,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 179,
+            "expression": "Bytes(keyB)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 182,
+            "expression": "store.saveContact(device.radioId, frameB)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 183,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 184,
+            "expression": "store.saveMessage(orphan(\n            device.radioId, frameA.publicKey.prefix(6), \"ambiguous\", 1_700_000_303u, id = messageID,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "orphan",
+            "line": 184,
+            "expression": "orphan(\n            device.radioId, frameA.publicKey.prefix(6), \"ambiguous\", 1_700_000_303u, id = messageID,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frameA.publicKey.prefix",
+            "line": 185,
+            "expression": "frameA.publicKey.prefix(6)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.adoptOrphanedDirectMessages",
+            "line": 188,
+            "expression": "store.adoptOrphanedDirectMessages(device.radioId, SnapshotList.of(\n            ContactIdentity(idA, frameA.publicKey), ContactIdentity(idB, frameB.publicKey),\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 188,
+            "expression": "SnapshotList.of(\n            ContactIdentity(idA, frameA.publicKey), ContactIdentity(idB, frameB.publicKey),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactIdentity",
+            "line": 189,
+            "expression": "ContactIdentity(idA, frameA.publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactIdentity",
+            "line": 189,
+            "expression": "ContactIdentity(idB, frameB.publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "multi.isEmpty",
+            "line": 191,
+            "expression": "multi.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "allMessages",
+            "line": 192,
+            "expression": "allMessages(device.radioId)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::adoptOrphanedDirectMessages skips multi-match prefix()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/ReactionParser.swift",
+          "sha256": "871f7f20d35f8cf1d8e21f8e76914c95f79884e0051047b58f90e954f6078e4d"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MeshCoreOpenReactionParser.swift",
+          "sha256": "ffa3ecef8cf8b1cc85763a9de6ffe72d361ad80fadf726f7d3ab33ffa594c9fc"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/AdvertisementService+DeltaSync.swift",
+          "sha256": "4097c26e8950a3fee5466193edb4e2f0ed2b53b5c73bf016e1d1b64bfd25b34c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+          "sha256": "5f56d8d3fef14d94b5916cd888da9c69222eda448ad7375c64718b190ae463b2"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/Identity.kt",
+          "sha256": "48eef33f72b1d7129bb5e26ebfd4c22cb843740b9f98f0ddf54cfa7028ff0e7c"
+        },
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/RepositoryValues.kt",
+          "sha256": "7bd340d26d0400d2d8384fe92124be183fa469105c8f4aa8db628038772c3afe"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionParser.kt",
+          "sha256": "6506dfd1424c1fa8b94765c18b242a13c4cfa4cf9f708cae4d5d276ed28b4b1e"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/MeshCoreOpenReactionParser.kt",
+          "sha256": "29111f206be9e16f518d0c4507dfd912495dcad8ab050af664abb14485ccddcc"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/contacts/AdvertisementDeltaSync.kt",
+          "sha256": "e99b42709d56c54f1660ca894938fdfa14225d2497c74e8281173219b4a1220f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "originalAmbiguousPrefixRetainsWrappingByteSixMutationTwoFullContactsAndOptionalUnlinkedRead"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "persistence-original-restored-hop-order-path-predicates",
       "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
@@ -70692,6 +72672,235 @@
       "runner_identity": [
         "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "originalMissingPendingMessageReturnsNullWithoutCreatingARow"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-orphan-adoption-predicates",
+      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 7,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::newestUnreadIncomingMessage returns nil when no unread incoming exists()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "7308b91245338df432bff43660f10e3d6015a001ac0e27f85b462e93211c1e28",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3283,
+          "expression": "#expect(try await store.newestUnreadIncomingMessage(contactID: contactID) == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+        "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef",
+        "class": "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "method_or_family_name": "originalNilUnreadResultRetainsActualReadIncomingRowNotAnEmptyStore",
+        "line": 103,
+        "end_line": 112,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "beac75db8ede03d43318e845824d14b4269f0a47ab520580825eedc3404c4b9a",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 111,
+            "expression": "assertNull(store.newestUnreadIncomingMessage(EntityKey(device.radioId, contactID)))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 104,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 105,
+            "expression": "store.saveContact(device.radioId, frame())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 105,
+            "expression": "frame()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 106,
+            "expression": "store.saveMessage(MessageDTO(\n            radioId = device.radioId, contactID = contactID, text = \"already read\",\n            timestamp = 1_700_000_100u, direction = MessageDirection.INCOMING, isRead = true,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 106,
+            "expression": "MessageDTO(\n            radioId = device.radioId, contactID = contactID, text = \"already read\",\n            timestamp = 1_700_000_100u, direction = MessageDirection.INCOMING, isRead = true,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.newestUnreadIncomingMessage",
+            "line": 111,
+            "expression": "store.newestUnreadIncomingMessage(EntityKey(device.radioId, contactID))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 111,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::newestUnreadIncomingMessage returns nil when no unread incoming exists()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOrphanAdoptionOriginalPredicateTest.kt",
+          "sha256": "7497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/ReactionParser.swift",
+          "sha256": "871f7f20d35f8cf1d8e21f8e76914c95f79884e0051047b58f90e954f6078e4d"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MeshCoreOpenReactionParser.swift",
+          "sha256": "ffa3ecef8cf8b1cc85763a9de6ffe72d361ad80fadf726f7d3ab33ffa594c9fc"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/AdvertisementService+DeltaSync.swift",
+          "sha256": "4097c26e8950a3fee5466193edb4e2f0ed2b53b5c73bf016e1d1b64bfd25b34c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+          "sha256": "5f56d8d3fef14d94b5916cd888da9c69222eda448ad7375c64718b190ae463b2"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/Identity.kt",
+          "sha256": "48eef33f72b1d7129bb5e26ebfd4c22cb843740b9f98f0ddf54cfa7028ff0e7c"
+        },
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/RepositoryValues.kt",
+          "sha256": "7bd340d26d0400d2d8384fe92124be183fa469105c8f4aa8db628038772c3afe"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionParser.kt",
+          "sha256": "6506dfd1424c1fa8b94765c18b242a13c4cfa4cf9f708cae4d5d276ed28b4b1e"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/MeshCoreOpenReactionParser.kt",
+          "sha256": "29111f206be9e16f518d0c4507dfd912495dcad8ab050af664abb14485ccddcc"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/contacts/AdvertisementDeltaSync.kt",
+          "sha256": "e99b42709d56c54f1660ca894938fdfa14225d2497c74e8281173219b4a1220f"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest",
+        "originalNilUnreadResultRetainsActualReadIncomingRowNotAnEmptyStore"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },

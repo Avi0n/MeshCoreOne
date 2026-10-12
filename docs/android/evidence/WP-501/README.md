@@ -12,7 +12,44 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-## Qualified ten-source follow-up
+## Seven independent orphan/unread originals
+
+New1457/5133 proposals/186groups/83mandatory/0approved,113/135 PersistenceStore
+proposed/22unprovided versus qualified101/135 source-compared/34uncompared.
+Same producer reservation41->42 automatically admits only new owned
+PersistenceOrphanAdoptionOriginalPredicateTest class;7bodies/7joins/
+224helperrows/32inputs, all1450 incumbent complete bindings unchanged.
+All24 source #expect and7 #require predicates preserved: link returned1/
+message1/contactID/canonicalUUID rekey/required contact/unread1/mention1/
+nonnil date/secondempty/required after/unchanged counters; actual read incoming
+row before nil unread; channel/outgoing/reaction skips require original IDs
+with contactnil and channel1 where declared; affirmative reaction predicate
+before sole-match skip; explicit wrapping byte6 otherwise same32-byte key/
+sharedfirst6/two full frames/optional unlinked source predicate; blocked
+frame-save/requiredbefore/distinct reset ContactDTO.testContact copied raw
+fields/blockedtrue/adopt1/requiredafter/unread0/history1. Fixed44/55 keys,
+fresh UUID/ambient dates/pinned UInt timestamps/defaults explicit.
+Frozen TestFetch/ReactionParser/MeshCoreOpen/delegated ContactDTO helper and
+actual Room mapper/policy/advertisement adoption consumers declared.
+Only new seven-only strict App command prepared, discovery/source comparison
+pending; coordinator pre-read is not credit/APPROVED/native execution.
+No existing aggregate/newest-positive twelve replay/product API widening/
+source pin advance/consumer overwrite or manufactured packet expectations.
+
+Actual public454/base d958 independently verified, preserved PR template
+updated and bounded five+one source intake
+[6127351779](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6127351779).
+Its five/95rows/19inputs/392fc0af and ten/300rows/30inputs/eb5d6fd9 plus
+six read-only helper40/e2bbe414 bind proposald63205a8; new seven absent from
+that actual committed public tree/intake. Genuine1aad5PASS and5431PASS are
+not executions at454/old5725 tenPASS29 rebind. Normal6f installed-hook
+pushEXIT0/Python15/parity93/local21/preflightPASS/scaffold22s FAILED incumbent
+BLE Expected3/found0/inspectunrun/localfastUNVERIFIED remains exact6f only.
+Stale6f source-head guard rejected before post/bareSHA refspec rejected128
+before hook; subsequent normal originHEAD up-to-dateEXIT0 at actual454,
+no exact454 localfast/hosted success claim or second result bundle.
+
+## Historical qualified ten-source follow-up
 
 Actual clean543275b9dd842d3e6637a0a2626fb12bacb94d4d/base d958
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest.originalWarmUpRetainsPairedAndUnpairedNilAttemptContextsAndBothEmptyReads --dependency-verification=strict --quiet`
@@ -226,7 +263,7 @@ unchanged selector was replayed for assignment/status or source-only reviews.
 
 | Issue | Repaired and bounded verification | Remaining |
 | --- | --- | --- |
-| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1450 proposals/185groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS/corrected warmUp-only1 PASS each on its own receipt;101/135 qualified source-compared. | 29/135 persistence originals unprovided, new5/source warmUp correction recheck and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
+| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1457 proposals/186groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS/corrected warmUp-only1 PASS each on its own receipt;101/135 qualified source-compared. | 22/135 persistence originals unprovided, new5/source warmUp correction/new7 rechecks/native7 discovery and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
 | [170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170) | Restored independent2s WiFi milestones/checked elapsed helper; historical906df6fb52App+37protocol PASS and bounded qualified source comparison. | Current PR165 exact verification/reviewed persistent merge; no present hardware/global certification. |
 | [171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171) | Original populated1A2B3C route restored; historical7a98f99d13 model identities PASS and qualified source review, not new native replay. | Current reviewed PR165 merge/full acceptance; historical model result not new candidate execution. |
 | [172](https://github.com/cbattlegear/MeshCoreOne-Android/issues/172) | Restored18 URL/coordinate/scalar original predicates; historical6e98b6e460 chats PASS/all57 original identities and bounded source comparison. | Current reviewed PR165 merge/full audit, not universal Unicode/device certification. |
