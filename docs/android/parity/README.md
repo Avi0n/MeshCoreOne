@@ -1,5 +1,21 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual reviewed195 merge9ed1da0b340f1d29bb6db4d84d9aa6fa3352d7ff is
+adopted on this same branch: parents185466+0d52, candidate-equal
+tree765d79a0e6c84140ce3d15e9ad5a5f1fa0386ad9 independently verified;
+exactly caller/test/WP303 changed. Unchanged pacing witness/control
+blob4bd684d5 then ran ONCE at cleanb9c1ad79b2d5a8363c70769751b280acae535ea6/
+base9ed1: strict Windows App4/4PASS/zeroFAIL-error-skip/all4names,
+09:20:14.598Z. Three default ESP32/nRF52/unknown acknowledged-write
+consumers now preserve60/25/60ms, including pre-deadline exclusion;
+explicit configured control passes all three intervals. ReadinessPASS/
+cleaninputs/supportedlocksreleased. No49/19/53/fullBLE replay or
+expectation change; previous failure receipts remain bound to old inputs.
+This is callback-fake-GATT/live-link integration, not physical BLE/global
+acceptance. Incoming192/canonical196 witnesses/failures remain unchanged.
+Coordinator reports official19538225308371 selected scaffoldPASS,
+not independently full-log-read by this worker; no second CI bundle.
+
 Current1351/5133 proposed original comparisons /175groups /81mandatory /
 zero fully approved behavioral acceptances restore seven persistence
 counterparts using real API31 Room/native SQLite/production store: Bob

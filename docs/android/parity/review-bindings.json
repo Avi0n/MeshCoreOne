@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "73f31ae2d428ef71c9099129783f1a16e18bc71e4c6d261fd509b047f8b80ff0",
+  "proposal_sha256": "351b0f817ba668671442fd41557f72e4d22780f358804bfccd688304db8acb63",
   "families": [
     {
       "group": "backup-envelope",
@@ -42230,7 +42230,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42318,7 +42318,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -42355,7 +42355,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42436,7 +42436,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -42473,7 +42473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42561,7 +42561,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -42598,7 +42598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42686,7 +42686,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -42723,7 +42723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42811,7 +42811,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -42848,7 +42848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42936,7 +42936,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -42973,7 +42973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43061,7 +43061,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -43098,7 +43098,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43186,7 +43186,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -43223,7 +43223,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43311,7 +43311,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -43348,7 +43348,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43436,7 +43436,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -43473,7 +43473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43561,7 +43561,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -43598,7 +43598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43686,7 +43686,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -43723,7 +43723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43811,7 +43811,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -43848,7 +43848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43936,7 +43936,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -43973,7 +43973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44061,7 +44061,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -44098,7 +44098,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44186,7 +44186,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -44223,7 +44223,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44311,7 +44311,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -44348,7 +44348,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44436,7 +44436,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -44473,7 +44473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44561,7 +44561,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -44598,7 +44598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44686,7 +44686,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -44723,7 +44723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44811,7 +44811,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -44848,7 +44848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44936,7 +44936,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -44973,7 +44973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45061,7 +45061,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -45098,7 +45098,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45186,7 +45186,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -45223,7 +45223,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45311,7 +45311,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -45348,7 +45348,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45436,7 +45436,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -45473,7 +45473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45561,7 +45561,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -45598,7 +45598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45686,7 +45686,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -45723,7 +45723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45811,7 +45811,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -45848,7 +45848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45936,7 +45936,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -45973,7 +45973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46061,7 +46061,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -46098,7 +46098,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46186,7 +46186,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -46223,7 +46223,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46311,7 +46311,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -46348,7 +46348,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46436,7 +46436,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -46473,7 +46473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46561,7 +46561,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -46598,7 +46598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46686,7 +46686,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -46723,7 +46723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46811,7 +46811,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -46848,7 +46848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46936,7 +46936,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -46973,7 +46973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47054,7 +47054,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -47091,7 +47091,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47179,7 +47179,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -47216,7 +47216,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47304,7 +47304,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -47341,7 +47341,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47429,7 +47429,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -47466,7 +47466,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47554,7 +47554,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -47591,7 +47591,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47679,7 +47679,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -47716,7 +47716,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47804,7 +47804,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -47841,7 +47841,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47929,7 +47929,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -47966,7 +47966,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -48054,7 +48054,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -48091,7 +48091,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -48179,7 +48179,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",
@@ -48216,7 +48216,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "8e16e71159b2951e5c9fc19e1ed42ac78dd040d430e974bb6cbf7bce4e3b3112",
+      "comparison_sha256": "138ee2d70cf9fa7db46ba82ed23ac0ce1144d063ae265d50f3bcacdc46b87ccd",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -48297,7 +48297,7 @@
         },
         {
           "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/BleRuntimeLink.kt",
-          "sha256": "6329e8bd8fed2c2df88323bc73d86ef8e40bf32088f3192657b98b7873da7783"
+          "sha256": "eda966fbd1b93a3e92230134aff7a93f89d23bd55dbe1e36a95361b73b51aa6b"
         },
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTypes.kt",

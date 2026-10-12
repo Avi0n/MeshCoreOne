@@ -4,7 +4,7 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `18546695d204dd7e5ba4b70913b7fb64e825edb6`.
+Current integrated base: `9ed1da0b340f1d29bb6db4d84d9aa6fa3352d7ff`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
@@ -28,6 +28,35 @@ Coordinator reports exact full193 dispatch38218985629 genuinely selected/
 passed native/oracles; this worker has not read the six authoritative logs
 and creates no second hosted-result bundle. Empty automatic193 green and
 producer local EOCD failure remain separate evidence.
+
+## Actual reviewed195 adoption and changed-input pacing consumers
+
+Actual merge `9ed1da0b340f1d29bb6db4d84d9aa6fa3352d7ff` has independently
+verified parents185466+0d52 and candidate-equal
+tree`765d79a0e6c84140ce3d15e9ad5a5f1fa0386ad9`. Same managed-branch adoption
+changes exactly BleRuntimeLink/BleRuntimeLinkTest/WP303 deviation; all worker
+witness bytes remain unchanged. Actual clean
+`b9c1ad79b2d5a8363c70769751b280acae535ea6` /base9ed1 strict Windows
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.BlePacingAcceptanceTest --dependency-verification=strict --quiet`
+discovers4/4PASS/zeroFAIL-error-skip/all4names in real
+XML2026-10-12T09:20:14.598Z. Only these unchanged three default consumers
+and same-rig explicit configured control ran, once against changed caller.
+Default ESP32/unknown0/59/60ms and nRF52 0/24/25ms acknowledged-write
+boundaries, explicit control/all three intervals, final write modes and
+cleanup are reached. Witness blob`4bd684d57ec71f76f5cb73c8b07796287967cb43`,
+caller`0edf823bf58d5532fa53e7bdb60e7ec81929acac`,
+transport`0b43f8fea951c742f3dee7ff8f77614af73850b9`.
+ReadinessPASS JDK21.0.12.1/SDK37.2/tools37/own private state;
+tracked inputs clean/supported native and Gradle locks normally released.
+No49 scalar/19 producer/53 old selector/full transport replay, native
+expectation/input weakening or extra original credit. Previous default
+failure receipts remain their actual older inputs, not relabeled successes.
+Callback-fake-GATT/live-link integration is not physical BLE/firmware/global
+acceptance; incoming192/canonical196 witnesses/failures remain unchanged.
+Coordinator reports official195 run38225308371 genuine scaffold-onlyPASS,
+App668/BLE311/services2647/allotherselectedpositive, controller/Swift
+unselected; this worker has not read the complete authoritative logs and
+creates no second hosted-result bundle.
 
 ## Current restored persistence original predicates
 
