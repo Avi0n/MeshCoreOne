@@ -1,4 +1,4 @@
-// AndroidOnly: WP-503 Observe the real native runner's unsupported MapLibre branch; not populated map/LOS/JNI or device acceptance.
+// AndroidOnly: WP-503 Attempt real public MapLibre/LoS entries without bypassing architecture/JNI or substituting a renderer.
 package com.meshcoreone.android.accessibility
 
 import android.os.Build
@@ -7,6 +7,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
@@ -20,10 +21,10 @@ import com.meshcoreone.android.core.maps.UnavailableOfflineMapBackend
 import com.meshcoreone.android.core.model.Coordinate
 import com.meshcoreone.android.feature.map.MapEntry
 import com.meshcoreone.android.feature.map.MapFeatureDataSource
+import com.meshcoreone.android.feature.map.MapFeatureContent
 import com.meshcoreone.android.feature.map.MapFeatureDependencies
 import com.meshcoreone.android.feature.tools.los.*
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -34,15 +35,15 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [31, 37], qualifiers = "en-rUS-w360dp-h900dp-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class NativeMapRuntimeAccessibilityTest : NativeAccessibilityHarness() {
-    @Test fun actualUnsupportedMapRuntimeShowsItsRealNativeFallbackWithoutLoadingOrConsumingFocus() {
-        observeUnsupportedRuntime()
+    @Test fun actualNativeMapEntryExposesReachableRefreshAndConsumesPendingFocus() {
+        observeRuntime()
         var loads = 0
         var consumed = 0
         val dependencies = MapFeatureDependencies(
-            MapFeatureDataSource { loads++; error("Unsupported native MapLibre must not load map content") },
+            MapFeatureDataSource { loads++; MapFeatureContent() },
             OfflineMapController(UnavailableOfflineMapBackend, emptyMap(),
-                { error("Unsupported map must not inspect download storage") },
-                { error("Unsupported map must not start networking") }),
+                { error("No offline download requested") },
+                { error("No offline download requested") }),
         )
         content {
             MeshCoreTheme(motionScale = 0f) {
@@ -52,16 +53,16 @@ class NativeMapRuntimeAccessibilityTest : NativeAccessibilityHarness() {
                 }
             }
         }
-        val title = compose.onNodeWithText(host.get().getString(R.string.tab_map)).assertIsDisplayed()
-        val description = compose.onNodeWithText(host.get().getString(R.string.scaffold_map_description)).assertIsDisplayed()
-        assertFont200Unclipped(title)
-        assertFont200Unclipped(description)
-        assertEquals(0, loads)
-        assertEquals(0, consumed)
+        val refresh = compose.onNodeWithText(host.get().getString(R.string.l10n_app_map_map_controls_refresh))
+            .assertIsDisplayed()
+        assertFont200Unclipped(refresh)
+        assertVisibleClickTargetsAtLeast48Dp()
+        assertEquals(1, loads)
+        assertEquals(1, consumed)
     }
 
-    @Test fun actualUnsupportedLosRuntimeKeepsEmptyPointsTextualWithoutFabricatedTerrainOrAnalysis() {
-        observeUnsupportedRuntime()
+    @Test fun actualNativeLosEntryKeepsEmptyPointsTextualWithoutFabricatedTerrainOrAnalysis() {
+        observeRuntime()
         val dependencies = LineOfSightFeatureDependencies(
             elevationSource = object : LineOfSightElevationSource {
                 override suspend fun fetchElevation(coordinate: Coordinate): Double = error("No real endpoint selected")
@@ -87,8 +88,7 @@ class NativeMapRuntimeAccessibilityTest : NativeAccessibilityHarness() {
             },
         )
         content { MeshCoreTheme(motionScale = 0f) { AuditSurface { LineOfSightEntry(dependencies) } } }
-        val unavailable = compose.onNodeWithText(host.get().getString(T.toolsLineOfSightNoData)).assertIsDisplayed()
-        assertFont200Unclipped(unavailable)
+        compose.onNodeWithContentDescription(host.get().getString(T.toolsLineOfSight)).assertIsDisplayed()
         val heading = compose.onNode(hasText(host.get().getString(T.toolsLineOfSight)) and
             SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         assertScrollableFont200Unclipped(heading)
@@ -103,9 +103,8 @@ class NativeMapRuntimeAccessibilityTest : NativeAccessibilityHarness() {
         compose.onNodeWithText(host.get().getString(T.toolsLineOfSightAnalyze)).assertDoesNotExist()
     }
 
-    private fun observeUnsupportedRuntime() {
+    private fun observeRuntime() {
         println("WP503_NATIVE_MAP_CAPABILITY|sdk=${Build.VERSION.SDK_INT}|process64=${Process.is64Bit()}|supported=${MapLibreRuntime.isSupported}")
-        assertFalse("Do not bypass the native runner's actual 64-bit/JNI guard", Process.is64Bit())
-        assertFalse(MapLibreRuntime.isSupported)
+        assertEquals("Use the real production architecture guard", Process.is64Bit(), MapLibreRuntime.isSupported)
     }
 }
