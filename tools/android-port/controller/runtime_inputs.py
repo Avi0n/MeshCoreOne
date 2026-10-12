@@ -27,6 +27,8 @@ FIXED_INPUTS = (
     "tools/android-port/local/reserve.py",
     "tools/android-port/local/hook_test.py",
     "tools/android-port/local/run.sh",
+    "tools/android-port/local/advisory.py",
+    "tools/android-port/local/advisory_test.py",
     "tools/android-port/oracle/workflow_scope.py",
     "tools/android-port/bootstrap.py", "tools/android-port/inventory_rules.py",
     "tools/android-port/wp_metadata.py", "tools/android-port/portmap.py",

@@ -11,6 +11,24 @@ from .errors import PortError
 FIXTURE = "com.meshcoreone.android.benchmarktarget.WorkloadActivity"
 
 
+def boolean_attribute(tree: str, name: str):
+    namespace = r"(?:android|http://schemas\.android\.com/apk/res/android)"
+    values = re.findall(
+        r"^\s*A: " + namespace + ":" + re.escape(name) + r"(?:\(0x[0-9a-f]+\))?=([^\n]*)",
+        tree, re.MULTILINE,
+    )
+    if not values:
+        return None
+    if len(values) != 1:
+        raise PortError(f"Duplicate WP-504 boolean attribute: {name}")
+    value = re.fullmatch(
+        r"(true|false|\(type 0x12\)0x(?:0|1|ffffffff))(?:\s+\(Raw:.*\))?", values[0].strip(),
+    )
+    if value is None:
+        raise PortError(f"WP-504 attribute is not a typed boolean: {name}")
+    return value.group(1) in {"true", "(type 0x12)0x1", "(type 0x12)0xffffffff"}
+
+
 def verify_manifest(badging: str, tree: str, *, benchmark: bool, profile_source: bool = False,
                     application_profile_input: bool = False):
     package = "com.meshcoreone.android" + (".benchmark" if benchmark else "")
@@ -20,27 +38,25 @@ def verify_manifest(badging: str, tree: str, *, benchmark: bool, profile_source:
     target = re.search(r"^targetSdkVersion:'(\d+)'", badging, re.MULTILINE)
     if minimum is None or target is None or (int(minimum.group(1)), int(target.group(1))) != (31, 37):
         raise PortError("WP-504 APK SDK bounds mismatch")
-    if re.search(r"android:debuggable[^=\n]*=.*0xffffffff", tree):
+    if boolean_attribute(tree, "debuggable") is True:
         raise PortError("WP-504 target is debuggable, not a release measurement")
     if benchmark:
         if FIXTURE not in tree:
             raise PortError("Missing executable benchmark fixture activity")
-        if not re.search(r"android:testOnly[^=\n]*=.*0xffffffff", tree):
+        if boolean_attribute(tree, "testOnly") is not True:
             raise PortError("Benchmark APK is not marked test-only")
         profileable = re.search(r"E: profileable.*?(?=\n\s*E:|\Z)", tree, re.DOTALL)
-        if not profileable or not re.search(r"android:shell[^=\n]*=.*0xffffffff", profileable.group()):
+        if not profileable or boolean_attribute(profileable.group(), "shell") is not True:
             raise PortError("Benchmark target is not shell-profileable")
         metadata = re.findall(r"E: meta-data.*?(?=\n\s*E:|\Z)", tree, re.DOTALL)
         for name, enabled in (("wp504.profileSource", profile_source),
                               ("wp504.applicationProfileInput", application_profile_input)):
             identities = [element for element in metadata if f'"{name}"' in element]
-            expected = "0xffffffff" if enabled else "0x0"
-            if len(identities) != 1 or not re.search(
-                    r"android:value[^=\n]*=.*\(type 0x12\)" + expected + r"(?:\s|$)", identities[0]):
+            if len(identities) != 1 or boolean_attribute(identities[0], "value") is not enabled:
                 raise PortError(f"Missing/wrong typed variant identity: {name}")
     elif FIXTURE in tree or "E: profileable" in tree or "wp504." in tree:
         raise PortError("Test fixture/profileable overlay leaked into release")
-    elif re.search(r"android:testOnly[^=\n]*=.*0xffffffff", tree):
+    elif boolean_attribute(tree, "testOnly") is True:
         raise PortError("Ordinary release must not be test-only")
     return {"package": package, "min_sdk": 31, "target_sdk": 37, "debuggable": False}
 

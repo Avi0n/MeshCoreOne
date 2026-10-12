@@ -37,6 +37,16 @@ class PerformanceVerificationTests(unittest.TestCase):
     def test_actual_aapt37_minimum_sdk_field(self):
         verify_manifest(self.badging().replace("sdkVersion:", "minSdkVersion:"), self.tree(), benchmark=True)
 
+    def test_actual_aapt37_full_namespace_literal_booleans(self):
+        tree = self.tree().replace("android:", "http://schemas.android.com/apk/res/android:")
+        tree = tree.replace("(type 0x12)0xffffffff", "true").replace("(type 0x12)0x0", "false")
+        verify_manifest(self.badging().replace("sdkVersion:", "minSdkVersion:"), tree, benchmark=True)
+
+    def test_quoted_true_cannot_make_boolean_guard_pass(self):
+        tree = self.tree().replace("(type 0x12)0xffffffff", '"true"')
+        with self.assertRaisesRegex(PortError, "typed boolean"):
+            verify_manifest(self.badging(), tree, benchmark=True)
+
     def test_debug_target_rejected(self):
         with self.assertRaisesRegex(PortError, "debuggable"):
             verify_manifest(self.badging(), self.tree().replace("0x0101000f)=(type 0x12)0x0", "0x0101000f)=(type 0x12)0xffffffff"), benchmark=True)
@@ -85,7 +95,7 @@ class PerformanceVerificationTests(unittest.TestCase):
             verify_manifest(self.badging(), tree, benchmark=True)
 
     def test_string_instead_of_boolean_identity_rejected(self):
-        with self.assertRaisesRegex(PortError, "variant identity"):
+        with self.assertRaisesRegex(PortError, "typed boolean"):
             verify_manifest(self.badging(), self.tree().replace("(type 0x12)0x0\n", '"false"\n'), benchmark=True)
 
     def test_test_only_release_rejected(self):

@@ -18,10 +18,13 @@ ZERO = "0" * 40
 ALL_STAGES = ["python", "preflight", "scaffold", "inspect"]
 OPTIONAL_STAGES = {"benchmark", "benchmark-dependencies"}
 REQUIRED_TOOLCHAIN = {"python", "jdk", "android_sdk", "gradle"}
+ADVISORY_QUEUE_SECONDS = 10
+ADVISORY_FAST_SECONDS = 180
 def runtime_files():
     return (
         ("check.py", "check.py"), ("fast.py", "fast.py"),
         ("run.sh", "run.sh"),
+        ("advisory.py", "advisory.py"),
     )
 
 
@@ -74,7 +77,7 @@ def linux_path(path, prefix):
     return capture([*prefix, "wslpath", "-u", str(path).replace("\\", "/")])
 
 
-def run_candidate(repo, revision, prefix, stages, worktree):
+def run_candidate(repo, revision, prefix, stages, worktree, *, advisory=False):
     if worktree:
         raise ValueError("Working-tree overlays are not supported by the installed merge verifier")
     revision, _ = binding(repo, revision)
@@ -90,11 +93,20 @@ def run_candidate(repo, revision, prefix, stages, worktree):
                 (control / installed_name).write_bytes(source.read_bytes().replace(b"\r\n", b"\n"))
         bundle = directory / "candidate.bundle"
         subprocess.run(["git", "-C", str(repo), "bundle", "create", str(bundle), *bundle_revisions(revision)], check=True)
-        subprocess.run([
+        command = [
             *prefix, "bash", linux_path(control / "run.sh", prefix),
             linux_path(bundle, prefix), revision, key, linux_path(control, prefix),
             ",".join(stages), "",
-        ], check=True)
+        ]
+        if advisory:
+            command.extend(["advisory", str(ADVISORY_QUEUE_SECONDS), str(ADVISORY_FAST_SECONDS)])
+        result = subprocess.run(command)
+        if advisory and result.returncode in (75, 124):
+            reason = (f"shared local Gradle lane queued beyond {ADVISORY_QUEUE_SECONDS}s"
+                      if result.returncode == 75 else
+                      f"advisory fast check exceeded {ADVISORY_FAST_SECONDS}s; owned work cleaned")
+            raise ValueError(reason + "; exact full/manual merge verification still required")
+        result.check_returncode()
 
 
 def pending_file(repo):
@@ -240,9 +252,15 @@ def main(argv=None):
                 if args.toolchain_state:
                     if stages != ALL_STAGES or args.worktree:
                         raise ValueError("Adapters only produce exact committed declared-stage results")
+                    if args.pre_push:
+                        raise ValueError(
+                            "Bounded advisory cleanup is unavailable for contributor adapters; "
+                            "run the exact full/manual adapter verification before merge"
+                        )
                     run_adapter(repo, commit, args.toolchain_state)
                 else:
-                    run_candidate(repo, commit, transport(args.distribution), stages, args.worktree)
+                    run_candidate(repo, commit, transport(args.distribution), stages, args.worktree,
+                                  advisory=args.pre_push)
             except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
                 if not args.pre_push:
                     raise

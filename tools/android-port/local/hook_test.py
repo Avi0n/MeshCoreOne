@@ -82,6 +82,9 @@ class LocalCheckTests(unittest.TestCase):
         self.assertIn("--build-cache", options)
         self.assertFalse(any("Evidence" in option or "evidence" in option for option in options))
         self.assertFalse(any("Invocation" in option or "invocation" in option for option in options))
+        self.assertNotIn("--no-daemon", options)
+        self.assertIn("--no-daemon", fast.scaffold_options(advisory=True))
+        self.assertIn("-Pkotlin.compiler.execution.strategy=in-process", fast.scaffold_options(advisory=True))
 
     def test_multiple_exact_push_tips_not_head(self):
         first, second = "a" * 40, "b" * 40
@@ -128,6 +131,18 @@ class LocalCheckTests(unittest.TestCase):
              contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(check.main(["--pre-push"]), 0)
             pending.assert_called_once()
+
+    def test_adapter_advisory_is_pending_without_unbounded_execution(self):
+        commit = "a" * 40
+        with patch("sys.stdin", io.StringIO(f"refs/heads/a {commit} refs/heads/a {check.ZERO}\n")), \
+             patch("check.capture", return_value=str(Path.cwd())), \
+             patch("check.run_adapter") as run, \
+             patch("check.record_pending") as pending, \
+             contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(check.main(["--pre-push", "--toolchain-state", "adapter.json"]), 0)
+            run.assert_not_called()
+            pending.assert_called_once()
+            self.assertIn("full/manual adapter verification", str(pending.call_args.args[2]))
 
     def test_hook_runs_every_exact_commit(self):
         first, second = "a" * 40, "b" * 40
@@ -214,6 +229,30 @@ class LocalCheckTests(unittest.TestCase):
 
 
 class InstalledRuntimeTests(unittest.TestCase):
+    def test_supported_install_delivers_advisory_helpers_before_entrypoint(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "meshcore-reservations"
+            hook = root / "hooks/meshcore-local"
+            hook.mkdir(parents=True)
+            (hook / "config.json").write_text('{"distribution":"fixture"}\n', encoding="utf-8")
+            ledger = Ledger(root / "ledger.sqlite3", "fixture/repository")
+            replaced = []
+            original = os.replace
+
+            def replace(source, destination):
+                if Path(destination).parent == hook:
+                    replaced.append(Path(destination).name)
+                return original(source, destination)
+
+            with patch.object(reserve.os, "replace", side_effect=replace):
+                reserve.install_runtime(target, ledger, "fixture-session", 1.0)
+            self.assertEqual(replaced[-1], "check.py")
+            for name in ("advisory.py", "advisory_test.py", "fast.py", "run.sh", "check.py"):
+                self.assertEqual((hook / name).read_bytes(), (target / name).read_bytes())
+            self.assertEqual(json.loads((hook / "config.json").read_text()), {"distribution": "fixture"})
+            self.assertEqual(ledger.hard_lock_records(), [])
+
     def test_relocated_runtime_is_exact_and_uses_advisory_schema(self):
         source_map = Path(reserve.__file__).with_name("source-sha256.json")
         if source_map.is_file():
