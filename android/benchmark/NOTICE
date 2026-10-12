@@ -13,6 +13,10 @@ Its complete resolved dependency versions/checksums are Gradle-generated in
 android/gradle/dependency-locks/benchmark.lockfile and verification-metadata.xml.
 benchmarkDependencyInventory records every actually resolved instrumentation
 component's declared or inherited license, exact POM coordinate and POM hash.
+Its complete generated legal-input inventory is dependency-notices.tsv.
+Generator: :benchmark:benchmarkDependencyInventory in benchmark/build.gradle.kts.
+Inputs: the actual debugAndroidTestRuntimeClasspath and its exact license POMs;
+versions/checksums are bound by the generated locks/verification metadata above.
 Those inputs are not a legal compatibility approval or a release SBOM.
 
 The target reuses the app's existing GPL/MIT/Apache/MapLibre notices verbatim.

@@ -25,6 +25,13 @@ AndroidX Benchmark **1.5.0** is the stable Google Maven publication, not the
 newer alpha. Exact resolved metadata is locked and SHA-256 verified.
 See [`NOTICE`](../../../android/benchmark/NOTICE) and the actual
 `benchmarkDependencyInventory` output for all test-runtime license inputs.
+The generated [`dependency-notices.tsv`](../../../android/benchmark/dependency-notices.tsv)
+records the complete 51-component development runtime and every declared/inherited
+license POM. All legal-review fields remain pending; this is dependency input
+metadata, not a duplicate CI-result bundle or compatibility approval.
+Generated app locks preserve every existing version binding. Only the producer's
+three instrumentation classpaths move JetBrains annotations from 13.0 to the
+actually resolved 23.0.0 alongside the newly introduced benchmark runtime.
 
 `Workload` is the single generator used by producer and target. Version `wp504-v1`
 has 10,000 uniquely identified messages at fixed Unix seconds, alternating
@@ -65,7 +72,9 @@ the instrumentation producer, and assembles benchmark/profile/ordinary release.
 The reader rejects missing/zero/skipped/failed/malformed JUnit, absent R8 mapping,
 a debuggable/non-profileable/non-test-only measurement target, wrong identity/SDK
 bounds, fixture/profileable leakage into ordinary release, missing MapLibre ELF
-and failed APK/ELF 16 KiB alignment. Build-only success explicitly reports that
+and failed APK/ELF 16 KiB alignment in every target and the instrumentation
+producer. Both fixture APKs require their correct typed profile-source flag;
+ordinary release must not be test-only. Build-only success explicitly reports that
 performance, profiles, StrictMode, ANR, battery and native runtime are unverified.
 
 The CI executor also declares `ci.py run --stage benchmark`, using the existing
@@ -81,6 +90,16 @@ After an admitted dependency change only, the optional
 generation, not a strict verification result. Return only its generated
 in-scope metadata to this producer's worktree, then run `benchmark` strictly.
 Do not edit locks by hand or use another worker's caches/worktree.
+
+Because this changes the dependency/build graph, also run the existing complete
+local check before publication, not only the optional harness stage:
+
+```powershell
+python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit HEAD
+```
+
+The default remains `python,preflight,scaffold,inspect`; the benchmark stage does
+not replace its actual module tests, lint, traceability and APK inspections.
 
 ## Device execution and genuine profiles
 

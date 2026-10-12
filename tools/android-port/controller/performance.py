@@ -76,11 +76,15 @@ def verify_build(repo: Path, sdk: Path, environment: dict):
     producers = list((android / "benchmark/build/outputs/apk/androidTest/debug").glob("*.apk"))
     if len(producers) != 1:
         raise PortError("Missing/ambiguous compiled instrumentation producer")
+    producer_alignment = inspect_alignment(producers[0], sdk, environment, windows=windows)
+    if not producer_alignment["elf_pt_load_alignment"]:
+        raise PortError("Missing actual native instrumentation libraries")
     return {
         "scope": "WP-504 build infrastructure only",
         "dataset_assertions": units,
         "artifacts": artifacts,
         "instrumentation_producer_compiled": True,
+        "instrumentation_producer_alignment": producer_alignment,
         "performance_measured": False,
         "baseline_profiles_collected": False,
         "device_battery_anr_or_strictmode_verified": False,
