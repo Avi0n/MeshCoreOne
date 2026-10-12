@@ -12,6 +12,34 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Next original pending-send persistence increment
+
+Fifteen complete frozen originals and actual helper/model/DAO/transaction
+comparisons add two proposed groups: 884families/132groups/67mandatory,
+0approved/unchanged5133denominator. Same reservation automatically evolved
+22->23 for the existing PendingSendPersistenceTest support path.
+Restored explicit source sequence0/1, nil unknown-kind model fields,
+three distinct message-ID require guards for nil/0/4 attempts, all four
+retry me/isReadtrue outgoing fixtures and actual fromEnvelope construction.
+Retained stronger native whole-row/DTO, radio-ID collision, reported unknown
+row and sequence99 override predicates. Real API31/native SQLite/in-memory
+Room is used. Ambient UUID()/Date() substitutions and opposite global versus
+radio-bound shared-message deletion are explicitly disclosed for review,
+not fresh original credit or global deletion equivalence.
+The declared covering command is
+`:core:data:testDebugUnitTest --tests com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest --dependency-verification=strict --quiet`.
+Current clean immutable-head positive discovery and combined Python execution
+remain required; no predecessor's unrelated module totals are substituted.
+
+Requested independent two-path source review of published coordinator179
+repair completed at base d3f/head e2d8a49f1969a42fe98affd64d7bc56471049f75:
+[bounded result](https://github.com/cbattlegear/MeshCoreOne-Android/pull/180#issuecomment-6116735633).
+No blocking selected-delta finding; unchanged three original native assertion
+bodies, joined descendant observers before real storage close, deterministic
+fourth cleanup regression. No candidate execution, formal gate, approval or
+merge; exact hosted180 verification/persistent adoption remain separate.
+No overlapping worker App test/product edit.
+
 ## Next messaging-key input/parameter increment
 
 Final clean0081c3bde80c798a8abba98ba5c73320bb4e56e8/d3f actually

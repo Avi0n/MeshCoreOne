@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "ead7187f355689f93e1dc59f13f2d16205c400a742c7a2c151fa1cdcc5ab7116",
+  "proposal_sha256": "087e3c6ce225c3154dee220ee58685e209a945b79f62df1305c513ee42e45947",
   "families": [
     {
       "group": "backup-envelope",
@@ -43215,6 +43215,2660 @@
       "runner_identity": [
         "com.meshcoreone.android.core.model.SourceModelCasesTest",
         "NodeLocationFixTests::Primary fix is the first valid GPS point()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::Concurrent inserts on the same radio produce distinct sequences()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "a2f3acd807c4bdff557247f6a0bab3302ecb1ea5210cb9f2dffd5eb9f72d4253",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 116,
+          "expression": "#expect(assigned == [1, 2], \"Serial @ModelActor isolation must produce distinct sequences\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 118,
+          "expression": "#expect(rows.count == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 119,
+          "expression": "#expect(Set(rows.map(\\.sequence)) == [1, 2])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "concurrentEnqueuesCannotReuseTheSameSequence",
+        "line": 68,
+        "end_line": 73,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "f9d76aba066ac6d85b5200420135f00168663d43807e615d52fb5ae6d7211fcc",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 71,
+            "expression": "assertEquals(listOf(1L, 2L), assigned)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 72,
+            "expression": "assertEquals(listOf(1L, 2L), store.fetchPendingSends(RADIO_A).map { it.sequence })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "listOf",
+            "line": 69,
+            "expression": "listOf(async { store.insertPendingSendAssigningSequence(pending()) },\n            async { store.insertPendingSendAssigningSequence(pending()) })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.insertPendingSendAssigningSequence",
+            "line": 69,
+            "expression": "store.insertPendingSendAssigningSequence(pending())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 69,
+            "expression": "pending()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.insertPendingSendAssigningSequence",
+            "line": 70,
+            "expression": "store.insertPendingSendAssigningSequence(pending())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 70,
+            "expression": "pending()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "awaitAll",
+            "line": 70,
+            "expression": "awaitAll()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sorted",
+            "line": 70,
+            "expression": "sorted()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 71,
+            "expression": "listOf(1L, 2L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 72,
+            "expression": "listOf(1L, 2L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 72,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::Concurrent inserts on the same radio produce distinct sequences()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "concurrentEnqueuesCannotReuseTheSameSequence"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::Pending sends are scoped by radioID()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "643b0c6d7ed2eb6c2aa6e2fcdcec167eed803b3f541cf1b7fdafcffc93a699a6",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 45,
+          "expression": "#expect(aRows.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 46,
+          "expression": "#expect(bRows.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 47,
+          "expression": "#expect(aRows.first?.radioID == radioA)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 48,
+          "expression": "#expect(bRows.first?.radioID == radioB)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "equalRowIDsDoNotCrossRadios",
+        "line": 23,
+        "end_line": 33,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "19822d1912693ac974fc9debb9de68a01b90e97cf9f0106f45ba6277d78ac160",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 28,
+            "expression": "assertEquals(RADIO_A, store.fetchPendingSends(RADIO_A).single().radioId)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 29,
+            "expression": "assertEquals(RADIO_B, store.fetchPendingSends(RADIO_B).single().radioId)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 31,
+            "expression": "assertEquals(a.id, store.fetchPendingSends(RADIO_A).single().id)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 32,
+            "expression": "assertEquals(setOf(a.id, b.id), store.fetchPendingSends(RADIO_B).map { it.id }.toSet())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "pending",
+            "line": 24,
+            "expression": "pending(sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 25,
+            "expression": "pending(RADIO_B, sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 26,
+            "expression": "store.upsertPendingSend(a)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 27,
+            "expression": "store.upsertPendingSend(b)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 28,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 28,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 29,
+            "expression": "store.fetchPendingSends(RADIO_B)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 29,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 30,
+            "expression": "store.upsertPendingSend(a.copy(radioId = RADIO_B))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "a.copy",
+            "line": 30,
+            "expression": "a.copy(radioId = RADIO_B)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 31,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 31,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "setOf",
+            "line": 32,
+            "expression": "setOf(a.id, b.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 32,
+            "expression": "store.fetchPendingSends(RADIO_B)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toSet",
+            "line": 32,
+            "expression": "toSet()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::Pending sends are scoped by radioID()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "equalRowIDsDoNotCrossRadios"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::PendingSendDTO round-trips through Model and back()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "17f9b4df24b249ca6a651b3b99fa710dec78f2300e5363d2be7cb79159a0abce",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 30,
+          "expression": "#expect(fetched.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 31,
+          "expression": "#expect(fetched.first == dto)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "pendingDTOFieldsRoundTripThroughTheRealRepository",
+        "line": 15,
+        "end_line": 20,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "2229fce15b10e58714cbffaa28198c731d87580ca28a14190ebe11abb12d6299",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 19,
+            "expression": "assertEquals(listOf(dto), store.fetchPendingSends(RADIO_A))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "pending",
+            "line": 16,
+            "expression": "pending(sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 16,
+            "expression": "copy(kind = PendingSendKind.CHANNEL, contactID = null, channelIndex = 3u,\n            isResend = true, messageText = \"test\", messageTimestamp = 1_700_000_000u, localNodeName = \"Alice\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 18,
+            "expression": "store.upsertPendingSend(dto)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 19,
+            "expression": "listOf(dto)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 19,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::PendingSendDTO round-trips through Model and back()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "pendingDTOFieldsRoundTripThroughTheRealRepository"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::attemptCount round-trips through insertPendingSendAssigningSequence and fetchPendingSends()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b9bae5574c2a85c0a55d820ea5c06e4466ca809c9e9f96b243448b5629c499a1",
+      "original_assertions": [
+        {
+          "name": "#require",
+          "line": 161,
+          "expression": "#require(rows.first(where: { $0.messageID == legacyID }))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 162,
+          "expression": "#require(rows.first(where: { $0.messageID == raceWindowID }))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 163,
+          "expression": "#require(rows.first(where: { $0.messageID == drainedID }))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 165,
+          "expression": "#expect(legacyRow.attemptCount == nil,\n            \"pre-migration row stored as nil must come back as nil \u2014 the field remains optional in storage\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 167,
+          "expression": "#expect(raceWindowRow.attemptCount == 0,\n            \"current-build race-window row stored as 0 must come back as 0\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 169,
+          "expression": "#expect(drainedRow.attemptCount == 4,\n            \"positive attemptCount must round-trip without normalization\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "nilZeroAndPositiveAttemptsRemainDifferent",
+        "line": 76,
+        "end_line": 84,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "4305331bdee2ff261661213e2cf85a563be129f25b53845e7d0ee45cde2deb00",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 80,
+            "expression": "assertEquals(listOf(null, 0L, 4L), rows.map { it.attemptCount })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 82,
+            "expression": "assertEquals(dto.attemptCount, assertNotNull(rows.singleOrNull { it.messageID == dto.messageID }).attemptCount)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 82,
+            "expression": "assertNotNull(rows.singleOrNull { it.messageID == dto.messageID })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "listOf",
+            "line": 77,
+            "expression": "listOf(null, 0L, 4L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 77,
+            "expression": "pending(attempt = it)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 78,
+            "expression": "for (dto in dtos)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.insertPendingSendAssigningSequence",
+            "line": 78,
+            "expression": "store.insertPendingSendAssigningSequence(dto)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 79,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 80,
+            "expression": "listOf(null, 0L, 4L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 81,
+            "expression": "for (dto in dtos)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::attemptCount round-trips through insertPendingSendAssigningSequence and fetchPendingSends()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "nilZeroAndPositiveAttemptsRemainDifferent"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::deletePendingSend removes the row()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "97b55c91b658d4f00aac08ed7dfabbe0ac86353453f9951b465427e2e4f7687b",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 73,
+          "expression": "#expect(rows.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "deletePendingRowCommitsAndIsRadioScoped",
+        "line": 42,
+        "end_line": 49,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "f1a12d71230dbaecdaf8429b75cc36b81279be59525ead33b30fb985fd4acb1a",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 47,
+            "expression": "assertTrue(store.fetchPendingSends(RADIO_A).isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 48,
+            "expression": "assertEquals(dto.id, store.fetchPendingSends(RADIO_B).single().id)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "pending",
+            "line": 43,
+            "expression": "pending(sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 44,
+            "expression": "store.upsertPendingSend(dto)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 45,
+            "expression": "store.upsertPendingSend(dto.copy(radioId = RADIO_B))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "dto.copy",
+            "line": 45,
+            "expression": "dto.copy(radioId = RADIO_B)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deletePendingSend",
+            "line": 46,
+            "expression": "store.deletePendingSend(entity(id = dto.id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "entity",
+            "line": 46,
+            "expression": "entity(id = dto.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 47,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 47,
+            "expression": "isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 48,
+            "expression": "store.fetchPendingSends(RADIO_B)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 48,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::deletePendingSend removes the row()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "deletePendingRowCommitsAndIsRadioScoped"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::deletePendingSendsForMessage is a no-op when no rows match()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "72029552d7253bf8c300c7f72d92beaff4fe37db7c7f10591cbb724a2a87115d",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 204,
+          "expression": "#expect(rows.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 205,
+          "expression": "#expect(rows.first?.messageID == messageID)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "absentMessageDeleteDoesNotTouchOtherRows",
+        "line": 100,
+        "end_line": 105,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "1623b94538181e694e9182e9fd76a7f029a845e84031469129c2e0eb11326a91",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 104,
+            "expression": "assertEquals(listOf(kept), store.fetchPendingSends(RADIO_A))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "pending",
+            "line": 101,
+            "expression": "pending(sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 102,
+            "expression": "store.upsertPendingSend(kept)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deletePendingSendsForMessage",
+            "line": 103,
+            "expression": "store.deletePendingSendsForMessage(entity(id = UUID.randomUUID()))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "entity",
+            "line": 103,
+            "expression": "entity(id = UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 103,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 104,
+            "expression": "listOf(kept)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 104,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::deletePendingSendsForMessage is a no-op when no rows match()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "absentMessageDeleteDoesNotTouchOtherRows"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-all-message-rows-radio-key-adaptation",
+      "comparison_sha256": "a22d992723679ba1218e099d504821870564ef27600e7832202557049bc318b8",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 1,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::deletePendingSendsForMessage removes every row matching the messageID()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b5ec9f2b93242a0eb9d4d7d9e2a2498fb20bd5473661bd260588077dcd9ea29a",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 189,
+          "expression": "#expect(rowsA.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 190,
+          "expression": "#expect(rowsA.first?.messageID == otherMessageID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 191,
+          "expression": "#expect(rowsB.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "deletingMessagePendingRowsRetainsTheOtherRadio",
+        "line": 87,
+        "end_line": 97,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "9aea59a01cc04a46070e5be48c5d157c33758860e4589590cbb1815eb34e81d9",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 95,
+            "expression": "assertEquals(listOf(unrelated), store.fetchPendingSends(RADIO_A))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 96,
+            "expression": "assertEquals(id, store.fetchPendingSends(RADIO_B).single().messageID)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "UUID.randomUUID",
+            "line": 88,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 89,
+            "expression": "store.upsertPendingSend(pending(messageID = id, sequence = 1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 89,
+            "expression": "pending(messageID = id, sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 90,
+            "expression": "store.upsertPendingSend(pending(messageID = id, sequence = 1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 90,
+            "expression": "pending(messageID = id, sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 91,
+            "expression": "store.upsertPendingSend(pending(RADIO_B, id, sequence = 1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 91,
+            "expression": "pending(RADIO_B, id, sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 92,
+            "expression": "pending(sequence = 2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 93,
+            "expression": "store.upsertPendingSend(unrelated)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deletePendingSendsForMessage",
+            "line": 94,
+            "expression": "store.deletePendingSendsForMessage(entity(id = id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "entity",
+            "line": 94,
+            "expression": "entity(id = id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 95,
+            "expression": "listOf(unrelated)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 95,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 96,
+            "expression": "store.fetchPendingSends(RADIO_B)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 96,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::deletePendingSendsForMessage removes every row matching the messageID()",
+          "radio-key-adaptation"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "deletingMessagePendingRowsRetainsTheOtherRadio"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::fetchPendingSends returns rows in sequence order()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b6c92e9b1a6651b9086bfcb4f00245d9ca16ce5382bfb2c63c3e1ff037c75fdc",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 61,
+          "expression": "#expect(rows.map(\\.sequence) == [1, 2, 3])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "pendingRowsAreSequenceOrdered",
+        "line": 36,
+        "end_line": 39,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "314257e7ec4b4fe1b4e15f76a349ea7adde9187c9e448b515a2c9c053b2997ff",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 38,
+            "expression": "assertEquals(listOf(1L, 2L, 3L), store.fetchPendingSends(RADIO_A).map { it.sequence })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "for",
+            "line": 37,
+            "expression": "for (sequence in listOf(3L, 1L, 2L))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 37,
+            "expression": "listOf(3L, 1L, 2L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 37,
+            "expression": "store.upsertPendingSend(pending(sequence = sequence))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 37,
+            "expression": "pending(sequence = sequence)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 38,
+            "expression": "listOf(1L, 2L, 3L)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 38,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::fetchPendingSends returns rows in sequence order()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "pendingRowsAreSequenceOrdered"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::fetchPendingSends skips rows whose kindRawValue is unknown()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "0453df98c35ccf162f4b1f825f1c971b62d188b3f44f658b755c719215445a65",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 234,
+          "expression": "#expect(rows.count == 1, \"Unknown-kind row must be filtered out\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 235,
+          "expression": "#expect(rows.first?.sequence == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "unknownFutureKindIsReportedAndPreservedOnDisk",
+        "line": 108,
+        "end_line": 116,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "4deb283751fedf3890f3060c1296ef4d793a7c9fcfe88f5080d38c515d32e036",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 113,
+            "expression": "assertEquals(listOf(kept), store.fetchPendingSends(RADIO_A))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 114,
+            "expression": "assertEquals(99L, db.pendingSends().forRadio(RADIO_A.value).last().kindRawValue)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 115,
+            "expression": "assertEquals(1, issues.size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "pending",
+            "line": 109,
+            "expression": "pending(sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 110,
+            "expression": "store.upsertPendingSend(kept)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 111,
+            "expression": "pending(sequence = 2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toEntity",
+            "line": 111,
+            "expression": "toEntity()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 111,
+            "expression": "copy(kindRawValue = 99, contactID = null, attemptCount = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "db.pendingSends",
+            "line": 112,
+            "expression": "db.pendingSends()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "insert",
+            "line": 112,
+            "expression": "insert(unknown)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 113,
+            "expression": "listOf(kept)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 113,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "db.pendingSends",
+            "line": 114,
+            "expression": "db.pendingSends()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "forRadio",
+            "line": 114,
+            "expression": "forRadio(RADIO_A.value)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "last",
+            "line": 114,
+            "expression": "last()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::fetchPendingSends skips rows whose kindRawValue is unknown()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "unknownFutureKindIsReportedAndPreservedOnDisk"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::insertPendingSendAssigningSequence assigns per-radio monotonic sequences()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "88ac81ed67c0e4b5dd8ffe31e916a145ab50900c34ba0117b6b9aa4f3f6d1823",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 100,
+          "expression": "#expect(firstA == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 101,
+          "expression": "#expect(secondA == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 102,
+          "expression": "#expect(firstB == 1, \"Sequence numbering is per-radio\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "assignedSequencesArePerRadio",
+        "line": 61,
+        "end_line": 65,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "e7a3b5531c09bceeb39915be1ddcf8208b113bb9af165dd6a9ce00e23602fe72",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 62,
+            "expression": "assertEquals(1L, store.insertPendingSendAssigningSequence(pending()))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 63,
+            "expression": "assertEquals(2L, store.insertPendingSendAssigningSequence(pending()))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 64,
+            "expression": "assertEquals(1L, store.insertPendingSendAssigningSequence(pending(RADIO_B)))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "store.insertPendingSendAssigningSequence",
+            "line": 62,
+            "expression": "store.insertPendingSendAssigningSequence(pending())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 62,
+            "expression": "pending()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.insertPendingSendAssigningSequence",
+            "line": 63,
+            "expression": "store.insertPendingSendAssigningSequence(pending())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 63,
+            "expression": "pending()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.insertPendingSendAssigningSequence",
+            "line": 64,
+            "expression": "store.insertPendingSendAssigningSequence(pending(RADIO_B))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 64,
+            "expression": "pending(RADIO_B)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::insertPendingSendAssigningSequence assigns per-radio monotonic sequences()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "assignedSequencesArePerRadio"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::insertPendingSendAssigningSequence returns 1 on an empty table()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b1d9eec4a86e6731f7bae9a09fef67c1aebbe5e3fe92869e15aed44ca0e75156",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 84,
+          "expression": "#expect(assigned == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 86,
+          "expression": "#expect(rows.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 87,
+          "expression": "#expect(rows.first?.sequence == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "firstAssignedSequenceIgnoresTheDTOSequence",
+        "line": 52,
+        "end_line": 58,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "cd13b5a625c66ce3e25147f66b31b6718e19721ee0872334cf78be3a78a6c9c2",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 54,
+            "expression": "assertEquals(1L, store.insertPendingSendAssigningSequence(dto))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 55,
+            "expression": "assertEquals(1L, store.fetchPendingSends(RADIO_A).single().sequence)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 56,
+            "expression": "assertEquals(1L, store.insertPendingSendAssigningSequence(pending(RADIO_B, sequence = 99)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 57,
+            "expression": "assertEquals(1L, store.fetchPendingSends(RADIO_B).single().sequence)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "pending",
+            "line": 53,
+            "expression": "pending(sequence = 0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.insertPendingSendAssigningSequence",
+            "line": 54,
+            "expression": "store.insertPendingSendAssigningSequence(dto)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 55,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 55,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.insertPendingSendAssigningSequence",
+            "line": 56,
+            "expression": "store.insertPendingSendAssigningSequence(pending(RADIO_B, sequence = 99))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 56,
+            "expression": "pending(RADIO_B, sequence = 99)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 57,
+            "expression": "store.fetchPendingSends(RADIO_B)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 57,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::insertPendingSendAssigningSequence returns 1 on an empty table()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "firstAssignedSequenceIgnoresTheDTOSequence"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::replacePendingSendForRetry assigns the next per-radio sequence()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "6cb86a4a39a8a821888139eca8b68fe8e92c4cff4cbcca449574900a94606669",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 350,
+          "expression": "#expect(assigned == 8, \"Sequence advances from the highest live value for this radio\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 352,
+          "expression": "#require(rows.first(where: { $0.messageID == messageID }))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 353,
+          "expression": "#expect(inserted.sequence == 8)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "otherRadioSequenceCannotAdvanceThisRadio",
+        "line": 154,
+        "end_line": 162,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "cad7ae7a934538cb858a3a4c729b142ae269a646c56479e171dab11b8643a0c9",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 160,
+            "expression": "assertEquals(8L, store.replacePendingSendForRetry(m.id, replacement))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 161,
+            "expression": "assertEquals(8L, store.fetchPendingSends(RADIO_A).last().sequence)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "message",
+            "line": 155,
+            "expression": "message(text = \"retry me\", status = MessageStatus.FAILED)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 155,
+            "expression": "copy(isRead = true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 156,
+            "expression": "store.saveMessage(m)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 157,
+            "expression": "store.upsertPendingSend(pending(sequence = 7))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 157,
+            "expression": "pending(sequence = 7)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 158,
+            "expression": "store.upsertPendingSend(pending(RADIO_B, sequence = 99))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 158,
+            "expression": "pending(RADIO_B, sequence = 99)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "PendingSendDTO.fromEnvelope",
+            "line": 159,
+            "expression": "PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DirectMessageEnvelope",
+            "line": 159,
+            "expression": "DirectMessageEnvelope(m.id, CONTACT_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.replacePendingSendForRetry",
+            "line": 160,
+            "expression": "store.replacePendingSendForRetry(m.id, replacement)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 161,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "last",
+            "line": 161,
+            "expression": "last()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::replacePendingSendForRetry assigns the next per-radio sequence()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "otherRadioSequenceCannotAdvanceThisRadio"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::replacePendingSendForRetry flips status and inserts a new PendingSend row()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "cbcbe26d24d2e004c1a7d9587fda4b12e7d2eba58ff842cb31417a6e941e8fbb",
+      "original_assertions": [
+        {
+          "name": "#require",
+          "line": 258,
+          "expression": "#require(try await store.fetchMessage(id: messageID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 259,
+          "expression": "#expect(refreshed.status == .pending, \"Status must flip to .pending\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 262,
+          "expression": "#expect(rows.count == 1, \"Old PendingSend row must be replaced, not duplicated\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 263,
+          "expression": "#require(rows.first)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 264,
+          "expression": "#expect(row.id == newDTO.id, \"Stored row id must match the new DTO\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 265,
+          "expression": "#expect(row.messageID == messageID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 266,
+          "expression": "#expect(row.kind == .dm)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 267,
+          "expression": "#expect(row.contactID == contactID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 268,
+          "expression": "#expect(row.sequence == assigned, \"Assigned sequence must match the persisted row\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 269,
+          "expression": "#expect(assigned == 1, \"Replacing the only row for the radio starts fresh at 1\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "retryReplacementCommitsStatusAndAuthoritativeEnvelopeTogether",
+        "line": 119,
+        "end_line": 128,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "96228ac3788e8df248771cf92d58bddbb93af000ce2230c7a5d51077d8a9d879",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 125,
+            "expression": "assertEquals(1L, assigned)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 126,
+            "expression": "assertEquals(MessageStatus.PENDING, assertNotNull(store.fetchMessage(entity(id = m.id))).status)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 126,
+            "expression": "assertNotNull(store.fetchMessage(entity(id = m.id)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 127,
+            "expression": "assertEquals(listOf(replacement.copy(sequence = assigned)), store.fetchPendingSends(RADIO_A))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "message",
+            "line": 120,
+            "expression": "message(text = \"retry me\", status = MessageStatus.FAILED)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 120,
+            "expression": "copy(isRead = true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 121,
+            "expression": "store.saveMessage(m)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 122,
+            "expression": "store.upsertPendingSend(pending(messageID = m.id, sequence = 1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 122,
+            "expression": "pending(messageID = m.id, sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "PendingSendDTO.fromEnvelope",
+            "line": 123,
+            "expression": "PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DirectMessageEnvelope",
+            "line": 123,
+            "expression": "DirectMessageEnvelope(m.id, CONTACT_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.replacePendingSendForRetry",
+            "line": 124,
+            "expression": "store.replacePendingSendForRetry(m.id, replacement)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessage",
+            "line": 126,
+            "expression": "store.fetchMessage(entity(id = m.id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "entity",
+            "line": 126,
+            "expression": "entity(id = m.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 127,
+            "expression": "listOf(replacement.copy(sequence = assigned))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "replacement.copy",
+            "line": 127,
+            "expression": "replacement.copy(sequence = assigned)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 127,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::replacePendingSendForRetry flips status and inserts a new PendingSend row()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "retryReplacementCommitsStatusAndAuthoritativeEnvelopeTogether"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::replacePendingSendForRetry preserves .delivered status()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "1e5c9158ba9a4b4578cd85e86b949d2d9157f81bd94d729081aa5d22fdf2602f",
+      "original_assertions": [
+        {
+          "name": "#require",
+          "line": 291,
+          "expression": "#require(try await store.fetchMessage(id: messageID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 292,
+          "expression": "#expect(refreshed.status == .delivered, \".delivered must not be downgraded by retry\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 295,
+          "expression": "#expect(rows.count == 1, \"PendingSend row is still inserted; drain gate handles no-op\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "lateDeliveryWinsOverManualRetry",
+        "line": 131,
+        "end_line": 138,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "210ce200d3967bfe400f9c6bd7992d17eee1b6702a772106cdda7787b1fa261f",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 136,
+            "expression": "assertEquals(MessageStatus.DELIVERED, assertNotNull(store.fetchMessage(entity(id = m.id))).status)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 136,
+            "expression": "assertNotNull(store.fetchMessage(entity(id = m.id)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 137,
+            "expression": "assertEquals(1, store.fetchPendingSends(RADIO_A).size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "message",
+            "line": 132,
+            "expression": "message(text = \"retry me\", status = MessageStatus.DELIVERED)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 132,
+            "expression": "copy(isRead = true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 133,
+            "expression": "store.saveMessage(m)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.replacePendingSendForRetry",
+            "line": 134,
+            "expression": "store.replacePendingSendForRetry(m.id,\n            PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "PendingSendDTO.fromEnvelope",
+            "line": 135,
+            "expression": "PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DirectMessageEnvelope",
+            "line": 135,
+            "expression": "DirectMessageEnvelope(m.id, CONTACT_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessage",
+            "line": 136,
+            "expression": "store.fetchMessage(entity(id = m.id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "entity",
+            "line": 136,
+            "expression": "entity(id = m.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 137,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::replacePendingSendForRetry preserves .delivered status()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "lateDeliveryWinsOverManualRetry"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "comparison_sha256": "092a45598ba4d473c554d52c53fc185eee48c70796ebadc0631129644d2553a5",
+      "source_file_family_count": 15,
+      "group_compared_family_count": 14,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "source_blob_sha": "32e4783628586bea54f81dce236e4ff378b54d20",
+      "case_id": "PendingSendPersistenceTests::replacePendingSendForRetry removes every existing PendingSend row for the messageID()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "006b3f2405e2f88bc60e4f0af5209ffc1f782b4d2a1b5c90dba134e513fbc8a5",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 321,
+          "expression": "#expect(rows.count == 2, \"Unrelated row survives; both prior rows for the retried messageID are gone\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 322,
+          "expression": "#require(rows.first(where: { $0.messageID == messageID }))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 323,
+          "expression": "#expect(retried.id == newDTO.id)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 324,
+          "expression": "#require(rows.first(where: { $0.messageID == unrelatedMessageID }))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 325,
+          "expression": "#expect(unrelated.sequence == 3, \"Unrelated row keeps its prior sequence\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+        "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+        "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "method_or_family_name": "replacementReapsAllPriorRowsAndRetainsUnrelatedSequence",
+        "line": 141,
+        "end_line": 151,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "07eee908461137af4faa3804bae420a1c50f97f4dbb2ac21c62956434d71f7a7",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 149,
+            "expression": "assertEquals(4L, store.replacePendingSendForRetry(m.id, replacement))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 150,
+            "expression": "assertEquals(listOf(unrelated, replacement.copy(sequence = 4)), store.fetchPendingSends(RADIO_A))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "message",
+            "line": 142,
+            "expression": "message(text = \"retry me\", status = MessageStatus.FAILED)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 142,
+            "expression": "copy(isRead = true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 143,
+            "expression": "store.saveMessage(m)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 144,
+            "expression": "store.upsertPendingSend(pending(messageID = m.id, sequence = 1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 144,
+            "expression": "pending(messageID = m.id, sequence = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 145,
+            "expression": "store.upsertPendingSend(pending(messageID = m.id, sequence = 2))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 145,
+            "expression": "pending(messageID = m.id, sequence = 2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "pending",
+            "line": 146,
+            "expression": "pending(sequence = 3)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertPendingSend",
+            "line": 147,
+            "expression": "store.upsertPendingSend(unrelated)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "PendingSendDTO.fromEnvelope",
+            "line": 148,
+            "expression": "PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DirectMessageEnvelope",
+            "line": 148,
+            "expression": "DirectMessageEnvelope(m.id, CONTACT_A)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.replacePendingSendForRetry",
+            "line": 149,
+            "expression": "store.replacePendingSendForRetry(m.id, replacement)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 150,
+            "expression": "listOf(unrelated, replacement.copy(sequence = 4))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "replacement.copy",
+            "line": 150,
+            "expression": "replacement.copy(sequence = 4)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchPendingSends",
+            "line": 150,
+            "expression": "store.fetchPendingSends(RADIO_A)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PendingSendPersistenceTests::replacePendingSendForRetry removes every existing PendingSend row for the messageID()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+          "sha256": "99528a88cc49b8667fa370cc2f517898d110d38fb61d142e62144900379a310c"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+          "sha256": "b231e103cea924c9c43d6ccddce4576be928adbee75d48f6b907951910fd91d4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+          "sha256": "9ff1317a1ee02cedd9adcb08e5e8fa24eac74c66570a713c2f244f92e146a069"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+          "sha256": "0eb2e551cd62ca70ab599a853c866e755d6b8853f211962cf1011d09a5acd235"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+          "sha256": "ec1c661c6f64b18f02b526b8484599fafab69c08cd4406acbed80f710573b889"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+          "sha256": "46d38276a45ac65ef34367a699c2c53b16098ecb91a19e8522386da5e4315054"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+        "replacementReapsAllPriorRowsAndRetainsUnrelatedSequence"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },

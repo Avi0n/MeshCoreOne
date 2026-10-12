@@ -5,6 +5,68 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+      "runner_name": "annotated-method",
+      "comparison": "Fourteen complete originals preserve DTO equality/channel3/resendtrue/test/1700000000/Alice/sequence1, distinct radio partitions, sequence insertion3/1/2 and result1/2/3, row deletion, original empty-table sequence0 returns/persists1, per-radio1/2/1, concurrent1/2 and two distinct rows, all three nil/0/4 attemptCount values bound to their original distinct message IDs, no-match deletion, unknown kind99 filtering and priorsequence1, retry failed-to-pending/new-row identity/contact/kind/sequence1, delivered preservation, both prior retry rows removed with unrelatedsequence3 retained, and next same-radio8 versus other-radio99. Restored original explicit sequences and failed/delivered outgoing retry me/isReadtrue fixture fields; all four retry DTOs now use the real fromEnvelope(DirectMessageEnvelope) constructor as the source does. Restored unknown-kind contactnil/attemptnil model inputs, not only the selected discriminator. Retained stronger whole-DTO/row equality, reported/persisted unknown row, same-native-ID across radios and sequence99 override supplemental checks without new original credit.",
+      "inputs": "Read all fifteen frozen bodies, makeStore/makeOutgoingDM/fixture, full source PendingSend model/DTO projection/defaults and PendingSendEnvelope factories, selected complete PersistenceStore+PendingSends operations, and actual native RepositoryTestValues real in-memory Room fixture, DTO/envelope factories, entity projection, PendingSendDao, PendingSendRepository and repository mutex/commit/error boundary. Original three require(messageID) guards are now asserted independently of the existing ordered attemptCount list.",
+      "adaptations": "Actual Robolectric API31 native SQLite Room replaces SwiftData's real in-memory container; this is not a fake persistence role. Fixed valid RADIO_A/RADIO_B/CONTACT_A and AT=Unix1700000000 adapt source ambient UUID()/Date() support inputs while original literal timestamp/date in the first DTO remain exact. Long/UInt/UByte/Instant retain selected widths/seconds and nil-versus0-versus4 storage values. Source serial ModelActor becomes a per-store mutex plus actual Room transaction; two async enqueues cover the selected allocation scenario, not every cancellation/commit interleaving. Native composite entity keys intentionally add cross-radio identity isolation (documented WP201/WP202), not global UUID equivalence. Supplemental checks and helpers add no original families.",
+      "helpers": [
+        "MC1Services/Sources/MC1Services/Models/PendingSend.swift",
+        "MC1Services/Sources/MC1Services/Models/PendingSendEnvelope.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/SendEnvelopes.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageMappings.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt"
+      ],
+      "consumer": "Actual ChatSendQueue hydration/drain/deletion uses radio-bound keys and preserved attempt history. These direct real-repository originals do not execute process death, UI retry, hardware, migration or every error/cancellation boundary. Repository retryReplacement availability alone does not prove that the mounted UI retry uses its atomic operation; that high-level consumer remains separately under comparison.",
+      "unresolved": ["Current repaired immutable-head covering execution, independent bounded review, hosted current-candidate verification and persistent reviewed merge remain required. No fresh execution or full WP501 acceptance is claimed from prior unrelated module totals."],
+      "methods": [
+        "PendingSendDTO round-trips through Model and back",
+        "Pending sends are scoped by radioID",
+        "fetchPendingSends returns rows in sequence order",
+        "deletePendingSend removes the row",
+        "insertPendingSendAssigningSequence returns 1 on an empty table",
+        "insertPendingSendAssigningSequence assigns per-radio monotonic sequences",
+        "Concurrent inserts on the same radio produce distinct sequences",
+        "attemptCount round-trips through insertPendingSendAssigningSequence and fetchPendingSends",
+        "deletePendingSendsForMessage is a no-op when no rows match",
+        "fetchPendingSends skips rows whose kindRawValue is unknown",
+        "replacePendingSendForRetry flips status and inserts a new PendingSend row",
+        "replacePendingSendForRetry preserves .delivered status",
+        "replacePendingSendForRetry removes every existing PendingSend row for the messageID",
+        "replacePendingSendForRetry assigns the next per-radio sequence"
+      ]
+    },
+    {
+      "id": "pending-persistence-original-all-message-rows-radio-key-adaptation",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
+      "runner_name": "annotated-method",
+      "comparison": "Complete original deliberately creates matching shared messageID rows on two radios plus an unrelated same-radiosequence2 row, deletes every matching row globally and expects radioB empty. Native EntityKey deletion deliberately deletes all matches only on radioA, retains unrelated completeDTO and leaves the matching radioB row. Restored explicit source sequence1 for shared rows. Native extra same-radio duplicate proves multi-row deletion but is supplemental. The opposite other-radio predicate is not silently called equal.",
+      "inputs": "Full original body/shared and other UUID identities/fixture/read counts and exact native body/EntityKey/PendingSendRepository/PendingSendDao read, alongside WP202's explicit approved WP201 compound-radio identity adaptation. Both helpers use actual in-memory persistence, not a mock.",
+      "adaptations": "Frozen global UUID/message deletion versus native radio-bound composite-key deletion is a disclosed existing identity adaptation, not original global-predicate preservation. Independent review must assess this selected original against the approved radio isolation contract; this candidate proposes no new product exception and does not edit production.",
+      "helpers": [
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+PendingSends.swift",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt"
+      ],
+      "consumer": "Real ChatSendQueue drain/terminal paths pass the bound radio plus messageID. Equal UUIDs on different native radios must not permit a connection-owned action to erase a foreign partition. This repository test does not execute a radio switch or user retry.",
+      "unresolved": ["Bounded independent acceptance of this explicitly different radioB predicate remains required, along with actual current repaired-head covering discovery, hosted current-candidate verification and persistent reviewed merge. No global Swift deletion equivalence or full-family acceptance is claimed."],
+      "methods": ["deletePendingSendsForMessage removes every row matching the messageID"]
+    },
+    {
       "id": "messaging-source-fallback-keys-exact-contact-channel-epoch",
       "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
       "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
