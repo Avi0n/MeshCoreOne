@@ -91,7 +91,8 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
         val search = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText))
         search.performTextReplacement("BQ")
         rooms.assertIsSelected()
-        assertFont200Unclipped(compose.onNodeWithText(repeater.name))
+        assertFont200Unclipped(compose.onNode(hasText(repeater.name) and
+            !SemanticsMatcher.keyIsDefined(SemanticsActions.SetText)))
         compose.onNodeWithText(room.name).assertDoesNotExist()
         search.performTextReplacement("\u4e0d\u5b58\u5728")
         val empty = compose.onNode(hasText(activity.getString(C.contactsListEmptySearchTitle)) and
@@ -117,7 +118,8 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
         assertFont200Unclipped(compose.onNodeWithText(room.name))
         compose.onNodeWithText(repeater.name).assertDoesNotExist()
         assertVisibleClickTargetsAtLeast48Dp()
-        println("WP503_NODES_FILTER_SORT|autoFavorite=true|searchCrossesSegments=true|nameSort=true|clearingRetainsRoom=true|realRadio=false")
+        println("WP503_NODES_FILTER_SORT|sdk=${android.os.Build.VERSION.SDK_INT}|autoFavorite=true" +
+            "|searchCrossesSegments=true|nameSort=true|clearingRetainsRoom=true|realRadio=false")
     }
 
     @Test fun offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner() {
@@ -132,7 +134,7 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
         compose.waitForIdle()
         val pending = compose.onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo,
             ProgressBarRangeInfo.Indeterminate)).fetchSemanticsNodes()
-        println("WP503_OFFLINE_DISCOVERY|indeterminate=${pending.size}|discoveredReads=$discoveredReads" +
+        println("WP503_OFFLINE_DISCOVERY|sdk=${android.os.Build.VERSION.SDK_INT}|indeterminate=${pending.size}|discoveredReads=$discoveredReads" +
             "|cachedRadio=true|storeAvailable=true|connectedDevice=false|realRadio=false")
         assertEquals("Offline discovery has no active transport/load; expose a textual cached/empty or recovery outcome",
             0, pending.size)
