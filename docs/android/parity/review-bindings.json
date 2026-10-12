@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "239c24b85397fbc8bc13f96b38f166d7a1588e7994aa3602aaef6d858d7cc0e8",
+  "proposal_sha256": "599ac9574cb3931786bd845363c1814a279b7773eafff5287ba20ee1faa7a647",
   "families": [
     {
       "group": "backup-envelope",
@@ -66977,7 +66977,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -67003,11 +67003,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalMatchedAndOrphanDeviceDataDeletionRetainsPendingEmptyAndNonNullDevice",
-        "line": 154,
-        "end_line": 169,
+        "line": 166,
+        "end_line": 181,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "504ca585418a4cf88642e1fdef95bf8fca9fca054fac7c7bc29ee52d5a8d3ded",
@@ -67015,13 +67015,13 @@
         "assertions": [
           {
             "name": "assertTrue",
-            "line": 167,
+            "line": 179,
             "expression": "assertTrue(store.fetchPendingSends(device.radioId).isEmpty())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertNotNull",
-            "line": 168,
+            "line": 180,
             "expression": "assertNotNull(store.fetchDevice(device.id))",
             "assertion_or_checked_wait": true
           }
@@ -67029,85 +67029,85 @@
         "actions_and_helper_calls": [
           {
             "name": "device",
-            "line": 155,
+            "line": 167,
             "expression": "device()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "UUID.randomUUID",
-            "line": 156,
+            "line": 168,
             "expression": "UUID.randomUUID()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.saveMessage",
-            "line": 157,
+            "line": 169,
             "expression": "store.saveMessage(MessageDTO(\n            id = matchedMessageID, radioId = device.radioId, contactID = null, channelIndex = 0u,\n            text = \"matched\", timestamp = Instant.now().epochSecond.toUInt(),\n        ))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageDTO",
-            "line": 157,
+            "line": 169,
             "expression": "MessageDTO(\n            id = matchedMessageID, radioId = device.radioId, contactID = null, channelIndex = 0u,\n            text = \"matched\", timestamp = Instant.now().epochSecond.toUInt(),\n        )",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Instant.now",
-            "line": 159,
+            "line": 171,
             "expression": "Instant.now()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "epochSecond.toUInt",
-            "line": 159,
+            "line": 171,
             "expression": "epochSecond.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.upsertPendingSend",
-            "line": 161,
+            "line": 173,
             "expression": "store.upsertPendingSend(pending(\n            messageID = matchedMessageID, radio = device.radioId, attemptCount = 0, sequence = 1,\n        ))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "pending",
-            "line": 161,
+            "line": 173,
             "expression": "pending(\n            messageID = matchedMessageID, radio = device.radioId, attemptCount = 0, sequence = 1,\n        )",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.upsertPendingSend",
-            "line": 164,
+            "line": 176,
             "expression": "store.upsertPendingSend(pending(radio = device.radioId, attemptCount = 0, sequence = 2))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "pending",
-            "line": 164,
+            "line": 176,
             "expression": "pending(radio = device.radioId, attemptCount = 0, sequence = 2)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.deleteDeviceData",
-            "line": 166,
+            "line": 178,
             "expression": "store.deleteDeviceData(device.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchPendingSends",
-            "line": 167,
+            "line": 179,
             "expression": "store.fetchPendingSends(device.radioId)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "isEmpty",
-            "line": 167,
+            "line": 179,
             "expression": "isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchDevice",
-            "line": 168,
+            "line": 180,
             "expression": "store.fetchDevice(device.id)",
             "assertion_or_checked_wait": false
           }
@@ -67215,7 +67215,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -67236,6 +67236,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -67429,7 +67433,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -67455,11 +67459,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalChannelZeroHelloDeletionRetainsBothPendingAndMessageEmptyPostconditions",
-        "line": 127,
-        "end_line": 141,
+        "line": 139,
+        "end_line": 153,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "5e22baa02aef015302b6b5cb24a2ecbf651faf864b8b60e1d57ece9d4c4cde9a",
@@ -67467,13 +67471,13 @@
         "assertions": [
           {
             "name": "assertTrue",
-            "line": 138,
+            "line": 150,
             "expression": "assertTrue(remainingPending.isEmpty())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 140,
+            "line": 152,
             "expression": "assertTrue(remainingMessages.isEmpty())",
             "assertion_or_checked_wait": true
           }
@@ -67481,91 +67485,91 @@
         "actions_and_helper_calls": [
           {
             "name": "device",
-            "line": 128,
+            "line": 140,
             "expression": "device()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "UUID.randomUUID",
-            "line": 129,
+            "line": 141,
             "expression": "UUID.randomUUID()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.saveMessage",
-            "line": 130,
+            "line": 142,
             "expression": "store.saveMessage(MessageDTO(\n            id = messageID, radioId = device.radioId, contactID = null, channelIndex = 0u,\n            text = \"hello\", timestamp = Instant.now().epochSecond.toUInt(),\n        ))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageDTO",
-            "line": 130,
+            "line": 142,
             "expression": "MessageDTO(\n            id = messageID, radioId = device.radioId, contactID = null, channelIndex = 0u,\n            text = \"hello\", timestamp = Instant.now().epochSecond.toUInt(),\n        )",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Instant.now",
-            "line": 132,
+            "line": 144,
             "expression": "Instant.now()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "epochSecond.toUInt",
-            "line": 132,
+            "line": 144,
             "expression": "epochSecond.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.upsertPendingSend",
-            "line": 134,
+            "line": 146,
             "expression": "store.upsertPendingSend(pending(messageID = messageID, radio = device.radioId, attemptCount = 0))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "pending",
-            "line": 134,
+            "line": 146,
             "expression": "pending(messageID = messageID, radio = device.radioId, attemptCount = 0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.deleteMessage",
-            "line": 136,
+            "line": 148,
             "expression": "store.deleteMessage(EntityKey(device.radioId, messageID))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 136,
+            "line": 148,
             "expression": "EntityKey(device.radioId, messageID)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchPendingSends",
-            "line": 137,
+            "line": 149,
             "expression": "store.fetchPendingSends(device.radioId)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "remainingPending.isEmpty",
-            "line": 138,
+            "line": 150,
             "expression": "remainingPending.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "db.messages",
-            "line": 139,
+            "line": 151,
             "expression": "db.messages()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "backupPageWithoutPreviewBlobs",
-            "line": 139,
+            "line": 151,
             "expression": "backupPageWithoutPreviewBlobs(device.radioId.value, Long.MAX_VALUE, 0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "remainingMessages.isEmpty",
-            "line": 140,
+            "line": 152,
             "expression": "remainingMessages.isEmpty()",
             "assertion_or_checked_wait": false
           }
@@ -67673,7 +67677,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -67694,6 +67698,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -67706,7 +67714,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -67726,11 +67734,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalNoMessageRowOrphanDeletionRetainsPendingEmptyRead",
-        "line": 144,
-        "end_line": 151,
+        "line": 156,
+        "end_line": 163,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "c7b9e5e182403d810542a9a2df07a3425ad8c5888a1f9c9023bdeb1adec58205",
@@ -67738,7 +67746,7 @@
         "assertions": [
           {
             "name": "assertTrue",
-            "line": 150,
+            "line": 162,
             "expression": "assertTrue(store.fetchPendingSends(device.radioId).isEmpty())",
             "assertion_or_checked_wait": true
           }
@@ -67746,49 +67754,49 @@
         "actions_and_helper_calls": [
           {
             "name": "device",
-            "line": 145,
+            "line": 157,
             "expression": "device()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "UUID.randomUUID",
-            "line": 146,
+            "line": 158,
             "expression": "UUID.randomUUID()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.upsertPendingSend",
-            "line": 147,
+            "line": 159,
             "expression": "store.upsertPendingSend(pending(messageID = orphanMessageID, radio = device.radioId, attemptCount = 0))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "pending",
-            "line": 147,
+            "line": 159,
             "expression": "pending(messageID = orphanMessageID, radio = device.radioId, attemptCount = 0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.deleteMessage",
-            "line": 149,
+            "line": 161,
             "expression": "store.deleteMessage(EntityKey(device.radioId, orphanMessageID))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 149,
+            "line": 161,
             "expression": "EntityKey(device.radioId, orphanMessageID)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchPendingSends",
-            "line": 150,
+            "line": 162,
             "expression": "store.fetchPendingSends(device.radioId)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "isEmpty",
-            "line": 150,
+            "line": 162,
             "expression": "isEmpty()",
             "assertion_or_checked_wait": false
           }
@@ -67896,7 +67904,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -67917,6 +67925,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -68296,7 +68308,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -68328,11 +68340,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalThreeContactOneRowsRetainOnlyContactTwoPendingIdentityAndMessageCount",
-        "line": 172,
-        "end_line": 201,
+        "line": 184,
+        "end_line": 213,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "f092b669857d82ddfe094004da288e7792e7cd4af176a99d770804646c8c997e",
@@ -68340,19 +68352,19 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 197,
+            "line": 209,
             "expression": "assertEquals(1, remaining.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 198,
+            "line": 210,
             "expression": "assertEquals(contact2MessageID, remaining.firstOrNull()?.messageID)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 200,
+            "line": 212,
             "expression": "assertEquals(1, contact2Messages.size)",
             "assertion_or_checked_wait": true
           }
@@ -68360,169 +68372,169 @@
         "actions_and_helper_calls": [
           {
             "name": "device",
-            "line": 173,
+            "line": 185,
             "expression": "device()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.saveContact",
-            "line": 174,
+            "line": 186,
             "expression": "store.saveContact(device.radioId, frame(\"Contact1\", 0x55))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "frame",
-            "line": 174,
+            "line": 186,
             "expression": "frame(\"Contact1\", 0x55)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.saveContact",
-            "line": 175,
+            "line": 187,
             "expression": "store.saveContact(device.radioId, frame(\"Contact2\", 0x56))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "frame",
-            "line": 175,
+            "line": 187,
             "expression": "frame(\"Contact2\", 0x56)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "for",
-            "line": 176,
+            "line": 188,
             "expression": "for (i in 0 until 3)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "UUID.randomUUID",
-            "line": 177,
+            "line": 189,
             "expression": "UUID.randomUUID()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.saveMessage",
-            "line": 178,
+            "line": 190,
             "expression": "store.saveMessage(MessageDTO(\n                id = messageID, radioId = device.radioId, contactID = contact1,\n                text = \"C1 $i\", timestamp = Instant.now().epochSecond.toUInt() + i.toUInt(),\n            ))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageDTO",
-            "line": 178,
+            "line": 190,
             "expression": "MessageDTO(\n                id = messageID, radioId = device.radioId, contactID = contact1,\n                text = \"C1 $i\", timestamp = Instant.now().epochSecond.toUInt() + i.toUInt(),\n            )",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Instant.now",
-            "line": 180,
+            "line": 192,
             "expression": "Instant.now()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "epochSecond.toUInt",
-            "line": 180,
+            "line": 192,
             "expression": "epochSecond.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "i.toUInt",
-            "line": 180,
+            "line": 192,
             "expression": "i.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.upsertPendingSend",
-            "line": 182,
+            "line": 194,
             "expression": "store.upsertPendingSend(pending(\n                messageID = messageID, radio = device.radioId, attemptCount = 0, sequence = i.toLong() + 1,\n            ))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "pending",
-            "line": 182,
+            "line": 194,
             "expression": "pending(\n                messageID = messageID, radio = device.radioId, attemptCount = 0, sequence = i.toLong() + 1,\n            )",
             "assertion_or_checked_wait": false
           },
           {
             "name": "i.toLong",
-            "line": 183,
+            "line": 195,
             "expression": "i.toLong()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "UUID.randomUUID",
-            "line": 186,
+            "line": 198,
             "expression": "UUID.randomUUID()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.saveMessage",
-            "line": 187,
+            "line": 199,
             "expression": "store.saveMessage(MessageDTO(\n            id = contact2MessageID, radioId = device.radioId, contactID = contact2,\n            text = \"C2 keep\", timestamp = Instant.now().epochSecond.toUInt() + 100u,\n        ))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageDTO",
-            "line": 187,
+            "line": 199,
             "expression": "MessageDTO(\n            id = contact2MessageID, radioId = device.radioId, contactID = contact2,\n            text = \"C2 keep\", timestamp = Instant.now().epochSecond.toUInt() + 100u,\n        )",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Instant.now",
-            "line": 189,
+            "line": 201,
             "expression": "Instant.now()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "epochSecond.toUInt",
-            "line": 189,
+            "line": 201,
             "expression": "epochSecond.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.upsertPendingSend",
-            "line": 191,
+            "line": 203,
             "expression": "store.upsertPendingSend(pending(\n            messageID = contact2MessageID, radio = device.radioId, attemptCount = 0, sequence = 99,\n        ))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "pending",
-            "line": 191,
+            "line": 203,
             "expression": "pending(\n            messageID = contact2MessageID, radio = device.radioId, attemptCount = 0, sequence = 99,\n        )",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.deleteMessagesForContact",
-            "line": 195,
+            "line": 207,
             "expression": "store.deleteMessagesForContact(EntityKey(device.radioId, contact1))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 195,
+            "line": 207,
             "expression": "EntityKey(device.radioId, contact1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchPendingSends",
-            "line": 196,
+            "line": 208,
             "expression": "store.fetchPendingSends(device.radioId)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "remaining.firstOrNull",
-            "line": 198,
+            "line": 210,
             "expression": "remaining.firstOrNull()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchMessages",
-            "line": 199,
+            "line": 211,
             "expression": "store.fetchMessages(EntityKey(device.radioId, contact2))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 199,
+            "line": 211,
             "expression": "EntityKey(device.radioId, contact2)",
             "assertion_or_checked_wait": false
           }
@@ -68630,7 +68642,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -68651,6 +68663,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -68976,7 +68992,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -68996,11 +69012,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalPublicPendingDeleteRetainsAttemptOneAndImmediateFalseWithoutTestSave",
-        "line": 117,
-        "end_line": 124,
+        "line": 129,
+        "end_line": 136,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "a9dfcb96eec9cea8263711704f5cc32e9a17248d36e62646d5369cdcb4500b41",
@@ -69008,7 +69024,7 @@
         "assertions": [
           {
             "name": "assertFalse",
-            "line": 123,
+            "line": 135,
             "expression": "assertFalse(store.hasPendingSend(EntityKey(radio, messageID)))",
             "assertion_or_checked_wait": true
           }
@@ -69016,55 +69032,55 @@
         "actions_and_helper_calls": [
           {
             "name": "RadioId",
-            "line": 118,
+            "line": 130,
             "expression": "RadioId(UUID.randomUUID())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "UUID.randomUUID",
-            "line": 118,
+            "line": 130,
             "expression": "UUID.randomUUID()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "UUID.randomUUID",
-            "line": 119,
+            "line": 131,
             "expression": "UUID.randomUUID()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.upsertPendingSend",
-            "line": 120,
+            "line": 132,
             "expression": "store.upsertPendingSend(pending(messageID = messageID, radio = radio, attemptCount = 1, sequence = 1))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "pending",
-            "line": 120,
+            "line": 132,
             "expression": "pending(messageID = messageID, radio = radio, attemptCount = 1, sequence = 1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.deletePendingSendsForMessage",
-            "line": 122,
+            "line": 134,
             "expression": "store.deletePendingSendsForMessage(EntityKey(radio, messageID))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 122,
+            "line": 134,
             "expression": "EntityKey(radio, messageID)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.hasPendingSend",
-            "line": 123,
+            "line": 135,
             "expression": "store.hasPendingSend(EntityKey(radio, messageID))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 123,
+            "line": 135,
             "expression": "EntityKey(radio, messageID)",
             "assertion_or_checked_wait": false
           }
@@ -69172,7 +69188,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -69193,6 +69209,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -70235,7 +70255,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -70261,7 +70281,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalFirstDrainRetainsReturnedOneAndPersistedOptionalAttemptOne",
         "line": 51,
@@ -70431,7 +70451,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -70452,6 +70472,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -70464,7 +70488,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -70484,7 +70508,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalMissingPendingMessageReturnsNullWithoutCreatingARow",
         "line": 63,
@@ -70636,7 +70660,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -70657,6 +70681,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -70936,7 +70964,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -70974,7 +71002,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalNilZeroAndThreeAttemptsRetainDeleteOneForbiddenLegacyAndExactSurvivorCounts",
         "line": 70,
@@ -71186,7 +71214,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -71207,6 +71235,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -71219,7 +71251,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -71245,7 +71277,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalRepeatedLegacyPurgeRetainsIndependentOneThenZeroReturns",
         "line": 89,
@@ -71409,7 +71441,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -71430,6 +71462,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -76619,7 +76655,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "65dd69c95c0a632ac0b490f92e3543e51cb82536f789f2a064677bd3c6620c77",
+      "comparison_sha256": "3707b51a37855d7cf1fd304b9babdb05dc4c349e3059500ecdb342be879ee8f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -76645,25 +76681,25 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-        "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
+        "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823",
         "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
         "method_or_family_name": "originalWarmUpRetainsPairedAndUnpairedNilAttemptContextsAndBothEmptyReads",
         "line": 100,
-        "end_line": 114,
+        "end_line": 126,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "ef8bf8fba0367347fec84331415bdd815ec30e6ac9316fbf5eeef45593b5e1c5",
+        "body_sha256": "bc8ccefcb0e3e11c16b62d488e743a82a1699424fc9745a13de949beaf428312",
         "registration": null,
         "assertions": [
           {
             "name": "assertTrue",
-            "line": 112,
+            "line": 124,
             "expression": "assertTrue(survivingForDevice.isEmpty())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 113,
+            "line": 125,
             "expression": "assertTrue(survivingForUnknown.isEmpty())",
             "assertion_or_checked_wait": true
           }
@@ -76688,62 +76724,92 @@
             "assertion_or_checked_wait": false
           },
           {
-            "name": "device",
+            "name": "DeviceDTO",
             "line": 103,
-            "expression": "device(radioWithDevice)",
+            "expression": "DeviceDTO(\n            id = radioWithDevice, radioId = RadioId(radioWithDevice),\n            publicKey = Bytes(ByteArray(32) { 0x01 }), nodeName = \"TestDevice\",\n            firmwareVersion = 9u, firmwareVersionString = \"v1.13.0\",\n            manufacturerName = \"TestMfg\", buildDate = \"01 Jan 2025\",\n            maxContacts = 100u, maxChannels = 8u, frequency = 915_000u, bandwidth = 250_000u,\n            spreadingFactor = 10u, codingRate = 5u, txPower = 20, maxTxPower = 20,\n            latitude = 0.0, longitude = 0.0, blePin = 0u, manualAddContacts = false,\n            multiAcks = 2u, telemetryModeBase = 2u, telemetryModeLoc = 0u,\n            telemetryModeEnv = 0u, advertLocationPolicy = 0u,\n            lastConnected = Instant.now(), lastContactSync = 0u, isActive = true,\n            ocvPreset = null, customOCVArrayString = null,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 104,
+            "expression": "RadioId(radioWithDevice)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 105,
+            "expression": "Bytes(ByteArray(32) { 0x01 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 105,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 113,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 115,
+            "expression": "store.saveDevice(it)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "pending",
-            "line": 104,
+            "line": 116,
             "expression": "pending(radio = device.radioId, attemptCount = null, sequence = 1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "pending",
-            "line": 105,
+            "line": 117,
             "expression": "pending(radio = radioWithoutDevice, attemptCount = null, sequence = 1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.upsertPendingSend",
-            "line": 106,
+            "line": 118,
             "expression": "store.upsertPendingSend(nilOnDevice)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.upsertPendingSend",
-            "line": 107,
+            "line": 119,
             "expression": "store.upsertPendingSend(orphan)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.warmUp",
-            "line": 109,
+            "line": 121,
             "expression": "store.warmUp()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchPendingSends",
-            "line": 110,
+            "line": 122,
             "expression": "store.fetchPendingSends(device.radioId)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchPendingSends",
-            "line": 111,
+            "line": 123,
             "expression": "store.fetchPendingSends(radioWithoutDevice)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "survivingForDevice.isEmpty",
-            "line": 112,
+            "line": 124,
             "expression": "survivingForDevice.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "survivingForUnknown.isEmpty",
-            "line": 113,
+            "line": 125,
             "expression": "survivingForUnknown.isEmpty()",
             "assertion_or_checked_wait": false
           }
@@ -76851,7 +76917,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba"
+          "sha256": "855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
@@ -76872,6 +76938,10 @@
         {
           "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
           "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+TestFetch.swift",
+          "sha256": "5968a16d7ca2da63680c33adcea03542d2762a955e728183fbbb875eb68ba74a"
         }
       ],
       "native_checked_helper_assertions": [],

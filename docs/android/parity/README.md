@@ -1,5 +1,18 @@
 # WP-501 source, case-family and consumer acceptance
 
+Qualified096 SOURCE-ONLY5492590619 ten/20expectations/290rows/29inputs
+reconciled:101/135 source-compared/34uncompared, not accepted. One literal
+warmUp fixture corrected from other createTestDevice defaults to actual
+DeviceDTO.testDevice(id:radioID:):01/FW9/v1.13.0/multi2/active/latlon0 and full
+remaining fields, retaining id=radioWithDevice/both nil rows/two empty reads.
+All other nine native bodies unchanged; only changed-method execution pending.
+Actual frozen TestFetch.swift all-radio helper declared, current30inputs/
+300rows. Original5725 tenPASS29-input receipt remains immutable/not faithful
+old warmUp-input equality/new30-input execution; no unchanged nine replay.
+Previous six BackupHelpers40 metadata already reconciled without replay.
+Totals unchanged1450/185/83/0,106/135 proposed/29unprovided; source101
+distinct from proposed106, five independent source comparisons pending.
+
 Actual clean1aad/base d958 new five-only5PASS/0bad/all5 identities,
 XML15:01:35.841Z/native2f9fc65c/SHAe906f108/19 fingerprints/raw private XML.
 Readiness PASS/zero notice normalization/normal supported lock release;

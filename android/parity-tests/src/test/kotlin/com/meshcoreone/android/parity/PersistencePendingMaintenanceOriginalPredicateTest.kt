@@ -100,7 +100,19 @@ class PersistencePendingMaintenanceOriginalPredicateTest : RoomProcessTest() {
     @Test fun originalWarmUpRetainsPairedAndUnpairedNilAttemptContextsAndBothEmptyReads() = runTest {
         val radioWithDevice = UUID.randomUUID()
         val radioWithoutDevice = RadioId(UUID.randomUUID())
-        val device = device(radioWithDevice)
+        val device = DeviceDTO(
+            id = radioWithDevice, radioId = RadioId(radioWithDevice),
+            publicKey = Bytes(ByteArray(32) { 0x01 }), nodeName = "TestDevice",
+            firmwareVersion = 9u, firmwareVersionString = "v1.13.0",
+            manufacturerName = "TestMfg", buildDate = "01 Jan 2025",
+            maxContacts = 100u, maxChannels = 8u, frequency = 915_000u, bandwidth = 250_000u,
+            spreadingFactor = 10u, codingRate = 5u, txPower = 20, maxTxPower = 20,
+            latitude = 0.0, longitude = 0.0, blePin = 0u, manualAddContacts = false,
+            multiAcks = 2u, telemetryModeBase = 2u, telemetryModeLoc = 0u,
+            telemetryModeEnv = 0u, advertLocationPolicy = 0u,
+            lastConnected = Instant.now(), lastContactSync = 0u, isActive = true,
+            ocvPreset = null, customOCVArrayString = null,
+        ).also { store.saveDevice(it) }
         val nilOnDevice = pending(radio = device.radioId, attemptCount = null, sequence = 1)
         val orphan = pending(radio = radioWithoutDevice, attemptCount = null, sequence = 1)
         store.upsertPendingSend(nilOnDevice)
