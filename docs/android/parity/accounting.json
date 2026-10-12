@@ -9904,8 +9904,7 @@
         "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
         "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
         "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionRetryPolicy.kt",
-        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncRetryController.kt",
-        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt"
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncRetryController.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },

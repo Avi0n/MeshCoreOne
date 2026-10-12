@@ -1375,8 +1375,7 @@
         "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
         "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
         "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionRetryPolicy.kt",
-        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncRetryController.kt",
-        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt"
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncRetryController.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -2030,60 +2029,6 @@
               "name": "resolveSyncPlatform",
               "line": 359,
               "end_line": 362
-            }
-          ]
-        },
-        {
-          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "b5c98993d52bbeb927b285b07985e4b8acb72e47a7cd6a4daee6b1b5cb8e6b34",
-          "source_references": [
-            "MC1Services/Sources/MC1Services/Connection/ConnectionManager.swift"
-          ],
-          "methods": [
-            {
-              "name": "configuredEsp32LinkPacesAcknowledgedWritesForSixtyMilliseconds",
-              "line": 41,
-              "end_line": 42
-            },
-            {
-              "name": "configuredNrf52LinkPacesAcknowledgedWritesForTwentyFiveMilliseconds",
-              "line": 44,
-              "end_line": 45
-            },
-            {
-              "name": "configuredUnknownBluetoothLinkKeepsConservativeSixtyMillisecondPacing",
-              "line": 47,
-              "end_line": 48
-            },
-            {
-              "name": "assertPacing",
-              "line": 50,
-              "end_line": 80
-            },
-            {
-              "name": "sleepUntil",
-              "line": 55,
-              "end_line": 55
-            },
-            {
-              "name": "availability",
-              "line": 91,
-              "end_line": 91
-            },
-            {
-              "name": "create",
-              "line": 92,
-              "end_line": 92
-            },
-            {
-              "name": "submit",
-              "line": 93,
-              "end_line": 107
-            },
-            {
-              "name": "close",
-              "line": 109,
-              "end_line": 109
             }
           ]
         }
