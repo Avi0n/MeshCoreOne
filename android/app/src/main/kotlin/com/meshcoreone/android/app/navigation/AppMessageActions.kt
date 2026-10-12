@@ -73,12 +73,7 @@ internal fun AppMessageActions(
                                 }
 
                             }
-                            MessageAction.SendAgain -> feature.sender(message.radioId).let { sender ->
-                                when (conversation) {
-                                    is TimelineConversation.Direct -> sender.resendDirect(message.id, conversation.contact)
-                                    is TimelineConversation.Channel -> sender.resendChannel(message.id)
-                                }
-                            }
+                            MessageAction.SendAgain -> feature.sendAgain(message, conversation)
 
                             MessageAction.Delete -> { feature.delete(message); timeline.refresh() }
                             is MessageAction.React -> {

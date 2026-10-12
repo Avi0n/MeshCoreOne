@@ -1,10 +1,12 @@
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Timeline/ChatTimeline+Paging.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.feature.chats.timeline
 
 import com.meshcoreone.android.core.model.MessageDTO
+import com.meshcoreone.android.core.contracts.domain.PersistenceStoreException
 import com.meshcoreone.android.core.model.MessageDirection
 import com.meshcoreone.android.core.model.MessageStatus
 import java.time.ZoneId
@@ -12,12 +14,14 @@ import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 /**
  * Screen-lifetime chat state. It never owns or tears down a radio session. Keep one instance per
@@ -205,25 +209,40 @@ class ChatViewModel(
         try {
             dependencies.retryService.retry(message, conversation)
         } catch (cancellation: CancellationException) {
-            mutableState.update {
-                val cleared = it.copy(retryingMessageIds = it.retryingMessageIds - messageId)
-                if (cleared.messages.firstOrNull { message -> message.id == messageId }?.status == MessageStatus.RETRYING) {
-                    cleared.withStatus(messageId, MessageStatus.FAILED, unreadAnchorId, zoneId)
-                } else {
-                    cleared
-                }
-            }
+            reconcileRetryStatus(messageId)
             throw cancellation
         } catch (failure: Exception) {
-            mutableState.update {
-                val cleared = it.copy(retryingMessageIds = it.retryingMessageIds - messageId, sendError = failure)
-                if (cleared.messages.firstOrNull { message -> message.id == messageId }?.status == MessageStatus.RETRYING) {
-                    cleared.withStatus(messageId, MessageStatus.FAILED, unreadAnchorId, zoneId)
-                } else {
-                    cleared
-                }
-            }
+            mutableState.update { it.copy(sendError = failure) }
             dependencies.diagnostics.report("retry message", failure)
+            reconcileRetryStatus(messageId)
+        } finally {
+            mutableState.update { it.copy(retryingMessageIds = it.retryingMessageIds - messageId) }
+        }
+    }
+
+    private suspend fun reconcileRetryStatus(messageId: UUID) {
+        if (mutableState.value.messages.firstOrNull { it.id == messageId }?.status != MessageStatus.RETRYING) return
+        // A Room write can commit before caller cancellation or queue signalling fails.
+        val persisted = try {
+            withContext(NonCancellable) { dependencies.data.fetchMessage(messageId) }
+        } catch (failure: PersistenceStoreException) {
+            mutableState.update { it.copy(passiveError = failure) }
+            dependencies.diagnostics.report("reconcile retry status", failure)
+            return
+        }
+        mutableState.update { current ->
+            if (current.messages.firstOrNull { it.id == messageId }?.status != MessageStatus.RETRYING) {
+                current
+            } else if (persisted != null) {
+                current.withStatus(messageId, persisted.status, unreadAnchorId, zoneId, persisted.roundTripTime)
+            } else {
+                val messages = current.messages.filterNot { it.id == messageId }
+                current.copy(
+                    messages = messages,
+                    rows = buildTimelineRows(messages, unreadAnchorId, zoneId),
+                    totalFetchedCount = (current.totalFetchedCount - 1).coerceAtLeast(0),
+                )
+            }
         }
     }
 
