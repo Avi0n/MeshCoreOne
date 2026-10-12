@@ -176,6 +176,14 @@ WP501_ACCEPTANCE_CASES = {
      "mountedMeshCoreOpenV1DirectReactionReachesTheActualStoredTarget"),
     ("com.meshcoreone.android.parity.HeardRepeatStoreAcceptanceTest",
      "exactTextDisambiguatesStoredOutgoingRowsWithTheSameChannelAndTimestamp"),
+    ("com.meshcoreone.android.parity.CliCompletionUnicodeAcceptanceTest",
+     "learnedNodePrefixRetainsTheIndependentSwiftCanonicalMatch"),
+    ("com.meshcoreone.android.parity.CliCompletionUnicodeAcceptanceTest",
+     "learnedCustomKeyPrefixRetainsTheIndependentSwiftCanonicalMatch"),
+    ("com.meshcoreone.android.parity.CliCompletionUnicodeAcceptanceTest",
+     "actualTerminalGhostRetainsTheCanonicalPrefixAndOriginalInput"),
+    ("com.meshcoreone.android.parity.CliCompletionUnicodeAcceptanceTest",
+     "actualTerminalTabAppliesTheVerbatimCanonicalPrefixMatch"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

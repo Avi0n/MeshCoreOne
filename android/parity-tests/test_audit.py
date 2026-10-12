@@ -236,7 +236,7 @@ class WiringTest(unittest.TestCase):
     def test_exact_required_behavioral_names_are_distinct_and_nonzero(self):
         from controller.ci_evidence import WP501_ACCEPTANCE_CASES
 
-        self.assertEqual(77, len(WP501_ACCEPTANCE_CASES))
+        self.assertEqual(81, len(WP501_ACCEPTANCE_CASES))
         self.assertEqual({
             ("com.meshcoreone.android.parity.BlePacingAcceptanceTest", name)
             for name in (
@@ -263,6 +263,16 @@ class WiringTest(unittest.TestCase):
              "exactTextDisambiguatesStoredOutgoingRowsWithTheSameChannelAndTimestamp"),
         }, {identity for identity in WP501_ACCEPTANCE_CASES
             if identity[0] == "com.meshcoreone.android.parity.HeardRepeatStoreAcceptanceTest"})
+        self.assertEqual({
+            ("com.meshcoreone.android.parity.CliCompletionUnicodeAcceptanceTest", name)
+            for name in (
+                "learnedNodePrefixRetainsTheIndependentSwiftCanonicalMatch",
+                "learnedCustomKeyPrefixRetainsTheIndependentSwiftCanonicalMatch",
+                "actualTerminalGhostRetainsTheCanonicalPrefixAndOriginalInput",
+                "actualTerminalTabAppliesTheVerbatimCanonicalPrefixMatch",
+            )
+        }, {identity for identity in WP501_ACCEPTANCE_CASES
+            if identity[0] == "com.meshcoreone.android.parity.CliCompletionUnicodeAcceptanceTest"})
         self.assertIn(("com.meshcoreone.android.parity.MessageKeyAcceptanceTest",
                        "originalPrefixParameterFamilyRetainsAllFourRows"), WP501_ACCEPTANCE_CASES)
         directory = audit.REPO / "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity"

@@ -29,7 +29,29 @@ passed native/oracles; this worker has not read the six authoritative logs
 and creates no second hosted-result bundle. Empty automatic193 green and
 producer local EOCD failure remain separate evidence.
 
-## Current radio-preset original comparisons
+## Current CLI-completion originals and independent canonical-prefix gap
+
+Current1344/5133 proposed families/174groups/81mandatory/0approved add86
+complete original/native CLICompletionEngine comparisons, exact independent
+membership/exclusion/equality/empty/count/order/state predicates and real
+assertContainsAll/assertContainsNone loop definitions with every vararg.
+Complete engines/10-key enum/SwiftStrings/learned-state/shared-terminal
+consumers read, not annotation/header credit. Exact explicit originals join
+renamed native JUnit methods. New scoped87 execution/86 original identities
+pending; scalar-order supplement is no extra original/full consumer credit.
+Actual retained WP316 oracle.swift.txt uses composed-e-acute.hasPrefix(
+decomposed-e-acute); oracle-output.txt line162 reports true. Native raw UTF16
+startsWith differs at learned node/custom keys and shared ghost state despite
+NFC sorting. Four mandatory engine/shared-terminal ghost/tab predicates bind
+that independent vector, verbatim learned names/input and real transitions.
+No candidate-generated expected strings, protected oracle edit, fresh Swift
+execution, native pass or full Unicode/keyboard/UI/radio certification.
+Supported same reservation28->29 adds the canonical owned file/create without
+changing historical authorization/base/source/policy. Native result pending;
+owning WP316 product defect intake awaits the actual scoped witness execution.
+Pacing189/incoming192 witnesses/control unchanged, no incumbent replay.
+
+## Historical radio-preset original comparisons
 
 Current proposals1258/5133families/173groups/77mandatory/0approved add76
 complete RadioPresetRecommendationTests source bodies/native counterparts

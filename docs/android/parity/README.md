@@ -1,5 +1,23 @@
 # WP-501 source, case-family and consumer acceptance
 
+Current proposals1344/5133families/174groups/81mandatory/0approved add86
+complete CLICompletionEngine original bodies. All independent local/remote/
+node flags, vocabulary/membership/exclusions/arity/trailing spaces/nested
+arguments/ordered values/learned-name-key replacement/verbatim-case/dedup
+and count predicates were compared with real assertion-loop helpers and
+actual holder/shared-terminal consumers. Source display names join renamed
+native methods by exact annotated identity, not assumed JUnit names. Selected
+execution87/86 and independent/full acceptance pending; scalar-order native
+supplement adds no original credit.
+The actual retained WP316 Swift oracle independently prints composed-e-acute
+hasPrefix decomposed-e-acute true. Native learned-name/key/ghost startsWith
+is raw UTF16 despite NFC sorting; selected86 ASCII cases do not cover that
+gap. Four new mandatory actual-engine/shared-terminal ghost/tab predicates
+preserve the independent vector and verbatim input. Native execution is
+pending, not a passing or fresh Swift claim; product repair belongs WP316.
+Same reservation28->29 admitted wp-owned/create, immutable authorization and
+initial source/base/policy retained. Default189/incoming192 remain unchanged.
+
 Actual reviewed193 transport merge185466 is adopted: parentse508+032c,
 candidate-equal tree252bc0c6 independently verified; exactly inherited
 BleTransport/BleWriteTest/WP205 deviation changed. Worker preset/service/
@@ -15,7 +33,7 @@ remain. Coordinator reports full193 dispatch38218985629 positive selected
 checks; this worker has not independently read its six authoritative logs.
 Empty automatic green and producer local EOCD failure remain distinct.
 
-Current proposed inspection is1258/5133families/173groups/77mandatory/0approved.
+Historical preset inspection1258/5133families/173groups/77mandatory/0approved.
 Adds76 complete original radio-preset comparisons in six disjoint groups:
 recommendation36/selectability16/visibility6/aliases15/encoding2/hashmode1.
 Every independent membership/exclusion/ordered alias/field/parameter branch
