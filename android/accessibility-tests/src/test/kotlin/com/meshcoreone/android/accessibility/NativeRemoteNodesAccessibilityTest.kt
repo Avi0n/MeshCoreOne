@@ -234,8 +234,25 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         rememberToggle().assertIsNotEnabled()
         assertScrollableFont200Unclipped(compose.onNodeWithText(
             L.remoteNodesAuthSecondsRemaining(host.get().resources, 30), useUnmergedTree = true))
-        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo) and
-            hasAnyAncestor(isDialog())).performScrollTo().assertIsDisplayed()
+        val progress = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo) and
+            hasAnyAncestor(isDialog()))
+        val measured = progress.fetchSemanticsNode()
+        val scroll = generateSequence(measured.parent) { it.parent }.first {
+            it.config.contains(SemanticsActions.ScrollBy) && it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
+        }
+        val viewport = scroll.boundsInRoot
+        val delta = measured.positionInRoot.y + measured.size.height - viewport.bottom
+        println("WP503_REMOTE_PENDING_PROGRESS|position=${measured.positionInRoot}|size=${measured.size}|viewport=$viewport|delta=$delta")
+        if (delta > 0f) {
+            compose.onNode(SemanticsMatcher("Actual authentication scroll viewport") { it.id == scroll.id },
+                useUnmergedTree = true).performSemanticsAction(SemanticsActions.ScrollBy) { assertTrue(it(0f, delta)) }
+        }
+        val visible = progress.assertIsDisplayed().fetchSemanticsNode()
+        assertTrue("The actual progress indicator must be wholly contained after bounded non-gesture scroll",
+            visible.boundsInRoot.width == visible.size.width.toFloat() &&
+                visible.boundsInRoot.height == visible.size.height.toFloat() &&
+                visible.boundsInRoot.left >= viewport.left && visible.boundsInRoot.right <= viewport.right &&
+                visible.boundsInRoot.top >= viewport.top && visible.boundsInRoot.bottom <= viewport.bottom)
         cancelAuthentication()
         compose.waitUntil { rig.cancelledAuthentications == 1 }
         assertEquals(1, rig.loginAttempts)
