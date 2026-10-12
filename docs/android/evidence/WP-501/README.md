@@ -33,6 +33,12 @@ zero notice normalizations; both supported locks released normally and public
 hard_lock_records empty. Correct import preserves all twelve bodies/vectors;
 fresh corrected-input execution pending, initial failure remains separate.
 
+Corrected52cba0fa9afba89ba526f8409e41cbc0b24a029f/baseab1 attempt also stopped
+before discovery: saveChannel returns UUID, not ChannelDTO; three `.id` references
+failed compilation. No new native/XML credit. Use actual returned channel UUID
+for the same three independent increments; predicates unchanged. Both compile
+attempts retained separately; fresh corrected input remains unexecuted.
+
 Qualified contact5 SOURCE-ONLY5491201631 at0c9/baseab1,13:06:40Z,
 proposalb445a402/comparison8b5279b1 fully read/reconciled. Guard5 bodies/joins/
 85helperrows/17inputs and actual source/default/Room/order/delete/recompute

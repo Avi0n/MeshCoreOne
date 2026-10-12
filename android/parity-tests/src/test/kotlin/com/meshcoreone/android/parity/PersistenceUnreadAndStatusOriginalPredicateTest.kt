@@ -119,9 +119,9 @@ class PersistenceUnreadAndStatusOriginalPredicateTest : RoomProcessTest() {
         val second = store.saveContact(device.radioId, frame("Contact2", 0x56))
         store.incrementUnreadCount(EntityKey(device.radioId, second.id))
         val channel = store.saveChannel(device.radioId, ChannelInfo(0u, "Public", Bytes(ByteArray(16))))
-        store.incrementChannelUnreadCount(EntityKey(device.radioId, channel.id))
-        store.incrementChannelUnreadCount(EntityKey(device.radioId, channel.id))
-        store.incrementChannelUnreadCount(EntityKey(device.radioId, channel.id))
+        store.incrementChannelUnreadCount(EntityKey(device.radioId, channel))
+        store.incrementChannelUnreadCount(EntityKey(device.radioId, channel))
+        store.incrementChannelUnreadCount(EntityKey(device.radioId, channel))
         val counts = store.getTotalUnreadCounts(device.radioId)
 
         assertEquals(3L, counts.contacts)
