@@ -5,6 +5,49 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
+      "native_factory": "acknowledgements",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
+      "runner_name": "original-case-id",
+      "comparison": "First16 complete originals restore unstarted/default5 service, Test message/current-time outgoing/plain/default DTO fields, true/false checker guards and explicit final stop, no saved row in the two pending-count-only expiry cases, and literals01020304/11223344/05060708/0D0E0F10/CEECACCE/090A0B0C/FA117733. Grace31/30/window45 retains sent/pending1/no selected failure/no retry update; floor20 uses15/25 versus timeout5 and slow20 uses30/70 versus timeout60. Expired60/30 failure retains selected ID membership plus the prior stronger exact event list. Fail-all retains two failed rows, independent failedIDs count2 and both memberships plus the existing set guard. Delivered DB rows preserve independent no selected failure guards. stopAndFail retains active true before install, then false/failed. RTT uses DB DEADBEEF/LE EFBEADDE/age10/trip250 and CAFEBABE/LE BEBAFECA/age2/nil. Multi-attempt pending row retains AAAA/BBBB/CCCC codes, first-code ACK/trip500, delivered/RTT500/pending0.",
+      "inputs": "Complete frozen31 ACK bodies and makePending, MessageDTO+Testing, MessageService+Testing and event projections read. Selected source ACK expiry/fail-all and acknowledgement delivery consumers and actual native checker lifecycle/expireOrReconcile/failAllPendingMessages/handleAcknowledgement/reconcileAcknowledgement, PendingAck, native DTO defaults, RecordingStore and harness read. DB codes CEACECCE and337711FA are literal little-endian source values, not candidate-produced expected packets.",
+      "adaptations": "Source real SwiftData is represented by disclosed RecordingStore, not Room. Ambient source UUIDs adapt to valid fixed radio identity and random message IDs; native row/pending contact IDs are deliberately linked to CONTACT because actual native reconciliation rejects misbound identities, whereas the source defaults create independent random contact IDs. This linked-ID/generation safety adaptation is not exact arbitrary-ID equivalence and requires independent review. Injected clock replaces ambient Date with the same relative ages/current timestamp, not wall-clock performance proof. Concrete session is unstarted for all16; native local key and current token are constructor identities, not a fresh radio connection or physical ACK. Direct calls to the real ACK handler simulate the original test hook; no wire/hardware claim. Existing stricter event guards remain supplemental. Other15 ACK originals remain uncredited, even if their existing registrations pass.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageService+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageService+ACK.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageService.swift",
+        "MC1Services/Sources/MC1Services/Services/PendingAck.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt"
+      ],
+      "consumer": "Actual checker task ownership, pending-entry deadline, guarded terminal row update, selected failure event projection and acknowledgement/RTT reconciliation are asserted. No new test registration, original denominator change, missing-ACK success, shared fixture default change or production edit.",
+      "unresolved": ["Changed SourceAck inputs and independent predicates require fresh exact-candidate positive discovery for all16 selected identities, shared31 regressions, independent linked-ID/persistence adaptation review and current hosted/persistent acceptance. Old31 green registrations at e938 do not execute these changes; no new passing original credit or full31 equivalence is inferred."],
+      "methods": [
+        "isAckExpiryCheckingActive toggles correctly",
+        "stopAckExpiryChecking cancels the background task",
+        "checkExpiredAcks marks expired ACK as failed",
+        "ACK timeout keeps message .sent through the grace window so a late ACK can still reconcile",
+        "checkExpiredAcks preserves non-expired ACK",
+        "checkExpiredAcks skips already-delivered ACK",
+        "checkExpiredAcks does not broadcast failure when DB stays delivered",
+        "checkExpiredAcks fails a DM after max(ackGiveUpWindow, per-attempt timeout); the window is the floor",
+        "checkExpiredAcks honors a per-attempt timeout longer than the give-up window (slow preset)",
+        "stopAckExpiryChecking leaves in-flight DMs .sent instead of failing them",
+        "failAllPendingMessages fails all non-delivered and broadcasts .failed",
+        "failAllPendingMessages does not downgrade or notify on a delivered DB row",
+        "stopAndFailAllPending stops checking and fails all pending",
+        "handleAcknowledgement uses firmware tripTime when provided",
+        "handleAcknowledgement leaves roundTripTime nil when firmware does not supply tripTime",
+        "handleAcknowledgement matches any CRC accumulated across retry attempts"
+      ]
+    },
+    {
       "id": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
       "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
       "partial_source_file": true,
@@ -31,7 +74,7 @@
         "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt"
       ],
       "consumer": "Actual selected save/query/send/error/resend/ACK-order/retry/checker/status consumers are asserted with original inputs. Existing stronger whole-row/list/single-send/count guards remain supplemental, not additional originals. Both pre-delivered send-count cases exercise the actual native claim boundary; no passing result or product defect is inferred from source inspection alone. All35 source SendTests are now proposed across two disjoint groups, not accepted as complete behavioral parity.",
-      "unresolved": ["Exact clean14f73f79cac2d1d69de536ea5ba68d845ad197c9/base2cdda covering command actually discovered210messaging/passed207/failed3/0errors/skips; downstream Room/App did not execute. Resend's original sendCount predicate expected2/actual1; first-send's original sendCount1/noResent pass but retained stronger single-wire guard expected1/actual5 exposes missing pre-delivered short-circuit. Unstarted finalize also propagated raw MockTransport.NotConnected rather than completing delivered-row preservation; test firmware now maps that raw fake error to the real MeshTransportError.NotConnected contract, requiring fresh execution to distinguish fixture and product behavior. Clean14f declaredPython363/363PASS does not prove this later helper change. Independent/current-hosted/persistent merge and owner-routed proven product repair remain required, no swallowed error, new ACK, startup workaround, product edit or original denominator/exclusion/identity change."],
+      "unresolved": ["Exact clean e9386e67f3b7f26b5180e7d67fbb495f465020b3/base2cdda actually discovered210messaging/passed207/failed3/0errors/skips, SourceSend38/35PASS/3FAIL; downstream Room/App did not execute. SourceSend9def763d and Harnessc2f05a47 are the executed blobs. Resend's original count2 becomes1; first-send original count1/noResent pass, retained stronger single-wire guard1 becomes5. Existing WP208 HIGH3/HIGH4 and missing-ACK-is-not-success adaptation already replaced those synthetic delivered flags with genuine raw-ACK counterparts: these two are failed source-shaped witnesses requiring explicit equivalence reconciliation, NOT a request to weaken logical-claim ACK proof or an independently proven mounted defect (correction6117747600). Normalized unstarted finalize now genuinely propagates MeshTransportError.NotConnected: source best-effort routing catches/logs it but native checkRouting does not catch typed transport errors. Bounded actual product-owner intake6117764761, no worker product edit/broad catch/startup/new ACK. Earlier14f207/3FAIL and363PASS remain historical; initial e938 lane collision executed nothing, supported-release retry actually failed as above. Normal publication succeeded with explicit UNVERIFIED transform-lock preflight failure. Independent/current-hosted/persistent acceptance remain required; no denominator/exclusion/identity change."],
       "methods": [
         "sendChannelMessage throws when user text plus node name exceeds composed cap",
         "sendChannelMessage saves message to dataStore before send attempt",

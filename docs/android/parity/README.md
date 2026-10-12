@@ -1,6 +1,25 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current proposed inspection is922/5133families/136groups/67mandatory/0approved.
+Current proposed inspection is938/5133families/137groups/67mandatory/0approved.
+Next16 complete ACK originals restore unstarted/default5 fixtures, source DTO
+fields, no-row pending cases, exact codes/relative ages/windows and independent
+checker-active/count/membership/retry/RTT predicates. Linked native identity
+versus source independent UUID defaults and RecordingStore versus SwiftData
+are explicitly disclosed, not exact arbitrary-identity/persistence equivalence.
+Other15 ACK originals remain uncredited. Shared defaults/registered identities
+are unchanged; new ACK bytes require fresh exact execution.
+
+Actual published e938/base2cdda covering retry executed210messaging/207PASS/
+3FAIL/0errors/skips; SourceSend38/35PASS/3FAIL; downstream Room/App not run.
+The normalized unstarted routing failure is genuinely MeshTransportError.NotConnected
+and is routed to the product owner in6117764761. Two synthetic send-count
+witnesses need existing WP208 receipt-safety equivalence reconciliation, not
+seeded-flag/absent-ACK success or a new mounted-product claim (6117747600).
+Readiness passed/locks released. Normal push's pre-native transform-lock failure
+remains UNVERIFIED; old90d hostedSUCCESS is historical, e938 hosted38203459682
+was ongoing when inspected. Full acceptance remains blocked, no copied CI bundle.
+
+The preceding proposed inspection was922/5133families/136groups/67mandatory/0approved.
 All35 frozen SendTests bodies are now compared across disjoint12/23 groups;
 the remaining23 restore channel helper/query/pending fields, exact delivered
 ACK literals, FE32 ordering, non-ACK retry windows and typed in-flight checker

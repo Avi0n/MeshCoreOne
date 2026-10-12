@@ -14,6 +14,45 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
 
+Current proposed comparison adds16 complete ACK originals:938/5133families/
+137groups/67mandatory/0approved. Same reservation evolved24->25, admitting
+only SourceAckTest disjoint test support. Restored unstarted/default5 setup,
+source message/current-time fields, no-row count-only cases, exact ACK/DB
+literals and ages/windows, independent checker active/count/membership/
+failed/retrying guards and RTT/multi-attempt inputs. Native linked row/tracking
+contact IDs versus source independent default UUIDs are explicitly disclosed;
+RecordingStore is not Room. Other15 ACK originals remain uncredited.
+Changed ACK bytes require fresh execution; no old31 green promotion.
+
+Actual unchanged published e9386e67f3b7f26b5180e7d67fbb495f465020b3/base2cdda
+retry after supported lane release passed readiness and executed the covering
+command:210messaging/207PASS/3FAIL/0errors/skips, SourceSend38/35PASS/3FAIL;
+downstream Room/App did not execute. Both locks released. SourceSend
+9def763dfded90c7c50dc677e28f57aebb09188c and Harness
+c2f05a47ad59324e0a4e24eb714a29f1b93327ce bind that actual execution.
+Unstarted finalize now propagates real MeshTransportError.NotConnected,
+not the raw mock error. Source catches/logs best-effort routing failures;
+native checkRouting omits typed transport errors. Actual owner intake
+[6117764761](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6117764761)
+requests a bounded producer repair, not a worker production edit or blanket catch.
+Existing WP208 HIGH3/HIGH4 and missing-ACK-is-not-success adaptation explicitly
+uses genuine ACK counterparts for the two synthetic send-count originals.
+Their failed restored-source witnesses need transparent equivalence reconciliation,
+not a regression to seeded-flag/absent-ACK success or a new mounted defect claim:
+[6117747600](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6117747600).
+The pending first-send original count1/noResent itself passes; only its retained
+stronger one-wire guard fails1/5. Resend original count2 fails2/1.
+Initial lane refusal executed nothing; actual retry failure supersedes the
+pending-normalization statements in the historical14f entry below.
+
+Normal e938 publication succeeded with explicit UNVERIFIED local-hook outcome:
+Python/preflight passed, scaffold stopped before native discovery at unchanged
+Gradle transform lock protocol expected3/found0. No cache/lock/hook bypass.
+Exact e938 hosted38203459682 was still running when inspected; old90d hosted
+38201872861 SUCCESS is historical440/e497-input proof, not current helper/ACK
+execution or full acceptance. Declared clean14f Python363PASS remains distinct.
+No second hosted CI bundle, new hardware/iOS claim or overlapping181/184 edit.
+
 Actual clean14f73f79cac2d1d69de536ea5ba68d845ad197c9/base2cdda executed
 the current covering selectors below: messaging210/207PASS/3FAIL/0errors/skips;
 Room/App selectors did not execute after that task failed. New SourceSend

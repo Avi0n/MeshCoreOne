@@ -4243,15 +4243,25 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift"
           ],
           "methods": [
             {
+              "name": "sourceMessage",
+              "line": 17,
+              "end_line": 23
+            },
+            {
+              "name": "sourcePending",
+              "line": 25,
+              "end_line": 27
+            },
+            {
               "name": "acknowledgements",
-              "line": 16,
-              "end_line": 189
+              "line": 29,
+              "end_line": 230
             }
           ]
         }
@@ -12881,31 +12891,31 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "isAckExpiryCheckingActive toggles correctly",
-          "line": 17,
-          "end_line": 21,
+          "line": 30,
+          "end_line": 34,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "e3b8f23dd6ad8b4b20322555d666e36cbbba38cc56bb0bf5deaa077858f9ab32",
+          "body_sha256": "9ea6734e4f305acd42337290b4e46cbe9e2d875556ede7f50645ce7396a48d53",
           "registration": "original(\"MessageServiceACKTests\", \"isAckExpiryCheckingActive toggles correctly\")",
           "assertions": [
             {
               "name": "assertFalse",
-              "line": 18,
+              "line": 31,
               "expression": "assertFalse(h.service.isAckExpiryCheckingActive)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 19,
+              "line": 32,
               "expression": "assertTrue(h.service.isAckExpiryCheckingActive)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 20,
+              "line": 33,
               "expression": "assertFalse(h.service.isAckExpiryCheckingActive)",
               "assertion_or_checked_wait": true
             }
@@ -12913,31 +12923,25 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 18,
-              "expression": "Harness(this)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.start",
-              "line": 18,
-              "expression": "h.start()",
+              "line": 31,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startAckExpiryChecking",
-              "line": 19,
+              "line": 32,
               "expression": "h.service.startAckExpiryChecking()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.stopAckExpiryChecking",
-              "line": 20,
+              "line": 33,
               "expression": "h.service.stopAckExpiryChecking()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 20,
+              "line": 33,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -13031,25 +13035,31 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "stopAckExpiryChecking cancels the background task",
-          "line": 22,
-          "end_line": 26,
+          "line": 35,
+          "end_line": 41,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "69a07c30278a8e98b4551a6e91b3a798d7955e0825b1c072372c4c6647ac67c2",
+          "body_sha256": "b4dd6e7c76ecadf49787d83eeee19c6f72d1650501b75cd0dcb050512de84a84",
           "registration": "original(\"MessageServiceACKTests\", \"stopAckExpiryChecking cancels the background task\")",
           "assertions": [
             {
+              "name": "assertTrue",
+              "line": 37,
+              "expression": "assertTrue(h.service.isAckExpiryCheckingActive)",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertFalse",
-              "line": 24,
+              "line": 38,
               "expression": "assertFalse(h.service.isAckExpiryCheckingActive)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 25,
+              "line": 39,
               "expression": "assertTrue(h.service.isAckExpiryCheckingActive)",
               "assertion_or_checked_wait": true
             }
@@ -13057,37 +13067,37 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 23,
-              "expression": "Harness(this)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.start",
-              "line": 23,
-              "expression": "h.start()",
+              "line": 36,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startAckExpiryChecking",
-              "line": 23,
+              "line": 36,
               "expression": "h.service.startAckExpiryChecking()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.stopAckExpiryChecking",
-              "line": 23,
+              "line": 37,
               "expression": "h.service.stopAckExpiryChecking()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startAckExpiryChecking",
-              "line": 25,
+              "line": 39,
               "expression": "h.service.startAckExpiryChecking()",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "h.service.stopAckExpiryChecking",
+              "line": 40,
+              "expression": "h.service.stopAckExpiryChecking()",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "h.close",
-              "line": 25,
+              "line": 40,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -13229,99 +13239,111 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "checkExpiredAcks marks expired ACK as failed",
-          "line": 27,
-          "end_line": 32,
+          "line": 42,
+          "end_line": 49,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "8d96826beac8050c4cd455621ba92d17192d8eeb37a3be969e23a300de2a3bbe",
+          "body_sha256": "ecd578350da0af9ed2005ff2b49d1d2ebe3d50b4f8d9a2a6c8ac93d5399041e5",
           "registration": "original(\"MessageServiceACKTests\", \"checkExpiredAcks marks expired ACK as failed\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 30,
+              "line": 45,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
+              "name": "assertTrue",
+              "line": 47,
+              "expression": "assertTrue(received.filterIsInstance<MessageStatusEvent.Failed>().any { it.messageID == m.id })",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertEquals",
-              "line": 31,
-              "expression": "assertEquals(listOf(MessageStatusEvent.Failed(m.id)), statuses(h.service, events))",
+              "line": 48,
+              "expression": "assertEquals(listOf(MessageStatusEvent.Failed(m.id)), received)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 28,
-              "expression": "Harness(this)",
+              "line": 43,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 28,
-              "expression": "h.start()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 28,
-              "expression": "h.message()",
+              "name": "sourceMessage",
+              "line": 43,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 28,
+              "line": 43,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 29,
-              "expression": "h.service.installPendingAck(h.tracking(m, age = 60))",
+              "line": 44,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(1, 2, 3, 4), m.id, age = 60))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 29,
-              "expression": "h.tracking(m, age = 60)",
+              "name": "sourcePending",
+              "line": 44,
+              "expression": "sourcePending(h, Bytes.of(1, 2, 3, 4), m.id, age = 60)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 44,
+              "expression": "Bytes.of(1, 2, 3, 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 29,
+              "line": 44,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 30,
+              "line": 45,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "statuses",
+              "line": 46,
+              "expression": "statuses(h.service, events)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "received.filterIsInstance",
+              "line": 47,
+              "expression": "received.filterIsInstance<MessageStatusEvent.Failed>()",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "listOf",
-              "line": 31,
+              "line": 48,
               "expression": "listOf(MessageStatusEvent.Failed(m.id))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageStatusEvent.Failed",
-              "line": 31,
+              "line": 48,
               "expression": "MessageStatusEvent.Failed(m.id)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "statuses",
-              "line": 31,
-              "expression": "statuses(h.service, events)",
-              "assertion_or_checked_wait": false
-            },
-            {
               "name": "h.close",
-              "line": 31,
+              "line": 48,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -13481,105 +13503,135 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "ACK timeout keeps message .sent through the grace window so a late ACK can still reconcile",
-          "line": 33,
-          "end_line": 38,
+          "line": 50,
+          "end_line": 59,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "d269f358f24831faa1aa979d2223a3b21be7b8078c282db7f2d2d06ae7a7d128",
+          "body_sha256": "022eb92756c743f8df28b3604c2406cd8fbfa1a877b537e67392406069b63037",
           "registration": "original(\"MessageServiceACKTests\", \"ACK timeout keeps message .sent through the grace window so a late ACK can still reconcile\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 36,
+              "line": 53,
               "expression": "assertEquals(MessageStatus.SENT, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 37,
+              "line": 54,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
+              "name": "assertFalse",
+              "line": 56,
+              "expression": "assertFalse(received.filterIsInstance<MessageStatusEvent.Failed>().any { it.messageID == m.id })",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertTrue",
-              "line": 37,
-              "expression": "assertTrue(statuses(h.service, events).isEmpty())",
+              "line": 57,
+              "expression": "assertTrue(received.filterIsInstance<MessageStatusEvent.Retrying>().isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 58,
+              "expression": "assertTrue(received.isEmpty())",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 34,
-              "expression": "Harness(this, MessageServiceConfig(ackGiveUpWindow = 45.0))",
+              "line": 51,
+              "expression": "Harness(this, MessageServiceConfig(ackGiveUpWindow = 45.0), sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageServiceConfig",
-              "line": 34,
+              "line": 51,
               "expression": "MessageServiceConfig(ackGiveUpWindow = 45.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 34,
-              "expression": "h.start()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 34,
-              "expression": "h.message()",
+              "name": "sourceMessage",
+              "line": 51,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 35,
+              "line": 52,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 35,
-              "expression": "h.service.installPendingAck(h.tracking(m, age = 31))",
+              "line": 52,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(0x11, 0x22, 0x33, 0x44), m.id, age = 31))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 35,
-              "expression": "h.tracking(m, age = 31)",
+              "name": "sourcePending",
+              "line": 52,
+              "expression": "sourcePending(h, Bytes.of(0x11, 0x22, 0x33, 0x44), m.id, age = 31)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 52,
+              "expression": "Bytes.of(0x11, 0x22, 0x33, 0x44)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 36,
+              "line": 53,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 36,
+              "line": 53,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 37,
+              "line": 55,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "received.filterIsInstance",
+              "line": 56,
+              "expression": "received.filterIsInstance<MessageStatusEvent.Failed>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "received.filterIsInstance",
+              "line": 57,
+              "expression": "received.filterIsInstance<MessageStatusEvent.Retrying>()",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "isEmpty",
-              "line": 37,
+              "line": 57,
               "expression": "isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "received.isEmpty",
+              "line": 58,
+              "expression": "received.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "h.close",
-              "line": 37,
+              "line": 58,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -13667,19 +13719,19 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "checkExpiredAcks preserves non-expired ACK",
-          "line": 39,
-          "end_line": 42,
+          "line": 60,
+          "end_line": 64,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "3f6282ce5f6d2a84cbf001ea4ac82dee20e6b1507e0a49b3c96f5c5d775a2bb7",
+          "body_sha256": "7a62c5b63f26b6fc53fa34fcc57bd715743e00ab4d13cedc3ca7c307e45abc38",
           "registration": "original(\"MessageServiceACKTests\", \"checkExpiredAcks preserves non-expired ACK\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 41,
+              "line": 63,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             }
@@ -13687,43 +13739,37 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 40,
-              "expression": "Harness(this)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.start",
-              "line": 40,
-              "expression": "h.start()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 40,
-              "expression": "h.message()",
+              "line": 61,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 40,
-              "expression": "h.service.installPendingAck(h.tracking(m))",
+              "line": 62,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(5, 6, 7, 8)))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 40,
-              "expression": "h.tracking(m)",
+              "name": "sourcePending",
+              "line": 62,
+              "expression": "sourcePending(h, Bytes.of(5, 6, 7, 8))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 62,
+              "expression": "Bytes.of(5, 6, 7, 8)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 41,
+              "line": 63,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 41,
+              "line": 63,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -13817,19 +13863,19 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "checkExpiredAcks skips already-delivered ACK",
-          "line": 43,
-          "end_line": 46,
+          "line": 65,
+          "end_line": 69,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "5bd9b8750c187c75bdae5f408f17836ca4830ca19730a3bce484caa9bdfd833b",
+          "body_sha256": "79a73339da45d9605cec4913f42effb9e7c267cfbcf42a90e6a2ca45976ea7b3",
           "registration": "original(\"MessageServiceACKTests\", \"checkExpiredAcks skips already-delivered ACK\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 45,
+              "line": 68,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             }
@@ -13837,43 +13883,37 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 44,
-              "expression": "Harness(this)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.start",
-              "line": 44,
-              "expression": "h.start()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 44,
-              "expression": "h.message()",
+              "line": 66,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 44,
-              "expression": "h.service.installPendingAck(h.tracking(m, age = 60, delivered = true))",
+              "line": 67,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(0x0D, 0x0E, 0x0F, 0x10), age = 60, delivered = true))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 44,
-              "expression": "h.tracking(m, age = 60, delivered = true)",
+              "name": "sourcePending",
+              "line": 67,
+              "expression": "sourcePending(h, Bytes.of(0x0D, 0x0E, 0x0F, 0x10), age = 60, delivered = true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 67,
+              "expression": "Bytes.of(0x0D, 0x0E, 0x0F, 0x10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 45,
+              "line": 68,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 45,
+              "line": 68,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -14015,93 +14055,105 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "checkExpiredAcks does not broadcast failure when DB stays delivered",
-          "line": 47,
-          "end_line": 51,
+          "line": 70,
+          "end_line": 78,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "cd794a6e7572c61911804784368366d8c7c6bc616b0c761ed27999c26a8a090e",
+          "body_sha256": "83aaf11f4f05bc6159f9d5607bdf88656c2b44bebd591442fea0583b5fbfe508",
           "registration": "original(\"MessageServiceACKTests\", \"checkExpiredAcks does not broadcast failure when DB stays delivered\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 50,
+              "line": 74,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
+              "name": "assertFalse",
+              "line": 76,
+              "expression": "assertFalse(received.filterIsInstance<MessageStatusEvent.Failed>().any { it.messageID == m.id })",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertTrue",
-              "line": 50,
-              "expression": "assertTrue(statuses(h.service, events).isEmpty())",
+              "line": 77,
+              "expression": "assertTrue(received.isEmpty())",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 48,
-              "expression": "Harness(this)",
+              "line": 71,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 48,
-              "expression": "h.start()",
+              "name": "Bytes.of",
+              "line": 71,
+              "expression": "Bytes.of(0xCE, 0xEC, 0xAC, 0xCE)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.message",
-              "line": 48,
-              "expression": "h.message(MessageStatus.DELIVERED)",
+              "name": "sourceMessage",
+              "line": 72,
+              "expression": "sourceMessage(h, MessageStatus.DELIVERED, 0xCEAC_ECCEu)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 48,
+              "line": 72,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 49,
-              "expression": "h.service.installPendingAck(h.tracking(m, age = 60))",
+              "line": 73,
+              "expression": "h.service.installPendingAck(sourcePending(h, code, m.id, age = 60))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 49,
-              "expression": "h.tracking(m, age = 60)",
+              "name": "sourcePending",
+              "line": 73,
+              "expression": "sourcePending(h, code, m.id, age = 60)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 49,
+              "line": 73,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 50,
+              "line": 74,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 50,
+              "line": 75,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "isEmpty",
-              "line": 50,
-              "expression": "isEmpty()",
+              "name": "received.filterIsInstance",
+              "line": 76,
+              "expression": "received.filterIsInstance<MessageStatusEvent.Failed>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "received.isEmpty",
+              "line": 77,
+              "expression": "received.isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 50,
+              "line": 77,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -14285,25 +14337,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "checkExpiredAcks fails a DM after max(ackGiveUpWindow, per-attempt timeout); the window is the floor",
-          "line": 52,
-          "end_line": 59,
+          "line": 79,
+          "end_line": 86,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "544ff601cfbb5facab6008ca547ccf6c8137dbcd6145b1005d37fc8afbcb7555",
+          "body_sha256": "fc1cdd34fb93ab384c5a6499a351cff15edea0fa54717b9f27183c4f01f40e79",
           "registration": "original(\"MessageServiceACKTests\", \"checkExpiredAcks fails a DM after max(ackGiveUpWindow, per-attempt timeout); the window is the floor\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 57,
+              "line": 84,
               "expression": "assertEquals(MessageStatus.SENT, h.stored(live.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 58,
+              "line": 85,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(expired.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -14311,85 +14363,85 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 53,
-              "expression": "Harness(this, MessageServiceConfig(ackGiveUpWindow = 20.0))",
+              "line": 80,
+              "expression": "Harness(this, MessageServiceConfig(ackGiveUpWindow = 20.0), sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageServiceConfig",
-              "line": 53,
+              "line": 80,
               "expression": "MessageServiceConfig(ackGiveUpWindow = 20.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 53,
-              "expression": "h.start()",
+              "name": "sourceMessage",
+              "line": 81,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.message",
-              "line": 54,
-              "expression": "h.message()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 54,
-              "expression": "h.message()",
+              "name": "sourceMessage",
+              "line": 81,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 55,
-              "expression": "h.service.installPendingAck(h.tracking(live, age = 15, timeout = 5.0))",
+              "line": 82,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(1, 2, 3, 4), live.id, age = 15, timeout = 5.0))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 55,
-              "expression": "h.tracking(live, age = 15, timeout = 5.0)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.service.installPendingAck",
-              "line": 56,
-              "expression": "h.service.installPendingAck(h.tracking(expired, Bytes.of(5, 6, 7, 8), age = 25, timeout = 5.0))",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.tracking",
-              "line": 56,
-              "expression": "h.tracking(expired, Bytes.of(5, 6, 7, 8), age = 25, timeout = 5.0)",
+              "name": "sourcePending",
+              "line": 82,
+              "expression": "sourcePending(h, Bytes.of(1, 2, 3, 4), live.id, age = 15, timeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 56,
+              "line": 82,
+              "expression": "Bytes.of(1, 2, 3, 4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "h.service.installPendingAck",
+              "line": 83,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(5, 6, 7, 8), expired.id, age = 25, timeout = 5.0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourcePending",
+              "line": 83,
+              "expression": "sourcePending(h, Bytes.of(5, 6, 7, 8), expired.id, age = 25, timeout = 5.0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 83,
               "expression": "Bytes.of(5, 6, 7, 8)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 57,
+              "line": 84,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 57,
+              "line": 84,
               "expression": "h.stored(live.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 58,
+              "line": 85,
               "expression": "h.stored(expired.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 58,
+              "line": 85,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -14573,25 +14625,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "checkExpiredAcks honors a per-attempt timeout longer than the give-up window (slow preset)",
-          "line": 60,
-          "end_line": 67,
+          "line": 87,
+          "end_line": 94,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "41bbb88bd2326753ef6883bc29e8fd7654668ab11018884ba0c12c0b9f1dc174",
+          "body_sha256": "d7364937b6bc89d174cbfb38f5683e6604e9149771ac271b2d37457af2ffb30d",
           "registration": "original(\"MessageServiceACKTests\", \"checkExpiredAcks honors a per-attempt timeout longer than the give-up window (slow preset)\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 65,
+              "line": 92,
               "expression": "assertEquals(MessageStatus.SENT, h.stored(live.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 66,
+              "line": 93,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(expired.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -14599,85 +14651,85 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 61,
-              "expression": "Harness(this, MessageServiceConfig(ackGiveUpWindow = 20.0))",
+              "line": 88,
+              "expression": "Harness(this, MessageServiceConfig(ackGiveUpWindow = 20.0), sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageServiceConfig",
-              "line": 61,
+              "line": 88,
               "expression": "MessageServiceConfig(ackGiveUpWindow = 20.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 61,
-              "expression": "h.start()",
+              "name": "sourceMessage",
+              "line": 89,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.message",
-              "line": 62,
-              "expression": "h.message()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 62,
-              "expression": "h.message()",
+              "name": "sourceMessage",
+              "line": 89,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 63,
-              "expression": "h.service.installPendingAck(h.tracking(live, age = 30, timeout = 60.0))",
+              "line": 90,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(1, 2, 3, 4), live.id, age = 30, timeout = 60.0))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 63,
-              "expression": "h.tracking(live, age = 30, timeout = 60.0)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.service.installPendingAck",
-              "line": 64,
-              "expression": "h.service.installPendingAck(h.tracking(expired, Bytes.of(5, 6, 7, 8), age = 70, timeout = 60.0))",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.tracking",
-              "line": 64,
-              "expression": "h.tracking(expired, Bytes.of(5, 6, 7, 8), age = 70, timeout = 60.0)",
+              "name": "sourcePending",
+              "line": 90,
+              "expression": "sourcePending(h, Bytes.of(1, 2, 3, 4), live.id, age = 30, timeout = 60.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 64,
+              "line": 90,
+              "expression": "Bytes.of(1, 2, 3, 4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "h.service.installPendingAck",
+              "line": 91,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(5, 6, 7, 8), expired.id, age = 70, timeout = 60.0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourcePending",
+              "line": 91,
+              "expression": "sourcePending(h, Bytes.of(5, 6, 7, 8), expired.id, age = 70, timeout = 60.0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 91,
               "expression": "Bytes.of(5, 6, 7, 8)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 65,
+              "line": 92,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 65,
+              "line": 92,
               "expression": "h.stored(live.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 66,
+              "line": 93,
               "expression": "h.stored(expired.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 66,
+              "line": 93,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -14819,105 +14871,129 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "stopAckExpiryChecking leaves in-flight DMs .sent instead of failing them",
-          "line": 68,
-          "end_line": 73,
+          "line": 95,
+          "end_line": 104,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "c2018126470a59d44a068781f400d8773c55b0f2d8293d38294128af582d4dfd",
+          "body_sha256": "31ca506bef25829c882ed2846ff0db49576ebc019f1df021ea11a8dc3a09cb30",
           "registration": "original(\"MessageServiceACKTests\", \"stopAckExpiryChecking leaves in-flight DMs .sent instead of failing them\")",
           "assertions": [
             {
+              "name": "assertFalse",
+              "line": 99,
+              "expression": "assertFalse(h.service.isAckExpiryCheckingActive)",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertEquals",
-              "line": 71,
+              "line": 100,
               "expression": "assertEquals(MessageStatus.SENT, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 71,
+              "line": 100,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 72,
-              "expression": "assertTrue(statuses(h.service, events).isEmpty())",
+              "line": 102,
+              "expression": "assertTrue(received.filterIsInstance<MessageStatusEvent.Failed>().isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 103,
+              "expression": "assertTrue(received.isEmpty())",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 69,
-              "expression": "Harness(this)",
+              "line": 96,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 69,
-              "expression": "h.start()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 69,
-              "expression": "h.message()",
+              "name": "sourceMessage",
+              "line": 96,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 69,
+              "line": 96,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 70,
-              "expression": "h.service.installPendingAck(h.tracking(m))",
+              "line": 97,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(9, 10, 11, 12), m.id))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 70,
-              "expression": "h.tracking(m)",
+              "name": "sourcePending",
+              "line": 97,
+              "expression": "sourcePending(h, Bytes.of(9, 10, 11, 12), m.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 97,
+              "expression": "Bytes.of(9, 10, 11, 12)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startAckExpiryChecking",
-              "line": 70,
+              "line": 98,
               "expression": "h.service.startAckExpiryChecking()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.stopAckExpiryChecking",
-              "line": 70,
+              "line": 98,
               "expression": "h.service.stopAckExpiryChecking()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 71,
+              "line": 100,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 72,
+              "line": 101,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "received.filterIsInstance",
+              "line": 102,
+              "expression": "received.filterIsInstance<MessageStatusEvent.Failed>()",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "isEmpty",
-              "line": 72,
+              "line": 102,
               "expression": "isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "received.isEmpty",
+              "line": 103,
+              "expression": "received.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "h.close",
-              "line": 72,
+              "line": 103,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -15113,141 +15189,159 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "failAllPendingMessages fails all non-delivered and broadcasts .failed",
-          "line": 74,
-          "end_line": 80,
+          "line": 105,
+          "end_line": 114,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "e11c0c393b03b8ade81683b287bfe3a84011a9d9e045f59621f5dfa5372d03f2",
+          "body_sha256": "bacaf2e0a802bb508fabdd3f96a9c34fb75c0095ee250f735f6437816dd1a67f",
           "registration": "original(\"MessageServiceACKTests\", \"failAllPendingMessages fails all non-delivered and broadcasts .failed\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 78,
+              "line": 110,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(a.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 78,
+              "line": 110,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(b.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 79,
-              "expression": "assertEquals(setOf(a.id, b.id), statuses(h.service, events).filterIsInstance<MessageStatusEvent.Failed>().map { it.messageID }.toSet())",
+              "line": 112,
+              "expression": "assertEquals(2, failedIDs.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 112,
+              "expression": "assertTrue(a.id in failedIDs)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 112,
+              "expression": "assertTrue(b.id in failedIDs)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 113,
+              "expression": "assertEquals(setOf(a.id, b.id), failedIDs.toSet())",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 75,
-              "expression": "Harness(this)",
+              "line": 106,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 75,
-              "expression": "h.start()",
+              "name": "sourceMessage",
+              "line": 106,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.message",
-              "line": 75,
-              "expression": "h.message()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 75,
-              "expression": "h.message()",
+              "name": "sourceMessage",
+              "line": 106,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 75,
+              "line": 106,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 76,
-              "expression": "h.service.installPendingAck(h.tracking(a))",
+              "line": 107,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(1, 2, 3, 4), a.id))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 76,
-              "expression": "h.tracking(a)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.service.installPendingAck",
-              "line": 76,
-              "expression": "h.service.installPendingAck(h.tracking(b, Bytes.of(5, 6, 7, 8)))",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.tracking",
-              "line": 76,
-              "expression": "h.tracking(b, Bytes.of(5, 6, 7, 8))",
+              "name": "sourcePending",
+              "line": 107,
+              "expression": "sourcePending(h, Bytes.of(1, 2, 3, 4), a.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 76,
+              "line": 107,
+              "expression": "Bytes.of(1, 2, 3, 4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "h.service.installPendingAck",
+              "line": 108,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(5, 6, 7, 8), b.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourcePending",
+              "line": 108,
+              "expression": "sourcePending(h, Bytes.of(5, 6, 7, 8), b.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 108,
               "expression": "Bytes.of(5, 6, 7, 8)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.failAllPendingMessages",
-              "line": 77,
+              "line": 109,
               "expression": "h.service.failAllPendingMessages()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 78,
+              "line": 110,
               "expression": "h.stored(a.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 78,
+              "line": 110,
               "expression": "h.stored(b.id)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "setOf",
-              "line": 79,
-              "expression": "setOf(a.id, b.id)",
-              "assertion_or_checked_wait": false
-            },
-            {
               "name": "statuses",
-              "line": 79,
+              "line": 111,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "filterIsInstance",
-              "line": 79,
+              "line": 111,
               "expression": "filterIsInstance<MessageStatusEvent.Failed>()",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "toSet",
-              "line": 79,
-              "expression": "toSet()",
+              "name": "setOf",
+              "line": 113,
+              "expression": "setOf(a.id, b.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "failedIDs.toSet",
+              "line": 113,
+              "expression": "failedIDs.toSet()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 79,
+              "line": 113,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -15377,93 +15471,105 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "failAllPendingMessages does not downgrade or notify on a delivered DB row",
-          "line": 81,
-          "end_line": 85,
+          "line": 115,
+          "end_line": 123,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "58a775b8e23fb1ad336d3cb92a74c1af46d951a5e244d0d922a8e3a27dd3f376",
+          "body_sha256": "84e383fc681424a474ace7495d75030cbeaab043c5c0eb69483990048765927e",
           "registration": "original(\"MessageServiceACKTests\", \"failAllPendingMessages does not downgrade or notify on a delivered DB row\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 84,
+              "line": 119,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
+              "name": "assertFalse",
+              "line": 121,
+              "expression": "assertFalse(received.filterIsInstance<MessageStatusEvent.Failed>().any { it.messageID == m.id })",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertTrue",
-              "line": 84,
-              "expression": "assertTrue(statuses(h.service, events).isEmpty())",
+              "line": 122,
+              "expression": "assertTrue(received.isEmpty())",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 82,
-              "expression": "Harness(this)",
+              "line": 116,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 82,
-              "expression": "h.start()",
+              "name": "Bytes.of",
+              "line": 116,
+              "expression": "Bytes.of(0xFA, 0x11, 0x77, 0x33)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.message",
-              "line": 82,
-              "expression": "h.message(MessageStatus.DELIVERED)",
+              "name": "sourceMessage",
+              "line": 117,
+              "expression": "sourceMessage(h, MessageStatus.DELIVERED, 0x3377_11FAu)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 82,
+              "line": 117,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 83,
-              "expression": "h.service.installPendingAck(h.tracking(m))",
+              "line": 118,
+              "expression": "h.service.installPendingAck(sourcePending(h, code, m.id))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 83,
-              "expression": "h.tracking(m)",
+              "name": "sourcePending",
+              "line": 118,
+              "expression": "sourcePending(h, code, m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.failAllPendingMessages",
-              "line": 83,
+              "line": 118,
               "expression": "h.service.failAllPendingMessages()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 84,
+              "line": 119,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 84,
+              "line": 120,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "isEmpty",
-              "line": 84,
-              "expression": "isEmpty()",
+              "name": "received.filterIsInstance",
+              "line": 121,
+              "expression": "received.filterIsInstance<MessageStatusEvent.Failed>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "received.isEmpty",
+              "line": 122,
+              "expression": "received.isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 84,
+              "line": 122,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -15587,25 +15693,31 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "stopAndFailAllPending stops checking and fails all pending",
-          "line": 86,
-          "end_line": 90,
+          "line": 124,
+          "end_line": 129,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "45be74a1f10984d8ea17cc3600f32196edd8dd9b75808d9d350e1f3445dbaaf0",
+          "body_sha256": "cb50154bbfd0d4ac57d29dbac29301c398ed1defd7373ecc5372f8d47aea11f1",
           "registration": "original(\"MessageServiceACKTests\", \"stopAndFailAllPending stops checking and fails all pending\")",
           "assertions": [
             {
+              "name": "assertTrue",
+              "line": 126,
+              "expression": "assertTrue(h.service.isAckExpiryCheckingActive)",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertFalse",
-              "line": 89,
+              "line": 128,
               "expression": "assertFalse(h.service.isAckExpiryCheckingActive)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 89,
+              "line": 128,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -15613,55 +15725,55 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 87,
-              "expression": "Harness(this)",
+              "line": 125,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 87,
-              "expression": "h.start()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 87,
-              "expression": "h.message()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.service.installPendingAck",
-              "line": 87,
-              "expression": "h.service.installPendingAck(h.tracking(m))",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.tracking",
-              "line": 87,
-              "expression": "h.tracking(m)",
+              "name": "sourceMessage",
+              "line": 125,
+              "expression": "sourceMessage(h)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startAckExpiryChecking",
-              "line": 88,
+              "line": 126,
               "expression": "h.service.startAckExpiryChecking()",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "h.service.installPendingAck",
+              "line": 127,
+              "expression": "h.service.installPendingAck(sourcePending(h, Bytes.of(1, 2, 3, 4), m.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourcePending",
+              "line": 127,
+              "expression": "sourcePending(h, Bytes.of(1, 2, 3, 4), m.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 127,
+              "expression": "Bytes.of(1, 2, 3, 4)",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "h.service.stopAndFailAllPending",
-              "line": 88,
+              "line": 127,
               "expression": "h.service.stopAndFailAllPending()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 89,
+              "line": 128,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 89,
+              "line": 128,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -15785,25 +15897,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "handleAcknowledgement uses firmware tripTime when provided",
-          "line": 91,
-          "end_line": 95,
+          "line": 130,
+          "end_line": 135,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "c966cc98a046b91aeb2d2d76f70d442ff61c82a13b19b449218a425e96f3c6dd",
+          "body_sha256": "5a1c2c569c451084096b116573baf1e8438588109c2de52ca63550be26873753",
           "registration": "original(\"MessageServiceACKTests\", \"handleAcknowledgement uses firmware tripTime when provided\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 94,
+              "line": 134,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 94,
+              "line": 134,
               "expression": "assertEquals(250u, h.stored(m.id).roundTripTime)",
               "assertion_or_checked_wait": true
             }
@@ -15811,61 +15923,61 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 92,
-              "expression": "Harness(this)",
+              "line": 131,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 92,
-              "expression": "h.start()",
+              "name": "Bytes.of",
+              "line": 131,
+              "expression": "Bytes.of(0xEF, 0xBE, 0xAD, 0xDE)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.message",
-              "line": 92,
-              "expression": "h.message()",
+              "name": "sourceMessage",
+              "line": 132,
+              "expression": "sourceMessage(h, ackCode = 0xDEAD_BEEFu)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 92,
-              "expression": "h.tracking(m, age = 10)",
+              "name": "sourcePending",
+              "line": 132,
+              "expression": "sourcePending(h, code, m.id, age = 10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 93,
+              "line": 133,
               "expression": "h.service.installPendingAck(tracking)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.handleAcknowledgement",
-              "line": 93,
+              "line": 133,
               "expression": "h.service.handleAcknowledgement(tracking.ackCodes.first(), 250u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "tracking.ackCodes.first",
-              "line": 93,
+              "line": 133,
               "expression": "tracking.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 94,
+              "line": 134,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 94,
+              "line": 134,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 94,
+              "line": 134,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -15989,25 +16101,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "handleAcknowledgement leaves roundTripTime nil when firmware does not supply tripTime",
-          "line": 96,
-          "end_line": 100,
+          "line": 136,
+          "end_line": 141,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "a2db9478fbf474907c6daf33e5d6f53d20b85946e950ed1cc04ca5bbdb45f495",
+          "body_sha256": "cc1ac2630627e2a8253c0a779208b8f296607d78db05c1c862b42d2aa738a873",
           "registration": "original(\"MessageServiceACKTests\", \"handleAcknowledgement leaves roundTripTime nil when firmware does not supply tripTime\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 99,
+              "line": 140,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 99,
+              "line": 140,
               "expression": "assertNull(h.stored(m.id).roundTripTime)",
               "assertion_or_checked_wait": true
             }
@@ -16015,61 +16127,61 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 97,
-              "expression": "Harness(this)",
+              "line": 137,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 97,
-              "expression": "h.start()",
+              "name": "Bytes.of",
+              "line": 137,
+              "expression": "Bytes.of(0xBE, 0xBA, 0xFE, 0xCA)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.message",
-              "line": 97,
-              "expression": "h.message()",
+              "name": "sourceMessage",
+              "line": 138,
+              "expression": "sourceMessage(h, ackCode = 0xCAFE_BABEu)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 97,
-              "expression": "h.tracking(m, age = 2)",
+              "name": "sourcePending",
+              "line": 138,
+              "expression": "sourcePending(h, code, m.id, age = 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 98,
+              "line": 139,
               "expression": "h.service.installPendingAck(tracking)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.handleAcknowledgement",
-              "line": 98,
+              "line": 139,
               "expression": "h.service.handleAcknowledgement(tracking.ackCodes.first(), null)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "tracking.ackCodes.first",
-              "line": 98,
+              "line": 139,
               "expression": "tracking.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 99,
+              "line": 140,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 99,
+              "line": 140,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 99,
+              "line": 140,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -16199,31 +16311,31 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "handleAcknowledgement matches any CRC accumulated across retry attempts",
-          "line": 101,
-          "end_line": 107,
+          "line": 142,
+          "end_line": 148,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "430d64685f83aed1634c8b0b55bd32f7679bb7e903cb136937b5e5f05b21cd78",
+          "body_sha256": "81d8f757a2ae4ad74d5af8c31f7b515d05d00fbf261089364ee00d63a30370d3",
           "registration": "original(\"MessageServiceACKTests\", \"handleAcknowledgement matches any CRC accumulated across retry attempts\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 105,
+              "line": 146,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 106,
+              "line": 147,
               "expression": "assertEquals(500u, h.stored(m.id).roundTripTime)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 106,
+              "line": 147,
               "expression": "assertEquals(0, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             }
@@ -16231,91 +16343,85 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 102,
-              "expression": "Harness(this)",
+              "line": 143,
+              "expression": "Harness(this, sessionTimeout = 5.0)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 102,
-              "expression": "h.start()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "h.message",
-              "line": 102,
-              "expression": "h.message(MessageStatus.PENDING)",
+              "name": "sourceMessage",
+              "line": 143,
+              "expression": "sourceMessage(h, MessageStatus.PENDING)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 103,
+              "line": 144,
               "expression": "Bytes.of(0xAA, 0xAA, 0xAA, 0xAA)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 104,
-              "expression": "h.service.installPendingAck(h.tracking(m).copy(ackCodes = SnapshotSet(listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC)))))",
+              "line": 145,
+              "expression": "h.service.installPendingAck(sourcePending(h, first, m.id).copy(ackCodes = SnapshotSet(listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC)))))",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.tracking",
-              "line": 104,
-              "expression": "h.tracking(m)",
+              "name": "sourcePending",
+              "line": 145,
+              "expression": "sourcePending(h, first, m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "copy",
-              "line": 104,
+              "line": 145,
               "expression": "copy(ackCodes = SnapshotSet(listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC))))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "SnapshotSet",
-              "line": 104,
+              "line": 145,
               "expression": "SnapshotSet(listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC)))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 104,
+              "line": 145,
               "expression": "listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 104,
+              "line": 145,
               "expression": "Bytes.of(0xBB, 0xBB, 0xBB, 0xBB)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 104,
+              "line": 145,
               "expression": "Bytes.of(0xCC, 0xCC, 0xCC, 0xCC)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.handleAcknowledgement",
-              "line": 105,
+              "line": 146,
               "expression": "h.service.handleAcknowledgement(first, 500u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 105,
+              "line": 146,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 106,
+              "line": 147,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 106,
+              "line": 147,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -16499,11 +16605,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "handleAcknowledgement updates contact lastMessageDate on late ACK",
-          "line": 108,
-          "end_line": 113,
+          "line": 149,
+          "end_line": 154,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "e97ec30138b779983a10c5ee7d2a21916c7b19336e02f183362e9fb01f4fff7b",
@@ -16511,13 +16617,13 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 112,
+              "line": 153,
               "expression": "assertTrue(assertNotNull(h.store.contacts[EntityKey(RADIO, CONTACT)]?.lastMessageDate) >= before)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 112,
+              "line": 153,
               "expression": "assertNotNull(h.store.contacts[EntityKey(RADIO, CONTACT)]?.lastMessageDate)",
               "assertion_or_checked_wait": true
             }
@@ -16525,61 +16631,61 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 109,
+              "line": 150,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 109,
+              "line": 150,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 109,
+              "line": 150,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 109,
+              "line": 150,
               "expression": "h.tracking(m)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.clock.wallClock.instant",
-              "line": 110,
+              "line": 151,
               "expression": "h.clock.wallClock.instant()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 110,
+              "line": 151,
               "expression": "h.service.installPendingAck(tracking)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.handleAcknowledgement",
-              "line": 111,
+              "line": 152,
               "expression": "h.service.handleAcknowledgement(tracking.ackCodes.first(), 500u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "tracking.ackCodes.first",
-              "line": 111,
+              "line": 152,
               "expression": "tracking.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 112,
+              "line": 153,
               "expression": "EntityKey(RADIO, CONTACT)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 112,
+              "line": 153,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -16721,11 +16827,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "trackPendingAck on retry resets sentAt so checkExpiredAcks preserves a retrying message",
-          "line": 114,
-          "end_line": 118,
+          "line": 155,
+          "end_line": 159,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "e9f9ba0341b94ad645c96a7b1cd294e9c55a1d1ff571cfe9450acdfb1435498f",
@@ -16733,13 +16839,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 117,
+              "line": 158,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotEquals",
-              "line": 117,
+              "line": 158,
               "expression": "assertNotEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -16747,61 +16853,61 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 115,
+              "line": 156,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 115,
+              "line": 156,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 115,
+              "line": 156,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 115,
+              "line": 156,
               "expression": "h.service.installPendingAck(h.tracking(m, age = 60))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 115,
+              "line": 156,
               "expression": "h.tracking(m, age = 60)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.trackPendingAck",
-              "line": 116,
+              "line": 157,
               "expression": "h.service.trackPendingAck(m.id, CONTACT, Bytes.of(1, 2, 3, 4), 30.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 116,
+              "line": 157,
               "expression": "Bytes.of(1, 2, 3, 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 117,
+              "line": 158,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 117,
+              "line": 158,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 117,
+              "line": 158,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -16955,11 +17061,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "finalizeSend preserves roundTripTime after listener-won delivery",
-          "line": 119,
-          "end_line": 124,
+          "line": 160,
+          "end_line": 165,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "7a27eb84b8cf469a22d4b602e7789ed51d5c4d897a71473e2d8eb34e0e3c3047",
@@ -16967,13 +17073,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 123,
+              "line": 164,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 123,
+              "line": 164,
               "expression": "assertEquals(500u, h.stored(m.id).roundTripTime)",
               "assertion_or_checked_wait": true
             }
@@ -16981,79 +17087,79 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 120,
+              "line": 161,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 120,
+              "line": 161,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 120,
+              "line": 161,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 120,
+              "line": 161,
               "expression": "h.tracking(m)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 121,
+              "line": 162,
               "expression": "h.service.installPendingAck(t)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.handleAcknowledgement",
-              "line": 121,
+              "line": 162,
               "expression": "h.service.handleAcknowledgement(t.ackCodes.first(), 500u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "t.ackCodes.first",
-              "line": 121,
+              "line": 162,
               "expression": "t.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finalizeSend",
-              "line": 122,
+              "line": 163,
               "expression": "h.service.finalizeSend(m.id, CONTACT, TARGET, MessageSentInfo(0u, t.ackCodes.first(), 5000u), 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageSentInfo",
-              "line": 122,
+              "line": 163,
               "expression": "MessageSentInfo(0u, t.ackCodes.first(), 5000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "t.ackCodes.first",
-              "line": 122,
+              "line": 163,
               "expression": "t.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 123,
+              "line": 164,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 123,
+              "line": 164,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 123,
+              "line": 164,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -17201,11 +17307,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "finalizeSend broadcasts .statusResolved when in-loop waitForEvent wins the ACK race",
-          "line": 125,
-          "end_line": 129,
+          "line": 166,
+          "end_line": 170,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "99984460999ab23dc12126bbb31c677e85d4607a59040e83d5cf1b0c13dd90b7",
@@ -17213,7 +17319,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 128,
+              "line": 169,
               "expression": "assertEquals(listOf(MessageStatusEvent.StatusResolved(m.id, MessageStatus.DELIVERED, null)), statuses(h.service, events))",
               "assertion_or_checked_wait": true
             }
@@ -17221,79 +17327,79 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 126,
+              "line": 167,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 126,
+              "line": 167,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 126,
+              "line": 167,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 126,
+              "line": 167,
               "expression": "h.tracking(m)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 126,
+              "line": 167,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 127,
+              "line": 168,
               "expression": "h.service.installPendingAck(t)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finalizeSend",
-              "line": 127,
+              "line": 168,
               "expression": "h.service.finalizeSend(m.id, CONTACT, TARGET, MessageSentInfo(0u, t.ackCodes.first(), 5000u), 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageSentInfo",
-              "line": 127,
+              "line": 168,
               "expression": "MessageSentInfo(0u, t.ackCodes.first(), 5000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "t.ackCodes.first",
-              "line": 127,
+              "line": 168,
               "expression": "t.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 128,
+              "line": 169,
               "expression": "listOf(MessageStatusEvent.StatusResolved(m.id, MessageStatus.DELIVERED, null))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageStatusEvent.StatusResolved",
-              "line": 128,
+              "line": 169,
               "expression": "MessageStatusEvent.StatusResolved(m.id, MessageStatus.DELIVERED, null)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 128,
+              "line": 169,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 128,
+              "line": 169,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -17393,11 +17499,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "handleAcknowledgement is a no-op when no entry matches the ackCode",
-          "line": 130,
-          "end_line": 134,
+          "line": 171,
+          "end_line": 175,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "054f2ec099b5dc846abd31aa8da47811e68cb57b70b4ba848652d69d8c78af4b",
@@ -17405,13 +17511,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 133,
+              "line": 174,
               "expression": "assertEquals(MessageStatus.SENT, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 133,
+              "line": 174,
               "expression": "assertEquals(0, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             }
@@ -17419,43 +17525,43 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 131,
+              "line": 172,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 131,
+              "line": 172,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 131,
+              "line": 172,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.handleAcknowledgement",
-              "line": 132,
+              "line": 173,
               "expression": "h.service.handleAcknowledgement(Bytes.of(0xDE, 0xAD, 0xBE, 0xEF), 100u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 132,
+              "line": 173,
               "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 133,
+              "line": 174,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 133,
+              "line": 174,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -17579,11 +17685,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "failMessageAndRethrow removes pendingAcks entry and rethrows",
-          "line": 135,
-          "end_line": 139,
+          "line": 176,
+          "end_line": 180,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "5d0c3b941aa0c6e49f2211ca79cf2df37f2115698b08439044aba28a30ca9c72",
@@ -17591,19 +17697,19 @@
           "assertions": [
             {
               "name": "assertFailsWith",
-              "line": 137,
+              "line": 178,
               "expression": "assertFailsWith<MessageServiceException> { h.service.failMessageAndRethrow(MeshCoreException.NotConnected(), m.id) }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 138,
+              "line": 179,
               "expression": "assertEquals(0, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 138,
+              "line": 179,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -17611,55 +17717,55 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 136,
+              "line": 177,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 136,
+              "line": 177,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 136,
+              "line": 177,
               "expression": "h.message(MessageStatus.PENDING)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 136,
+              "line": 177,
               "expression": "h.service.installPendingAck(h.tracking(m))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 136,
+              "line": 177,
               "expression": "h.tracking(m)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.failMessageAndRethrow",
-              "line": 137,
+              "line": 178,
               "expression": "h.service.failMessageAndRethrow(MeshCoreException.NotConnected(), m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MeshCoreException.NotConnected",
-              "line": 137,
+              "line": 178,
               "expression": "MeshCoreException.NotConnected()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 138,
+              "line": 179,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 138,
+              "line": 179,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -17765,11 +17871,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "pendingAckCount reflects count correctly",
-          "line": 140,
-          "end_line": 144,
+          "line": 181,
+          "end_line": 185,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "e02496afba5fc5735a56851c42b9d35dcc55b5f5e28d7f0ef67a1dc07418a2fd",
@@ -17777,19 +17883,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 141,
+              "line": 182,
               "expression": "assertEquals(0, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 142,
+              "line": 183,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 143,
+              "line": 184,
               "expression": "assertEquals(2, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             }
@@ -17797,61 +17903,61 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 141,
+              "line": 182,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 141,
+              "line": 182,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 142,
+              "line": 183,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 142,
+              "line": 183,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 142,
+              "line": 183,
               "expression": "h.service.installPendingAck(h.tracking(a))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 142,
+              "line": 183,
               "expression": "h.tracking(a)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 143,
+              "line": 184,
               "expression": "h.service.installPendingAck(h.tracking(b, Bytes.of(5, 6, 7, 8)))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 143,
+              "line": 184,
               "expression": "h.tracking(b, Bytes.of(5, 6, 7, 8))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 143,
+              "line": 184,
               "expression": "Bytes.of(5, 6, 7, 8)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 143,
+              "line": 184,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -17993,11 +18099,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "ACK within grace window reconciles .sent \u2192 .delivered via the in-memory pending entry",
-          "line": 145,
-          "end_line": 149,
+          "line": 186,
+          "end_line": 190,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "e48095a6435c2df64e2732aa68b4a796f0286e33ec2d151c2e4482ca3ff2d489",
@@ -18005,13 +18111,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 147,
+              "line": 188,
               "expression": "assertEquals(MessageStatus.SENT, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 148,
+              "line": 189,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -18019,73 +18125,73 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 146,
+              "line": 187,
               "expression": "Harness(this, MessageServiceConfig(ackGiveUpWindow = 45.0))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageServiceConfig",
-              "line": 146,
+              "line": 187,
               "expression": "MessageServiceConfig(ackGiveUpWindow = 45.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 146,
+              "line": 187,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 146,
+              "line": 187,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 146,
+              "line": 187,
               "expression": "h.tracking(m, age = 31)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 147,
+              "line": 188,
               "expression": "h.service.installPendingAck(t)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 147,
+              "line": 188,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 147,
+              "line": 188,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.handleAcknowledgement",
-              "line": 148,
+              "line": 189,
               "expression": "h.service.handleAcknowledgement(t.ackCodes.first(), 99u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "t.ackCodes.first",
-              "line": 148,
+              "line": 189,
               "expression": "t.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 148,
+              "line": 189,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 148,
+              "line": 189,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -18257,11 +18363,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "finalizeSend delivered branch writes .delivered, updates contact, yields .statusResolved, removes entry",
-          "line": 150,
-          "end_line": 155,
+          "line": 191,
+          "end_line": 196,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "a17b241b6ba43954fc1a4fa735f140fb437a8a1f20b28f2f8b5b4dc154fb3972",
@@ -18269,25 +18375,25 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 153,
+              "line": 194,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 153,
+              "line": 194,
               "expression": "assertNotNull(h.store.contacts[EntityKey(RADIO, CONTACT)]?.lastMessageDate)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 154,
+              "line": 195,
               "expression": "assertEquals(0, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 154,
+              "line": 195,
               "expression": "assertEquals(1, statuses(h.service, events).size)",
               "assertion_or_checked_wait": true
             }
@@ -18295,79 +18401,79 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 151,
+              "line": 192,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 151,
+              "line": 192,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 151,
+              "line": 192,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 151,
+              "line": 192,
               "expression": "h.tracking(m)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 151,
+              "line": 192,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 152,
+              "line": 193,
               "expression": "h.service.installPendingAck(t)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finalizeSend",
-              "line": 152,
+              "line": 193,
               "expression": "h.service.finalizeSend(m.id, CONTACT, TARGET, MessageSentInfo(0u, t.ackCodes.first(), 5000u), 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageSentInfo",
-              "line": 152,
+              "line": 193,
               "expression": "MessageSentInfo(0u, t.ackCodes.first(), 5000u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "t.ackCodes.first",
-              "line": 152,
+              "line": 193,
               "expression": "t.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 153,
+              "line": 194,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 153,
+              "line": 194,
               "expression": "EntityKey(RADIO, CONTACT)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 154,
+              "line": 195,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 154,
+              "line": 195,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -18509,11 +18615,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "finalizeSend nil branch skips the DB write when the listener already delivered",
-          "line": 156,
-          "end_line": 160,
+          "line": 197,
+          "end_line": 201,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "51397826f2b813dd9d89c50ba437262f7637f70fabc154ab3654f23ba18a66a8",
@@ -18521,13 +18627,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 159,
+              "line": 200,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 159,
+              "line": 200,
               "expression": "assertTrue(statuses(h.service, events).isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -18535,67 +18641,67 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 157,
+              "line": 198,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 157,
+              "line": 198,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 157,
+              "line": 198,
               "expression": "h.message(MessageStatus.DELIVERED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 157,
+              "line": 198,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 158,
+              "line": 199,
               "expression": "h.service.installPendingAck(h.tracking(m, delivered = true))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 158,
+              "line": 199,
               "expression": "h.tracking(m, delivered = true)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finalizeSend",
-              "line": 158,
+              "line": 199,
               "expression": "h.service.finalizeSend(m.id, CONTACT, TARGET, null, 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 159,
+              "line": 200,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 159,
+              "line": 200,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "isEmpty",
-              "line": 159,
+              "line": 200,
               "expression": "isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 159,
+              "line": 200,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -18731,11 +18837,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "finalizeSend nil branch does not re-stamp the pending entry's sentAt",
-          "line": 161,
-          "end_line": 165,
+          "line": 202,
+          "end_line": 206,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "6ae4eda6f87e2c15e237549cca947ce05d89c372b5d76279a1774224a49c3c65",
@@ -18743,7 +18849,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 164,
+              "line": 205,
               "expression": "assertEquals(t.sentAt, h.service.pendingAck(m.id)?.sentAt)",
               "assertion_or_checked_wait": true
             }
@@ -18751,49 +18857,49 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 162,
+              "line": 203,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 162,
+              "line": 203,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 162,
+              "line": 203,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 162,
+              "line": 203,
               "expression": "h.tracking(m, age = 12)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 163,
+              "line": 204,
               "expression": "h.service.installPendingAck(t)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finalizeSend",
-              "line": 163,
+              "line": 204,
               "expression": "h.service.finalizeSend(m.id, CONTACT, TARGET, null, 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.pendingAck",
-              "line": 164,
+              "line": 205,
               "expression": "h.service.pendingAck(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 164,
+              "line": 205,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -18935,11 +19041,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "finalizeSend nil branch over an already-.failed row leaves it .failed",
-          "line": 166,
-          "end_line": 170,
+          "line": 207,
+          "end_line": 211,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "b140ecaaf27cae1409e81e51875999d20b527303d921652bf3675c292df17e6d",
@@ -18947,13 +19053,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 169,
+              "line": 210,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 169,
+              "line": 210,
               "expression": "assertTrue(statuses(h.service, events).isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -18961,67 +19067,67 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 167,
+              "line": 208,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 167,
+              "line": 208,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 167,
+              "line": 208,
               "expression": "h.message(MessageStatus.FAILED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 167,
+              "line": 208,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 168,
+              "line": 209,
               "expression": "h.service.installPendingAck(h.tracking(m))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 168,
+              "line": 209,
               "expression": "h.tracking(m)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finalizeSend",
-              "line": 168,
+              "line": 209,
               "expression": "h.service.finalizeSend(m.id, CONTACT, TARGET, null, 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 169,
+              "line": 210,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 169,
+              "line": 210,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "isEmpty",
-              "line": 169,
+              "line": 210,
               "expression": "isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 169,
+              "line": 210,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -19253,11 +19359,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "finalizeSend nil branch yields .statusResolved(.sent) from a non-terminal row and gates off on a terminal one",
-          "line": 171,
-          "end_line": 178,
+          "line": 212,
+          "end_line": 219,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "624875742849b88c85bc3bcca6ea0b6837d65eccceb9ce1bbae9090be58fae79",
@@ -19265,19 +19371,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 176,
+              "line": 217,
               "expression": "assertEquals(MessageStatus.SENT, h.stored(a.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 176,
+              "line": 217,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(b.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 177,
+              "line": 218,
               "expression": "assertEquals(listOf(MessageStatusEvent.StatusResolved(a.id, MessageStatus.SENT, null)), statuses(h.service, events))",
               "assertion_or_checked_wait": true
             }
@@ -19285,109 +19391,109 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 172,
+              "line": 213,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 172,
+              "line": 213,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 172,
+              "line": 213,
               "expression": "h.message(MessageStatus.RETRYING)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 172,
+              "line": 213,
               "expression": "h.message(MessageStatus.FAILED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 173,
+              "line": 214,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 174,
+              "line": 215,
               "expression": "h.service.installPendingAck(h.tracking(a))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 174,
+              "line": 215,
               "expression": "h.tracking(a)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finalizeSend",
-              "line": 174,
+              "line": 215,
               "expression": "h.service.finalizeSend(a.id, CONTACT, TARGET, null, 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 175,
+              "line": 216,
               "expression": "h.service.installPendingAck(h.tracking(b, Bytes.of(5, 6, 7, 8)))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 175,
+              "line": 216,
               "expression": "h.tracking(b, Bytes.of(5, 6, 7, 8))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 175,
+              "line": 216,
               "expression": "Bytes.of(5, 6, 7, 8)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finalizeSend",
-              "line": 175,
+              "line": 216,
               "expression": "h.service.finalizeSend(b.id, CONTACT, TARGET, null, 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 176,
+              "line": 217,
               "expression": "h.stored(a.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 176,
+              "line": 217,
               "expression": "h.stored(b.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 177,
+              "line": 218,
               "expression": "listOf(MessageStatusEvent.StatusResolved(a.id, MessageStatus.SENT, null))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageStatusEvent.StatusResolved",
-              "line": 177,
+              "line": 218,
               "expression": "MessageStatusEvent.StatusResolved(a.id, MessageStatus.SENT, null)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 177,
+              "line": 218,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 177,
+              "line": 218,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -19505,11 +19611,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "late ACK landing in the checker's await-gap cannot flip a just-failed row to .delivered",
-          "line": 179,
-          "end_line": 183,
+          "line": 220,
+          "end_line": 224,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "84043a1d2207bc2b7cf70286bcaf4cbf18ab56de8fac6f950d36b556fd686d34",
@@ -19517,7 +19623,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 182,
+              "line": 223,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -19525,67 +19631,67 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 180,
+              "line": 221,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 180,
+              "line": 221,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 180,
+              "line": 221,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 180,
+              "line": 221,
               "expression": "h.tracking(m)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 180,
+              "line": 221,
               "expression": "h.service.installPendingAck(t)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.updateMessageStatusUnlessDelivered",
-              "line": 181,
+              "line": 222,
               "expression": "h.store.updateMessageStatusUnlessDelivered(EntityKey(RADIO, m.id), MessageStatus.FAILED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 181,
+              "line": 222,
               "expression": "EntityKey(RADIO, m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.handleAcknowledgement",
-              "line": 182,
+              "line": 223,
               "expression": "h.service.handleAcknowledgement(t.ackCodes.first(), 200u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "t.ackCodes.first",
-              "line": 182,
+              "line": 223,
               "expression": "t.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 182,
+              "line": 223,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 182,
+              "line": 223,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -19685,11 +19791,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-          "sha256": "5a0cfca87142a2f83bd60901899b76bfa84b17884c66570c567391abdcd4eb0e",
+          "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
           "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
           "method_or_family_name": "late ACK after the row is already .failed with no live entry stays .failed",
-          "line": 184,
-          "end_line": 188,
+          "line": 225,
+          "end_line": 229,
           "factory_method": "acknowledgements",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "72198ee0fcf08ad0e6f7dbe1c95768399509f79457d728341399d91ef0621146",
@@ -19697,13 +19803,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 187,
+              "line": 228,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 187,
+              "line": 228,
               "expression": "assertEquals(0, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             }
@@ -19711,43 +19817,43 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 185,
+              "line": 226,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 185,
+              "line": 226,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 185,
+              "line": 226,
               "expression": "h.message(MessageStatus.FAILED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.handleAcknowledgement",
-              "line": 186,
+              "line": 227,
               "expression": "h.service.handleAcknowledgement(Bytes.of(1, 0xEF, 0xCD, 0xAB), 300u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 186,
+              "line": 227,
               "expression": "Bytes.of(1, 0xEF, 0xCD, 0xAB)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 187,
+              "line": 228,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 187,
+              "line": 228,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
