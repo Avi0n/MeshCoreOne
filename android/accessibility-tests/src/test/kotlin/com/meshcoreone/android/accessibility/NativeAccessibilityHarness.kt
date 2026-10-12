@@ -118,8 +118,10 @@ abstract class NativeAccessibilityHarness {
     }
 
     protected fun narrative(node: SemanticsNode): String = buildString {
-        node.config.getOrNull(SemanticsProperties.ContentDescription)?.forEach { append(it); append('\n') }
-        node.config.getOrNull(SemanticsProperties.Text)?.forEach { append(it.text); append('\n') }
+        // A content description replaces text; concatenating both invents a duplicate announcement.
+        val description = node.config.getOrNull(SemanticsProperties.ContentDescription)
+        if (!description.isNullOrEmpty()) append(description.joinToString("\n"))
+        else append(node.config.getOrNull(SemanticsProperties.Text)?.joinToString("\n") { it.text }.orEmpty())
         node.config.getOrNull(SemanticsProperties.StateDescription)?.let { append(it) }
     }
 

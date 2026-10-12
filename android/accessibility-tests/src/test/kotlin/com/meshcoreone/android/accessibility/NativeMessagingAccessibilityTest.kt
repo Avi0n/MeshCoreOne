@@ -83,7 +83,8 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
         val followUp = roomMessage("follow up").copy(id = UUID(0, 4), timestamp = 101u)
         roomContent(RoomConversationState(room, listOf(first, followUp),
             RoomConversationStateHolder.rows(listOf(first, followUp)), hasLoadedOnce = true))
-        compose.onNode(messageNarrative("follow up", "Alice")).assertIsDisplayed()
+        val node = compose.onNode(messageNarrative("follow up", "Alice")).assertIsDisplayed().fetchSemanticsNode()
+        assertTrue("The row must not absorb the other message", !narrative(node).contains(first.text))
         assertNoWholeScreenLiveRegion()
     }
 
