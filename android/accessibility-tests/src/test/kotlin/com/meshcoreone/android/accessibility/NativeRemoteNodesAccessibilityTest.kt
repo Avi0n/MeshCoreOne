@@ -281,9 +281,13 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
 
     private fun configureNativeDialogWindow() {
         compose.runOnUiThread {
-            val view = requireNotNull(ShadowDialog.getLatestDialog().window).decorView
+            val window = requireNotNull(ShadowDialog.getLatestDialog().window)
+            val view = window.decorView
             view.layoutDirection = View.LAYOUT_DIRECTION_RTL
             view.onWindowFocusChanged(true)
+            println("WP503_REMOTE_DIALOG_WINDOW|width=${view.width}|height=${view.height}")
+            assertTrue("Bind the native dialog to its already measured viewport", view.width > 0 && view.height > 0)
+            window.setLayout(view.width, view.height)
         }
     }
 
