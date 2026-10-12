@@ -10,7 +10,11 @@ That real query is mandatory; fake execution adds no second original credit.
 Injected latest-index clock proves unequal-time ordering, not source10ms
 elapsed time or the disclosed equal-time tie adaptation. Complete native
 helpers/cache/correlation and actual App consumer were read. New selected
-native execution is pending; incoming192/pacing189 failures are untouched.
+native execution at cleane8a/basee508 discovers service41/41PASS/Room1/1PASS,
+zero failures-errors-skips. All40 selected service/one Room identities checked;
+incumbent fake exact-text method is one supplemental execution/no second
+original credit. No parser/incoming/pacing/protocol replay. Independent/full
+acceptance pending; incoming192/pacing189 failures are untouched.
 Same reservation evolves27->28 through supported wp-owned/create admission.
 
 Qualified RF review5487680093/COMMENTED atce4/baseedc was actually read:

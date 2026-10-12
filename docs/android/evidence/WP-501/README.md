@@ -27,8 +27,19 @@ ordering; equal-time tie/SwiftData-vs-fake/Unicode limits remain disclosed.
 All current Room/cache/correlation/fixture consumers are bound; actual App
 192's six failures and189's three pacing failures remain mandatory blockers.
 Same reservation27->28 supported wp-owned/create admission retains identities
-and authorization. New selected service41/Room1 execution is pending, not
-claimed by registration or earlier parser97 green. Pure parity92/92PASS.
+and authorization. Actual clean `e8a311a83456efb2c4c23f39c6dfda884f4915bb` /
+basee508 strict Windows
+`:core:services:test --tests com.meshcoreone.android.core.services.reactions.HeardRepeatsServiceTest --tests com.meshcoreone.android.core.services.reactions.ReactionServiceTest :app:testDebugUnitTest --tests com.meshcoreone.android.parity.HeardRepeatStoreAcceptanceTest --dependency-verification=strict --quiet`
+discovers services41/41PASS and real Room1/1PASS/zeroFAIL-error-skip.
+All40 selected service originals/one actual Room identity are independently
+checked in real XML; the incumbent fake exact-text method is the extra
+executed service case/no duplicate original credit. Heard22/Reaction19
+JUnit07:50:00Z; Room1 JUnit07:51:39Z. Native test blobs7235ab07/
+12413d5e/ea089295 bind actual inputs. ReadinessPASS JDK21.0.12.1/SDK37.2/
+tools37/explicit own private state; supported locks release normally.
+No parser97/incoming8/pacing53/default protocol replay. Pure parity92/92PASS;
+audit/semantic --check PASS. Independent/persistent full acceptance remains
+pending; evidence-only follow-up preserves all native/helper/expected bytes.
 
 Qualified RF review5487680093/COMMENTED/ce4/baseedc was actually read:
 complete44 originals/native/helper/result/log/Geodesic donor/App comparison
