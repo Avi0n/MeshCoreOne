@@ -57,8 +57,30 @@ Fixed2024 vectors plus default SyncClock.SYSTEM2026 shift stored timestamp
 while retaining senderTimestamp2024; frozen/native v1 lookup uses stored
 timestamp only. Explicit fixture EPOCH+scheduler SyncClock must retain
 all raw vector values/assertions and old2PASS6FAIL identity. Coordinator
-2307 optional harness injection/product input is not yet published/adopted;
-worker eight bodies/helper remain unchanged, no SQL/policy edit or replay.
+actual published198/31833/base9e5 now contains optional harness injection and
+real reaction delegation; genuine merge/adoption remains pending. Worker
+eight bodies/helper stay unchanged, no SQL/policy edit or replay. Qualified
+eight-path SOURCE-ONLY
+[6122799451](https://github.com/cbattlegear/MeshCoreOne-Android/pull/198#issuecomment-6122799451)
+reads complete delta/bodies/frozen/native/mounted consumers and independently
+proves seven product/test blobs unchanged dd229->31833; no selected blocker.
+Private producer4/2307 negative/localEOCD and exact hosted acceptance stay
+separate, no replay/certification/APPROVED/global verdict. After real lookup
+wiring, old controls may resolve cache-first; their names are not proof of
+DB-fallback branch execution on changed inputs.
+
+Qualified SOURCE-ONLY COMMENTED5489691111 at33bf/base9e5/10:49:54Z:
+[hop15 review](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5489691111).
+Complete selected fifteen original/native bodies/helpers/defaults/SQL/DTO/
+actual consumer trace read, no new selected blocker; worker independently
+proves selected group/15rows/all25 helper bytes unchanged d5ab->33bf.
+Actual ASCII-canonical whole-proposal6a6b5f45 matches reviewed33bf; an initial
+Unicode-output digest guard failed before reconciliation, then used the
+actual existing canonical recipe, no content/policy/native change.
+Fixed-key/captured-time/unasserted-device-default/limits/races/clustering/
+SwiftData/device/mount qualifications remain; private4d41/base9ed result
+stays actual old input, not replay/certified/current execution relabel.
+No APPROVED/global credit; older7/RX14/newroom15 source reviews separate.
 
 ## Actual reviewed197 adoption and disjoint registration checks
 

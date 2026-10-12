@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "6a6b5f45814986177800ca7b91f5dccc96d685424d3511d5eed92866bc162c23",
+  "proposal_sha256": "ed6c0a1dcb33ff68c6df406782ddbadca45e94066d3670afb2576b3b6be2bd8b",
   "families": [
     {
       "group": "backup-envelope",
@@ -51978,7 +51978,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -52647,7 +52647,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -52878,7 +52878,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -53274,7 +53274,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -53523,7 +53523,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -56811,7 +56811,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -57012,7 +57012,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -57261,7 +57261,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -57456,7 +57456,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -57759,7 +57759,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -58008,7 +58008,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -61890,7 +61890,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -62091,7 +62091,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -62328,7 +62328,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -62790,7 +62790,7 @@
     },
     {
       "group": "persistence-original-restored-hop-order-path-predicates",
-      "comparison_sha256": "3cdaebc9590cc6624ca32735acc7c45fac1b0aaa97bad7bf4f65b5606ad29458",
+      "comparison_sha256": "297db882091bef09756d763e6a2998e5ea8332d8ef3be8528698849b80a06f3e",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,

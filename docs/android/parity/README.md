@@ -29,7 +29,26 @@ Incoming192 fixed2024 fixtures need explicit EPOCH+scheduler SyncClock
 after genuine producer/helper adoption: defaultSYSTEM2026 shifts stored
 timestamp, while v1 and source/native lookup use the2024 stored-time window.
 Preserve all raw vectors/assertions and old2PASS6FAIL receipt; no SQL/policy
-change. Coordinator2307/helper support is not yet published/adopted.
+change. Actual published PR198/3183317a69dcf8905a98b7a2045c2178792b9ec7/base9e5
+has optional harness clock support and real reaction delegation. Bounded
+eight-path SOURCE-ONLY comparison
+[6122799451](https://github.com/cbattlegear/MeshCoreOne-Android/pull/198#issuecomment-6122799451)
+read complete delta/bodies/frozen/mounted consumers; no new selected blocker,
+no private4 certification/native replay/APPROVED/global acceptance.
+All seven product/test blobs independently equal actual dd229; production
+query/window/hash bodies unchanged. Genuine merge/adoption and calibrated
+eight execution are pending; old two controls may now resolve cache-first,
+not independently prove DB fallback despite their historical names.
+
+Qualified hop15 SOURCE-ONLY COMMENTED5489691111 at33bf/base9e5/10:49:54Z
+is fully read/reconciled additively. Complete selected bodies/helpers/SQL/
+consumer trace have no new selected blocker; selected group/15rows/all25
+helper bytes independently unchanged d5ab->33bf. ASCII-canonical proposal
+6a6b5f45 matches actual33bf; Unicode-output serialization is a different
+identity, not drift. Fixed-key/captured-time/unasserted-device-default/
+limits/races/clustering/SwiftData/device/mount qualifications remain.
+Actual private4d41/base9ed15PASS stays distinct, no replay/certification/
+APPROVED/global credit; older7/RX14/newroom15 reviews remain separate.
 
 Previous1380/5133 proposed comparisons/177groups/81mandatory/zero fully
 approved behavioral acceptances add15 independent persistence originals:
