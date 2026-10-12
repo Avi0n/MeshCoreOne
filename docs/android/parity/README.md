@@ -1,5 +1,15 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual reviewed CLI199 merge6863a0acb08b01026218962218f5dd60895547d4
+is verified/adopted quietly atfd41b24d46bd56a920afece219c7b70ace81de6c:
+parents e0b6+1f56/exact five paths/candidate-equal tree991ed66c.
+Complete qualified source6123440454 and clarifier6123563651 remain separate
+from reported owning Windows164 and hosted attempt1 map failure/attempt2.
+Regeneration changes only86 original binding helper-input arrays for actual
+engine/terminal/SwiftStrings bytes; all original86/native87 and four mandatory
+bodies/vectors/predicates unchanged. Four-only changed-input execution pending;
+old55b0/base185 fourFAIL is not relabelled. No native87/owning nine replay/credit.
+
 Qualified room/session15 SOURCE-ONLY COMMENTED5490349310 at46a50/basee0b6/
 11:54:08Z read/reconciled additively;195helperrows/13inputs/proposal91437a57/
 unchanged selected group/rows/helper bytes guarded. Complete originals/native/

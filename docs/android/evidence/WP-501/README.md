@@ -4,13 +4,37 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `e0b6a36e96ee54de9aaf7a554a192249358a6831`.
+Current integrated base: `6863a0acb08b01026218962218f5dd60895547d4`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
+
+## Verified reviewed CLI repair adoption
+
+Actual PR199 MERGED6863a0acb08b01026218962218f5dd60895547d4/11:58:17Z,
+issue196 CLOSED11:58:19Z verified. Actual parents e0b6+1f56, exactly five
+paths and candidate-equal tree991ed66c65bd1eeb582e2e1275d9a2be43112b1e.
+Quiet additive adoptionfd41b24d46bd56a920afece219c7b70ace81de6c preserves
+all worker witnesses/registrations. Initial merge emits Windows long-path
+stat diagnostics but succeeds; subsequent core.longpaths=true status/tree/
+parents and actual five-path content verified, no unrelated mutation.
+Qualified source6123440454/clarifier6123563651 fully read by coordinator;
+reported owning Windows164/hosted38242455860 attempt2 acceptance is not
+worker four certification. Attempt1 map failure and separately owned200
+remain, no map edit or full501 approval.
+
+Engine blobaa1b42e1->838f6052/SHAf05a08dc->f3199738,
+terminal35330c62->228741ad/SHA23fabb29->3687ba40,
+SwiftStrings0d81e996->5200c07b/SHAe3e69e2f->95aa5c91 are actual changes.
+Worker fourdfa34783192428f6606360067e03d29f2a44be4c/SHAa1b0dd95 and
+native original87ce63b41518ce4cbeed114a75f678c0b0ea9c8ca3/SHA2a43a261
+unchanged. All1412rows/counts preserved; exactly86 rows change ONLY
+assertion_helper_inputs for those three actual product files. Four-only
+changed-input execution pending; old55b0/base1854FAIL and original87
+receipt/source limits preserved, no incumbent/owning nine replay or extra credit.
 
 ## Additive room/session15 source review
 

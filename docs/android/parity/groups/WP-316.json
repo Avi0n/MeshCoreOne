@@ -285,7 +285,7 @@
       "native_contracts": [
         {
           "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalState.kt",
-          "sha256": "23fabb29c647610c614b22b21466d33d9c6872dc6db7f4eefce07e61c8447844",
+          "sha256": "3687ba400f049d0e156e1f58cab1857789cd0472aabb5dc3d404d476a1cf8e90",
           "source_references": [
             "MC1/Views/RemoteNodes/NodeCLIViewModel.swift",
             "MC1/Views/Tools/CLI/CLIToolViewModel+Completion.swift",
@@ -494,7 +494,7 @@
       "native_contracts": [
         {
           "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCompletionEngine.kt",
-          "sha256": "f05a08dc1f0634bc768b0441163e04a0f380f42d1378efea994a753e7889e14c",
+          "sha256": "f31997386dfb67af04b645ac02350e85a4ed2f462b235b214d5ecc2d512a6a58",
           "source_references": [
             "MC1/Views/Tools/CLI/CLICompletionEngine.swift"
           ],
@@ -1419,7 +1419,7 @@
       "native_contracts": [
         {
           "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalState.kt",
-          "sha256": "23fabb29c647610c614b22b21466d33d9c6872dc6db7f4eefce07e61c8447844",
+          "sha256": "3687ba400f049d0e156e1f58cab1857789cd0472aabb5dc3d404d476a1cf8e90",
           "source_references": [
             "MC1/Views/RemoteNodes/NodeCLIViewModel.swift",
             "MC1/Views/Tools/CLI/CLIToolViewModel+Completion.swift",
@@ -1886,7 +1886,7 @@
       "native_contracts": [
         {
           "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalState.kt",
-          "sha256": "23fabb29c647610c614b22b21466d33d9c6872dc6db7f4eefce07e61c8447844",
+          "sha256": "3687ba400f049d0e156e1f58cab1857789cd0472aabb5dc3d404d476a1cf8e90",
           "source_references": [
             "MC1/Views/RemoteNodes/NodeCLIViewModel.swift",
             "MC1/Views/Tools/CLI/CLIToolViewModel+Completion.swift",
