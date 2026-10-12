@@ -1,6 +1,19 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current proposed inspection is 884/5133 original families in 132 groups,
+Current proposed inspection is 887/5133 original families in 134 groups,
+67 mandatory App methods and zero approved behavioral acceptances. Actual main
+440d8cd6380c7cc7be92de65b18e05837e4b6854 adopted by clean rebase after verifying
+merged180/e2d exact tree equality and authoritative38196362797 success; 179 is
+closed. Only that fixture/documentation delta changed across adoption, not a
+new source pin or execution of this worker's new bytes. Same reservation24
+admits the disjoint listener/harness/real-Room support paths. Two complete
+listener originals now retain actual one-byte i%256 noise, literal restart
+11223344 and real subscriber1/0/1 via the production dispatcher. Original
+bookkeeping now also has an exact selected-row deletion/ABCDEF12/5000/timeout10
+consumer through real in-memory Room, not fake map clearing. Current covering
+execution remains required; neither three originals nor helpers add extra credit.
+
+The preceding increment proposed 884/5133 original families in 132 groups,
 67 mandatory App methods and zero approved behavioral acceptances. The next
 15 complete pending-send persistence originals use real in-memory Room.
 Restored exact sequence0/1 inputs, three independent message-ID/attempt guards,

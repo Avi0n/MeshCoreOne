@@ -7,8 +7,9 @@ import com.meshcoreone.android.core.contracts.domain.*
 import com.meshcoreone.android.core.contracts.domain.errors.*
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.event.EventDispatcher
+import com.meshcoreone.android.core.protocol.event.MeshEvent
 import com.meshcoreone.android.core.protocol.model.CommandCode
-import com.meshcoreone.android.core.protocol.model.ResponseCode
 import java.util.UUID
 import kotlin.test.*
 import kotlinx.coroutines.*
@@ -231,23 +232,44 @@ class SourceSendTest {
             assertEquals(3, h.sends(CommandCode.SEND_MESSAGE).size); h.close()
         },
         original("MessageServiceSendDMBookkeepingTests", "sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails") {
-            val h = Harness(this); h.start(); val events = h.service.statusEvents()
-            h.transport.beforeReply = { if (it[0] == CommandCode.SEND_MESSAGE.rawValue) h.store.messages.clear() }
+            val h = Harness(this, sessionTimeout = 10.0,
+                contact = ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), "TestContact"))
+            h.start(); val events = h.service.statusEvents()
+            h.transport.expectedAckOverride = Bytes.of(0xAB, 0xCD, 0xEF, 0x12)
+            h.transport.suggestedTimeout = 5000u
+            h.transport.beforeReply = {
+                if (it[0] == CommandCode.SEND_MESSAGE.rawValue) {
+                    val saved = h.store.fetchMessages(EntityKey(RADIO, CONTACT), 10, 0).first()
+                    h.store.deleteMessage(EntityKey(RADIO, saved.id))
+                }
+            }
             assertFailsWith<MessageServiceException> { h.service.sendDirectMessage("hi", h.contact) }
             assertEquals(1, h.service.pendingAckCount); assertFalse(statuses(h.service, events).any { it is MessageStatusEvent.Failed }); h.close()
         },
         original("MessageServiceListenerIntegrationTests", "listener flips message to .delivered after a flood of non-matching events") {
-            val h = Harness(this); h.start(); val m = h.message(); val t = h.tracking(m); h.service.installPendingAck(t)
+            val dispatcher = EventDispatcher()
+            val h = Harness(this, sessionTimeout = 5.0, eventDispatcher = dispatcher); h.start()
+            val m = h.message(text = "Test message", timestamp = h.clock.wallClock.instant().epochSecond.toUInt())
+            val t = h.tracking(m); h.service.installPendingAck(t)
             h.service.startEventMonitoring()
-            repeat(500) { h.transport.mock.simulateReceive(Bytes.of(ResponseCode.ADVERTISEMENT.rawValue.toInt()) + Bytes(ByteArray(32) { it.toByte() })) }
-            h.transport.pushAck(t.ackCodes.first(), 1234u); runCurrent()
-            assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status); assertEquals(1234u, h.stored(m.id).roundTripTime); h.close()
+            assertEquals(1, dispatcher.subscriberCount)
+            repeat(500) { dispatcher.dispatch(MeshEvent.Advertisement(Bytes.of(it % 256))) }
+            dispatcher.dispatch(MeshEvent.Acknowledgement(t.ackCodes.first(), 1234u)); runCurrent()
+            assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status); assertEquals(1234u, h.stored(m.id).roundTripTime)
+            assertEquals(0L, dispatcher.droppedEventCount)
+            h.service.stopEventMonitoring(); assertEquals(0, dispatcher.subscriberCount); h.close()
         },
         original("MessageServiceListenerIntegrationTests", "listener restart after disconnect/reconnect still observes ACKs") {
-            val h = Harness(this); h.start(); val m = h.message(); val t = h.tracking(m); h.service.installPendingAck(t)
-            h.service.startEventMonitoring(); h.service.stopEventMonitoring(); assertFalse(h.service.isEventMonitoringActive)
-            h.service.startEventMonitoring(); h.transport.pushAck(t.ackCodes.first(), 200u); runCurrent()
-            assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status); h.close()
+            val dispatcher = EventDispatcher()
+            val h = Harness(this, sessionTimeout = 5.0, eventDispatcher = dispatcher); h.start()
+            val m = h.message(text = "Test message", timestamp = h.clock.wallClock.instant().epochSecond.toUInt())
+            val t = h.tracking(m, code = Bytes.of(0x11, 0x22, 0x33, 0x44)); h.service.installPendingAck(t)
+            h.service.startEventMonitoring(); assertEquals(1, dispatcher.subscriberCount)
+            h.service.stopEventMonitoring(); assertFalse(h.service.isEventMonitoringActive); assertEquals(0, dispatcher.subscriberCount)
+            h.service.startEventMonitoring(); assertEquals(1, dispatcher.subscriberCount)
+            dispatcher.dispatch(MeshEvent.Acknowledgement(t.ackCodes.first(), 200u)); runCurrent()
+            assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)
+            h.service.stopEventMonitoring(); assertEquals(0, dispatcher.subscriberCount); h.close()
         },
     )
 }

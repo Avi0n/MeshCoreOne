@@ -5,6 +5,51 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "messaging-consumer-original-exact-typed-advertisement-noise-and-restarted-ack-listener",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceListenerIntegrationTests.swift",
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
+      "native_factory": "sending",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
+      "runner_name": "original-case-id",
+      "comparison": "Both complete originals preserve saved outgoing Test message/SENT, independent pending ACK setup with timeout30, actual anyAcknowledgement listener, 500 distinct single-byte advertisement inputs i%256 then ABCDEF12/trip1234 and delivered status, and restart with exact11223344/trip200 plus actual subscriber1/0/1 boundaries. Restored original message helper fields, distinct restart ACK literal and complete typed one-byte noise sequence instead of 500 identical padded32-byte wire advertisements. Existing roundTrip1234 predicate remains; added zero dropped events and final zero subscribers without new original credit.",
+      "inputs": "Full original bodies/waitForStatus and original MessageDTO+Testing/MessageService+Testing/dispatcher hook, source/native MessageService monitoring and handleAcknowledgement, native EventDispatcher/EventFilter and real session role interface read. Test-only events delegation uses the actual production EventDispatcher to mirror source dispatchForTesting, honoring the real filter; all other session operations delegate to the concrete session. No reflection, production seam or generated expected packet.",
+      "adaptations": "Native owned generation/structured cancellation and injected virtual scheduler replace source Task/10-second poll/10ms waits. Source ambient UUID()/Date() becomes fixed valid radio/contact and the injected clock; actual native session startup is additional fixture setup. Source persistence in these two originals is real SwiftData; these lower-level native methods still use explicitly disclosed RecordingStore, not falsely labelled Room. Real Room integration is separately bound for the original bookkeeping consumer. These two cases prove selected event/listener behavior, not all persistence or hardware parity.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageService+Testing.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt"
+      ],
+      "consumer": "Real MessageService start/stop/cancel-and-join and ACK handler update the selected row and round-trip state. Original noise is filtered before buffering on both platforms. Native generation teardown and every failure/concurrent restart, real Room listener I/O and BLE/hardware are not certified by these two lower-level cases.",
+      "unresolved": ["Exact current-main/current-head covering discovery, shared harness default-preservation regression, independent source review, authoritative hosted result and persistent merge required. No full source persistence parity or supplemental-family inflation."],
+      "methods": [
+        "listener flips message to .delivered after a flood of non-matching events",
+        "listener restart after disconnect/reconnect still observes ACKs"
+      ]
+    },
+    {
+      "id": "messaging-consumer-original-real-room-selected-row-deletion-after-radio-acceptance",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendDMBookkeepingTests.swift",
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.messaging.MessagingRoomIntegrationTest",
+      "runner_name": "annotated-method",
+      "comparison": "The complete original preserves real in-memory persistence, explicit default session timeout10, exact SelfInfo01x32/1/22/22/zeros/915000/125000/7/5/Test, original ContactDTO helper ABx32/TestContact/default fields, send hi, wait for the actual send and require its saved first ID, delete only that real row mid-send, then literal MESSAGE_SENT flags0/ABCDEF12/5000. The send must throw, ACK tracking remains1 and no failed-ID event is reported. New real-Room method mirrors this complete sequence through the actual concrete session/transport/MessageService, not clearing a fake store. Existing source-ID services registration is retained with restored contact/timeout/literal reply/selective deletion but is not double-counted as another original.",
+      "inputs": "Full original body and SelfInfo/LE32 helpers, ContactDTO+Testing, native raw RoomFirmware/RadioGeneration/real repository setup/close, actual sendDirectMessage/sendBoundary/postDMSent/pending ACK/event projection and typed Room failure boundary read. Source expected ABCDEF12/5000 response is a fixed literal override, not candidate-derived expected ACK; the normal deterministic firmware path remains unchanged for existing regressions.",
+      "adaptations": "Real Robolectric API31/native SQLite/in-memory Room replaces real SwiftData, not a mock persistence role. Owned generation/structured async and actual transport acceptance gate replace source waitUntil polling; selected saved-ID require guard is first() on the actual repository result. Ambient UUID()/Date() adapts to fixed valid radio and injected clock; no original absolute date literal is replaced. Generic original Error.self is asserted as thrown Exception; failure is not hidden or converted to successful output.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt"
+      ],
+      "consumer": "Concrete accepted-send post-bookkeeping failure must retain ownership of the genuine ACK and never emit a false DM failure. This is not a malformed database shortcut, synthetic thrown storage error or production bug fix. Later real ACK to a deleted row/expiry/continued monitoring are broader existing regressions, not additional original-family credit.",
+      "unresolved": ["Exact current-main/current-head covering discovery, all existing Room integration and shared services harness regressions, independent source review, authoritative hosted result and persistent reviewed merge required. No iOS/hardware/full WP501 claim."],
+      "methods": ["sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails"]
+    },
+    {
       "id": "pending-persistence-original-real-room-fields-sequences-attempt-identities-and-retry",
       "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
       "partial_source_file": true,

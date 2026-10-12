@@ -309,6 +309,9 @@ internal class Harness(
     config: MessageServiceConfig = MessageServiceConfig(),
     val store: RecordingStore = RecordingStore(),
     generation: Long = 1,
+    sessionTimeout: Double = 2.0,
+    private val eventDispatcher: EventDispatcher? = null,
+    val contact: ContactDTO = ContactDTO(CONTACT, RADIO, TARGET, "Peer", lastHeardTimestamp = 0u),
 ) {
     val token = token(generation = generation)
     private val fixtureJob = SupervisorJob(test.coroutineContext[Job])
@@ -316,13 +319,18 @@ internal class Harness(
     val signals = TestSignals(token)
     val clock = TestMessagingClock(test.testScheduler)
     val transport = FirmwareTransport()
-    val session = MeshCoreSession(transport, SessionConfiguration(defaultTimeout = 2.0), clock, scope.coroutineContext)
+    val session = MeshCoreSession(transport, SessionConfiguration(defaultTimeout = sessionTimeout), clock, scope.coroutineContext)
+    private val serviceSession = eventDispatcher?.let { dispatcher ->
+        object : MeshCoreSessionProtocol by session {
+            override fun events(): Flow<MeshEvent> = dispatcher.subscribe()
+            override fun events(filter: EventFilter): Flow<MeshEvent> = dispatcher.subscribe(filter)
+        }
+    } ?: session
     val diagnostics = mutableListOf<MessagingDiagnostic>()
     private val queues = mutableListOf<ChatSendQueueService>()
     private val pollers = mutableListOf<MessagePollingService>()
-    val service = MessageService(token, SELF, session, store, signals, scope, config, clock,
+    val service = MessageService(token, SELF, serviceSession, store, signals, scope, config, clock,
         jitter = { 1.0 }, reporter = MessagingIssueReporter { diagnostics += it })
-    val contact = ContactDTO(CONTACT, RADIO, TARGET, "Peer", lastHeardTimestamp = 0u)
     init { synchronized(fixtures) { fixtures.getOrPut(test) { mutableListOf() } += this } }
     suspend fun start() {
         store.saveContact(contact)
@@ -330,9 +338,12 @@ internal class Harness(
         assertEquals(SELF, session.currentSelfInfo?.publicKey)
     }
     fun stored(id: UUID): MessageDTO = assertNotNull(store.messages[EntityKey(RADIO, id)])
-    suspend fun message(status: MessageStatus = MessageStatus.SENT, channel: UByte? = null): MessageDTO {
+    suspend fun message(
+        status: MessageStatus = MessageStatus.SENT, channel: UByte? = null,
+        text: String = "hello", timestamp: UInt = 100u,
+    ): MessageDTO {
         val dto = MessageDTO(radioId = RADIO, contactID = if (channel == null) CONTACT else null,
-            channelIndex = channel, text = "hello", timestamp = 100u, createdAt = clock.wallClock.instant(), status = status)
+            channelIndex = channel, text = text, timestamp = timestamp, createdAt = clock.wallClock.instant(), status = status)
         store.saveMessage(dto)
         return dto
     }
@@ -355,7 +366,10 @@ internal class Harness(
             release { service.close() }
             release { session.stop() }
         }
-        finally { fixtureJob.cancelAndJoin() }
+        finally {
+            fixtureJob.cancelAndJoin()
+            eventDispatcher?.finishAllSubscriptions()
+        }
         failure?.let { throw it }
     }
     fun sends(code: CommandCode): List<Bytes> = transport.sentData.filter { it[0] == code.rawValue }

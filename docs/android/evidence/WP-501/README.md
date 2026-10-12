@@ -4,13 +4,42 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `d3f942576e2406cf588cb491994297598e2af681`.
+Current integrated base: `440d8cd6380c7cc7be92de65b18e05837e4b6854`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
+
+## Current main adoption and original listener/bookkeeping consumers
+
+Verified actual PR180 merge440d at02:51:55Z, parents d3f/e2d, exact tree
+equality to independently source-reviewed e2d8a49f1969a42fe98affd64d7bc56471049f75.
+Official38196362797/114639849956 result/log read: actual positive selected
+native scopes/zero failures/errors/skips; controller/classifier/finalaggregate
+success, codec/SwiftData appropriately unselected. This is not a fresh
+protocol/controller363/iOS/full501 execution. Clean rebase to440d yielded
+ad2bf782f2e9e3e1bd57a037c794f93476c9b4a4; delta versus published204908 is only
+merged InlineContentCancellationTest and WP307 deviation, no worker overlap.
+Original e244failure remains real historical evidence, not erased.
+
+Same reservation automatically evolved23->24 for three exact existing
+test/harness support paths under trusted disjoint semantic-edit capability.
+Two listener and one bookkeeping originals add two proposed groups:
+887families/134groups/67mandatory/0approved/5133denominator unchanged.
+Restored typed single-byte i%256 noise, Test message/helper clock values,
+literal restart11223344 and subscriber1/0/1; no fake padded-wire equivalence.
+Two lower-level listener cases still use disclosed RecordingStore, not Room.
+Bookkeeping source case now additionally binds an actual real-Room selected
+message row deletion mid-send, original contactABx32/TestContact, timeout10,
+SelfInfo01x32/Test and literal MESSAGE_SENT flags0/ABCDEF12/5000. Existing
+services source-ID registration is retained and repaired but not double-credited.
+Shared fixture defaults remain unchanged for every existing caller.
+Current covering execution/positive identities, shared harness/Room regressions
+and independent/current-hosted review remain required. Additional35send bodies
+read exposed unresolved literal/helper/registered-name reductions; they are
+not yet credited or called equivalent.
 
 ## Next original pending-send persistence increment
 
