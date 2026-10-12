@@ -15,7 +15,7 @@ from controller.model import SHA, git, tree
 CONTROLLER_MODULES = (
     "__init__", "apk_alignment", "authority", "backends", "capabilities", "ci", "ci_environment", "ci_evidence",
     "dispatch", "engine", "errors", "gate_runtime", "gates", "historical", "ledger", "model", "module_junit",
-    "paths", "publication", "provision", "render", "runtime_inputs", "schema", "scope_amendment", "settings",
+    "paths", "performance", "publication", "provision", "render", "runtime_inputs", "schema", "scope_amendment", "settings",
     "staging", "test_runner", "validate", "verification_config", "workflows",
 )
 FIXED_INPUTS = (

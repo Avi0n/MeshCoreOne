@@ -60,7 +60,7 @@ class WorkloadActivity : ComponentActivity() {
     private val logger = Logger.getLogger("com.meshcoreone.android.WP504")
     private var mapView: MapView? = null
     private val screen by lazy { requireNotNull(intent.getStringExtra("screen")) }
-    private val readyDescription get() = "WP504_READY:$screen:${Workload.VERSION}:${Workload.digest()}"
+    private val readyDescription by lazy { "WP504_READY:$screen:${Workload.VERSION}:${Workload.digest()}" }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -165,10 +165,11 @@ class WorkloadActivity : ComponentActivity() {
             status.contentDescription = "WP504_FAILED:map"
         }
         view.addOnDidFinishRenderingFrameListener { fully, _, _ ->
-            if (fully && styleLoaded) {
+            if (fully && styleLoaded && !reportedDrawn) {
                 status.text = Workload.VERSION
                 if (status.contentDescription != "WP504_MAP_MOVED") status.contentDescription = readyDescription
-                if (!reportedDrawn) { reportedDrawn = true; reportFullyDrawn() }
+                reportedDrawn = true
+                reportFullyDrawn()
             }
         }
         view.onCreate(savedInstanceState)

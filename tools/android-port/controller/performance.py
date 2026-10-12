@@ -39,25 +39,26 @@ def verify_build(repo: Path, sdk: Path, environment: dict):
     windows = __import__("os").name == "nt"
     aapt = sdk / "build-tools" / "37.0.0" / ("aapt2.exe" if windows else "aapt2")
     artifacts = {}
-    for variant in ("benchmark", "release"):
+    for variant in ("benchmark", "profile", "release"):
         directory = android / "app/build/outputs/apk" / variant
         apks = list(directory.glob("*.apk"))
         if len(apks) != 1:
             raise PortError(f"Missing/ambiguous {variant} APK")
-        mapping = android / "app/build/outputs/mapping" / variant / "mapping.txt"
-        if not mapping.is_file() or mapping.stat().st_size == 0:
-            raise PortError(f"Missing actual R8 {variant} mapping")
-        mapping_text = mapping.read_text(encoding="utf-8")
-        if "# compiler: R8" not in mapping_text:
-            raise PortError(f"{variant} mapping was not produced by R8")
-        if variant == "release" and "com.meshcoreone.android.benchmark" in mapping_text:
-            raise PortError("Workload code leaked into ordinary release R8 inputs")
+        if variant != "profile":
+            mapping = android / "app/build/outputs/mapping" / variant / "mapping.txt"
+            if not mapping.is_file() or mapping.stat().st_size == 0:
+                raise PortError(f"Missing actual R8 {variant} mapping")
+            mapping_text = mapping.read_text(encoding="utf-8")
+            if "# compiler: R8" not in mapping_text:
+                raise PortError(f"{variant} mapping was not produced by R8")
+            if variant == "release" and "com.meshcoreone.android.benchmark" in mapping_text:
+                raise PortError("Workload code leaked into ordinary release R8 inputs")
         def dump(*arguments):
             return subprocess.check_output([str(aapt), "dump", *arguments], env=environment, text=True, timeout=60)
         manifest = verify_manifest(
             dump("badging", str(apks[0])),
             dump("xmltree", str(apks[0]), "--file", "AndroidManifest.xml"),
-            benchmark=variant == "benchmark",
+            benchmark=variant != "release",
         )
         alignment = inspect_alignment(apks[0], sdk, environment, windows=windows)
         if not any(name.endswith("/libmaplibre.so") for name in alignment["elf_pt_load_alignment"]):

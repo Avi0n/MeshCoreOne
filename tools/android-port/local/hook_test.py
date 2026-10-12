@@ -41,6 +41,18 @@ from controller.ledger import Ledger
 
 
 class LocalCheckTests(unittest.TestCase):
+    def test_benchmark_is_optional_and_cannot_replace_complete_merge_verification(self):
+        self.assertEqual(check.ALL_STAGES, ["python", "preflight", "scaffold", "inspect"])
+        self.assertEqual(check.OPTIONAL_STAGES, {"benchmark", "benchmark-dependencies"})
+        with patch.object(check, "transport", return_value=[]), patch.object(check, "run_candidate") as run:
+            self.assertEqual(check.main(["--stages", "benchmark"]), 0)
+        self.assertEqual(run.call_args.args[3], ["benchmark"])
+
+    def test_pre_push_rejects_dependency_generation_stage(self):
+        with patch.object(check, "run_candidate") as run:
+            self.assertEqual(check.main(["--pre-push", "--stages", "benchmark-dependencies"]), 1)
+        run.assert_not_called()
+
     def test_default_all_runner_is_installed_beside_check(self):
         runner = Path(check.__file__).resolve().with_name("run.sh")
         self.assertTrue(runner.is_file(), f"Missing default-all runner: {runner}")

@@ -34,11 +34,22 @@ tasks.register("verifyBenchmarkDataset") {
             setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
         }
         var cases = 0
+        val identities = mutableSetOf<Pair<String, String>>()
         suites.forEach { file ->
             val suite = factory.newDocumentBuilder().parse(file).documentElement
             val nodes = suite.getElementsByTagName("testcase")
             check(suite.getAttribute("tests").toInt() == nodes.length && nodes.length > 0) {
                 "Malformed or zero-test WP-504 suite: $file"
+            }
+            listOf("failures", "errors", "skipped").forEach { outcome ->
+                check(suite.getAttribute(outcome).toInt() == 0) { "Unsuccessful WP-504 declared counts: $file" }
+            }
+            (0 until nodes.length).forEach { index ->
+                val case = nodes.item(index) as Element
+                val identity = case.getAttribute("classname") to case.getAttribute("name")
+                check(identity.first.isNotEmpty() && identity.second.isNotEmpty() && identities.add(identity)) {
+                    "Missing/duplicate WP-504 assertion identity: $file"
+                }
             }
             listOf("failure", "error", "skipped").forEach { outcome ->
                 check(suite.getElementsByTagName(outcome).length == 0) { "Unsuccessful WP-504 suite: $file" }
