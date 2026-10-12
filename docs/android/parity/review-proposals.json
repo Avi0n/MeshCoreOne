@@ -25,7 +25,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt"
       ],
       "consumer": "Actual validation, outgoing-row construction, selected contact query, returned/fetched pending DTO, before/after conversation inclusion and owned in-flight retry guard asserted. Full comparison bounded to these12; green38-method SourceSend registration is not all35original send acceptance. Original names/identities unchanged.",
-      "unresolved": ["Fresh exact current-base/current-input covering discovery required after raw1 and12fixture restoration; b371/627 is historical, not changed native-blob execution. Independent review, current-hosted result and persistent reviewed merge required; no production edit, denominator/exclusion change or full WP501 acceptance."],
+      "unresolved": ["Clean e4977a2e2413f6a4c732cfd183300b65fb9618cc/440d actual covering execution passed210all messaging/all44required service IDs,44realRoom/all44required IDs and5App/all5required IDs,0failure/error/skip; declaredPython363/363PASS/readinessPASS/locksreleased. SourceSendblobe1749b97b3513926be194918c8070cab0c99357e includes restored sourceContact/chat1/unstarted5 and every independent query/fetched predicate. Independent review, exact current-hosted result and persistent reviewed merge remain required; no production edit, denominator/exclusion change or full WP501 acceptance."],
       "methods": [
         "sendDirectMessage throws invalidRecipient for repeater contacts",
         "sendDirectMessage throws messageTooLong for oversized text",
@@ -83,7 +83,7 @@
         "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt"
       ],
       "consumer": "Concrete accepted-send post-bookkeeping failure must retain ownership of the genuine ACK and never emit a false DM failure. This is not a malformed database shortcut, synthetic thrown storage error or production bug fix. Later real ACK to a deleted row/expiry/continued monitoring are broader existing regressions, not additional original-family credit.",
-      "unresolved": ["Historical clean b37110635dc94831cd371ebdc2cd0d1cb88d5220/440d passed29actualRoom integration plus15pending/210messaging/5App andPython363,0failure/error/skip, but constructors used native unknownraw0/chat fallback rather than source explicitchat1. Both services/Room inputs now restore raw1; fresh exact covering execution required. Expected send failure is awaited in the existing supervised connection scope; real-file reopen retains all predicates with short isolated Windows path. Earlier actual failures remain in WP501receipt. Independent review, current-hosted result and persistent reviewed merge required. No iOS/hardware/full WP501 claim."],
+      "unresolved": ["Historical b371/440d passed29Room+15pending/210messaging/5App andPython363, but constructors used unknownraw0/chatfallback. Both now restore sourcechat1; exact clean e4977a2e2413f6a4c732cfd183300b65fb9618cc/440d passed every210messaging/44Room/5App required case andPython363,0failure/error/skip/readinessPASS/locksreleased. Integrationblob5ac7ac4e8bda3f5110a2620bd0f0c46183ce3cd2; SourceSende1749b97. Owned supervised failure await and real short-path cold reopen retain all guards. Earlier failures remain in receipt. Independent/current-hosted/persistent reviewed merge required; no iOS/hardware/full WP501 claim."],
       "methods": ["sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails"]
     },
     {

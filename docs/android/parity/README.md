@@ -1,11 +1,14 @@
 # WP-501 source, case-family and consumer acceptance
 
-Next proposed inspection is899/5133families/135groups/67mandatory/0approved:
+Current proposed inspection is899/5133families/135groups/67mandatory/0approved:
 12 full unstarted send-validation/pending/DTO/query/in-flight originals,
 exact source ContactDTO helper values/rawchat1/timeout5 and independent
 saved/fetched predicates. Prior bookkeeping constructors also restore
-sourcechat1 rather than native unknownraw0/chatfallback. Fresh exact
-covering discovery required; b371/627is historical changed-input proof.
+sourcechat1 rather than native unknownraw0/chatfallback. Fresh clean
+e4977a2e2413f6a4c732cfd183300b65fb9618cc/440d passed210messaging/all44required
+IDs,44realRoom/all44required IDs and5App/all5required IDs,0fail/error/skip;
+declaredPython363/readinessPASS/bothlocksreleased. b371/627is historical,
+not changed-input proof. Executed source/helper blobs are in WP501receipt.
 All other23send originals remain uncredited; independent/hosted/persistent
 acceptance still required. Producer182one-positive handoff is complete
 by its explicit bound report, not inferred from an idle/empty-lock state.

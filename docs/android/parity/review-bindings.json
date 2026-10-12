@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "bc0f0edaabf8bc3fee265fd7b506d8ac9aa6565d8ac6cec49e3bd1b95e61d0d9",
+  "proposal_sha256": "b61724d714f453451fe0fa44a6952c3596da3fc30455eea128584481484a2ca8",
   "families": [
     {
       "group": "backup-envelope",
@@ -47882,7 +47882,7 @@
     },
     {
       "group": "messaging-consumer-original-real-room-selected-row-deletion-after-radio-acceptance",
-      "comparison_sha256": "98970425828898196bb7242175d9c49df6659d42c16d02a9f293a18e337cc541",
+      "comparison_sha256": "240ffbb4b97b5d1ea47a1f2e4d23d6747b824215de165ea7f34efd2f7e9e0cb7",
       "source_file_family_count": 1,
       "group_compared_family_count": 1,
       "partial_source_file": false,
@@ -48157,7 +48157,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -48350,7 +48350,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -48519,7 +48519,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -48688,7 +48688,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -48802,7 +48802,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -48916,7 +48916,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -49109,7 +49109,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -49235,7 +49235,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -49349,7 +49349,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -49463,7 +49463,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -49577,7 +49577,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,
@@ -49709,7 +49709,7 @@
     },
     {
       "group": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
-      "comparison_sha256": "e62c95ae89d52da5bf44cdf865ca481f297fdb004377afd513032327977dfd12",
+      "comparison_sha256": "d1203884b6adeff37de19d3bfb2fe1957d88a3fd188ed2e88c2aeae185a6e992",
       "source_file_family_count": 35,
       "group_compared_family_count": 12,
       "partial_source_file": true,

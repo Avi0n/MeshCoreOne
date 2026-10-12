@@ -14,6 +14,33 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
 
+Latest clean execution `e4977a2e2413f6a4c732cfd183300b65fb9618cc` /
+actual base440d passed the exact same current covering command below:
+210/210all messaging/all44required identities,44/44actualRoom/all44required
+identities and5/5App/all5required identities, zero failure/error/skip.
+This covers56proposed original families (prior44+new12), not259new originals.
+SourceSende1749b97b3513926be194918c8070cab0c99357e and Room integration
+5ac7ac4e8bda3f5110a2620bd0f0c46183ce3cd2 now retain sourcechatraw1.
+Shared helper2318c453/pending5d3136dc/adopted179fixture79a06e2c unchanged.
+Same clean declared combinedPython363/363passed,0failure/error/skip;
+readiness passed/both locks released. Targeted wrapper did not repeat the
+old unrelated default protocol invocation. Original query/fetched guards,
+unstarted default5 and restored AB/TestContact/nil fields all execute.
+899families/135groups/67mandatory/0approved; other23send families uncredited.
+Later evidence-only publication must preserve all executed source/helper
+blobs; independent/current-hosted/persistent merge/fullaudit still required.
+
+Requested independent183review completed at805c6a280d13199c719404da330b790e5dd465e1/
+base440d/sourcepin:
+[6117430004](https://github.com/cbattlegear/MeshCoreOne-Android/pull/183#issuecomment-6117430004).
+Complete five-path delta/unchanged selected service bodies/real mounted
+callers/null/arguments/Room/lifecycle/cancellation read, no bounded new
+blocking finding. c877->805onlydeviation; newtestblobac70afbbidentical.
+No rerun, product edit, source-oracle/human gate/privileged approval, full
+source/hardware claim or new original credit. Coordinator's reported
+c877positive checks are not this worker's execution; exact805hosted and
+protected App composition gate remain separate, not inferred from review.
+
 The next12 complete unstarted validation/pending/DTO/query/in-flight originals
 add one proposed group:899families/135groups/67mandatory/0approved. Restored
 ContactDTO helper ABx32/TestContact/chatraw1/nil lastHeard and default timeout5,
@@ -24,7 +51,7 @@ Full native ContactDTO/defaults read additionally exposed chatraw0 fallback
 in the earlier bookkeeping constructors; both services/Room now explicitly
 restore sourcechat1. This is an input repair, not a product behavior change.
 Historical b371/627success does not execute these changed source/helper blobs;
-fresh covering execution remains required. Other23send originals are not
+fresh covering execution passed at e497 above. Other23send originals are not
 credited. Producer182one-positive handoff completed as explicitly reported:
 actualc877App655/services2640 and new4/heard22+18positive; publication hold
 released, not a fresh execution of this worker. Requested independent
