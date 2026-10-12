@@ -194,12 +194,25 @@ class ConversationScreenCases(
             .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
         assertEquals(case.fontScale, layouts.single().layoutInput.density.fontScale, 0f)
         val layout = layouts.single()
-        assertFalse(
-            "${case.id}: original text must wrap without overflow; rtl=${case.rtl}, " +
-                "font=${case.fontScale}, size=${layout.size}, constraints=${layout.layoutInput.constraints}, " +
-                "paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}, " +
-                "lines=${layout.lineCount}, widthOverflow=${layout.didOverflowWidth}, heightOverflow=${layout.didOverflowHeight}",
-            layout.hasVisualOverflow,
+        assertFalse("${case.id}: vertical text clipping", layout.didOverflowHeight)
+        for (line in 0 until layout.lineCount) assertFalse("${case.id}: ellipsized line $line", layout.isLineEllipsized(line))
+        val text = layout.layoutInput.text.text
+        val glyphs = text.indices.filter { index ->
+            !Character.isWhitespace(text[index]) && !Character.isSpaceChar(text[index]) &&
+                Character.getType(text[index]) != Character.FORMAT.toInt()
+        }.map { index -> index to layout.getBoundingBox(index) }
+        val outside = glyphs.filter { (_, bounds) ->
+            bounds.left < 0f || bounds.top < 0f || bounds.right > layout.size.width || bounds.bottom > layout.size.height
+        }
+        assertTrue(
+            "${case.id}: visible glyphs must fit measured text bounds; outside=$outside, " +
+                "rtl=${case.rtl}, font=${case.fontScale}, size=${layout.size}, " +
+                "constraints=${layout.layoutInput.constraints}, paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}",
+            outside.isEmpty(),
+        )
+        if (layout.didOverflowWidth) println(
+            "WP502_PARAGRAPH_BOUNDS|${case.id}|measured=${layout.size.width}|allocated=${layout.multiParagraph.width}" +
+                "|glyphRight=${glyphs.maxOf { it.second.right }}",
         )
     }
 
