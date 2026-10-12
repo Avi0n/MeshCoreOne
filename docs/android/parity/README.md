@@ -1,6 +1,15 @@
 # WP-501 source, case-family and consumer acceptance
 
 Current proposed inspection is953/5133families/138groups/67mandatory/0approved.
+Exact9123/base76dd Windows ACK-only execution31/25PASS/6FAIL/0errors/skips,
+all31 distinct original identities checked. First16 pass, remaining15nine
+pass/six fail with genuine typed NotConnected at optional routing. All six
+finalize-only cases remain unstarted; the second independent nil branch is
+not reached after PartA fails. This extends owner186, not new product edits
+or complete31 acceptance. Overall command FAILED, no Send/Room/App/other
+scope selected; readiness passed/locks released/parity92PASS. Historical25a
+and combined363 results are not fresh proof. Execution bytes/command/history
+are bound in WP501 evidence.
 Actual185 main76dd is adopted by clean disjoint rebase after independently
 checking parents2cdda/7fe, exact candidate-equal tree3b9e210 and actual merged/
 closed identities. Exact7fe38204362597 selected scaffold/Linux/finalSUCCESS
@@ -14,7 +23,8 @@ start only the actual session/assert SELF; nine stay unstarted, including
 six finalize-only cases exposing owner186. No new registration or hidden
 startup/product edit. Linked native IDs/RecordingStore/injected time/selected
 random-key sample require independent adaptation review. All31 ACK body
-comparisons are disjoint proposals, not accepted parity or fresh execution.
+comparisons are disjoint proposals, not accepted parity; changed execution
+and independent adaptation acceptance remain blocked as recorded above.
 
 Preceding proposed inspection was938/5133families/137groups/67mandatory/0approved.
 Latest clean25a/base2cdda Windows ACK+Send execution actually69/68PASS/1FAIL/

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "5c49e19cd941365c8ac3b5238a03d35d9d9cdad6bc4ef2f58d079fb3b315170f",
+  "proposal_sha256": "e31339106f13fbf7fcbf2487d164d73c3ed5fe1d0c3ec612581db055415239be",
   "families": [
     {
       "group": "backup-envelope",
@@ -47483,7 +47483,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -49118,7 +49118,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -49323,7 +49323,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -49540,7 +49540,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -49829,7 +49829,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -50016,7 +50016,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -50263,7 +50263,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -50510,7 +50510,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -50865,7 +50865,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -51094,7 +51094,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -51637,7 +51637,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -52210,7 +52210,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -52379,7 +52379,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -52566,7 +52566,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -53290,7 +53290,7 @@
     },
     {
       "group": "messaging-ack-original-late-contact-and-finalization-consumers",
-      "comparison_sha256": "8047c7501c6788dc3849fcf26ec596878ff45cd15039307b90fee61f71924e7a",
+      "comparison_sha256": "64ea3907e9e278f987b62559f1fcbcbdcbccd0f2a7fc903a0173957076c31ab4",
       "source_file_family_count": 31,
       "group_compared_family_count": 15,
       "partial_source_file": true,

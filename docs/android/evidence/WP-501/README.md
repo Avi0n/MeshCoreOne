@@ -14,6 +14,25 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
 
+Exact clean9123ae5dcce4d55762d9c6244835da4e513dc060/base76dd actual
+Windows command:
+`:core:services:test --tests com.meshcoreone.android.core.services.messaging.SourceAckTest --dependency-verification=strict --quiet`.
+Discovered31/25PASS/6FAIL/0errors/skips. Strict diagnostic parsing checks all31
+distinct required identities and all six exact failure names/types against
+current bindings; first16 pass, remaining15 have9PASS/6FAIL. Every failure is
+MeshTransportError.NotConnected from optional routing in the six genuinely
+unstarted finalize-only methods. The second independent nil-branch store/
+failed predicate is not reached after PartA routing fails. This extends existing
+owner186 evidence, not a new product edit, hidden startup or passing full31
+claim. Overall command is FAILED; no Send/Room/App/other native scope selected.
+ACK blob9f8f99bf8b3fd2a3ce2589fcdb4afaddb81b7e8c and unchanged
+Harnessc2f05a47 bind execution. Actual environment check precedes Gradle;
+readiness passed/both supported locks released. Initial abbreviated-head
+invocation was rejected before readiness/locks/native discovery; the full-SHA
+invocation above is the only new native execution. Exact9123 parity92 passed;
+no fresh combined363. New typed routing repair is coordinator-owned, with no
+native rerun requested until its actual reviewed merge is adopted.
+
 Actually adopted main76dd by a clean disjoint same-branch rebase. Independently
 verified parents2cdda/7fe and tree3b9e210bc8c10400daafcdac1e96b1afcc97b455
 equal the reviewed PR185 candidate; PR185 genuinely merged and181 closed.
@@ -38,7 +57,7 @@ IDs/injected current time/selected random-key sample are disclosed adaptations,
 not SwiftData/Room/arbitrary-key equivalence. All31 ACK originals now have
 disjoint proposed body comparisons; no new registration or accepted-family
 credit. Proposed953/5133/138groups/67mandatory/0approved. Changed-input native
-execution and independent adaptation/hosted/persistent acceptance are pending;
+execution remains FAILED as above; independent adaptation/hosted/persistent acceptance are pending;
 no production or coordinator-owned path edited.
 
 Latest clean25a57d382e325b5a07cfd5118cc466022d586bf5/base2cdda actual
