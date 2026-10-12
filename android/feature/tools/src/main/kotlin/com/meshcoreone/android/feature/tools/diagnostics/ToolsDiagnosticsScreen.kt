@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -422,7 +423,10 @@ private fun NoiseFloorScreen(dependencies: ToolsDiagnosticsDependencies, connect
         }
     }
 
-    Column(modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(
+        modifier.verticalScroll(rememberScrollState()).padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
         when (NoiseFloorPresentation.mode(connected, state)) {
             NoiseFloorScreenMode.DISCONNECTED -> DiagnosticMessage(
                 stringResource(AppToolsStrings.toolsNoiseFloor),
@@ -485,7 +489,7 @@ private fun NoiseChart(
             modifier = Modifier.semantics { heading() },
         )
         Surface(
-            Modifier.fillMaxWidth().heightIn(min = 220.dp).focusable().testTag("noise-floor-chart")
+            Modifier.fillMaxWidth().heightIn(min = 220.dp, max = 220.dp).focusable().testTag("noise-floor-chart")
                 .semantics { contentDescription = NoiseFloorPresentation.chartAccessibilityLabel(state, text) }
                 .onPreviewKeyEvent { event ->
                     if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
