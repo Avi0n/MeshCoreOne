@@ -49,7 +49,7 @@ class MessageBodyContrastTest {
         var segments = 0
         for (frame in frames) for (outgoing in listOf(false, true)) for (name in names) for (self in listOf(false, true)) {
             val roles = MaterialRoles.from(frame)
-            val bubble = if (outgoing) roles.primaryContainer else roles.surfaceVariant
+            val bubble = (if (outgoing) roles.primaryContainer else roles.surfaceVariant).toComposeColor().toThemeColor()
             val base = if (outgoing) roles.onPrimaryContainer else roles.onSurfaceVariant
             val formatted = MessageTextFormatter.format("@[$name] see https://example.com #ops", outgoing, name.takeIf { self })
             val annotated = formatted.toAnnotatedString(base.toComposeColor(), frame, outgoing, bubble.toComposeColor()) {}
@@ -67,7 +67,7 @@ class MessageBodyContrastTest {
             }
             val mention = annotated.styleAt(0, name.length + 1)
             assertEquals(self, mention.background.isSpecified)
-            if (self) assertEquals(if (outgoing) 0.3f else 0.15f, mention.background.alpha)
+            if (self) assertEquals(Color.Black.copy(alpha = if (outgoing) 0.3f else 0.15f).alpha, mention.background.alpha)
         }
         assertEquals(38 * 2 * names.size * 2 * 5, segments)
     }
@@ -113,7 +113,7 @@ class MessageBodyContrastTest {
     @Test
     fun `identity colors use the actual bubble luminance`() {
         for (frame in frames()) {
-            val bubble = MaterialRoles.from(frame).surfaceVariant
+            val bubble = MaterialRoles.from(frame).surfaceVariant.toComposeColor().toThemeColor()
             val formatted = MessageTextFormatter.format("@[Alice]")
             val annotated = formatted.toAnnotatedString(Color.Black, frame, false, bubble.toComposeColor()) {}
             val preferred = frame.theme.identityGamut.color("Alice", listOf(bubble.luminance), frame.highContrast)
@@ -128,8 +128,8 @@ class MessageBodyContrastTest {
         var measured = 0
         for (frame in frames()) {
             val failed = AppColors.Message.outgoingBubbleFailed(frame.highContrast).compositeOver(frame.canvas)
-            for (bubble in listOf(frame.accent, failed, frame.incomingBubble)) {
-                val outgoing = bubble != frame.incomingBubble
+            for ((source, outgoing) in listOf(frame.accent to true, failed to true, frame.incomingBubble to false)) {
+                val bubble = source.toComposeColor().toThemeColor()
                 val base = accessibleForeground(
                     if (outgoing) frame.outgoingText else Color.Black.toThemeColor(),
                     bubble, WCAGContrast.AA_FLOOR,

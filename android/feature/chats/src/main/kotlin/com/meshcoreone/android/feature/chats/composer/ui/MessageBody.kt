@@ -32,6 +32,7 @@ import com.meshcoreone.android.feature.chats.composer.LinkColor
 import com.meshcoreone.android.feature.chats.composer.LinkToken
 import com.meshcoreone.android.feature.chats.composer.MessageLinkAccessibility
 import com.meshcoreone.android.feature.chats.composer.MessageTextFormatter
+import kotlin.math.max
 
 private const val INCOMING_SELF_MENTION_ALPHA = 0.15f
 private const val OUTGOING_SELF_MENTION_ALPHA = 0.3f
@@ -43,6 +44,33 @@ private fun tokenColor(token: LinkToken, base: ThemeColor, frame: ThemeFrame, ba
     } ?: base
     LinkColor.HASHTAG -> frame.hashtag
     LinkColor.OUTGOING_TEXT -> frame.outgoingText
+}
+
+private fun mentionFill(preferred: ThemeColor, bubble: ThemeColor, alpha: Float, floor: Double): Color {
+    fun fill(color: ThemeColor): Color = color.toComposeColor().copy(alpha = alpha)
+    fun capacity(color: Color): Double {
+        val background = color.toThemeColor().compositeOver(bubble)
+        return max(
+            WCAGContrast.contrastRatio(ThemeColor.WHITE, background),
+            WCAGContrast.contrastRatio(ThemeColor.BLACK, background),
+        )
+    }
+    val original = fill(preferred)
+    if (capacity(original) >= floor + 0.05) return original
+    // Keep the identity hue and source opacity; only tone the fill when its composite makes the text floor unreachable.
+    val neutral = if (WCAGContrast.contrastRatio(ThemeColor.WHITE, bubble) >= WCAGContrast.contrastRatio(ThemeColor.BLACK, bubble)) {
+        ThemeColor.BLACK
+    } else {
+        ThemeColor.WHITE
+    }
+    require(capacity(fill(neutral)) >= floor + 0.05) { "The requested mention contrast is unreachable on this bubble" }
+    var low = 0.0
+    var high = 1.0
+    repeat(32) {
+        val middle = (low + high) / 2
+        if (capacity(fill(preferred.mix(neutral, middle))) < floor + 0.05) low = middle else high = middle
+    }
+    return fill(preferred.mix(neutral, high))
 }
 
 /** One `AnnotatedString` from the token model: base color, then per-token color, underline, bold, self-mention fill. */
@@ -62,17 +90,17 @@ internal fun FormattedMessage.toAnnotatedString(
             val floor = if (token.color == LinkColor.MENTION_IDENTITY) WCAGContrast.floor(frame.highContrast) else WCAGContrast.AA_FLOOR
             val preferred = accessibleForeground(tokenColor(token, readableBase, frame, bubble), bubble, floor)
             val fill = if (token.selfMention) {
-                preferred.copy(alpha = (if (isOutgoing) OUTGOING_SELF_MENTION_ALPHA else INCOMING_SELF_MENTION_ALPHA).toDouble())
+                mentionFill(preferred, bubble, if (isOutgoing) OUTGOING_SELF_MENTION_ALPHA else INCOMING_SELF_MENTION_ALPHA, floor)
             } else {
                 null
             }
             // Freeze the source-opacity highlight before correcting its foreground, avoiding a circular color/fill dependency.
-            val color = accessibleForeground(preferred, fill?.compositeOver(bubble) ?: bubble, floor)
+            val color = accessibleForeground(preferred, fill?.toThemeColor()?.compositeOver(bubble) ?: bubble, floor)
             val style = SpanStyle(
                 color = color.toComposeColor(),
                 fontWeight = if (token.bold) FontWeight.Bold else null,
                 textDecoration = if (token.underline) TextDecoration.Underline else null,
-                background = fill?.toComposeColor() ?: Color.Unspecified,
+                background = fill ?: Color.Unspecified,
             )
             val url = token.url
             if (url == null) {
