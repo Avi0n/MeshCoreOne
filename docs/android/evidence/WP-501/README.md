@@ -33,8 +33,46 @@ Worker fourdfa34783192428f6606360067e03d29f2a44be4c/SHAa1b0dd95 and
 native original87ce63b41518ce4cbeed114a75f678c0b0ea9c8ca3/SHA2a43a261
 unchanged. All1412rows/counts preserved; exactly86 rows change ONLY
 assertion_helper_inputs for those three actual product files. Four-only
-changed-input execution pending; old55b0/base1854FAIL and original87
+changed-input execution at clean9013678c39d1732223c3fef5f47e50eaf4ab3a45/
+base6863:
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.CliCompletionUnicodeAcceptanceTest --dependency-verification=strict --quiet`
+actually discovers4/4PASS/zero failures-errors-skips/all4 exact identities,
+XML2026-10-12T12:13:23.742Z. Initial same-head supported hard-lock collision
+stopped before readiness/Gradle, zero native credit. Bounded read-only wait
+recognized actual307/issue200/917 incumbent and observed normal release before
+one supported worker execution. ReadinessPASS/clean inputs/zero notice
+normalizations/worker locks normally released. Old55b0/base1854FAIL and original87
 receipt/source limits preserved, no incumbent/owning nine replay or extra credit.
+Local receipt wp501-cli-four-901-receipt.json binds all five actual input blobs/
+SHA256 and four identities; this is not a hosted CI-result bundle.
+
+## Qualified device12 review and separate map test source comparison
+
+Actual SOURCE-ONLY COMMENTED
+[5490607387](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5490607387)
+at0c1ac2471a69f9c3137c207275df372e47347395/basee0b6/12:15:27Z fully
+read/reconciled. Reviewed proposal67dc815dfd8db3b6a07745abcf0a94bf3bbe785953e7de5b5f187b497e1b4801
+and selected group/rows/312helperrows/26input bytes unchanged46a->0c1->current
+guarded. Full originals/native/helper/default/device model/projection/real
+Room SQL/mapping/repository/transaction/aggregate/message status-retry/
+queue-failure/pairing-picker consumers compared, no selected-source blocker.
+All predicates/supplement-only empty-registry checks retained. Historical514/
+basee0b612PASS and fixed-key/current-clock/hash/engine/cascade/rollback/race/
+cancellation/mounted/API37/device limits preserved, no native replay/private
+certification/APPROVED/full135. The review's remaining72 describes the earlier
+device-only increment; current68/135 proposals leave67 after cascade5.
+
+Requested exact PR201/917746f7/base6863 SOURCE-ONLY
+[6124055258](https://github.com/cbattlegear/MeshCoreOne-Android/pull/201#issuecomment-6124055258)
+reads both full changed files, complete real DataStore/Room fixture, production
+enabled() suspension and actual queue/cache/invalidation consumers, frozen
+store context. Read-only guard proves only one existing bounded10000ms
+semantics-pumping wait replaces Compose idle; complete other test/helper/
+predicate bytes, ten methods/SDK31+37/native graphics and all production bytes
+unchanged. Independent active equality, both requests/deferred first, actual
+disable/re-enable/queued resolved-null/no-extra/invalidation/final ordered two
+remain. No selected blocker/native map replay/private20/hosted certification/
+APPROVED/global verdict; attempt1 failure/unchanged retry remain separate.
 
 ## Additive room/session15 source review
 
