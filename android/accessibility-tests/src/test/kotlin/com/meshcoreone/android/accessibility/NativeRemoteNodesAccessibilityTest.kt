@@ -239,7 +239,9 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         compose.onNodeWithTag("open-node:${contact.id}").performScrollTo().assertIsEnabled().performClick()
         val password = compose.onNodeWithTag("remote-login-password").assertIsDisplayed()
         compose.waitUntil(10_000) {
-            password.fetchSemanticsNode().config[SemanticsProperties.EditableText].text == "cached-audit"
+            val text = password.fetchSemanticsNode().config[SemanticsProperties.EditableText].text
+            println("WP503_REMOTE_PREFILL|reads=${rig.passwordReads}|length=${text.length}|masked=${text.all { it == '\u2022' }}")
+            text == "cached-audit"
         }
         assertEquals(1, rig.passwordReads)
     }
@@ -359,6 +361,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
             override suspend fun retrievePassword(contact: ContactDTO): String {
                 assertEquals(this@NativeRemoteNodesAccessibilityTest.contact, contact)
                 passwordReads++
+                println("WP503_REMOTE_PASSWORD_READ|count=$passwordReads")
                 return "cached-audit"
             }
             override suspend fun deletePassword(contact: ContactDTO) {
