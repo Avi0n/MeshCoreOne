@@ -1,4 +1,5 @@
 // AndroidOnly: WP-407 Native conversation registration; screen scopes never create or close a radio connection.
+// AndroidOnly: WP-310 Bind room body actions to the shared link dispatcher/router and radio-scoped contacts.
 package com.meshcoreone.android.app.navigation
 
 import android.Manifest
@@ -30,6 +31,8 @@ import com.meshcoreone.android.feature.chats.rooms.RoomConversationStateHolder
 import com.meshcoreone.android.feature.chats.timeline.ChatViewModel
 import com.meshcoreone.android.feature.chats.timeline.TimelineConversation
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.launch
@@ -107,6 +110,34 @@ private fun AppChatConversation(
             onPauseOrDispose { deactivate() }
         }
         if (selected is ChatSelection.Room) {
+            val radio = selected.session.radioId
+            val list = remember(feature, radio) { feature.listFor(radio) }
+            val contacts = remember(feature, radio) { mutableStateOf(emptyList<com.meshcoreone.android.core.model.ContactDTO>()) }
+            LaunchedEffect(list) {
+                list.reloadRequests.onStart { emit(Unit) }.collect {
+                    try {
+                        contacts.value = list.data.fetchContacts(radio)
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (failure: Exception) {
+                        feature.report("Load room link contacts", failure)
+                        throw failure
+                    }
+                }
+            }
+            val device = remember(feature, radio, scope) { feature.pathDevice(radio, scope) }
+            val uriHandler = LocalUriHandler.current
+            val router = remember(feature, scope) { ChatLinkRouter(feature.list.links, scope, feature.list.diagnostics) }
+            val links = remember(contacts, device, radio, router, coordinator, uriHandler) {
+                ConversationLinkActions(
+                    contacts = { contacts.value },
+                    connectedDeviceName = { device.value?.nodeName },
+                    radioId = { radio },
+                    route = router::route,
+                    openExternal = uriHandler::openUri,
+                    navigateToContact = coordinator::navigateToContactDetail,
+                )
+            }
             val holder = remember(feature, selected) {
                 RoomConversationStateHolder(selected.session, feature.room(selected.session), scope)
             }
@@ -126,7 +157,7 @@ private fun AppChatConversation(
                     },
                 )
             }
-            RoomConversationRoute(holder, failureText = { com.meshcoreone.android.core.ui.uiString(UiErrorMapper().message(it)) })
+            RoomConversationRoute(holder, links, failureText = { com.meshcoreone.android.core.ui.uiString(UiErrorMapper().message(it)) })
             return
         }
         val conversation = when (selected) {
