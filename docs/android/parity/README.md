@@ -51,6 +51,18 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Clean exact3262d79b3/d3f executed the final six177/178predicates:
+73/73protocol/all70requiredidentities (28reference+8device/selfinfo+34BugFix),
+cleanPython363/363,0failure/error/skip/readinesspassed/locksreleased. The three
+unchanged component cases are not extra accepted families. Original inputs/
+fields/defaults/layouts/identities/production unchanged. Same reservation21;
+independent current repair review/persistent accepted merge still required,
+177/178remainopen.843/122inspected/66mandatory, full acceptance unfinished.
+Official prior47da primary38187083662 nowSUCCESS/all6jobs/all5scopes; full18887
+log/actualJSON read directly: app716/services2640/protocol4711/maps23 and other
+selected suites positive0failure/error/skip, real codec+SwiftData passed bound
+d3f/47da/pin. No second bundle; it does not execute later six repaired predicates.
+
 Issue177 restores two original80byte DeviceInfo predicates before parsing
 unchanged v10withoutmode/v9defaultmode fixtures; fields/identities/helpers/
 production unchanged. Same reservation20->21 through trusted support rule,
@@ -70,7 +82,7 @@ review6115227237 covers unaffected RxLog24/RoundTrip33/BugFix32 with no new
 blocker, not execution/full acceptance. Do not repeat those unchanged reads.
 Exact8d26bd12b/d3f PythonReference28/28 and cleanPython363/363passed,
 0failure/error/skip, readiness/locks passed/released. Independent/full
-843of5133acceptance remains unfinished; prior47da hosted stillrunning.
+843of5133acceptance remains unfinished; prior47da hosted result is above.
 
 The next28PythonReference families retain31exact vector equalities, complete
 frozen inputs/fixtures/builders/helpers and selected live consumers read.

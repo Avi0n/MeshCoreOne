@@ -12,6 +12,41 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Latest final-predicate execution
+
+Clean `3262d79b372c74841c995bd93451e2bf2d4672b8`, actual based3f:
+`python <session-files>\wp501-native-check.py --head 3262d79b372c74841c995bd93451e2bf2d4672b8 --reference-device-bugfix`
+executes the single three-selector protocol command documented below.
+Actual73required-component/discovered/run/passed, all70required original
+identities (28PythonReference+8boundDeviceInfo/SelfInfo+34BugFix),0failure/
+error/skip; three unchanged legacy component cases are not extra accepted
+families. All final two177size predicates and four178size/whole-suffix
+predicates execute. Readiness/supported locks passed/released; clean declared
+combinedPython363/363passed,0failure/error/skip. Exact executed Git blobs:
+BugFix `c949ebad53fcbebfdd6b8c8a5c633e4411f8a5dd`,
+CrossComponent `357947f81c098a83bec923741838b44ec4640d57`,
+PythonReference `a0af1a48002aa1ed26e4bc886d5f730a23eea848`.
+No oldXML/predecessor pass promoted; subsequent evidence-only commit does not
+become another native execution. Same reservation21/843families/122groups/
+66mandatory app methods; independent exact repair review/persistent accepted
+merge/full audit unfinished.177/178remainopen.
+
+## Completed published47da hosted result
+
+[Primary38187083662](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38187083662)
+completedSUCCESS/all6jobs/all5scopes at exact47da/base d3f.
+Full18887-line official log/actualJSON read directly: controller363/Python96/
+app716/services2640/protocol4711/chats360/maps23/model166/data409/database45/
+l10n25 and other selected modules positive0failure/error/skip. Distinct
+actual codec job114612017527 reports passed/pindb145/scope real reference
+export/decode+independentcrypto, explicitlynot bidirectional Kotlinrestore/
+database parity. Separate realSwiftData passed boundd3f/47da/pin/unchanged
+manifest/policy/run38187083662/attempt1. Overlapping module/backup counts are
+not additive. No second CI-result bundle retained or hashed, no later six
+predicate/current-candidate/full843/5133 acceptance inferred.
+An initial console-only codec-marker read failed cp1252 printing BOM; corrected
+ASCII-safe direct read returned actual codec result, without candidate edits.
+
 ## Python-reference original command comparison
 
 Clean `8d26bd12b178b2b4e7634041d62a39b1e3946196`, actual based3f:

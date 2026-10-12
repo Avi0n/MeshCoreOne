@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "f7339120e3b27c349c7b4825896ba129a508e118350b4c040f1139d9e265e141",
+  "proposal_sha256": "22440c57d6c5d4749fc8840c8d9709c0c9d2f8ed64464f7d696679ee52859d61",
   "families": [
     {
       "group": "backup-envelope",
@@ -133088,7 +133088,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -133281,7 +133281,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -133408,7 +133408,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -133547,7 +133547,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -133710,7 +133710,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -135818,7 +135818,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -136048,7 +136048,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -136254,7 +136254,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -136436,7 +136436,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -136612,7 +136612,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -136854,7 +136854,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -137048,7 +137048,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -137248,7 +137248,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -137418,7 +137418,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -137606,7 +137606,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -137794,7 +137794,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -137927,7 +137927,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -138048,7 +138048,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -138278,7 +138278,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -138538,7 +138538,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -138695,7 +138695,7 @@
     },
     {
       "group": "bugfix-original-app-start-status-layout-trailers-and-telemetry-frame",
-      "comparison_sha256": "9db1b7255dfe3671df3bfba0c2b2f4bfc551447bbb3b5626bab288014fcf47c3",
+      "comparison_sha256": "017d3c46a5015f7d97d580448babad7337d5542d75cf7dfec59da61eb6ecb0a6",
       "source_file_family_count": 36,
       "group_compared_family_count": 21,
       "partial_source_file": true,
@@ -139213,7 +139213,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -139393,7 +139393,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -139573,7 +139573,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -139753,7 +139753,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -139933,7 +139933,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -140113,7 +140113,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -140293,7 +140293,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -140473,7 +140473,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -140653,7 +140653,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -140917,7 +140917,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -141097,7 +141097,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -141277,7 +141277,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -141457,7 +141457,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -141679,7 +141679,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -141859,7 +141859,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -142045,7 +142045,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -142225,7 +142225,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -142405,7 +142405,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -142591,7 +142591,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -142771,7 +142771,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -142951,7 +142951,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -143149,7 +143149,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -143329,7 +143329,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -143509,7 +143509,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -143689,7 +143689,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -143869,7 +143869,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -144049,7 +144049,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -144229,7 +144229,7 @@
     },
     {
       "group": "python-reference-original-exact-pinned-command-bytes",
-      "comparison_sha256": "ab5be57951b8fac036fa8f2effe35f7777a49d5025da8da199f78d223e0388b1",
+      "comparison_sha256": "058f81975415536ddecb1abc839b7797be1f12bfd59446f920ab9d4a8024c838",
       "source_file_family_count": 28,
       "group_compared_family_count": 28,
       "partial_source_file": false,
@@ -148488,7 +148488,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "71923b8c0aba48d37075e1ce05d6b42fef32ffe808f3c23eb46ac94833c604a4",
+      "comparison_sha256": "450ed23312a221735580234a533753584e9dc7ad5384874646ffdb27168730bb",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -148695,7 +148695,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "71923b8c0aba48d37075e1ce05d6b42fef32ffe808f3c23eb46ac94833c604a4",
+      "comparison_sha256": "450ed23312a221735580234a533753584e9dc7ad5384874646ffdb27168730bb",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -148860,7 +148860,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "71923b8c0aba48d37075e1ce05d6b42fef32ffe808f3c23eb46ac94833c604a4",
+      "comparison_sha256": "450ed23312a221735580234a533753584e9dc7ad5384874646ffdb27168730bb",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -148989,7 +148989,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "71923b8c0aba48d37075e1ce05d6b42fef32ffe808f3c23eb46ac94833c604a4",
+      "comparison_sha256": "450ed23312a221735580234a533753584e9dc7ad5384874646ffdb27168730bb",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -149178,7 +149178,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "71923b8c0aba48d37075e1ce05d6b42fef32ffe808f3c23eb46ac94833c604a4",
+      "comparison_sha256": "450ed23312a221735580234a533753584e9dc7ad5384874646ffdb27168730bb",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -150693,7 +150693,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "71923b8c0aba48d37075e1ce05d6b42fef32ffe808f3c23eb46ac94833c604a4",
+      "comparison_sha256": "450ed23312a221735580234a533753584e9dc7ad5384874646ffdb27168730bb",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -150846,7 +150846,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "71923b8c0aba48d37075e1ce05d6b42fef32ffe808f3c23eb46ac94833c604a4",
+      "comparison_sha256": "450ed23312a221735580234a533753584e9dc7ad5384874646ffdb27168730bb",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -151683,7 +151683,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "71923b8c0aba48d37075e1ce05d6b42fef32ffe808f3c23eb46ac94833c604a4",
+      "comparison_sha256": "450ed23312a221735580234a533753584e9dc7ad5384874646ffdb27168730bb",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
