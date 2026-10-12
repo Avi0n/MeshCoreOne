@@ -3,8 +3,13 @@
 Eight new separately joined complete RX maintenance originals registered:
 1465/5133 proposals/187groups/83mandatory/0approved,121/135 persistence
 proposed/14unprovided;106/135 qualified source-compared/29uncompared.
-Eight bodies/joins/232helperrows/29inputs; strict core-data eight-only native
-execution pending. Same producer reservation43 admits a unique disjoint
+Eight bodies/joins/232helperrows/29inputs; actual clean1264/base d958 strict
+core-data eight-only8PASS/0bad/all8 identities/XML16:17:14.710Z/
+native2977cfdc/canonical-LF SHA3def80f4/private raw29-input receipt.
+ReadinessPASS/zero notices/normal supported own locks released; initial
+WP502 API37 hard resource collision zero execution respected through bounded
+read-only serialization, no foreign lock/process changes. Source comparison/
+successor hosted/full acceptance pending. Same producer reservation43 admits a unique disjoint
 core-data friend-access test, not product API changes or owner-test replacement.
 Fresh single-row partial flush0->1/SAME database secondstore1, literal
 1100/1101/1000/1100-first/101-last, cold1100->1202 and original new channel
@@ -12,7 +17,11 @@ fault contexts preserved. Existing WP201 typed-corruption adaptation is
 explicit, NOT Swift corrupt-row defaults equivalence; one compound original,
 six supplemental field failures not new credit. SQLite staged AFTER INSERT
 FAIL/outer Room rollback maps the source DEBUG pre-save fault, not engine
-identity. All1457 prior bindings unchanged; no prior native family replay.
+identity. All1457 prior bindings unchanged during registration; outcome-only guard
+all1465 source/native/helper/vector/joins unchanged, eight comparison digests
+only. No prior native family replay. Actual214/215 assigned owner intakes/
+externally reported predecessor454 hosted success qualified in WP evidence,
+not new original-family/source approval or this producer's own CI-log read.
 
 Historical seven-only outcome and106/135 source-review provenance:
 
