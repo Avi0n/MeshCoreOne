@@ -80,9 +80,13 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
             C.contactsDetailSendMessage, C.contactsDetailTelemetry, C.contactsDetailShareViaAdvert)) {
             val text = activity.getString(label)
             compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)).performScrollToNode(hasText(text))
-            val action = compose.onNodeWithText(text).performScrollTo().assertIsDisplayed().assertIsNotEnabled()
+            val action = compose.onNodeWithText(text).performScrollTo()
+            val measured = action.fetchSemanticsNode()
             println("WP503_OFFLINE_DETAIL_ACTION|sdk=${android.os.Build.VERSION.SDK_INT}|label=$text" +
-                "|bounds=${action.fetchSemanticsNode().boundsInRoot}|enabled=false|realRadio=false")
+                "|bounds=${measured.boundsInRoot}|size=${measured.size}|position=${measured.positionInRoot}" +
+                "|touchBounds=${measured.touchBoundsInRoot}|root=${compose.onNodeWithTag("audit-root").fetchSemanticsNode().boundsInRoot}" +
+                "|realRadio=false")
+            action.assertIsDisplayed().assertIsNotEnabled()
             assertFont200Unclipped(action)
         }
         val history = activity.getString(C.contactsDetailSavedHistory)
