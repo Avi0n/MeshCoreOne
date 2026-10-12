@@ -23,6 +23,29 @@ compilation before discovery; older candidate success/failure is not transferred
 The remaining states/flows/windows below are NOT RUN. Do not reuse historical screenshots
 or promote a partial automated check to observed TalkBack/whole-WP acceptance.
 
+Latest compatible product execution supersedes the standalone compilation blockers:
+producte18ab1dac + audit01f430710 passes **22/22** room/direct/contrast/live-region cases,
+zero failures/errors/skips, with **760 painted records/zero failing floors**. All six frozen
+room distinctions and Remember semantics pass. The corrected failed-room oracle requires
+both the named source accessibility action and the actual contained **86x54dp** pointer
+button/native click; cleared child speech is not a visibility proxy.
+Productd2b64b584 separately passes eight contrast/direct/guard cases.
+
+New onboarding selection at OWNdea8d072f passes **6/6** font2/RTL SDK31/37 cases:
+denied/undetermined recovery/Continue, exact request/settings callbacks, all long-paragraph
+lines reached by native scroll, actual WiFi coordinator failure/retry and native editor
+Next/Done/cancel, plus framework-controlled autofocus. Connecting/progress/disabled actions
+passed **2/2** earlier at OWN83455603c. Actual platform dialogs, pairing, successful physical
+WiFi connection, permission return focus and sheet-host dismissal are NOT RUN.
+Reviewed main663fa73 is adopted; its disjoint build wiring preserves audit and WP-504 settings.
+Full onboarding selection at adopted-main OWN4d86cc00b then passes **8/8** in one execution.
+Current composer03753f129 existing native hardware Return cohort passes **8/8** at its
+1080x1000dp/default-font window; not a font200/physical keyboard claim.
+New actual disconnected CLI/Rx cohort at OWN33f9dea0d: **4 run,2 Rx pass,2 CLI fail**,
+zero errors/skips. Rx textual offline/recovery/filter selection/targets/font pass.
+Assigned defect220 records CLI's enabled editor/missing source disconnected explanation;
+the normative regression remains failing pending authentic producer repair.
+
 ## Shared acceptance rules
 
 For all enabled interactive controls, measure effective hit regions at least **48 x 48 dp**,

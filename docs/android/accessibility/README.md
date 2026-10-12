@@ -5,6 +5,50 @@ This is not accessibility acceptance, a completed WP, or permission to close iss
 The inspected native tree is `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
+## Latest native execution
+
+The earlier producer compilation failures below are historical, not current repair gates.
+Actual compatible room product `e18ab1dac6186dfcdbef9debd0b2990e84797b4f` with owned audit
+`01f43071015d433ae2e54f66e3a63d7a922a0291` passes **22/22** native messaging cases,
+zero failures/errors/skips on SDK31/37. All six frozen room distinctions, the labelled
+Remember toggle, direct retry and actual-timeline live-region controls pass. The same
+execution measures **760 painted spans, zero failing floors, minimum 4.517812074094317:1**.
+Independent composer product `d2b64b584892f0b63545f0e02c9c9e119b3d8b06` also passes its
+eight contrast/direct/guard cases. No contrast, font or target threshold changed.
+
+The repaired row replaces child speech with a source-correct label/custom actions.
+The failed-room test now verifies the exact named accessibility retry and, independently,
+the actual **86x54dp** pointer button, its complete containment and native pointer click.
+Both paths must invoke the correct message ID. This corrects a cleared-child semantics
+oracle, not a product defect or exemption from physical target measurement.
+
+New mounted onboarding flows pass six focused SDK31/37 cases at
+`dea8d072ff7498e70450f47b21015910b2dd5dac`: denied/undetermined permission recovery and
+unconditional Continue, request/settings callbacks, every long permission-description
+line reached by native non-gesture scroll, WiFi editor Next/Done/failure/retry/cancel,
+and autofocus compared with a native framework control. Connecting text/disabled
+duplicate-connect/cancel cases previously passed two cases at `83455603c14f95aa758e1a0bbea5c3dfc933a985`.
+These are mounted public content and real WiFi coordinator flows with a deterministic
+failure/pending port, not actual platform permission dialogs or radio connections.
+Long scrollable paragraphs need readable lines, not simultaneous fit of the entire paragraph.
+The full onboarding class subsequently passes **8/8** at adopted-main audit4d86cc00b,
+zero failures/errors/skips; this includes connecting and all other states in one execution.
+
+Actual current composer03753f129 independently passes **8/8** producer-owned native
+hardware Return cases: five disabled-send gates, Enter/NumPadEnter, valid KeyDown-only send,
+Shift newline and forward/reverse Unicode selection replacement. This cohort uses its
+actual 1080x1000dp/default-font native window, not font200 or physical keyboard/IME.
+New disconnected tools selection at audit33f9dea0d runs **4**, passes **2 Rx cases**, fails
+**2 CLI cases**, zero errors/skips. The concrete CLI unavailable-state defect is assigned
+[#220](https://github.com/cbattlegear/MeshCoreOne-Android/issues/220); its regression remains failing.
+
+Actual reviewed main `663fa73fab99356f7097534288e820a126890195` is adopted at
+`4d86cc00b6eaecdc7eb043d8b357557523a5121b`; disjoint App build conflict resolution retains
+both additive audit registration and every WP-504 release/R8/benchmark/profile setting.
+The legacy-product hosted run at OWN0e44 discovered 720 App tests and failed 12; it is not
+the compatible producer execution above. See exact commands and qualifications in the
+[evidence](../evidence/WP-503/README.md).
+
 ## Evidence boundaries
 
 Source inspection can establish missing labels/actions and identify the actual consumers.
@@ -120,6 +164,22 @@ It is adopted here at `1f341947246b0a67f7abd0185ca9cabf91a5afa4`; the affected s
 diagnostics cases pass again on this branch. #214 is retired as an active defect while
 its historical zero-height rows and actual native movement proof remain.
 
+## Measured disconnected CLI status defect
+
+At actual33f9dea0d2a56c30e23505caa8b25e4e65fedc48, both font2/RTL native APIs show one
+enabled editable command input with no localized disconnected title/description. The
+frozen `CLIToolView.swift` explicitly shows its unavailable state when the repeater admin
+service is nil. Actual `CliScreen` instead always renders terminal/input. The reachable
+consumer is `MainActivity` -> `NativeNavigationShell` -> `ToolsEntry(CLI)` ->
+`ToolsDiagnosticsScreen`; `SessionPortAdapters` supplies a null repeater provider without
+a radio session. This is a source-bound observed functional explanation gap, not a font
+artifact or claimed hardware transmission.
+
+Assigned issue220 routes production to the existing WP-316 coordinator/source owner,
+not a new worker. WP-503 preserves the failing native description assertion and owns
+re-audit only. The companion real Rx offline text/recovery/filter/48dp/font checks pass
+2/2 at the same candidate. No full connected CLI/Rx or device coverage is implied.
+
 ## Existing strengths to preserve
 
 `NativeNavigationShell` uses current available width, Material navigation, tab selection,
@@ -162,11 +222,12 @@ WP-308's dedicated producer owns #208; the existing coordinator owns WP-316 repa
 No nested worker, golden update, threshold relaxation, signing action or repository-setting
 change occurred. Required repaired room link APIs must be reconciled in owned fixtures only
 against genuinely adopted product bytes; old compilation is not repair evidence.
-The actual standalone PR209 head83e957917 cannot compile its contextual room caller:
+Historical standalone PR209 head83e957917 could not compile its contextual room caller:
 `RoomConversationScreen.kt:272`, missing `MessageBody.backgroundColor`. Owned fixture
 adaptation is checked/committed, but executable room re-audit remains blocked on serialized
 compatible WP-310/WP-308 product integration, not hypothetical identity or permissions.
-Actual newer room9892e7c7f still fails that same missing production parameter before
-discovery. New composer948951f27 independently fails the actual AppChatsFeature adapter's
+Historical room9892e7c7f failed that same missing production parameter before
+discovery. Composer948951f27 independently failed the actual AppChatsFeature adapter's
 obsolete queue-send overrides/unresolved resendChannel before discovery. Their producers/
-App owner must serialize integration; the older149 native pass is not transferred to948.
+App owner serialized integration. Actual d2/e18 passes above are new executions, not
+transferred older149 results. Full flow/window coverage and physical TalkBack remain unfinished.

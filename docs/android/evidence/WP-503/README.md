@@ -3,7 +3,73 @@
 **Incomplete, not accepted.** Native suites execute through the existing App unit runner.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
-No screenshot golden comparison, device TalkBack observation or independent review occurred.
+No screenshot golden comparison, device TalkBack observation or independent review of this
+WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Latest bounded executable results
+
+All commands below use the installed serialized Git-bundle/ext4 adapter, actual pinned
+environment preflight and credential-stripped candidate environment. They invoke the existing
+App task, not new acceptance tasks. Common exact options:
+`--console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
+Native graphics, SDK31/37; owned audits use real Resources font2/RTL. The producer-owned
+keyboard cohort's different native window/default font is explicitly recorded below.
+No device/TalkBack claim.
+
+| Actual committed inputs / command (plus common options) | Discovered / result |
+| --- | --- |
+| Product06fceec24f920e87a4a267a55499236ca3c25959 + audit39fcaf873b53616720545f36f4121bb1e9037442; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.rendered* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.direct* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.audit*` | Failed before native discovery. Localization converter74 cases/one error: trusted portmap rejects mixed AndroidOnly/PortedFrom dispositions on AppChatsFeature. Original producer corrected headers; no task bypass/zero-test credit. |
+| Productd2b64b584892f0b63545f0e02c9c9e119b3d8b06 + same audit39fc; same contrast/direct/guard command | **8/8 passed**,0 failures/errors/skips; exactly760 painted records/0 below floors/min4.517812074094317. High-contrast identity38 records/0fail/min7.027937730337613. |
+| Producte18ab1dac6186dfcdbef9debd0b2990e84797b4f + audit39fc/checked required-onLink patch; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.room* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.remember*` | 14 discovered,12 passed,2 failed,0 errors/skips. Author/status/link callback/Remember/no-sent-retry pass. Only cleared-child Retry displayed-text oracle fails; diagnosed against actual consumer and frozen custom-action/pointer-button contract, not called a product defect. |
+| Same producte18 + audit80376e8f3e3d0adda276a78f791a9c2085b606dd; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.roomFailed*` | Test-only compile failure: missing installed `click` extension import.0 discovery rejected; corrected at01f430710. |
+| Same producte18 + audit01f43071015d433ae2e54f66e3a63d7a922a0291; same roomFailed command | **2/2 passed**,0 failures/errors/skips. Exact named custom action and real pointer click independently invoke correct message ID. Effective pointer target86x54dp, bounds(16,196)-(102,250), fully within row(16,115)-(344,250). Body138x33px has nonempty realfont2/RTL lines/zero clipping. |
+| Same producte18 + same audit01f430/checked required-onLink patch; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest` | **22/22 passed**,0 failures/errors/skips. All six frozen room distinctions/Remember/direct retry/live-region controls and all38 contrast frames. Exactly760 measured painted spans/0 below unchanged4.5/7 floors/min4.517812074094317, not a sum of earlier candidate results. |
+| OWN83455603c14f95aa758e1a0bbea5c3dfc933a985; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest` | 6 discovered,2 passed,4 failed,0 errors/skips. Connecting text/disabled duplicate-connect/cancel passes. Same-copy Continue selector is ambiguous; direct initial-root focus assertion fails before editor flow. No product findings inferred. |
+| OWN69819afacfbce7fee5abefd042287b43b54852b4; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest.denied* --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest.wifiNative*` | 4 discovered/4 failed,0 errors/skips. Separate request/Continue callbacks and54dp targets pass; entire638px paragraph cannot fit in561px card viewport. Correct oracle must check actual scroll-reachable lines. Additional root focus notification does not resolve initial attachment timing. Neither is filed as a product defect. |
+| OWNdea8d072ff7498e70450f47b21015910b2dd5dac; same denied/wifiNative selectors plus `--tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest.wifiInitial*` | **6/6 passed**,0 failures/errors/skips. Both APIs perform every one of40 permission lines via actual native ScrollBy; exact request/settings/Continue callbacks, native editor focus/Next/Done, actual coordinator failure/retry/cancel and controlled framework/WiFi autofocus pass. |
+| OWN4d86cc00b6eaecdc7eb043d8b357557523a5121b after actual main663 integration; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest` | **8/8 passed**,0 failures/errors/skips. Full onboarding class, including actual pending-connect textual progress/disabled actions, in one actual adopted-main execution. |
+| OWN33f9dea0d2a56c30e23505caa8b25e4e65fedc48; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest.disconnectedCli* --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest.disconnectedRx*` | 4 discovered/run,2 passed/2 failed,0 errors/skips. Actual Rx offline/recovery/filter selection/48dp/font checks pass on both APIs. Both CLI cases fail source description visibility: one enabled editable input, no localized disconnected explanation. Assigned defect220; unchanged normative regression retained. |
+| Actual producer03753f129984598436b57218ee7f4b82ab99395e, its own existing test source/no owned fixture or App registration; `:app:testDebugUnitTest --tests com.meshcoreone.android.wp308diagnostic.HardwareReturnDiagnosticTest` | **8/8 passed**,0 failures/errors/skips. Actual1080x1000dp/default-font native window. Four complete methods cover five disabled-send gates, Enter/NumPadEnter, KeyDown-only valid send, connected/disconnected Shift newline and both Unicode selection directions/caret. Synthetic native keys/callbacks, not physical keyboard/IME/queue delivery or font200. |
+
+The room oracle now preserves **both** the source named accessibility action and the actual
+native pointer button. Cleared child speech is not native visibility. It measures the
+real button and injects a real pointer click rather than substituting a generic row action.
+The six frozen distinctions and all thresholds remain; producer bodies are not edited.
+The required new room callback is still applied only to owned snapshot fixtures while
+that product is unadopted. The actual Room/App wiring comes from the producer candidate.
+
+Onboarding assertions mount real public content and the real WiFiConnectionCoordinator
+with explicit pending/failure ports; no claimed successful transport or platform permission
+dialog. Paragraph reachability checks all80 actual lines over both APIs with zero line
+clipping, not simultaneous paragraph fit. Native-control and then WiFi subtree autofocus
+both report focused=true; initial direct-root attachment timing remains a qualification,
+not a product fix or a physical keyboard/IME observation.
+
+Both bounded producer reviews were posted as **COMMENTED**, not APPROVED/protected gates:
+[PR209 review5494169311](https://github.com/cbattlegear/MeshCoreOne-Android/pull/209#pullrequestreview-5494169311)
+at exacte18 source/native22-case result, and
+[PR213 review5494169481](https://github.com/cbattlegear/MeshCoreOne-Android/pull/213#pullrequestreview-5494169481)
+at exactd2 painted8-case result.
+They explicitly exclude business queue-event order, whole-WP and physical/device acceptance.
+
+The current keyboard review at exact037 records only the independently executed native
+eight-case result; the earlier d2 painted result is not transferred to037.
+Assigned [issue220](https://github.com/cbattlegear/MeshCoreOne-Android/issues/220) contains
+the real CLI head/consumer/source/measurements and exact failed command. Production stays
+with the existing WP-316 coordinator; the regression is neither waived nor expected-passing.
+
+Actual reviewed main663fa73fab99356f7097534288e820a126890195 is integrated at
+OWN4d86cc00b6eaecdc7eb043d8b357557523a5121b. The single disjoint App build conflict preserves
+both audit source-set registration and all main WP-504 release/R8/benchmark/profile settings;
+relative to main the App diff is only the two-line audit registration.
+
+Authoritative historical OWN0e44dcfc34961737d18fe80f10c131d71c1a973e hosted
+[run38282515710](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38282515710)
+**FAILED**:720 App tests discovered/12 failed against legacy room/contrast production.
+The emitted outgoing source-delivered label and incoming-author assertions fail, not compile.
+No suppressed-looper warning is assumed to be the cause. Those assertions pass unchanged
+on the genuinely integrated producer e18 above. Codec oracle succeeded; restore skipped.
+The exact hosted log is authoritative; no second CI-result bundle is retained.
 
 ## Identity and revisions
 
