@@ -29,8 +29,18 @@ modified timestamps instead of two unasserted Date reads. No universal
 identity/randomness, cap/eviction/reboot, concurrency/cancellation/rollback,
 all-ties/clustering, SwiftData/API37/device/full parity evidence.
 Same reservation31->32/owned-create retains immutable authorization/pins.
-New15-name exact selector execution pending;36/135 persistence originals
-proposed/remaining99 unresolved. Previous7/14/4/19/49/53 unchanged.
+Actual clean`4d41b5866fcd457a3ea3a1c2bbfb1e8783691c13`/base9ed1
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest --dependency-verification=strict --quiet`
+discovers15/15PASS/zeroFAIL-error-skip/all15 distinct original runner
+identities, XML2026-10-12T10:03:22.169Z/native
+`100e928ac4fdb76e85e994e99dcfbb94fc375c77`. ReadinessPASS JDK21.0.12.1/
+SDK37.2/tools37/own private state, clean tracked inputs, zero notice
+normalizations and supported locks normally released. Only this new class
+ran. Actual197 merge notification arrived during already-started bounded
+execution; no rebase/checkout changed its running inputs. This is its
+pre197-adoption receipt, not a successor/post197 execution relabel.
+36/135 persistence originals proposed/remaining99 unresolved;
+previous7/14/4/19/49/53 unchanged.
 
 ## Qualified independent76 preset source comparison
 
