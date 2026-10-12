@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "6811d71ad9cc365dac5a2e19046c33bf407ca1d673d5fc4fc4b44b6c5cbf0b16",
+  "proposal_sha256": "67dc815dfd8db3b6a07745abcf0a94bf3bbe785953e7de5b5f187b497e1b4801",
   "families": [
     {
       "group": "backup-envelope",
@@ -52209,7 +52209,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -53151,7 +53151,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -54628,7 +54628,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -54793,7 +54793,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -54922,7 +54922,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -55075,7 +55075,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -55746,7 +55746,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -55917,7 +55917,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -56124,7 +56124,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -57109,7 +57109,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -57262,7 +57262,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -57923,7 +57923,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -58076,7 +58076,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -58313,7 +58313,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -58502,7 +58502,7 @@
     },
     {
       "group": "persistence-original-restored-room-session-predicates",
-      "comparison_sha256": "d493293a406bbe3a4a0aaf5b391ce20b89dd2a14ecbd03f133ccc18d11ef52a3",
+      "comparison_sha256": "2c2057aa0ed0d281d002abc2d3d271c0d004178bd833a6f6f4ad45ed89465ca9",
       "source_file_family_count": 135,
       "group_compared_family_count": 15,
       "partial_source_file": true,
@@ -62252,7 +62252,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "comparison_sha256": "ea18b1eefcfca6d5822723fafb9e0d67ff80ecb0a4919ef443de021802f8fbbb",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -62433,7 +62433,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "comparison_sha256": "ea18b1eefcfca6d5822723fafb9e0d67ff80ecb0a4919ef443de021802f8fbbb",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -62842,7 +62842,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "comparison_sha256": "ea18b1eefcfca6d5822723fafb9e0d67ff80ecb0a4919ef443de021802f8fbbb",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -63203,7 +63203,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "comparison_sha256": "ea18b1eefcfca6d5822723fafb9e0d67ff80ecb0a4919ef443de021802f8fbbb",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -63432,7 +63432,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "comparison_sha256": "ea18b1eefcfca6d5822723fafb9e0d67ff80ecb0a4919ef443de021802f8fbbb",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,

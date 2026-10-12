@@ -12,6 +12,24 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Additive room/session15 source review
+
+Qualified SOURCE-ONLY COMMENTED
+[5490349310](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5490349310)
+at46a50/basee0b6/2026-10-12T11:54:08Z fully read/reconciled. Actual reviewed
+proposal91437a57 and unchanged group/rows/195helperrows/13input bytes guarded.
+Complete15 original/native/helper/default/model/projection/real Room SQL/
+mapping/repository/transaction/frozen-native recovery-before-dedup/receive-
+bookmark/send-omit/logout/App room adapter-events compared, no selected blocker.
+All activity non-null/monotonic/bookmark, six connection role-field/default
+ZERO-geography, author-text-count/whole-second ordering/independent dedup/
+KeepRoom-DuplicateRoom and deleted-history predicates retained. Supplement
+committed-date column never replaces original DTO/legacy fallback checks.
+Initiala7ac compile-before-discovery failure and correctedfd5e/base9e515PASS
+remain historical input identities, not current46a private certification/
+APPROVED/full135; fixed-key/wall-clock/hash-fixture/engine/rollback/race/
+cancellation/mounted/API37/device limits preserved, no unchanged replay.
+
 ## Five restored cascade originals and additive RX14 source review
 
 Current proposals1412/5133/180groups/81mandatory/zero approved include five
@@ -28,7 +46,14 @@ replace source randomness. Real API31 Room/nativeSQLite transactions replace
 SwiftData, not source-engine relationship-trap/rollback/concurrency or every-
 entity/PendingSend/trace/snapshot/device/mounted forget certification.
 Same-owner typed reservation34->35 admits only the owned class/create;
-immutable authorization/pins unchanged. Five-name native execution pending.
+immutable authorization/pins unchanged. Actual clean
+4ca3cafd89028df7be85e1331b1b497e233288a5/basee0b6 strict Windows
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest --dependency-verification=strict --quiet`
+discovers5/5PASS/zero failures-errors-skips/all5 distinct original identities,
+XML2026-10-12T11:52:47.928Z/native44af681efa3b7154af4bfe976b3405f4735e6918.
+ReadinessPASS/clean inputs/zero notice normalizations/supported native and
+Gradle locks normally released. Only the new class selected; local receipt
+does not certify independent/full135 acceptance.
 All earlier native methods/helpers/receipts remain unchanged.
 
 Actual SOURCE-ONLY COMMENTED

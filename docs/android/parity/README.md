@@ -1,5 +1,15 @@
 # WP-501 source, case-family and consumer acceptance
 
+Qualified room/session15 SOURCE-ONLY COMMENTED5490349310 at46a50/basee0b6/
+11:54:08Z read/reconciled additively;195helperrows/13inputs/proposal91437a57/
+unchanged selected group/rows/helper bytes guarded. Complete originals/native/
+defaults/projections/real Room SQL/mapping/transaction and recovery-before-dedup/
+receive-bookmark/send-omit/logout/App adapter-events compared, no selected blocker.
+Every original predicate and supplementary-date-versus-legacy-fallback distinction
+retained. Initiala7ac compile failure and correctedfd5e/base9e515PASS are
+historical inputs, not current46a certification/APPROVED/full135; fixed-key/
+wall-clock/hash-fixture/engine/race/cancellation/mounted/API37 limits and no replay.
+
 Five standalone cascade originals are now proposed, bringing the inventory to
 1412/5133 comparisons/180 groups/81 mandatory consumers/zero approved:
 68/135 persistence proposed,67 remaining. Three preserve the complete original
@@ -10,7 +20,11 @@ emoji, room Author and RX sender12345 are retained. Fixed keys replace random
 keys explicitly; current dates and independent UUIDs remain. Real API31 Room
 transactions replace SwiftData, not engine crash/rollback/concurrency/device
 certification. Same reservation34->35 admits only the owned class/create.
-Five-name execution pending; no older selector replay or aggregate credit.
+Actual clean4ca3cafd89028df7be85e1331b1b497e233288a5/basee0b6 strict
+five-only selector5/5PASS/zeroFAIL-error-skip/all5 original identities,
+XML2026-10-12T11:52:47.928Z/native44af681efa3b7154af4bfe976b3405f4735e6918.
+ReadinessPASS/clean inputs/zero notice normalizations/locks released normally.
+No older selector replay or aggregate credit; independent/full acceptance pending.
 
 Qualified RX14 SOURCE-ONLY COMMENTED5490272431 at46a50/basee0b6/
 11:46:18Z is read/reconciled additively:14 complete originals/counterparts/
