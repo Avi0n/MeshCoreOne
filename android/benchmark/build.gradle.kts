@@ -1,6 +1,7 @@
 // AndroidOnly: WP-504 External-package instrumentation; no benchmark dependency enters the product.
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.gradle.api.artifacts.result.UnresolvedDependencyResult
 import org.gradle.maven.MavenModule
 import org.gradle.maven.MavenPomArtifact
 import org.w3c.dom.Element
@@ -76,8 +77,12 @@ tasks.register("benchmarkDependencyInventory") {
     notCompatibleWithConfigurationCache("Reads the actual instrumentation resolution graph")
     doLast {
         val configuration = configurations.getByName("debugAndroidTestRuntimeClasspath")
-        configuration.incoming.artifacts.artifacts
-        val ids = configuration.incoming.resolutionResult.allComponents
+        val graph = configuration.incoming.resolutionResult
+        val unresolved = graph.allDependencies.filterIsInstance<UnresolvedDependencyResult>()
+        check(unresolved.isEmpty()) {
+            "Unresolved benchmark dependencies: ${unresolved.joinToString { "${it.requested.displayName}: ${it.failure.message}" }}"
+        }
+        val ids = graph.allComponents
             .mapNotNull { it.id as? ModuleComponentIdentifier }.sortedBy { it.displayName }
         check(ids.isNotEmpty()) { "Empty benchmark runtime graph" }
         val factory = javax.xml.parsers.DocumentBuilderFactory.newInstance().apply {
