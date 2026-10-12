@@ -82,15 +82,15 @@ class HardwareReturnDiagnosticTest {
         host.pause().stop().destroy()
     }
 
-    private fun select(value: ComposerUiState) {
+    private fun select(value: ComposerUiState, selection: TextRange = TextRange(value.draft.length)) {
         compose.runOnIdle {
             state.value = value
-            field.value = TextFieldValue(value.draft, TextRange(value.draft.length))
+            field.value = TextFieldValue(value.draft, selection)
             sendRequests = 0
         }
         compose.onNode(hasSetTextAction()).performClick().assertIsFocused()
         compose.runOnIdle {
-            field.value = field.value.copy(selection = TextRange(field.value.text.length))
+            field.value = field.value.copy(selection = selection)
         }
         val label = if (value.isOverLimit) AppChatsStrings.chatsInputTooLong else AppChatsStrings.chatsInputSendMessage
         val send = compose.onNodeWithContentDescription(host.get().getString(label))
@@ -151,7 +151,27 @@ class HardwareReturnDiagnosticTest {
                 }
                 compose.runOnIdle {
                     assertEquals(0, sendRequests)
-                    assertEquals(value.draft + "\n", field.value.text)
+                    assertEquals("Shift $value / $key must insert a newline", value.draft + "\n", field.value.text)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun shiftReturnReplacesTheSelectionWithoutLosingSurroundingUnicode() {
+        val value = ComposerUiState(draft = "\u4e2d\uD83D\uDE80selectedsuffix", maxBytes = 160, isConnected = true)
+        for (selection in listOf(TextRange(3, 11), TextRange(11, 3))) {
+            for (key in enterKeys) {
+                select(value, selection)
+                compose.onNode(hasSetTextAction()).performKeyInput {
+                    keyDown(Key.ShiftLeft)
+                    pressKey(key)
+                    keyUp(Key.ShiftLeft)
+                }
+                compose.runOnIdle {
+                    assertEquals(0, sendRequests)
+                    assertEquals("\u4e2d\uD83D\uDE80\nsuffix", field.value.text)
+                    assertEquals(TextRange(4), field.value.selection)
                 }
             }
         }
