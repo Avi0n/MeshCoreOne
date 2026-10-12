@@ -7,16 +7,31 @@ arguments/ordered values/learned-name-key replacement/verbatim-case/dedup
 and count predicates were compared with real assertion-loop helpers and
 actual holder/shared-terminal consumers. Source display names join renamed
 native methods by exact annotated identity, not assumed JUnit names. Selected
-execution87/86 and independent/full acceptance pending; scalar-order native
-supplement adds no original credit.
+execution at clean55b0/base185466 strict Windows discovers87/87PASS/
+zeroFAIL-error-skip/all86 exact required names,08:42:50.464Z. One scalar-order
+supplement adds no original credit; independent/full acceptance pending.
 The actual retained WP316 Swift oracle independently prints composed-e-acute
 hasPrefix decomposed-e-acute true. Native learned-name/key/ghost startsWith
 is raw UTF16 despite NFC sorting; selected86 ASCII cases do not cover that
 gap. Four new mandatory actual-engine/shared-terminal ghost/tab predicates
-preserve the independent vector and verbatim input. Native execution is
-pending, not a passing or fresh Swift claim; product repair belongs WP316.
+preserve the independent vector and verbatim input. Actual separate scoped
+App4/4FAIL/zeroPASS-error-skip/all4 names at55b0/base185466/08:44:53.483Z:
+node/key expected[e-acute]/actual[], calibrated ghost expectedNode/actualempty,
+tab expected verbatim e-acuteNode+space/actual unchanged decomposed input.
+Ghost's real bare-login exact-suggestion calibration passes; later acceptance/
+null-state guards are unreached, not passing evidence. Owner defect196/WP316
+is filed using the complete template. No fresh Swift/full Unicode/physical
+claim; readinessPASS/cleaninputs/supportedlocksreleased, no other native replay.
 Same reservation28->29 admitted wp-owned/create, immutable authorization and
 initial source/base/policy retained. Default189/incoming192 remain unchanged.
+Bounded source-only195 comparison6120917871 is posted at0d52/base185466:
+complete three-path caller/test/deviation,12 preserved+7 new scheduler methods,
+models/actual handoff/generation-validated updaters read, no new selected
+blocker. Executed756/published0d52 product/test blobs equal; no private receipt
+certification/native19 replay/formal approval/merge or changed-input189 claim.
+Initial wrong controller test-directory/importability attempt discovered no
+real tests; corrected declared tools/android-port/tests selector7PASS and full
+parity93/checksPASS. No success-shaped fallback for native4FAIL.
 
 Actual reviewed193 transport merge185466 is adopted: parentse508+032c,
 candidate-equal tree252bc0c6 independently verified; exactly inherited

@@ -37,19 +37,48 @@ membership/exclusion/equality/empty/count/order/state predicates and real
 assertContainsAll/assertContainsNone loop definitions with every vararg.
 Complete engines/10-key enum/SwiftStrings/learned-state/shared-terminal
 consumers read, not annotation/header credit. Exact explicit originals join
-renamed native JUnit methods. New scoped87 execution/86 original identities
-pending; scalar-order supplement is no extra original/full consumer credit.
+renamed native JUnit methods. Actual clean
+`55b0e4d19ab44807cd29d3e9c58781a282ef501b` /base185466 strict Windows
+`:feature:tools:testDebugUnitTest --tests com.meshcoreone.android.feature.tools.diagnostics.cli.CliCompletionEngineTest --dependency-verification=strict --quiet`
+discovers87/87PASS/zeroFAIL-error-skip/all86 exact original names at
+08:42:50.464Z. Scalar-order supplement is no extra original/full consumer credit.
 Actual retained WP316 oracle.swift.txt uses composed-e-acute.hasPrefix(
 decomposed-e-acute); oracle-output.txt line162 reports true. Native raw UTF16
 startsWith differs at learned node/custom keys and shared ghost state despite
 NFC sorting. Four mandatory engine/shared-terminal ghost/tab predicates bind
 that independent vector, verbatim learned names/input and real transitions.
 No candidate-generated expected strings, protected oracle edit, fresh Swift
-execution, native pass or full Unicode/keyboard/UI/radio certification.
+execution, canonical-consumer pass or full Unicode/keyboard/UI/radio certification.
+Separate actual strict Windows
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.CliCompletionUnicodeAcceptanceTest --dependency-verification=strict --quiet`
+at the same clean55b0/base185466 discovers4/4FAIL/zeroPASS-error-skip/all4
+mandatory identities,08:44:53.483Z. Node/key expected[e-acute]/actualemptylist,
+ghost expectedNode/actualemptystring, tab expected verbatim e-acuteNode+space/
+actual unchanged decomposed input. Ghost calibrates actual bare-login single
+suggestion before its real failure; later ghost-acceptance/null-tab predicates
+remain unreached, not green evidence. Full failure messages/lines16/23/34/46
+and original86 runner joins read independently. Actual class blobs
+ce63b41518ce4cbeed114a75f678c0b0ea9c8ca3 and
+dfa34783192428f6606360067e03d29f2a44be4c bind the selected executions.
+ReadinessPASS JDK21.0.12.1/SDK37.2/tools37/own explicit private state;
+tracked inputs clean and supported native/Gradle locks released normally.
+Owning product defect[#196](https://github.com/cbattlegear/MeshCoreOne-Android/issues/196)
+uses the complete repository bug template; no silent product edit/witness
+weakening or unchanged native replay. Overall native command FAILED, not
+success-shaped fallback or original87/full Unicode equivalence.
 Supported same reservation28->29 adds the canonical owned file/create without
-changing historical authorization/base/source/policy. Native result pending;
-owning WP316 product defect intake awaits the actual scoped witness execution.
+changing historical authorization/base/source/policy.
 Pacing189/incoming192 witnesses/control unchanged, no incumbent replay.
+Bounded source-only195 comparison6120917871/0d52/base185466 was posted
+after complete three-path/models/caller/updater/scheduler/incumbent12+new7
+body inspection. Product/test blobs0edf823b/ec050705 equal executed756;
+no new selected source blocker, private certification/native19 replay/
+formal approval/merge or changed-input189 claim. Initial wrong controller
+test-directory/importability attempt discovered no real tests; actual corrected
+`python -m unittest discover -s tools/android-port/tests -p 'test_ci_evidence.py' -q`
+with explicit existing PYTHONPATH PASS7, full parity93/checksPASS. Initial
+long-path Git snapshot reader failure was resolved by scoped core.longpaths;
+it is not a native source mismatch/execution or global Git modification.
 
 ## Historical radio-preset original comparisons
 
