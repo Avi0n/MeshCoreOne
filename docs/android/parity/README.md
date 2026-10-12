@@ -1,5 +1,11 @@
 # WP-501 source, case-family and consumer acceptance
 
+Reviewed map201 mergeab1b8bbf verified parents6863+917/candidate-equal
+treee147a94e/exact two paths, quietly adopted2faceef8 after normal native
+lock release. All1417 binding/helper inputs unchanged by that test-only
+adoption; no map/CLI/original replay or private hosted/Windows certification.
+Source6124055258 and historical map failure/retry/fast UNVERIFIED remain separate.
+
 Current increment:1417/5133 proposed comparisons/181groups/83mandatory/
 zero approved;73/135 persistence proposed,62remaining. Five new independent
 contact/history originals preserve Alice readback, two unread increments and

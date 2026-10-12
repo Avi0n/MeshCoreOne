@@ -4,7 +4,7 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `6863a0acb08b01026218962218f5dd60895547d4`.
+Current integrated base: `ab1b8bbff9dc51f8bc734fd2d20708fc1d6af775`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
@@ -13,6 +13,17 @@ Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
 ## Contact/history input increment and qualified reviews
+
+Actual PR201 MERGED12:38:58Z/issue200 CLOSED12:38:59Z independently
+verified: mergeab1b8bbff9dc51f8bc734fd2d20708fc1d6af775 parents6863+917,
+candidate-equal treee147a94e29bba5a754aaea56d1b31f434ffd58d2, exactly
+ChatMapPreviewTest.kt/WP-307 deviation. Quiet additive worker adoption
+2faceef85f8f5374b7e638b559eae244fcba7930 after native locks released preserves
+all worker inputs. No1417 binding references the changed map test; no map/
+CLI/original selector replay. Qualified6124055258 source comparison remains
+source-only; owning Windows20/hosted38247440405 outcomes are separate reported
+executions, not worker certification or second CI-result bundle. Prior map
+failure/retry/local fast UNVERIFIED remain historical, not rewritten.
 
 Latest input increment adds five independent contact/history originals and two
 mandatory actual App single-deletion consumers. Current1417/5133 proposals/
