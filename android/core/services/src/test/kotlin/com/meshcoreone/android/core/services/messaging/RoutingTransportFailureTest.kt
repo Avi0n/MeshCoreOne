@@ -13,6 +13,7 @@ import com.meshcoreone.android.core.protocol.config.SessionConfiguration
 import com.meshcoreone.android.core.protocol.event.MeshTransportError
 import com.meshcoreone.android.core.protocol.model.CommandCode
 import com.meshcoreone.android.core.protocol.session.MeshCoreSession
+import com.meshcoreone.android.core.protocol.session.MeshCoreSessionProtocol
 import com.meshcoreone.android.core.protocol.session.SessionCorrelationException
 import com.meshcoreone.android.core.protocol.transport.MeshTransport
 import kotlin.test.*
