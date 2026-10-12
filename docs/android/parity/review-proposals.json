@@ -5,6 +5,43 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "messaging-send-original-unstarted-validation-pending-dto-contact-queries-and-concurrent-claim",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
+      "native_factory": "sending",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
+      "runner_name": "original-case-id",
+      "comparison": "Twelve complete originals retain typed invalidRecipient for repeater2 and messageTooLong for151a in both send APIs and createPendingMessage, Hello saved before a failing unstarted direct send, contact-keyed query limit10/offset0 with independent nonempty/first-text/outgoing predicates, Pending DTO pending/outgoing/text/contact plus independently required fetched row and pending status, Hello world/plain/no-channel/radio/contact fields, saved-contact/nil lastMessageDate before First DM then conversation/contact-date predicates, and same-message in-flight guard with already in progress reason versus missing-row SendFailed. Restored ABx32/TestContact/chatraw1/nil lastHeard/other helper defaults and timeout5; removed started-session setup from two source-unstarted pending cases. Prior stronger empty-store/whole-row/exact-one-conversation guards remain supplemental.",
+      "inputs": "Complete first12 frozen bodies and ContactDTO+Testing/MessageService+Testing helpers, native ContactDTO defaults/raw enum semantics, source/native validation/createPendingMessage/sendDirectMessage/save/error consumers, native queuedDM in-flight guard/fetchSaved and actual RecordingStore contact-query/row-fetch/conversation/update implementation read. Source maxDirectMessageLength+1 is exact151 at the pinned150-byte limit. Invoked sourceContact helper preserves the source fixture rather than Peer/key22/chatfallback0/lastHeard0.",
+      "adaptations": "Real source SwiftData is represented here by disclosed lower-level RecordingStore, not labelled Room; separately bound bookkeeping/pending families exercise real Room. Owned generation/required connection identity use valid fixed radio/contact versus ambient UUIDs; injected clock replaces ambient Date without changing an absolute source literal. Concrete session stays unstarted for all12; native local public key exists as required constructor identity without source currentSelfInfo. Saved-before-attempt original accepts any error; retained native MessageServiceException is stronger, not every source error-subtype certification. Not other23send originals, Unicode widths, all error/cancellation/order or mounted UI parity.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageService+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageService+SendDM.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt"
+      ],
+      "consumer": "Actual validation, outgoing-row construction, selected contact query, returned/fetched pending DTO, before/after conversation inclusion and owned in-flight retry guard asserted. Full comparison bounded to these12; green38-method SourceSend registration is not all35original send acceptance. Original names/identities unchanged.",
+      "unresolved": ["Fresh exact current-base/current-input covering discovery required after raw1 and12fixture restoration; b371/627 is historical, not changed native-blob execution. Independent review, current-hosted result and persistent reviewed merge required; no production edit, denominator/exclusion change or full WP501 acceptance."],
+      "methods": [
+        "sendDirectMessage throws invalidRecipient for repeater contacts",
+        "sendDirectMessage throws messageTooLong for oversized text",
+        "sendDirectMessage saves message to dataStore before send attempt",
+        "sendMessageWithRetry throws invalidRecipient for repeater contacts",
+        "sendMessageWithRetry throws messageTooLong for oversized text",
+        "createPendingMessage creates message with pending status",
+        "createPendingMessage throws invalidRecipient for repeater",
+        "createPendingMessage throws messageTooLong for oversized text",
+        "createPendingMessage returns DTO with correct fields",
+        "createPendingMessage stamps lastMessageDate so a first DM appears in the chat list before any send succeeds",
+        "sendPendingDirectMessage rejects concurrent send for same messageID",
+        "sendPendingDirectMessage throws when message not found"
+      ]
+    },
+    {
       "id": "messaging-consumer-original-exact-typed-advertisement-noise-and-restarted-ack-listener",
       "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceListenerIntegrationTests.swift",
       "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
@@ -46,7 +83,7 @@
         "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt"
       ],
       "consumer": "Concrete accepted-send post-bookkeeping failure must retain ownership of the genuine ACK and never emit a false DM failure. This is not a malformed database shortcut, synthetic thrown storage error or production bug fix. Later real ACK to a deleted row/expiry/continued monitoring are broader existing regressions, not additional original-family credit.",
-      "unresolved": ["Clean b37110635dc94831cd371ebdc2cd0d1cb88d5220/440d exact covering execution passed all29actualRoom integration methods plus15pending originals,210all shared messaging consumers and5App/adopted fixture cases, zero failures/errors/skips; declared combinedPython363/363PASS. Executed integrationblob0f6c81d0cae17cd1889b9dff37a260406f4c2698. Expected send failure is explicitly awaited in the existing owned supervised connection scope; real-file reopen keeps every predicate using a short isolated Windows database path. Earlier actual compile/async/path failures retained in WP501 receipt. Independent source review, authoritative current-hosted result and persistent reviewed merge remain required. No iOS/hardware/full WP501 claim."],
+      "unresolved": ["Historical clean b37110635dc94831cd371ebdc2cd0d1cb88d5220/440d passed29actualRoom integration plus15pending/210messaging/5App andPython363,0failure/error/skip, but constructors used native unknownraw0/chat fallback rather than source explicitchat1. Both services/Room inputs now restore raw1; fresh exact covering execution required. Expected send failure is awaited in the existing supervised connection scope; real-file reopen retains all predicates with short isolated Windows path. Earlier actual failures remain in WP501receipt. Independent review, current-hosted result and persistent reviewed merge required. No iOS/hardware/full WP501 claim."],
       "methods": ["sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails"]
     },
     {

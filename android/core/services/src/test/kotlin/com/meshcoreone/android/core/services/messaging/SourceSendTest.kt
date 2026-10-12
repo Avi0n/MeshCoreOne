@@ -18,72 +18,88 @@ import org.junit.jupiter.api.TestFactory
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SourceSendTest {
+    private fun sourceContact() =
+        ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), "TestContact",
+            typeRawValue = 1u, lastHeardTimestamp = null)
+
     @TestFactory fun sending() = listOf(
         original("MessageServiceSendTests", "sendDirectMessage throws invalidRecipient for repeater contacts") {
-            val h = Harness(this)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
             assertEquals(MessageServiceError.InvalidRecipient, assertFailsWith<MessageServiceException> {
                 h.service.sendDirectMessage("Hello", h.contact.copy(typeRawValue = 2u))
             }.error); assertTrue(h.store.messages.isEmpty()); h.close()
         },
         original("MessageServiceSendTests", "sendDirectMessage throws messageTooLong for oversized text") {
-            val h = Harness(this)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
             assertEquals(MessageServiceError.MessageTooLong, assertFailsWith<MessageServiceException> {
                 h.service.sendDirectMessage("a".repeat(151), h.contact)
             }.error); h.close()
         },
         original("MessageServiceSendTests", "sendDirectMessage saves message to dataStore before send attempt") {
-            val h = Harness(this)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
             assertFailsWith<MessageServiceException> { h.service.sendDirectMessage("Hello", h.contact) }
+            val messages = h.store.fetchMessages(EntityKey(RADIO, h.contact.id), 10, 0)
+            assertTrue(messages.isNotEmpty())
+            assertEquals("Hello", messages.first().text)
+            assertEquals(MessageDirection.OUTGOING, messages.first().direction)
             assertEquals("Hello", h.store.messages.values.single().text)
             assertEquals(MessageDirection.OUTGOING, h.store.messages.values.single().direction); h.close()
         },
         original("MessageServiceSendTests", "sendMessageWithRetry throws invalidRecipient for repeater contacts") {
-            val h = Harness(this)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
             assertEquals(MessageServiceError.InvalidRecipient, assertFailsWith<MessageServiceException> {
                 h.service.sendMessageWithRetry("Hello", h.contact.copy(typeRawValue = 2u))
             }.error); h.close()
         },
         original("MessageServiceSendTests", "sendMessageWithRetry throws messageTooLong for oversized text") {
-            val h = Harness(this)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
             assertEquals(MessageServiceError.MessageTooLong, assertFailsWith<MessageServiceException> {
                 h.service.sendMessageWithRetry("a".repeat(151), h.contact)
             }.error); h.close()
         },
         original("MessageServiceSendTests", "createPendingMessage creates message with pending status") {
-            val h = Harness(this); h.start(); val m = h.service.createPendingMessage("Pending", h.contact)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
+            val m = h.service.createPendingMessage("Pending", h.contact)
             assertEquals(MessageStatus.PENDING, m.status); assertEquals(MessageDirection.OUTGOING, m.direction)
-            assertEquals("Pending", m.text); assertEquals(CONTACT, m.contactID); assertEquals(m, h.stored(m.id)); h.close()
+            assertEquals("Pending", m.text); assertEquals(CONTACT, m.contactID)
+            val fetched = assertNotNull(h.store.fetchMessage(EntityKey(RADIO, m.id)))
+            assertEquals(MessageStatus.PENDING, fetched.status)
+            assertEquals(m, h.stored(m.id)); h.close()
         },
         original("MessageServiceSendTests", "createPendingMessage throws invalidRecipient for repeater") {
-            val h = Harness(this)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
             assertEquals(MessageServiceError.InvalidRecipient, assertFailsWith<MessageServiceException> {
                 h.service.createPendingMessage("Test", h.contact.copy(typeRawValue = 2u))
             }.error); h.close()
         },
         original("MessageServiceSendTests", "createPendingMessage throws messageTooLong for oversized text") {
-            val h = Harness(this)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
             assertEquals(MessageServiceError.MessageTooLong, assertFailsWith<MessageServiceException> {
                 h.service.createPendingMessage("a".repeat(151), h.contact)
             }.error); h.close()
         },
         original("MessageServiceSendTests", "createPendingMessage returns DTO with correct fields") {
-            val h = Harness(this); val m = h.service.createPendingMessage("Hello world", h.contact)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
+            val m = h.service.createPendingMessage("Hello world", h.contact)
             assertEquals("Hello world", m.text); assertEquals(CONTACT, m.contactID); assertEquals(RADIO, m.radioId)
             assertEquals(MessageDirection.OUTGOING, m.direction); assertEquals(TextType.PLAIN, m.textType); assertNull(m.channelIndex); h.close()
         },
         original("MessageServiceSendTests", "createPendingMessage stamps lastMessageDate so a first DM appears in the chat list before any send succeeds") {
-            val h = Harness(this); h.start(); assertTrue(h.store.fetchConversations(RADIO).isEmpty())
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
+            h.store.saveContact(h.contact)
+            assertTrue(h.store.fetchConversations(RADIO).isEmpty())
             h.service.createPendingMessage("First DM", h.contact)
             assertEquals(CONTACT, h.store.fetchConversations(RADIO).single().id)
             assertNotNull(h.store.contacts[EntityKey(RADIO, CONTACT)]?.lastMessageDate); h.close()
         },
         original("MessageServiceSendTests", "sendPendingDirectMessage rejects concurrent send for same messageID") {
-            val h = Harness(this); val id = UUID.randomUUID(); h.service.claimRetryForTest(id)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
+            val id = UUID.randomUUID(); h.service.claimRetryForTest(id)
             val e = assertFailsWith<MessageServiceException> { h.service.sendPendingDirectMessage(id, h.contact) }
             assertTrue(assertIs<MessageServiceError.SendFailed>(e.error).reason.contains("already in progress")); h.close()
         },
         original("MessageServiceSendTests", "sendPendingDirectMessage throws when message not found") {
-            val h = Harness(this)
+            val h = Harness(this, sessionTimeout = 5.0, contact = sourceContact())
             assertIs<MessageServiceError.SendFailed>(assertFailsWith<MessageServiceException> {
                 h.service.sendPendingDirectMessage(UUID.randomUUID(), h.contact)
             }.error); h.close()
@@ -233,7 +249,8 @@ class SourceSendTest {
         },
         original("MessageServiceSendDMBookkeepingTests", "sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails") {
             val h = Harness(this, sessionTimeout = 10.0,
-                contact = ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), "TestContact", lastHeardTimestamp = null))
+                contact = ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), "TestContact",
+                    typeRawValue = 1u, lastHeardTimestamp = null))
             h.start(); val events = h.service.statusEvents()
             h.transport.expectedAckOverride = Bytes.of(0xAB, 0xCD, 0xEF, 0x12)
             h.transport.suggestedTimeout = 5000u

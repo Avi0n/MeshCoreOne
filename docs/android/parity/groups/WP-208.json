@@ -3428,7 +3428,7 @@
       "native_contracts": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
-          "sha256": "847f670a05de21eec4f89e83d1c2ea23a1c22db6d20ca6cc59cde2f1408fb222",
+          "sha256": "fc907e8acf813234c788e98c790f2f879be2c431a56aa1f9d22b01f34a3e16b0",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
@@ -3683,87 +3683,87 @@
             {
               "name": "sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted",
               "line": 667,
-              "end_line": 689
+              "end_line": 690
             },
             {
               "name": "saveIncomingContact",
-              "line": 691,
-              "end_line": 698
+              "line": 692,
+              "end_line": 699
             },
             {
               "name": "incomingContactPacket",
-              "line": 700,
-              "end_line": 702
+              "line": 701,
+              "end_line": 703
             },
             {
               "name": "set",
-              "line": 708,
-              "end_line": 711
+              "line": 709,
+              "end_line": 712
             },
             {
               "name": "subscribeTransitions",
-              "line": 712,
-              "end_line": 720
+              "line": 713,
+              "end_line": 721
             },
             {
               "name": "close",
-              "line": 718,
-              "end_line": 718
+              "line": 719,
+              "end_line": 719
             },
             {
               "name": "snapshot",
-              "line": 722,
-              "end_line": 726
+              "line": 723,
+              "end_line": 727
             },
             {
               "name": "sent",
-              "line": 741,
-              "end_line": 741
-            },
-            {
-              "name": "isConnected",
               "line": 742,
               "end_line": 742
             },
             {
-              "name": "connect",
+              "name": "isConnected",
               "line": 743,
               "end_line": 743
             },
             {
-              "name": "disconnect",
+              "name": "connect",
               "line": 744,
               "end_line": 744
             },
             {
-              "name": "receivedData",
+              "name": "disconnect",
               "line": 745,
               "end_line": 745
             },
             {
-              "name": "supportsWriteWithoutResponse",
+              "name": "receivedData",
               "line": 746,
               "end_line": 746
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "supportsWriteWithoutResponse",
               "line": 747,
               "end_line": 747
             },
             {
-              "name": "send",
+              "name": "supportsPipelinedReads",
               "line": 748,
-              "end_line": 776
+              "end_line": 748
+            },
+            {
+              "name": "send",
+              "line": 749,
+              "end_line": 777
             },
             {
               "name": "pushAck",
-              "line": 777,
-              "end_line": 779
+              "line": 778,
+              "end_line": 780
             },
             {
               "name": "pushPacket",
-              "line": 780,
-              "end_line": 780
+              "line": 781,
+              "end_line": 781
             }
           ]
         },
@@ -3814,7 +3814,7 @@
       "native_contracts": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
-          "sha256": "847f670a05de21eec4f89e83d1c2ea23a1c22db6d20ca6cc59cde2f1408fb222",
+          "sha256": "fc907e8acf813234c788e98c790f2f879be2c431a56aa1f9d22b01f34a3e16b0",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
@@ -4069,87 +4069,87 @@
             {
               "name": "sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted",
               "line": 667,
-              "end_line": 689
+              "end_line": 690
             },
             {
               "name": "saveIncomingContact",
-              "line": 691,
-              "end_line": 698
+              "line": 692,
+              "end_line": 699
             },
             {
               "name": "incomingContactPacket",
-              "line": 700,
-              "end_line": 702
+              "line": 701,
+              "end_line": 703
             },
             {
               "name": "set",
-              "line": 708,
-              "end_line": 711
+              "line": 709,
+              "end_line": 712
             },
             {
               "name": "subscribeTransitions",
-              "line": 712,
-              "end_line": 720
+              "line": 713,
+              "end_line": 721
             },
             {
               "name": "close",
-              "line": 718,
-              "end_line": 718
+              "line": 719,
+              "end_line": 719
             },
             {
               "name": "snapshot",
-              "line": 722,
-              "end_line": 726
+              "line": 723,
+              "end_line": 727
             },
             {
               "name": "sent",
-              "line": 741,
-              "end_line": 741
-            },
-            {
-              "name": "isConnected",
               "line": 742,
               "end_line": 742
             },
             {
-              "name": "connect",
+              "name": "isConnected",
               "line": 743,
               "end_line": 743
             },
             {
-              "name": "disconnect",
+              "name": "connect",
               "line": 744,
               "end_line": 744
             },
             {
-              "name": "receivedData",
+              "name": "disconnect",
               "line": 745,
               "end_line": 745
             },
             {
-              "name": "supportsWriteWithoutResponse",
+              "name": "receivedData",
               "line": 746,
               "end_line": 746
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "supportsWriteWithoutResponse",
               "line": 747,
               "end_line": 747
             },
             {
-              "name": "send",
+              "name": "supportsPipelinedReads",
               "line": 748,
-              "end_line": 776
+              "end_line": 748
+            },
+            {
+              "name": "send",
+              "line": 749,
+              "end_line": 777
             },
             {
               "name": "pushAck",
-              "line": 777,
-              "end_line": 779
+              "line": 778,
+              "end_line": 780
             },
             {
               "name": "pushPacket",
-              "line": 780,
-              "end_line": 780
+              "line": 781,
+              "end_line": 781
             }
           ]
         },
@@ -4315,7 +4315,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceListenerIntegrationTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendDMBookkeepingTests.swift",
@@ -4323,9 +4323,14 @@
           ],
           "methods": [
             {
-              "name": "sending",
+              "name": "sourceContact",
               "line": 21,
-              "end_line": 274
+              "end_line": 23
+            },
+            {
+              "name": "sending",
+              "line": 25,
+              "end_line": 291
             }
           ]
         }
@@ -4346,7 +4351,7 @@
       "native_contracts": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
-          "sha256": "847f670a05de21eec4f89e83d1c2ea23a1c22db6d20ca6cc59cde2f1408fb222",
+          "sha256": "fc907e8acf813234c788e98c790f2f879be2c431a56aa1f9d22b01f34a3e16b0",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
@@ -4601,93 +4606,93 @@
             {
               "name": "sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted",
               "line": 667,
-              "end_line": 689
+              "end_line": 690
             },
             {
               "name": "saveIncomingContact",
-              "line": 691,
-              "end_line": 698
+              "line": 692,
+              "end_line": 699
             },
             {
               "name": "incomingContactPacket",
-              "line": 700,
-              "end_line": 702
+              "line": 701,
+              "end_line": 703
             },
             {
               "name": "set",
-              "line": 708,
-              "end_line": 711
+              "line": 709,
+              "end_line": 712
             },
             {
               "name": "subscribeTransitions",
-              "line": 712,
-              "end_line": 720
+              "line": 713,
+              "end_line": 721
             },
             {
               "name": "close",
-              "line": 718,
-              "end_line": 718
+              "line": 719,
+              "end_line": 719
             },
             {
               "name": "snapshot",
-              "line": 722,
-              "end_line": 726
+              "line": 723,
+              "end_line": 727
             },
             {
               "name": "sent",
-              "line": 741,
-              "end_line": 741
-            },
-            {
-              "name": "isConnected",
               "line": 742,
               "end_line": 742
             },
             {
-              "name": "connect",
+              "name": "isConnected",
               "line": 743,
               "end_line": 743
             },
             {
-              "name": "disconnect",
+              "name": "connect",
               "line": 744,
               "end_line": 744
             },
             {
-              "name": "receivedData",
+              "name": "disconnect",
               "line": 745,
               "end_line": 745
             },
             {
-              "name": "supportsWriteWithoutResponse",
+              "name": "receivedData",
               "line": 746,
               "end_line": 746
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "supportsWriteWithoutResponse",
               "line": 747,
               "end_line": 747
             },
             {
-              "name": "send",
+              "name": "supportsPipelinedReads",
               "line": 748,
-              "end_line": 776
+              "end_line": 748
+            },
+            {
+              "name": "send",
+              "line": 749,
+              "end_line": 777
             },
             {
               "name": "pushAck",
-              "line": 777,
-              "end_line": 779
+              "line": 778,
+              "end_line": 780
             },
             {
               "name": "pushPacket",
-              "line": 780,
-              "end_line": 780
+              "line": 781,
+              "end_line": 781
             }
           ]
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceListenerIntegrationTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendDMBookkeepingTests.swift",
@@ -4695,9 +4700,14 @@
           ],
           "methods": [
             {
-              "name": "sending",
+              "name": "sourceContact",
               "line": 21,
-              "end_line": 274
+              "end_line": 23
+            },
+            {
+              "name": "sending",
+              "line": 25,
+              "end_line": 291
             }
           ]
         }
@@ -4717,7 +4727,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceListenerIntegrationTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendDMBookkeepingTests.swift",
@@ -4725,9 +4735,14 @@
           ],
           "methods": [
             {
-              "name": "sending",
+              "name": "sourceContact",
               "line": 21,
-              "end_line": 274
+              "end_line": 23
+            },
+            {
+              "name": "sending",
+              "line": 25,
+              "end_line": 291
             }
           ]
         }
@@ -20048,11 +20063,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "listener flips message to .delivered after a flood of non-matching events",
-          "line": 249,
-          "end_line": 261,
+          "line": 266,
+          "end_line": 278,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "ab8625ec421dc9187db1e31394933a04c75cbb4cc86a9dc57e71a5e579cadcbc",
@@ -20060,31 +20075,31 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 255,
+              "line": 272,
               "expression": "assertEquals(1, dispatcher.subscriberCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 258,
+              "line": 275,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 258,
+              "line": 275,
               "expression": "assertEquals(1234u, h.stored(m.id).roundTripTime)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 259,
+              "line": 276,
               "expression": "assertEquals(0L, dispatcher.droppedEventCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 260,
+              "line": 277,
               "expression": "assertEquals(0, dispatcher.subscriberCount)",
               "assertion_or_checked_wait": true
             }
@@ -20092,127 +20107,127 @@
           "actions_and_helper_calls": [
             {
               "name": "EventDispatcher",
-              "line": 250,
+              "line": 267,
               "expression": "EventDispatcher()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Harness",
-              "line": 251,
+              "line": 268,
               "expression": "Harness(this, sessionTimeout = 5.0, eventDispatcher = dispatcher)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 251,
+              "line": 268,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 252,
+              "line": 269,
               "expression": "h.message(text = \"Test message\", timestamp = h.clock.wallClock.instant().epochSecond.toUInt())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.clock.wallClock.instant",
-              "line": 252,
+              "line": 269,
               "expression": "h.clock.wallClock.instant()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "epochSecond.toUInt",
-              "line": 252,
+              "line": 269,
               "expression": "epochSecond.toUInt()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 253,
+              "line": 270,
               "expression": "h.tracking(m)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 253,
+              "line": 270,
               "expression": "h.service.installPendingAck(t)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startEventMonitoring",
-              "line": 254,
+              "line": 271,
               "expression": "h.service.startEventMonitoring()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "repeat",
-              "line": 256,
+              "line": 273,
               "expression": "repeat(500)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "dispatcher.dispatch",
-              "line": 256,
+              "line": 273,
               "expression": "dispatcher.dispatch(MeshEvent.Advertisement(Bytes.of(it % 256)))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MeshEvent.Advertisement",
-              "line": 256,
+              "line": 273,
               "expression": "MeshEvent.Advertisement(Bytes.of(it % 256))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 256,
+              "line": 273,
               "expression": "Bytes.of(it % 256)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "dispatcher.dispatch",
-              "line": 257,
+              "line": 274,
               "expression": "dispatcher.dispatch(MeshEvent.Acknowledgement(t.ackCodes.first(), 1234u))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MeshEvent.Acknowledgement",
-              "line": 257,
+              "line": 274,
               "expression": "MeshEvent.Acknowledgement(t.ackCodes.first(), 1234u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "t.ackCodes.first",
-              "line": 257,
+              "line": 274,
               "expression": "t.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 257,
+              "line": 274,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 258,
+              "line": 275,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 258,
+              "line": 275,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.stopEventMonitoring",
-              "line": 260,
+              "line": 277,
               "expression": "h.service.stopEventMonitoring()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 260,
+              "line": 277,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -20404,11 +20419,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "listener restart after disconnect/reconnect still observes ACKs",
-          "line": 262,
-          "end_line": 273,
+          "line": 279,
+          "end_line": 290,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "1dbe952cd50401e43f9878ecd5fa746b1cc1766592fab55252c28b73fdae4e0e",
@@ -20416,37 +20431,37 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 267,
+              "line": 284,
               "expression": "assertEquals(1, dispatcher.subscriberCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 268,
+              "line": 285,
               "expression": "assertFalse(h.service.isEventMonitoringActive)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 268,
+              "line": 285,
               "expression": "assertEquals(0, dispatcher.subscriberCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 269,
+              "line": 286,
               "expression": "assertEquals(1, dispatcher.subscriberCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 271,
+              "line": 288,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 272,
+              "line": 289,
               "expression": "assertEquals(0, dispatcher.subscriberCount)",
               "assertion_or_checked_wait": true
             }
@@ -20454,115 +20469,115 @@
           "actions_and_helper_calls": [
             {
               "name": "EventDispatcher",
-              "line": 263,
+              "line": 280,
               "expression": "EventDispatcher()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Harness",
-              "line": 264,
+              "line": 281,
               "expression": "Harness(this, sessionTimeout = 5.0, eventDispatcher = dispatcher)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 264,
+              "line": 281,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 265,
+              "line": 282,
               "expression": "h.message(text = \"Test message\", timestamp = h.clock.wallClock.instant().epochSecond.toUInt())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.clock.wallClock.instant",
-              "line": 265,
+              "line": 282,
               "expression": "h.clock.wallClock.instant()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "epochSecond.toUInt",
-              "line": 265,
+              "line": 282,
               "expression": "epochSecond.toUInt()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 266,
+              "line": 283,
               "expression": "h.tracking(m, code = Bytes.of(0x11, 0x22, 0x33, 0x44))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 266,
+              "line": 283,
               "expression": "Bytes.of(0x11, 0x22, 0x33, 0x44)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 266,
+              "line": 283,
               "expression": "h.service.installPendingAck(t)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startEventMonitoring",
-              "line": 267,
+              "line": 284,
               "expression": "h.service.startEventMonitoring()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.stopEventMonitoring",
-              "line": 268,
+              "line": 285,
               "expression": "h.service.stopEventMonitoring()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startEventMonitoring",
-              "line": 269,
+              "line": 286,
               "expression": "h.service.startEventMonitoring()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "dispatcher.dispatch",
-              "line": 270,
+              "line": 287,
               "expression": "dispatcher.dispatch(MeshEvent.Acknowledgement(t.ackCodes.first(), 200u))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MeshEvent.Acknowledgement",
-              "line": 270,
+              "line": 287,
               "expression": "MeshEvent.Acknowledgement(t.ackCodes.first(), 200u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "t.ackCodes.first",
-              "line": 270,
+              "line": 287,
               "expression": "t.ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 270,
+              "line": 287,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 271,
+              "line": 288,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.stopEventMonitoring",
-              "line": 272,
+              "line": 289,
               "expression": "h.service.stopEventMonitoring()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 272,
+              "line": 289,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -20806,31 +20821,31 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails",
-          "line": 234,
-          "end_line": 248,
+          "line": 250,
+          "end_line": 265,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "f264a5317a009e76bc4353ffc7d3082b9a52478f60b890faae4c021451449204",
+          "body_sha256": "e952c12f2bae6288f8faf705b3b2236d5c4fb55a2fd5433fd0f68140ef5f08e2",
           "registration": "original(\"MessageServiceSendDMBookkeepingTests\", \"sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails\")",
           "assertions": [
             {
               "name": "assertFailsWith",
-              "line": 246,
+              "line": 263,
               "expression": "assertFailsWith<MessageServiceException> { h.service.sendDirectMessage(\"hi\", h.contact) }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 247,
+              "line": 264,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 247,
+              "line": 264,
               "expression": "assertFalse(statuses(h.service, events).any { it is MessageStatusEvent.Failed })",
               "assertion_or_checked_wait": true
             }
@@ -20838,103 +20853,103 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 235,
-              "expression": "Harness(this, sessionTimeout = 10.0,\n                contact = ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), \"TestContact\", lastHeardTimestamp = null))",
+              "line": 251,
+              "expression": "Harness(this, sessionTimeout = 10.0,\n                contact = ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), \"TestContact\",\n                    typeRawValue = 1u, lastHeardTimestamp = null))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ContactDTO",
-              "line": 236,
-              "expression": "ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), \"TestContact\", lastHeardTimestamp = null)",
+              "line": 252,
+              "expression": "ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), \"TestContact\",\n                    typeRawValue = 1u, lastHeardTimestamp = null)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes",
-              "line": 236,
+              "line": 252,
               "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ByteArray",
-              "line": 236,
+              "line": 252,
               "expression": "ByteArray(32)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toByte",
-              "line": 236,
+              "line": 252,
               "expression": "toByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 237,
+              "line": 254,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 237,
+              "line": 254,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 238,
+              "line": 255,
               "expression": "Bytes.of(0xAB, 0xCD, 0xEF, 0x12)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "if",
-              "line": 241,
+              "line": 258,
               "expression": "if (it[0] == CommandCode.SEND_MESSAGE.rawValue)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.fetchMessages",
-              "line": 242,
+              "line": 259,
               "expression": "h.store.fetchMessages(EntityKey(RADIO, CONTACT), 10, 0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 242,
+              "line": 259,
               "expression": "EntityKey(RADIO, CONTACT)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "first",
-              "line": 242,
+              "line": 259,
               "expression": "first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.deleteMessage",
-              "line": 243,
+              "line": 260,
               "expression": "h.store.deleteMessage(EntityKey(RADIO, saved.id))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 243,
+              "line": 260,
               "expression": "EntityKey(RADIO, saved.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendDirectMessage",
-              "line": 246,
+              "line": 263,
               "expression": "h.service.sendDirectMessage(\"hi\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 247,
+              "line": 264,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 247,
+              "line": 264,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -20951,43 +20966,43 @@
         },
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
-          "sha256": "847f670a05de21eec4f89e83d1c2ea23a1c22db6d20ca6cc59cde2f1408fb222",
+          "sha256": "fc907e8acf813234c788e98c790f2f879be2c431a56aa1f9d22b01f34a3e16b0",
           "class": "com.meshcoreone.android.core.data.messaging.MessagingRoomIntegrationTest",
           "method_or_family_name": "sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted",
           "line": 667,
-          "end_line": 689,
+          "end_line": 690,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "9aa24ffc0280c2db929bca94aa357a09d4d4a6208c3dc629c536ea90850b7e23",
+          "body_sha256": "be5923398efe9855b0255a58b165855c6eb9ef1e4a5115491eb5a7e4c275bde5",
           "registration": null,
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 679,
+              "line": 680,
               "expression": "assertEquals(1, g.firmware.sent().size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 682,
+              "line": 683,
               "expression": "assertNull(store.fetchMessage(EntityKey(radio, saved.id)))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 684,
+              "line": 685,
               "expression": "assertFailsWith<Exception> { sending.await() }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 685,
+              "line": 686,
               "expression": "assertEquals(1, g.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 687,
+              "line": 688,
               "expression": "assertFalse(events.events.toList().any { it.event is MessageStatusEvent.Failed })",
               "assertion_or_checked_wait": true
             }
@@ -21002,7 +21017,7 @@
             {
               "name": "contact.copy",
               "line": 668,
-              "expression": "contact.copy(publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), name = \"TestContact\", lastHeardTimestamp = null)",
+              "expression": "contact.copy(publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), name = \"TestContact\",\n            typeRawValue = 1u, lastHeardTimestamp = null)",
               "assertion_or_checked_wait": false
             },
             {
@@ -21025,127 +21040,127 @@
             },
             {
               "name": "seed",
-              "line": 669,
+              "line": 670,
               "expression": "seed()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "RadioGeneration",
-              "line": 670,
+              "line": 671,
               "expression": "RadioGeneration(28, sessionTimeout = 10.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 672,
+              "line": 673,
               "expression": "Bytes.of(0xAB, 0xCD, 0xEF, 0x12)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CompletableDeferred",
-              "line": 674,
+              "line": 675,
               "expression": "CompletableDeferred()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.start",
-              "line": 675,
+              "line": 676,
               "expression": "g.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.service.statusEvents",
-              "line": 676,
+              "line": 677,
               "expression": "g.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.service.sendDirectMessage",
-              "line": 677,
+              "line": 678,
               "expression": "g.service.sendDirectMessage(\"hi\", contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 678,
+              "line": 679,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.firmware.sent",
-              "line": 679,
+              "line": 680,
               "expression": "g.firmware.sent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "store.fetchMessages",
-              "line": 680,
+              "line": 681,
               "expression": "store.fetchMessages(EntityKey(radio, contact.id), 10, 0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 680,
+              "line": 681,
               "expression": "EntityKey(radio, contact.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "first",
-              "line": 680,
+              "line": 681,
               "expression": "first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "store.deleteMessage",
-              "line": 681,
+              "line": 682,
               "expression": "store.deleteMessage(EntityKey(radio, saved.id))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 681,
+              "line": 682,
               "expression": "EntityKey(radio, saved.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "store.fetchMessage",
-              "line": 682,
+              "line": 683,
               "expression": "store.fetchMessage(EntityKey(radio, saved.id))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 682,
+              "line": 683,
               "expression": "EntityKey(radio, saved.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.firmware.acceptanceGate?.complete",
-              "line": 683,
+              "line": 684,
               "expression": "g.firmware.acceptanceGate?.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "sending.await",
-              "line": 684,
+              "line": 685,
               "expression": "sending.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.service.finishStatusEvents",
-              "line": 686,
+              "line": 687,
               "expression": "g.service.finishStatusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.events.toList",
-              "line": 687,
+              "line": 688,
               "expression": "events.events.toList()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.stop",
-              "line": 688,
+              "line": 689,
               "expression": "g.stop()",
               "assertion_or_checked_wait": false
             }
@@ -21210,31 +21225,31 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage throws invalidRecipient for repeater contacts",
-          "line": 22,
-          "end_line": 27,
+          "line": 26,
+          "end_line": 31,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "74bbd09a75a7c8d4ba92f7cd6e453607fb533fe939fe5a8b61786aeb0399257f",
+          "body_sha256": "c3500f105a98040cb2b1d440960aee0e9ec3feac95438534d182751f494b288c",
           "registration": "original(\"MessageServiceSendTests\", \"sendDirectMessage throws invalidRecipient for repeater contacts\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 24,
+              "line": 28,
               "expression": "assertEquals(MessageServiceError.InvalidRecipient, assertFailsWith<MessageServiceException> {\n                h.service.sendDirectMessage(\"Hello\", h.contact.copy(typeRawValue = 2u))\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 24,
+              "line": 28,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.sendDirectMessage(\"Hello\", h.contact.copy(typeRawValue = 2u))\n            }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 26,
+              "line": 30,
               "expression": "assertTrue(h.store.messages.isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -21242,31 +21257,37 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 23,
-              "expression": "Harness(this)",
+              "line": 27,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 27,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendDirectMessage",
-              "line": 25,
+              "line": 29,
               "expression": "h.service.sendDirectMessage(\"Hello\", h.contact.copy(typeRawValue = 2u))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.contact.copy",
-              "line": 25,
+              "line": 29,
               "expression": "h.contact.copy(typeRawValue = 2u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.messages.isEmpty",
-              "line": 26,
+              "line": 30,
               "expression": "h.store.messages.isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 26,
+              "line": 30,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -21337,25 +21358,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage throws messageTooLong for oversized text",
-          "line": 28,
-          "end_line": 33,
+          "line": 32,
+          "end_line": 37,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "0115f765ebd5886201b4033179f47775c7d2ea6f60d5b48818aeae8651cb1b0b",
+          "body_sha256": "b6025447b79b4622cc828a419b2f99e514fbe4edd335913dd4a15630c954179d",
           "registration": "original(\"MessageServiceSendTests\", \"sendDirectMessage throws messageTooLong for oversized text\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 30,
+              "line": 34,
               "expression": "assertEquals(MessageServiceError.MessageTooLong, assertFailsWith<MessageServiceException> {\n                h.service.sendDirectMessage(\"a\".repeat(151), h.contact)\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 30,
+              "line": 34,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.sendDirectMessage(\"a\".repeat(151), h.contact)\n            }",
               "assertion_or_checked_wait": true
             }
@@ -21363,25 +21384,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 29,
-              "expression": "Harness(this)",
+              "line": 33,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 33,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendDirectMessage",
-              "line": 31,
+              "line": 35,
               "expression": "h.service.sendDirectMessage(\"a\".repeat(151), h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "repeat",
-              "line": 31,
+              "line": 35,
               "expression": "repeat(151)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 32,
+              "line": 36,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -21471,31 +21498,49 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage saves message to dataStore before send attempt",
-          "line": 34,
-          "end_line": 39,
+          "line": 38,
+          "end_line": 47,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "e09f68a0c889abe13d99a7abd7a139474d21bc29410de001be0fba4965dd077d",
+          "body_sha256": "d751d6c3b06a306f74f04ffb02af5562a0b1c1cf84ba8ea789c36de1048db254",
           "registration": "original(\"MessageServiceSendTests\", \"sendDirectMessage saves message to dataStore before send attempt\")",
           "assertions": [
             {
               "name": "assertFailsWith",
-              "line": 36,
+              "line": 40,
               "expression": "assertFailsWith<MessageServiceException> { h.service.sendDirectMessage(\"Hello\", h.contact) }",
               "assertion_or_checked_wait": true
             },
             {
+              "name": "assertTrue",
+              "line": 42,
+              "expression": "assertTrue(messages.isNotEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertEquals",
-              "line": 37,
+              "line": 43,
+              "expression": "assertEquals(\"Hello\", messages.first().text)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(MessageDirection.OUTGOING, messages.first().direction)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 45,
               "expression": "assertEquals(\"Hello\", h.store.messages.values.single().text)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 38,
+              "line": 46,
               "expression": "assertEquals(MessageDirection.OUTGOING, h.store.messages.values.single().direction)",
               "assertion_or_checked_wait": true
             }
@@ -21503,31 +21548,67 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 35,
-              "expression": "Harness(this)",
+              "line": 39,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 39,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendDirectMessage",
-              "line": 36,
+              "line": 40,
               "expression": "h.service.sendDirectMessage(\"Hello\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "h.store.fetchMessages",
+              "line": 41,
+              "expression": "h.store.fetchMessages(EntityKey(RADIO, h.contact.id), 10, 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 41,
+              "expression": "EntityKey(RADIO, h.contact.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "messages.isNotEmpty",
+              "line": 42,
+              "expression": "messages.isNotEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "messages.first",
+              "line": 43,
+              "expression": "messages.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "messages.first",
+              "line": 44,
+              "expression": "messages.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "h.store.messages.values.single",
-              "line": 37,
+              "line": 45,
               "expression": "h.store.messages.values.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.messages.values.single",
-              "line": 38,
+              "line": 46,
               "expression": "h.store.messages.values.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 38,
+              "line": 46,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -21592,25 +21673,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendMessageWithRetry throws invalidRecipient for repeater contacts",
-          "line": 40,
-          "end_line": 45,
+          "line": 48,
+          "end_line": 53,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "73533f4d7f2609d93cdd145cf65d976a77e151075c605ae7ad54839a726992fb",
+          "body_sha256": "676fa3d91f4956808988e5763497bc0b41e7ea20b29b267bd78152e6f8233cdc",
           "registration": "original(\"MessageServiceSendTests\", \"sendMessageWithRetry throws invalidRecipient for repeater contacts\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 42,
+              "line": 50,
               "expression": "assertEquals(MessageServiceError.InvalidRecipient, assertFailsWith<MessageServiceException> {\n                h.service.sendMessageWithRetry(\"Hello\", h.contact.copy(typeRawValue = 2u))\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 42,
+              "line": 50,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.sendMessageWithRetry(\"Hello\", h.contact.copy(typeRawValue = 2u))\n            }",
               "assertion_or_checked_wait": true
             }
@@ -21618,25 +21699,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 41,
-              "expression": "Harness(this)",
+              "line": 49,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 49,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendMessageWithRetry",
-              "line": 43,
+              "line": 51,
               "expression": "h.service.sendMessageWithRetry(\"Hello\", h.contact.copy(typeRawValue = 2u))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.contact.copy",
-              "line": 43,
+              "line": 51,
               "expression": "h.contact.copy(typeRawValue = 2u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 44,
+              "line": 52,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -21707,25 +21794,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendMessageWithRetry throws messageTooLong for oversized text",
-          "line": 46,
-          "end_line": 51,
+          "line": 54,
+          "end_line": 59,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "ef671e2d656be152ba438f5791c01e12952832ae84eb2d2102f9551f954ee4f1",
+          "body_sha256": "6b22231eda7d8bb04a00e4713709a504197feeb2a5058e8f61cb93f658175c90",
           "registration": "original(\"MessageServiceSendTests\", \"sendMessageWithRetry throws messageTooLong for oversized text\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 48,
+              "line": 56,
               "expression": "assertEquals(MessageServiceError.MessageTooLong, assertFailsWith<MessageServiceException> {\n                h.service.sendMessageWithRetry(\"a\".repeat(151), h.contact)\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 48,
+              "line": 56,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.sendMessageWithRetry(\"a\".repeat(151), h.contact)\n            }",
               "assertion_or_checked_wait": true
             }
@@ -21733,25 +21820,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 47,
-              "expression": "Harness(this)",
+              "line": 55,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 55,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendMessageWithRetry",
-              "line": 49,
+              "line": 57,
               "expression": "h.service.sendMessageWithRetry(\"a\".repeat(151), h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "repeat",
-              "line": 49,
+              "line": 57,
               "expression": "repeat(151)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 50,
+              "line": 58,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -21859,43 +21952,55 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage creates message with pending status",
-          "line": 52,
-          "end_line": 56,
+          "line": 60,
+          "end_line": 68,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "f0ee0741249b8a3b9827459bf6a66cef395780082f0ac6c49035948c8ae70bc3",
+          "body_sha256": "9cf3128c885a26fe7a7067d3935b00c712ccc5157ec93109ecaf8238167776b0",
           "registration": "original(\"MessageServiceSendTests\", \"createPendingMessage creates message with pending status\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 54,
+              "line": 63,
               "expression": "assertEquals(MessageStatus.PENDING, m.status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 54,
+              "line": 63,
               "expression": "assertEquals(MessageDirection.OUTGOING, m.direction)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 55,
+              "line": 64,
               "expression": "assertEquals(\"Pending\", m.text)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 55,
+              "line": 64,
               "expression": "assertEquals(CONTACT, m.contactID)",
               "assertion_or_checked_wait": true
             },
             {
+              "name": "assertNotNull",
+              "line": 65,
+              "expression": "assertNotNull(h.store.fetchMessage(EntityKey(RADIO, m.id)))",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertEquals",
-              "line": 55,
+              "line": 66,
+              "expression": "assertEquals(MessageStatus.PENDING, fetched.status)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 67,
               "expression": "assertEquals(m, h.stored(m.id))",
               "assertion_or_checked_wait": true
             }
@@ -21903,31 +22008,43 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 53,
-              "expression": "Harness(this)",
+              "line": 61,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 53,
-              "expression": "h.start()",
+              "name": "sourceContact",
+              "line": 61,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingMessage",
-              "line": 53,
+              "line": 62,
               "expression": "h.service.createPendingMessage(\"Pending\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "h.store.fetchMessage",
+              "line": 65,
+              "expression": "h.store.fetchMessage(EntityKey(RADIO, m.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 65,
+              "expression": "EntityKey(RADIO, m.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "h.stored",
-              "line": 55,
+              "line": 67,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 55,
+              "line": 67,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -21992,25 +22109,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage throws invalidRecipient for repeater",
-          "line": 57,
-          "end_line": 62,
+          "line": 69,
+          "end_line": 74,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "2b7e81d49dfd6152e3bbf83383eeba404632883cc00d3559ba552a069015b50f",
+          "body_sha256": "a00f29c939662838eb2a32c4d3901d4055eaa10adcbdbf41dc2f453a81465073",
           "registration": "original(\"MessageServiceSendTests\", \"createPendingMessage throws invalidRecipient for repeater\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 59,
+              "line": 71,
               "expression": "assertEquals(MessageServiceError.InvalidRecipient, assertFailsWith<MessageServiceException> {\n                h.service.createPendingMessage(\"Test\", h.contact.copy(typeRawValue = 2u))\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 59,
+              "line": 71,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.createPendingMessage(\"Test\", h.contact.copy(typeRawValue = 2u))\n            }",
               "assertion_or_checked_wait": true
             }
@@ -22018,25 +22135,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 58,
-              "expression": "Harness(this)",
+              "line": 70,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 70,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingMessage",
-              "line": 60,
+              "line": 72,
               "expression": "h.service.createPendingMessage(\"Test\", h.contact.copy(typeRawValue = 2u))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.contact.copy",
-              "line": 60,
+              "line": 72,
               "expression": "h.contact.copy(typeRawValue = 2u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 61,
+              "line": 73,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -22107,25 +22230,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage throws messageTooLong for oversized text",
-          "line": 63,
-          "end_line": 68,
+          "line": 75,
+          "end_line": 80,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "e2387281d3479afaa7a964142e3e5c79c85687e0eb4fc55e8fcc04d29d3c80d1",
+          "body_sha256": "e87802deeb338d0b03d0253154cf86ba6264ad25f4424f0e887f99c1084fd684",
           "registration": "original(\"MessageServiceSendTests\", \"createPendingMessage throws messageTooLong for oversized text\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 65,
+              "line": 77,
               "expression": "assertEquals(MessageServiceError.MessageTooLong, assertFailsWith<MessageServiceException> {\n                h.service.createPendingMessage(\"a\".repeat(151), h.contact)\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 65,
+              "line": 77,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.createPendingMessage(\"a\".repeat(151), h.contact)\n            }",
               "assertion_or_checked_wait": true
             }
@@ -22133,25 +22256,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 64,
-              "expression": "Harness(this)",
+              "line": 76,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 76,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingMessage",
-              "line": 66,
+              "line": 78,
               "expression": "h.service.createPendingMessage(\"a\".repeat(151), h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "repeat",
-              "line": 66,
+              "line": 78,
               "expression": "repeat(151)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 67,
+              "line": 79,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -22259,49 +22388,49 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage returns DTO with correct fields",
-          "line": 69,
-          "end_line": 73,
+          "line": 81,
+          "end_line": 86,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "075cdca4568f77365aa8f92de811ccbe623fcd52ead6557519f0265271777e7c",
+          "body_sha256": "3b832ba3ab0f0374e2ad3c68340e5e0330b8889bb65d391db26bedfe54fe9506",
           "registration": "original(\"MessageServiceSendTests\", \"createPendingMessage returns DTO with correct fields\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 71,
+              "line": 84,
               "expression": "assertEquals(\"Hello world\", m.text)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 71,
+              "line": 84,
               "expression": "assertEquals(CONTACT, m.contactID)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 71,
+              "line": 84,
               "expression": "assertEquals(RADIO, m.radioId)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 72,
+              "line": 85,
               "expression": "assertEquals(MessageDirection.OUTGOING, m.direction)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 72,
+              "line": 85,
               "expression": "assertEquals(TextType.PLAIN, m.textType)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 72,
+              "line": 85,
               "expression": "assertNull(m.channelIndex)",
               "assertion_or_checked_wait": true
             }
@@ -22309,19 +22438,25 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 70,
-              "expression": "Harness(this)",
+              "line": 82,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 82,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingMessage",
-              "line": 70,
+              "line": 83,
               "expression": "h.service.createPendingMessage(\"Hello world\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 72,
+              "line": 85,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -22423,31 +22558,31 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage stamps lastMessageDate so a first DM appears in the chat list before any send succeeds",
-          "line": 74,
-          "end_line": 79,
+          "line": 87,
+          "end_line": 94,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "b8a83fd2392c9817b7de382093611d548d28683c37513d32dbf212b1631980c6",
+          "body_sha256": "1482decd59de69d7e62c67cda30e26a87a0ee1737f0511f5c3a746d050acbc89",
           "registration": "original(\"MessageServiceSendTests\", \"createPendingMessage stamps lastMessageDate so a first DM appears in the chat list before any send succeeds\")",
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 75,
+              "line": 90,
               "expression": "assertTrue(h.store.fetchConversations(RADIO).isEmpty())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 77,
+              "line": 92,
               "expression": "assertEquals(CONTACT, h.store.fetchConversations(RADIO).single().id)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 78,
+              "line": 93,
               "expression": "assertNotNull(h.store.contacts[EntityKey(RADIO, CONTACT)]?.lastMessageDate)",
               "assertion_or_checked_wait": true
             }
@@ -22455,55 +22590,61 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 75,
-              "expression": "Harness(this)",
+              "line": 88,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "h.start",
-              "line": 75,
-              "expression": "h.start()",
+              "name": "sourceContact",
+              "line": 88,
+              "expression": "sourceContact()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "h.store.saveContact",
+              "line": 89,
+              "expression": "h.store.saveContact(h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.fetchConversations",
-              "line": 75,
+              "line": 90,
               "expression": "h.store.fetchConversations(RADIO)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "isEmpty",
-              "line": 75,
+              "line": 90,
               "expression": "isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingMessage",
-              "line": 76,
+              "line": 91,
               "expression": "h.service.createPendingMessage(\"First DM\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.fetchConversations",
-              "line": 77,
+              "line": 92,
               "expression": "h.store.fetchConversations(RADIO)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "single",
-              "line": 77,
+              "line": 92,
               "expression": "single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 78,
+              "line": 93,
               "expression": "EntityKey(RADIO, CONTACT)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 78,
+              "line": 93,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -22592,31 +22733,31 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingDirectMessage rejects concurrent send for same messageID",
-          "line": 80,
-          "end_line": 84,
+          "line": 95,
+          "end_line": 100,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "7a6ddd3d37810830356676fd0d9477287473ef433cd5836b954e1a30798c4aac",
+          "body_sha256": "ad62bc7e2deb698d5fcf54a4b1c42980137e2e3cce69077e8d7041156c592128",
           "registration": "original(\"MessageServiceSendTests\", \"sendPendingDirectMessage rejects concurrent send for same messageID\")",
           "assertions": [
             {
               "name": "assertFailsWith",
-              "line": 82,
+              "line": 98,
               "expression": "assertFailsWith<MessageServiceException> { h.service.sendPendingDirectMessage(id, h.contact) }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 83,
+              "line": 99,
               "expression": "assertTrue(assertIs<MessageServiceError.SendFailed>(e.error).reason.contains(\"already in progress\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 83,
+              "line": 99,
               "expression": "assertIs<MessageServiceError.SendFailed>(e.error)",
               "assertion_or_checked_wait": true
             }
@@ -22624,37 +22765,43 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 81,
-              "expression": "Harness(this)",
+              "line": 96,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 96,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "UUID.randomUUID",
-              "line": 81,
+              "line": 97,
               "expression": "UUID.randomUUID()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.claimRetryForTest",
-              "line": 81,
+              "line": 97,
               "expression": "h.service.claimRetryForTest(id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendPendingDirectMessage",
-              "line": 82,
+              "line": 98,
               "expression": "h.service.sendPendingDirectMessage(id, h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "reason.contains",
-              "line": 83,
+              "line": 99,
               "expression": "reason.contains(\"already in progress\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 83,
+              "line": 99,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -22725,25 +22872,25 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingDirectMessage throws when message not found",
-          "line": 85,
-          "end_line": 90,
+          "line": 101,
+          "end_line": 106,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "e7ad0abc2ac05d6fd4c8d2edc1fa6997e0a18bd0203b2aef3b1c86d964458068",
+          "body_sha256": "849edd520fc0b8bed6c69b7a197ed10e2e2695bd7ced50726520d9b88551c4ba",
           "registration": "original(\"MessageServiceSendTests\", \"sendPendingDirectMessage throws when message not found\")",
           "assertions": [
             {
               "name": "assertIs",
-              "line": 87,
+              "line": 103,
               "expression": "assertIs<MessageServiceError.SendFailed>(assertFailsWith<MessageServiceException> {\n                h.service.sendPendingDirectMessage(UUID.randomUUID(), h.contact)\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 87,
+              "line": 103,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.sendPendingDirectMessage(UUID.randomUUID(), h.contact)\n            }",
               "assertion_or_checked_wait": true
             }
@@ -22751,25 +22898,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 86,
-              "expression": "Harness(this)",
+              "line": 102,
+              "expression": "Harness(this, sessionTimeout = 5.0, contact = sourceContact())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceContact",
+              "line": 102,
+              "expression": "sourceContact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendPendingDirectMessage",
-              "line": 88,
+              "line": 104,
               "expression": "h.service.sendPendingDirectMessage(UUID.randomUUID(), h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "UUID.randomUUID",
-              "line": 88,
+              "line": 104,
               "expression": "UUID.randomUUID()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 89,
+              "line": 105,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -22852,11 +23005,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendChannelMessage throws when user text plus node name exceeds composed cap",
-          "line": 91,
-          "end_line": 97,
+          "line": 107,
+          "end_line": 113,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "f1eef8334d3792106fbe4ce57a0672dcc67fdf0b11387bcf72074998a4c00381",
@@ -22864,13 +23017,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 94,
+              "line": 110,
               "expression": "assertEquals(MessageServiceError.MessageTooLong, assertFailsWith<MessageServiceException> {\n                h.service.sendChannelMessage(text, 0u, RADIO)\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 94,
+              "line": 110,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.sendChannelMessage(text, 0u, RADIO)\n            }",
               "assertion_or_checked_wait": true
             }
@@ -22878,49 +23031,49 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 92,
+              "line": 108,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.saveDevice",
-              "line": 92,
+              "line": 108,
               "expression": "h.store.saveDevice(DeviceDTO(radioId = RADIO, publicKey = SELF, nodeName = \"Node\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "DeviceDTO",
-              "line": 92,
+              "line": 108,
               "expression": "DeviceDTO(radioId = RADIO, publicKey = SELF, nodeName = \"Node\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "repeat",
-              "line": 93,
+              "line": 109,
               "expression": "repeat(ProtocolLimits.maxChannelMessageLength(4).toInt() + 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ProtocolLimits.maxChannelMessageLength",
-              "line": 93,
+              "line": 109,
               "expression": "ProtocolLimits.maxChannelMessageLength(4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toInt",
-              "line": 93,
+              "line": 109,
               "expression": "toInt()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendChannelMessage",
-              "line": 95,
+              "line": 111,
               "expression": "h.service.sendChannelMessage(text, 0u, RADIO)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 96,
+              "line": 112,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -23010,11 +23163,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendChannelMessage saves message to dataStore before send attempt",
-          "line": 98,
-          "end_line": 103,
+          "line": 114,
+          "end_line": 119,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "3a516ea714cd6890d0d3ac73ae9cde46ae617ef8619294e5b37957828ec5eb53",
@@ -23022,25 +23175,25 @@
           "assertions": [
             {
               "name": "assertFailsWith",
-              "line": 100,
+              "line": 116,
               "expression": "assertFailsWith<MessageServiceException> { h.service.sendChannelMessage(\"Hello channel\", 0u, RADIO) }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 101,
+              "line": 117,
               "expression": "assertEquals(\"Hello channel\", m.text)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 102,
+              "line": 118,
               "expression": "assertEquals(MessageDirection.OUTGOING, m.direction)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 102,
+              "line": 118,
               "expression": "assertEquals(MessageStatus.FAILED, m.status)",
               "assertion_or_checked_wait": true
             }
@@ -23048,25 +23201,25 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 99,
+              "line": 115,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendChannelMessage",
-              "line": 100,
+              "line": 116,
               "expression": "h.service.sendChannelMessage(\"Hello channel\", 0u, RADIO)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.messages.values.single",
-              "line": 101,
+              "line": 117,
               "expression": "h.store.messages.values.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 102,
+              "line": 118,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -23180,11 +23333,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingChannelMessage saves to dataStore with pending status",
-          "line": 104,
-          "end_line": 109,
+          "line": 120,
+          "end_line": 125,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "282c78ec4975a57bee7af8824766c072df6ec79f3714c17c85ca8dbaebc82e83",
@@ -23192,43 +23345,43 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 106,
+              "line": 122,
               "expression": "assertEquals(MessageStatus.PENDING, m.status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 106,
+              "line": 122,
               "expression": "assertEquals(MessageDirection.OUTGOING, m.direction)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 107,
+              "line": 123,
               "expression": "assertEquals(\"Hello channel\", m.text)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 107,
+              "line": 123,
               "expression": "assertEquals(0.toUByte(), m.channelIndex)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 107,
+              "line": 123,
               "expression": "assertEquals(RADIO, m.radioId)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 108,
+              "line": 124,
               "expression": "assertNull(m.contactID)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 108,
+              "line": 124,
               "expression": "assertEquals(m, h.stored(m.id))",
               "assertion_or_checked_wait": true
             }
@@ -23236,31 +23389,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 105,
+              "line": 121,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingChannelMessage",
-              "line": 105,
+              "line": 121,
               "expression": "h.service.createPendingChannelMessage(\"Hello channel\", 0u, RADIO)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toUByte",
-              "line": 107,
+              "line": 123,
               "expression": "toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 108,
+              "line": 124,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 108,
+              "line": 124,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -23343,11 +23496,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingChannelMessage throws when user text plus node name exceeds composed cap",
-          "line": 110,
-          "end_line": 115,
+          "line": 126,
+          "end_line": 131,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "8fed8002f43d7b8875968a964376ad9641b99a6e87805550a409b01015f791bd",
@@ -23355,13 +23508,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 112,
+              "line": 128,
               "expression": "assertEquals(MessageServiceError.MessageTooLong, assertFailsWith<MessageServiceException> {\n                h.service.createPendingChannelMessage(\"a\".repeat(ProtocolLimits.maxChannelMessageLength(4).toInt() + 1), 0u, RADIO)\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 112,
+              "line": 128,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.createPendingChannelMessage(\"a\".repeat(ProtocolLimits.maxChannelMessageLength(4).toInt() + 1), 0u, RADIO)\n            }",
               "assertion_or_checked_wait": true
             }
@@ -23369,49 +23522,49 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 111,
+              "line": 127,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.saveDevice",
-              "line": 111,
+              "line": 127,
               "expression": "h.store.saveDevice(DeviceDTO(radioId = RADIO, publicKey = SELF, nodeName = \"Node\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "DeviceDTO",
-              "line": 111,
+              "line": 127,
               "expression": "DeviceDTO(radioId = RADIO, publicKey = SELF, nodeName = \"Node\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingChannelMessage",
-              "line": 113,
+              "line": 129,
               "expression": "h.service.createPendingChannelMessage(\"a\".repeat(ProtocolLimits.maxChannelMessageLength(4).toInt() + 1), 0u, RADIO)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "repeat",
-              "line": 113,
+              "line": 129,
               "expression": "repeat(ProtocolLimits.maxChannelMessageLength(4).toInt() + 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ProtocolLimits.maxChannelMessageLength",
-              "line": 113,
+              "line": 129,
               "expression": "ProtocolLimits.maxChannelMessageLength(4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toInt",
-              "line": 113,
+              "line": 129,
               "expression": "toInt()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 114,
+              "line": 130,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -23507,11 +23660,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingChannelMessage accepts user text that fills the composed cap",
-          "line": 116,
-          "end_line": 121,
+          "line": 132,
+          "end_line": 137,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "dd4d7991588500be4c2f76ea0c6b2d646dc24c1013098ce7c747bcbfdc3152aa",
@@ -23519,13 +23672,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 119,
+              "line": 135,
               "expression": "assertEquals(text, m.text)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 120,
+              "line": 136,
               "expression": "assertEquals(MessageStatus.PENDING, m.status)",
               "assertion_or_checked_wait": true
             }
@@ -23533,49 +23686,49 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 117,
+              "line": 133,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.saveDevice",
-              "line": 117,
+              "line": 133,
               "expression": "h.store.saveDevice(DeviceDTO(radioId = RADIO, publicKey = SELF, nodeName = \"Node\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "DeviceDTO",
-              "line": 117,
+              "line": 133,
               "expression": "DeviceDTO(radioId = RADIO, publicKey = SELF, nodeName = \"Node\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "repeat",
-              "line": 118,
+              "line": 134,
               "expression": "repeat(ProtocolLimits.maxChannelMessageLength(4).toInt())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ProtocolLimits.maxChannelMessageLength",
-              "line": 118,
+              "line": 134,
               "expression": "ProtocolLimits.maxChannelMessageLength(4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toInt",
-              "line": 118,
+              "line": 134,
               "expression": "toInt()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingChannelMessage",
-              "line": 119,
+              "line": 135,
               "expression": "h.service.createPendingChannelMessage(text, 0u, RADIO)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 120,
+              "line": 136,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -23646,11 +23799,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingChannelMessage without a device assumes a 31-byte name",
-          "line": 122,
-          "end_line": 127,
+          "line": 138,
+          "end_line": 143,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "f1ce5be56b5a48ff417fe922f2e2f0fcdea0372863a79bc475115af1bc3b1c47",
@@ -23658,19 +23811,19 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 123,
+              "line": 139,
               "expression": "assertTrue(h.store.devices.isEmpty())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 124,
+              "line": 140,
               "expression": "assertEquals(MessageServiceError.MessageTooLong, assertFailsWith<MessageServiceException> {\n                h.service.createPendingChannelMessage(\"a\".repeat(107), 0u, RADIO)\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 124,
+              "line": 140,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.createPendingChannelMessage(\"a\".repeat(107), 0u, RADIO)\n            }",
               "assertion_or_checked_wait": true
             }
@@ -23678,31 +23831,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 123,
+              "line": 139,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.devices.isEmpty",
-              "line": 123,
+              "line": 139,
               "expression": "h.store.devices.isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingChannelMessage",
-              "line": 125,
+              "line": 141,
               "expression": "h.service.createPendingChannelMessage(\"a\".repeat(107), 0u, RADIO)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "repeat",
-              "line": 125,
+              "line": 141,
               "expression": "repeat(107)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 126,
+              "line": 142,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -23767,11 +23920,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingChannelMessage throws when message not found",
-          "line": 128,
-          "end_line": 133,
+          "line": 144,
+          "end_line": 149,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "4a1fee18767e542beb1770f017907b59a58097019bc14f1e8d11032d9a607bae",
@@ -23779,13 +23932,13 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 130,
+              "line": 146,
               "expression": "assertIs<MessageServiceError.SendFailed>(assertFailsWith<MessageServiceException> {\n                h.service.sendPendingChannelMessage(UUID.randomUUID())\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 130,
+              "line": 146,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.sendPendingChannelMessage(UUID.randomUUID())\n            }",
               "assertion_or_checked_wait": true
             }
@@ -23793,25 +23946,25 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 129,
+              "line": 145,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendPendingChannelMessage",
-              "line": 131,
+              "line": 147,
               "expression": "h.service.sendPendingChannelMessage(UUID.randomUUID())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "UUID.randomUUID",
-              "line": 131,
+              "line": 147,
               "expression": "UUID.randomUUID()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 132,
+              "line": 148,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -23895,11 +24048,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingChannelMessage sets failed status on send error",
-          "line": 134,
-          "end_line": 138,
+          "line": 150,
+          "end_line": 154,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "44d359793bbbbfd057f97ac2a673087d5f6be8f82a282d4ac0419b6755176bc7",
@@ -23907,13 +24060,13 @@
           "assertions": [
             {
               "name": "assertFailsWith",
-              "line": 136,
+              "line": 152,
               "expression": "assertFailsWith<MessageServiceException> { h.service.sendPendingChannelMessage(m.id) }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 137,
+              "line": 153,
               "expression": "assertEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -23921,31 +24074,31 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 135,
+              "line": 151,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.createPendingChannelMessage",
-              "line": 135,
+              "line": 151,
               "expression": "h.service.createPendingChannelMessage(\"Hello channel\", 0u, RADIO)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendPendingChannelMessage",
-              "line": 136,
+              "line": 152,
               "expression": "h.service.sendPendingChannelMessage(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 137,
+              "line": 153,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 137,
+              "line": 153,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -24010,11 +24163,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "resendChannelMessage throws when message not found",
-          "line": 139,
-          "end_line": 144,
+          "line": 155,
+          "end_line": 160,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "984a322002a1220903a94baa3317c927cddd9770703d3b455474480fa1fef855",
@@ -24022,13 +24175,13 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 141,
+              "line": 157,
               "expression": "assertIs<MessageServiceError.SendFailed>(assertFailsWith<MessageServiceException> {\n                h.service.resendChannelMessage(UUID.randomUUID())\n            }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 141,
+              "line": 157,
               "expression": "assertFailsWith<MessageServiceException> {\n                h.service.resendChannelMessage(UUID.randomUUID())\n            }",
               "assertion_or_checked_wait": true
             }
@@ -24036,25 +24189,25 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 140,
+              "line": 156,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.resendChannelMessage",
-              "line": 142,
+              "line": 158,
               "expression": "h.service.resendChannelMessage(UUID.randomUUID())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "UUID.randomUUID",
-              "line": 142,
+              "line": 158,
               "expression": "UUID.randomUUID()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 143,
+              "line": 159,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -24131,11 +24284,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "resendChannelMessage throws when message is not a channel message",
-          "line": 145,
-          "end_line": 148,
+          "line": 161,
+          "end_line": 164,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "0f2c0982fb71a6d7fa6c02f63ff765259c7acbc0cacd5e094cdfbfdc61d6f8c3",
@@ -24143,13 +24296,13 @@
           "assertions": [
             {
               "name": "assertIs",
-              "line": 147,
+              "line": 163,
               "expression": "assertIs<MessageServiceError.SendFailed>(assertFailsWith<MessageServiceException> { h.service.resendChannelMessage(m.id) }.error)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 147,
+              "line": 163,
               "expression": "assertFailsWith<MessageServiceException> { h.service.resendChannelMessage(m.id) }",
               "assertion_or_checked_wait": true
             }
@@ -24157,25 +24310,25 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 146,
+              "line": 162,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 146,
+              "line": 162,
               "expression": "h.message()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.resendChannelMessage",
-              "line": 147,
+              "line": 163,
               "expression": "h.service.resendChannelMessage(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 147,
+              "line": 163,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -24377,11 +24530,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "resendChannelMessage writes .sent before broadcasting .resent and refreshes counts",
-          "line": 149,
-          "end_line": 156,
+          "line": 165,
+          "end_line": 172,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "513bd47fed164563eba43093feb6cd8c19ec736c2a4f452b9d7e386507dd5f2a",
@@ -24389,31 +24542,31 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 153,
+              "line": 169,
               "expression": "assertEquals(MessageStatus.SENT, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 153,
+              "line": 169,
               "expression": "assertEquals(0L, h.stored(m.id).heardRepeats)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 154,
+              "line": 170,
               "expression": "assertEquals(2L, h.stored(m.id).sendCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 154,
+              "line": 170,
               "expression": "assertEquals(listOf(MessageStatusEvent.Resent(m.id)), statuses(h.service, events))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 155,
+              "line": 171,
               "expression": "assertEquals(1, h.sends(CommandCode.SEND_CHANNEL_MESSAGE).size)",
               "assertion_or_checked_wait": true
             }
@@ -24421,91 +24574,91 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 150,
+              "line": 166,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 150,
+              "line": 166,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 150,
+              "line": 166,
               "expression": "h.message(MessageStatus.FAILED, 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 151,
+              "line": 167,
               "expression": "EntityKey(RADIO, m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "m.copy",
-              "line": 151,
+              "line": 167,
               "expression": "m.copy(heardRepeats = 3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 152,
+              "line": 168,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.resendChannelMessage",
-              "line": 152,
+              "line": 168,
               "expression": "h.service.resendChannelMessage(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 153,
+              "line": 169,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 153,
+              "line": 169,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 154,
+              "line": 170,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 154,
+              "line": 170,
               "expression": "listOf(MessageStatusEvent.Resent(m.id))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageStatusEvent.Resent",
-              "line": 154,
+              "line": 170,
               "expression": "MessageStatusEvent.Resent(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 154,
+              "line": 170,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.sends",
-              "line": 155,
+              "line": 171,
               "expression": "h.sends(CommandCode.SEND_CHANNEL_MESSAGE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 155,
+              "line": 171,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -24786,11 +24939,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "resendDirectMessage increments sendCount and broadcasts .resent on a successful resend",
-          "line": 157,
-          "end_line": 165,
+          "line": 173,
+          "end_line": 181,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "87117ebdb03a4502bd5cdb978c9f7b5d024299abacdde305918ff1c0b9a43d2c",
@@ -24798,19 +24951,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 162,
+              "line": 178,
               "expression": "assertEquals(2L, h.stored(m.id).sendCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 163,
+              "line": 179,
               "expression": "assertEquals(listOf(MessageStatusEvent.Resent(m.id)), statuses(h.service, events).filterIsInstance<MessageStatusEvent.Resent>())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 164,
+              "line": 180,
               "expression": "assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)",
               "assertion_or_checked_wait": true
             }
@@ -24818,73 +24971,73 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 158,
+              "line": 174,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 158,
+              "line": 174,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 158,
+              "line": 174,
               "expression": "h.message(MessageStatus.DELIVERED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 160,
+              "line": 176,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.resendDirectMessage",
-              "line": 161,
+              "line": 177,
               "expression": "h.service.resendDirectMessage(m.id, h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 162,
+              "line": 178,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 163,
+              "line": 179,
               "expression": "listOf(MessageStatusEvent.Resent(m.id))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageStatusEvent.Resent",
-              "line": 163,
+              "line": 179,
               "expression": "MessageStatusEvent.Resent(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 163,
+              "line": 179,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "filterIsInstance",
-              "line": 163,
+              "line": 179,
               "expression": "filterIsInstance<MessageStatusEvent.Resent>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.sends",
-              "line": 164,
+              "line": 180,
               "expression": "h.sends(CommandCode.SEND_MESSAGE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 164,
+              "line": 180,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -25165,11 +25318,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingDirectMessage does not bump sendCount or broadcast .resent on first send",
-          "line": 166,
-          "end_line": 173,
+          "line": 182,
+          "end_line": 189,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "b017c270c38f69478ad7bee3b13c329f6977ea504e899224c2dc863f3f725537",
@@ -25177,19 +25330,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 171,
+              "line": 187,
               "expression": "assertEquals(1L, h.stored(m.id).sendCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 171,
+              "line": 187,
               "expression": "assertFalse(statuses(h.service, events).any { it is MessageStatusEvent.Resent })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 172,
+              "line": 188,
               "expression": "assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)",
               "assertion_or_checked_wait": true
             }
@@ -25197,55 +25350,55 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 167,
+              "line": 183,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 167,
+              "line": 183,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 167,
+              "line": 183,
               "expression": "h.message(MessageStatus.PENDING)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 169,
+              "line": 185,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendPendingDirectMessage",
-              "line": 170,
+              "line": 186,
               "expression": "h.service.sendPendingDirectMessage(m.id, h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 171,
+              "line": 187,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 171,
+              "line": 187,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.sends",
-              "line": 172,
+              "line": 188,
               "expression": "h.sends(CommandCode.SEND_MESSAGE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 172,
+              "line": 188,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -25361,11 +25514,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage tracks pending ACK before session.sendMessage so the listener cannot race",
-          "line": 174,
-          "end_line": 179,
+          "line": 190,
+          "end_line": 195,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "61e8fb5cde76b3ddaf93b9bfcc5d25cbbb43f2eed47603adbee66423a928dff4",
@@ -25373,13 +25526,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 177,
+              "line": 193,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 177,
+              "line": 193,
               "expression": "assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)",
               "assertion_or_checked_wait": true
             }
@@ -25387,43 +25540,43 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 175,
+              "line": 191,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 175,
+              "line": 191,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendDirectMessage",
-              "line": 176,
+              "line": 192,
               "expression": "h.service.sendDirectMessage(\"hi\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 176,
+              "line": 192,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.sends",
-              "line": 177,
+              "line": 193,
               "expression": "h.sends(CommandCode.SEND_MESSAGE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "sending.cancelAndJoin",
-              "line": 178,
+              "line": 194,
               "expression": "sending.cancelAndJoin()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 178,
+              "line": 194,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -25539,11 +25692,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendMessageWithRetry tracks pending ACK before session.sendMessage",
-          "line": 180,
-          "end_line": 185,
+          "line": 196,
+          "end_line": 201,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "f0965181f52f053910fe55ace6e2ff59181398375490fc4d58a94f877b2fcdf6",
@@ -25551,13 +25704,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 183,
+              "line": 199,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 183,
+              "line": 199,
               "expression": "assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)",
               "assertion_or_checked_wait": true
             }
@@ -25565,43 +25718,43 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 181,
+              "line": 197,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 181,
+              "line": 197,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendMessageWithRetry",
-              "line": 182,
+              "line": 198,
               "expression": "h.service.sendMessageWithRetry(\"hi\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 182,
+              "line": 198,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.sends",
-              "line": 183,
+              "line": 199,
               "expression": "h.sends(CommandCode.SEND_MESSAGE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "sending.cancelAndJoin",
-              "line": 184,
+              "line": 200,
               "expression": "sending.cancelAndJoin()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 184,
+              "line": 200,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -25727,11 +25880,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "failMessageAndRethrow does not downgrade a delivered DB row",
-          "line": 186,
-          "end_line": 190,
+          "line": 202,
+          "end_line": 206,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "a916319e04d4825bc7a24eb817836eee78cb7abc4b41e8d6332369128107da9a",
@@ -25739,13 +25892,13 @@
           "assertions": [
             {
               "name": "assertFailsWith",
-              "line": 188,
+              "line": 204,
               "expression": "assertFailsWith<MessageServiceException> { h.service.failMessageAndRethrow(com.meshcoreone.android.core.protocol.config.MeshCoreException.NotConnected(), m.id) }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 189,
+              "line": 205,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -25753,55 +25906,55 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 187,
+              "line": 203,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 187,
+              "line": 203,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 187,
+              "line": 203,
               "expression": "h.message(MessageStatus.DELIVERED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 187,
+              "line": 203,
               "expression": "h.service.installPendingAck(h.tracking(m, delivered = true))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 187,
+              "line": 203,
               "expression": "h.tracking(m, delivered = true)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.failMessageAndRethrow",
-              "line": 188,
+              "line": 204,
               "expression": "h.service.failMessageAndRethrow(com.meshcoreone.android.core.protocol.config.MeshCoreException.NotConnected(), m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "com.meshcoreone.android.core.protocol.config.MeshCoreException.NotConnected",
-              "line": 188,
+              "line": 204,
               "expression": "com.meshcoreone.android.core.protocol.config.MeshCoreException.NotConnected()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 189,
+              "line": 205,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 189,
+              "line": 205,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -25933,11 +26086,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "finalizeSend exhaustion does not downgrade a delivered DB row",
-          "line": 191,
-          "end_line": 194,
+          "line": 207,
+          "end_line": 210,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "c0ac535a58d06ab34105a4872b8d5f3b58f04350423a7fd6d9fe37dcbc9485c0",
@@ -25945,7 +26098,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 193,
+              "line": 209,
               "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             }
@@ -25953,49 +26106,49 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 192,
+              "line": 208,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 192,
+              "line": 208,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.message",
-              "line": 192,
+              "line": 208,
               "expression": "h.message(MessageStatus.DELIVERED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.installPendingAck",
-              "line": 192,
+              "line": 208,
               "expression": "h.service.installPendingAck(h.tracking(m))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.tracking",
-              "line": 192,
+              "line": 208,
               "expression": "h.tracking(m)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finalizeSend",
-              "line": 193,
+              "line": 209,
               "expression": "h.service.finalizeSend(m.id, CONTACT, TARGET, null, 0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 193,
+              "line": 209,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 193,
+              "line": 209,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -26280,11 +26433,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "retry exhaustion leaves the DM .sent with its pending entry alive, never prematurely .failed",
-          "line": 195,
-          "end_line": 201,
+          "line": 211,
+          "end_line": 217,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "bd998598e57e9f829b09bdafde312cdc57b0cbd7579c3c6a53eda14d79c3f5a0",
@@ -26292,31 +26445,31 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 198,
+              "line": 214,
               "expression": "assertEquals(MessageStatus.SENT, m.status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 198,
+              "line": 214,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 199,
+              "line": 215,
               "expression": "assertFalse(out.any { it is MessageStatusEvent.Failed })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 200,
+              "line": 216,
               "expression": "assertTrue(out.any { it is MessageStatusEvent.Retrying })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 200,
+              "line": 216,
               "expression": "assertTrue(out.any { it is MessageStatusEvent.StatusResolved })",
               "assertion_or_checked_wait": true
             }
@@ -26324,43 +26477,43 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 196,
+              "line": 212,
               "expression": "Harness(this, MessageServiceConfig(maxAttempts = 2, floodAfter = 5))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageServiceConfig",
-              "line": 196,
+              "line": 212,
               "expression": "MessageServiceConfig(maxAttempts = 2, floodAfter = 5)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 196,
+              "line": 212,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.statusEvents",
-              "line": 196,
+              "line": 212,
               "expression": "h.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendMessageWithRetry",
-              "line": 197,
+              "line": 213,
               "expression": "h.service.sendMessageWithRetry(\"exhaust me\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "statuses",
-              "line": 199,
+              "line": 215,
               "expression": "statuses(h.service, events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 200,
+              "line": 216,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -26531,11 +26684,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "a genuine send exception still fails the DM through the outer catch",
-          "line": 202,
-          "end_line": 206,
+          "line": 218,
+          "end_line": 222,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "7aeacad1c606803ee1ecbf807d995dd5f1dddc9be7c0c5c691b400d9a30cce81",
@@ -26543,13 +26696,13 @@
           "assertions": [
             {
               "name": "assertFailsWith",
-              "line": 204,
+              "line": 220,
               "expression": "assertFailsWith<Exception> { h.service.sendMessageWithRetry(\"boom\", h.contact) }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 205,
+              "line": 221,
               "expression": "assertEquals(MessageStatus.FAILED, h.store.messages.values.single().status)",
               "assertion_or_checked_wait": true
             }
@@ -26557,37 +26710,37 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 203,
+              "line": 219,
               "expression": "Harness(this)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 203,
+              "line": 219,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.transport.mock.failSends",
-              "line": 203,
+              "line": 219,
               "expression": "h.transport.mock.failSends(2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendMessageWithRetry",
-              "line": 204,
+              "line": 220,
               "expression": "h.service.sendMessageWithRetry(\"boom\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.messages.values.single",
-              "line": 205,
+              "line": 221,
               "expression": "h.store.messages.values.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 205,
+              "line": 221,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -26856,11 +27009,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "checkExpiredAcks cannot fail a DM while its retry loop is still inside waitForEvent",
-          "line": 207,
-          "end_line": 213,
+          "line": 223,
+          "end_line": 229,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "e43975218ce7b0bfba146a4fcd4d508ee981f67d34e2a7fc5e4be02b90e041c5",
@@ -26868,25 +27021,25 @@
           "assertions": [
             {
               "name": "assertNotEquals",
-              "line": 210,
+              "line": 226,
               "expression": "assertNotEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 211,
+              "line": 227,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 211,
+              "line": 227,
               "expression": "assertNotNull(h.service.pendingAck(m.id))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 212,
+              "line": 228,
               "expression": "assertEquals(MessageStatus.DELIVERED, sending.await().status)",
               "assertion_or_checked_wait": true
             }
@@ -26894,79 +27047,79 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 208,
+              "line": 224,
               "expression": "Harness(this, MessageServiceConfig(maxAttempts = 2, floodAfter = 5))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageServiceConfig",
-              "line": 208,
+              "line": 224,
               "expression": "MessageServiceConfig(maxAttempts = 2, floodAfter = 5)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 208,
+              "line": 224,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendMessageWithRetry",
-              "line": 209,
+              "line": 225,
               "expression": "h.service.sendMessageWithRetry(\"in flight\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 209,
+              "line": 225,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 210,
+              "line": 226,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.messages.values.single",
-              "line": 210,
+              "line": 226,
               "expression": "h.store.messages.values.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 210,
+              "line": 226,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.transport.pushAck",
-              "line": 211,
+              "line": 227,
               "expression": "h.transport.pushAck(assertNotNull(h.service.pendingAck(m.id)).ackCodes.first(), 100u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.pendingAck",
-              "line": 211,
+              "line": 227,
               "expression": "h.service.pendingAck(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ackCodes.first",
-              "line": 211,
+              "line": 227,
               "expression": "ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "sending.await",
-              "line": 212,
+              "line": 228,
               "expression": "sending.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 212,
+              "line": 228,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -27247,11 +27400,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "checkExpiredAcks respects a slow-preset per-attempt timeout that exceeds a tiny give-up window",
-          "line": 214,
-          "end_line": 221,
+          "line": 230,
+          "end_line": 237,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "2222482f17e6bc40e5718118f923b3a5b73d9e9d684392a1026d87ea034dadbd",
@@ -27259,25 +27412,25 @@
           "assertions": [
             {
               "name": "assertNotEquals",
-              "line": 218,
+              "line": 234,
               "expression": "assertNotEquals(MessageStatus.FAILED, h.stored(m.id).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 219,
+              "line": 235,
               "expression": "assertEquals(1, h.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 219,
+              "line": 235,
               "expression": "assertNotNull(h.service.pendingAck(m.id))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 220,
+              "line": 236,
               "expression": "assertEquals(MessageStatus.DELIVERED, sending.await().status)",
               "assertion_or_checked_wait": true
             }
@@ -27285,91 +27438,91 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 215,
+              "line": 231,
               "expression": "Harness(this, MessageServiceConfig(maxAttempts = 2, floodAfter = 5, ackGiveUpWindow = 1.0))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageServiceConfig",
-              "line": 215,
+              "line": 231,
               "expression": "MessageServiceConfig(maxAttempts = 2, floodAfter = 5, ackGiveUpWindow = 1.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 215,
+              "line": 231,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendMessageWithRetry",
-              "line": 216,
+              "line": 232,
               "expression": "h.service.sendMessageWithRetry(\"slow preset\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 216,
+              "line": 232,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "advanceTimeBy",
-              "line": 217,
+              "line": 233,
               "expression": "advanceTimeBy(2000)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 217,
+              "line": 233,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.checkExpiredAcks",
-              "line": 217,
+              "line": 233,
               "expression": "h.service.checkExpiredAcks()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.messages.values.single",
-              "line": 218,
+              "line": 234,
               "expression": "h.store.messages.values.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.stored",
-              "line": 218,
+              "line": 234,
               "expression": "h.stored(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.transport.pushAck",
-              "line": 219,
+              "line": 235,
               "expression": "h.transport.pushAck(assertNotNull(h.service.pendingAck(m.id)).ackCodes.first(), 100u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.pendingAck",
-              "line": 219,
+              "line": 235,
               "expression": "h.service.pendingAck(m.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ackCodes.first",
-              "line": 219,
+              "line": 235,
               "expression": "ackCodes.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "sending.await",
-              "line": 220,
+              "line": 236,
               "expression": "sending.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 220,
+              "line": 236,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -27606,11 +27759,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "the retry loop sends exactly config.maxAttempts times under sustained non-ACK",
-          "line": 222,
-          "end_line": 226,
+          "line": 238,
+          "end_line": 242,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "1470e261a78c17664574f2f994e75c6af07f27294d7d1b74a97289af109088fa",
@@ -27618,13 +27771,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 224,
+              "line": 240,
               "expression": "assertEquals(MessageStatus.SENT, h.service.sendMessageWithRetry(\"count me\", h.contact).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 225,
+              "line": 241,
               "expression": "assertEquals(2, h.sends(CommandCode.SEND_MESSAGE).size)",
               "assertion_or_checked_wait": true
             }
@@ -27632,37 +27785,37 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 223,
+              "line": 239,
               "expression": "Harness(this, MessageServiceConfig(maxAttempts = 2, floodAfter = 5))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageServiceConfig",
-              "line": 223,
+              "line": 239,
               "expression": "MessageServiceConfig(maxAttempts = 2, floodAfter = 5)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 223,
+              "line": 239,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendMessageWithRetry",
-              "line": 224,
+              "line": 240,
               "expression": "h.service.sendMessageWithRetry(\"count me\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.sends",
-              "line": 225,
+              "line": 241,
               "expression": "h.sends(CommandCode.SEND_MESSAGE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 225,
+              "line": 241,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }
@@ -27911,11 +28064,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
+          "sha256": "8b9d874ae05c72883800244192b1ace8c8bddee9a21354e70721dca8e4b4aef0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "the retry loop escalates from direct to flood via resetPath after exactly config.floodAfter direct failures",
-          "line": 227,
-          "end_line": 233,
+          "line": 243,
+          "end_line": 249,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "bb68d95ddbd816a14bf5b247c5fafc11fbe36224614cb46ccb1294b5f301cb21",
@@ -27923,25 +28076,25 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 229,
+              "line": 245,
               "expression": "assertEquals(MessageStatus.SENT, h.service.sendMessageWithRetry(\"escalate me\", h.contact).status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 230,
+              "line": 246,
               "expression": "assertTrue(reset >= 0)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 231,
+              "line": 247,
               "expression": "assertEquals(2, h.transport.sentData.take(reset).count { it[0] == CommandCode.SEND_MESSAGE.rawValue })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 232,
+              "line": 248,
               "expression": "assertEquals(3, h.sends(CommandCode.SEND_MESSAGE).size)",
               "assertion_or_checked_wait": true
             }
@@ -27949,43 +28102,43 @@
           "actions_and_helper_calls": [
             {
               "name": "Harness",
-              "line": 228,
+              "line": 244,
               "expression": "Harness(this, MessageServiceConfig(maxAttempts = 3, floodAfter = 2))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageServiceConfig",
-              "line": 228,
+              "line": 244,
               "expression": "MessageServiceConfig(maxAttempts = 3, floodAfter = 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.start",
-              "line": 228,
+              "line": 244,
               "expression": "h.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.sendMessageWithRetry",
-              "line": 229,
+              "line": 245,
               "expression": "h.service.sendMessageWithRetry(\"escalate me\", h.contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.transport.sentData.take",
-              "line": 231,
+              "line": 247,
               "expression": "h.transport.sentData.take(reset)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.sends",
-              "line": 232,
+              "line": 248,
               "expression": "h.sends(CommandCode.SEND_MESSAGE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.close",
-              "line": 232,
+              "line": 248,
               "expression": "h.close()",
               "assertion_or_checked_wait": false
             }

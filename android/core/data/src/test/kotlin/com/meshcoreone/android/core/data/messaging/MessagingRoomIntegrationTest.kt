@@ -665,7 +665,8 @@ class MessagingRoomIntegrationTest {
     @Test
     @OriginalCase("MessageServiceSendDMBookkeepingTests::sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails()")
     fun sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted() = runTest(scheduler) {
-        contact = contact.copy(publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), name = "TestContact", lastHeardTimestamp = null)
+        contact = contact.copy(publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), name = "TestContact",
+            typeRawValue = 1u, lastHeardTimestamp = null)
         seed()
         val g = RadioGeneration(28, sessionTimeout = 10.0)
         g.firmware.acknowledge = false

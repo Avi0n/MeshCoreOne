@@ -1,5 +1,15 @@
 # WP-501 source, case-family and consumer acceptance
 
+Next proposed inspection is899/5133families/135groups/67mandatory/0approved:
+12 full unstarted send-validation/pending/DTO/query/in-flight originals,
+exact source ContactDTO helper values/rawchat1/timeout5 and independent
+saved/fetched predicates. Prior bookkeeping constructors also restore
+sourcechat1 rather than native unknownraw0/chatfallback. Fresh exact
+covering discovery required; b371/627is historical changed-input proof.
+All other23send originals remain uncredited; independent/hosted/persistent
+acceptance still required. Producer182one-positive handoff is complete
+by its explicit bound report, not inferred from an idle/empty-lock state.
+
 Current proposed inspection is 887/5133 original families in 134 groups,
 67 mandatory App methods and zero approved behavioral acceptances. Actual main
 440d8cd6380c7cc7be92de65b18e05837e4b6854 adopted by clean rebase after verifying

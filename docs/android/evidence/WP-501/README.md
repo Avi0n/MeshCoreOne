@@ -14,6 +14,22 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
 
+The next12 complete unstarted validation/pending/DTO/query/in-flight originals
+add one proposed group:899families/135groups/67mandatory/0approved. Restored
+ContactDTO helper ABx32/TestContact/chatraw1/nil lastHeard and default timeout5,
+actual contact-keyed query10/0 with separate nonempty/text/direction guards,
+independent fetched-row pending predicate, and source-unstarted pending cases.
+Existing stronger guards and all registered identities remain unchanged.
+Full native ContactDTO/defaults read additionally exposed chatraw0 fallback
+in the earlier bookkeeping constructors; both services/Room now explicitly
+restore sourcechat1. This is an input repair, not a product behavior change.
+Historical b371/627success does not execute these changed source/helper blobs;
+fresh covering execution remains required. Other23send originals are not
+credited. Producer182one-positive handoff completed as explicitly reported:
+actualc877App655/services2640 and new4/heard22+18positive; publication hold
+released, not a fresh execution of this worker. Requested independent
+five-path183/805source review is separate/no native rerun/human approval.
+
 Verified actual PR180 merge440d at02:51:55Z, parents d3f/e2d, exact tree
 equality to independently source-reviewed e2d8a49f1969a42fe98affd64d7bc56471049f75.
 Official38196362797/114639849956 result/log read: actual positive selected
