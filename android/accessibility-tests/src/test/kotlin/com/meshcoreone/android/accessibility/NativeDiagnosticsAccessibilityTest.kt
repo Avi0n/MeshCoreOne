@@ -32,6 +32,16 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class NativeDiagnosticsAccessibilityTest : NativeAccessibilityHarness() {
     @Test fun noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200() {
+        verifyPopulatedNoiseFloor(requireScrollMovement = false)
+    }
+
+    @Test
+    @Config(qualifiers = "en-rUS-w360dp-h600dp-mdpi")
+    fun shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200() {
+        verifyPopulatedNoiseFloor(requireScrollMovement = true)
+    }
+
+    private fun verifyPopulatedNoiseFloor(requireScrollMovement: Boolean) {
         val source = RadioStatsSource { RadioStats(-110, -80, 5.5, 0u, 0u) }
         content {
             MeshCoreTheme(motionScale = 0f) {
@@ -54,7 +64,11 @@ class NativeDiagnosticsAccessibilityTest : NativeAccessibilityHarness() {
                 "|viewport=${compose.onNodeWithTag("audit-root").fetchSemanticsNode().boundsInRoot}")
             node
         }
+        var moved = false
         for (node in values) {
+            val before = node.fetchSemanticsNode()
+            val beforePosition = before.positionInRoot
+            val beforeBounds = before.boundsInRoot
             val ancestors = generateSequence(node.fetchSemanticsNode()) { it.parent }
             if (ancestors.any {
                 it.config.contains(SemanticsActions.ScrollBy) &&
@@ -64,7 +78,17 @@ class NativeDiagnosticsAccessibilityTest : NativeAccessibilityHarness() {
             }
             node.assertIsDisplayed()
             assertFont200Unclipped(node)
+            val after = node.fetchSemanticsNode()
+            val root = compose.onNodeWithTag("audit-root").fetchSemanticsNode().boundsInRoot
+            val bounds = after.boundsInRoot
+            println("WP503_GRAPH_REACHABLE|before=$beforeBounds|after=$bounds|position=$beforePosition->${after.positionInRoot}")
+            assertTrue("The full numeric text must be visible after its native scroll action",
+                bounds.left >= root.left && bounds.top >= root.top &&
+                    bounds.right <= root.right && bounds.bottom <= root.bottom &&
+                    bounds.width == after.size.width.toFloat() && bounds.height == after.size.height.toFloat())
+            moved = moved || beforePosition != after.positionInRoot
         }
+        if (requireScrollMovement) assertTrue("The smaller real window must exercise actual scroll movement", moved)
         assertVisibleClickTargetsAtLeast48Dp()
     }
 

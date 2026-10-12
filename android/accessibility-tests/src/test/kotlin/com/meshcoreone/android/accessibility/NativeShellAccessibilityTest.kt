@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsSelected
@@ -107,7 +108,7 @@ class NativeShellAccessibilityTest : NativeAccessibilityHarness() {
         }
         compose.runOnIdle { navigation.navigateToSetting(SettingsDetail.LANGUAGE) }
         compose.onNodeWithTag("probe-editor:language").performClick().performTextInput("\u4e2d\u6587 \u05e9\u05dc\u05d5\u05dd")
-            .assertIsFocused()
+        compose.onNodeWithTag("probe-editor:language").assertIsFocused()
         val entry = navigation.state.value.activeStack.last()
         compose.onNodeWithTag("tab:CHATS").performScrollTo().performClick()
         compose.onNodeWithTag("tab:SETTINGS").performScrollTo().performClick()
