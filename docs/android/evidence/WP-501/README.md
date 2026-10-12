@@ -14,6 +14,19 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
 
+Next23 complete original SendTests input/assertion comparisons are proposed
+without a passing-execution claim:922families/136groups/67mandatory/0approved.
+Both deliberately pre-delivered PendingAck cases preserve ABCDEF12/30 and
+accepted ABCDEF12/5000 with no fresh ACK. Remaining channel helpers/queries,
+pending guards, FE32 ordering, delivered-row ACK literals and retry/checker
+parameter families are restored as described in the proposal/deviation.
+Actual existing cap labels and helper01key already match frozen source;
+no registration rename or fabricated CD-key repair. Shared fixture defaults
+remain intact. New test/helper bytes require fresh exact-candidate execution;
+historical e497/90d success remains historical. Producer183 actual merge
+2cdda0f484722419cc074813ff44dd846dfb7d43 is supplied for disjoint adoption,
+not inferred from issue closure or the independent review.
+
 Latest clean execution `e4977a2e2413f6a4c732cfd183300b65fb9618cc` /
 actual base440d passed the exact same current covering command below:
 210/210all messaging/all44required identities,44/44actualRoom/all44required

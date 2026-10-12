@@ -222,8 +222,9 @@ internal class RecordingStore : PersistenceStoreProtocol by unsupportedStore() {
     }
 }
 
-internal class FirmwareTransport : MeshTransport {
+internal class FirmwareTransport(private val senderPublicKey: Bytes = SELF) : MeshTransport {
     val mock = MockTransport()
+    var appStartReply: Bytes = selfInfoPacket(senderPublicKey)
     var beforeReply: (suspend (Bytes) -> Unit)? = null
     var holdMessageReplies = false
     var holdGetReplies = false
@@ -251,7 +252,7 @@ internal class FirmwareTransport : MeshTransport {
         catch (failure: MockTransportException.SendFailed) { throw MeshTransportError.SendFailed(failure.reason) }
         beforeReply?.invoke(data)
         when (CommandCode.fromRawValue(data[0])) {
-            CommandCode.APP_START -> mock.simulateReceive(selfInfoPacket())
+            CommandCode.APP_START -> mock.simulateReceive(appStartReply)
             CommandCode.SEND_MESSAGE -> {
                 directError?.let { mock.simulateError(it); return }
                 if (holdMessageReplies) return
@@ -260,7 +261,7 @@ internal class FirmwareTransport : MeshTransport {
                 reader.readBytes(6)
                 val text = reader.readBytes(reader.remaining).toByteArray().toString(Charsets.UTF_8)
                 val input = ByteWriter().appendUInt32LE(stamp).appendUInt8((data[2].toInt() and 3).toUByte())
-                    .append(Bytes.utf8(text)).append(SELF).toBytes().toByteArray()
+                    .append(Bytes.utf8(text)).append(senderPublicKey).toBytes().toByteArray()
                 val predicted = Bytes(MessageDigest.getInstance("SHA-256").digest(input)).prefix(4)
                 val ack = expectedAckOverride ?: predicted
                 if (acknowledge && ackBeforeAcceptance) pushAck(ack, 123u)
@@ -295,8 +296,8 @@ internal class FirmwareTransport : MeshTransport {
         mock.simulateReceive(builder.toBytes())
     }
     companion object {
-        fun selfInfoPacket(): Bytes = ByteWriter().appendUInt8(ResponseCode.SELF_INFO.rawValue)
-            .appendUInt8(1u).appendUInt8(22u).appendUInt8(22u).append(SELF)
+        fun selfInfoPacket(publicKey: Bytes = SELF): Bytes = ByteWriter().appendUInt8(ResponseCode.SELF_INFO.rawValue)
+            .appendUInt8(1u).appendUInt8(22u).appendUInt8(22u).append(publicKey)
             .appendInt32LE(0).appendInt32LE(0).appendUInt8(0u).appendUInt8(0u).appendUInt8(0u)
             .appendUInt32LE(915_000u).appendUInt32LE(125_000u).appendUInt8(7u).appendUInt8(5u)
             .append(Bytes.utf8("Test")).toBytes()
@@ -312,13 +313,15 @@ internal class Harness(
     sessionTimeout: Double = 2.0,
     private val eventDispatcher: EventDispatcher? = null,
     val contact: ContactDTO = ContactDTO(CONTACT, RADIO, TARGET, "Peer", lastHeardTimestamp = 0u),
+    val localPublicKey: Bytes = SELF,
+    startupPacket: Bytes? = null,
 ) {
     val token = token(generation = generation)
     private val fixtureJob = SupervisorJob(test.coroutineContext[Job])
     val scope = CoroutineScope(test.coroutineContext + fixtureJob)
     val signals = TestSignals(token)
     val clock = TestMessagingClock(test.testScheduler)
-    val transport = FirmwareTransport()
+    val transport = FirmwareTransport(localPublicKey).also { if (startupPacket != null) it.appStartReply = startupPacket }
     val session = MeshCoreSession(transport, SessionConfiguration(defaultTimeout = sessionTimeout), clock, scope.coroutineContext)
     private val serviceSession = eventDispatcher?.let { dispatcher ->
         object : MeshCoreSessionProtocol by session {
@@ -329,13 +332,13 @@ internal class Harness(
     val diagnostics = mutableListOf<MessagingDiagnostic>()
     private val queues = mutableListOf<ChatSendQueueService>()
     private val pollers = mutableListOf<MessagePollingService>()
-    val service = MessageService(token, SELF, serviceSession, store, signals, scope, config, clock,
+    val service = MessageService(token, localPublicKey, serviceSession, store, signals, scope, config, clock,
         jitter = { 1.0 }, reporter = MessagingIssueReporter { diagnostics += it })
     init { synchronized(fixtures) { fixtures.getOrPut(test) { mutableListOf() } += this } }
     suspend fun start() {
         store.saveContact(contact)
         session.start()
-        assertEquals(SELF, session.currentSelfInfo?.publicKey)
+        assertEquals(localPublicKey, session.currentSelfInfo?.publicKey)
     }
     fun stored(id: UUID): MessageDTO = assertNotNull(store.messages[EntityKey(RADIO, id)])
     suspend fun message(
