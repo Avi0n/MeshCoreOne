@@ -1,6 +1,11 @@
 # WP-501 source, case-family and consumer acceptance
 
 Current proposed inspection is1002/5133families/139groups/70mandatory/0approved.
+Actual190 mergeedc/parentsa4fa+5dda/candidate-equal treefe854720 is
+subsequently adopted with exactly its inherited three-path delta; worker/native
+bytes preserved. Explicit own two-path EOL refresh restores canonical bytes
+without semantic/index changes or native rerun. Earlier executions remain
+honestly a4fa-bound, not relabeled after Windows184 merge.
 The added49 DevicePlatform original bodies/existing App assertions preserve
 all selected strings/enums and60/25/60ms scalar pacing. They do not prove
 localized Unicode normalization or the actual BLE pacing consumer. Source-only

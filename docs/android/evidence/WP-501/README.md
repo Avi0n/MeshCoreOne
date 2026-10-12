@@ -4,7 +4,7 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `a4fae0fa87dd32505ad2ebab1cd890c878fa9a6a`.
+Current integrated base: `edc063b071ed689fd8c14407ab19b86e2c796293`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
@@ -13,6 +13,19 @@ Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
 ## Current platform consumer audit and actual routing-repair adoption
+
+Subsequent actual190 Windows-byte mergeedc was independently verified:
+parentsa4fa+5dda/candidate-equal treefe854720dfd0d8f77194b7cead3598951ab6d5a1,
+genuine MERGED identity; clean same-branch rebase changed only two module-local
+attributes and WP002 deviation. All worker/native test/helper/product blobs
+otherwise unchanged; ff63/dedf/91132 execution remains a4fa-bound.
+After user-directed explicit own refresh, both formerly smudged working files
+match canonical8501e70/1b7f21f5 SHA256 and have zero CRLFs; Git index/content
+unchanged/worktree clean. Ordinary forced checkout alone retained cached
+smudged files; only those two verified EOL-only files were explicitly recreated
+from canonical Git and their stat records refreshed. No foreign checkout/cache,
+global attributes/settings, resource/parser/contract/expected-byte edit, or
+rerun of the producer's Windows44/JAR proof.
 
 Actual PR187 mergea4fa was independently checked: parents76dd+01fb,
 candidate-equal tree266d218246dc906539ddb4e02f54c3acf5429edc,
