@@ -9,6 +9,12 @@ the concrete post-query platform drop at BleRuntimeLink.configure; WP303/
 necessaryWP205 owns repair. Three supplemental actual-link/actual-transport/
 TestClock/fake-GATT witnesses are mandatory, not three extra original families
 or physical evidence. Their native execution remains pending.
+Actual cleanff63/basea4fa Windows run passed messaging69/69/all66 original
+names, ACK31/Send38/0failure-error-skip, including the six unstarted cases and
+independent PartB after actual187 adoption. It then failed l10n74 traceability
+on the supplemental test's mixed dispositions before App52 execution; this
+is corrected with AndroidOnly plus a real validator wiring guard, not hidden.
+Unchanged messaging69 will not be rerun; failed9123 history stays below.
 
 Actual187 maina4fae0fa87dd32505ad2ebab1cd890c878fa9a6a is adopted
 by clean same-branch rebase, verified parents76dd+01fb/candidate-equal tree

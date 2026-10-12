@@ -1,5 +1,4 @@
 // AndroidOnly: WP-501 Actual BLE link/transport consumers of the frozen post-query platform pacing policy.
-// PortedFrom: MC1Services/Sources/MC1Services/Connection/ConnectionManager.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.parity
 
 import com.meshcoreone.android.app.container.BleRuntimeLink

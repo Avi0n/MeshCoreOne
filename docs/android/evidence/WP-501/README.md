@@ -39,7 +39,24 @@ BlePacingAcceptanceTest methods mount real BleRuntimeLink/BleTransport with
 TestClock and callback-completing fake GATT; independently require60/25/60ms
 acknowledged inter-write intervals, both minimum and completion-at-deadline.
 These are supplemental consumer assertions, not extra originals, hardware,
-radio performance results or packet goldens. Native execution is pending.
+radio performance results or packet goldens.
+Exact cleanff63abb4dae9abd5a9b84365c4ece9fa3dd766ae/basea4fa Windows
+invocation selected `:core:services:test --tests com.meshcoreone.android.core.services.messaging.SourceAckTest --tests com.meshcoreone.android.core.services.messaging.SourceSendTest :app:testDebugUnitTest --tests com.meshcoreone.android.app.container.DevicePlatformDetectionTest --tests com.meshcoreone.android.parity.BlePacingAcceptanceTest --dependency-verification=strict --quiet`.
+Actual messaging JUnit05:56:31Z discovered69/69PASS/0failures/errors/skips:
+ACK31 and Send38, all66 distinct original identities checked. The restored six
+unstarted finalize cases and independent PartB now pass after actual187 adoption;
+no hidden startup/shared fixture/expected/input change or unchanged owner suite
+rerun. Genuine-ACK/linked-ID/clock/persistence limits remain; old9123 failures
+are retained. Readiness passed and locks released.
+
+Overall Gradle command FAILED afterward in `:core:l10n:verifyL10nConversion`:
+its74 converter tests had one traceability error because the new supplemental
+test mixed AndroidOnly and PortedFrom dispositions. App49/consumer3 were not
+executed; no fresh native pacing negative is claimed. The fix keeps the truthful
+AndroidOnly WP501 disposition and source consumer provenance in the bound
+proposal, and makes existing mandatory-wiring Python test call the real
+traceability validator. Only the previously unexecuted App52 needs next native
+execution; unchanged messaging69 is not selected again.
 Initial7b0ac0aa Python parity92 had91PASS/1FAIL because its existing wiring
 test still required67 mandatory methods; no native execution occurred there.
 The coupled assertion now requires70 and the exact three new distinct names,

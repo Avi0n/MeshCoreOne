@@ -252,6 +252,10 @@ class WiringTest(unittest.TestCase):
         for class_name, method in WP501_ACCEPTANCE_CASES:
             text = (directory / (class_name.rsplit(".", 1)[1] + ".kt")).read_text(encoding="utf-8")
             self.assertIn(f"@Test fun {method}(", text)
+        from controller.model import load_manifest
+        from portmap import port_map
+
+        port_map(load_manifest(audit.REPO))
 
     def test_parity_fixture_directory_is_test_only(self):
         text = (audit.REPO / "android/app/build.gradle.kts").read_text(encoding="utf-8")
