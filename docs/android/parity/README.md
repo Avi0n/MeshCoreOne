@@ -11,7 +11,10 @@ frozen bodies and six incumbent aggregate classes were read for gaps,
 not accepted from annotations; remaining128 comparisons stay unresolved.
 Fixed reproducible key bytes replace source random keys, explicitly not
 universal randomness/identity or SwiftData/cancellation/device parity.
-Actual seven-name native execution is pending. Same reservation29->30
+Actual clean730ac/base185466 strict Windows App selector7/7PASS/
+zeroFAIL-error-skip/all7 original names at09:13:59.016Z, readinessPASS/
+cleaninputs/supportedlocksreleased. This remains its pre195-adoption
+input binding, not a successor or mounted consumer verdict. Same reservation29->30
 admits the owned file/create without changing immutable authorization/pins.
 
 Qualified independent COMMENTED5488555439/a953/base185466/09:05:53Z

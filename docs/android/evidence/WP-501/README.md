@@ -43,8 +43,16 @@ Actual inherited API31 Room/native SQLite/production store/teardown,
 selected source/native helpers/DTO/repository/SQL/consumer boundaries read.
 Fixed distinct fixture keys replace source random bytes explicitly; no
 universal identity/randomness/SwiftData/cancellation/API37/device/mounted
-notification/queue/advertisement proof. Seven-name strict native execution
-is pending; immutable older execution/input bindings remain unchanged.
+notification/queue/advertisement proof. Actual clean
+`730ac1db155bd813a92bcbc4286ff29daf20e0ae` /base185466 strict Windows
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceOriginalPredicateTest --dependency-verification=strict --quiet`
+discovers7/7PASS/zeroFAIL-error-skip/all7 distinct original names in real
+XML2026-10-12T09:13:59.016Z. Native blob
+`8548d1cfb3207cca3ebc23df1d5864a6225a0fcf`; readinessPASS JDK21.0.12.1/
+SDK37.2/tools37/own private state, tracked inputs clean/supportedlocksreleased.
+Only the seven new counterparts ran, no incumbent replay. This predates
+actual reviewed195 adoption, not a successor/current-caller execution
+relabel; immutable older execution/input bindings remain unchanged.
 Supported reservation29->30 admits only canonical owned test/create.
 Initial missing partial-source marker failed semantic generation closed;
 corrected marker explicitly declares seven of135, not135 accepted families.
