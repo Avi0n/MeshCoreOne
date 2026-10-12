@@ -14,6 +14,43 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Contact/history input increment and qualified reviews
 
+Latest prepared inputs add twelve independent dedup/history/status/channel/
+unread/terminal-ACK originals:1429/5133 proposals/182groups/83mandatory/0approved,
+85/135 persistence proposed/50remaining. Native discovery/source comparison
+pending; no unexecuted count or extra supplement-original credit. Source
+Message initializer default0 maps to captured createdAt Unix seconds, applied
+explicitly to status setup; direct helper PENDING and channel helper SENT
+remain distinct. Blocked rawtype0/path0/empty/nil-heard, repeater path2/0102/
+zero geography and room/repeater role defaults retained. Diagnostic source
+ack-only query maps to explicitly captured native RadioId for each separately
+allocated source-context radio, not universal global-query equivalence.
+
+Qualified contact5 SOURCE-ONLY5491201631 at0c9/baseab1,13:06:40Z,
+proposalb445a402/comparison8b5279b1 fully read/reconciled. Guard5 bodies/joins/
+85helperrows/17inputs and actual source/default/Room/order/delete/recompute
+consumers, no selected blocker/private64e certification/APPROVED/full135.
+All73 prior persistence proposals have bounded qualified source comparisons.
+Separately added delegated DeviceDTO+Testing/source Device/native DeviceDTO
+default fingerprints:100helperrows/20inputs, not a17-input review/receipt
+relabel or original-five replay. Existing native/default values match their
+executed64e inputs; only provenance registration evolves.
+
+Bounded exact203/57636b/baseab1 SOURCE-ONLY6124919362 posted after complete
+three-path/full-product/six-test/helpers/deviation/frozen delete/recompute/
+actual Room transaction/failure/mounted-action reads. Three direct-only captured
+radio/contact lines restore full base product when removed; no other product
+byte changes. Separate committed deletion and failing recency-write semantics
+retained. No native replay/private owning11 certification/APPROVED/global credit.
+
+Authoritative current0c9 hosted
+[38251836526](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38251836526),
+Linux114820608772, FAILED. Actual official complete two assertion bodies and
+831completed/2failed App boundary read directly: expected2023-11-14T22:14:13Z/
+actual22:14:14Z at53 and expectednil/actual22:13:20Z at74. Final guard FAILED/
+SwiftData restore-export SKIPPED/localization-APK transfer unreached. This is
+distinct from private64e, not flaky retry/no new defect/full-positive credit.
+Owning203 product adoption/postfix execution pending; no second CI-result bundle.
+
 Actual PR201 MERGED12:38:58Z/issue200 CLOSED12:38:59Z independently
 verified: mergeab1b8bbff9dc51f8bc734fd2d20708fc1d6af775 parents6863+917,
 candidate-equal treee147a94e29bba5a754aaea56d1b31f434ffd58d2, exactly

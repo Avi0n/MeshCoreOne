@@ -5,6 +5,66 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "persistence-original-restored-unread-and-status-predicates",
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
+      "native_factory": null,
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "fetchMessage by dedup key returns the row for the same radio",
+        "Save and fetch messages for contact",
+        "Update message status",
+        "Save and fetch channels",
+        "Get total unread counts",
+        "Get total unread counts excludes blocked contacts",
+        "Get total unread counts excludes repeater contacts",
+        "Get total unread counts excludes repeater-role sessions",
+        "updateMessageAck refuses to write .delivered onto a .failed row",
+        "clearRetryingToSent no-ops on .failed but promotes .retrying and .pending to .sent",
+        "clearRetryingToSent no-ops on a .delivered row",
+        "hasOutgoingSentDM flags a stuck .sent DM by ackCode and ignores other rows"
+      ],
+      "comparison": "Twelve standalone complete originals: incoming SENT hello/Alice/channel0 literal dedup key/same-radio ID/independent other-radio nil; five current-timestamp messages/count/first-last; PENDING->SENDING->SENT independent readbacks; Public0/zeros16 and Private1/42bytes16 with count/index/name order; separate contact2+1/channel3/rooms0; isolated blocked5/regular2; isolated repeater3/chat2; isolated repeater-session3/room2; FAILED+DEADBEEF remains FAILED; independent FAILED/RETRYING/PENDING returns false/true/true and FAILED/SENT/SENT; independent DELIVERED false+DELIVERED; SENT CAFE-F00D true/different1 false/independent DELIVERED BADC0DE5 false. No aggregate annotation collapse.",
+      "inputs": "Complete delegated DeviceDTO.testDevice overrides/defaults and ContactFrame defaults retained; fixed44 parent/55-56 contact/66-67 session keys replace source random keys explicitly. Fresh UUIDs/current timestamp/createdAt fields retained, including separately allocated radio/contact per direct test helper call. Source Message zero-argument timestamp default derives actual captured createdAt Unix seconds: status fixture explicitly applies that constructor behavior, not native zero timestamp. Direct helper OUTGOING/PENDING and channel helper SENT are distinct. Blocked rawtype0/path0/empty path/nil heard/counters5, repeater frame path2/0102/ZERO geography, room role versus repeater/GUEST/disconnected/bookmark0/geography retained.",
+      "adaptations": "Actual API31 RoomProcessTest/nativeSQLite/production transaction store, RadioId/EntityKey/Bytes/Instant/UInt/Long raw states. Original diagnostic has global ack-only query; native contract requires captured RadioId, so each query selects the corresponding independently allocated source-context radio. Original selected predicates remain, not all-radio/global-equivalence or extra other-radio assertions. No typed-corruption/clock/random/hash/migration/rollback/race/cancellation/API37/device/mounted keyboard/menu evidence. Native twelve execution/independent source comparison pending.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Models/Message.swift",
+        "MC1Services/Sources/MC1Services/Models/Contact.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+Channels.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ChannelRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Models/Device.swift",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
+        "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MetadataRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt"
+      ],
+      "consumer": "Actual MetadataRepository filters persisted positive counters/muted-blocked/repeater types and room roles with checked arithmetic; actual App unread observer and notification roles consume partitioned totals. Native MessageRepository/DAO raw terminal guards and ACK machine clearRetryingToSent are read: .failed/.delivered writes remain terminal while source selected pending/retrying promotion returns exact booleans. Complete selected source/native helper-default/type/model/query/order/transaction bodies compared, not just headers. Source/consumer read does not certify mounted badge, concurrent ACK or universal state transitions. Owning deletion issue202/source203 comparison6124919362 remains separate; no old five/two witness replay.",
+      "unresolved": [
+        "Twelve-only actual native discovery and independent/full acceptance pending.85/135 persistence proposed/50remaining,73 source-compared before this new12.1429/5133 proposed/182groups/83mandatory/0approved; owning202 not yet merged/postfixed; old negatives unchanged."
+      ]
+    },
+    {
       "id": "persistence-original-restored-contact-history-predicates",
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
@@ -40,9 +100,12 @@
         "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
         "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
         "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
-        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt"
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Models/Device.swift",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt"
       ],
-      "consumer": "Actual native ContactRepository recompute selects newest persisted remaining message and clears date only when empty; original selected store case calls recompute explicitly after deletion. AppChatsFeature.delete and mounted AppMessageActions Delete->feature.delete->timeline.refresh traced separately: App currently deletes row and refreshes list without rederiving contact date; AppState refresh only increments version/unread platform update. Two separately mandatory App adapter witnesses exercise that suspected consumer gap, not extra original credit or store five certification; actual native execution pending. Whole-conversation delete explicitly clears date and is not the same action. Actual clean64e5a4b682526081e128ba251aa60c8f78f634e4/base6863 bounded strict Windows App execution selects ONLY this new original class and the two new App deletion consumers:7discovered/5originalPASS/2consumerFAIL/zero errors-skips/Gradle exit1. Original XML2026-10-12T12:40:51.038Z/natived81a43011880e8d175acff2f616574d6d91a8e67; all5 exact original identities/each positive body asserted. Consumer XML2026-10-12T12:40:43.969Z/native7d891e99231574d99d49f8d0b39887abe07f937e fails persisted recency: remaining55->54 expected22:14:13 actual22:14:14;last-row expectednil actual22:13:20, fixed2023-11-14. Raw deletion/count and initial date/membership preconditions pass; final list predicates retained but unreached after each first date failure. Actual defect202 filed for owning repair, not a product edit or fake recompute helper. ReadinessPASS/clean tracked inputs/zero notice normalizations/supported locks released normally; no older selector replay. No fresh independent/source/full135/5133 or mounted UI certification.",
+      "consumer": "Actual native ContactRepository recompute selects newest persisted remaining message and clears date only when empty; original selected store case calls recompute explicitly after deletion. AppChatsFeature.delete and mounted AppMessageActions Delete->feature.delete->timeline.refresh traced separately: App currently deletes row and refreshes list without rederiving contact date; AppState refresh only increments version/unread platform update. Two separately mandatory App adapter witnesses exercise that suspected consumer gap, not extra original credit or store five certification; actual native execution pending. Whole-conversation delete explicitly clears date and is not the same action. Actual clean64e5a4b682526081e128ba251aa60c8f78f634e4/base6863 bounded strict Windows App execution selects ONLY this new original class and the two new App deletion consumers:7discovered/5originalPASS/2consumerFAIL/zero errors-skips/Gradle exit1. Original XML2026-10-12T12:40:51.038Z/natived81a43011880e8d175acff2f616574d6d91a8e67; all5 exact original identities/each positive body asserted. Consumer XML2026-10-12T12:40:43.969Z/native7d891e99231574d99d49f8d0b39887abe07f937e fails persisted recency: remaining55->54 expected22:14:13 actual22:14:14;last-row expectednil actual22:13:20, fixed2023-11-14. Raw deletion/count and initial date/membership preconditions pass; final list predicates retained but unreached after each first date failure. Actual defect202 filed for owning repair, not a product edit or fake recompute helper. ReadinessPASS/clean tracked inputs/zero notice normalizations/supported locks released normally; no older selector replay. No fresh independent/source/full135/5133 or mounted UI certification. Qualified independent SOURCE-ONLY COMMENTED5491201631 at actual0c9d23f8a191d653cf2de484106bdd2fc36758be/baseab1b,2026-10-12T13:06:40Z,https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5491201631 fully read/reconciled additively:5complete original/native bodies/joins/85helperrows/17inputs and frozen-native delegated defaults/frame/models/actual Room SQL/repository/transaction/delete/recompute consumers compared. No new selected-source blocker/private64e certification/APPROVED/current replay/full135. Fixed-key/current-clock/unasserted-default/timestamp-zero-not-selected/engine/race/cancellation/API37/mounted limits retained. Actual64e5PASS/2AppFAIL/final list predicates unreached remain distinct; owning203 source6124919362 complete/separate, not adoption/postfix proof.73/135 now bounded source-compared at that snapshot,62remaining. Separately expand helper provenance to bind complete delegated DeviceDTO+Testing/source Device/native DeviceDTO defaults; no native/body/vector bytes changed or original-five replay. Historical17-input review/receipt is not relabelled as a20-input execution.",
       "unresolved": [
         "Actual64e selected5originalPASS/2newAppFAIL; owning defect202 unresolved. Independent new5 source comparison/full acceptance pending.73/135 persistence proposed/62remaining;1417/5133/181groups/83mandatory/0approved, not accepted. Historical prior negatives/private receipts/source qualifications remain distinct."
       ]

@@ -1,5 +1,31 @@
 # WP-501 source, case-family and consumer acceptance
 
+Latest increment:1429/5133 proposed/182groups/83mandatory/0approved,
+85/135 persistence proposed/50remaining. Twelve standalone dedup/history/
+status/channel/unread/terminal-ACK originals now retain complete independent
+contexts and every original predicate; native execution/source comparison
+pending. Source status initializer timestamp0 resolves to captured createdAt
+Unix seconds, not a zero native DTO timestamp. Fresh radio/contact/UUID/current
+clock defaults retained; fixed44/55/56/66/67 keys are disclosed.
+
+Qualified contact5 SOURCE-ONLY COMMENTED5491201631 at0c9/baseab1 fully
+read/reconciled with guarded5/85/17 inputs and proposalb445a402/comparison8b5279b1.
+All73 previously restored originals now source-compared, not135accepted.
+Separately bound delegated source DeviceDTO+Testing/Device/native DeviceDTO
+defaults expands only that group's helper provenance to100/20; old native
+bodies/vectors/64e5PASS2FAIL unchanged, no original-five replay or17->20-input
+execution relabel. Current source comparison is not private certification.
+
+Exact203/57636b/baseab1 three-path/full-product/six-regression/transaction/
+mounted-consumer SOURCE-ONLY
+[6124919362](https://github.com/cbattlegear/MeshCoreOne-Android/pull/203#issuecomment-6124919362)
+posted, no selected blocker/product edit/private11 certification/native replay.
+Actual0c9 hosted38251836526/Linux114820608772 failed at831completed/2 App
+date assertions53/74; both complete official failure bodies read directly.
+Final guard fails, SwiftData skipped, localization/APK transfer unreached.
+This new hosted negative is distinct from private64e and requires actual
+owning product adoption, not a retry/weakened expectation/new defect.
+
 Reviewed map201 mergeab1b8bbf verified parents6863+917/candidate-equal
 treee147a94e/exact two paths, quietly adopted2faceef8 after normal native
 lock release. All1417 binding/helper inputs unchanged by that test-only
