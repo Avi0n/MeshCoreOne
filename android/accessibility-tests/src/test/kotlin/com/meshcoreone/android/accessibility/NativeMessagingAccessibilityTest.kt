@@ -99,7 +99,7 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
         val message = roomMessage("sent body", self = true)
         roomContent(RoomConversationState(room, listOf(message),
             RoomConversationStateHolder.rows(listOf(message)), hasLoadedOnce = true))
-        val label = host.get().getString(C.chatsMessageStatusSent)
+        val label = host.get().getString(R.remoteNodesRoomMessageStatusDeliveredLabel)
         val node = compose.onNode(messageNarrative(message.text, label)).assertIsDisplayed().fetchSemanticsNode()
         assertEquals("Status should not be spoken twice", 1, Regex(Regex.escape(label)).findAll(narrative(node)).count())
     }

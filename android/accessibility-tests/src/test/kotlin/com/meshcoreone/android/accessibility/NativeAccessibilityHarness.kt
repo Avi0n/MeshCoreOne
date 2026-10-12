@@ -95,6 +95,11 @@ abstract class NativeAccessibilityHarness {
         println("WP503_FONT|text=${layout.layoutInput.text}|size=${layout.size}|constraints=${layout.layoutInput.constraints}" +
             "|paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}" +
             "|widthOverflow=${layout.didOverflowWidth}|heightOverflow=${layout.didOverflowHeight}|lines=${layout.lineCount}")
+        for (line in 0 until layout.lineCount) {
+            println("WP503_FONT_LINE|text=${layout.layoutInput.text}|line=$line" +
+                "|left=${layout.getLineLeft(line)}|right=${layout.getLineRight(line)}" +
+                "|top=${layout.getLineTop(line)}|bottom=${layout.getLineBottom(line)}")
+        }
         return layout
     }
 
@@ -165,11 +170,7 @@ abstract class NativeAccessibilityHarness {
     protected fun paintedBackground(node: SemanticsNodeInteraction, expected: Color): ThemeColor {
         compose.waitForIdle()
         val bounds = node.fetchSemanticsNode().boundsInWindow
-        val bitmap = compose.runOnUiThread {
-            val view = host.get().window.decorView
-            assertTrue("Native window has no pixels", view.width > 0 && view.height > 0)
-            Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888).also { view.draw(Canvas(it)) }
-        }
+        val bitmap = nativeWindowBitmap()
         try {
             val left = floor(bounds.left).toInt()
             val top = floor(bounds.top).toInt()
@@ -192,5 +193,33 @@ abstract class NativeAccessibilityHarness {
         } finally {
             bitmap.recycle()
         }
+    }
+
+    protected fun textPaintSummary(node: SemanticsNodeInteraction) {
+        val bounds = node.fetchSemanticsNode().boundsInWindow
+        val bitmap = nativeWindowBitmap()
+        try {
+            val left = floor(bounds.left).toInt()
+            val top = floor(bounds.top).toInt()
+            val right = ceil(bounds.right).toInt()
+            val bottom = ceil(bounds.bottom).toInt()
+            assertTrue(left >= 0 && top >= 0 && right <= bitmap.width && bottom <= bitmap.height && right > left && bottom > top)
+            val colors = mutableMapOf<Int, Int>()
+            for (y in top until bottom) for (x in left until right) {
+                val pixel = bitmap.getPixel(x, y)
+                colors[pixel] = (colors[pixel] ?: 0) + 1
+            }
+            val largest = requireNotNull(colors.maxByOrNull { it.value })
+            println("WP503_FONT_PAINT|label=${narrative(node.fetchSemanticsNode())}|bounds=$bounds" +
+                "|colors=${colors.size}|nonBackgroundPixels=${(right - left) * (bottom - top) - largest.value}")
+        } finally {
+            bitmap.recycle()
+        }
+    }
+
+    private fun nativeWindowBitmap(): Bitmap = compose.runOnUiThread {
+        val view = host.get().window.decorView
+        assertTrue("Native window has no pixels", view.width > 0 && view.height > 0)
+        Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888).also { view.draw(Canvas(it)) }
     }
 }

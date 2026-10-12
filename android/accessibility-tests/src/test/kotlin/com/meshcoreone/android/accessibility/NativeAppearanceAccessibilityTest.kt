@@ -55,10 +55,12 @@ class NativeAppearanceAccessibilityTest : NativeAccessibilityHarness() {
             assertEquals(theme.id, controller.selection.value.themeId)
             selected = theme.id
             compose.onNodeWithContentDescription(S.appearanceAccessibilityThemeCardSelectedLabel(resources, name)).assertIsDisplayed()
-            val layout = font200Layout(compose.onNode(
+            val text = compose.onNode(
                 hasText(name) and SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult),
                 useUnmergedTree = true,
-            ))
+            )
+            val layout = font200Layout(text)
+            textPaintSummary(text)
             if (layout.hasVisualOverflow) clipped += name
             assertVisibleClickTargetsAtLeast48Dp()
         }
