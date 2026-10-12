@@ -8,10 +8,12 @@ import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.config.MeshCoreException
 import com.meshcoreone.android.core.protocol.config.SessionConfiguration
 import com.meshcoreone.android.core.protocol.event.MeshTransportError
 import com.meshcoreone.android.core.protocol.model.CommandCode
 import com.meshcoreone.android.core.protocol.session.MeshCoreSession
+import com.meshcoreone.android.core.protocol.session.SessionCorrelationException
 import com.meshcoreone.android.core.protocol.transport.MeshTransport
 import kotlin.test.*
 import kotlinx.coroutines.*
@@ -50,7 +52,7 @@ class RoutingTransportFailureTest {
     }
 
     @Test fun routingCancellationPropagatesWithoutBeingReportedAsOptionalFailure() = runTest {
-        val cancellation = CancellationException("routing caller cancelled")
+        val cancellation = RoutingCancellation(Any())
         val fixture = Fixture(this, cancellation)
         try {
             val message = fixture.seed(MessageStatus.DELIVERED)
@@ -85,24 +87,64 @@ class RoutingTransportFailureTest {
     }
 
     @Test fun typedResetFailureIsReportedAndDoesNotRemoveTheFloodAttempt() = runTest {
-        val fixture = Harness(this, MessageServiceConfig(maxAttempts = 3, floodAfter = 2, minTimeout = 0.0))
+        val config = MessageServiceConfig(maxAttempts = 3, floodAfter = 2, minTimeout = 0.0)
+        val fixture = Harness(this, config)
         val cause = MeshTransportError.SendFailed("path reset rejected")
+        var resetRequests = 0
+        val role = object : MeshCoreSessionProtocol by fixture.session {
+            override suspend fun resetPath(publicKey: Bytes): Nothing {
+                assertEquals(TARGET, publicKey)
+                assertEquals(2, fixture.sends(CommandCode.SEND_MESSAGE).size)
+                resetRequests++
+                throw cause
+            }
+        }
+        val service = MessageService(fixture.token, SELF, role, fixture.store, fixture.signals,
+            fixture.scope, config, fixture.clock, jitter = { 1.0 },
+            reporter = MessagingIssueReporter { fixture.diagnostics += it })
+        try {
+            fixture.start()
+            val result = service.sendMessageWithRetry("optional path reset", fixture.contact)
+            assertEquals(MessageStatus.SENT, result.status)
+            assertEquals(1, resetRequests)
+            assertEquals(3, fixture.sends(CommandCode.SEND_MESSAGE).size)
+            assertTrue(fixture.sends(CommandCode.RESET_PATH).isEmpty())
+            assertTrue(fixture.diagnostics.filterIsInstance<MessagingDiagnostic.Failure>().any {
+                it.operation == "resetPath.${result.id}" && it.cause === cause
+            })
+        } finally {
+            try { service.close() } finally { fixture.close() }
+        }
+    }
+
+    @Test fun ambiguousResetWriteStillRejectsUncorrelatedSend() = runTest {
+        val fixture = Harness(this, MessageServiceConfig(maxAttempts = 3, floodAfter = 2, minTimeout = 0.0))
+        val cause = MeshTransportError.SendFailed("ambiguous path reset write")
         try {
             fixture.start()
             fixture.transport.beforeReply = {
                 if (it[0] == CommandCode.RESET_PATH.rawValue) throw cause
             }
-            val result = fixture.service.sendMessageWithRetry("optional path reset", fixture.contact)
-            assertEquals(MessageStatus.SENT, result.status)
-            assertEquals(3, fixture.sends(CommandCode.SEND_MESSAGE).size)
+            val failure = assertFailsWith<MessageServiceException> {
+                fixture.service.sendMessageWithRetry("ambiguous path reset", fixture.contact)
+            }
+            val sessionError = assertIs<MessageServiceError.SessionError>(failure.error)
+            val connectionLost = assertIs<MeshCoreException.ConnectionLost>(sessionError.underlying)
+            assertNotNull(generateSequence<Throwable>(connectionLost) { it.cause }
+                .filterIsInstance<SessionCorrelationException.UnresolvedReply>().singleOrNull())
+            assertEquals(2, fixture.sends(CommandCode.SEND_MESSAGE).size)
             val reset = fixture.transport.sentData.indexOfFirst { it[0] == CommandCode.RESET_PATH.rawValue }
             assertTrue(reset >= 0)
             assertEquals(2, fixture.transport.sentData.take(reset).count { it[0] == CommandCode.SEND_MESSAGE.rawValue })
+            val result = fixture.store.messages.values.single()
+            assertEquals(MessageStatus.FAILED, result.status)
             assertTrue(fixture.diagnostics.filterIsInstance<MessagingDiagnostic.Failure>().any {
                 it.operation == "resetPath.${result.id}" && it.cause === cause
             })
         } finally { fixture.close() }
     }
+
+    private class RoutingCancellation(val identity: Any) : CancellationException("routing caller cancelled")
 
     private class Fixture(test: TestScope, cause: Exception) {
         private val job = SupervisorJob(test.coroutineContext[Job])
