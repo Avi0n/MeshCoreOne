@@ -72,7 +72,6 @@ class PersistenceRoomOriginalPredicateTest : RoomProcessTest() {
         fetched = store.fetchRemoteNodeSession(key(session))
         assertEquals(2000u, fetched?.lastSyncTimestamp)
         assertTrue(assertNotNull(fetched?.lastMessageDate) >= firstDate)
-        store.flush()
         assertNotNull(db.sessions().byId(session.radioId.value, session.id)?.lastMessageDate)
     }
 

@@ -25,8 +25,8 @@ second>=first, source helper geography versus six reconstructed zero-
 coordinate DTOs, literal Author0..2/texts/count3, current wire clock and
 1700000000 whole-second arrivals, independent duplicate construction and
 actual KeepRoom/DuplicateRoom cleanup predicates. Both projections use
-legacy sync-date fallback; one flush/committed-column non-null supplement
-follows unchanged original preflush checks, no extra original credit.
+legacy sync-date fallback; one committed-column non-null supplement
+follows unchanged original DTO readback checks, no extra original credit.
 Actual inherited API31 Room/native SQLite/store replaces SwiftData.
 Disclosed fixed32-byte0x44 device/0x55 room keys replace source random keys;
 real current Date() is selected input, not elapsed/scheduler/universal
@@ -35,6 +35,12 @@ SwiftData/API37/device/mounted service/room consumer verdict.
 Same reservation32->33/owned-create retains immutable authorization/pins.
 New15-room exact selector pending;51/135 proposed/remaining84 unresolved;
 all earlier1380 objects and older executed inputs/witnesses unchanged.
+Initial a7ac6fcbe5a5ed18cec0a91dea8d767b3f613ce9/base9e5 strict selector
+failed at app:compileDebugUnitTestKotlin before native discovery:
+unresolved flush API,1m49. Actual RoomRepositoryContext awaits committed
+Room writes; no room flush API is needed. Removed only that nonexistent
+call, retaining committed-column and all original assertions/inputs.
+Readiness and notice checks passed; no15-native PASS claimed at a7ac.
 
 ## Actual reviewed197 adoption and disjoint registration checks
 

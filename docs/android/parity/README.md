@@ -9,11 +9,15 @@ Author0..2/texts/count, independent duplicate DTO construction and
 KeepRoom/DuplicateRoom names. Six reconstructed source connection DTOs
 use default zero coordinates, not the helper's37.7749/-122.4194.
 Both source/native DTOs have a legacy date fallback; one committed-column
-supplement ensures original preflush observations are not replaced by
+supplement ensures original DTO readback predicates are not replaced by
 that projection. Actual API31 Room/native SQLite/store; fixed keys and
 real Date()/wall-clock limits disclosed. Supported reservation32->33;
 new15-room selector pending,51/135 proposed/remaining84 unresolved.
 All prior1380 bindings and older native witnesses/receipts unchanged.
+Initial a7ac6fcbe/base9e5 execution failed compilation before native test
+discovery on an assumed generic flush API. Room writes already commit
+before returning; only that nonexistent call was removed, preserving the
+actual committed-column assertion and every original input/predicate.
 
 Previous1380/5133 proposed comparisons/177groups/81mandatory/zero fully
 approved behavioral acceptances add15 independent persistence originals:
