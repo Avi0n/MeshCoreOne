@@ -14,10 +14,20 @@ import com.meshcoreone.android.core.services.content.BoundedHttpFetching
 import com.meshcoreone.android.core.services.content.HttpFetchAttempt
 import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.*
 import org.junit.Test
@@ -31,7 +41,7 @@ class InlineContentCancellationTest : RoomProcessTest() {
             if (++attempts == 1) awaitCancellation()
             response(image) { closed++ }
         }
-        withContent(http) { content ->
+        withContent(http) { content, _, _ ->
             val started = testScheduler.currentTime
             try {
                 withTimeout(1_000) { content.inline(URL) }
@@ -56,7 +66,7 @@ class InlineContentCancellationTest : RoomProcessTest() {
             if (++attempts == 1) throw cancellation
             response(png()) {}
         }
-        withContent(http) { content ->
+        withContent(http) { content, _, _ ->
             try {
                 content.inline(URL)
                 fail("Cancellation must not become an image result")
@@ -76,7 +86,7 @@ class InlineContentCancellationTest : RoomProcessTest() {
             if (++attempts == 1) awaitCancellation()
             response(png()) {}
         }
-        withContent(http) { content ->
+        withContent(http) { content, _, _ ->
             val started = testScheduler.currentTime
             try {
                 content.inline(URL)
@@ -90,16 +100,56 @@ class InlineContentCancellationTest : RoomProcessTest() {
         }
     }
 
-    private suspend fun TestScope.withContent(http: BoundedHttpFetching, block: suspend (AppChatContent) -> Unit) {
+    @Test fun observerCleanupFinishesWhileItsRealPreferencesAreStillOpen() = runTest {
+        val started = CompletableDeferred<Unit>()
+        var observerStopped = false
+        withContent(fetching { response(png()) {} }) { content, scope, storage ->
+            scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                try {
+                    storage.preferences.snapshots.collect {
+                        started.complete(Unit)
+                        awaitCancellation()
+                    }
+                } finally {
+                    withContext(NonCancellable) {
+                        assertTrue(storage.preferences.get(AppStorageKey.linkPreviewsEnabled))
+                        observerStopped = true
+                    }
+                }
+            }
+            started.await()
+            assertTrue(content.inline(URL) is ChatImage.Decoded)
+        }
+        assertTrue(observerStopped)
+    }
+
+    private suspend fun TestScope.withContent(
+        http: BoundedHttpFetching,
+        block: suspend (AppChatContent, CoroutineScope, MeshCoreStorage) -> Unit,
+    ) {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val storage = MeshCoreStorage.get(context)
-        storage.preferences.set(AppStorageKey.linkPreviewsEnabled, true)
-        val content = AppChatContent(
-            context, store, http,
-            DataStoreLinkPreviewPreferencesSource.create(storage.preferences, backgroundScope),
-            storage.preferences, storage.preferences.snapshot(), backgroundScope,
-        )
-        try { block(content) } finally { content.close(); storage.close() }
+        val lifetime = SupervisorJob(requireNotNull(backgroundScope.coroutineContext[Job]))
+        val scope = CoroutineScope(backgroundScope.coroutineContext + lifetime)
+        var content: AppChatContent? = null
+        try {
+            storage.preferences.set(AppStorageKey.linkPreviewsEnabled, true)
+            val ownedContent = AppChatContent(
+                context, store, http,
+                DataStoreLinkPreviewPreferencesSource.create(storage.preferences, scope),
+                storage.preferences, storage.preferences.snapshot(), scope,
+            )
+            content = ownedContent
+            block(ownedContent, scope, storage)
+        } finally {
+            withContext(NonCancellable) {
+                try {
+                    lifetime.cancelAndJoin()
+                } finally {
+                    try { content?.close() } finally { storage.close() }
+                }
+            }
+        }
     }
 
     private fun fetching(fetch: suspend () -> HttpFetchAttempt) = object : BoundedHttpFetching {
