@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from controller.errors import PortError
 from oracle.workflow_scope import ALL_SCOPE_INPUTS, SCOPES, ZERO, classify, endpoints, evaluate
 
 BASE = "a" * 40
@@ -52,6 +53,78 @@ class WorkflowScopeTests(unittest.TestCase):
                 self.assertEqual(classify([path]), {
                     scope: scope == "scaffold" for scope in SCOPES
                 })
+
+    def test_issue194_ble_production_and_tests_select_native_verification(self):
+        paths = [
+            "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTransport.kt",
+            "android/core/ble/src/test/kotlin/com/meshcoreone/android/core/ble/BleWriteTest.kt",
+            "docs/android/deviations/WP-205.md",
+        ]
+        expected = {scope: scope == "scaffold" for scope in SCOPES}
+        self.assertEqual(classify(paths), expected)
+        with patch("oracle.workflow_scope.changed_paths", return_value=paths):
+            result = evaluate(Path.cwd(), "push", {"before": BASE, "after": HEAD})
+        self.assertEqual(result["scopes"], expected)
+        self.assertFalse(result["fail_safe"])
+        self.assertEqual(result["paths"], paths)
+        self.assertEqual((result["base"], result["head"]), (BASE, HEAD))
+
+    def test_known_native_core_modules_select_scaffold(self):
+        for module in ("ble", "connectivity", "data", "datastore", "l10n", "runtime", "ui"):
+            for suffix in ("src/main/kotlin/Production.kt", "src/test/kotlin/ProductionTest.kt", "build.gradle.kts"):
+                path = f"android/core/{module}/{suffix}"
+                with self.subTest(path=path):
+                    self.assertEqual(classify([path]), {
+                        scope: scope == "scaffold" for scope in SCOPES
+                    })
+
+    def test_database_and_backup_inputs_retain_backup_and_native_verification(self):
+        for path in (
+            "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MeshDatabase.kt",
+            "android/core/database/src/test/kotlin/DatabaseTest.kt",
+            "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/AppBackupCodec.kt",
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(classify([path]), {
+                    scope: scope in ("scaffold", "backup") for scope in SCOPES
+                })
+
+    def test_unclassified_android_inputs_require_full_fail_safe_verification(self):
+        for path in (
+            "android/core/new-module/src/main/kotlin/Production.kt",
+            "android/core/new-module/src/test/kotlin/ProductionTest.kt",
+            "android/core/new-module/src/main/assets/help.md",
+            "android/core/ble2/src/main/kotlin/Production.kt",
+            "android/new-plugin/build.gradle.kts",
+            "android/gradle/new-toolchain.json",
+            "android/scaffold/invoke-gradle.ps1",
+        ):
+            with self.subTest(path=path):
+                with self.assertRaisesRegex(PortError, "Unclassified Android inputs"):
+                    classify([path])
+                with patch("oracle.workflow_scope.changed_paths", return_value=[path]):
+                    result = evaluate(Path.cwd(), "push", {"before": BASE, "after": HEAD})
+                self.assertEqual(result["scopes"], {scope: True for scope in SCOPES})
+                self.assertTrue(result["fail_safe"])
+                self.assertIn(path, result["reason"])
+
+    def test_recognized_input_does_not_hide_unclassified_android_input(self):
+        paths = [
+            "android/app/src/main/kotlin/App.kt",
+            "android/core/new-module/src/main/kotlin/Production.kt",
+        ]
+        with patch("oracle.workflow_scope.changed_paths", return_value=paths):
+            result = evaluate(Path.cwd(), "push", {"before": BASE, "after": HEAD})
+        self.assertEqual(result["scopes"], {scope: True for scope in SCOPES})
+        self.assertTrue(result["fail_safe"])
+        self.assertIn(paths[1], result["reason"])
+
+    def test_declared_android_readmes_and_unrelated_docs_remain_unselected(self):
+        self.assertEqual(classify([
+            "android/README.md", "android/scaffold/README.md",
+            "android/tools/meshcli/README.md",
+            "docs/android/evidence/WP-004/result.json", "CONTRIBUTING.md",
+        ]), {scope: False for scope in SCOPES})
 
     def test_wp203_room_backup_and_harness_schedule_complete_backup_chain(self):
         for path in (

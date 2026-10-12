@@ -1,4 +1,4 @@
-"""AndroidOnly: WP-003 Fail-safe scopes for the single Android candidate workflow."""
+"""AndroidOnly: WP-004 Fail-safe scopes for the single Android candidate workflow."""
 
 import argparse
 import json
@@ -34,6 +34,11 @@ SHARED_GRADLE_INPUTS = {
 COMMON_ORACLE_INPUTS = {
     "tools/android-port/oracle/reference.py",
     "tools/android-port/oracle/identity.py",
+}
+ANDROID_DOCUMENTATION_INPUTS = {
+    "android/README.md",
+    "android/scaffold/README.md",
+    "android/tools/meshcli/README.md",
 }
 
 
@@ -87,6 +92,9 @@ RULES = {
         "prefix": (
             "android/app/", "android/build-logic/", "android/core/testing/",
             "android/core/contracts/", "android/core/designsystem/", "android/core/model/",
+            "android/core/ble/", "android/core/connectivity/", "android/core/data/",
+            "android/core/database/", "android/core/datastore/", "android/core/l10n/",
+            "android/core/runtime/", "android/core/ui/",
             "android/core/services/",
             "android/feature/", "android/platform/",
         ),
@@ -162,11 +170,21 @@ def classify(paths):
     if set(normalized) & ALL_SCOPE_INPUTS:
         return {scope: True for scope in SCOPES}
     result = {}
+    matched_paths = set()
     for scope, rules in RULES.items():
-        result[scope] = any(
+        matches = [
+            path for path in normalized if
             path in rules["exact"] or any(path.startswith(prefix) for prefix in rules["prefix"])
-            for path in normalized
-        )
+        ]
+        result[scope] = bool(matches)
+        matched_paths.update(matches)
+    unclassified = [
+        path for path in normalized
+        if path.startswith("android/") and path not in ANDROID_DOCUMENTATION_INPUTS
+        and path not in matched_paths
+    ]
+    if unclassified:
+        raise PortError("Unclassified Android inputs require full verification: " + ", ".join(unclassified))
     if set(normalized) & SHARED_GRADLE_INPUTS:
         result.update({"scaffold": True, "protocol": True, "backup": True})
     return result
