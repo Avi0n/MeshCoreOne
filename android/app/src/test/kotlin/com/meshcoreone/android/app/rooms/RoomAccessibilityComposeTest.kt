@@ -98,9 +98,9 @@ class RoomAccessibilityComposeTest {
             createdAt = Instant.ofEpochSecond(100), isFromSelf = self, statusRawValue = status.rawValue,
         )
 
-    private fun show(content: @Composable () -> Unit) {
+    private fun show(highContrast: Boolean = false, content: @Composable () -> Unit) {
         host.get().setContent {
-            MeshCoreTheme(theme = ThemeRegistry.default, systemDark = false, highContrast = false, motionScale = 0f) {
+            MeshCoreTheme(theme = ThemeRegistry.default, systemDark = false, highContrast = highContrast, motionScale = 0f) {
                 val view = LocalView.current
                 SideEffect { renderedView = view }
                 Box(Modifier.width(390.dp).height(1000.dp)) { content() }
@@ -109,9 +109,12 @@ class RoomAccessibilityComposeTest {
         compose.waitForIdle()
     }
 
-    private fun showRows(messages: List<RoomMessageDTO>, retry: (UUID) -> Unit = {}, link: (String) -> Boolean = { false }) {
+    private fun showRows(
+        messages: List<RoomMessageDTO>, retry: (UUID) -> Unit = {},
+        link: (String) -> Boolean = { false }, highContrast: Boolean = false,
+    ) {
         val rows = RoomConversationStateHolder.rows(messages)
-        show {
+        show(highContrast) {
             RoomConversationContent(
                 RoomConversationState(session, messages, rows, hasLoadedOnce = true),
                 onDraftChanged = {}, onSend = {}, onRetry = retry, onLink = link,
@@ -326,11 +329,19 @@ class RoomAccessibilityComposeTest {
     }
 
     @Test fun mountedRoomBodiesUseTheirActualThemeBubbleAndForegroundPairing() {
-        val outgoing = message("MMMM #ops", self = true, status = MessageStatus.SENT)
+        assertMountedRoomBubblePairing(highContrast = false)
+    }
+
+    @Test fun increasedContrastRoomSurfacesKeepReadableBodyTextWithoutChangingThePalette() {
+        assertMountedRoomBubblePairing(highContrast = true)
+    }
+
+    private fun assertMountedRoomBubblePairing(highContrast: Boolean) {
+        val outgoing = message(if (highContrast) "outgoing MMMM" else "MMMM #ops", self = true, status = MessageStatus.SENT)
         val incoming = message("incoming MMMM").copy(timestamp = 101u)
         val failed = message("failed MMMM", self = true, status = MessageStatus.FAILED).copy(timestamp = 102u)
-        showRows(listOf(outgoing, incoming, failed))
-        val frame = ThemeRegistry.default.resolve(ColorScheme.LIGHT, false)
+        showRows(listOf(outgoing, incoming, failed), highContrast = highContrast)
+        val frame = ThemeRegistry.default.resolve(ColorScheme.LIGHT, highContrast)
         val roles = MaterialRoles.from(frame)
         val bitmap = compose.runOnUiThread {
             assertTrue(renderedView.width > 0 && renderedView.height > 0)
@@ -341,7 +352,7 @@ class RoomAccessibilityComposeTest {
             for ((message, background, preferred) in listOf(
                 Triple(outgoing, frame.accent, frame.outgoingText),
                 Triple(incoming, frame.incomingBubble, roles.onIncomingBubble),
-                Triple(failed, AppColors.Message.outgoingBubbleFailed(false).compositeOver(frame.canvas), frame.outgoingText),
+                Triple(failed, AppColors.Message.outgoingBubbleFailed(highContrast).compositeOver(frame.canvas), frame.outgoingText),
             )) {
                 val expectedForeground = accessibleForeground(preferred, background, WCAGContrast.AA_FLOOR)
                 val layouts = mutableListOf<TextLayoutResult>()
@@ -349,7 +360,7 @@ class RoomAccessibilityComposeTest {
                 body.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
                 val layout = layouts.single()
                 assertEquals(expectedForeground.toComposeColor(), layout.layoutInput.text.spanStyles.first().item.color)
-                if (message.id == outgoing.id) {
+                if (message.text.contains('#')) {
                     val start = message.text.indexOf('#')
                     val link = layout.layoutInput.text.getLinkAnnotations(start, message.text.length).single().item
                     assertEquals(frame.outgoingText.toComposeColor(), requireNotNull(link.styles?.style).color)

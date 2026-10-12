@@ -224,7 +224,7 @@ private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID)
     val foreground = accessibleForeground(
         if (message.isFromSelf) frame.outgoingText else tokens.roles.onIncomingBubble,
         bubble,
-        WCAGContrast.floor(frame.highContrast),
+        WCAGContrast.AA_FLOOR,
     )
     val statusLabel = stringResource(
         when (message.status) {
