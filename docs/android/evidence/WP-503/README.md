@@ -10,7 +10,7 @@ screenshot golden comparison, TalkBack observation or independent review occurre
 | --- | --- |
 | Repository / issue | `cbattlegear/MeshCoreOne-Android` / [#136](https://github.com/cbattlegear/MeshCoreOne-Android/issues/136), open and assigned to `cbattlegear` |
 | WP / profile | `WP-503` / `design-system-engineer` |
-| Native worker / CLI session | `1666502a-0420-46ef-930f-e78651ba8b9f` / `d2980f28-620c-408b-9947-067e2da8eedf` |
+| Workspace creation handle / CLI session | `1666502a-0420-46ef-930f-e78651ba8b9f` / `d2980f28-620c-408b-9947-067e2da8eedf` |
 | Managed branch | `cbattlegear-issue-136-wp-503-accessibility-audit-807238` |
 | Inspected base/head before audit documentation | `d958471ab4835813881a5e7af36e8249a8b273a4` |
 | Documentation candidate head | The Git commit containing this document; exact published head belongs in PR/issue handoff, not a self-referential file hash |
@@ -19,9 +19,15 @@ screenshot golden comparison, TalkBack observation or independent review occurre
 | Policy revision | `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20` |
 | Typed reservation | Actual worker attempt, `wp-owned`, revision 2, `create`/`modify`, all four manifest WP-503 roots; no release/recreate |
 
-The advisory receipt records the actual native session but has null issue/task/PR identity
-fields. Issue assignment and the eventual PR are independently observable GitHub facts,
-not invented ledger bindings. No hosted publisher task or acceptance receipt is claimed.
+The advisory receipt records the workspace creation handle as `session_id` and has null
+issue/task/PR identity fields. The coordinator's independently verified host-resolution
+comment identifies `d2980f28-620c-408b-9947-067e2da8eedf` as the actual worker session and
+`1666502a-0420-46ef-930f-e78651ba8b9f` as its creation handle. This is an unresolved receipt
+identity mismatch, not two workers. The supplied workspace context used the creation handle,
+which was initially recorded as the native session. No second claim, release/recreate,
+manual ledger edit or fabricated native-host reconciliation was used to correct it.
+Issue assignment and PR205 are independently observable GitHub facts, not invented ledger
+bindings. No hosted publisher task or acceptance receipt is claimed.
 
 WP-503 depends only on WP-407. GitHub reports PR164 merged on `2026-10-11T16:22:30Z`
 as `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`, and that commit is an ancestor of the
@@ -54,6 +60,36 @@ No test counts are inferred from filenames, source declaration counts or histori
 Reproducible hosted checks remain authoritative at their exact candidate commits; no second
 CI-result bundle is persisted here.
 
+## Follow-up readiness and admission investigation
+
+The initial missing-state errors above do not prove no toolchain is installed. A follow-up
+WSL probe with `bash -lc` confirmed both the installed local adapter's declared
+`$HOME/meshcoreone-work/toolchain/environment.json` and pinned Python executable exist.
+An earlier quoted-variable probe was inconclusive and is not evidence of absent tools.
+
+The documented `ci.py preflight --state <installed environment.json> --output <private
+WP-503 directory> --local`, invoked through the installed Python in WSL, exits 2:
+`Git command failed: rev-parse HEAD`. A direct `git rev-parse HEAD` in that WSL-mounted
+worktree explains the failure: its Windows `.git` pointer is not a Linux Git path.
+No `.git` pointer, shared checkout or global Git configuration was rewritten. The existing
+Git-bundle/ext4 snapshot adapter is the appropriate execution route; its optional full
+pre-push attempt previously remained queued on the shared Gradle lane and did not run.
+This is not an absent-SDK claim or a native-test failure.
+
+The trusted admission helper also confirms `android/app/build.gradle.kts` is admitted for
+`update-directly-required-build-wiring` (`dependency-resolution-metadata`) and
+`update-build-or-manifest` (`app-build-launcher`). A generic `modify` probe fails because
+it is not the typed support operation. Therefore App runner support is **not** an unknown
+path capability, and does not require new authorization prose. No support edit was made
+while the actual worker/receipt identity is unresolved.
+
+The hosted result for initial documentation head
+`ea4300e0e457dd9ad63767c244d908722f1e6984` is
+[run38261041154](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38261041154):
+scope/controller/android-ci succeeded; Linux native build and both Swift oracle jobs were
+skipped for the classified documentation change. These are not native accessibility passes.
+Only that hosted result/log is referenced; no CI bundle is retained.
+
 ## Acceptance and resumption gates
 
 | Acceptance | Current evidence | Remaining requirement |
@@ -62,11 +98,18 @@ CI-result bundle is persisted here.
 | `WP-503-boundaries` | Textual alternatives and missing message semantics documented; no golden changes | Data-bound graph/status assertions, approved deterministic screen evidence and distinct device observations |
 | `WP-503-source-test-parity` | All four WP-503 original test cross-references read, 23 source declarations inventoried | Executed acceptance, not a duplicate of WP-501's parity accounting |
 
-Coordinator action: provide an actual trusted Linux toolchain state to this **existing**
-worker and admit WP-503's real module/runner/output contract. Its manifest verification
-still has `configured=false` and no commands; the broader installed scaffold commands do
-not configure WP-503 acceptance or discover an absent `android/accessibility-tests` module.
-Reconcile the real prerequisite acceptance separately. No Gradle task was invented.
+**Actionable live-work gate:** reconcile the existing reservation's creation-handle identity
+with the coordinator-verified actual worker identity, preserving its attempt, authorization
+and history. This worker has no native `get_session`/session-message interface, and the
+installed reservation CLI has no handle-to-session reconciliation operation. Its underlying
+identity helper rejects replacing an existing non-null `session_id` with a different value.
+Do not release/recreate the claim or launch another worker. Resume support wiring and the
+installed native snapshot runner after this reconciliation.
+
+Separately admit WP-503's real runner/output acceptance contract: its manifest verification
+still has `configured=false` and no commands. Existing scaffold tasks do not configure
+WP-503 acceptance or discover an absent `android/accessibility-tests` module. Reconcile
+real prerequisite acceptance separately. No Gradle task was invented.
 
 Route A503-01 through A503-04 to the current WP-310 producer and return an actual merged
 repair for native re-audit. There is no protected product decision requesting new colors or

@@ -15,6 +15,10 @@ those observations. Performance and visual redesign are outside this audit.
 
 The [execution matrix](execution-matrix.md) records the required assertions and observations.
 [WP evidence](../evidence/WP-503/README.md) records actual commands and the execution gate.
+Follow-up investigation found installed Linux build inputs and admitted App support
+operations. Live implementation is now specifically gated on reconciling the existing
+reservation's creation-handle identity with the coordinator-verified actual worker identity;
+it is not blocked merely by a missing SDK assumption or a generic path permission.
 The product retains native Material navigation, five sections, all ten unlocked themes,
 original identity algorithms, app localization and original message text. Dynamic color,
 translation, billing and new palette choices are not proposed.
