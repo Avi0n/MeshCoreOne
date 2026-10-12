@@ -179,7 +179,7 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
             val result = flow(h) {
                 h.manager.disconnect(RuntimeDisconnectReason.USER_INITIATED)
                 identity = key(8)
-                h.manager.connect(h.target(target))
+                h.manager.connect(h.target(UUID.fromString("50200000-0000-0000-0000-000000000317")))
                 h.eventually("replacement radio ready") { h.manager.connectionState == DeviceConnectionState.READY }
                 true
             }.execute(id(recipient), original)
