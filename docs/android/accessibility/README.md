@@ -2,10 +2,32 @@
 
 **Status: native suites executed with failures; acceptance incomplete; device TalkBack unavailable.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
-The inspected native tree is `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
+The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
 ## Latest native execution
+
+Actual merged main `cd436cb63c3b651241058d16db2fa576cbc6d412` and genuine room producer
+`9103863d004ecf9a035383e10281de01a012ad4d` are now integrated without production substitutes.
+The required room callback/URL assertion is persistent in owned tests; its snapshot patch
+is removed. At OWN `a330f328a27a5063e8c9af9113f08751318dee51`, one native execution passes
+**38/38**: messaging22, backup8 and font-oracle8, zero failures/errors/skips.
+The original author/status assertions and all painted contrast floors remain unchanged.
+
+The public backup screen and real state holder exercise connected import gating, picker
+cancellation/retry, typed invalid-file dismissal, manifest counts, inserted/skipped/dropped
+counts (17/23/8), scroll-reachable completion and pending-import cancellation. Native modal
+geometry is bound to its actual dialog, not the activity: Dismiss117x54dp, Import/Done328x54dp,
+Cancel90x92dp. Explicit engine/document ports are UI fixtures, **not codec/restore compatibility**.
+Centered text's unused paragraph allocation is independently disproved by complete native
+ink coverage at every raster row with zero tolerance; actual 100dp ancestor clipping and
+the original32x4dp clipping control are both rejected. No centered-text product bug is filed.
+
+At OWN `a48f6608877d771e6bba791612920b0e103c3bfa`, the actual Nodes public detail/list class
+passes **8/8**, zero failures/errors/skips: long CJK heading, native nickname editing/cancel,
+offline clear-message confirmation/cancellation and typed unavailable-service recovery without
+false success/navigation, alongside the existing cached list/routing/Sync cases. Physical
+TalkBack, real persistence writes and the remaining feature/window states are not certified.
 
 The earlier producer compilation failures below are historical, not current repair gates.
 Actual compatible room product `e18ab1dac6186dfcdbef9debd0b2990e84797b4f` with owned audit

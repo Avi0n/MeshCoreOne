@@ -30,13 +30,31 @@ No device/TalkBack claim.
 | OWN4d86cc00b6eaecdc7eb043d8b357557523a5121b after actual main663 integration; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest` | **8/8 passed**,0 failures/errors/skips. Full onboarding class, including actual pending-connect textual progress/disabled actions, in one actual adopted-main execution. |
 | OWN33f9dea0d2a56c30e23505caa8b25e4e65fedc48; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest.disconnectedCli* --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest.disconnectedRx*` | 4 discovered/run,2 passed/2 failed,0 errors/skips. Actual Rx offline/recovery/filter selection/48dp/font checks pass on both APIs. Both CLI cases fail source description visibility: one enabled editable input, no localized disconnected explanation. Assigned defect220; unchanged normative regression retained. |
 | Actual producer03753f129984598436b57218ee7f4b82ab99395e, its own existing test source/no owned fixture or App registration; `:app:testDebugUnitTest --tests com.meshcoreone.android.wp308diagnostic.HardwareReturnDiagnosticTest` | **8/8 passed**,0 failures/errors/skips. Actual1080x1000dp/default-font native window. Four complete methods cover five disabled-send gates, Enter/NumPadEnter, KeyDown-only valid send, connected/disconnected Shift newline and both Unicode selection directions/caret. Synthetic native keys/callbacks, not physical keyboard/IME/queue delivery or font200. |
+| OWNd92e951b337b8998194177977233a09270cba091; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeBackupAccessibilityTest` | 8 discovered/4 passed/4 failed,0 errors/skips. Gating and typed parse recovery pass; centered paragraph line-box geometry fails. Actual native modal painting, independent centered framework control and clipping negative controls subsequently distinguish allocation/raster alignment from missing text; no product defect inferred. |
+| OWNb7fd03199b46b597b90157067c3fa88452ddb695; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeBackupAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeFontAuditRegressionTest` | **16/16 passed**,0 failures/errors/skips. Backup8 and font controls8. Actual modal targets: Dismiss117x54dp, Import/Done328x54dp, Cancel90x92dp; complete native-window containment. The centered allocation counterexample preserves every raster row's full paragraph ink, with zero tolerance; verified100dp ancestor clipping and original32x4dp clipping are rejected. |
+| Product9103863d004ecf9a035383e10281de01a012ad4d + auditb7fd/checked required-onLink patch; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest` | **22/22 passed**,0 failures/errors/skips. Independently executed current room product, all source distinctions and760 painted records/zero failing floors; bounded COMMENTED review5494555941. The earlier e18 pass is not transferred. |
+| OWNa330f328a27a5063e8c9af9113f08751318dee51 after actual maincd436 and genuine room910 integration; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeBackupAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeFontAuditRegressionTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest` | **38/38 passed**,0 failures/errors/skips in one execution: backup8/font8/messaging22. Room callback/actual URL assertions now persist in owned source; snapshot patch removed. No producer-source substitutes or weakened thresholds. |
+| OWNa48f6608877d771e6bba791612920b0e103c3bfa; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeNodesAccessibilityTest` | **8/8 passed**,0 failures/errors/skips. Public NodesEntry detail/list: long CJK heading, native nickname input/cancel, real destructive confirmation/cancel, typed unavailable-service recovery without false Back; existing offline cache/routing/Sync retained. Realfont2/RTL/native graphics SDK31/37,48dp controls. No persistence-write/device claim. |
 
 The room oracle now preserves **both** the source named accessibility action and the actual
 native pointer button. Cleared child speech is not native visibility. It measures the
 real button and injects a real pointer click rather than substituting a generic row action.
 The six frozen distinctions and all thresholds remain; producer bodies are not edited.
-The required new room callback is still applied only to owned snapshot fixtures while
-that product is unadopted. The actual Room/App wiring comes from the producer candidate.
+The required new room callback was applied only to owned snapshot fixtures while
+the earlier products above were unadopted. After genuine room910 adoption, that callback
+and the actual URL assertion are persistent in owned source and the snapshot patch is removed.
+The actual Room/App wiring comes from the producer lineage, not an audit substitute.
+
+Backup mounts public BackupRestoreScreen and its real AppBackupStateHolder. Explicit ports
+return typed UI inputs, not a fabricated compatible backup: contacts17/messages23/channels3/
+discovered5 preview; inserted17/skipped23/dropped8 result; cancellation suspends the actual
+import coroutine. Expected effects execute once only for changed results. Dialog assertions
+use its own202px error window or900px full sheet; scroll reaches result counts/footer/Done.
+Initial spatial-mask comparisons were too strong for native raster alignment. Complete
+ink-per-row equality is used only for the independently demonstrated centered allocation
+counterexample; ordinary nonempty/no-truncation/ellipsis/line extents remain zero-tolerance.
+The100dp ancestor clipping control verifies its real width before requiring missing-ink
+rejection; this is not a generic pixel-presence or relaxed-golden test.
 
 Onboarding assertions mount real public content and the real WiFiConnectionCoordinator
 with explicit pending/failure ports; no claimed successful transport or platform permission
@@ -70,6 +88,13 @@ The emitted outgoing source-delivered label and incoming-author assertions fail,
 No suppressed-looper warning is assumed to be the cause. Those assertions pass unchanged
 on the genuinely integrated producer e18 above. Codec oracle succeeded; restore skipped.
 The exact hosted log is authoritative; no second CI-result bundle is retained.
+
+Authoritative exact publishedf1cbbf4f7c046bb3515722c6f344148d60d6567e
+[run38287295723](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38287295723)
+also **FAILED**:732 App tests completed/16 failures. Its emitted room author/source-delivered
+assertions still exercise legacy production; those assertions pass unchanged after genuine
+room adoption above. Swift codec oracle succeeded and restore skipped. This is a historical
+hosted result, not a result for the newly integrated candidate or a second result bundle.
 
 ## Identity and revisions
 

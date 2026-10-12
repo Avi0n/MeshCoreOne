@@ -46,6 +46,19 @@ zero errors/skips. Rx textual offline/recovery/filter selection/targets/font pas
 Assigned defect220 records CLI's enabled editor/missing source disconnected explanation;
 the normative regression remains failing pending authentic producer repair.
 
+Actual maincd436/composer repair and genuine room910 are adopted. At OWNa330f328a,
+one native execution passes **38/38**: messaging22/backup8/font controls8, zero
+failures/errors/skips. Required room callbacks and actual URL assertions are now persistent;
+the temporary snapshot patch is removed. Backup covers connected gating, picker/parse
+failure recovery, actual preview/result values17/23/8, scroll-reachable Done and pending
+import cancellation. This uses the real screen/holder and explicit UI ports, not real
+codec/restore or SAF acceptance. Modal controls are wholly contained in their own windows,
+with minimum measured height54dp. Centered allocation counterexamples require all raster
+rows' full native ink with zero tolerance; actual ancestor/32x4dp clipping controls fail.
+Actual Nodes class at OWNa48f66088 passes **8/8**, including long CJK detail heading,
+native nickname cancel and offline destructive confirmation/unavailable recovery without
+false navigation. Other discovery/path/share/detail actions remain NOT RUN.
+
 ## Shared acceptance rules
 
 For all enabled interactive controls, measure effective hit regions at least **48 x 48 dp**,
