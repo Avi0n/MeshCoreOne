@@ -5,6 +5,7 @@
 package com.meshcoreone.android.feature.chats.rooms
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
@@ -45,6 +48,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meshcoreone.android.core.l10n.R
+import com.meshcoreone.android.core.designsystem.AppColors
+import com.meshcoreone.android.core.designsystem.LocalMeshTheme
+import com.meshcoreone.android.core.designsystem.WCAGContrast
+import com.meshcoreone.android.core.designsystem.accessibleForeground
+import com.meshcoreone.android.core.designsystem.toComposeColor
 import com.meshcoreone.android.core.model.MessageStatus
 import com.meshcoreone.android.core.ui.sharedTouchTarget
 import com.meshcoreone.android.feature.chats.composer.MentionPickerContext
@@ -133,7 +141,8 @@ fun RoomConversationContent(
     failureText: @Composable (Throwable) -> String,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier.fillMaxSize().imePadding()) {
+    val frame = LocalMeshTheme.current.frame
+    Column(modifier.fillMaxSize().background(frame.canvas.toComposeColor()).imePadding()) {
         Text(
             state.session.name,
             style = MaterialTheme.typography.titleLarge,
@@ -204,6 +213,19 @@ fun RoomConversationContent(
 @Composable
 private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID) -> Unit, onLink: (String) -> Boolean) {
     val message = row.message
+    val tokens = LocalMeshTheme.current
+    val frame = tokens.frame
+    val bubble = when {
+        !message.isFromSelf -> frame.incomingBubble
+        message.status == MessageStatus.FAILED ->
+            AppColors.Message.outgoingBubbleFailed(frame.highContrast).compositeOver(frame.canvas)
+        else -> frame.accent
+    }
+    val foreground = accessibleForeground(
+        if (message.isFromSelf) frame.outgoingText else tokens.roles.onIncomingBubble,
+        bubble,
+        WCAGContrast.floor(frame.highContrast),
+    )
     val statusLabel = stringResource(
         when (message.status) {
             MessageStatus.FAILED -> R.string.l10n_app_remotenodes_remotenodes_room_message_status_failedlabel
@@ -230,7 +252,7 @@ private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID)
             )
         }
         // Replace child speech, not rendering/taps: one original-body label with the source's actions.
-        Column(Modifier.clearAndSetSemantics {
+        Column(Modifier.fillMaxWidth().clearAndSetSemantics {
             contentDescription = label
             customActions = buildList {
                 if (message.status == MessageStatus.FAILED) {
@@ -238,9 +260,20 @@ private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID)
                 }
                 addAll(linkActions.map { action -> CustomAccessibilityAction(action.name) { onLink(action.url) } })
             }
-        }) {
+        }, horizontalAlignment = if (message.isFromSelf) Alignment.End else Alignment.Start) {
             if (row.showSenderName) Text(message.authorDisplayName, style = MaterialTheme.typography.labelMedium)
-            MessageBody(message.text, message.isFromSelf, currentUserName = null, onLink = { onLink(it) })
+            Surface(
+                modifier = Modifier.testTag("room-bubble:${message.id}"),
+                color = bubble.toComposeColor(),
+                contentColor = foreground.toComposeColor(),
+                shape = MaterialTheme.shapes.large,
+            ) {
+                MessageBody(
+                    message.text, message.isFromSelf, currentUserName = null, onLink = { onLink(it) },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    baseColor = foreground.toComposeColor(),
+                )
+            }
             if (message.isFromSelf) {
                 Text(
                     stringResource(

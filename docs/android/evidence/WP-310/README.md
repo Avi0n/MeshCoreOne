@@ -65,6 +65,13 @@ statuses, merged/unmerged production semantics, real state-holder retry and join
 mention/hashtag/map routing, link order/dedup/cap, an unconsumed action result and Spanish localization.
 These are deterministic Robolectric tests on API 31/37, not device/TalkBack observations.
 
+The tightly coupled room rendering regression mounts actual Default/light bodies (including outgoing
+`#ops`), inspects the renderer's text/link styles and draws the native Compose view into an in-memory
+bitmap. It checks incoming/accent/failed bubble paint, the surrounding canvas and actual foreground
+glyph pixels against the approved palette/helpers and unchanged body contrast floor. It does not
+retain screenshots or claim device observation. Shared contextual rich-span changes belong to the
+WP-308 producer; no shared renderer edit is part of this repair.
+
 Readiness command:
 `python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit d958471ab4835813881a5e7af36e8249a8b273a4 --stages preflight`
 passed using the supported Git-bundle/ext4 snapshot and installed pinned Linux toolchain.

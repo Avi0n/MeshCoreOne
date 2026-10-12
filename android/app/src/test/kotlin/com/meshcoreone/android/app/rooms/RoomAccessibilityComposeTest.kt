@@ -9,8 +9,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import com.meshcoreone.android.core.designsystem.AppColors
+import com.meshcoreone.android.core.designsystem.ColorScheme
+import com.meshcoreone.android.core.designsystem.MaterialRoles
+import com.meshcoreone.android.core.designsystem.WCAGContrast
+import com.meshcoreone.android.core.designsystem.accessibleForeground
+import com.meshcoreone.android.core.designsystem.toComposeColor
+import com.meshcoreone.android.core.designsystem.toThemeColor
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.view.View
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
@@ -53,6 +68,7 @@ import org.robolectric.annotation.GraphicsMode
 class RoomAccessibilityComposeTest {
     @get:Rule val compose = createEmptyComposeRule()
     private lateinit var host: ActivityController<ComponentActivity>
+    private lateinit var renderedView: View
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val radio = RadioId(UUID.fromString("00000000-0000-0000-0000-000000000031"))
     private val session = RemoteNodeSessionDTO(
@@ -84,7 +100,9 @@ class RoomAccessibilityComposeTest {
 
     private fun show(content: @Composable () -> Unit) {
         host.get().setContent {
-            MeshCoreTheme(theme = ThemeRegistry.default, motionScale = 0f) {
+            MeshCoreTheme(theme = ThemeRegistry.default, systemDark = false, highContrast = false, motionScale = 0f) {
+                val view = LocalView.current
+                SideEffect { renderedView = view }
                 Box(Modifier.width(390.dp).height(1000.dp)) { content() }
             }
         }
@@ -305,6 +323,69 @@ class RoomAccessibilityComposeTest {
         assertEquals("keep this draft", fixture.holder.state.value.draft)
         assertEquals(session, fixture.holder.state.value.session)
         assertSingleMessageLabel("Alice: hello")
+    }
+
+    @Test fun mountedRoomBodiesUseTheirActualThemeBubbleAndForegroundPairing() {
+        val outgoing = message("MMMM #ops", self = true, status = MessageStatus.SENT)
+        val incoming = message("incoming MMMM").copy(timestamp = 101u)
+        val failed = message("failed MMMM", self = true, status = MessageStatus.FAILED).copy(timestamp = 102u)
+        showRows(listOf(outgoing, incoming, failed))
+        val frame = ThemeRegistry.default.resolve(ColorScheme.LIGHT, false)
+        val roles = MaterialRoles.from(frame)
+        val bitmap = compose.runOnUiThread {
+            assertTrue(renderedView.width > 0 && renderedView.height > 0)
+            Bitmap.createBitmap(renderedView.width, renderedView.height, Bitmap.Config.ARGB_8888)
+                .also { renderedView.draw(Canvas(it)) }
+        }
+        try {
+            for ((message, background, preferred) in listOf(
+                Triple(outgoing, frame.accent, frame.outgoingText),
+                Triple(incoming, frame.incomingBubble, roles.onIncomingBubble),
+                Triple(failed, AppColors.Message.outgoingBubbleFailed(false).compositeOver(frame.canvas), frame.outgoingText),
+            )) {
+                val expectedForeground = accessibleForeground(preferred, background, WCAGContrast.AA_FLOOR)
+                val layouts = mutableListOf<TextLayoutResult>()
+                val body = compose.onNodeWithText(message.text, useUnmergedTree = true)
+                body.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
+                val layout = layouts.single()
+                assertEquals(expectedForeground.toComposeColor(), layout.layoutInput.text.spanStyles.first().item.color)
+                if (message.id == outgoing.id) {
+                    val start = message.text.indexOf('#')
+                    val link = layout.layoutInput.text.getLinkAnnotations(start, message.text.length).single().item
+                    assertEquals(frame.outgoingText.toComposeColor(), requireNotNull(link.styles?.style).color)
+                }
+                val bounds = compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true)
+                    .fetchSemanticsNode().boundsInRoot
+                val painted = bitmap.getPixel(bounds.center.x.toInt(), bounds.top.toInt() + 4)
+                assertColorNear(background.toComposeColor().toArgb(), painted)
+                assertColorNear(
+                    frame.canvas.toComposeColor().toArgb(),
+                    bitmap.getPixel(bounds.left.toInt() - 4, bounds.top.toInt() + 4),
+                )
+                val textBounds = body.fetchSemanticsNode().boundsInRoot
+                val foregroundPixels = IntArray(textBounds.width.toInt() * textBounds.height.toInt())
+                bitmap.getPixels(
+                    foregroundPixels, 0, textBounds.width.toInt(), textBounds.left.toInt(), textBounds.top.toInt(),
+                    textBounds.width.toInt(), textBounds.height.toInt(),
+                )
+                assertTrue("Mounted glyphs must paint the declared foreground", foregroundPixels.any {
+                    colorsNear(expectedForeground.toComposeColor().toArgb(), it)
+                })
+                assertTrue(
+                    "Body foreground must meet the existing floor on the painted bubble",
+                    WCAGContrast.contrastRatio(expectedForeground, Color(painted).toThemeColor()) >= WCAGContrast.AA_FLOOR,
+                )
+            }
+        } finally {
+            bitmap.recycle()
+        }
+    }
+
+    private fun colorsNear(expected: Int, actual: Int): Boolean =
+        listOf(0, 8, 16, 24).all { shift -> kotlin.math.abs(((expected ushr shift) and 255) - ((actual ushr shift) and 255)) <= 2 }
+
+    private fun assertColorNear(expected: Int, actual: Int) {
+        assertTrue("Expected painted ${expected.toUInt().toString(16)}, got ${actual.toUInt().toString(16)}", colorsNear(expected, actual))
     }
 
     private fun showRoute(fixture: Fixture) {
