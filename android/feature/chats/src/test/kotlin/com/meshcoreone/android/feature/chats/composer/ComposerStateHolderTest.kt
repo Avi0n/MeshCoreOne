@@ -171,6 +171,7 @@ class ComposerStateHolderTest {
             assertEquals(listOf(pending), rig.port.pendingMessages)
             assertEquals(MessageStatus.PENDING, pending.status)
             assertEquals(1, rig.port.directEnvelopes.size + rig.port.channelEnvelopes.size)
+            assertTrue(rig.port.localEnqueueFailures.isEmpty())
         }
     }
 
@@ -194,6 +195,7 @@ class ComposerStateHolderTest {
                 assertEquals("new draft", rig.drafts.values[target.conversationId])
                 assertEquals("saved pending", rig.port.pendingMessages.single().text)
                 assertEquals(listOf<Throwable>(failure), rig.failures)
+                assertEquals(listOf(rig.port.pendingMessages.single().id), rig.port.localEnqueueFailures)
             }
         }
     }
@@ -213,6 +215,7 @@ class ComposerStateHolderTest {
             assertEquals(ComposerSendPhase.Failed(ComposerSendFailure.NOT_CONNECTED, messageSaved = false), rig.state.sendPhase)
             assertTrue(rig.port.pendingMessages.isEmpty())
             assertTrue(rig.port.directEnvelopes.isEmpty() && rig.port.channelEnvelopes.isEmpty())
+            assertTrue(rig.port.localEnqueueFailures.isEmpty())
             assertEquals(1, rig.failures.size)
         }
     }
@@ -230,6 +233,7 @@ class ComposerStateHolderTest {
             assertNull(rig.drafts.values[target.conversationId])
             assertEquals("saved pending", rig.port.pendingMessages.single().text)
             assertEquals(1, rig.port.directEnvelopes.size + rig.port.channelEnvelopes.size)
+            assertTrue(rig.port.localEnqueueFailures.isEmpty())
         }
     }
 

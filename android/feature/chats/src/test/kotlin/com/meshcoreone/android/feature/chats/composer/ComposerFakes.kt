@@ -77,6 +77,7 @@ internal class FakeSendPort(val radio: RadioId) : ComposerSendPort {
     val pendingMessages = ArrayList<MessageDTO>()
     val directEnvelopes = ArrayList<DirectMessageEnvelope>()
     val channelEnvelopes = ArrayList<ChannelMessageEnvelope>()
+    val localEnqueueFailures = ArrayList<UUID>()
     var createFailure: Throwable? = null
     var createGate: CompletableDeferred<Unit>? = null
     var sendFailure: Throwable? = null
@@ -105,6 +106,11 @@ internal class FakeSendPort(val radio: RadioId) : ComposerSendPort {
 
     override suspend fun signalDMEnqueued(envelope: DirectMessageEnvelope) =
         error("signal-only retry belongs to the timeline retry path")
+
+    override suspend fun recordLocalEnqueueFailure(messageId: UUID) {
+        calls += "recordLocalEnqueueFailure"
+        localEnqueueFailures += messageId
+    }
 
     override suspend fun createPendingChannel(text: String, channelIndex: UByte, radioId: RadioId, textType: TextType): MessageDTO {
         calls += "createPendingChannel:$channelIndex:$text"

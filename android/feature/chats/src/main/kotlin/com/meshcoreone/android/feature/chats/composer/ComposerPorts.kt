@@ -47,6 +47,9 @@ interface ComposerSendPort {
 
     /** The caller already persisted the retry row; signal the queue without inserting it again. */
     suspend fun signalDMEnqueued(envelope: DirectMessageEnvelope)
+
+    /** Mark the saved message failed unless delivered, publishing its actual status/event through the app adapter. */
+    suspend fun recordLocalEnqueueFailure(messageId: UUID)
 }
 
 /** The connected node as the composer sees it (iOS `appState.connectedDevice` subset). */
