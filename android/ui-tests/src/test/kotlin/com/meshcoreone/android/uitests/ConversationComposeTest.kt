@@ -30,7 +30,9 @@ class ConversationComposeTest {
     @Before fun mount() {
         host = Robolectric.buildActivity(ComponentActivity::class.java).setup().visible()
         host.get().actionBar?.hide()
-        cases = ConversationScreenCases(compose, host.get()) { host.get().setContent(content = it) }
+        cases = ConversationScreenCases(
+            compose, host.get(), setContent = { host.get().setContent(content = it) },
+        )
         cases.mount()
     }
 
