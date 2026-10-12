@@ -14,6 +14,19 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Ghost originals and qualified six-source reconciliation
 
+Actual clean1aad42c47034af9fa2362a683290feeb132083de/base d958
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest --dependency-verification=strict --quiet`
+PASS5discovered/5passed/0failure-error-skip/all5 exact method identities.
+XML2026-10-12T15:01:35.841Z/native2f9fc65c4733a626ca940bbbc41c8794122d956f/
+SHA256e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1.
+All full required original-ID/optional/null/BLE protection/same-key retry/
+full-method membership/exact-one-BLE/ghost absence predicates execute on
+actual Room; readinessPASS/zero notice normalization/normal supported
+native+Gradle lock release/public records empty. Private raw XML/19-input
+receipt captured before future Gradle overwrite; only five new methods, no
+old Device twelve or other native replay/reviewer private certification/
+current successor/hosted/mounted/API37/hardware/compatibility/full acceptance.
+
 Five complete new originals registered:1450/5133 proposals/185groups/
 83mandatory/0approved;106/135 PersistenceStore proposed/29unprovided.
 Separate PersistenceGhostOriginalPredicateTest5 bodies/joins/95helperrows/
@@ -23,7 +36,7 @@ retry/returnedRadio/currentID rewrite/deletedghostID, and full Backup WiFi
 10.0.0.7:5000 + Current BLE named payloads/required parent/both membership/
 exactlyoneBLE/ghostID nil. Same actual producer reservation40->41
 automatically admits new class; no auth rewrite/release/recreate/actor.
-Only new five-only strict App command prepared, native discovery pending;
+Only new five-only strict App command executed/passed above;
 no old Device twelve replay/product overwrite/actual pairing/radio command.
 
 Qualified actual historicalbc7/d958 SOURCE-ONLY COMMENTED5492337029:
@@ -173,7 +186,7 @@ unchanged selector was replayed for assignment/status or source-only reviews.
 
 | Issue | Repaired and bounded verification | Remaining |
 | --- | --- | --- |
-| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1450 proposals/185groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS each on its own receipt;91/135 qualified source-compared. | 29/135 persistence originals unprovided, new10+5 source comparisons/new5 native discovery and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
+| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1450 proposals/185groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS each on its own receipt;91/135 qualified source-compared. | 29/135 persistence originals unprovided, new10+5 source comparisons and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
 | [170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170) | Restored independent2s WiFi milestones/checked elapsed helper; historical906df6fb52App+37protocol PASS and bounded qualified source comparison. | Current PR165 exact verification/reviewed persistent merge; no present hardware/global certification. |
 | [171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171) | Original populated1A2B3C route restored; historical7a98f99d13 model identities PASS and qualified source review, not new native replay. | Current reviewed PR165 merge/full acceptance; historical model result not new candidate execution. |
 | [172](https://github.com/cbattlegear/MeshCoreOne-Android/issues/172) | Restored18 URL/coordinate/scalar original predicates; historical6e98b6e460 chats PASS/all57 original identities and bounded source comparison. | Current reviewed PR165 merge/full audit, not universal Unicode/device certification. |

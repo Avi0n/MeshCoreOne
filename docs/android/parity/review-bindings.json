@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "693562503ce112ae6525ee396f00e6267f8bc54dc1edce5c1405e52dbd3cab69",
+  "proposal_sha256": "239c24b85397fbc8bc13f96b38f166d7a1588e7994aa3602aaef6d858d7cc0e8",
   "families": [
     {
       "group": "backup-envelope",
@@ -71785,7 +71785,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -72040,7 +72040,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -72211,7 +72211,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -72538,7 +72538,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -72775,7 +72775,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,

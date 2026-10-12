@@ -1,11 +1,16 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual clean1aad/base d958 new five-only5PASS/0bad/all5 identities,
+XML15:01:35.841Z/native2f9fc65c/SHAe906f108/19 fingerprints/raw private XML.
+Readiness PASS/zero notice normalization/normal supported lock release;
+no old native replay/source/hosted/current successor/mounted/API37/full claim.
+
 Five complete ghost-identity originals newly registered in a separate class:
 1450/5133 proposals/185groups/83mandatory/0approved;106/135 PersistenceStore
 proposed/29unprovided. Five bodies/joins/95helperrows/19inputs preserve nil,
 optional exact-ID readbacks, inactive-BLE protection, same-key retry, required
 current parent, both full named methods, exactly one BLE and ghost-ID absence.
-Same producer reservation40->41; only new five-only execution pending, no
+Same producer reservation40->41; only new five-only execution passed, no
 old Device twelve replay/product edit/radio command.
 
 Qualified historicalbc7 SOURCE-ONLY5492337029 reconciled: SIX/6joins/
