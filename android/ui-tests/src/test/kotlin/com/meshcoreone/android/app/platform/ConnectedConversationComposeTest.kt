@@ -1,5 +1,5 @@
 // AndroidOnly: WP-502 Drive the production composer through the real Room/service graph and a rejecting fake firmware.
-// PortedFrom: MeshCore/Sources/MeshCore/Protocol/ErrorCode.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MeshCore/Sources/MeshCore/Protocol/ErrorCode.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.app.platform
 
 import androidx.activity.compose.setContent

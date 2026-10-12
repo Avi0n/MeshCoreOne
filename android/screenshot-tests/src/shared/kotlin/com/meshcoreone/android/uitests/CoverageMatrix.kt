@@ -1,5 +1,5 @@
 // AndroidOnly: WP-502 Deterministic layered pairwise inputs; not an image oracle or test result.
-// PortedFrom: MC1Tests/ThemeRegistryTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1Tests/ThemeRegistryTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.uitests
 
 import com.meshcoreone.android.core.designsystem.AppColorSchemePreference
