@@ -14,6 +14,21 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
 
+Qualified independent review
+[6115227237](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6115227237),
+actually read at updated2026-10-12T05:23:37Z, compares exactly olde798 send23
+and ACK16/all39bindings/17distinct native-helper inputs, preserving earlier41/
+15 history without duplicate credit. Two true-ACK send and three linked-ID/
+session-only ACK counterparts are accepted only as different-input equivalents
+for selected observable predicates; failed14f/e938/8f inputs remain failed.
+SourceSend32a64a9d/Harnessc2f05a47 are unchanged at current1ad. Old ACKdb77e85a
+qualification is not promoted to current9f8f99bf class/helper bytes or the remaining15,
+despite actual9123first16PASS. RecordingStore/clock/generation/handshake,
+current-hosted/persistent/full acceptance limits remain;953/138/67/0 unchanged.
+Separate map-settings privacy issue188 belongs to WP317/coordinator, not this
+worker's audit/product scope. Requested source-only187 review6118278418 has
+no new bounded blocker; actual reviewed repair merge remains pending.
+
 Exact clean9123ae5dcce4d55762d9c6244835da4e513dc060/base76dd actual
 Windows command:
 `:core:services:test --tests com.meshcoreone.android.core.services.messaging.SourceAckTest --dependency-verification=strict --quiet`.
