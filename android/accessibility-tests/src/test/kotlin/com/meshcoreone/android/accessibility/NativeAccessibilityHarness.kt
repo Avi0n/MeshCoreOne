@@ -255,12 +255,11 @@ abstract class NativeAccessibilityHarness {
                 }
                 val background = requireNotNull(histogram.maxByOrNull { it.value }).key
                 assertTrue("Text needs an unambiguous background", histogram.getValue(background) > width * height / 2)
-                val reference = Bitmap.createBitmap(ceil(layout.multiParagraph.width).toInt() + 1,
-                    ceil(layout.multiParagraph.height).toInt() + 1, Bitmap.Config.ARGB_8888)
+                val reference = Bitmap.createBitmap(ceil(layout.multiParagraph.width).toInt(),
+                    ceil(layout.multiParagraph.height).toInt(), Bitmap.Config.ARGB_8888)
                 try {
                     reference.eraseColor(background)
                     val canvas = Canvas(reference)
-                    canvas.translate(bounds.left - left, bounds.top - top)
                     layout.multiParagraph.paint(androidx.compose.ui.graphics.Canvas(canvas),
                         color = if (layout.layoutInput.style.color == Color.Unspecified) Color.Black else layout.layoutInput.style.color)
                     fun ink(bitmap: Bitmap): Triple<Int, Int, IntArray> {
@@ -284,7 +283,8 @@ abstract class NativeAccessibilityHarness {
                     val observed = ink(actual)
                     val expected = ink(reference)
                     println("WP503_FONT_FULL_INK|text=${layout.layoutInput.text}|actual=${observed.first}x${observed.second}" +
-                        "|reference=${expected.first}x${expected.second}|bounds=$bounds")
+                        "|reference=${expected.first}x${expected.second}|bounds=$bounds" +
+                        "|actualPixels=${observed.third.count { it != background }}|referencePixels=${expected.third.count { it != background }}")
                     assertEquals("The full paragraph ink width must survive native painting", expected.first, observed.first)
                     assertEquals("The full paragraph ink height must survive native painting", expected.second, observed.second)
                     assertTrue("Every actual glyph pixel must match the complete, unclipped native paragraph",
