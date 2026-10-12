@@ -1,0 +1,41 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest:
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Selected endpoint text fails unchanged 4.5:1 contrast: default:LIGHT:hc=false=4.104091535864498<4.5, default:LIGHT:hc=true=4.104091535864498<4.5, default:DARK:hc=false=4.104091535864498<4.5, default:DARK:hc=true=4.104091535864498<4.5, ember:DARK:hc=false=4.104091535864498<4.5, ember:DARK:hc=true=4.104091535864498<4.5, fern:LIGHT:hc=false=4.104091535864498<4.5, fern:LIGHT:hc=true=4.104091535864498<4.5, fern:DARK:hc=false=4.104091535864498<4.5, fern:DARK:hc=true=4.104091535864498<4.5, marine:LIGHT:hc=false=4.104091535864498<4.5, marine:LIGHT:hc=true=4.104091535864498<4.5, marine:DARK:hc=false=4.104091535864498<4.5, marine:DARK:hc=true=4.104091535864498<4.5, olive:LIGHT:hc=false=4.104091535864498<4.5, olive:LIGHT:hc=true=4.104091535864498<4.5, olive:DARK:hc=false=4.104091535864498<4.5, olive:DARK:hc=true=4.104091535864498<4.5, lavender:LIGHT:hc=false=4.104091535864498<4.5, lavender:LIGHT:hc=true=4.104091535864498<4.5, lavender:DARK:hc=false=4.104091535864498<4.5, lavender:DARK:hc=true=4.104091535864498<4.5, sakura:LIGHT:hc=false=4.104091535864498<4.5, sakura:LIGHT:hc=true=4.104091535864498<4.5, sakura:DARK:hc=false=4.104091535864498<4.5, sakura:DARK:hc=true=4.104091535864498<4.5, solarized:LIGHT:hc=false=4.104091535864498<4.5, solarized:LIGHT:hc=true=4.104091535864498<4.5, solarized:DARK:hc=false=4.104091535864498<4.5, solarized:DARK:hc=true=4.104091535864498<4.5, nord:LIGHT:hc=false=4.104091535864498<4.5, nord:LIGHT:hc=true=4.104091535864498<4.5, nord:DARK:hc=false=4.104091535864498<4.5, nord:DARK:hc=true=4.104091535864498<4.5, catppuccin:LIGHT:hc=false=4.104091535864498<4.5, catppuccin:LIGHT:hc=true=4.104091535864498<4.5, catppuccin:DARK:hc=false=4.104091535864498<4.5, catppuccin:DARK:hc=true=4.104091535864498<4.5
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest.selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames(NativeLineOfSightContrastTest.kt:121)
+
+INSTRUMENTATION_STATUS: stream=
+Error in selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames(com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest):
+java.lang.AssertionError: Selected endpoint text fails unchanged 4.5:1 contrast: default:LIGHT:hc=false=4.104091535864498<4.5, default:LIGHT:hc=true=4.104091535864498<4.5, default:DARK:hc=false=4.104091535864498<4.5, default:DARK:hc=true=4.104091535864498<4.5, ember:DARK:hc=false=4.104091535864498<4.5, ember:DARK:hc=true=4.104091535864498<4.5, fern:LIGHT:hc=false=4.104091535864498<4.5, fern:LIGHT:hc=true=4.104091535864498<4.5, fern:DARK:hc=false=4.104091535864498<4.5, fern:DARK:hc=true=4.104091535864498<4.5, marine:LIGHT:hc=false=4.104091535864498<4.5, marine:LIGHT:hc=true=4.104091535864498<4.5, marine:DARK:hc=false=4.104091535864498<4.5, marine:DARK:hc=true=4.104091535864498<4.5, olive:LIGHT:hc=false=4.104091535864498<4.5, olive:LIGHT:hc=true=4.104091535864498<4.5, olive:DARK:hc=false=4.104091535864498<4.5, olive:DARK:hc=true=4.104091535864498<4.5, lavender:LIGHT:hc=false=4.104091535864498<4.5, lavender:LIGHT:hc=true=4.104091535864498<4.5, lavender:DARK:hc=false=4.104091535864498<4.5, lavender:DARK:hc=true=4.104091535864498<4.5, sakura:LIGHT:hc=false=4.104091535864498<4.5, sakura:LIGHT:hc=true=4.104091535864498<4.5, sakura:DARK:hc=false=4.104091535864498<4.5, sakura:DARK:hc=true=4.104091535864498<4.5, solarized:LIGHT:hc=false=4.104091535864498<4.5, solarized:LIGHT:hc=true=4.104091535864498<4.5, solarized:DARK:hc=false=4.104091535864498<4.5, solarized:DARK:hc=true=4.104091535864498<4.5, nord:LIGHT:hc=false=4.104091535864498<4.5, nord:LIGHT:hc=true=4.104091535864498<4.5, nord:DARK:hc=false=4.104091535864498<4.5, nord:DARK:hc=true=4.104091535864498<4.5, catppuccin:LIGHT:hc=false=4.104091535864498<4.5, catppuccin:LIGHT:hc=true=4.104091535864498<4.5, catppuccin:DARK:hc=false=4.104091535864498<4.5, catppuccin:DARK:hc=true=4.104091535864498<4.5
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest.selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames(NativeLineOfSightContrastTest.kt:121)
+
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 11.871
+There was 1 failure:
+1) selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames(com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest)
+java.lang.AssertionError: Selected endpoint text fails unchanged 4.5:1 contrast: default:LIGHT:hc=false=4.104091535864498<4.5, default:LIGHT:hc=true=4.104091535864498<4.5, default:DARK:hc=false=4.104091535864498<4.5, default:DARK:hc=true=4.104091535864498<4.5, ember:DARK:hc=false=4.104091535864498<4.5, ember:DARK:hc=true=4.104091535864498<4.5, fern:LIGHT:hc=false=4.104091535864498<4.5, fern:LIGHT:hc=true=4.104091535864498<4.5, fern:DARK:hc=false=4.104091535864498<4.5, fern:DARK:hc=true=4.104091535864498<4.5, marine:LIGHT:hc=false=4.104091535864498<4.5, marine:LIGHT:hc=true=4.104091535864498<4.5, marine:DARK:hc=false=4.104091535864498<4.5, marine:DARK:hc=true=4.104091535864498<4.5, olive:LIGHT:hc=false=4.104091535864498<4.5, olive:LIGHT:hc=true=4.104091535864498<4.5, olive:DARK:hc=false=4.104091535864498<4.5, olive:DARK:hc=true=4.104091535864498<4.5, lavender:LIGHT:hc=false=4.104091535864498<4.5, lavender:LIGHT:hc=true=4.104091535864498<4.5, lavender:DARK:hc=false=4.104091535864498<4.5, lavender:DARK:hc=true=4.104091535864498<4.5, sakura:LIGHT:hc=false=4.104091535864498<4.5, sakura:LIGHT:hc=true=4.104091535864498<4.5, sakura:DARK:hc=false=4.104091535864498<4.5, sakura:DARK:hc=true=4.104091535864498<4.5, solarized:LIGHT:hc=false=4.104091535864498<4.5, solarized:LIGHT:hc=true=4.104091535864498<4.5, solarized:DARK:hc=false=4.104091535864498<4.5, solarized:DARK:hc=true=4.104091535864498<4.5, nord:LIGHT:hc=false=4.104091535864498<4.5, nord:LIGHT:hc=true=4.104091535864498<4.5, nord:DARK:hc=false=4.104091535864498<4.5, nord:DARK:hc=true=4.104091535864498<4.5, catppuccin:LIGHT:hc=false=4.104091535864498<4.5, catppuccin:LIGHT:hc=true=4.104091535864498<4.5, catppuccin:DARK:hc=false=4.104091535864498<4.5, catppuccin:DARK:hc=true=4.104091535864498<4.5
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest.selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames(NativeLineOfSightContrastTest.kt:121)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

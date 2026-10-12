@@ -1,11 +1,34 @@
 # WP-503 accessibility audit
 
-**Status: native Map List224, LoS endpoint225 and offline discovery226 block acceptance. PR205 remains draft.**
+**Status: Map List224, offline discovery226 and selected-label contrast in LoS repair227 block acceptance. PR205 remains draft.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
 ## Current execution and base refresh
+
+Authentic WP315 repair227 at `764c3d1d5b585cdb49c3be3bbf57c853f08483b7` is
+integrated at `5c4fd4a4de1af9d41e98ba2631e8ead46cb93321`. The unchanged two-method
+native LoS platform fixture passes **2/2 on actual API31 and2/2 on actual API37**,
+zero failures/errors/skips in those executions. Named East/CJK West actions are
+reachable; actual native East ACTION_CLICK causes one elevation callback and a
+data-bound selected-point summary with unchanged font2/RTL/48dp checks. API37's
+initial pre-discovery process crash is retained separately; root cause is unestablished.
+
+A separate additive native contrast audit at `29bc05dc3b12c9196b3c76025d53c1e227a9529c`
+discovers1/fails1 on each actual API31/37, zero errors/skips. All38 effective theme
+frames/API execute: selected A's emitted white label against measured native
+`#1677FF` paint is **4.104091535864498:1 in all76 records**, below unchanged4.5.
+This is not a source-only color calculation or an edited endpoint fixture. Selected B
+is not measured. The existing WP315 repair owns the contrast correction, not this audit.
+[Exact native evidence](../evidence/WP-503/README.md#authentic-los-repair-and-selected-label-contrast)
+preserves the distinct candidates, passing actions and failing contrast.
+
+Candidate d984's exact [run38321296291](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38321296291)
+**FAILED**, App794/2: both disconnected Nodes discovery invocations below.
+This belongs to WP311226, not the separate WP313218 region-gutter/flood finding.
+Predecessor7cc38319208926 is CANCELLED. Neither predecessor hosted passes nor the
+bounded LoS action pass verify a newer candidate, physical TalkBack or the full matrix.
 
 At exact `f010a979b796e6ec04549781effa43d852091d4b`, declared scoped Nodes execution
 discovers **12/passes10/fails2**, zero errors/skips, on Robolectric SDK31/37 native
@@ -54,8 +77,9 @@ and native traversal repair the earlier observer failures without relaxing endpo
 selection. [Actual records](../evidence/WP-503/README.md#native-los-endpoint-platform-actions)
 distinguish e4's API37 null-window harness error from the later calibrated both-API
 product finding [#225](https://github.com/cbattlegear/MeshCoreOne-Android/issues/225).
-WP315/tools-ui-engineer owns product repair; no production change/new actor is made here.
-West selection/elevation/summary assertions after East's failure remain unexecuted.
+This historical225 failure belongs to WP315/tools-ui-engineer; its authentic repair
+and separate contrast blocker are recorded above. The historical post-failure
+assertions were unexecuted, not retroactively passed.
 
 Published0e's exact [run38314435872](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38314435872)
 **passed all six jobs**, including SwiftData and final guard. This result is credited

@@ -1,11 +1,73 @@
 # WP-503 attempt evidence
 
-**Map List224, LoS endpoint225 and offline discovery226 block acceptance; PR205/WP503 remain incomplete.**
+**Map List224, offline discovery226 and selected-label contrast in LoS repair227 block acceptance; PR205/WP503 remain incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Authentic LoS repair and selected-label contrast
+
+Actual producer PR227 head `764c3d1d5b585cdb49c3be3bbf57c853f08483b7` is
+authentically integrated at `5c4fd4a4de1af9d41e98ba2631e8ead46cb93321`.
+Production `LineOfSightScreen.kt` blob06e89495a89503caddfde582ff4649adf2bc24db and
+owning fixture equal764c. Original native fixture remains
+3031457bf42cc3437979fcb3e12aa584069c30d6; compiled test APK is byte-identical toadb.
+[Executed input binding](device-los-repair-inputs.json) retains those actual APK hashes.
+Declared strict `:app:assembleDebug :app:assembleDebugAndroidTest` passed through the
+installed serialized snapshot/preflight adapter; assembly is not discovery credit.
+
+```text
+adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+**Actual API31:2 discovered/2 passed,0 failures/errors/skips,5.434s**
+([transcript](device-los-repair-api31.txt), [native metrics/tree](device-los-repair-metrics-api31.txt)).
+**Actual API37:2 discovered/2 passed,0 failures/errors/skips,8.132s**
+([transcript](device-los-repair-api37.txt), [native metrics/tree](device-los-repair-metrics-api37.txt)).
+The [initial API37 attempt](device-los-repair-before-discovery-api37.txt) crashed
+before discovery: no pass/zero-test success is credited. Root cause is unestablished;
+incidental UWB HAL aborts do not prove an App-specific cause. The same scoped command,
+fixture, device and APKs then positively discover/pass2/2.
+
+Actual native traversal finds East and CJK West once each with actionable parents.
+East native ACTION_CLICK invokes the real holder and one elevation callback; native
+selected-point summary, unchanged font2/RTL and48dp visibility checks pass. Framework
+calibration passes too. West selection, full terrain and physical TalkBack remain
+unverified; this is bounded platform-action evidence, not full-LoS acceptance.
+
+Separate additive audit `29bc05dc3b12c9196b3c76025d53c1e227a9529c` leaves that
+fixture unchanged and executes:
+
+```text
+adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Strict assembly **passed**; [actual APK binding](device-los-selected-contrast-inputs.json)
+retains byte-identical producer App APK and the new test APK.
+**API31:1 discovered/1 failed,0 errors/skips,9.770s**
+([transcript](device-los-selected-contrast-api31.txt), [metrics](device-los-selected-contrast-metrics-api31.txt)).
+**API37:1 discovered/1 failed,0 errors/skips,11.871s**
+([transcript](device-los-selected-contrast-api37.txt), [metrics](device-los-selected-contrast-metrics-api37.txt)).
+All38 effective theme/scheme/contrast frames execute on each API, with font/paint
+and exactly-one contact/elevation callback assertions before the final failure.
+Selected A label's actual resolved white foreground against measured native
+`#1677FF` button paint is **4.104091535864498:1 in all76 records**, below unchanged4.5.
+This is not a source-only RGB calculation. Nominal label text retains the4.5 floor
+despite system font2; selected B/green is not measured.
+
+Existing WP315 repair227 owns correction. The bounded COMMENTED review binds exact764c;
+no protected approval, new worker, palette/golden change or audit-owned production
+patch is made. Fresh read-only actual AOSP31/no-GMS and PlayStore37.2/GMS profiles remain
+font2/RTL/360x900/mdpi/animation0; no default-motion/expanded/full-matrix claim.
+
+Candidate d984 [run38321296291](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38321296291)
+**FAILED/App794/2**, both disconnected Nodes discovery invocations below; controller
+and Swift codec passed, SwiftData skipped. That is existing WP311226, not separate
+WP313218 region-gutter/flood evidence. Predecessor7cc38319208926 is **CANCELLED**.
+Historical23438303960053 remains FAILED; earlier exact0e/abb successes do not verify
+d984 or later candidates. Hosted logs remain authoritative; no CI-result bundle retained.
 
 ## Native Nodes search/filter and offline discovery
 

@@ -1,6 +1,18 @@
 # WP-503 native execution matrix
 
-**Native Map List224, LoS endpoint225 and offline discovery226 block acceptance; WP503 remains incomplete.**
+**Map List224, offline discovery226 and selected-label contrast in LoS repair227 block acceptance; WP503 remains incomplete.**
+Authentic producer764c, integrated5c4, passes the unchanged native LoS platform
+fixture2/2 per actual API31/37,0 failures/errors/skips. Named East/CJK West actions,
+native East ACTION_CLICK/one elevation read and selected-summary font/48dp pass.
+Initial API37 pre-discovery crash remains negative, root cause unestablished.
+Separate additive audit29bc executes38 effective frames/API but fails1/1 per API:
+selected A label4.104091535864498:1 versus unchanged4.5 in all76 native paint records.
+Selected B, terrain and physical TalkBack are not covered. Existing WP315 repair227
+owns correction; historical endpoint225 failures below are not relabeled.
+
+Candidate d98438321296291 FAILED/App794/2, both disconnected Nodes discovery
+invocations, matching WP311226 rather than WP313218. Predecessor7cc38319208926
+is CANCELLED. There is no current exact-candidate or whole-matrix success.
 At exactf010a979b796e6ec04549781effa43d852091d4b, the scoped native Nodes class
 discovers12/passes10/fails2, zero errors/skips, on Robolectric SDK31/37 native graphics,
 actual Resources font2/RTL. Original8 pass; new auto-favorite/segment/cross-segment
@@ -28,12 +40,13 @@ At exactadb17b747e6e985c73854822bde3abff1ff5f6ac, native LoS platform class disc
 per actual API:1 control PASS/1 endpoint FAIL, zero errors/skips. Actual native child
 traversal/parent ACTION_CLICK reaches the framework button and exactly one callback;
 no named saved LoS repeater/action exists in the real mounted feature tree.
-WP315 defect225 owns this new product blocker. Later endpoint/elevation/summary
-assertions remain UNEXECUTED. Early API37 root-null and bare/by-text control failures
+WP315 defect225 owns this historical product blocker, repaired in the exact bounded
+fixture above. Its later endpoint/elevation/summary assertions were UNEXECUTED.
+Early API37 root-null and bare/by-text control failures
 are harness diagnostics, not both-API product proof or physical TalkBack observations.
 
-Current mandatory instrumentation inventory is13 remote,3 Map/runtime and2 LoS-platform
-methods per API. There is no passing combined18/API execution. Existing full-matrix,
+Current mandatory instrumentation inventory is13 remote,3 Map/runtime,2 LoS-platform
+and1 selected-LoS contrast method per API. There is no passing combined19/API execution. Existing full-matrix,
 physical TalkBack, expanded/resize and default-motion gates remain unverified.
 
 At exact fixture39d87b60af67486ad2ce824110d841e229617114, the complete remote class

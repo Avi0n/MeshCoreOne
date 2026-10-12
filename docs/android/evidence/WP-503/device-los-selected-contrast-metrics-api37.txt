@@ -1,0 +1,115 @@
+10-12 18:34:36.566 13667 13695 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 18:34:38.313 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:38.314 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:38.392 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=default:LIGHT:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:38.543 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:38.548 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:38.630 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=default:LIGHT:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:38.778 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:38.778 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:38.848 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=default:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:38.992 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:38.992 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:39.067 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=default:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:39.943 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:39.943 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:40.008 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=ember:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:40.126 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:40.126 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:40.193 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=ember:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:40.309 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:40.310 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:40.377 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=fern:LIGHT:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:40.493 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:40.494 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:40.563 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=fern:LIGHT:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:40.677 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:40.678 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:40.749 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=fern:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:40.860 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:40.860 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:40.925 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=fern:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:41.059 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:41.059 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:41.122 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=marine:LIGHT:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:41.227 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:41.227 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:41.287 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=marine:LIGHT:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:41.392 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:41.392 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:41.454 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=marine:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:41.577 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:41.577 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:41.636 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=marine:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:41.744 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:41.744 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:41.803 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=olive:LIGHT:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:41.910 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:41.911 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:41.972 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=olive:LIGHT:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:42.093 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:42.093 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:42.167 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=olive:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:42.276 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:42.276 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:42.335 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=olive:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:42.426 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:42.426 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:42.486 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=lavender:LIGHT:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:42.592 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:42.592 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:42.652 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=lavender:LIGHT:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:42.744 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:42.744 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:42.805 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=lavender:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:42.910 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:42.910 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:42.988 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=lavender:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:43.092 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:43.092 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:43.155 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=sakura:LIGHT:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:43.260 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:43.260 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:43.323 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=sakura:LIGHT:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:43.461 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:43.461 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:43.521 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=sakura:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:43.642 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:43.643 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:43.708 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=sakura:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:43.810 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:43.810 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:43.866 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=solarized:LIGHT:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:43.959 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:43.960 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:44.018 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=solarized:LIGHT:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:44.109 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:44.109 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:44.171 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=solarized:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:44.260 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:44.260 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:44.320 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=solarized:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:44.442 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:44.442 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:44.501 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=nord:LIGHT:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:44.593 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:44.593 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:44.652 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=nord:LIGHT:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:44.744 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:44.745 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:44.803 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=nord:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:44.892 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:44.892 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:44.948 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=nord:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:45.059 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:45.059 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:45.118 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=catppuccin:LIGHT:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:45.209 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:45.210 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:45.270 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=catppuccin:LIGHT:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:45.359 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:45.359 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:45.423 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=catppuccin:DARK:hc=false|ratio=4.104091535864498|minimum=4.5|realRadio=false
+10-12 18:34:45.524 13667 13695 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:34:45.525 13667 13695 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 18:34:45.584 13667 13695 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=catppuccin:DARK:hc=true|ratio=4.104091535864498|minimum=4.5|realRadio=false

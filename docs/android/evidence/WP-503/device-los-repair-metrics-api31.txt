@@ -1,0 +1,154 @@
+
+10-12 18:24:28.416  2397  2415 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 18:24:28.761  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+10-12 18:24:28.762  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:28.762  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:28.762  2397  2415 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 18:24:28.762  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:28.763  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:28.763  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 18:24:28.763  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=WP503 native accessibility button|description=null|clickable=false|children=0
+10-12 18:24:28.763  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 18:24:28.764  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+10-12 18:24:28.765  2397  2415 I System.out: WP503_PLATFORM_ACCESSIBILITY_SEARCH|byText=0|nativeChildren=1
+10-12 18:24:28.805  2397  2415 I System.out: WP503_TARGET|width=360.0|height=92.0|role=Button
+10-12 18:24:28.805  2397  2415 I System.out: WP503_PLATFORM_ACCESSIBILITY_CONTROL|namedButton=true|actualCallback=1|package=com.meshcoreone.android.debug
+10-12 18:24:29.351  2397  2415 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 18:24:30.093  2397  2415 I System.out: WP503_FONT|text=Line of Sight|size=201 x 48|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x48.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:24:30.094  2397  2415 I System.out: WP503_FONT_LINE|text=Line of Sight|line=0|left=0.0|right=201.0|top=0.0|bottom=48.0
+10-12 18:24:30.162  2397  2415 I System.out: WP503_SCROLL_LINE|text=Line of Sight|line=0|position=Offset(143.0, 371.0)->Offset(143.0, 371.0)|viewport=Rect.fromLTRB(0.0, 355.0, 360.0, 774.0)
+10-12 18:24:30.208  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.209  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.209  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.210  2397  2415 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.210  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.211  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.211  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.215  2397  2415 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.216  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+10-12 18:24:30.216  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.217  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.218  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 18:24:30.219  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=7
+10-12 18:24:30.220  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+10-12 18:24:30.221  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+10-12 18:24:30.224  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.227  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.229  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+10-12 18:24:30.229  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 18:24:30.232  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.233  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.235  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+10-12 18:24:30.236  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 18:24:30.237  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+10-12 18:24:30.240  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 18:24:30.243  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=East saved repeater|description=null|clickable=false|children=0
+10-12 18:24:30.244  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.246  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 18:24:30.248  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=中文西側中繼|description=null|clickable=false|children=0
+10-12 18:24:30.248  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.248  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.248  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.248  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.249  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.249  2397  2415 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.249  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.250  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.250  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.250  2397  2415 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.252  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+10-12 18:24:30.252  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.252  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.252  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 18:24:30.252  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=7
+10-12 18:24:30.252  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+10-12 18:24:30.253  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+10-12 18:24:30.253  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.253  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.253  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+10-12 18:24:30.253  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 18:24:30.254  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.254  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.254  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+10-12 18:24:30.255  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 18:24:30.255  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+10-12 18:24:30.255  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 18:24:30.256  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=East saved repeater|description=null|clickable=false|children=0
+10-12 18:24:30.256  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.256  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 18:24:30.256  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=中文西側中繼|description=null|clickable=false|children=0
+10-12 18:24:30.256  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.260  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.260  2397  2415 I System.out: WP503_LOS_PLATFORM_ACTIONS|label=East saved repeater|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false
+10-12 18:24:30.260  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.260  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.261  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.261  2397  2415 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.261  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.261  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.262  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.263  2397  2415 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.263  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+10-12 18:24:30.263  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.264  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.264  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 18:24:30.264  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=7
+10-12 18:24:30.264  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+10-12 18:24:30.265  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+10-12 18:24:30.265  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.265  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.266  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+10-12 18:24:30.266  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 18:24:30.267  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.267  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.267  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+10-12 18:24:30.267  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 18:24:30.268  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+10-12 18:24:30.268  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 18:24:30.268  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=East saved repeater|description=null|clickable=false|children=0
+10-12 18:24:30.268  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.269  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 18:24:30.269  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=中文西側中繼|description=null|clickable=false|children=0
+10-12 18:24:30.270  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.270  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.270  2397  2415 I System.out: WP503_LOS_PLATFORM_ACTIONS|label=中文西側中繼|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false
+10-12 18:24:30.271  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.271  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.271  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.271  2397  2415 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.272  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.272  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.272  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.273  2397  2415 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.273  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+10-12 18:24:30.274  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.274  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.274  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 18:24:30.274  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=7
+10-12 18:24:30.275  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+10-12 18:24:30.275  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+10-12 18:24:30.275  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.276  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.276  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+10-12 18:24:30.276  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 18:24:30.277  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 18:24:30.277  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 18:24:30.277  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+10-12 18:24:30.278  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 18:24:30.278  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+10-12 18:24:30.279  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 18:24:30.279  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=East saved repeater|description=null|clickable=false|children=0
+10-12 18:24:30.279  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.279  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 18:24:30.280  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=中文西側中繼|description=null|clickable=false|children=0
+10-12 18:24:30.280  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.281  2397  2415 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+10-12 18:24:30.648  2397  2415 I System.out: WP503_FONT|text=East saved repeater|size=245 x 42|constraints=Constraints(minWidth = 0, maxWidth = 264, minHeight = 0, maxHeight = Infinity)|paragraph=264.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 18:24:30.649  2397  2415 I System.out: WP503_FONT_LINE|text=East saved repeater|line=0|left=0.0|right=244.35156|top=0.0|bottom=42.0
+10-12 18:24:30.713  2397  2415 I System.out: WP503_SCROLL_LINE|text=East saved repeater|line=0|position=Offset(47.0, 497.0)->Offset(47.0, 497.0)|viewport=Rect.fromLTRB(0.0, 355.0, 360.0, 774.0)
+10-12 18:24:30.746  2397  2415 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+10-12 18:24:30.747  2397  2415 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+10-12 18:24:30.748  2397  2415 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+10-12 18:24:30.749  2397  2415 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+10-12 18:24:30.751  2397  2415 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+
