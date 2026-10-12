@@ -41,6 +41,26 @@ and independent/current-hosted review remain required. Additional35send bodies
 read exposed unresolved literal/helper/registered-name reductions; they are
 not yet credited or called equivalent.
 
+Initial9dc16d3f covering build failed before discovery: source-contact fixture
+omitted Kotlin's required lastHeardTimestamp argument. Explicit source nil
+fixed atf330330c. That exact full Windows services execution discovered2640,
+passed2638/failed2/0errors/skips; later data/App tasks did not run. Both
+unchanged failures are actual checkout CRLF differences: pinned hosts resource
+raw SHA2565c0cdbd2c0cace67244bac2d4c79e4d9a4390f95dd49cfbab3c2c4539eafc8e6
+versus Git8501e70be92caea312873015c2284ad51c5598a505f0be9c82abe352d2249f1f,
+and carried-contract rawc31c93d907bad1af9bbf1eb920406997cc535fa8b18399a6c8b7665b8d27ffbb
+versus Git1b7f21f5ff827e88462a2ac6c722a681c8c24dd9d496d130da9b3139d6e5a592.
+Each raw file becomes the exact Git bytes by CRLF->LF only; inputs/assertions
+unchanged from440d. The host parser retains CR on domains, while the other
+test requires byte-exact LF. No expected-value, parser, resource, protected
+declaration, checkout setting or cache edit masks either failure.
+All210 messaging tests independently had positive discovery/zero failures,
+but that is not full-services success. Fresh covering selector explicitly
+runs all messaging consumers, real Room regressions/pending15 and adopted
+App fixture4/aggregate1; it does not retry/exclude-and-green full2640.
+The real-Room bookkeeping fixture uses the existing parent/contact seed
+before the actual send, retaining source AB contact rather than orphan rows.
+
 ## Next original pending-send persistence increment
 
 Fifteen complete frozen originals and actual helper/model/DAO/transaction

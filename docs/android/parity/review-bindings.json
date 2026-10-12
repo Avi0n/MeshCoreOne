@@ -47920,43 +47920,43 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
-        "sha256": "b5635fb4e8e893a433a0175c6d8ad16a4ff799b54b7b830964631ecd821644fc",
+        "sha256": "37d65c47f5b6b6ab5cb3db40ea7c8f08d1dbb7d064974500b68695386eb50673",
         "class": "com.meshcoreone.android.core.data.messaging.MessagingRoomIntegrationTest",
         "method_or_family_name": "sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted",
         "line": 666,
-        "end_line": 687,
+        "end_line": 688,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "c6746fb098ffa888955dd8f0b99d8194608ac761cedc8e326081f8107d5d9ca3",
+        "body_sha256": "a448a5091e60c3fd9c7f3377417c29bd2afb7647b6bc46db3271e724d9a99244",
         "registration": null,
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 677,
+            "line": 678,
             "expression": "assertEquals(1, g.firmware.sent().size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertNull",
-            "line": 680,
+            "line": 681,
             "expression": "assertNull(store.fetchMessage(EntityKey(radio, saved.id)))",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFailsWith",
-            "line": 682,
+            "line": 683,
             "expression": "assertFailsWith<Exception> { sending.await() }",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 683,
+            "line": 684,
             "expression": "assertEquals(1, g.service.pendingAckCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFalse",
-            "line": 685,
+            "line": 686,
             "expression": "assertFalse(events.events.toList().any { it.event is MessageStatusEvent.Failed })",
             "assertion_or_checked_wait": true
           }
@@ -47993,122 +47993,128 @@
             "assertion_or_checked_wait": false
           },
           {
-            "name": "RadioGeneration",
+            "name": "seed",
             "line": 668,
+            "expression": "seed()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioGeneration",
+            "line": 669,
             "expression": "RadioGeneration(28, sessionTimeout = 10.0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 670,
+            "line": 671,
             "expression": "Bytes.of(0xAB, 0xCD, 0xEF, 0x12)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "CompletableDeferred",
-            "line": 672,
+            "line": 673,
             "expression": "CompletableDeferred()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "g.start",
-            "line": 673,
+            "line": 674,
             "expression": "g.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "g.service.statusEvents",
-            "line": 674,
+            "line": 675,
             "expression": "g.service.statusEvents()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "g.service.sendDirectMessage",
-            "line": 675,
+            "line": 676,
             "expression": "g.service.sendDirectMessage(\"hi\", contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 676,
+            "line": 677,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "g.firmware.sent",
-            "line": 677,
+            "line": 678,
             "expression": "g.firmware.sent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchMessages",
-            "line": 678,
+            "line": 679,
             "expression": "store.fetchMessages(EntityKey(radio, contact.id), 10, 0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 678,
+            "line": 679,
             "expression": "EntityKey(radio, contact.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first",
-            "line": 678,
+            "line": 679,
             "expression": "first()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.deleteMessage",
-            "line": 679,
+            "line": 680,
             "expression": "store.deleteMessage(EntityKey(radio, saved.id))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 679,
+            "line": 680,
             "expression": "EntityKey(radio, saved.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.fetchMessage",
-            "line": 680,
+            "line": 681,
             "expression": "store.fetchMessage(EntityKey(radio, saved.id))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 680,
+            "line": 681,
             "expression": "EntityKey(radio, saved.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "g.firmware.acceptanceGate?.complete",
-            "line": 681,
+            "line": 682,
             "expression": "g.firmware.acceptanceGate?.complete(Unit)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sending.await",
-            "line": 682,
+            "line": 683,
             "expression": "sending.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "g.service.finishStatusEvents",
-            "line": 684,
+            "line": 685,
             "expression": "g.service.finishStatusEvents()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "events.events.toList",
-            "line": 685,
+            "line": 686,
             "expression": "events.events.toList()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "g.stop",
-            "line": 686,
+            "line": 687,
             "expression": "g.stop()",
             "assertion_or_checked_wait": false
           }
