@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -158,10 +159,18 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         telemetry.performClick()
         compose.waitUntil { rig.telemetryReads == 1 }
         for (channel in listOf(1, 2)) {
-            val heading = compose.onNode(hasText(activity.getString(L.remoteNodesStatusChannel, channel)) and
+            val heading = compose.onNode(hasText(L.remoteNodesStatusChannel(activity.resources, channel)) and
                 SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
             assertScrollableFont200Unclipped(heading)
         }
+        val channelOne = compose.onNode(hasText(L.remoteNodesStatusChannel(activity.resources, 1)) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).fetchSemanticsNode().id
+        val channelTwo = compose.onNode(hasText(L.remoteNodesStatusChannel(activity.resources, 2)) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).fetchSemanticsNode().id
+        val headingOrder = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            .fetchSemanticsNodes().map { it.id }
+        assertTrue("Actual semantic traversal retains ascending channel headings",
+            headingOrder.indexOf(channelOne) >= 0 && headingOrder.indexOf(channelTwo) > headingOrder.indexOf(channelOne))
         for (label in listOf(L.remoteNodesStatusSensorTemperature, L.remoteNodesStatusSensorMcuTemperature,
             L.remoteNodesStatusSensorVoltage, L.remoteNodesStatusSensorGps, L.remoteNodesStatusSensorHumidity)) {
             assertScrollableFont200Unclipped(compose.onNodeWithText(activity.getString(label)))
@@ -206,6 +215,30 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         assertEquals(3, rig.handlerRegistrations)
         assertEquals(0, rig.loginAttempts)
         println("WP503_REMOTE_POPULATED_TELEMETRY|channels=2|points=5|reads=1|nativeMap=true|styleRecovery=true|realRadio=false")
+    }
+
+    @Test fun pendingGuestTelemetryDisablesDuplicateReadsAndCancelsOnActualDoneAtFont200() {
+        val rig = Rig().apply { savedGuest = true; pendingTelemetry = true; ready() }
+        mount(rig)
+        compose.onNodeWithTag("open-node:${contact.id}").performClick()
+        val telemetry = compose.onNode(hasText(activity.getString(L.remoteNodesStatusTelemetry)) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).performScrollTo()
+        assertFont200Unclipped(telemetry)
+        telemetry.performClick()
+        compose.waitUntil { rig.telemetryReads == 1 }
+        compose.onNodeWithTag("reload:${L.remoteNodesStatusTelemetry}").assertIsNotEnabled()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo,
+            ProgressBarRangeInfo.Indeterminate)).assertIsDisplayed()
+        compose.onNodeWithTag("remote-error").assertDoesNotExist()
+        assertVisibleClickTargetsAtLeast48Dp()
+        compose.onNodeWithText(activity.getString(L.remoteNodesDone)).performClick()
+        compose.onNodeWithTag("remote-node-list").assertIsDisplayed()
+        compose.waitUntil { rig.cancelledTelemetry == 1 && rig.statusTeardowns == 1 }
+        compose.onNodeWithTag("remote-error").assertDoesNotExist()
+        assertEquals(1, rig.telemetryReads)
+        assertEquals(3, rig.handlerRegistrations)
+        assertEquals(0, rig.loginAttempts)
+        println("WP503_REMOTE_PENDING_TELEMETRY|reads=1|cancelled=1|teardown=1|duplicateEnabled=false|realRadio=false")
     }
 
     @Test fun catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow() {
@@ -519,6 +552,8 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         var savedGuest = false
         var telemetryFailure = false
         var telemetryRaw = Bytes.EMPTY
+        var pendingTelemetry = false
+        var cancelledTelemetry = 0
         var statusReads = 0
         var telemetryReads = 0
         var handlerRegistrations = 0
@@ -554,6 +589,13 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
                 assertEquals(EntityKey(radio, guestSession.id), session)
                 assertTrue(requireNotNull(timeout) > Duration.ZERO)
                 telemetryReads++
+                if (pendingTelemetry) {
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        cancelledTelemetry++
+                    }
+                }
                 if (telemetryFailure) throw IOException("Deterministic guest telemetry read failure")
                 return TelemetryResponse(contact.publicKey.prefix(6), null, telemetryRaw)
             }
