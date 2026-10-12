@@ -61,6 +61,7 @@ dependencies {
     implementation("androidx.compose.material3.adaptive:adaptive:1.3.0")
     implementation("androidx.compose.material3.adaptive:adaptive-layout:1.3.0")
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(project(":core:testing"))
     androidTestImplementation(libs.androidx.room.runtime)
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

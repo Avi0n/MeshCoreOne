@@ -260,6 +260,7 @@ class WiringTest(unittest.TestCase):
     def test_parity_fixture_directory_is_test_only(self):
         text = (audit.REPO / "android/app/build.gradle.kts").read_text(encoding="utf-8")
         self.assertIn('sourceSets.getByName("test").kotlin.srcDir("../parity-tests/src/test/kotlin")', text)
+        self.assertIn('testImplementation(project(":core:testing"))', text)
         self.assertNotIn('sourceSets.getByName("main").kotlin.srcDir("../parity-tests', text)
 
 

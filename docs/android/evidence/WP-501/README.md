@@ -57,6 +57,13 @@ AndroidOnly WP501 disposition and source consumer provenance in the bound
 proposal, and makes existing mandatory-wiring Python test call the real
 traceability validator. Only the previously unexecuted App52 needs next native
 execution; unchanged messaging69 is not selected again.
+The subsequent clean dc62a826a7c68fdd74cb0ac7c42a66e986c13808 App-only
+attempt passed the corrected real traceability/l10n74 stage, then FAILED before
+JUnit at `:app:compileDebugUnitTestKotlin`: shared TestClock module was absent
+from App's test classpath. Added the existing `:core:testing` only through
+`testImplementation`, with a wiring guard; no production/APK dependency,
+new timer implementation, speculative version or fixture expectation changed.
+Same revision26 admitted the directly necessary build wiring idempotently.
 Initial7b0ac0aa Python parity92 had91PASS/1FAIL because its existing wiring
 test still required67 mandatory methods; no native execution occurred there.
 The coupled assertion now requires70 and the exact three new distinct names,
