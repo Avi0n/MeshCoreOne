@@ -4,6 +4,7 @@ package com.meshcoreone.android.accessibility
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -73,6 +74,62 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
     private val radio = RadioId(UUID(0, 91))
     private val contact = ContactDTO(id = UUID(0, 92), radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAA.toByte() }),
         name = "\u4e2d", lastHeardTimestamp = null, isBlocked = true)
+
+    @Test fun offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable() {
+        val contacts = ContactType.entries.mapIndexed { index, type ->
+            contact.copy(id = UUID(0, 110L + index), typeRawValue = type.rawValue, isBlocked = false,
+                name = "\u4e2d ${type.name}", publicKey = Bytes(ByteArray(32) { (0xA1 + index).toByte() }))
+        }
+        val selected = mutableStateOf(contacts.first())
+        val dependencies = offlineDependencies(cachedContacts = contacts)
+        val opened = mutableListOf<ContactDTO>()
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    NodesEntry(FeatureRoute(FeatureId.NODES), { error("No cross-feature route expected") },
+                        dependencies = dependencies, destination = NodesDestination.Detail(selected.value),
+                        navigation = object : NodesNavigation {
+                            override fun openContact(contact: ContactDTO) = error("Unexpected contact")
+                            override fun openDiscovery() = error("Unexpected discovery")
+                            override fun openChat(contact: ContactDTO) = error("Offline messaging must remain disabled")
+                            override fun openMap(latitude: Double, longitude: Double) = error("No location requested")
+                            override fun openRemoteNode(contact: ContactDTO, action: RemoteNodeAction) {
+                                assertEquals(RemoteNodeAction.SAVED_HISTORY, action)
+                                opened += contact
+                            }
+                            override fun back() = error("No Back requested")
+                        })
+                }
+            }
+        }
+        for (cached in contacts) {
+            compose.runOnIdle { selected.value = cached }
+            val disabled = buildList {
+                add(C.contactsDetailTelemetry)
+                add(C.contactsDetailShareViaAdvert)
+                when (cached.type) {
+                    ContactType.CHAT -> add(C.contactsDetailSendMessage)
+                    ContactType.REPEATER -> addAll(listOf(C.contactsDetailManagement, C.contactsDetailPing))
+                    ContactType.ROOM -> addAll(listOf(C.contactsDetailManagement, C.contactsDetailPing, C.contactsDetailJoinRoom))
+                }
+            }
+            for (label in disabled) {
+                val text = activity.getString(label)
+                compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)).performScrollToNode(hasText(text))
+                assertFont200Unclipped(compose.onNodeWithText(text).performScrollTo().assertIsDisplayed().assertIsNotEnabled())
+            }
+            val historyText = activity.getString(C.contactsDetailSavedHistory)
+            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)).performScrollToNode(hasText(historyText))
+            val history = compose.onNodeWithText(historyText).performScrollTo().assertIsDisplayed().assertIsEnabled()
+            assertFont200Unclipped(history)
+            assertVisibleClickTargetsAtLeast48Dp()
+            history.performClick()
+            assertEquals(cached, opened.last())
+            println("WP503_OFFLINE_ROLE_ACTIONS|sdk=${android.os.Build.VERSION.SDK_INT}|type=${cached.type}" +
+                "|disabled=${disabled.size}|historyCallback=true|realRadio=false")
+        }
+        assertEquals(contacts, opened)
+    }
 
     @Test fun offlinePathAndTransportActionsKeepDisabledStateAndFullLabelsAtFont200() {
         mountDetail(contact.copy(isBlocked = false))
