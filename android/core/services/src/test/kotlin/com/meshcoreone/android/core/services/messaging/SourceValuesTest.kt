@@ -60,16 +60,16 @@ class SourceValuesTest {
             assertTrue(key.startsWith("ch-"))
         },
         original("MessageDeduplicationTests", "DM and channel fallback keys never collide for same content") {
-            assertNotEquals(DeduplicationKey.contentBased(CONTACT, null, null, 1u, "Hello"),
-                DeduplicationKey.contentBased(null, 0u, "Alice", 1u, "Hello"))
+            assertNotEquals(DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, "Hello"),
+                DeduplicationKey.contentBased(null, 0u, "Alice", 1_704_067_200u, "Hello"))
         },
         original("MessageDeduplicationTests", "Different contacts produce different DM fallback keys") {
-            assertNotEquals(DeduplicationKey.contentBased(RADIO.value, null, null, 1u, "Hello"),
-                DeduplicationKey.contentBased(PEER_RADIO.value, null, null, 1u, "Hello"))
+            assertNotEquals(DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, "Hello"),
+                DeduplicationKey.contentBased(PEER_RADIO.value, null, null, 1_704_067_200u, "Hello"))
         },
         original("MessageDeduplicationTests", "Different channel indices produce different channel fallback keys") {
-            assertNotEquals(DeduplicationKey.contentBased(null, 0u, "Alice", 1u, "Hello"),
-                DeduplicationKey.contentBased(null, 1u, "Alice", 1u, "Hello"))
+            assertNotEquals(DeduplicationKey.contentBased(null, 0u, "Alice", 1_704_067_200u, "Hello"),
+                DeduplicationKey.contentBased(null, 1u, "Alice", 1_704_067_200u, "Hello"))
         },
         original("AckCodeBuilderTests", "matches firmware formula for known fixture") {
             assertEquals(Bytes.of(0x5E, 0x39, 0x9E, 0x8A),
@@ -92,17 +92,17 @@ class SourceValuesTest {
         },
         original("BLETransportOpenedSignalTests", "wait suspends until fire") {
             val signal = BLETransportOpenedSignal()
-            val waiting = async { signal.wait() }; runCurrent(); assertFalse(waiting.isCompleted)
+            val waiting = async { signal.wait() }; advanceTimeBy(50); runCurrent(); assertFalse(waiting.isCompleted)
             signal.fire(); waiting.await(); assertEquals(0, signal.waiterCount)
         },
         original("BLETransportOpenedSignalTests", "wait throws CancellationError when calling task is cancelled") {
             val signal = BLETransportOpenedSignal()
-            val waiting = async { signal.wait() }; runCurrent(); waiting.cancelAndJoin()
+            val waiting = async { signal.wait() }; advanceTimeBy(50); runCurrent(); waiting.cancelAndJoin()
             assertFailsWith<CancellationException> { waiting.await() }; assertEquals(0, signal.waiterCount)
         },
         original("BLETransportOpenedSignalTests", "fire after cancellation does not double-resume") {
             val signal = BLETransportOpenedSignal()
-            val waiting = async { signal.wait() }; runCurrent(); waiting.cancelAndJoin()
+            val waiting = async { signal.wait() }; advanceTimeBy(50); runCurrent(); waiting.cancelAndJoin()
             signal.fire(); signal.wait(); assertEquals(0, signal.waiterCount)
         },
         original("MessageServiceConfigTests", "maxAttempts == 5 is accepted at the precondition boundary") { assertEquals(5L, MessageServiceConfig(maxAttempts = 5).maxAttempts) },

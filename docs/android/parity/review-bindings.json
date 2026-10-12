@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "a37df9c3d18e0d9bb926c5b7462244925e3bc94c0f6c5ba21e0350bf01f31dfd",
+  "proposal_sha256": "2cab0a1a895d1085f17df7d29ec21444f6c2209fea484ccc8d356cbffdb2c173",
   "families": [
     {
       "group": "backup-envelope",
@@ -39068,7 +39068,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "Content-based key has an 8-char hex hash suffix",
         "line": 40,
@@ -39159,7 +39159,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "Content-based key is deterministic and distinguishes different content",
         "line": 43,
@@ -39419,7 +39419,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "Empty content still produces a well-formed key",
         "line": 48,
@@ -43240,7 +43240,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "attempt 4 wraps to attempt 0's code",
         "line": 85,
@@ -43337,7 +43337,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "attempts 0..3 produce four distinct codes",
         "line": 81,
@@ -43440,7 +43440,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "different texts produce different codes",
         "line": 78,
@@ -43525,7 +43525,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "matches firmware formula for known fixture",
         "line": 74,
@@ -43607,6 +43607,1468 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "messaging-source-open-signal-arm-suspend-cancel-rearm",
+      "comparison_sha256": "23d1ac92cdc84e9d580363afd6b0e17fab9ea9c3d020af2f0542dddfea683794",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 4,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+      "source_blob_sha": "6cfc91c46a1a7d2674edbab21045198519e27b2b",
+      "case_id": "BLETransportOpenedSignalTests::fire after cancellation does not double-resume()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "99c4982319e9906e968295b7749d9eb742b9a2b853213c7b679651a4ba1eff54",
+      "original_assertions": [],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "fire after cancellation does not double-resume",
+        "line": 103,
+        "end_line": 107,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "fea7b67a602de92a8e53a4f592d74a8ff767470d4027f9457ff850de871de987",
+        "registration": "original(\"BLETransportOpenedSignalTests\", \"fire after cancellation does not double-resume\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 106,
+            "expression": "assertEquals(0, signal.waiterCount)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "BLETransportOpenedSignal",
+            "line": 104,
+            "expression": "BLETransportOpenedSignal()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "signal.wait",
+            "line": 105,
+            "expression": "signal.wait()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advanceTimeBy",
+            "line": 105,
+            "expression": "advanceTimeBy(50)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 105,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "waiting.cancelAndJoin",
+            "line": 105,
+            "expression": "waiting.cancelAndJoin()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "signal.fire",
+            "line": 106,
+            "expression": "signal.fire()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "signal.wait",
+            "line": 106,
+            "expression": "signal.wait()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "BLETransportOpenedSignalTests::fire after cancellation does not double-resume()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/BLETransportOpenedSignal.kt",
+          "sha256": "1b6416686d257f84b22b9c8e1b46f20306125164ed9d720b0bc9525b927c3116"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/BLETransportOpenedSignal.swift",
+          "sha256": "0df8a85b0cb1b17d3c97a766f9321e72d491b66c8220483c4095aa3bb1e38f66"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "BLETransportOpenedSignalTests::fire after cancellation does not double-resume()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-open-signal-arm-suspend-cancel-rearm",
+      "comparison_sha256": "23d1ac92cdc84e9d580363afd6b0e17fab9ea9c3d020af2f0542dddfea683794",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 4,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+      "source_blob_sha": "6cfc91c46a1a7d2674edbab21045198519e27b2b",
+      "case_id": "BLETransportOpenedSignalTests::wait returns immediately when signal already armed()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "228f2f9f9eba58a56f9beb3051bf5887f724ee0f1621a915f633bc0c9b7baada",
+      "original_assertions": [],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "wait returns immediately when signal already armed",
+        "line": 90,
+        "end_line": 92,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "bb5ae5a5c4b5848daa1d468a3fd75e24189bf4c8607ba9dd12a5aa1363754269",
+        "registration": "original(\"BLETransportOpenedSignalTests\", \"wait returns immediately when signal already armed\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 91,
+            "expression": "assertEquals(0, signal.waiterCount)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "BLETransportOpenedSignal",
+            "line": 91,
+            "expression": "BLETransportOpenedSignal()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "signal.fire",
+            "line": 91,
+            "expression": "signal.fire()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "signal.wait",
+            "line": 91,
+            "expression": "signal.wait()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "BLETransportOpenedSignalTests::wait returns immediately when signal already armed()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/BLETransportOpenedSignal.kt",
+          "sha256": "1b6416686d257f84b22b9c8e1b46f20306125164ed9d720b0bc9525b927c3116"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/BLETransportOpenedSignal.swift",
+          "sha256": "0df8a85b0cb1b17d3c97a766f9321e72d491b66c8220483c4095aa3bb1e38f66"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "BLETransportOpenedSignalTests::wait returns immediately when signal already armed()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-open-signal-arm-suspend-cancel-rearm",
+      "comparison_sha256": "23d1ac92cdc84e9d580363afd6b0e17fab9ea9c3d020af2f0542dddfea683794",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 4,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+      "source_blob_sha": "6cfc91c46a1a7d2674edbab21045198519e27b2b",
+      "case_id": "BLETransportOpenedSignalTests::wait suspends until fire()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "4e006291f17456d1ea81198dc25438eb2dcb4b97a7a762a0b0d4756d4d82cf6b",
+      "original_assertions": [],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "wait suspends until fire",
+        "line": 93,
+        "end_line": 97,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "3135ad4188a13539a53e78b310a518a17ce9b027e81a96875c1d5e5d244fe1da",
+        "registration": "original(\"BLETransportOpenedSignalTests\", \"wait suspends until fire\")",
+        "assertions": [
+          {
+            "name": "assertFalse",
+            "line": 95,
+            "expression": "assertFalse(waiting.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 96,
+            "expression": "assertEquals(0, signal.waiterCount)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "BLETransportOpenedSignal",
+            "line": 94,
+            "expression": "BLETransportOpenedSignal()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "signal.wait",
+            "line": 95,
+            "expression": "signal.wait()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advanceTimeBy",
+            "line": 95,
+            "expression": "advanceTimeBy(50)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 95,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "signal.fire",
+            "line": 96,
+            "expression": "signal.fire()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "waiting.await",
+            "line": 96,
+            "expression": "waiting.await()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "BLETransportOpenedSignalTests::wait suspends until fire()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/BLETransportOpenedSignal.kt",
+          "sha256": "1b6416686d257f84b22b9c8e1b46f20306125164ed9d720b0bc9525b927c3116"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/BLETransportOpenedSignal.swift",
+          "sha256": "0df8a85b0cb1b17d3c97a766f9321e72d491b66c8220483c4095aa3bb1e38f66"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "BLETransportOpenedSignalTests::wait suspends until fire()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-open-signal-arm-suspend-cancel-rearm",
+      "comparison_sha256": "23d1ac92cdc84e9d580363afd6b0e17fab9ea9c3d020af2f0542dddfea683794",
+      "source_file_family_count": 4,
+      "group_compared_family_count": 4,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+      "source_blob_sha": "6cfc91c46a1a7d2674edbab21045198519e27b2b",
+      "case_id": "BLETransportOpenedSignalTests::wait throws CancellationError when calling task is cancelled()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "811cb234d8aa2c2981cbfb255a4469d54deff926a9a3e3c7546a51df37841f20",
+      "original_assertions": [
+        {
+          "name": "Issue.record",
+          "line": 38,
+          "expression": "Issue.record(\"wait should have thrown CancellationError\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 42,
+          "expression": "Issue.record(\"wait threw unexpected error: \\(error)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "wait throws CancellationError when calling task is cancelled",
+        "line": 98,
+        "end_line": 102,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "be026da4be7bdcd9fb80ab528c3eb2ed16f4f6e3d396f9447e56f2a6766fd236",
+        "registration": "original(\"BLETransportOpenedSignalTests\", \"wait throws CancellationError when calling task is cancelled\")",
+        "assertions": [
+          {
+            "name": "assertFailsWith",
+            "line": 101,
+            "expression": "assertFailsWith<CancellationException> { waiting.await() }",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 101,
+            "expression": "assertEquals(0, signal.waiterCount)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "BLETransportOpenedSignal",
+            "line": 99,
+            "expression": "BLETransportOpenedSignal()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "signal.wait",
+            "line": 100,
+            "expression": "signal.wait()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advanceTimeBy",
+            "line": 100,
+            "expression": "advanceTimeBy(50)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 100,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "waiting.cancelAndJoin",
+            "line": 100,
+            "expression": "waiting.cancelAndJoin()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "waiting.await",
+            "line": 101,
+            "expression": "waiting.await()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "BLETransportOpenedSignalTests::wait throws CancellationError when calling task is cancelled()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/BLETransportOpenedSignal.kt",
+          "sha256": "1b6416686d257f84b22b9c8e1b46f20306125164ed9d720b0bc9525b927c3116"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/BLETransportOpenedSignal.swift",
+          "sha256": "0df8a85b0cb1b17d3c97a766f9321e72d491b66c8220483c4095aa3bb1e38f66"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt",
+          "sha256": "8760695b41d34c06058949ab7d36a5c05212fa844cf33be0b1089b49e162ba37"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "BLETransportOpenedSignalTests::wait throws CancellationError when calling task is cancelled()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
+      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+      "source_blob_sha": "d2825cee1409de413a35c15bf564ed68b3d0d9f7",
+      "case_id": "MessageDeduplicationTests::Channel fallback key is deterministic()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "d320184737c050ab78f11ef75f71b732cf512b59966949c2c8be6e5d73064f46",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 34,
+          "expression": "#expect(key1 == key2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 35,
+          "expression": "#expect(key1.hasPrefix(\"ch-\"))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "Channel fallback key is deterministic",
+        "line": 57,
+        "end_line": 61,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "3195f48a7b13bf51c83e12f00b3faf2abc3b7a203457cb0f191230b69ee43517",
+        "registration": "original(\"MessageDeduplicationTests\", \"Channel fallback key is deterministic\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 59,
+            "expression": "assertEquals(key, DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello channel\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 60,
+            "expression": "assertTrue(key.startsWith(\"ch-\"))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 58,
+            "expression": "DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello channel\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 59,
+            "expression": "DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello channel\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key.startsWith",
+            "line": 60,
+            "expression": "key.startsWith(\"ch-\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MessageDeduplicationTests::Channel fallback key is deterministic()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+          "sha256": "122cfb924ba35b6f727436b7b4d0a56f6fbcbdc71066432665b0a5dda8e75c53"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "MessageDeduplicationTests::Channel fallback key is deterministic()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
+      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+      "source_blob_sha": "d2825cee1409de413a35c15bf564ed68b3d0d9f7",
+      "case_id": "MessageDeduplicationTests::DM and channel fallback keys never collide for same content()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "9770bb2c510c545bef72443664d2081ab1250b304a30869954ed2082f21d7e29",
+      "original_assertions": [
+        {
+          "name": "#require",
+          "line": 40,
+          "expression": "#require(UUID(uuidString: \"11111111-1111-1111-1111-111111111111\"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 49,
+          "expression": "#expect(dmKey != channelKey)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "DM and channel fallback keys never collide for same content",
+        "line": 62,
+        "end_line": 65,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "4571d5d9a4b09cd12a88991925b3e82ba839cd4e4547736dcf5a619d65c9873d",
+        "registration": "original(\"MessageDeduplicationTests\", \"DM and channel fallback keys never collide for same content\")",
+        "assertions": [
+          {
+            "name": "assertNotEquals",
+            "line": 63,
+            "expression": "assertNotEquals(DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello\"),\n                DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello\"))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 63,
+            "expression": "DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 64,
+            "expression": "DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MessageDeduplicationTests::DM and channel fallback keys never collide for same content()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+          "sha256": "122cfb924ba35b6f727436b7b4d0a56f6fbcbdc71066432665b0a5dda8e75c53"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "MessageDeduplicationTests::DM and channel fallback keys never collide for same content()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
+      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+      "source_blob_sha": "d2825cee1409de413a35c15bf564ed68b3d0d9f7",
+      "case_id": "MessageDeduplicationTests::DM fallback key is deterministic()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "d9efa50747f4f356be511531c9e8d1332d7b26cb4beaf9a48836a2f81310d0ef",
+      "original_assertions": [
+        {
+          "name": "#require",
+          "line": 11,
+          "expression": "#require(UUID(uuidString: \"11111111-1111-1111-1111-111111111111\"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 20,
+          "expression": "#expect(key1 == key2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 21,
+          "expression": "#expect(key1.hasPrefix(\"dm-\"))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "DM fallback key is deterministic",
+        "line": 52,
+        "end_line": 56,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "6e13a9e54a459ebd43d9809b0389edc959a47afe7ddf439b93c494fe8b13709b",
+        "registration": "original(\"MessageDeduplicationTests\", \"DM fallback key is deterministic\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 54,
+            "expression": "assertEquals(key, DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello world\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 55,
+            "expression": "assertTrue(key.startsWith(\"dm-\"))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 53,
+            "expression": "DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello world\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 54,
+            "expression": "DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello world\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "key.startsWith",
+            "line": 55,
+            "expression": "key.startsWith(\"dm-\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MessageDeduplicationTests::DM fallback key is deterministic()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+          "sha256": "122cfb924ba35b6f727436b7b4d0a56f6fbcbdc71066432665b0a5dda8e75c53"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "MessageDeduplicationTests::DM fallback key is deterministic()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
+      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+      "source_blob_sha": "d2825cee1409de413a35c15bf564ed68b3d0d9f7",
+      "case_id": "MessageDeduplicationTests::Different channel indices produce different channel fallback keys()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2ccb1a481eb623a1ff29c9d71af146c65be010ed6d8ac95d378b8acc47008c23",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 77,
+          "expression": "#expect(key1 != key2)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "Different channel indices produce different channel fallback keys",
+        "line": 70,
+        "end_line": 73,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "871cd1e12a8ac60d237150f3313c3ede88eb515d732aba98fbf76c855a11bfbd",
+        "registration": "original(\"MessageDeduplicationTests\", \"Different channel indices produce different channel fallback keys\")",
+        "assertions": [
+          {
+            "name": "assertNotEquals",
+            "line": 71,
+            "expression": "assertNotEquals(DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello\"),\n                DeduplicationKey.contentBased(null, 1u, \"Alice\", 1_704_067_200u, \"Hello\"))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 71,
+            "expression": "DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 72,
+            "expression": "DeduplicationKey.contentBased(null, 1u, \"Alice\", 1_704_067_200u, \"Hello\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MessageDeduplicationTests::Different channel indices produce different channel fallback keys()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+          "sha256": "122cfb924ba35b6f727436b7b4d0a56f6fbcbdc71066432665b0a5dda8e75c53"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "MessageDeduplicationTests::Different channel indices produce different channel fallback keys()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
+      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "source_file_family_count": 5,
+      "group_compared_family_count": 5,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+      "source_blob_sha": "d2825cee1409de413a35c15bf564ed68b3d0d9f7",
+      "case_id": "MessageDeduplicationTests::Different contacts produce different DM fallback keys()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "dd3029b9cb26dc747f1aa2667104fed3022b24f3a25fef2dd06eb7969f19446a",
+      "original_assertions": [
+        {
+          "name": "#require",
+          "line": 54,
+          "expression": "#require(UUID(uuidString: \"11111111-1111-1111-1111-111111111111\"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 55,
+          "expression": "#require(UUID(uuidString: \"22222222-2222-2222-2222-222222222222\"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 64,
+          "expression": "#expect(key1 != key2)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "Different contacts produce different DM fallback keys",
+        "line": 66,
+        "end_line": 69,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "fae2297b9ecbdfd56f33e34da1932ec4476113ec24cf027720ba075911ddd998",
+        "registration": "original(\"MessageDeduplicationTests\", \"Different contacts produce different DM fallback keys\")",
+        "assertions": [
+          {
+            "name": "assertNotEquals",
+            "line": 67,
+            "expression": "assertNotEquals(DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello\"),\n                DeduplicationKey.contentBased(PEER_RADIO.value, null, null, 1_704_067_200u, \"Hello\"))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 67,
+            "expression": "DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeduplicationKey.contentBased",
+            "line": 68,
+            "expression": "DeduplicationKey.contentBased(PEER_RADIO.value, null, null, 1_704_067_200u, \"Hello\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MessageDeduplicationTests::Different contacts produce different DM fallback keys()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+          "sha256": "16e4d0bc985c1e184a8c1023a83ab021d35d9ccf8d035b8b0651c785dc72bb2f"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+          "sha256": "ef2f0fc21f37fc8928ecc3776f816aa00635b7379e14e19269c19c1a3762b58e"
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+          "sha256": "122cfb924ba35b6f727436b7b4d0a56f6fbcbdc71066432665b0a5dda8e75c53"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
+          "sha256": "c1c1ba409eff552bd2a6be9d57c46cd4f1d37ea56874c5c6278af380b25c3346"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "MessageDeduplicationTests::Different contacts produce different DM fallback keys()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-config-five-attempt-boundary",
+      "comparison_sha256": "682952a3901cd1dfc43dea5dbbf75ae45cdb6725e80811576fb41a580c3c80ab",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+      "source_blob_sha": "1650f7bd3abf24e4c9b010c15508039441cf64f1",
+      "case_id": "MessageServiceConfigTests::Default config respects the maxAttempts ceiling()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "9f72f14a68c325dceb803094f6c14f15a2b8c5d147282894baa871ff8e52edb4",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 22,
+          "expression": "#expect(config.maxAttempts <= 5)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "Default config respects the maxAttempts ceiling",
+        "line": 109,
+        "end_line": 109,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "38f50e8006a0002d30d16b4f379f221f12ce3ad9a89dbb350323e57a9a54ce34",
+        "registration": "original(\"MessageServiceConfigTests\", \"Default config respects the maxAttempts ceiling\")",
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 109,
+            "expression": "assertTrue(MessageServiceConfig().maxAttempts <= 5)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MessageServiceConfig",
+            "line": 109,
+            "expression": "MessageServiceConfig()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MessageServiceConfigTests::Default config respects the maxAttempts ceiling()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
+          "sha256": "c45a3bf2c622d7206b05ecaf7143c7132eb16a818820f5aa53ac4e492175ec77"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MessageServiceConfig.swift",
+          "sha256": "a4e60517f364ba968be0964a669b7758119e47dd2ab86d51fca067c2b338964a"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "MessageServiceConfigTests::Default config respects the maxAttempts ceiling()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-config-five-attempt-boundary",
+      "comparison_sha256": "682952a3901cd1dfc43dea5dbbf75ae45cdb6725e80811576fb41a580c3c80ab",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+      "source_blob_sha": "1650f7bd3abf24e4c9b010c15508039441cf64f1",
+      "case_id": "MessageServiceConfigTests::maxAttempts == 5 is accepted at the precondition boundary()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "bf79504278fdf127689a4250f375cfb40e3c1bcd7a994cbef8c809ee00576412",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 16,
+          "expression": "#expect(config.maxAttempts == 5)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "maxAttempts == 5 is accepted at the precondition boundary",
+        "line": 108,
+        "end_line": 108,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "57ae254232f2df9f45e6ffe978c60797752ff444b7bd44d1e06af68215347340",
+        "registration": "original(\"MessageServiceConfigTests\", \"maxAttempts == 5 is accepted at the precondition boundary\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 108,
+            "expression": "assertEquals(5L, MessageServiceConfig(maxAttempts = 5).maxAttempts)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MessageServiceConfig",
+            "line": 108,
+            "expression": "MessageServiceConfig(maxAttempts = 5)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MessageServiceConfigTests::maxAttempts == 5 is accepted at the precondition boundary()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
+          "sha256": "c45a3bf2c622d7206b05ecaf7143c7132eb16a818820f5aa53ac4e492175ec77"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MessageServiceConfig.swift",
+          "sha256": "a4e60517f364ba968be0964a669b7758119e47dd2ab86d51fca067c2b338964a"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "MessageServiceConfigTests::maxAttempts == 5 is accepted at the precondition boundary()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-config-default-and-custom-fields",
+      "comparison_sha256": "0817e25e613cb519883976390956ae9f74e56ba8aa5286e99ce9492e9dc0e276",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+      "source_blob_sha": "5020a249e11246f66184491977e73acb8d101c51",
+      "case_id": "MessageServiceTests::MessageServiceConfig custom values()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "64420f2d7c57fcf148a44e0a8c5e2356bc9ce9ce56bd67604b7dd57de936d66a",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 32,
+          "expression": "#expect(config.floodFallbackOnRetry == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 33,
+          "expression": "#expect(config.maxAttempts == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 34,
+          "expression": "#expect(config.maxFloodAttempts == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 35,
+          "expression": "#expect(config.floodAfter == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 36,
+          "expression": "#expect(config.minTimeout == 10.0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 37,
+          "expression": "#expect(config.triggerPathDiscoveryAfterFlood == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "MessageServiceConfig custom values",
+        "line": 115,
+        "end_line": 119,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "2fd899e3879ff15f605380fbaf2de85db386f7ac51729865960465d396c97046",
+        "registration": "original(\"MessageServiceTests\", \"MessageServiceConfig custom values\")",
+        "assertions": [
+          {
+            "name": "assertFalse",
+            "line": 117,
+            "expression": "assertFalse(c.floodFallbackOnRetry)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 117,
+            "expression": "assertEquals(3L, c.maxAttempts)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 117,
+            "expression": "assertEquals(3L, c.maxFloodAttempts)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 118,
+            "expression": "assertEquals(1L, c.floodAfter)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 118,
+            "expression": "assertEquals(10.0, c.minTimeout)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 118,
+            "expression": "assertFalse(c.triggerPathDiscoveryAfterFlood)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MessageServiceConfig",
+            "line": 116,
+            "expression": "MessageServiceConfig(false, 3, 3, 1, 10.0, false)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MessageServiceTests::MessageServiceConfig custom values()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
+          "sha256": "c45a3bf2c622d7206b05ecaf7143c7132eb16a818820f5aa53ac4e492175ec77"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MessageServiceConfig.swift",
+          "sha256": "a4e60517f364ba968be0964a669b7758119e47dd2ab86d51fca067c2b338964a"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "MessageServiceTests::MessageServiceConfig custom values()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "messaging-source-config-default-and-custom-fields",
+      "comparison_sha256": "0817e25e613cb519883976390956ae9f74e56ba8aa5286e99ce9492e9dc0e276",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+      "source_blob_sha": "5020a249e11246f66184491977e73acb8d101c51",
+      "case_id": "MessageServiceTests::MessageServiceConfig default values()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "68a69654283c73350c4fa10a317824402bb4ecdc6a364b4c42bda7a330d0bc5a",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 13,
+          "expression": "#expect(config.floodFallbackOnRetry == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 14,
+          "expression": "#expect(config.maxAttempts == 5)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 15,
+          "expression": "#expect(config.maxFloodAttempts == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 16,
+          "expression": "#expect(config.floodAfter == 4)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 17,
+          "expression": "#expect(config.minTimeout == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 18,
+          "expression": "#expect(config.triggerPathDiscoveryAfterFlood == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 19,
+          "expression": "#expect(config.ackGiveUpWindow == 30)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
+        "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "method_or_family_name": "MessageServiceConfig default values",
+        "line": 110,
+        "end_line": 114,
+        "factory_method": "values",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "08b8c69948571a0c38c9d447ace790ab6b2cad93fb5e742ca9907a2b34d5f79d",
+        "registration": "original(\"MessageServiceTests\", \"MessageServiceConfig default values\")",
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 112,
+            "expression": "assertTrue(c.floodFallbackOnRetry)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 112,
+            "expression": "assertEquals(5L, c.maxAttempts)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 112,
+            "expression": "assertEquals(1L, c.maxFloodAttempts)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 113,
+            "expression": "assertEquals(4L, c.floodAfter)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 113,
+            "expression": "assertEquals(0.0, c.minTimeout)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 113,
+            "expression": "assertTrue(c.triggerPathDiscoveryAfterFlood)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 113,
+            "expression": "assertEquals(30.0, c.ackGiveUpWindow)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MessageServiceConfig",
+            "line": 111,
+            "expression": "MessageServiceConfig()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+          "MC1Services/Tests/MC1ServicesTests/Utilities/ChannelRXCorrelationTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MessageServiceTests::MessageServiceConfig default values()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+          "sha256": "1fe4d0deb1574780c23062bd065664ba028dd602edcdd63afc2dccff814da5b1"
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
+          "sha256": "c45a3bf2c622d7206b05ecaf7143c7132eb16a818820f5aa53ac4e492175ec77"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/MessageServiceConfig.swift",
+          "sha256": "a4e60517f364ba968be0964a669b7758119e47dd2ab86d51fca067c2b338964a"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+        "MessageServiceTests::MessageServiceConfig default values()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
       "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
       "source_file_family_count": 5,
@@ -43628,7 +45090,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "drops entries without decodedText",
         "line": 130,
@@ -43724,7 +45186,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be"
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
@@ -43773,7 +45235,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "keeps the 0x88 whose body matches the message key",
         "line": 120,
@@ -43851,7 +45313,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be"
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
@@ -43900,7 +45362,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "matches when decoded sender has trailing space",
         "line": 138,
@@ -43972,7 +45434,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be"
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
@@ -44021,7 +45483,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "nil key matches nothing",
         "line": 137,
@@ -44081,7 +45543,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be"
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
@@ -44130,7 +45592,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-        "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+        "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
         "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
         "method_or_family_name": "sorts matches by receivedAt ascending",
         "line": 124,
@@ -44226,7 +45688,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06"
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be"
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",

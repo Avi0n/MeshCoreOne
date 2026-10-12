@@ -2672,7 +2672,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
@@ -3329,7 +3329,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
@@ -3373,7 +3373,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
@@ -4177,7 +4177,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
@@ -4249,7 +4249,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
@@ -4383,7 +4383,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
@@ -4427,7 +4427,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/AckCodeBuilderTests.swift",
@@ -4564,7 +4564,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Content-based key uses the expected prefix for DM and channel scopes",
           "line": 25,
@@ -4611,7 +4611,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Content-based key uses the expected prefix for DM and channel scopes",
           "line": 29,
@@ -4658,7 +4658,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Content-based key uses the expected prefix for DM and channel scopes",
           "line": 33,
@@ -4705,7 +4705,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Content-based key uses the expected prefix for DM and channel scopes",
           "line": 37,
@@ -4908,7 +4908,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Content-based key has an 8-char hex hash suffix",
           "line": 40,
@@ -5016,7 +5016,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Content-based key is deterministic and distinguishes different content",
           "line": 43,
@@ -5130,7 +5130,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Empty content still produces a well-formed key",
           "line": 48,
@@ -5280,7 +5280,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "matches firmware formula for known fixture",
           "line": 74,
@@ -5394,7 +5394,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "different texts produce different codes",
           "line": 78,
@@ -5496,7 +5496,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "attempts 0..3 produce four distinct codes",
           "line": 81,
@@ -5610,7 +5610,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "attempt 4 wraps to attempt 0's code",
           "line": 85,
@@ -5711,7 +5711,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "wait returns immediately when signal already armed",
           "line": 90,
@@ -5818,14 +5818,14 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "wait suspends until fire",
           "line": 93,
           "end_line": 97,
           "factory_method": "values",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "893ffd6e3e2d90992cb4b063070d9ebad2d7cb45a8e9eab968a2dcc77c8b93a1",
+          "body_sha256": "3135ad4188a13539a53e78b310a518a17ce9b027e81a96875c1d5e5d244fe1da",
           "registration": "original(\"BLETransportOpenedSignalTests\", \"wait suspends until fire\")",
           "assertions": [
             {
@@ -5852,6 +5852,12 @@
               "name": "signal.wait",
               "line": 95,
               "expression": "signal.wait()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 95,
+              "expression": "advanceTimeBy(50)",
               "assertion_or_checked_wait": false
             },
             {
@@ -5956,14 +5962,14 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "wait throws CancellationError when calling task is cancelled",
           "line": 98,
           "end_line": 102,
           "factory_method": "values",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "eba357e5b772d6adf6fa1218115995498ddcf1197f77a3ead7ef4f63ffd1efd9",
+          "body_sha256": "be026da4be7bdcd9fb80ab528c3eb2ed16f4f6e3d396f9447e56f2a6766fd236",
           "registration": "original(\"BLETransportOpenedSignalTests\", \"wait throws CancellationError when calling task is cancelled\")",
           "assertions": [
             {
@@ -5990,6 +5996,12 @@
               "name": "signal.wait",
               "line": 100,
               "expression": "signal.wait()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 100,
+              "expression": "advanceTimeBy(50)",
               "assertion_or_checked_wait": false
             },
             {
@@ -6093,14 +6105,14 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "fire after cancellation does not double-resume",
           "line": 103,
           "end_line": 107,
           "factory_method": "values",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "12399fab09da5b8c22903c54a42ac3655d7d82c9704aff02da93973d0e291924",
+          "body_sha256": "fea7b67a602de92a8e53a4f592d74a8ff767470d4027f9457ff850de871de987",
           "registration": "original(\"BLETransportOpenedSignalTests\", \"fire after cancellation does not double-resume\")",
           "assertions": [
             {
@@ -6121,6 +6133,12 @@
               "name": "signal.wait",
               "line": 105,
               "expression": "signal.wait()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 105,
+              "expression": "advanceTimeBy(50)",
               "assertion_or_checked_wait": false
             },
             {
@@ -11908,7 +11926,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "DM fallback key is deterministic",
           "line": 52,
@@ -12022,7 +12040,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Channel fallback key is deterministic",
           "line": 57,
@@ -12136,20 +12154,20 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "DM and channel fallback keys never collide for same content",
           "line": 62,
           "end_line": 65,
           "factory_method": "values",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "77c4f1f6817ae6d5f28496e15ddb8a3718b1b6794579342560f5315e44323030",
+          "body_sha256": "4571d5d9a4b09cd12a88991925b3e82ba839cd4e4547736dcf5a619d65c9873d",
           "registration": "original(\"MessageDeduplicationTests\", \"DM and channel fallback keys never collide for same content\")",
           "assertions": [
             {
               "name": "assertNotEquals",
               "line": 63,
-              "expression": "assertNotEquals(DeduplicationKey.contentBased(CONTACT, null, null, 1u, \"Hello\"),\n                DeduplicationKey.contentBased(null, 0u, \"Alice\", 1u, \"Hello\"))",
+              "expression": "assertNotEquals(DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello\"),\n                DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello\"))",
               "assertion_or_checked_wait": true
             }
           ],
@@ -12157,13 +12175,13 @@
             {
               "name": "DeduplicationKey.contentBased",
               "line": 63,
-              "expression": "DeduplicationKey.contentBased(CONTACT, null, null, 1u, \"Hello\")",
+              "expression": "DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "DeduplicationKey.contentBased",
               "line": 64,
-              "expression": "DeduplicationKey.contentBased(null, 0u, \"Alice\", 1u, \"Hello\")",
+              "expression": "DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello\")",
               "assertion_or_checked_wait": false
             }
           ],
@@ -12250,20 +12268,20 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Different contacts produce different DM fallback keys",
           "line": 66,
           "end_line": 69,
           "factory_method": "values",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "0c5acdc77c6974506230663ed1ce1917525c5db0fc2e3fec1ab011696b42be76",
+          "body_sha256": "fae2297b9ecbdfd56f33e34da1932ec4476113ec24cf027720ba075911ddd998",
           "registration": "original(\"MessageDeduplicationTests\", \"Different contacts produce different DM fallback keys\")",
           "assertions": [
             {
               "name": "assertNotEquals",
               "line": 67,
-              "expression": "assertNotEquals(DeduplicationKey.contentBased(RADIO.value, null, null, 1u, \"Hello\"),\n                DeduplicationKey.contentBased(PEER_RADIO.value, null, null, 1u, \"Hello\"))",
+              "expression": "assertNotEquals(DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello\"),\n                DeduplicationKey.contentBased(PEER_RADIO.value, null, null, 1_704_067_200u, \"Hello\"))",
               "assertion_or_checked_wait": true
             }
           ],
@@ -12271,13 +12289,13 @@
             {
               "name": "DeduplicationKey.contentBased",
               "line": 67,
-              "expression": "DeduplicationKey.contentBased(RADIO.value, null, null, 1u, \"Hello\")",
+              "expression": "DeduplicationKey.contentBased(RADIO.value, null, null, 1_704_067_200u, \"Hello\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "DeduplicationKey.contentBased",
               "line": 68,
-              "expression": "DeduplicationKey.contentBased(PEER_RADIO.value, null, null, 1u, \"Hello\")",
+              "expression": "DeduplicationKey.contentBased(PEER_RADIO.value, null, null, 1_704_067_200u, \"Hello\")",
               "assertion_or_checked_wait": false
             }
           ],
@@ -12340,20 +12358,20 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Different channel indices produce different channel fallback keys",
           "line": 70,
           "end_line": 73,
           "factory_method": "values",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "7a57cfa3b199a9d07d658af26846919a14bd6a48e42f3a6de167fe4d65a78c40",
+          "body_sha256": "871cd1e12a8ac60d237150f3313c3ede88eb515d732aba98fbf76c855a11bfbd",
           "registration": "original(\"MessageDeduplicationTests\", \"Different channel indices produce different channel fallback keys\")",
           "assertions": [
             {
               "name": "assertNotEquals",
               "line": 71,
-              "expression": "assertNotEquals(DeduplicationKey.contentBased(null, 0u, \"Alice\", 1u, \"Hello\"),\n                DeduplicationKey.contentBased(null, 1u, \"Alice\", 1u, \"Hello\"))",
+              "expression": "assertNotEquals(DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello\"),\n                DeduplicationKey.contentBased(null, 1u, \"Alice\", 1_704_067_200u, \"Hello\"))",
               "assertion_or_checked_wait": true
             }
           ],
@@ -12361,13 +12379,13 @@
             {
               "name": "DeduplicationKey.contentBased",
               "line": 71,
-              "expression": "DeduplicationKey.contentBased(null, 0u, \"Alice\", 1u, \"Hello\")",
+              "expression": "DeduplicationKey.contentBased(null, 0u, \"Alice\", 1_704_067_200u, \"Hello\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "DeduplicationKey.contentBased",
               "line": 72,
-              "expression": "DeduplicationKey.contentBased(null, 1u, \"Alice\", 1u, \"Hello\")",
+              "expression": "DeduplicationKey.contentBased(null, 1u, \"Alice\", 1_704_067_200u, \"Hello\")",
               "assertion_or_checked_wait": false
             }
           ],
@@ -19372,7 +19390,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "maxAttempts == 5 is accepted at the precondition boundary",
           "line": 108,
@@ -19450,7 +19468,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "Default config respects the maxAttempts ceiling",
           "line": 109,
@@ -27332,7 +27350,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "MessageServiceConfig default values",
           "line": 110,
@@ -27476,7 +27494,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "MessageServiceConfig custom values",
           "line": 115,
@@ -27614,7 +27632,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "keeps the 0x88 whose body matches the message key",
           "line": 120,
@@ -27776,7 +27794,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "sorts matches by receivedAt ascending",
           "line": 124,
@@ -27938,7 +27956,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "drops entries without decodedText",
           "line": 130,
@@ -28076,7 +28094,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "nil key matches nothing",
           "line": 137,
@@ -28196,7 +28214,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
-          "sha256": "fe09abdb1d6c1c945b9a84a3d2a255315ec6d2998f3f45fe05c2314e07fa1c06",
+          "sha256": "1bdb34e2048d9be30e6d2113aa45c83d2e3394fd617dc9d9451c166ce35846be",
           "class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
           "method_or_family_name": "matches when decoded sender has trailing space",
           "line": 138,

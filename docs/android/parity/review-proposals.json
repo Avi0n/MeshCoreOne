@@ -5,6 +5,103 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "messaging-source-fallback-keys-exact-contact-channel-epoch",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageDeduplicationTests.swift",
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+      "native_factory": "values",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All five full originals retain exact11111111-1111-1111-1111-111111111111 and22222222-2222-2222-2222-222222222222, epoch1704067200, Hello world/Hello channel/Hello, channels0/1/Alice. DM/channel repeated keys equal with dm-/ch- prefixes; same-content DM/channel inequality, two contacts inequality and two channel indices inequality preserved. Restored three reduced timestamp1 fixtures and first collision's unrelated CONTACT to original111 literal through existing checked RADIO construction.",
+      "inputs": "Complete frozen bodies/require UUID literals and actual SyncCoordinator.fallbackDeduplicationKey one-line source delegation, native real DeduplicationKey/UUID constants/messaging runner and mounted syncMessageCodecs/SyncCoordinatorMessageHandlers read. Actual RADIO/PEER constants use UUID.fromString of source literals (throws for invalid), not random fixture substitution.",
+      "adaptations": "Native direct helper tests the exact real key implementation delegated to by frozen wrapper and actual injected app codec; original require-valid UUID input uses explicit native UUID construction. This is not an execution of full sync consumer. Uppercase canonical UUID/source UTF8 SHA256 suffix retained.",
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt"
+      ],
+      "consumer": "Actual incoming consumer chooses content key before lookup and before corrected message timestamp persistence because RX packet hash changes across retries. These five fixed input inequalities do not prove hash collision freedom, migrations or native transactional duplicate races.",
+      "unresolved": ["Fresh current clean services covering execution/independent bounded review required. Prior9c31services29passed before restored epoch/contact inputs, not current proof."],
+      "methods": [
+        "DM fallback key is deterministic",
+        "Channel fallback key is deterministic",
+        "DM and channel fallback keys never collide for same content",
+        "Different contacts produce different DM fallback keys",
+        "Different channel indices produce different channel fallback keys"
+      ]
+    },
+    {
+      "id": "messaging-source-open-signal-arm-suspend-cancel-rearm",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/BLETransportOpenedSignalTests.swift",
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+      "native_factory": "values",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All four complete originals retain fire-before-wait successful consumption, wait-then-fire after50ms observation, suspended waiter cancellation with typed CancellationException rather than successful return/wrong error, and fire after cancelled waiter followed by successful armed wait without double resume. Restored three original50ms observation windows with injected virtual scheduler, not immediate runCurrent substitution. Existing stronger incomplete/zero-waiter predicates remain.",
+      "inputs": "Full frozen actor/continuation/cancellation removal and native armed/waiters/Deferred/finally cleanup implementation, all four test bodies and native original/runMessagingCase read. Full relevant actual source/native ChatSendQueueService readiness/park/clear/observation/shutdown branches read.",
+      "adaptations": "Swift Task cancellation becomes owned structured async/cancelAndJoin/typed CancellationException; source real50ms scheduling window becomes explicit advanceTimeBy(50)+runCurrent, retaining duration and suspended state. Stronger native zero-waiter count detects leaks. Native generation terminal finish and ensureActive-before-armed differ at unselected already-cancelled/armed boundaries; these four cases do not certify those broader lifetime adaptations.",
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/BLETransportOpenedSignal.kt",
+        "MC1Services/Sources/MC1Services/Services/BLETransportOpenedSignal.swift",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt"
+      ],
+      "consumer": "Actual chat queue fires when entering READY/current generation, parks pending envelopes on configured timeout, clears only after successful send and finishes/joins observers on shutdown. These direct signal originals do not execute real BLE/queue persistence/ready-transition race or hardware reconnect.",
+      "unresolved": ["Fresh current services positive identities/independent bounded review required. Prior9c31passed before restored50ms windows is not current proof; no physical BLE claim."],
+      "methods": [
+        "wait returns immediately when signal already armed",
+        "wait suspends until fire",
+        "wait throws CancellationError when calling task is cancelled",
+        "fire after cancellation does not double-resume"
+      ]
+    },
+    {
+      "id": "messaging-source-config-five-attempt-boundary",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceConfigTests.swift",
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+      "native_factory": "values",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+      "runner_name": "original-case-id",
+      "comparison": "Both full original bodies retain exactmaxAttempts5 accepted/equal5 and defaultmaxAttempts<=5. Source documented above5precondition is not an executed original case; do not invent a failing-source assertion/family. Native Long equality preserves source64bit Int for these exact values.",
+      "inputs": "Complete source/native config constructors/defaults and source test rationale/actual native bodies/helper read. Firmware attempts mask&3 and attempt4tagreuse is independently bound in four ACK originals, not a sixth distinct ACK attempt.",
+      "adaptations": "Native require(maxAttempts in0..5) additionally rejects negative counts while source precondition only rejects>5; finite/nonnegative timeout/flood/backoff guards likewise broader admitted native validation, not proven by two valid samples or implied source-negative coverage.",
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
+        "MC1Services/Sources/MC1Services/Services/MessageServiceConfig.swift"
+      ],
+      "consumer": "Actual retryLoop bounds total/flood attempts and ACK expiry uses max(giveUpWindow,pendingTimeout); these two getter/constructor originals do not execute retry traffic, all settings consumers or airtime budgets.",
+      "unresolved": ["Fresh current services covering/independent bounded review required; original undocumented-negative and live retry boundary not inferred passed."],
+      "methods": [
+        "maxAttempts == 5 is accepted at the precondition boundary",
+        "Default config respects the maxAttempts ceiling"
+      ]
+    },
+    {
+      "id": "messaging-source-config-default-and-custom-fields",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceTests.swift",
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceValuesTest.kt",
+      "native_factory": "values",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceValuesTest",
+      "runner_name": "original-case-id",
+      "comparison": "Both complete originals retain all7default predicates true/5/1/4/0/true/30 and all6custom false/3/3/1/10.0/false. Source static.default equals the parameterless native constructor for the checked immutable fields; custom positional order matches exact source labelled arguments. No fixture/assertion/production change.",
+      "inputs": "Full source test bodies, source/native MessageServiceConfig/PoolBackoffConfig constructors/defaults and actual test config registration read; native config validation is not bypassed.",
+      "adaptations": "Explicit Long/Double/Boolean preserve selected Int/TimeInterval/Bool values. PoolBackoff defaults are constructor support, not additional accepted original families. These two cases only inspect getters, not actual application of every flag.",
+      "helpers": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
+        "MC1Services/Sources/MC1Services/Services/MessageServiceConfig.swift"
+      ],
+      "consumer": "Actual MessageService retryLoop/reset/trackPendingAck/firmware-timeout and give-up expiry fields read; ChatSendQueue READY/park/teardown uses its separate queue config. Getter equality does not prove floodFallbackOnRetry/triggerPathDiscoveryAfterFlood high-level behavior or native pool-backoff/error/cancellation parity; those require source-selected flow comparison.",
+      "unresolved": ["Fresh current services positive identities/independent bounded review required; broader configuration-driven messaging acceptance remains incomplete."],
+      "methods": ["MessageServiceConfig default values", "MessageServiceConfig custom values"]
+    },
+    {
       "id": "messaging-source-prefix-all-four-parameter-rows",
       "source_path": "MC1Services/Tests/MC1ServicesTests/DeduplicationKeyTests.swift",
       "partial_source_file": true,

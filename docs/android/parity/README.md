@@ -51,6 +51,17 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+All26full SourceValues originals now compared/130groups/869families/
+67mandatory,0approved. Next13fallback/signal/config comparisons restore
+three exact1704067200/111-contact fixtures and three original50ms virtual
+observation windows. All29existing runners/four parameter rows remain;
+one mandatory aggregate binds the whole four-row original family.
+Clean9c31services29/aggregate1passed0failure/error/skip, but cleanPython
+363/362pass/1failure detected forgotten count66 regression. Coupled expected
+count raised67 and new exact method explicitly required, no relaxation.
+That native predecessor preceded final epoch/50ms corrections; freshclean
+declared covering/Python proof pending, no oldXML/hostedPASS substitution.
+
 Current publishede244primary38189308604actuallyfailed app716/715pass/1fail:
 existingInlineContentCancellationTest plainCancellation OBSERVE:OwnerClosed.
 Owner intake routed, classifier/controller/codecpassed, realSwiftDataskipped.

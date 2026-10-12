@@ -14,6 +14,27 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Next messaging-key input/parameter increment
 
+Clean9c31ccbef806d6e4f430a5e341107656417f47e7/d3f actual declared
+`:core:services:test --tests com.meshcoreone.android.core.services.messaging.SourceValuesTest.values :app:testDebugUnitTest --tests com.meshcoreone.android.parity.MessageKeyAcceptanceTest --dependency-verification=strict --quiet`
+passed29/29services, all16then-required original identities including all
+four prefix row IDs, and1/1aggregate,0failure/error/skip/readinessPASS/locks
+released. Actual combinedPython363/362passed/1failed,0error/skip: stale
+test_audit required-method count66 versus newly added67. Coupled regression
+expectation increased67 and explicitly requires the new aggregate identity;
+not a threshold reduction/ignored failure. Fresh clean execution required.
+
+Next complete13originals (5fallback/4signal/2ceiling/2config) add4groups:
+869families/130groups/67mandatory. Restored three fallback epoch1704067200
+and original111contact collision inputs plus three50ms virtual signal
+observation windows, unchanged identities/assertions/production.
+Prior9c31passed before these final input corrections, not current proof.
+All26messaging originals/29existing row-expanded runners plus1aggregate
+now require exact positive covering discovery; one parameter family stays
+one, no denominator inflation. Four getter config originals do not certify
+negative validation/every setting-driven retry; source precondition>5 is
+not an executed failing-source test. Generation terminal signal/active-check
+boundaries remain disclosed native adaptations, not hardware coverage.
+
 Published e244primary38189308604 is now actualFAILURE: authoritative Linux
 log app716/715passed/1failed in unchangedInlineContentCancellationTest
 plainCancellation/StorageFailureOBSERVE:OwnerClosed, preference observation
