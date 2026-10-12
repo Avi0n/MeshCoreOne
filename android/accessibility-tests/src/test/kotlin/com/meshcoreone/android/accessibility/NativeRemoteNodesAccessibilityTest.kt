@@ -237,8 +237,11 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
 
     private fun openAuthentication(rig: Rig) {
         compose.onNodeWithTag("open-node:${contact.id}").performScrollTo().assertIsEnabled().performClick()
-        compose.waitUntil { rig.passwordReads == 1 }
-        compose.onNodeWithTag("remote-login-password").assertIsDisplayed()
+        val password = compose.onNodeWithTag("remote-login-password").assertIsDisplayed()
+        compose.waitUntil(10_000) {
+            password.fetchSemanticsNode().config[SemanticsProperties.EditableText].text == "cached-audit"
+        }
+        assertEquals(1, rig.passwordReads)
     }
 
     private fun rememberToggle() = compose.onNode(hasText(host.get().getString(L.remoteNodesAuthRememberPassword)) and
