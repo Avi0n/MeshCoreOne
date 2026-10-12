@@ -1,0 +1,110 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest:
+INSTRUMENTATION_STATUS: test=pendingGuestTelemetryDisablesDuplicateReadsAndCancelsOnActualDoneAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=pendingGuestTelemetryDisablesDuplicateReadsAndCancelsOnActualDoneAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Native line 0 clips horizontally: 55.5%
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertUnclippedContent(NativeAccessibilityAssertions.kt:106)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertScrollableFont200Unclipped(NativeAccessibilityAssertions.kt:78)
+	at com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200(NativeRemoteNodesAccessibilityTest.kt:180)
+
+INSTRUMENTATION_STATUS: stream=
+Error in populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200(com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest):
+java.lang.AssertionError: Native line 0 clips horizontally: 55.5%
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertUnclippedContent(NativeAccessibilityAssertions.kt:106)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertScrollableFont200Unclipped(NativeAccessibilityAssertions.kt:78)
+	at com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200(NativeRemoteNodesAccessibilityTest.kt:180)
+
+INSTRUMENTATION_STATUS: test=populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 6.615
+There was 1 failure:
+1) populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200(com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest)
+java.lang.AssertionError: Native line 0 clips horizontally: 55.5%
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertUnclippedContent(NativeAccessibilityAssertions.kt:106)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertScrollableFont200Unclipped(NativeAccessibilityAssertions.kt:78)
+	at com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200(NativeRemoteNodesAccessibilityTest.kt:180)
+
+FAILURES!!!
+Tests run: 2,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
+
+Actual metrics before the neutral-RTL oracle correction:
+
+10-12 17:16:52.589  2409  2427 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 17:16:53.771  2409  2427 I System.out: WP503_FONT|text=Telemetry|size=191 x 42|constraints=Constraints(minWidth = 0, maxWidth = 191, minHeight = 0, maxHeight = Infinity)|paragraph=191.0x42.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 17:16:53.772  2409  2427 I System.out: WP503_FONT_LINE|text=Telemetry|line=0|left=0.0|right=128.54141|top=0.0|bottom=42.0
+10-12 17:16:54.123  2409  2427 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 17:16:54.124  2409  2427 I System.out: WP503_TARGET|width=84.0|height=54.0|role=Button
+10-12 17:16:54.125  2409  2427 I System.out: WP503_TARGET|width=147.0|height=54.0|role=Button
+10-12 17:16:54.125  2409  2427 I System.out: WP503_TARGET|width=232.0|height=54.0|role=Button
+10-12 17:16:54.126  2409  2427 I System.out: WP503_TARGET|width=191.0|height=108.0|role=Button
+10-12 17:16:54.126  2409  2427 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 17:16:54.127  2409  2427 I System.out: WP503_TARGET|width=191.0|height=66.0|role=Button
+10-12 17:16:54.128  2409  2427 I System.out: WP503_PARTIAL_TARGET|position=Offset(141.0, 723.0)|size=191 x 66
+10-12 17:16:54.128  2409  2427 I System.out: WP503_PARTIAL_TARGET|position=Offset(28.0, 729.0)|size=113 x 54
+10-12 17:16:54.271  2409  2427 I System.out: WP503_REMOTE_PENDING_TELEMETRY|reads=1|cancelled=1|teardown=1|duplicateEnabled=false|realRadio=false
+10-12 17:16:54.875  2409  2427 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 17:16:55.323  2409  2427 I System.out: WP503_FONT|text=Channel 1|size=131 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:55.323  2409  2427 I System.out: WP503_FONT_LINE|text=Channel 1|line=0|left=0.0|right=129.6|top=0.0|bottom=42.0
+10-12 17:16:55.389  2409  2427 I System.out: WP503_SCROLL_LINE|text=Channel 1|line=0|position=Offset(201.0, 682.0)->Offset(201.0, 682.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:55.507  2409  2427 I System.out: WP503_FONT|text=Channel 2|size=131 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:55.508  2409  2427 I System.out: WP503_FONT_LINE|text=Channel 2|line=0|left=0.0|right=129.6|top=0.0|bottom=42.0
+10-12 17:16:55.587  2409  2427 I System.out: WP503_SCROLL_LINE|text=Channel 2|line=0|position=Offset(201.0, 716.0)->Offset(201.0, 716.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:55.747  2409  2427 I System.out: WP503_FONT|text=Temperature|size=150 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:55.748  2409  2427 I System.out: WP503_FONT_LINE|text=Temperature|line=0|left=0.0|right=149.08594|top=0.0|bottom=30.0
+10-12 17:16:55.804  2409  2427 I System.out: WP503_SCROLL_LINE|text=Temperature|line=0|position=Offset(182.0, 463.0)->Offset(182.0, 463.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:55.840  2409  2427 I System.out: WP503_FONT|text=MCU temperature|size=207 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:55.840  2409  2427 I System.out: WP503_FONT_LINE|text=MCU temperature|line=0|left=0.0|right=206.29688|top=0.0|bottom=30.0
+10-12 17:16:55.904  2409  2427 I System.out: WP503_SCROLL_LINE|text=MCU temperature|line=0|position=Offset(125.0, 534.0)->Offset(125.0, 534.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:55.939  2409  2427 I System.out: WP503_FONT|text=Voltage|size=91 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:55.940  2409  2427 I System.out: WP503_FONT_LINE|text=Voltage|line=0|left=0.0|right=90.41406|top=0.0|bottom=30.0
+10-12 17:16:56.005  2409  2427 I System.out: WP503_SCROLL_LINE|text=Voltage|line=0|position=Offset(241.0, 605.0)->Offset(241.0, 605.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:56.039  2409  2427 I System.out: WP503_FONT|text=GPS|size=51 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:56.040  2409  2427 I System.out: WP503_FONT_LINE|text=GPS|line=0|left=0.0|right=51.0|top=0.0|bottom=30.0
+10-12 17:16:56.104  2409  2427 I System.out: WP503_SCROLL_LINE|text=GPS|line=0|position=Offset(281.0, 718.0)->Offset(281.0, 718.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:56.206  2409  2427 I System.out: WP503_FONT|text=Humidity|size=106 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:56.206  2409  2427 I System.out: WP503_FONT_LINE|text=Humidity|line=0|left=0.0|right=106.0|top=0.0|bottom=30.0
+10-12 17:16:56.271  2409  2427 I System.out: WP503_SCROLL_LINE|text=Humidity|line=0|position=Offset(226.0, 728.0)->Offset(226.0, 728.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:56.372  2409  2427 I System.out: WP503_FONT|text=77.9 °F|size=87 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:56.373  2409  2427 I System.out: WP503_FONT_LINE|text=77.9 °F|line=0|left=0.0|right=87.0|top=0.0|bottom=33.0
+10-12 17:16:56.437  2409  2427 I System.out: WP503_SCROLL_LINE|text=77.9 °F|line=0|position=Offset(245.0, 463.0)->Offset(245.0, 463.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:56.473  2409  2427 I System.out: WP503_FONT|text=72.5 °F|size=87 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:56.473  2409  2427 I System.out: WP503_FONT_LINE|text=72.5 °F|line=0|left=0.0|right=87.0|top=0.0|bottom=33.0
+10-12 17:16:56.537  2409  2427 I System.out: WP503_SCROLL_LINE|text=72.5 °F|line=0|position=Offset(245.0, 534.0)->Offset(245.0, 534.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:56.572  2409  2427 I System.out: WP503_FONT|text=3.850 V|size=96 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:56.573  2409  2427 I System.out: WP503_FONT_LINE|text=3.850 V|line=0|left=0.0|right=96.0|top=0.0|bottom=33.0
+10-12 17:16:56.637  2409  2427 I System.out: WP503_SCROLL_LINE|text=3.850 V|line=0|position=Offset(236.0, 605.0)->Offset(236.0, 605.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 17:16:56.739  2409  2427 I System.out: WP503_FONT|text=55.5%|size=76 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:16:56.739  2409  2427 I System.out: WP503_FONT_LINE|text=55.5%|line=0|left=228.0|right=304.0|top=0.0|bottom=33.0

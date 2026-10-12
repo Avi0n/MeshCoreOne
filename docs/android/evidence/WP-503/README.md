@@ -1,11 +1,98 @@
 # WP-503 attempt evidence
 
-**New populated-map List case fails on both actual APIs; PR205/WP503 remain incomplete.**
+**Native Map List224 and LoS endpoint225 block acceptance; PR205/WP503 remain incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native populated telemetry and neutral RTL calibration
+
+Exact `5e5b23eb92a04b048cfbd650c1a9c2a7bdee8d8f` passes declared strict
+`:app:assembleDebug :app:assembleDebugAndroidTest` through the installed serialized
+snapshot/preflight adapter. [APK/source binding](device-populated-telemetry-inputs.json)
+records the unchanged main d818 production APK and exact test APK.
+
+```text
+adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+**API31:13 discovered/13 passed,0 failures/errors/skips**
+([actual transcript/metrics](device-populated-telemetry-api31.txt)).
+**API37:13 discovered/13 passed,0 failures/errors/skips**,28.138s
+([actual transcript/metrics](device-populated-telemetry-api37.txt)).
+These26 executions re-run the whole remote class, not painted760 or the global Map List.
+The earlier scoped calibration/populated/pending selection also passes3/3 per API;
+it overlaps this class and is not six additional unique cases.
+
+New literal LPP `016700ff016700e101740181018805c395ed51fe00106802686f` independently
+encodes channel1 temperatures25.5/22.5C, voltage3.85V, GPS37.7749/-122.4194/42m and
+channel2 humidity55.5%. Actual US-locale output77.9F/72.5F/3.850V/55.5% and
+`37.77490, -122.41940 @ 42.0m` is verified with localized labels, channel heading
+order and native scroll. GPS304x75px occupies two complete reachable lines. Native
+satellite-unavailable text304x126px occupies three; real Standard recovery recreates
+MapLibre, Labels/Clusters toggle, and returning preserves GPS data. Pending service-port
+telemetry disables real Reload, exposes progress and actual Done cancels its coroutine
+and clears handlers once. No fake successful auth/radio/terrain or replacement map.
+
+Prior exact14b scoped populated/pending pair discovers2 per API:1PASS/1FAIL at
+neutral-RTL humidity metadata ([API31](device-populated-telemetry-before-oracle-api31.txt),
+[API37](device-populated-telemetry-before-oracle-api37.txt),
+[input binding](device-populated-telemetry-before-oracle-inputs.json)).
+Humidity Text76x33px retains304px paragraph allocation with line228..304. Existing
+complete-native-ink equality proves all22 raster rows present; real50px ancestor
+clipping loses ink and is rejected. Source5e reuses that stronger zero-tolerance
+helper without changing shared assertions/floors or filing a humidity product defect.
+
+Actual profiles remain fresh/read-only AOSP31/4KiB/no GMS and Play Store37.2/16KiB/GMS,
+font2/RTL/360x900/mdpi/animation0. No screenshot golden, physical TalkBack, real
+persistence/radio or default-motion/full remaining-matrix acceptance is inferred.
+
+## Native LoS endpoint platform actions
+
+Exact `adb17b747e6e985c73854822bde3abff1ff5f6ac` passes the same declared strict App/
+debug-test assembly. [Input binding](device-los-actions-inputs.json) records unchanged
+main d818 production and exact test APK. This candidate executes:
+
+```text
+adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+**API31:2 discovered/1 passed/1 failed,0 errors/skips**,3.840s
+([actual transcript/platform tree](device-los-actions-api31.txt)).
+**API37:2 discovered/1 passed/1 failed,0 errors/skips**,4.960s
+([actual transcript/platform tree](device-los-actions-api37.txt)).
+The independent Material control passes: actual native child Text and clickable parent,
+platform ACTION_CLICK and exactly one callback; measured360x92dp target. By-text lookup
+returns0 even for that genuine Compose button; native child traversal finds it.
+
+Actual production LoS fails the unchanged named non-gesture endpoint requirement:
+East matches0/clickable0/catalogReads1/elevationReads0 on both APIs. The real refreshed
+feature tree contains generic map/heading, A/B Not selected and long-press instructions,
+not named saved endpoints. WP315/tools-ui-engineer owns actual
+[#225](https://github.com/cbattlegear/MeshCoreOne-Android/issues/225). Its consumer's
+rendered-marker pointer callback is not a named platform accessibility action.
+West/callback/elevation/selected-summary assertions after East fail remain unexecuted.
+
+Early exacte4 source had API31 name absence and API37 immediate null-window error
+([API31](device-los-before-calibration-api31.txt),
+[API37](device-los-before-calibration-api37.txt),
+[inputs](device-los-before-calibration-inputs.json)); that is not both-API product proof.
+Later bare/by-text controls also failed. Actual Compose frame/native-event readiness
+and refreshed native child traversal now pass calibration, with no increased runner
+timeout, fake hierarchy/analysis or relaxed named-action requirement. Platform
+semantics/actions are not physical TalkBack speech/traversal.
+
+## Exact hosted status
+
+Published `0e91535760ab1bda242269761662d5a198adfa0a`
+[run38314435872](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38314435872)
+independently passed all six jobs, including SwiftData restore/export and final guard.
+It is not credited to later5e/adb test commits. Predecessor3bf38312307308 is CANCELLED;
+38312680522/38313350981 are Required checklist-only jobs, not full candidate CI.
+Historical23438303960053 remains FAILED/App812/8. Hosted logs remain authoritative;
+no second result bundle is committed, hashed or revalidated.
 
 ## Current native guest/status execution
 
@@ -74,8 +161,9 @@ The real first `MapControls` Row at `MapEntry.kt:290-304` exhausts horizontal al
 Production file blob907f3060dc3c533a84c6175ca97b4106119a2485 and App APK hash
 6a18619e0eacb9522c28348e605218d4d5bff00e79f72c3d6fdea3e93a95f92f are unchanged.
 Actual [defect224](https://github.com/cbattlegear/MeshCoreOne-Android/issues/224) is open,
-WP312/nodes-map-ui-engineer product ownership; no verified active repair producer yet.
-Existing coordinator/authorized producer repair is required. No product edit, new worker,
+WP312/nodes-map-ui-engineer product ownership. The existing registered producer and
+coordinator confirm active repair on `wp312-map-list-font200`; exact published SHA and
+unchanged native re-audit are awaited. No product edit, new worker,
 lowered assertion or physical TalkBack claim. Emulator helpers are stopped.
 
 The earlier c4 positive92 complementary cases below did not include this new case.

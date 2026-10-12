@@ -1,6 +1,27 @@
 # WP-503 native execution matrix
 
-**New populated-map List case fails on both actual APIs; WP503 remains incomplete.**
+**Native Map List224 and LoS endpoint225 block acceptance; WP503 remains incomplete.**
+At exact5e5b23eb92a04b048cfbd650c1a9c2a7bdee8d8f, the whole remote class passes
+13/13 on each actual API31/37, zero failures/errors/skips. This includes populated
+channel/MCU units/GPS and actual map style-error/recovery/Labels/Clusters flows,
+pending-telemetry duplicate gating/Done cancellation and neutral-RTL ink calibration.
+The humidity oracle uses existing exact full-paragraph/native-ink equality, not neutral
+RTL parent-width metadata; real50px ancestor clipping is independently rejected.
+The prior14b scoped pair passes pending/fails populated once per API; no product defect,
+shared assertion relaxation or source-result relabeling. See precise evidence below.
+
+At exactadb17b747e6e985c73854822bde3abff1ff5f6ac, native LoS platform class discovers2
+per actual API:1 control PASS/1 endpoint FAIL, zero errors/skips. Actual native child
+traversal/parent ACTION_CLICK reaches the framework button and exactly one callback;
+no named saved LoS repeater/action exists in the real mounted feature tree.
+WP315 defect225 owns this new product blocker. Later endpoint/elevation/summary
+assertions remain UNEXECUTED. Early API37 root-null and bare/by-text control failures
+are harness diagnostics, not both-API product proof or physical TalkBack observations.
+
+Current mandatory instrumentation inventory is13 remote,3 Map/runtime and2 LoS-platform
+methods per API. There is no passing combined18/API execution. Existing full-matrix,
+physical TalkBack, expanded/resize and default-motion gates remain unverified.
+
 At exact fixture39d87b60af67486ad2ce824110d841e229617114, the complete remote class
 passes10/10 on each actual API31/37, zero failures/errors/skips. The added guest flow
 covers real public status/telemetry holders, units, empty sensors/location, injected I/O
@@ -8,11 +29,12 @@ failure/live-region/reload recovery, unchanged font2/RTL/48dp/scroll checks and 
 status-only handler teardown. No successful radio login or physical TalkBack is claimed.
 This20-case current regression includes the nine existing remote cases, not the distinct
 blocked Map case, a new painted-contrast execution or full remaining-state acceptance.
-Current mandatory instrumentation registration is ten remote plus three Map/LoS methods;
-the whole13/API selection has not passed. Native commands/transcripts are in the evidence.
+That candidate registered ten remote plus three Map/LoS methods; its whole13/API
+selection did not pass. Native commands/transcripts are in the evidence.
 At fixture8eb2d610b, one scoped case on each actual API31/37 fails List visibility:
 0x144px allocation, empty visible bounds and48dp target clipped8px at the viewport edge.
-Actual WP312 defect224 owns the product repair; no active repair producer is yet verified.
+Actual WP312 defect224 owns product repair; its existing registered producer is actively
+repairing on `wp312-map-list-font200`. Exact published repair/native re-audit is awaited.
 Marker selection/coordinate/favorite assertions after that failure remain UNEXECUTED.
 The earlier positive cohort below does not include this new populated-map case.
 At source `c4c5b94000077c1a3cbe5e7a60efbb89a2cc15ce`, JVM70/70 and actual Android11/11
@@ -24,7 +46,7 @@ Espresso; progress visual allocation uses one measured12px ScrollBy, not expande
 The failed published234 hosted run38303960053 remains FAILED/App812/8; no old result is
 relabeled as current. Actual emulator profiles and transcripts are in the
 [evidence](../evidence/WP-503/README.md).
-Populated map/terrain, remaining states/windows, default-motion and physical TalkBack
+Global populated Map List/terrain, remaining states/windows, default-motion and physical TalkBack
 observations remain NOT RUN. This matrix remains the
 full assertion/observation contract, not a passing result. The real App runner discovered
 24 audit tests on SDK31/37 at candidate86993ee65: 6 passed, 18 failed, no errors/skips.
@@ -94,8 +116,8 @@ Remote nodes8 covers public catalog error/refresh recovery, offline real-holder 
 history and empty explanation,3.9V/3.7V data-bound non-gesture selection, actual numeric
 scroll containment/font2, and framework/native pointer calibration. Both APIs verify all
 four corners of a48x48dp square despite44px semantic Slider allocation. Authentication was NOT RUN in that cohort; later bounded executions below do not establish
-both-API acceptance. Live status/sensors/populated location/map remain unverified; fixture
-stores do not prove persistence.
+both-API acceptance. Live status/sensors/populated location/map were unverified at that
+historical cohort; later scoped passes above do not prove persistence or remaining states.
 
 Authentic product270 + unchanged owned auditb7fd independently passesCLI2 and producer
 reconnect/focus/history4 in one **6/6** native run. PR223/#220 landed as main726f00dd,

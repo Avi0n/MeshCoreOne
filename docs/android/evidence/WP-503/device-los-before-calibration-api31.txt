@@ -1,0 +1,46 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest:
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Saved LOS repeater 'East saved repeater' must expose a named native accessibility click or non-gesture list action, independent of map tiles
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:91)
+
+INSTRUMENTATION_STATUS: stream=
+Error in savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest):
+java.lang.AssertionError: Saved LOS repeater 'East saved repeater' must expose a named native accessibility click or non-gesture list action, independent of map tiles
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:91)
+
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 3.117
+There was 1 failure:
+1) savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest)
+java.lang.AssertionError: Saved LOS repeater 'East saved repeater' must expose a named native accessibility click or non-gesture list action, independent of map tiles
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:91)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
+10-12 17:35:13.760  2974  2992 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 17:35:14.703  2974  2992 I System.out: WP503_FONT|text=Line of Sight|size=201 x 48|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x48.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:35:14.704  2974  2992 I System.out: WP503_FONT_LINE|text=Line of Sight|line=0|left=0.0|right=201.0|top=0.0|bottom=48.0
+10-12 17:35:14.773  2974  2992 I System.out: WP503_SCROLL_LINE|text=Line of Sight|line=0|position=Offset(143.0, 371.0)->Offset(143.0, 371.0)|viewport=Rect.fromLTRB(0.0, 355.0, 360.0, 774.0)
+10-12 17:35:14.891  2974  2992 I System.out: WP503_LOS_PLATFORM_ACTIONS|label=East saved repeater|matches=0|clickable=0|catalogReads=1|elevationReads=0|realRadio=false

@@ -1,0 +1,39 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest:
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalArgumentException: The real native test activity must own a focused accessibility window
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:82)
+
+INSTRUMENTATION_STATUS: stream=
+Error in savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest):
+java.lang.IllegalArgumentException: The real native test activity must own a focused accessibility window
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:82)
+
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 5.543
+There was 1 failure:
+1) savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest)
+java.lang.IllegalArgumentException: The real native test activity must own a focused accessibility window
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:82)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
+10-12 17:35:16.087 16254 16287 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 17:35:17.594 16254 16287 I System.out: WP503_FONT|text=Line of Sight|size=201 x 48|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x48.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 17:35:17.595 16254 16287 I System.out: WP503_FONT_LINE|text=Line of Sight|line=0|left=0.0|right=201.0|top=0.0|bottom=48.0
+10-12 17:35:17.670 16254 16287 I System.out: WP503_SCROLL_LINE|text=Line of Sight|line=0|position=Offset(143.0, 406.0)->Offset(143.0, 406.0)|viewport=Rect.fromLTRB(0.0, 390.0, 360.0, 876.0)

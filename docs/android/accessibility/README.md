@@ -1,11 +1,46 @@
 # WP-503 accessibility audit
 
-**Status: runner failures repaired; new native Map List defect224 blocks acceptance. PR205 remains draft.**
+**Status: native Map List defect224 and LoS endpoint defect225 block acceptance. PR205 remains draft.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
 ## Current execution and base refresh
+
+At exact `5e5b23eb92a04b048cfbd650c1a9c2a7bdee8d8f`, the complete remote class
+passes **13/13 on each actual API31/37**, zero failures/errors/skips. New populated
+telemetry exercises real channel headings, temperature/MCU/voltage/humidity units,
+GPS coordinates/elevation, native location map, honest unavailable-satellite text,
+Standard recovery and Labels/Clusters state. Pending telemetry disables duplicate reads
+and actual Done cancels its coroutine and clears status handlers once. Explicit literal
+LPP bytes are independent expected inputs, not a fabricated successful radio operation.
+
+The humidity assertion reuses the existing complete-native-ink oracle: neutral RTL
+`55.5%` retains304px paragraph allocation while actual Text is76px. All22 ink rows
+exactly equal the full paragraph; a real50px ancestor clip loses ink and is rejected.
+The original strict shared assertions/floors remain unchanged. The preceding14b result
+passes pending/fails populated once per API at that metadata-oracle mismatch, not a
+humidity product defect. [Native records and commands](../evidence/WP-503/README.md#native-populated-telemetry-and-neutral-rtl-calibration)
+retain both outcomes and source bindings. These26 executions do not remeasure760
+painted spans or certify the global Map List flow, terrain, radio or spoken TalkBack.
+
+Actual platform accessibility probing at `adb17b747e6e985c73854822bde3abff1ff5f6ac`
+discovers2 methods per API: **framework native-button control1 PASS, LoS endpoint1 FAIL**,
+zero errors/skips. Refreshed real App windows expose the mounted LoS heading/map and
+unselected A/B cards but no saved repeater name/action. Native child traversal finds
+the control's name/clickable parent and invokes its actual callback once; bare platform
+by-text search returns0 even for this valid Compose button. Frame/native-event readiness
+and native traversal repair the earlier observer failures without relaxing endpoint
+selection. [Actual records](../evidence/WP-503/README.md#native-los-endpoint-platform-actions)
+distinguish e4's API37 null-window harness error from the later calibrated both-API
+product finding [#225](https://github.com/cbattlegear/MeshCoreOne-Android/issues/225).
+WP315/tools-ui-engineer owns product repair; no production change/new actor is made here.
+West selection/elevation/summary assertions after East's failure remain unexecuted.
+
+Published0e's exact [run38314435872](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38314435872)
+**passed all six jobs**, including SwiftData and final guard. This result is credited
+only to0e, not subsequent test commits or WP503 acceptance. Predecessor3bf38312307308
+is CANCELLED; its supplemental Required checklist jobs are not full candidate CI.
 
 At exact owned fixture `39d87b60af67486ad2ce824110d841e229617114`, the complete
 remote/auth/history/calibration class passes **10/10 on each actual API31/37**, zero
@@ -27,9 +62,10 @@ not the repaired JVM idling/JNI limit. Actual marker-list selection, coordinates
 favorite-filter assertions cannot execute after this visibility failure.
 
 Assigned product ownership is WP312/nodes-map-ui-engineer; actual
-[#224](https://github.com/cbattlegear/MeshCoreOne-Android/issues/224) is open, with no
-verified active repair producer yet. The regression/evidence stays here; product repair
-must be serialized through the existing coordinator/authorized producer. No product
+[#224](https://github.com/cbattlegear/MeshCoreOne-Android/issues/224) is open. The existing
+registered WP312 producer and coordinator confirm active repair on `wp312-map-list-font200`;
+exact published repair SHA and unchanged native re-audit are awaited. The regression/evidence
+stays here; production repair remains with that owner. No product
 patch, additional worker or assertion relaxation is introduced. Earlier passing92
 complementary cases below did not include this new case; they are not a current complete
 populated-map pass.
@@ -144,7 +180,8 @@ history slider independently receives all four corners of a **48x48dp** pointer 
 inside its scrolled viewport, and each click selects the expected sample. No slider
 product defect, reduced target floor or synthetic graph substitute is claimed.
 Authentication was not included in this 78-case execution; its later outcomes are above.
-Live status/telemetry and populated location/map flows remain unverified.
+At that historical cohort, live status/telemetry and populated location/map were unverified;
+the later bounded native executions above do not imply full remaining-state acceptance.
 
 Authentic CLI product `270c9ea423637753b4f8475a3d6d5c58d4861e69` independently passes
 unchanged owned disconnected cases2 plus producer reconnect/focus/history cases4:
