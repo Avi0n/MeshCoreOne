@@ -5,6 +5,56 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "messaging-ack-original-late-contact-and-finalization-consumers",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
+      "native_factory": "acknowledgements",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
+      "runner_name": "original-case-id",
+      "comparison": "Remaining15 complete originals restore default5 service, Test message/current-time/default outgoing/plain fields, original literal ACKs and independent predicates. Late contact saves actual DeviceDTO helper fields and CHAT1/flags0/path2/0102/LateAckContact/current advert+modified/GPS0 ContactFrame through the existing frame-save factory, then uses its returned contactID with a pending row/11223344/trip500 and separate nonnil/date>=before guards. Retry resets ancient60/timeout30/AAAA to BBBB and checks retained pending1/nonfailed. Listener-won AABBCCDD/trip500 has an independent pre-finalize RTT500 guard and post-finalize delivered/RTT500. In-loop11223344 retains resolved count1 and ID membership alongside stronger exact event shape. Unmatched DEADBEEF/trip100 retains sent/pending0; failMessageAndRethrow01020304 adds the original precall pending1 guard and preserves typed MeshCore NotConnected to MessageService failure, pending0/failed. pendingAckCount0/1/2 has no saved message rows. Grace DEADBEEF/DB EFBEADDE/age31/timeout30/window45/trip99 preserves sent before ACK and delivered afterward. Delivered finalize uses AB32/TestContact/CHAT1/nil-lastHeard contact, literal10203040, exact zero32 routing key, delivered/contact date/pending0/resolvedIDs=[messageID] plus prior event count. Nil delivered55667788/DB88776655 uses delivered tracking and independent empty failure/resolution projections. Nil sentAt01020304/age12/timeout30 separately asserts entry nonnil and unchanged date. Alreadyfailed AABBCCDD retains failed/no resolved/no failed events. Retrying01020304 and failed05060708 branches use two independently created stores/services/event streams, preserving separate resolvedIDs=[idA] and no resolvedB predicates. Checker-gap9ABCDEF0/trip200 and failed/no-entry DBABCDEF01/LE01EFCDAB/trip300 retain terminal failed guards.",
+      "inputs": "Complete frozen remaining15 ACK bodies, makePending, MessageDTO+Testing, DeviceDTO+Testing, ContactDTO+Testing, MessageService+Testing and event projections read. Selected source ACK/finalize/routing consumers and actual native checkIdentity/reconcileAcknowledgement/trackPendingAck/finalizeSend/checkRouting, DTO defaults, ContactFrame factory, RecordingStore frame-save overload, real ContactRepository frame-save body, frozen PersistenceStore contact save and Contact frame constructor read. The actual frozen frame constructor creates a UUID through its default initializer, despite a stale header describing key-derived identity; native factory UUID creation is not a substituted hash algorithm. Literal DB values are independently restored little-endian inputs, not candidate-created packet goldens.",
+      "adaptations": "RecordingStore is disclosed test-only persistence, not source SwiftData or real Room. Native valid radio and linked CONTACT row/tracking/caller IDs replace ambient independently random source IDs; actual frame-save returned contactID is used for the late-contact case. This identity-safety boundary requires independent review, not arbitrary-ID equivalence. Injected current clock and selected fixed valid32 key sample replace ambient Date/random key inputs without claiming the full random key space. Grace original omits explicit radio helper input; the native valid radio adaptation is explicit. Six direct-ACK consumers additionally start only the actual session/assert local SELF identity: late contact, listener-won, unmatched, grace, checker-gap and failed/no-entry. No generic Peer contact is inserted. These are disclosed native identity-handshake counterparts, not identical source-unstarted calls, physical ACKs or weakened production guards. Nine other cases remain genuinely unstarted, including all six finalize-only cases and the two independently owned nil branches. Source zero32 routing keys remain zero32; routing failures must remain visible until owner186 repair. Stronger prior event assertions and store-independence guard are supplemental, not extra original families.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageService+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageService+ACK.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageService+SendDM.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+        "MC1Services/Sources/MC1Services/Models/Contact.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt"
+      ],
+      "consumer": "Actual pending entry and terminal-row reconciliation, firmware RTT preservation before/after finalization, contact lastMessageDate, typed rethrow, grace expiry, independent event projections and separate nil-branch stores are asserted. No new registration, denominator change, shared fixture default change, producer-path edit, manufactured ACK receipt or hidden startup for finalize-only cases.",
+      "unresolved": [
+        "Changed inputs require exact candidate execution with all31 ACK original identities, not reuse of historical25a31 green registrations. First16 and remaining15 are disjoint comparison proposals, not accepted source parity. Owner186 typed NotConnected best-effort routing remains exposed by the genuinely unstarted finalize calls. Linked-ID/SELF-handshake/persistence adaptations, current hosted evidence and persistent independent acceptance remain unresolved; no global parity, hardware, iOS, signing or legal credit."
+      ],
+      "methods": [
+        "handleAcknowledgement updates contact lastMessageDate on late ACK",
+        "trackPendingAck on retry resets sentAt so checkExpiredAcks preserves a retrying message",
+        "finalizeSend preserves roundTripTime after listener-won delivery",
+        "finalizeSend broadcasts .statusResolved when in-loop waitForEvent wins the ACK race",
+        "handleAcknowledgement is a no-op when no entry matches the ackCode",
+        "failMessageAndRethrow removes pendingAcks entry and rethrows",
+        "pendingAckCount reflects count correctly",
+        "ACK within grace window reconciles .sent \u2192 .delivered via the in-memory pending entry",
+        "finalizeSend delivered branch writes .delivered, updates contact, yields .statusResolved, removes entry",
+        "finalizeSend nil branch skips the DB write when the listener already delivered",
+        "finalizeSend nil branch does not re-stamp the pending entry's sentAt",
+        "finalizeSend nil branch over an already-.failed row leaves it .failed",
+        "finalizeSend nil branch yields .statusResolved(.sent) from a non-terminal row and gates off on a terminal one",
+        "late ACK landing in the checker's await-gap cannot flip a just-failed row to .delivered",
+        "late ACK after the row is already .failed with no live entry stays .failed"
+      ]
+    },
+    {
       "id": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
       "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
       "partial_source_file": true,
@@ -15,7 +65,7 @@
       "runner_name": "original-case-id",
       "comparison": "First16 complete originals restore default5 service, thirteen unstarted cases and three explicit identity-handshake counterparts, Test message/current-time outgoing/plain/default DTO fields, true/false checker guards and explicit final stop, no saved row in the two pending-count-only expiry cases, and literals01020304/11223344/05060708/0D0E0F10/CEECACCE/090A0B0C/FA117733. Grace31/30/window45 retains sent/pending1/no selected failure/no retry update; floor20 uses15/25 versus timeout5 and slow20 uses30/70 versus timeout60. Expired60/30 failure retains selected ID membership plus the prior stronger exact event list. Fail-all retains two failed rows, independent failedIDs count2 and both memberships plus the existing set guard. Delivered DB rows preserve independent no selected failure guards. stopAndFail retains active true before install, then false/failed. RTT uses DB DEADBEEF/LE EFBEADDE/age10/trip250 and CAFEBABE/LE BEBAFECA/age2/nil. Multi-attempt pending row retains AAAA/BBBB/CCCC codes, first-code ACK/trip500, delivered/RTT500/pending0.",
       "inputs": "Complete frozen31 ACK bodies and makePending, MessageDTO+Testing, MessageService+Testing and event projections read. Selected source ACK expiry/fail-all and acknowledgement delivery consumers and actual native checker lifecycle/expireOrReconcile/failAllPendingMessages/handleAcknowledgement/reconcileAcknowledgement, PendingAck, native DTO defaults, RecordingStore and harness read. DB codes CEACECCE and337711FA are literal little-endian source values, not candidate-produced expected packets.",
-      "adaptations": "Source real SwiftData is represented by disclosed RecordingStore, not Room. Ambient source UUIDs adapt to valid fixed radio identity and random message IDs; native row/pending contact IDs are deliberately linked to CONTACT because actual native reconciliation rejects misbound identities, whereas the source defaults create independent random contact IDs. This linked-ID/generation safety adaptation is not exact arbitrary-ID equivalence and requires independent review. Injected clock replaces ambient Date with the same relative ages/current timestamp, not wall-clock performance proof. First13 concrete sessions remain unstarted. The three RTT/multi-attempt cases additionally start only the concrete session and independently assert its actual SELF identity, without saving an extra contact: source unstarted handler calls do not satisfy the native checkIdentity contract. Actual8f unstarted31/28PASS/3FAIL retains this boundary; the additional handshake is an explicit adaptation, not identical source inputs, a product weakening or physical radio. Direct real ACK-handler calls mirror the source hook, not raw wire/hardware. Existing stricter event guards remain supplemental. Other15 ACK originals remain uncredited, even if their registrations pass.",
+      "adaptations": "Source real SwiftData is represented by disclosed RecordingStore, not Room. Ambient source UUIDs adapt to valid fixed radio identity and random message IDs; native row/pending contact IDs are deliberately linked to CONTACT because actual native reconciliation rejects misbound identities, whereas the source defaults create independent random contact IDs. This linked-ID/generation safety adaptation is not exact arbitrary-ID equivalence and requires independent review. Injected clock replaces ambient Date with the same relative ages/current timestamp, not wall-clock performance proof. First13 concrete sessions remain unstarted. The three RTT/multi-attempt cases additionally start only the concrete session and independently assert its actual SELF identity, without saving an extra contact: source unstarted handler calls do not satisfy the native checkIdentity contract. Actual8f unstarted31/28PASS/3FAIL retains this boundary; the additional handshake is an explicit adaptation, not identical source inputs, a product weakening or physical radio. Direct real ACK-handler calls mirror the source hook, not raw wire/hardware. Existing stricter event guards remain supplemental. Remaining15 are a separate disjoint comparison proposal; neither group receives acceptance from passing registrations.",
       "helpers": [
         "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
         "MC1Services/Tests/MC1ServicesTests/Helpers/MessageService+Testing.swift",

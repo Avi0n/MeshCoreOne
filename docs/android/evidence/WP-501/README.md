@@ -4,7 +4,7 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `2cdda0f484722419cc074813ff44dd846dfb7d43`.
+Current integrated base: `76ddc9157271b1a409e6a467aab904d48c9a8949`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
@@ -13,6 +13,33 @@ Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
+
+Actually adopted main76dd by a clean disjoint same-branch rebase. Independently
+verified parents2cdda/7fe and tree3b9e210bc8c10400daafcdac1e96b1afcc97b455
+equal the reviewed PR185 candidate; PR185 genuinely merged and181 closed.
+Authoritative38204362597/head7fe Linux114664510271 and final114668722181
+are SUCCESS, selected scope scaffold only; app661/661/0fail/error/skip is
+read from the actual log. Swift codec/SwiftData are skipped, not passed;
+unselected protocol/controller-suite/backup are not new passes. Rebase
+changes exactly the six inherited185 paths versus published e798, leaving
+all worker test/helper blobs unchanged before the following admitted edits.
+Historical25a/e798/base2cdda execution is not adopted76dd proof.
+
+The remaining15 ACK originals now restore exact literals/default5/DTO/helper
+inputs, late-contact DeviceDTO/frame-save/returned-ID setup, pre-finalize RTT,
+resolved count/membership, pre-throw pending1, no-row pending-count inputs,
+grace DB literal and source zero32 routing keys. Nil sentAt separately requires
+a nonnil entry; the retrying/failed nil branches use independent stores/
+services/streams. Six direct-ACK calls explicitly use actual session/SELF
+identity counterparts without adding a Peer contact; nine other originals
+remain unstarted, including six finalize-only cases. Those calls must expose
+owner186 rather than silently starting the fixture. RecordingStore/valid linked
+IDs/injected current time/selected random-key sample are disclosed adaptations,
+not SwiftData/Room/arbitrary-key equivalence. All31 ACK originals now have
+disjoint proposed body comparisons; no new registration or accepted-family
+credit. Proposed953/5133/138groups/67mandatory/0approved. Changed-input native
+execution and independent adaptation/hosted/persistent acceptance are pending;
+no production or coordinator-owned path edited.
 
 Latest clean25a57d382e325b5a07cfd5118cc466022d586bf5/base2cdda actual
 Windows command:

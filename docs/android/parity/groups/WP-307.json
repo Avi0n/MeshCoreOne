@@ -776,9 +776,10 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt",
-          "sha256": "5bfc2cad9b8853ecdafa287428e675d649481d846fab33285783a09be056fb7e",
+          "sha256": "ff6252def7dfe8a78a7917a484d6b47bb20e8bf5f2795ac09ad1bc3ca759bfec",
           "source_references": [
             "MC1/Views/Chats/Timeline/ChatTimeline+Paging.swift",
+            "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift",
             "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift",
             "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift",
             "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift"
@@ -786,78 +787,83 @@
           "methods": [
             {
               "name": "start",
-              "line": 43,
-              "end_line": 50
+              "line": 47,
+              "end_line": 54
             },
             {
               "name": "open",
-              "line": 52,
-              "end_line": 98
+              "line": 56,
+              "end_line": 102
             },
             {
               "name": "refresh",
-              "line": 104,
-              "end_line": 132
+              "line": 108,
+              "end_line": 136
             },
             {
               "name": "loadOlder",
-              "line": 134,
-              "end_line": 163
+              "line": 138,
+              "end_line": 167
             },
             {
               "name": "consumeInitialAnchor",
-              "line": 165,
-              "end_line": 165
+              "line": 169,
+              "end_line": 169
             },
             {
               "name": "updateScrollPosition",
-              "line": 167,
-              "end_line": 175
-            },
-            {
-              "name": "jumpToLatest",
-              "line": 177,
+              "line": 171,
               "end_line": 179
             },
             {
-              "name": "updateDraft",
+              "name": "jumpToLatest",
               "line": 181,
-              "end_line": 184
+              "end_line": 183
+            },
+            {
+              "name": "updateDraft",
+              "line": 185,
+              "end_line": 188
             },
             {
               "name": "clearDraftAfterAcceptedSend",
-              "line": 186,
-              "end_line": 186
+              "line": 190,
+              "end_line": 190
             },
             {
               "name": "retry",
-              "line": 188,
-              "end_line": 228
+              "line": 192,
+              "end_line": 221
+            },
+            {
+              "name": "reconcileRetryStatus",
+              "line": 223,
+              "end_line": 247
             },
             {
               "name": "handleEvent",
-              "line": 230,
-              "end_line": 258
+              "line": 249,
+              "end_line": 277
             },
             {
               "name": "admit",
-              "line": 260,
-              "end_line": 271
+              "line": 279,
+              "end_line": 290
             },
             {
               "name": "normalize",
-              "line": 273,
-              "end_line": 279
+              "line": 292,
+              "end_line": 298
             },
             {
               "name": "withStatus",
-              "line": 281,
-              "end_line": 297
+              "line": 300,
+              "end_line": 316
             },
             {
               "name": "initialPageSize",
-              "line": 304,
-              "end_line": 306
+              "line": 323,
+              "end_line": 325
             }
           ]
         }
@@ -1492,9 +1498,105 @@
       "kind": "production",
       "owner": "WP-307",
       "exclusion": null,
-      "candidate_native_paths": [],
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt"
+      ],
       "acceptance": "independent-behavior-review-required",
-      "native_contracts": [],
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt",
+          "sha256": "ff6252def7dfe8a78a7917a484d6b47bb20e8bf5f2795ac09ad1bc3ca759bfec",
+          "source_references": [
+            "MC1/Views/Chats/Timeline/ChatTimeline+Paging.swift",
+            "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift",
+            "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift",
+            "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift",
+            "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "start",
+              "line": 47,
+              "end_line": 54
+            },
+            {
+              "name": "open",
+              "line": 56,
+              "end_line": 102
+            },
+            {
+              "name": "refresh",
+              "line": 108,
+              "end_line": 136
+            },
+            {
+              "name": "loadOlder",
+              "line": 138,
+              "end_line": 167
+            },
+            {
+              "name": "consumeInitialAnchor",
+              "line": 169,
+              "end_line": 169
+            },
+            {
+              "name": "updateScrollPosition",
+              "line": 171,
+              "end_line": 179
+            },
+            {
+              "name": "jumpToLatest",
+              "line": 181,
+              "end_line": 183
+            },
+            {
+              "name": "updateDraft",
+              "line": 185,
+              "end_line": 188
+            },
+            {
+              "name": "clearDraftAfterAcceptedSend",
+              "line": 190,
+              "end_line": 190
+            },
+            {
+              "name": "retry",
+              "line": 192,
+              "end_line": 221
+            },
+            {
+              "name": "reconcileRetryStatus",
+              "line": 223,
+              "end_line": 247
+            },
+            {
+              "name": "handleEvent",
+              "line": 249,
+              "end_line": 277
+            },
+            {
+              "name": "admit",
+              "line": 279,
+              "end_line": 290
+            },
+            {
+              "name": "normalize",
+              "line": 292,
+              "end_line": 298
+            },
+            {
+              "name": "withStatus",
+              "line": 300,
+              "end_line": 316
+            },
+            {
+              "name": "initialPageSize",
+              "line": 323,
+              "end_line": 325
+            }
+          ]
+        }
+      ],
       "review": "compare-observable-actions-state-error-cancellation-and-resources"
     },
     {
@@ -1510,9 +1612,10 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt",
-          "sha256": "5bfc2cad9b8853ecdafa287428e675d649481d846fab33285783a09be056fb7e",
+          "sha256": "ff6252def7dfe8a78a7917a484d6b47bb20e8bf5f2795ac09ad1bc3ca759bfec",
           "source_references": [
             "MC1/Views/Chats/Timeline/ChatTimeline+Paging.swift",
+            "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift",
             "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift",
             "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift",
             "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift"
@@ -1520,78 +1623,83 @@
           "methods": [
             {
               "name": "start",
-              "line": 43,
-              "end_line": 50
+              "line": 47,
+              "end_line": 54
             },
             {
               "name": "open",
-              "line": 52,
-              "end_line": 98
+              "line": 56,
+              "end_line": 102
             },
             {
               "name": "refresh",
-              "line": 104,
-              "end_line": 132
+              "line": 108,
+              "end_line": 136
             },
             {
               "name": "loadOlder",
-              "line": 134,
-              "end_line": 163
+              "line": 138,
+              "end_line": 167
             },
             {
               "name": "consumeInitialAnchor",
-              "line": 165,
-              "end_line": 165
+              "line": 169,
+              "end_line": 169
             },
             {
               "name": "updateScrollPosition",
-              "line": 167,
-              "end_line": 175
-            },
-            {
-              "name": "jumpToLatest",
-              "line": 177,
+              "line": 171,
               "end_line": 179
             },
             {
-              "name": "updateDraft",
+              "name": "jumpToLatest",
               "line": 181,
-              "end_line": 184
+              "end_line": 183
+            },
+            {
+              "name": "updateDraft",
+              "line": 185,
+              "end_line": 188
             },
             {
               "name": "clearDraftAfterAcceptedSend",
-              "line": 186,
-              "end_line": 186
+              "line": 190,
+              "end_line": 190
             },
             {
               "name": "retry",
-              "line": 188,
-              "end_line": 228
+              "line": 192,
+              "end_line": 221
+            },
+            {
+              "name": "reconcileRetryStatus",
+              "line": 223,
+              "end_line": 247
             },
             {
               "name": "handleEvent",
-              "line": 230,
-              "end_line": 258
+              "line": 249,
+              "end_line": 277
             },
             {
               "name": "admit",
-              "line": 260,
-              "end_line": 271
+              "line": 279,
+              "end_line": 290
             },
             {
               "name": "normalize",
-              "line": 273,
-              "end_line": 279
+              "line": 292,
+              "end_line": 298
             },
             {
               "name": "withStatus",
-              "line": 281,
-              "end_line": 297
+              "line": 300,
+              "end_line": 316
             },
             {
               "name": "initialPageSize",
-              "line": 304,
-              "end_line": 306
+              "line": 323,
+              "end_line": 325
             }
           ]
         }
@@ -1611,9 +1719,10 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt",
-          "sha256": "5bfc2cad9b8853ecdafa287428e675d649481d846fab33285783a09be056fb7e",
+          "sha256": "ff6252def7dfe8a78a7917a484d6b47bb20e8bf5f2795ac09ad1bc3ca759bfec",
           "source_references": [
             "MC1/Views/Chats/Timeline/ChatTimeline+Paging.swift",
+            "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift",
             "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift",
             "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift",
             "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift"
@@ -1621,78 +1730,83 @@
           "methods": [
             {
               "name": "start",
-              "line": 43,
-              "end_line": 50
+              "line": 47,
+              "end_line": 54
             },
             {
               "name": "open",
-              "line": 52,
-              "end_line": 98
+              "line": 56,
+              "end_line": 102
             },
             {
               "name": "refresh",
-              "line": 104,
-              "end_line": 132
+              "line": 108,
+              "end_line": 136
             },
             {
               "name": "loadOlder",
-              "line": 134,
-              "end_line": 163
+              "line": 138,
+              "end_line": 167
             },
             {
               "name": "consumeInitialAnchor",
-              "line": 165,
-              "end_line": 165
+              "line": 169,
+              "end_line": 169
             },
             {
               "name": "updateScrollPosition",
-              "line": 167,
-              "end_line": 175
-            },
-            {
-              "name": "jumpToLatest",
-              "line": 177,
+              "line": 171,
               "end_line": 179
             },
             {
-              "name": "updateDraft",
+              "name": "jumpToLatest",
               "line": 181,
-              "end_line": 184
+              "end_line": 183
+            },
+            {
+              "name": "updateDraft",
+              "line": 185,
+              "end_line": 188
             },
             {
               "name": "clearDraftAfterAcceptedSend",
-              "line": 186,
-              "end_line": 186
+              "line": 190,
+              "end_line": 190
             },
             {
               "name": "retry",
-              "line": 188,
-              "end_line": 228
+              "line": 192,
+              "end_line": 221
+            },
+            {
+              "name": "reconcileRetryStatus",
+              "line": 223,
+              "end_line": 247
             },
             {
               "name": "handleEvent",
-              "line": 230,
-              "end_line": 258
+              "line": 249,
+              "end_line": 277
             },
             {
               "name": "admit",
-              "line": 260,
-              "end_line": 271
+              "line": 279,
+              "end_line": 290
             },
             {
               "name": "normalize",
-              "line": 273,
-              "end_line": 279
+              "line": 292,
+              "end_line": 298
             },
             {
               "name": "withStatus",
-              "line": 281,
-              "end_line": 297
+              "line": 300,
+              "end_line": 316
             },
             {
               "name": "initialPageSize",
-              "line": 304,
-              "end_line": 306
+              "line": 323,
+              "end_line": 325
             }
           ]
         }
@@ -2172,7 +2286,7 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "source_references": [
             "MC1Tests/Views/Chats/ChatTimelineTests.swift",
             "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift",
@@ -2183,163 +2297,173 @@
           "methods": [
             {
               "name": "tearDown",
-              "line": 40,
-              "end_line": 40
+              "line": 43,
+              "end_line": 43
             },
             {
               "name": "open keeps chronological data and anchors the oldest unread message",
-              "line": 45,
-              "end_line": 60
+              "line": 48,
+              "end_line": 63
             },
             {
               "name": "zero unread opens at latest and never asks for an unread anchor",
-              "line": 65,
-              "end_line": 74
+              "line": 68,
+              "end_line": 77
             },
             {
               "name": "short initial page closes paging",
-              "line": 78,
-              "end_line": 86
+              "line": 81,
+              "end_line": 89
             },
             {
               "name": "older page prepends in order and preserves scroll anchor",
-              "line": 91,
-              "end_line": 107
+              "line": 94,
+              "end_line": 110
             },
             {
               "name": "paging drops a row already admitted while the database page was pending",
-              "line": 112,
-              "end_line": 127
+              "line": 115,
+              "end_line": 130
             },
             {
               "name": "events for another stable conversation are ignored",
-              "line": 131,
-              "end_line": 142
+              "line": 134,
+              "end_line": 145
             },
             {
               "name": "start is idempotent and duplicate events admit once",
-              "line": 146,
-              "end_line": 160
+              "line": 149,
+              "end_line": 163
             },
             {
               "name": "incoming arrival while scrolled away increments badge without moving anchor",
-              "line": 164,
-              "end_line": 177
+              "line": 167,
+              "end_line": 180
             },
             {
               "name": "jump to latest clears badge and anchor",
-              "line": 181,
-              "end_line": 190
+              "line": 184,
+              "end_line": 193
             },
             {
               "name": "status event updates the existing row in place",
-              "line": 194,
-              "end_line": 207
+              "line": 197,
+              "end_line": 210
             },
             {
               "name": "retry is single flight and later status clears retrying state",
-              "line": 211,
-              "end_line": 238
+              "line": 214,
+              "end_line": 241
             },
             {
               "name": "retry failure restores failed state and exposes send error",
-              "line": 242,
-              "end_line": 258
+              "line": 245,
+              "end_line": 261
+            },
+            {
+              "name": "post commit signal failure retains pending state and exposes the original error",
+              "line": 264,
+              "end_line": 278
+            },
+            {
+              "name": "post commit cancellation retains pending state and propagates the same cancellation",
+              "line": 281,
+              "end_line": 295
             },
             {
               "name": "late retry failure cannot clobber a delivered acknowledgement",
-              "line": 262,
-              "end_line": 291
+              "line": 299,
+              "end_line": 328
             },
             {
               "name": "draft survives holder recreation and empty draft removes storage",
-              "line": 296,
-              "end_line": 307
+              "line": 333,
+              "end_line": 344
             },
             {
               "name": "failed paging keeps loaded messages and reports passive error",
-              "line": 311,
-              "end_line": 324
+              "line": 348,
+              "end_line": 361
             },
             {
               "name": "initial page grows for unread context and caps at two hundred",
-              "line": 329,
-              "end_line": 333
+              "line": 366,
+              "end_line": 370
             },
             {
               "name": "missing unread anchor clamps to oldest loaded row",
-              "line": 337,
-              "end_line": 348
+              "line": 374,
+              "end_line": 385
             },
             {
               "name": "refresh keeps paged history and admits newer rows",
-              "line": 352,
-              "end_line": 365
+              "line": 389,
+              "end_line": 402
             },
             {
               "name": "superseded open cannot clear unread or replace the newer result",
-              "line": 369,
-              "end_line": 396
+              "line": 406,
+              "end_line": 433
             },
             {
               "name": "delivered status does not downgrade and round trip time is retained",
-              "line": 400,
-              "end_line": 414
+              "line": 437,
+              "end_line": 451
             },
             {
               "name": "message changed event does not admit an unloaded row",
-              "line": 418,
-              "end_line": 430
+              "line": 455,
+              "end_line": 467
             },
             {
               "name": "viewModel",
-              "line": 432,
-              "end_line": 443
+              "line": 469,
+              "end_line": 480
             },
             {
               "name": "get",
-              "line": 454,
-              "end_line": 454
+              "line": 491,
+              "end_line": 491
             },
             {
               "name": "set",
-              "line": 455,
-              "end_line": 457
+              "line": 492,
+              "end_line": 494
             },
             {
               "name": "fetchMessages",
-              "line": 474,
-              "end_line": 484
+              "line": 511,
+              "end_line": 521
             },
             {
               "name": "fetchMessage",
-              "line": 486,
-              "end_line": 486
+              "line": 523,
+              "end_line": 523
             },
             {
               "name": "unreadAnchorMessageId",
-              "line": 487,
-              "end_line": 490
+              "line": 524,
+              "end_line": 527
             },
             {
               "name": "clearUnread",
-              "line": 491,
-              "end_line": 493
+              "line": 528,
+              "end_line": 530
             },
             {
               "name": "markFailedSendsSeen",
-              "line": 494,
-              "end_line": 496
+              "line": 531,
+              "end_line": 533
             },
             {
               "name": "contact",
-              "line": 502,
-              "end_line": 509
+              "line": 539,
+              "end_line": 546
             },
             {
               "name": "message",
-              "line": 511,
-              "end_line": 526
+              "line": 548,
+              "end_line": 563
             }
           ]
         }
@@ -2371,9 +2495,10 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt",
-          "sha256": "5bfc2cad9b8853ecdafa287428e675d649481d846fab33285783a09be056fb7e",
+          "sha256": "ff6252def7dfe8a78a7917a484d6b47bb20e8bf5f2795ac09ad1bc3ca759bfec",
           "source_references": [
             "MC1/Views/Chats/Timeline/ChatTimeline+Paging.swift",
+            "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift",
             "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift",
             "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift",
             "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift"
@@ -2381,84 +2506,89 @@
           "methods": [
             {
               "name": "start",
-              "line": 43,
-              "end_line": 50
+              "line": 47,
+              "end_line": 54
             },
             {
               "name": "open",
-              "line": 52,
-              "end_line": 98
+              "line": 56,
+              "end_line": 102
             },
             {
               "name": "refresh",
-              "line": 104,
-              "end_line": 132
+              "line": 108,
+              "end_line": 136
             },
             {
               "name": "loadOlder",
-              "line": 134,
-              "end_line": 163
+              "line": 138,
+              "end_line": 167
             },
             {
               "name": "consumeInitialAnchor",
-              "line": 165,
-              "end_line": 165
+              "line": 169,
+              "end_line": 169
             },
             {
               "name": "updateScrollPosition",
-              "line": 167,
-              "end_line": 175
-            },
-            {
-              "name": "jumpToLatest",
-              "line": 177,
+              "line": 171,
               "end_line": 179
             },
             {
-              "name": "updateDraft",
+              "name": "jumpToLatest",
               "line": 181,
-              "end_line": 184
+              "end_line": 183
+            },
+            {
+              "name": "updateDraft",
+              "line": 185,
+              "end_line": 188
             },
             {
               "name": "clearDraftAfterAcceptedSend",
-              "line": 186,
-              "end_line": 186
+              "line": 190,
+              "end_line": 190
             },
             {
               "name": "retry",
-              "line": 188,
-              "end_line": 228
+              "line": 192,
+              "end_line": 221
+            },
+            {
+              "name": "reconcileRetryStatus",
+              "line": 223,
+              "end_line": 247
             },
             {
               "name": "handleEvent",
-              "line": 230,
-              "end_line": 258
+              "line": 249,
+              "end_line": 277
             },
             {
               "name": "admit",
-              "line": 260,
-              "end_line": 271
+              "line": 279,
+              "end_line": 290
             },
             {
               "name": "normalize",
-              "line": 273,
-              "end_line": 279
+              "line": 292,
+              "end_line": 298
             },
             {
               "name": "withStatus",
-              "line": 281,
-              "end_line": 297
+              "line": 300,
+              "end_line": 316
             },
             {
               "name": "initialPageSize",
-              "line": 304,
-              "end_line": 306
+              "line": 323,
+              "end_line": 325
             }
           ]
         },
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "source_references": [
             "MC1Tests/Views/Chats/ChatTimelineTests.swift",
             "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift",
@@ -2469,163 +2599,173 @@
           "methods": [
             {
               "name": "tearDown",
-              "line": 40,
-              "end_line": 40
+              "line": 43,
+              "end_line": 43
             },
             {
               "name": "open keeps chronological data and anchors the oldest unread message",
-              "line": 45,
-              "end_line": 60
+              "line": 48,
+              "end_line": 63
             },
             {
               "name": "zero unread opens at latest and never asks for an unread anchor",
-              "line": 65,
-              "end_line": 74
+              "line": 68,
+              "end_line": 77
             },
             {
               "name": "short initial page closes paging",
-              "line": 78,
-              "end_line": 86
+              "line": 81,
+              "end_line": 89
             },
             {
               "name": "older page prepends in order and preserves scroll anchor",
-              "line": 91,
-              "end_line": 107
+              "line": 94,
+              "end_line": 110
             },
             {
               "name": "paging drops a row already admitted while the database page was pending",
-              "line": 112,
-              "end_line": 127
+              "line": 115,
+              "end_line": 130
             },
             {
               "name": "events for another stable conversation are ignored",
-              "line": 131,
-              "end_line": 142
+              "line": 134,
+              "end_line": 145
             },
             {
               "name": "start is idempotent and duplicate events admit once",
-              "line": 146,
-              "end_line": 160
+              "line": 149,
+              "end_line": 163
             },
             {
               "name": "incoming arrival while scrolled away increments badge without moving anchor",
-              "line": 164,
-              "end_line": 177
+              "line": 167,
+              "end_line": 180
             },
             {
               "name": "jump to latest clears badge and anchor",
-              "line": 181,
-              "end_line": 190
+              "line": 184,
+              "end_line": 193
             },
             {
               "name": "status event updates the existing row in place",
-              "line": 194,
-              "end_line": 207
+              "line": 197,
+              "end_line": 210
             },
             {
               "name": "retry is single flight and later status clears retrying state",
-              "line": 211,
-              "end_line": 238
+              "line": 214,
+              "end_line": 241
             },
             {
               "name": "retry failure restores failed state and exposes send error",
-              "line": 242,
-              "end_line": 258
+              "line": 245,
+              "end_line": 261
+            },
+            {
+              "name": "post commit signal failure retains pending state and exposes the original error",
+              "line": 264,
+              "end_line": 278
+            },
+            {
+              "name": "post commit cancellation retains pending state and propagates the same cancellation",
+              "line": 281,
+              "end_line": 295
             },
             {
               "name": "late retry failure cannot clobber a delivered acknowledgement",
-              "line": 262,
-              "end_line": 291
+              "line": 299,
+              "end_line": 328
             },
             {
               "name": "draft survives holder recreation and empty draft removes storage",
-              "line": 296,
-              "end_line": 307
+              "line": 333,
+              "end_line": 344
             },
             {
               "name": "failed paging keeps loaded messages and reports passive error",
-              "line": 311,
-              "end_line": 324
+              "line": 348,
+              "end_line": 361
             },
             {
               "name": "initial page grows for unread context and caps at two hundred",
-              "line": 329,
-              "end_line": 333
+              "line": 366,
+              "end_line": 370
             },
             {
               "name": "missing unread anchor clamps to oldest loaded row",
-              "line": 337,
-              "end_line": 348
+              "line": 374,
+              "end_line": 385
             },
             {
               "name": "refresh keeps paged history and admits newer rows",
-              "line": 352,
-              "end_line": 365
+              "line": 389,
+              "end_line": 402
             },
             {
               "name": "superseded open cannot clear unread or replace the newer result",
-              "line": 369,
-              "end_line": 396
+              "line": 406,
+              "end_line": 433
             },
             {
               "name": "delivered status does not downgrade and round trip time is retained",
-              "line": 400,
-              "end_line": 414
+              "line": 437,
+              "end_line": 451
             },
             {
               "name": "message changed event does not admit an unloaded row",
-              "line": 418,
-              "end_line": 430
+              "line": 455,
+              "end_line": 467
             },
             {
               "name": "viewModel",
-              "line": 432,
-              "end_line": 443
+              "line": 469,
+              "end_line": 480
             },
             {
               "name": "get",
-              "line": 454,
-              "end_line": 454
+              "line": 491,
+              "end_line": 491
             },
             {
               "name": "set",
-              "line": 455,
-              "end_line": 457
+              "line": 492,
+              "end_line": 494
             },
             {
               "name": "fetchMessages",
-              "line": 474,
-              "end_line": 484
+              "line": 511,
+              "end_line": 521
             },
             {
               "name": "fetchMessage",
-              "line": 486,
-              "end_line": 486
+              "line": 523,
+              "end_line": 523
             },
             {
               "name": "unreadAnchorMessageId",
-              "line": 487,
-              "end_line": 490
+              "line": 524,
+              "end_line": 527
             },
             {
               "name": "clearUnread",
-              "line": 491,
-              "end_line": 493
+              "line": 528,
+              "end_line": 530
             },
             {
               "name": "markFailedSendsSeen",
-              "line": 494,
-              "end_line": 496
+              "line": 531,
+              "end_line": 533
             },
             {
               "name": "contact",
-              "line": 502,
-              "end_line": 509
+              "line": 539,
+              "end_line": 546
             },
             {
               "name": "message",
-              "line": 511,
-              "end_line": 526
+              "line": 548,
+              "end_line": 563
             }
           ]
         }
@@ -2678,7 +2818,7 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "source_references": [
             "MC1Tests/Views/Chats/ChatTimelineTests.swift",
             "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift",
@@ -2689,163 +2829,173 @@
           "methods": [
             {
               "name": "tearDown",
-              "line": 40,
-              "end_line": 40
+              "line": 43,
+              "end_line": 43
             },
             {
               "name": "open keeps chronological data and anchors the oldest unread message",
-              "line": 45,
-              "end_line": 60
+              "line": 48,
+              "end_line": 63
             },
             {
               "name": "zero unread opens at latest and never asks for an unread anchor",
-              "line": 65,
-              "end_line": 74
+              "line": 68,
+              "end_line": 77
             },
             {
               "name": "short initial page closes paging",
-              "line": 78,
-              "end_line": 86
+              "line": 81,
+              "end_line": 89
             },
             {
               "name": "older page prepends in order and preserves scroll anchor",
-              "line": 91,
-              "end_line": 107
+              "line": 94,
+              "end_line": 110
             },
             {
               "name": "paging drops a row already admitted while the database page was pending",
-              "line": 112,
-              "end_line": 127
+              "line": 115,
+              "end_line": 130
             },
             {
               "name": "events for another stable conversation are ignored",
-              "line": 131,
-              "end_line": 142
+              "line": 134,
+              "end_line": 145
             },
             {
               "name": "start is idempotent and duplicate events admit once",
-              "line": 146,
-              "end_line": 160
+              "line": 149,
+              "end_line": 163
             },
             {
               "name": "incoming arrival while scrolled away increments badge without moving anchor",
-              "line": 164,
-              "end_line": 177
+              "line": 167,
+              "end_line": 180
             },
             {
               "name": "jump to latest clears badge and anchor",
-              "line": 181,
-              "end_line": 190
+              "line": 184,
+              "end_line": 193
             },
             {
               "name": "status event updates the existing row in place",
-              "line": 194,
-              "end_line": 207
+              "line": 197,
+              "end_line": 210
             },
             {
               "name": "retry is single flight and later status clears retrying state",
-              "line": 211,
-              "end_line": 238
+              "line": 214,
+              "end_line": 241
             },
             {
               "name": "retry failure restores failed state and exposes send error",
-              "line": 242,
-              "end_line": 258
+              "line": 245,
+              "end_line": 261
+            },
+            {
+              "name": "post commit signal failure retains pending state and exposes the original error",
+              "line": 264,
+              "end_line": 278
+            },
+            {
+              "name": "post commit cancellation retains pending state and propagates the same cancellation",
+              "line": 281,
+              "end_line": 295
             },
             {
               "name": "late retry failure cannot clobber a delivered acknowledgement",
-              "line": 262,
-              "end_line": 291
+              "line": 299,
+              "end_line": 328
             },
             {
               "name": "draft survives holder recreation and empty draft removes storage",
-              "line": 296,
-              "end_line": 307
+              "line": 333,
+              "end_line": 344
             },
             {
               "name": "failed paging keeps loaded messages and reports passive error",
-              "line": 311,
-              "end_line": 324
+              "line": 348,
+              "end_line": 361
             },
             {
               "name": "initial page grows for unread context and caps at two hundred",
-              "line": 329,
-              "end_line": 333
+              "line": 366,
+              "end_line": 370
             },
             {
               "name": "missing unread anchor clamps to oldest loaded row",
-              "line": 337,
-              "end_line": 348
+              "line": 374,
+              "end_line": 385
             },
             {
               "name": "refresh keeps paged history and admits newer rows",
-              "line": 352,
-              "end_line": 365
+              "line": 389,
+              "end_line": 402
             },
             {
               "name": "superseded open cannot clear unread or replace the newer result",
-              "line": 369,
-              "end_line": 396
+              "line": 406,
+              "end_line": 433
             },
             {
               "name": "delivered status does not downgrade and round trip time is retained",
-              "line": 400,
-              "end_line": 414
+              "line": 437,
+              "end_line": 451
             },
             {
               "name": "message changed event does not admit an unloaded row",
-              "line": 418,
-              "end_line": 430
+              "line": 455,
+              "end_line": 467
             },
             {
               "name": "viewModel",
-              "line": 432,
-              "end_line": 443
+              "line": 469,
+              "end_line": 480
             },
             {
               "name": "get",
-              "line": 454,
-              "end_line": 454
+              "line": 491,
+              "end_line": 491
             },
             {
               "name": "set",
-              "line": 455,
-              "end_line": 457
+              "line": 492,
+              "end_line": 494
             },
             {
               "name": "fetchMessages",
-              "line": 474,
-              "end_line": 484
+              "line": 511,
+              "end_line": 521
             },
             {
               "name": "fetchMessage",
-              "line": 486,
-              "end_line": 486
+              "line": 523,
+              "end_line": 523
             },
             {
               "name": "unreadAnchorMessageId",
-              "line": 487,
-              "end_line": 490
+              "line": 524,
+              "end_line": 527
             },
             {
               "name": "clearUnread",
-              "line": 491,
-              "end_line": 493
+              "line": 528,
+              "end_line": 530
             },
             {
               "name": "markFailedSendsSeen",
-              "line": 494,
-              "end_line": 496
+              "line": 531,
+              "end_line": 533
             },
             {
               "name": "contact",
-              "line": 502,
-              "end_line": 509
+              "line": 539,
+              "end_line": 546
             },
             {
               "name": "message",
-              "line": 511,
-              "end_line": 526
+              "line": 548,
+              "end_line": 563
             }
           ]
         }
@@ -2865,7 +3015,7 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "source_references": [
             "MC1Tests/Views/Chats/ChatTimelineTests.swift",
             "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift",
@@ -2876,163 +3026,173 @@
           "methods": [
             {
               "name": "tearDown",
-              "line": 40,
-              "end_line": 40
+              "line": 43,
+              "end_line": 43
             },
             {
               "name": "open keeps chronological data and anchors the oldest unread message",
-              "line": 45,
-              "end_line": 60
+              "line": 48,
+              "end_line": 63
             },
             {
               "name": "zero unread opens at latest and never asks for an unread anchor",
-              "line": 65,
-              "end_line": 74
+              "line": 68,
+              "end_line": 77
             },
             {
               "name": "short initial page closes paging",
-              "line": 78,
-              "end_line": 86
+              "line": 81,
+              "end_line": 89
             },
             {
               "name": "older page prepends in order and preserves scroll anchor",
-              "line": 91,
-              "end_line": 107
+              "line": 94,
+              "end_line": 110
             },
             {
               "name": "paging drops a row already admitted while the database page was pending",
-              "line": 112,
-              "end_line": 127
+              "line": 115,
+              "end_line": 130
             },
             {
               "name": "events for another stable conversation are ignored",
-              "line": 131,
-              "end_line": 142
+              "line": 134,
+              "end_line": 145
             },
             {
               "name": "start is idempotent and duplicate events admit once",
-              "line": 146,
-              "end_line": 160
+              "line": 149,
+              "end_line": 163
             },
             {
               "name": "incoming arrival while scrolled away increments badge without moving anchor",
-              "line": 164,
-              "end_line": 177
+              "line": 167,
+              "end_line": 180
             },
             {
               "name": "jump to latest clears badge and anchor",
-              "line": 181,
-              "end_line": 190
+              "line": 184,
+              "end_line": 193
             },
             {
               "name": "status event updates the existing row in place",
-              "line": 194,
-              "end_line": 207
+              "line": 197,
+              "end_line": 210
             },
             {
               "name": "retry is single flight and later status clears retrying state",
-              "line": 211,
-              "end_line": 238
+              "line": 214,
+              "end_line": 241
             },
             {
               "name": "retry failure restores failed state and exposes send error",
-              "line": 242,
-              "end_line": 258
+              "line": 245,
+              "end_line": 261
+            },
+            {
+              "name": "post commit signal failure retains pending state and exposes the original error",
+              "line": 264,
+              "end_line": 278
+            },
+            {
+              "name": "post commit cancellation retains pending state and propagates the same cancellation",
+              "line": 281,
+              "end_line": 295
             },
             {
               "name": "late retry failure cannot clobber a delivered acknowledgement",
-              "line": 262,
-              "end_line": 291
+              "line": 299,
+              "end_line": 328
             },
             {
               "name": "draft survives holder recreation and empty draft removes storage",
-              "line": 296,
-              "end_line": 307
+              "line": 333,
+              "end_line": 344
             },
             {
               "name": "failed paging keeps loaded messages and reports passive error",
-              "line": 311,
-              "end_line": 324
+              "line": 348,
+              "end_line": 361
             },
             {
               "name": "initial page grows for unread context and caps at two hundred",
-              "line": 329,
-              "end_line": 333
+              "line": 366,
+              "end_line": 370
             },
             {
               "name": "missing unread anchor clamps to oldest loaded row",
-              "line": 337,
-              "end_line": 348
+              "line": 374,
+              "end_line": 385
             },
             {
               "name": "refresh keeps paged history and admits newer rows",
-              "line": 352,
-              "end_line": 365
+              "line": 389,
+              "end_line": 402
             },
             {
               "name": "superseded open cannot clear unread or replace the newer result",
-              "line": 369,
-              "end_line": 396
+              "line": 406,
+              "end_line": 433
             },
             {
               "name": "delivered status does not downgrade and round trip time is retained",
-              "line": 400,
-              "end_line": 414
+              "line": 437,
+              "end_line": 451
             },
             {
               "name": "message changed event does not admit an unloaded row",
-              "line": 418,
-              "end_line": 430
+              "line": 455,
+              "end_line": 467
             },
             {
               "name": "viewModel",
-              "line": 432,
-              "end_line": 443
+              "line": 469,
+              "end_line": 480
             },
             {
               "name": "get",
-              "line": 454,
-              "end_line": 454
+              "line": 491,
+              "end_line": 491
             },
             {
               "name": "set",
-              "line": 455,
-              "end_line": 457
+              "line": 492,
+              "end_line": 494
             },
             {
               "name": "fetchMessages",
-              "line": 474,
-              "end_line": 484
+              "line": 511,
+              "end_line": 521
             },
             {
               "name": "fetchMessage",
-              "line": 486,
-              "end_line": 486
+              "line": 523,
+              "end_line": 523
             },
             {
               "name": "unreadAnchorMessageId",
-              "line": 487,
-              "end_line": 490
+              "line": 524,
+              "end_line": 527
             },
             {
               "name": "clearUnread",
-              "line": 491,
-              "end_line": 493
+              "line": 528,
+              "end_line": 530
             },
             {
               "name": "markFailedSendsSeen",
-              "line": 494,
-              "end_line": 496
+              "line": 531,
+              "end_line": 533
             },
             {
               "name": "contact",
-              "line": 502,
-              "end_line": 509
+              "line": 539,
+              "end_line": 546
             },
             {
               "name": "message",
-              "line": 511,
-              "end_line": 526
+              "line": 548,
+              "end_line": 563
             }
           ]
         }
@@ -3052,7 +3212,7 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "source_references": [
             "MC1Tests/Views/Chats/ChatTimelineTests.swift",
             "MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift",
@@ -3063,163 +3223,173 @@
           "methods": [
             {
               "name": "tearDown",
-              "line": 40,
-              "end_line": 40
+              "line": 43,
+              "end_line": 43
             },
             {
               "name": "open keeps chronological data and anchors the oldest unread message",
-              "line": 45,
-              "end_line": 60
+              "line": 48,
+              "end_line": 63
             },
             {
               "name": "zero unread opens at latest and never asks for an unread anchor",
-              "line": 65,
-              "end_line": 74
+              "line": 68,
+              "end_line": 77
             },
             {
               "name": "short initial page closes paging",
-              "line": 78,
-              "end_line": 86
+              "line": 81,
+              "end_line": 89
             },
             {
               "name": "older page prepends in order and preserves scroll anchor",
-              "line": 91,
-              "end_line": 107
+              "line": 94,
+              "end_line": 110
             },
             {
               "name": "paging drops a row already admitted while the database page was pending",
-              "line": 112,
-              "end_line": 127
+              "line": 115,
+              "end_line": 130
             },
             {
               "name": "events for another stable conversation are ignored",
-              "line": 131,
-              "end_line": 142
+              "line": 134,
+              "end_line": 145
             },
             {
               "name": "start is idempotent and duplicate events admit once",
-              "line": 146,
-              "end_line": 160
+              "line": 149,
+              "end_line": 163
             },
             {
               "name": "incoming arrival while scrolled away increments badge without moving anchor",
-              "line": 164,
-              "end_line": 177
+              "line": 167,
+              "end_line": 180
             },
             {
               "name": "jump to latest clears badge and anchor",
-              "line": 181,
-              "end_line": 190
+              "line": 184,
+              "end_line": 193
             },
             {
               "name": "status event updates the existing row in place",
-              "line": 194,
-              "end_line": 207
+              "line": 197,
+              "end_line": 210
             },
             {
               "name": "retry is single flight and later status clears retrying state",
-              "line": 211,
-              "end_line": 238
+              "line": 214,
+              "end_line": 241
             },
             {
               "name": "retry failure restores failed state and exposes send error",
-              "line": 242,
-              "end_line": 258
+              "line": 245,
+              "end_line": 261
+            },
+            {
+              "name": "post commit signal failure retains pending state and exposes the original error",
+              "line": 264,
+              "end_line": 278
+            },
+            {
+              "name": "post commit cancellation retains pending state and propagates the same cancellation",
+              "line": 281,
+              "end_line": 295
             },
             {
               "name": "late retry failure cannot clobber a delivered acknowledgement",
-              "line": 262,
-              "end_line": 291
+              "line": 299,
+              "end_line": 328
             },
             {
               "name": "draft survives holder recreation and empty draft removes storage",
-              "line": 296,
-              "end_line": 307
+              "line": 333,
+              "end_line": 344
             },
             {
               "name": "failed paging keeps loaded messages and reports passive error",
-              "line": 311,
-              "end_line": 324
+              "line": 348,
+              "end_line": 361
             },
             {
               "name": "initial page grows for unread context and caps at two hundred",
-              "line": 329,
-              "end_line": 333
+              "line": 366,
+              "end_line": 370
             },
             {
               "name": "missing unread anchor clamps to oldest loaded row",
-              "line": 337,
-              "end_line": 348
+              "line": 374,
+              "end_line": 385
             },
             {
               "name": "refresh keeps paged history and admits newer rows",
-              "line": 352,
-              "end_line": 365
+              "line": 389,
+              "end_line": 402
             },
             {
               "name": "superseded open cannot clear unread or replace the newer result",
-              "line": 369,
-              "end_line": 396
+              "line": 406,
+              "end_line": 433
             },
             {
               "name": "delivered status does not downgrade and round trip time is retained",
-              "line": 400,
-              "end_line": 414
+              "line": 437,
+              "end_line": 451
             },
             {
               "name": "message changed event does not admit an unloaded row",
-              "line": 418,
-              "end_line": 430
+              "line": 455,
+              "end_line": 467
             },
             {
               "name": "viewModel",
-              "line": 432,
-              "end_line": 443
+              "line": 469,
+              "end_line": 480
             },
             {
               "name": "get",
-              "line": 454,
-              "end_line": 454
+              "line": 491,
+              "end_line": 491
             },
             {
               "name": "set",
-              "line": 455,
-              "end_line": 457
+              "line": 492,
+              "end_line": 494
             },
             {
               "name": "fetchMessages",
-              "line": 474,
-              "end_line": 484
+              "line": 511,
+              "end_line": 521
             },
             {
               "name": "fetchMessage",
-              "line": 486,
-              "end_line": 486
+              "line": 523,
+              "end_line": 523
             },
             {
               "name": "unreadAnchorMessageId",
-              "line": 487,
-              "end_line": 490
+              "line": 524,
+              "end_line": 527
             },
             {
               "name": "clearUnread",
-              "line": 491,
-              "end_line": 493
+              "line": 528,
+              "end_line": 530
             },
             {
               "name": "markFailedSendsSeen",
-              "line": 494,
-              "end_line": 496
+              "line": 531,
+              "end_line": 533
             },
             {
               "name": "contact",
-              "line": 502,
-              "end_line": 509
+              "line": 539,
+              "end_line": 546
             },
             {
               "name": "message",
-              "line": 511,
-              "end_line": 526
+              "line": 548,
+              "end_line": 563
             }
           ]
         }
@@ -3928,11 +4098,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "initial page grows for unread context and caps at two hundred",
-          "line": 329,
-          "end_line": 333,
+          "line": 366,
+          "end_line": 370,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "3708a240f3340ee58e9c4dfa06d9cadd5dbae1c95ff35d4c1d0cd90eabb3d56b",
@@ -3940,19 +4110,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 330,
+              "line": 367,
               "expression": "assertEquals(50, ChatViewModel.initialPageSize(0))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 331,
+              "line": 368,
               "expression": "assertEquals(62, ChatViewModel.initialPageSize(50))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 332,
+              "line": 369,
               "expression": "assertEquals(200, ChatViewModel.initialPageSize(500))",
               "assertion_or_checked_wait": true
             }
@@ -3960,19 +4130,19 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatViewModel.initialPageSize",
-              "line": 330,
+              "line": 367,
               "expression": "ChatViewModel.initialPageSize(0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ChatViewModel.initialPageSize",
-              "line": 331,
+              "line": 368,
               "expression": "ChatViewModel.initialPageSize(50)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ChatViewModel.initialPageSize",
-              "line": 332,
+              "line": 369,
               "expression": "ChatViewModel.initialPageSize(500)",
               "assertion_or_checked_wait": false
             }
@@ -4173,11 +4343,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "initial page grows for unread context and caps at two hundred",
-          "line": 329,
-          "end_line": 333,
+          "line": 366,
+          "end_line": 370,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "3708a240f3340ee58e9c4dfa06d9cadd5dbae1c95ff35d4c1d0cd90eabb3d56b",
@@ -4185,19 +4355,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 330,
+              "line": 367,
               "expression": "assertEquals(50, ChatViewModel.initialPageSize(0))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 331,
+              "line": 368,
               "expression": "assertEquals(62, ChatViewModel.initialPageSize(50))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 332,
+              "line": 369,
               "expression": "assertEquals(200, ChatViewModel.initialPageSize(500))",
               "assertion_or_checked_wait": true
             }
@@ -4205,19 +4375,19 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatViewModel.initialPageSize",
-              "line": 330,
+              "line": 367,
               "expression": "ChatViewModel.initialPageSize(0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ChatViewModel.initialPageSize",
-              "line": 331,
+              "line": 368,
               "expression": "ChatViewModel.initialPageSize(50)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ChatViewModel.initialPageSize",
-              "line": 332,
+              "line": 369,
               "expression": "ChatViewModel.initialPageSize(500)",
               "assertion_or_checked_wait": false
             }
@@ -4898,11 +5068,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "older page prepends in order and preserves scroll anchor",
-          "line": 91,
-          "end_line": 107,
+          "line": 94,
+          "end_line": 110,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "e99815990fb11014946b4f75ee59e5adf4982a0f21ab2fce240384e76993b370",
@@ -4910,25 +5080,25 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 103,
+              "line": 106,
               "expression": "assertEquals((0 until 60).toList(), viewModel.state.value.messages.map { it.timestamp.toInt() })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 104,
+              "line": 107,
               "expression": "assertEquals(TimelineScrollAnchor(visible.id, 17), viewModel.state.value.scrollAnchor)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 105,
+              "line": 108,
               "expression": "assertFalse(viewModel.state.value.hasMoreMessages)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 106,
+              "line": 109,
               "expression": "assertEquals(listOf(0, ChatViewModel.PAGE_SIZE), data.offsets)",
               "assertion_or_checked_wait": true
             }
@@ -4936,91 +5106,91 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 92,
+              "line": 95,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 93,
+              "line": 96,
               "expression": "List(ChatViewModel.PAGE_SIZE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 93,
+              "line": 96,
               "expression": "message(contact, it + 10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 94,
+              "line": 97,
               "expression": "List(10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 94,
+              "line": 97,
               "expression": "message(contact, it)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 95,
+              "line": 98,
               "expression": "FakeData(latest + older)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 96,
+              "line": 99,
               "expression": "viewModel(contact, data = data)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 97,
+              "line": 100,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.updateScrollPosition",
-              "line": 99,
+              "line": 102,
               "expression": "viewModel.updateScrollPosition(TimelineScrollAnchor(visible.id, 17), isAtLatest = false)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineScrollAnchor",
-              "line": 99,
+              "line": 102,
               "expression": "TimelineScrollAnchor(visible.id, 17)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.loadOlder",
-              "line": 101,
+              "line": 104,
               "expression": "viewModel.loadOlder()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toList",
-              "line": 103,
+              "line": 106,
               "expression": "toList()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "it.timestamp.toInt",
-              "line": 103,
+              "line": 106,
               "expression": "it.timestamp.toInt()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineScrollAnchor",
-              "line": 104,
+              "line": 107,
               "expression": "TimelineScrollAnchor(visible.id, 17)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 106,
+              "line": 109,
               "expression": "listOf(0, ChatViewModel.PAGE_SIZE)",
               "assertion_or_checked_wait": false
             }
@@ -6538,11 +6708,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "open keeps chronological data and anchors the oldest unread message",
-          "line": 45,
-          "end_line": 60,
+          "line": 48,
+          "end_line": 63,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "3d9b147ed2f8f8646376b9ae7cd94c7c16ce8ed7319666137c8023587c8e1c8f",
@@ -6550,31 +6720,31 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 55,
+              "line": 58,
               "expression": "assertEquals(listOf(old.id, unread.id, newest.id), viewModel.state.value.messages.map { it.id })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 56,
+              "line": 59,
               "expression": "assertEquals(InitialTimelineAnchor.Message(unread.id), viewModel.state.value.initialAnchor)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 57,
+              "line": 60,
               "expression": "assertTrue(viewModel.state.value.rows.any { it == TimelineRow.UnreadDivider(unread.id) })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 58,
+              "line": 61,
               "expression": "assertEquals(1, data.clearUnreadCalls)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 59,
+              "line": 62,
               "expression": "assertEquals(1, data.markFailedSeenCalls)",
               "assertion_or_checked_wait": true
             }
@@ -6582,67 +6752,67 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 46,
+              "line": 49,
               "expression": "contact(unreadCount = 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 47,
+              "line": 50,
               "expression": "message(contact, 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 48,
+              "line": 51,
               "expression": "message(contact, 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 49,
+              "line": 52,
               "expression": "message(contact, 3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 50,
+              "line": 53,
               "expression": "FakeData(listOf(newest, old, unread), unread.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 50,
+              "line": 53,
               "expression": "listOf(newest, old, unread)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 51,
+              "line": 54,
               "expression": "viewModel(contact, data = data)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 53,
+              "line": 56,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 55,
+              "line": 58,
               "expression": "listOf(old.id, unread.id, newest.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "InitialTimelineAnchor.Message",
-              "line": 56,
+              "line": 59,
               "expression": "InitialTimelineAnchor.Message(unread.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineRow.UnreadDivider",
-              "line": 57,
+              "line": 60,
               "expression": "TimelineRow.UnreadDivider(unread.id)",
               "assertion_or_checked_wait": false
             }
@@ -6831,11 +7001,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "missing unread anchor clamps to oldest loaded row",
-          "line": 337,
-          "end_line": 348,
+          "line": 374,
+          "end_line": 385,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "3e34bd4dc91eadd02257f4add478543134898cae21ca34fac9518ddad0304ffa",
@@ -6843,7 +7013,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 344,
+              "line": 381,
               "expression": "assertEquals(\n            InitialTimelineAnchor.Message(messages.first().id),\n            viewModel.state.value.initialAnchor,\n        )",
               "assertion_or_checked_wait": true
             }
@@ -6851,55 +7021,55 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 338,
+              "line": 375,
               "expression": "contact(unreadCount = 500)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 339,
+              "line": 376,
               "expression": "List(ChatViewModel.MAX_INITIAL_PAGE_SIZE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 339,
+              "line": 376,
               "expression": "message(contact, it)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 340,
+              "line": 377,
               "expression": "viewModel(contact, data = FakeData(messages, UUID.randomUUID()))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 340,
+              "line": 377,
               "expression": "FakeData(messages, UUID.randomUUID())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "UUID.randomUUID",
-              "line": 340,
+              "line": 377,
               "expression": "UUID.randomUUID()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 342,
+              "line": 379,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "InitialTimelineAnchor.Message",
-              "line": 345,
+              "line": 382,
               "expression": "InitialTimelineAnchor.Message(messages.first().id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "messages.first",
-              "line": 345,
+              "line": 382,
               "expression": "messages.first()",
               "assertion_or_checked_wait": false
             }
@@ -7027,11 +7197,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "zero unread opens at latest and never asks for an unread anchor",
-          "line": 65,
-          "end_line": 74,
+          "line": 68,
+          "end_line": 77,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "08f1f643f6d44f708784f941d2a7999f55121c366777f0c9ab61318e8c64158e",
@@ -7039,13 +7209,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 72,
+              "line": 75,
               "expression": "assertEquals(InitialTimelineAnchor.Latest, viewModel.state.value.initialAnchor)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 73,
+              "line": 76,
               "expression": "assertEquals(0, data.unreadAnchorCalls)",
               "assertion_or_checked_wait": true
             }
@@ -7053,37 +7223,37 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 66,
+              "line": 69,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 67,
+              "line": 70,
               "expression": "FakeData(listOf(message(contact, 1)))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 67,
+              "line": 70,
               "expression": "listOf(message(contact, 1))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 67,
+              "line": 70,
               "expression": "message(contact, 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 68,
+              "line": 71,
               "expression": "viewModel(contact, data = data)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 70,
+              "line": 73,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             }
@@ -14097,11 +14267,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "refresh keeps paged history and admits newer rows",
-          "line": 352,
-          "end_line": 365,
+          "line": 389,
+          "end_line": 402,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "c80c1ffbc17bb14a40b27f24c8793515690e6c332da8249a791be9623eb7644a",
@@ -14109,7 +14279,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 364,
+              "line": 401,
               "expression": "assertEquals((0..60).toList(), viewModel.state.value.messages.map { it.timestamp.toInt() })",
               "assertion_or_checked_wait": true
             }
@@ -14117,67 +14287,67 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 353,
+              "line": 390,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableList",
-              "line": 354,
+              "line": 391,
               "expression": "MutableList(60)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 354,
+              "line": 391,
               "expression": "message(contact, it)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 355,
+              "line": 392,
               "expression": "FakeData(initial)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 356,
+              "line": 393,
               "expression": "viewModel(contact, data = data)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 357,
+              "line": 394,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.loadOlder",
-              "line": 358,
+              "line": 395,
               "expression": "viewModel.loadOlder()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 359,
+              "line": 396,
               "expression": "message(contact, 60)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.refresh",
-              "line": 362,
+              "line": 399,
               "expression": "viewModel.refresh()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toList",
-              "line": 364,
+              "line": 401,
               "expression": "toList()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "it.timestamp.toInt",
-              "line": 364,
+              "line": 401,
               "expression": "it.timestamp.toInt()",
               "assertion_or_checked_wait": false
             }
@@ -17407,11 +17577,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "superseded open cannot clear unread or replace the newer result",
-          "line": 369,
-          "end_line": 396,
+          "line": 406,
+          "end_line": 433,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "070477d0cba64583ff50779b0e540b323389c517c48d1d851a07c952889495da",
@@ -17419,19 +17589,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 393,
+              "line": 430,
               "expression": "assertEquals(listOf(2), viewModel.state.value.messages.map { it.timestamp.toInt() })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 394,
+              "line": 431,
               "expression": "assertEquals(1, data.clearUnreadCalls)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 395,
+              "line": 432,
               "expression": "assertEquals(1, data.markFailedSeenCalls)",
               "assertion_or_checked_wait": true
             }
@@ -17439,133 +17609,133 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 370,
+              "line": 407,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CompletableDeferred",
-              "line": 371,
+              "line": 408,
               "expression": "CompletableDeferred<Unit>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CompletableDeferred",
-              "line": 372,
+              "line": 409,
               "expression": "CompletableDeferred<Unit>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 373,
+              "line": 410,
               "expression": "listOf(message(contact, 1))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 373,
+              "line": 410,
               "expression": "message(contact, 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 374,
+              "line": 411,
               "expression": "listOf(message(contact, 2))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 374,
+              "line": 411,
               "expression": "message(contact, 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 375,
+              "line": 412,
               "expression": "FakeData()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "scriptedPages.addLast",
-              "line": 376,
+              "line": 413,
               "expression": "scriptedPages.addLast(firstPage)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "scriptedPages.addLast",
-              "line": 377,
+              "line": 414,
               "expression": "scriptedPages.addLast(secondPage)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "if",
-              "line": 379,
+              "line": 416,
               "expression": "if (call == 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "firstEntered.complete",
-              "line": 380,
+              "line": 417,
               "expression": "firstEntered.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "releaseFirst.await",
-              "line": 381,
+              "line": 418,
               "expression": "releaseFirst.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 385,
+              "line": 422,
               "expression": "viewModel(contact, data = data)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 386,
+              "line": 423,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "firstEntered.await",
-              "line": 387,
+              "line": 424,
               "expression": "firstEntered.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 388,
+              "line": 425,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "releaseFirst.complete",
-              "line": 389,
+              "line": 426,
               "expression": "releaseFirst.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "first.join",
-              "line": 390,
+              "line": 427,
               "expression": "first.join()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "second.join",
-              "line": 391,
+              "line": 428,
               "expression": "second.join()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 393,
+              "line": 430,
               "expression": "listOf(2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "it.timestamp.toInt",
-              "line": 393,
+              "line": 430,
               "expression": "it.timestamp.toInt()",
               "assertion_or_checked_wait": false
             }
@@ -18487,11 +18657,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "short initial page closes paging",
-          "line": 78,
-          "end_line": 86,
+          "line": 81,
+          "end_line": 89,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "ef8992e0c44a2ae6ab5dc7a731128346d8eee2e5c48d7ced13bf708837ceb235",
@@ -18499,13 +18669,13 @@
           "assertions": [
             {
               "name": "assertFalse",
-              "line": 84,
+              "line": 87,
               "expression": "assertFalse(viewModel.state.value.hasMoreMessages)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 85,
+              "line": 88,
               "expression": "assertEquals(3, viewModel.state.value.totalFetchedCount)",
               "assertion_or_checked_wait": true
             }
@@ -18513,37 +18683,37 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 79,
+              "line": 82,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 80,
+              "line": 83,
               "expression": "viewModel(contact, data = FakeData(List(3) { message(contact, it) }))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 80,
+              "line": 83,
               "expression": "FakeData(List(3) { message(contact, it) })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 80,
+              "line": 83,
               "expression": "List(3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 80,
+              "line": 83,
               "expression": "message(contact, it)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 82,
+              "line": 85,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             }
@@ -18701,11 +18871,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "older page prepends in order and preserves scroll anchor",
-          "line": 91,
-          "end_line": 107,
+          "line": 94,
+          "end_line": 110,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "e99815990fb11014946b4f75ee59e5adf4982a0f21ab2fce240384e76993b370",
@@ -18713,25 +18883,25 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 103,
+              "line": 106,
               "expression": "assertEquals((0 until 60).toList(), viewModel.state.value.messages.map { it.timestamp.toInt() })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 104,
+              "line": 107,
               "expression": "assertEquals(TimelineScrollAnchor(visible.id, 17), viewModel.state.value.scrollAnchor)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 105,
+              "line": 108,
               "expression": "assertFalse(viewModel.state.value.hasMoreMessages)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 106,
+              "line": 109,
               "expression": "assertEquals(listOf(0, ChatViewModel.PAGE_SIZE), data.offsets)",
               "assertion_or_checked_wait": true
             }
@@ -18739,91 +18909,91 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 92,
+              "line": 95,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 93,
+              "line": 96,
               "expression": "List(ChatViewModel.PAGE_SIZE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 93,
+              "line": 96,
               "expression": "message(contact, it + 10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 94,
+              "line": 97,
               "expression": "List(10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 94,
+              "line": 97,
               "expression": "message(contact, it)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 95,
+              "line": 98,
               "expression": "FakeData(latest + older)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 96,
+              "line": 99,
               "expression": "viewModel(contact, data = data)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 97,
+              "line": 100,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.updateScrollPosition",
-              "line": 99,
+              "line": 102,
               "expression": "viewModel.updateScrollPosition(TimelineScrollAnchor(visible.id, 17), isAtLatest = false)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineScrollAnchor",
-              "line": 99,
+              "line": 102,
               "expression": "TimelineScrollAnchor(visible.id, 17)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.loadOlder",
-              "line": 101,
+              "line": 104,
               "expression": "viewModel.loadOlder()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toList",
-              "line": 103,
+              "line": 106,
               "expression": "toList()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "it.timestamp.toInt",
-              "line": 103,
+              "line": 106,
               "expression": "it.timestamp.toInt()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineScrollAnchor",
-              "line": 104,
+              "line": 107,
               "expression": "TimelineScrollAnchor(visible.id, 17)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 106,
+              "line": 109,
               "expression": "listOf(0, ChatViewModel.PAGE_SIZE)",
               "assertion_or_checked_wait": false
             }
@@ -18952,11 +19122,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "failed paging keeps loaded messages and reports passive error",
-          "line": 311,
-          "end_line": 324,
+          "line": 348,
+          "end_line": 361,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "645697c26d55f5d97d598523a7ae517ca35d7230287e6a436286531690a6747a",
@@ -18964,19 +19134,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 321,
+              "line": 358,
               "expression": "assertEquals(first.map { it.id }, viewModel.state.value.messages.map { it.id })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertIs",
-              "line": 322,
+              "line": 359,
               "expression": "assertIs<IllegalStateException>(viewModel.state.value.passiveError)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 323,
+              "line": 360,
               "expression": "assertFalse(viewModel.state.value.isLoadingOlder)",
               "assertion_or_checked_wait": true
             }
@@ -18984,49 +19154,49 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 312,
+              "line": 349,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 313,
+              "line": 350,
               "expression": "List(ChatViewModel.PAGE_SIZE + 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 313,
+              "line": 350,
               "expression": "message(contact, it)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "all.takeLast",
-              "line": 314,
+              "line": 351,
               "expression": "all.takeLast(ChatViewModel.PAGE_SIZE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 315,
+              "line": 352,
               "expression": "FakeData(all)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 316,
+              "line": 353,
               "expression": "viewModel(contact, data = data)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 317,
+              "line": 354,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.loadOlder",
-              "line": 319,
+              "line": 356,
               "expression": "viewModel.loadOlder()",
               "assertion_or_checked_wait": false
             }
@@ -19166,11 +19336,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "paging drops a row already admitted while the database page was pending",
-          "line": 112,
-          "end_line": 127,
+          "line": 115,
+          "end_line": 130,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "434956425c9c97b6fabe07bc5c054d64d266735cf1351e5be6f45f53cf9f117f",
@@ -19178,7 +19348,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 126,
+              "line": 129,
               "expression": "assertEquals(1, viewModel.state.value.messages.count { it.id == raced.id })",
               "assertion_or_checked_wait": true
             }
@@ -19186,97 +19356,97 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 113,
+              "line": 116,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 114,
+              "line": 117,
               "expression": "List(ChatViewModel.PAGE_SIZE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 114,
+              "line": 117,
               "expression": "message(contact, it + 10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 115,
+              "line": 118,
               "expression": "message(contact, 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 116,
+              "line": 119,
               "expression": "FakeData(first + List(10) { if (it == 2) raced else message(contact, it) })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 116,
+              "line": 119,
               "expression": "List(10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "if",
-              "line": 116,
+              "line": 119,
               "expression": "if (it == 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 116,
+              "line": 119,
               "expression": "message(contact, it)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableSharedFlow",
-              "line": 117,
+              "line": 120,
               "expression": "MutableSharedFlow<TimelineEvent>(extraBufferCapacity = 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 118,
+              "line": 121,
               "expression": "viewModel(contact, data = data, events = events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 119,
+              "line": 122,
               "expression": "viewModel.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 120,
+              "line": 123,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.emit",
-              "line": 121,
+              "line": 124,
               "expression": "events.emit(TimelineEvent.MessageReceived(viewModel.conversation.id, raced))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineEvent.MessageReceived",
-              "line": 121,
+              "line": 124,
               "expression": "TimelineEvent.MessageReceived(viewModel.conversation.id, raced)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 122,
+              "line": 125,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.loadOlder",
-              "line": 124,
+              "line": 127,
               "expression": "viewModel.loadOlder()",
               "assertion_or_checked_wait": false
             }
@@ -19603,11 +19773,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "start is idempotent and duplicate events admit once",
-          "line": 146,
-          "end_line": 160,
+          "line": 149,
+          "end_line": 163,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "1ce4eac47ae4024ab1a6aaf067992c3b4ce9e8f458290c3be8542c56feec0a6b",
@@ -19615,7 +19785,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 159,
+              "line": 162,
               "expression": "assertEquals(listOf(message.id), viewModel.state.value.messages.map { it.id })",
               "assertion_or_checked_wait": true
             }
@@ -19623,79 +19793,79 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 147,
+              "line": 150,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableSharedFlow",
-              "line": 148,
+              "line": 151,
               "expression": "MutableSharedFlow<TimelineEvent>(extraBufferCapacity = 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 149,
+              "line": 152,
               "expression": "viewModel(contact, events = events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 150,
+              "line": 153,
               "expression": "viewModel.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 151,
+              "line": 154,
               "expression": "viewModel.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 152,
+              "line": 155,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 153,
+              "line": 156,
               "expression": "message(contact, 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.emit",
-              "line": 155,
+              "line": 158,
               "expression": "events.emit(TimelineEvent.MessageReceived(viewModel.conversation.id, message))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineEvent.MessageReceived",
-              "line": 155,
+              "line": 158,
               "expression": "TimelineEvent.MessageReceived(viewModel.conversation.id, message)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.emit",
-              "line": 156,
+              "line": 159,
               "expression": "events.emit(TimelineEvent.MessageReceived(viewModel.conversation.id, message))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineEvent.MessageReceived",
-              "line": 156,
+              "line": 159,
               "expression": "TimelineEvent.MessageReceived(viewModel.conversation.id, message)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 157,
+              "line": 160,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 159,
+              "line": 162,
               "expression": "listOf(message.id)",
               "assertion_or_checked_wait": false
             }
@@ -19847,11 +20017,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "zero unread opens at latest and never asks for an unread anchor",
-          "line": 65,
-          "end_line": 74,
+          "line": 68,
+          "end_line": 77,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "08f1f643f6d44f708784f941d2a7999f55121c366777f0c9ab61318e8c64158e",
@@ -19859,13 +20029,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 72,
+              "line": 75,
               "expression": "assertEquals(InitialTimelineAnchor.Latest, viewModel.state.value.initialAnchor)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 73,
+              "line": 76,
               "expression": "assertEquals(0, data.unreadAnchorCalls)",
               "assertion_or_checked_wait": true
             }
@@ -19873,37 +20043,37 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 66,
+              "line": 69,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 67,
+              "line": 70,
               "expression": "FakeData(listOf(message(contact, 1)))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 67,
+              "line": 70,
               "expression": "listOf(message(contact, 1))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 67,
+              "line": 70,
               "expression": "message(contact, 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 68,
+              "line": 71,
               "expression": "viewModel(contact, data = data)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 70,
+              "line": 73,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             }
@@ -20170,11 +20340,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "open keeps chronological data and anchors the oldest unread message",
-          "line": 45,
-          "end_line": 60,
+          "line": 48,
+          "end_line": 63,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "3d9b147ed2f8f8646376b9ae7cd94c7c16ce8ed7319666137c8023587c8e1c8f",
@@ -20182,31 +20352,31 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 55,
+              "line": 58,
               "expression": "assertEquals(listOf(old.id, unread.id, newest.id), viewModel.state.value.messages.map { it.id })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 56,
+              "line": 59,
               "expression": "assertEquals(InitialTimelineAnchor.Message(unread.id), viewModel.state.value.initialAnchor)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 57,
+              "line": 60,
               "expression": "assertTrue(viewModel.state.value.rows.any { it == TimelineRow.UnreadDivider(unread.id) })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 58,
+              "line": 61,
               "expression": "assertEquals(1, data.clearUnreadCalls)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 59,
+              "line": 62,
               "expression": "assertEquals(1, data.markFailedSeenCalls)",
               "assertion_or_checked_wait": true
             }
@@ -20214,67 +20384,67 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 46,
+              "line": 49,
               "expression": "contact(unreadCount = 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 47,
+              "line": 50,
               "expression": "message(contact, 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 48,
+              "line": 51,
               "expression": "message(contact, 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 49,
+              "line": 52,
               "expression": "message(contact, 3)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 50,
+              "line": 53,
               "expression": "FakeData(listOf(newest, old, unread), unread.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 50,
+              "line": 53,
               "expression": "listOf(newest, old, unread)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 51,
+              "line": 54,
               "expression": "viewModel(contact, data = data)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 53,
+              "line": 56,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 55,
+              "line": 58,
               "expression": "listOf(old.id, unread.id, newest.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "InitialTimelineAnchor.Message",
-              "line": 56,
+              "line": 59,
               "expression": "InitialTimelineAnchor.Message(unread.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineRow.UnreadDivider",
-              "line": 57,
+              "line": 60,
               "expression": "TimelineRow.UnreadDivider(unread.id)",
               "assertion_or_checked_wait": false
             }
@@ -22245,11 +22415,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "paging drops a row already admitted while the database page was pending",
-          "line": 112,
-          "end_line": 127,
+          "line": 115,
+          "end_line": 130,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "434956425c9c97b6fabe07bc5c054d64d266735cf1351e5be6f45f53cf9f117f",
@@ -22257,7 +22427,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 126,
+              "line": 129,
               "expression": "assertEquals(1, viewModel.state.value.messages.count { it.id == raced.id })",
               "assertion_or_checked_wait": true
             }
@@ -22265,97 +22435,97 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 113,
+              "line": 116,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 114,
+              "line": 117,
               "expression": "List(ChatViewModel.PAGE_SIZE)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 114,
+              "line": 117,
               "expression": "message(contact, it + 10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 115,
+              "line": 118,
               "expression": "message(contact, 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 116,
+              "line": 119,
               "expression": "FakeData(first + List(10) { if (it == 2) raced else message(contact, it) })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "List",
-              "line": 116,
+              "line": 119,
               "expression": "List(10)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "if",
-              "line": 116,
+              "line": 119,
               "expression": "if (it == 2)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 116,
+              "line": 119,
               "expression": "message(contact, it)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableSharedFlow",
-              "line": 117,
+              "line": 120,
               "expression": "MutableSharedFlow<TimelineEvent>(extraBufferCapacity = 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 118,
+              "line": 121,
               "expression": "viewModel(contact, data = data, events = events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 119,
+              "line": 122,
               "expression": "viewModel.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 120,
+              "line": 123,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.emit",
-              "line": 121,
+              "line": 124,
               "expression": "events.emit(TimelineEvent.MessageReceived(viewModel.conversation.id, raced))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineEvent.MessageReceived",
-              "line": 121,
+              "line": 124,
               "expression": "TimelineEvent.MessageReceived(viewModel.conversation.id, raced)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 122,
+              "line": 125,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.loadOlder",
-              "line": 124,
+              "line": 127,
               "expression": "viewModel.loadOlder()",
               "assertion_or_checked_wait": false
             }
@@ -23577,11 +23747,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "status event updates the existing row in place",
-          "line": 194,
-          "end_line": 207,
+          "line": 197,
+          "end_line": 210,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "815e66b16ed5a50215b018f3db2fce5a79d4991c94854c0e9d294dacf4a329c6",
@@ -23589,13 +23759,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 205,
+              "line": 208,
               "expression": "assertEquals(MessageStatus.DELIVERED, viewModel.state.value.messages.single().status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 206,
+              "line": 209,
               "expression": "assertEquals(sent.id, viewModel.state.value.messages.single().id)",
               "assertion_or_checked_wait": true
             }
@@ -23603,79 +23773,79 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 195,
+              "line": 198,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 196,
+              "line": 199,
               "expression": "message(contact, 1, direction = MessageDirection.OUTGOING, status = MessageStatus.SENT)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableSharedFlow",
-              "line": 197,
+              "line": 200,
               "expression": "MutableSharedFlow<TimelineEvent>(extraBufferCapacity = 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 198,
+              "line": 201,
               "expression": "viewModel(contact, data = FakeData(listOf(sent)), events = events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 198,
+              "line": 201,
               "expression": "FakeData(listOf(sent))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 198,
+              "line": 201,
               "expression": "listOf(sent)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 199,
+              "line": 202,
               "expression": "viewModel.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 200,
+              "line": 203,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.emit",
-              "line": 202,
+              "line": 205,
               "expression": "events.emit(TimelineEvent.StatusChanged(viewModel.conversation.id, sent.id, MessageStatus.DELIVERED))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineEvent.StatusChanged",
-              "line": 202,
+              "line": 205,
               "expression": "TimelineEvent.StatusChanged(viewModel.conversation.id, sent.id, MessageStatus.DELIVERED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 203,
+              "line": 206,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.state.value.messages.single",
-              "line": 205,
+              "line": 208,
               "expression": "viewModel.state.value.messages.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.state.value.messages.single",
-              "line": 206,
+              "line": 209,
               "expression": "viewModel.state.value.messages.single()",
               "assertion_or_checked_wait": false
             }
@@ -23742,11 +23912,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "events for another stable conversation are ignored",
-          "line": 131,
-          "end_line": 142,
+          "line": 134,
+          "end_line": 145,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "8b124cd0f7221a2b04dd2c01198677f5509ab2cae56f2583b6b0db99e275fce4",
@@ -23754,7 +23924,7 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 141,
+              "line": 144,
               "expression": "assertTrue(viewModel.state.value.messages.isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -23762,62 +23932,26 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 132,
+              "line": 135,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableSharedFlow",
-              "line": 133,
+              "line": 136,
               "expression": "MutableSharedFlow<TimelineEvent>(extraBufferCapacity = 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 134,
+              "line": 137,
               "expression": "viewModel(contact, events = events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 135,
+              "line": 138,
               "expression": "viewModel.start()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "yield",
-              "line": 136,
-              "expression": "yield()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "events.emit",
-              "line": 138,
-              "expression": "events.emit(TimelineEvent.MessageReceived(ChatConversationID.dm(contact.radioId, UUID.randomUUID()), message(contact, 1)))",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "TimelineEvent.MessageReceived",
-              "line": 138,
-              "expression": "TimelineEvent.MessageReceived(ChatConversationID.dm(contact.radioId, UUID.randomUUID()), message(contact, 1))",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "ChatConversationID.dm",
-              "line": 138,
-              "expression": "ChatConversationID.dm(contact.radioId, UUID.randomUUID())",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "UUID.randomUUID",
-              "line": 138,
-              "expression": "UUID.randomUUID()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "message",
-              "line": 138,
-              "expression": "message(contact, 1)",
               "assertion_or_checked_wait": false
             },
             {
@@ -23827,8 +23961,44 @@
               "assertion_or_checked_wait": false
             },
             {
-              "name": "viewModel.state.value.messages.isEmpty",
+              "name": "events.emit",
               "line": 141,
+              "expression": "events.emit(TimelineEvent.MessageReceived(ChatConversationID.dm(contact.radioId, UUID.randomUUID()), message(contact, 1)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "TimelineEvent.MessageReceived",
+              "line": 141,
+              "expression": "TimelineEvent.MessageReceived(ChatConversationID.dm(contact.radioId, UUID.randomUUID()), message(contact, 1))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChatConversationID.dm",
+              "line": 141,
+              "expression": "ChatConversationID.dm(contact.radioId, UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 141,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 141,
+              "expression": "message(contact, 1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "yield",
+              "line": 142,
+              "expression": "yield()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "viewModel.state.value.messages.isEmpty",
+              "line": 144,
               "expression": "viewModel.state.value.messages.isEmpty()",
               "assertion_or_checked_wait": false
             }
@@ -24256,11 +24426,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "delivered status does not downgrade and round trip time is retained",
-          "line": 400,
-          "end_line": 414,
+          "line": 437,
+          "end_line": 451,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "811002f8e76728480af78d06ba93c52ceda0aea986e11b8e7bfd65f60f120ccc",
@@ -24268,13 +24438,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 412,
+              "line": 449,
               "expression": "assertEquals(MessageStatus.DELIVERED, viewModel.state.value.messages.single().status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 413,
+              "line": 450,
               "expression": "assertEquals(10u, viewModel.state.value.messages.single().roundTripTime)",
               "assertion_or_checked_wait": true
             }
@@ -24282,85 +24452,85 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 401,
+              "line": 438,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 402,
+              "line": 439,
               "expression": "message(contact, 1, MessageDirection.OUTGOING, MessageStatus.DELIVERED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "copy",
-              "line": 403,
+              "line": 440,
               "expression": "copy(roundTripTime = 10u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableSharedFlow",
-              "line": 404,
+              "line": 441,
               "expression": "MutableSharedFlow<TimelineEvent>(extraBufferCapacity = 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 405,
+              "line": 442,
               "expression": "viewModel(contact, FakeData(listOf(delivered)), events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 405,
+              "line": 442,
               "expression": "FakeData(listOf(delivered))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 405,
+              "line": 442,
               "expression": "listOf(delivered)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 406,
+              "line": 443,
               "expression": "viewModel.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 407,
+              "line": 444,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.emit",
-              "line": 409,
+              "line": 446,
               "expression": "events.emit(TimelineEvent.StatusChanged(viewModel.conversation.id, delivered.id, MessageStatus.SENT, 20u))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineEvent.StatusChanged",
-              "line": 409,
+              "line": 446,
               "expression": "TimelineEvent.StatusChanged(viewModel.conversation.id, delivered.id, MessageStatus.SENT, 20u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 410,
+              "line": 447,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.state.value.messages.single",
-              "line": 412,
+              "line": 449,
               "expression": "viewModel.state.value.messages.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.state.value.messages.single",
-              "line": 413,
+              "line": 450,
               "expression": "viewModel.state.value.messages.single()",
               "assertion_or_checked_wait": false
             }
@@ -25250,11 +25420,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "retry is single flight and later status clears retrying state",
-          "line": 211,
-          "end_line": 238,
+          "line": 214,
+          "end_line": 241,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "552b73b7edf18ffbae8834a1a4d89c434bf203b2f91eb3c697915bc8c3700847",
@@ -25262,19 +25432,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 235,
+              "line": 238,
               "expression": "assertEquals(1, calls)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 236,
+              "line": 239,
               "expression": "assertEquals(MessageStatus.SENT, viewModel.state.value.messages.single().status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 237,
+              "line": 240,
               "expression": "assertTrue(viewModel.state.value.retryingMessageIds.isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -25282,133 +25452,133 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 212,
+              "line": 215,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 213,
+              "line": 216,
               "expression": "message(contact, 1, direction = MessageDirection.OUTGOING, status = MessageStatus.FAILED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CompletableDeferred",
-              "line": 214,
+              "line": 217,
               "expression": "CompletableDeferred<Unit>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CompletableDeferred",
-              "line": 215,
+              "line": 218,
               "expression": "CompletableDeferred<Unit>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "entered.complete",
-              "line": 219,
+              "line": 222,
               "expression": "entered.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "release.await",
-              "line": 220,
+              "line": 223,
               "expression": "release.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableSharedFlow",
-              "line": 222,
+              "line": 225,
               "expression": "MutableSharedFlow<TimelineEvent>(extraBufferCapacity = 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 223,
+              "line": 226,
               "expression": "viewModel(contact, data = FakeData(listOf(failed)), events = events, retry = retry)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 223,
+              "line": 226,
               "expression": "FakeData(listOf(failed))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 223,
+              "line": 226,
               "expression": "listOf(failed)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 224,
+              "line": 227,
               "expression": "viewModel.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 225,
+              "line": 228,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.retry",
-              "line": 227,
+              "line": 230,
               "expression": "viewModel.retry(failed.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "entered.await",
-              "line": 228,
+              "line": 231,
               "expression": "entered.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.retry",
-              "line": 229,
+              "line": 232,
               "expression": "viewModel.retry(failed.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "release.complete",
-              "line": 230,
+              "line": 233,
               "expression": "release.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "first.join",
-              "line": 231,
+              "line": 234,
               "expression": "first.join()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.emit",
-              "line": 232,
+              "line": 235,
               "expression": "events.emit(TimelineEvent.StatusChanged(viewModel.conversation.id, failed.id, MessageStatus.SENT))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineEvent.StatusChanged",
-              "line": 232,
+              "line": 235,
               "expression": "TimelineEvent.StatusChanged(viewModel.conversation.id, failed.id, MessageStatus.SENT)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 233,
+              "line": 236,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.state.value.messages.single",
-              "line": 236,
+              "line": 239,
               "expression": "viewModel.state.value.messages.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.state.value.retryingMessageIds.isEmpty",
-              "line": 237,
+              "line": 240,
               "expression": "viewModel.state.value.retryingMessageIds.isEmpty()",
               "assertion_or_checked_wait": false
             }
@@ -27018,11 +27188,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "retry failure restores failed state and exposes send error",
-          "line": 242,
-          "end_line": 258,
+          "line": 245,
+          "end_line": 261,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "a33c5628bbfbe02a0febff7b5045366fbdfc46deccd6e333a95e96bea509e7eb",
@@ -27030,19 +27200,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 255,
+              "line": 258,
               "expression": "assertEquals(MessageStatus.FAILED, viewModel.state.value.messages.single().status)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 256,
+              "line": 259,
               "expression": "assertEquals(failure, viewModel.state.value.sendError)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 257,
+              "line": 260,
               "expression": "assertTrue(viewModel.state.value.retryingMessageIds.isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -27050,61 +27220,61 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 243,
+              "line": 246,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 244,
+              "line": 247,
               "expression": "message(contact, 1, direction = MessageDirection.OUTGOING, status = MessageStatus.FAILED)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "IllegalStateException",
-              "line": 245,
+              "line": 248,
               "expression": "IllegalStateException(\"offline\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 246,
+              "line": 249,
               "expression": "viewModel(\n            contact,\n            data = FakeData(listOf(failed)),\n            retry = TimelineRetryService { _, _ -> throw failure },\n        )",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 248,
+              "line": 251,
               "expression": "FakeData(listOf(failed))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 248,
+              "line": 251,
               "expression": "listOf(failed)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.open",
-              "line": 251,
+              "line": 254,
               "expression": "viewModel.open()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.retry",
-              "line": 253,
+              "line": 256,
               "expression": "viewModel.retry(failed.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.state.value.messages.single",
-              "line": 255,
+              "line": 258,
               "expression": "viewModel.state.value.messages.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.state.value.retryingMessageIds.isEmpty",
-              "line": 257,
+              "line": 260,
               "expression": "viewModel.state.value.retryingMessageIds.isEmpty()",
               "assertion_or_checked_wait": false
             }
@@ -27388,11 +27558,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "message changed event does not admit an unloaded row",
-          "line": 418,
-          "end_line": 430,
+          "line": 455,
+          "end_line": 467,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "fb64bafb792d581cf373ae1f2cc05aef25c90208d092b5763a5a9bf47a29b574",
@@ -27400,7 +27570,7 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 429,
+              "line": 466,
               "expression": "assertTrue(viewModel.state.value.messages.isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -27408,73 +27578,73 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 419,
+              "line": 456,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 420,
+              "line": 457,
               "expression": "message(contact, 9)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableSharedFlow",
-              "line": 421,
+              "line": 458,
               "expression": "MutableSharedFlow<TimelineEvent>(extraBufferCapacity = 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 422,
+              "line": 459,
               "expression": "viewModel(contact, FakeData(listOf(hidden)), events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "FakeData",
-              "line": 422,
+              "line": 459,
               "expression": "FakeData(listOf(hidden))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 422,
+              "line": 459,
               "expression": "listOf(hidden)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 423,
+              "line": 460,
               "expression": "viewModel.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 424,
+              "line": 461,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.emit",
-              "line": 426,
+              "line": 463,
               "expression": "events.emit(TimelineEvent.MessageChanged(viewModel.conversation.id, hidden.id))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineEvent.MessageChanged",
-              "line": 426,
+              "line": 463,
               "expression": "TimelineEvent.MessageChanged(viewModel.conversation.id, hidden.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 427,
+              "line": 464,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.state.value.messages.isEmpty",
-              "line": 429,
+              "line": 466,
               "expression": "viewModel.state.value.messages.isEmpty()",
               "assertion_or_checked_wait": false
             }
@@ -29678,11 +29848,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "incoming arrival while scrolled away increments badge without moving anchor",
-          "line": 164,
-          "end_line": 177,
+          "line": 167,
+          "end_line": 180,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "75060b3f0c730e362705849213dd777491d6f31622da6285b53cfa304ec89234",
@@ -29690,13 +29860,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 175,
+              "line": 178,
               "expression": "assertEquals(1, viewModel.state.value.newMessageCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 176,
+              "line": 179,
               "expression": "assertEquals(9, viewModel.state.value.scrollAnchor?.offset)",
               "assertion_or_checked_wait": true
             }
@@ -29704,73 +29874,73 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 165,
+              "line": 168,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MutableSharedFlow",
-              "line": 166,
+              "line": 169,
               "expression": "MutableSharedFlow<TimelineEvent>(extraBufferCapacity = 4)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 167,
+              "line": 170,
               "expression": "viewModel(contact, events = events)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.start",
-              "line": 168,
+              "line": 171,
               "expression": "viewModel.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.updateScrollPosition",
-              "line": 169,
+              "line": 172,
               "expression": "viewModel.updateScrollPosition(TimelineScrollAnchor(UUID.randomUUID(), 9), isAtLatest = false)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineScrollAnchor",
-              "line": 169,
+              "line": 172,
               "expression": "TimelineScrollAnchor(UUID.randomUUID(), 9)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "UUID.randomUUID",
-              "line": 169,
+              "line": 172,
               "expression": "UUID.randomUUID()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 170,
+              "line": 173,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.emit",
-              "line": 172,
+              "line": 175,
               "expression": "events.emit(TimelineEvent.MessageReceived(viewModel.conversation.id, message(contact, 1)))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineEvent.MessageReceived",
-              "line": 172,
+              "line": 175,
               "expression": "TimelineEvent.MessageReceived(viewModel.conversation.id, message(contact, 1))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "message",
-              "line": 172,
+              "line": 175,
               "expression": "message(contact, 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "yield",
-              "line": 173,
+              "line": 176,
               "expression": "yield()",
               "assertion_or_checked_wait": false
             }
@@ -29961,11 +30131,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
-          "sha256": "ca309f0913e7c307a5f9b48731a6a779709d3a4cc956deebcdeacf5cb799d652",
+          "sha256": "e443a5679b6e66984334a69136baa8ad55f10910575bec1b1c90667949374569",
           "class": "com.meshcoreone.android.feature.chats.timeline.ChatViewModelTest",
           "method_or_family_name": "jump to latest clears badge and anchor",
-          "line": 181,
-          "end_line": 190,
+          "line": 184,
+          "end_line": 193,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "9eba142f97c204459e1830bb34c95dd0bf32914a1550632f57e16e875f2ec35c",
@@ -29973,19 +30143,19 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 187,
+              "line": 190,
               "expression": "assertTrue(viewModel.state.value.isAtLatest)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 188,
+              "line": 191,
               "expression": "assertEquals(0, viewModel.state.value.newMessageCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 189,
+              "line": 192,
               "expression": "assertNull(viewModel.state.value.scrollAnchor)",
               "assertion_or_checked_wait": true
             }
@@ -29993,37 +30163,37 @@
           "actions_and_helper_calls": [
             {
               "name": "contact",
-              "line": 182,
+              "line": 185,
               "expression": "contact()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel",
-              "line": 183,
+              "line": 186,
               "expression": "viewModel(contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.updateScrollPosition",
-              "line": 184,
+              "line": 187,
               "expression": "viewModel.updateScrollPosition(TimelineScrollAnchor(UUID.randomUUID(), 5), isAtLatest = false)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TimelineScrollAnchor",
-              "line": 184,
+              "line": 187,
               "expression": "TimelineScrollAnchor(UUID.randomUUID(), 5)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "UUID.randomUUID",
-              "line": 184,
+              "line": 187,
               "expression": "UUID.randomUUID()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "viewModel.jumpToLatest",
-              "line": 185,
+              "line": 188,
               "expression": "viewModel.jumpToLatest()",
               "assertion_or_checked_wait": false
             }

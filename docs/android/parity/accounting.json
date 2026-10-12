@@ -5997,7 +5997,9 @@
       "kind": "production",
       "owner": "WP-307",
       "exclusion": null,
-      "candidate_native_paths": [],
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt"
+      ],
       "acceptance": "independent-behavior-review-required"
     },
     {
