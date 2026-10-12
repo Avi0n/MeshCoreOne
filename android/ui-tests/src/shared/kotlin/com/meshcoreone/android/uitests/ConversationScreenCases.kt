@@ -193,7 +193,14 @@ class ConversationScreenCases(
         compose.onNodeWithText(originalText.repeat(3), useUnmergedTree = true)
             .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
         assertEquals(case.fontScale, layouts.single().layoutInput.density.fontScale, 0f)
-        assertFalse("Original text must wrap, not ellipsize or overflow", layouts.single().hasVisualOverflow)
+        val layout = layouts.single()
+        assertFalse(
+            "${case.id}: original text must wrap without overflow; rtl=${case.rtl}, " +
+                "font=${case.fontScale}, size=${layout.size}, constraints=${layout.layoutInput.constraints}, " +
+                "paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}, " +
+                "lines=${layout.lineCount}, widthOverflow=${layout.didOverflowWidth}, heightOverflow=${layout.didOverflowHeight}",
+            layout.hasVisualOverflow,
+        )
     }
 
     fun draftFocusAndRetrySurviveCurrentWindowChanges(widths: List<Int> = listOf(744, 834, 360)) {

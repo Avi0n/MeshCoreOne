@@ -52,7 +52,11 @@ class ConnectedConversationComposeTest : RoomProcessTest() {
             h.settle()
             compose.waitForIdle()
             val original = ConversationScreenCases.originalText
-            compose.onNode(hasSetTextAction()).performTextInput(original)
+            compose.onNode(
+                hasSetTextAction() and hasContentDescription(
+                    compose.activity.getString(C.chatsInputAccessibilityLabel), substring = true,
+                ),
+            ).assertIsDisplayed().performTextInput(original)
             val send = compose.onNodeWithContentDescription(compose.activity.getString(C.chatsInputSendMessage))
             send.assertIsEnabled().performClick()
             h.eventually("native send reaches the real service and persists its failed row") {
