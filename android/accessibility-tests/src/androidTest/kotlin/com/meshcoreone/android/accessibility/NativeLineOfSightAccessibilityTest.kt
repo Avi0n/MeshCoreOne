@@ -1,8 +1,8 @@
 // AndroidOnly: WP-503 Actual platform accessibility actions for saved LOS endpoints, without marker gestures or fabricated analysis.
 package com.meshcoreone.android.accessibility
 
-import android.view.accessibility.AccessibilityNodeInfo
 import android.app.UiAutomation
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -42,7 +42,9 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
             }
         }
         val root = nativeRoot(automation)
-        val button = root.findAccessibilityNodeInfosByText(label).single { it.isClickable }
+        val named = namedNodes(root, label)
+        println("WP503_PLATFORM_ACCESSIBILITY_SEARCH|byText=${root.findAccessibilityNodeInfosByText(label).size}|nativeChildren=${named.size}")
+        val button = namedActions(named).single()
         assertTrue(button.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.id))
         compose.waitUntil { clicks == 1 }
         assertVisibleClickTargetsAtLeast48Dp()
@@ -103,16 +105,16 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
             SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)))
         val root = nativeRoot(automation)
         assertTrue("The actual platform hierarchy must contain this mounted feature, not a stale app window",
-            root.findAccessibilityNodeInfosByText(activity.getString(T.toolsLineOfSight)).isNotEmpty())
+            namedNodes(root, activity.getString(T.toolsLineOfSight)).isNotEmpty())
         for (contact in listOf(east, west)) {
-            val named = root.findAccessibilityNodeInfosByText(contact.displayName)
-            val actionable = named.filter { it.isClickable }
+            val named = namedNodes(root, contact.displayName)
+            val actionable = namedActions(named)
             println("WP503_LOS_PLATFORM_ACTIONS|label=${contact.displayName}|matches=${named.size}|clickable=${actionable.size}" +
                 "|catalogReads=$catalogReads|elevationReads=$elevationReads|realRadio=false")
             assertTrue("Saved LOS repeater '${contact.displayName}' must expose a named native accessibility click " +
                 "or non-gesture list action, independent of map tiles", actionable.isNotEmpty())
         }
-        val selected = root.findAccessibilityNodeInfosByText(east.displayName).first { it.isClickable }
+        val selected = namedActions(namedNodes(root, east.displayName)).first()
         if (!selected.isVisibleToUser) {
             assertTrue("An offscreen saved endpoint must be reachable without a map gesture",
                 selected.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.id))
@@ -134,4 +136,21 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
         }
         return requireNotNull(root)
     }
+
+    private fun namedNodes(root: AccessibilityNodeInfo, label: String): List<AccessibilityNodeInfo> = buildList {
+        fun visit(node: AccessibilityNodeInfo) {
+            if (node.text?.toString() == label || node.contentDescription?.toString() == label) add(node)
+            for (index in 0 until node.childCount) {
+                visit(requireNotNull(node.getChild(index)) { "Native accessibility child $index became unavailable" })
+            }
+        }
+        visit(root)
+    }
+
+    private fun namedActions(nodes: List<AccessibilityNodeInfo>): List<AccessibilityNodeInfo> =
+        nodes.mapNotNull { node ->
+            var action: AccessibilityNodeInfo? = node
+            while (action != null && !action.isClickable) action = action.parent
+            action
+        }
 }
