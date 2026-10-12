@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.provider.Settings
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -51,6 +52,8 @@ abstract class NativeAccessibilityHarness {
     @Suppress("DEPRECATION")
     @Before fun attachNativeWindowAtSystemFont200() {
         val application = ApplicationProvider.getApplicationContext<Context>()
+        assertTrue(Settings.Global.putFloat(application.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f))
+        assertEquals(0f, Settings.Global.getFloat(application.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE), 0f)
         application.applicationInfo.flags = application.applicationInfo.flags or ApplicationInfo.FLAG_SUPPORTS_RTL
         val configuration = Configuration(application.resources.configuration).apply {
             fontScale = 2f
