@@ -896,7 +896,8 @@
       "owner": "WP-216",
       "exclusion": null,
       "candidate_native_paths": [
-        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsServiceTest.kt"
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsServiceTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/HeardRepeatStoreAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -931,6 +932,20 @@
               "name": "case",
               "line": 342,
               "end_line": 342
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/HeardRepeatStoreAcceptanceTest.kt",
+          "sha256": "4eea9e9fcec2e56c6a4ecb1582fd4ce4d3c55dc2768ecb1dcb029c744bc98a28",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "exactTextDisambiguatesStoredOutgoingRowsWithTheSameChannelAndTimestamp",
+              "line": 18,
+              "end_line": 38
             }
           ]
         }
@@ -2698,6 +2713,173 @@
             "MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/HeardRepeatStoreAcceptanceTest.kt",
+          "sha256": "4eea9e9fcec2e56c6a4ecb1582fd4ce4d3c55dc2768ecb1dcb029c744bc98a28",
+          "class": "com.meshcoreone.android.parity.HeardRepeatStoreAcceptanceTest",
+          "method_or_family_name": "exactTextDisambiguatesStoredOutgoingRowsWithTheSameChannelAndTimestamp",
+          "line": 18,
+          "end_line": 38,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "e5dc6c8c70f85217bbdbb24fd5f7d7a9392b8acd3d666e68ca6b6054b4d9cd03",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(bID, store.findSentChannelMessage(radio, channel, timestamp, \"message B\")?.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(aID, store.findSentChannelMessage(radio, channel, timestamp, \"message A\")?.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"message A\", store.fetchMessage(EntityKey(radio, aID))?.text)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 36,
+              "expression": "assertEquals(\"message B\", store.fetchMessage(EntityKey(radio, bID))?.text)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(setOf(aID, bID), store.fetchMessages(radio, channel).map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 19,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 19,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 21,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 21,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 22,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 23,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 24,
+              "expression": "store.saveMessage(MessageDTO(\n            id = aID, radioId = radio, channelIndex = channel, text = \"message A\",\n            timestamp = timestamp, status = MessageStatus.SENT,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 24,
+              "expression": "MessageDTO(\n            id = aID, radioId = radio, channelIndex = channel, text = \"message A\",\n            timestamp = timestamp, status = MessageStatus.SENT,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 28,
+              "expression": "store.saveMessage(MessageDTO(\n            id = bID, radioId = radio, channelIndex = channel, text = \"message B\",\n            timestamp = timestamp, status = MessageStatus.SENT,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 28,
+              "expression": "MessageDTO(\n            id = bID, radioId = radio, channelIndex = channel, text = \"message B\",\n            timestamp = timestamp, status = MessageStatus.SENT,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.findSentChannelMessage",
+              "line": 33,
+              "expression": "store.findSentChannelMessage(radio, channel, timestamp, \"message B\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.findSentChannelMessage",
+              "line": 34,
+              "expression": "store.findSentChannelMessage(radio, channel, timestamp, \"message A\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 35,
+              "expression": "store.fetchMessage(EntityKey(radio, aID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 35,
+              "expression": "EntityKey(radio, aID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 36,
+              "expression": "store.fetchMessage(EntityKey(radio, bID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 36,
+              "expression": "EntityKey(radio, bID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 37,
+              "expression": "setOf(aID, bID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 37,
+              "expression": "store.fetchMessages(radio, channel)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 37,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "HeardRepeatsServiceTests::exact text disambiguates messages sharing channel and timestamp()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],

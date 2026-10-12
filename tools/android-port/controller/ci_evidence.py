@@ -174,6 +174,8 @@ WP501_ACCEPTANCE_CASES = {
      "mountedMeshCoreOpenV1ChannelReactionReachesTheActualStoredTarget"),
     ("com.meshcoreone.android.parity.IncomingReactionAcceptanceTest",
      "mountedMeshCoreOpenV1DirectReactionReachesTheActualStoredTarget"),
+    ("com.meshcoreone.android.parity.HeardRepeatStoreAcceptanceTest",
+     "exactTextDisambiguatesStoredOutgoingRowsWithTheSameChannelAndTimestamp"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

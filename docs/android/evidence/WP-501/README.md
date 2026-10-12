@@ -12,7 +12,49 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-## Current reaction originals and reviewed privacy-merge adoption
+## Current reaction/repeat service originals and real Room query
+
+Current proposals1182/5133families/167groups/77mandatory/0approved.
+Adds41 disjoint complete original service bodies in eight groups: HeardRepeats
+parse8/sent-echo4/real store1/incoming paths9; ReactionService wire4/latest
+matching3/pending5/DM7. One source same-channel3/timestamp/text-disambiguation
+case now binds actual RoomProcessTest/native SQLite/RoomPersistenceStore,
+with outgoing/SENT/default fields and independent B->bID/A->aID queries.
+Supplemental actual fetch-text/two-stored-row guards add no original credit;
+the incumbent fake-store version is no longer this family's selected target.
+Latest-index native1ms/read replaces source10ms delay only for strict unequal
+ordering; equal-time tie/SwiftData-vs-fake/Unicode limits remain disclosed.
+All current Room/cache/correlation/fixture consumers are bound; actual App
+192's six failures and189's three pacing failures remain mandatory blockers.
+Same reservation27->28 supported wp-owned/create admission retains identities
+and authorization. New selected service41/Room1 execution is pending, not
+claimed by registration or earlier parser97 green. Pure parity92/92PASS.
+
+Qualified RF review5487680093/COMMENTED/ce4/baseedc was actually read:
+complete44 originals/native/helper/result/log/Geodesic donor/App comparison
+has no new selected source mismatch. Donor6/supplement12/private receipts/
+universal Darwin/UI/terrain/performance/hardware/full acceptance are not
+certified;65846 remains its actual earlier execution. Actualce4 authoritative
+38215116816/Linux114698441941 FAILED with App732/three unchanged default BLE
+pacing failures expected[0s]/actual[0s,0s]/11m47; later stages skipped.
+No second reproducible CI-result bundle is retained.
+
+Bounded source-only193 discussion6119887809 binds actualbasee508/head032c/
+BleTransport/BleWriteTest/WP205 deviation, complete surrounding consumer/
+callback/deadline/queue/cancel/teardown and frozen setter/slot/callback bodies.
+No new selected source blocker, no native replay/private Windows certification/
+GitHub APPROVED/protected/full-WP verdict; actual caller189 remains separate.
+Automatic exact032c run38218627083 is green only with every scope FALSE:
+classifier114709207285/final114709307577 actually read; Linux114709308389/
+Swift114709308466/SwiftData114709308880 SKIPPED; controller114709272485
+only unselected-message step. This is not native evidence. Actual manifest
+WP004 owns classifier/test via tools/android-port/oracle, not its legacyWP003
+header. Concrete bug194 and intake6119916932 preserve actual head/base/logs;
+queued serialized owner must reconcile worker classifier support, no bypass.
+Coordinator owns legitimate full dispatch38218985629; pending jobs do not
+become this worker's fresh proof or current merge adoption.
+
+## Historical parser originals and reviewed privacy-merge adoption
 
 Current proposals1141/5133families/159groups/76mandatory/0approved.
 Adds95 disjoint full-body comparisons:44 ReactionParser originals across

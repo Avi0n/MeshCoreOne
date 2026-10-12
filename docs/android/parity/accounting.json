@@ -14,8 +14,8 @@
       "scope-excluded-not-passed": 80
     },
     "family_dispositions": {
-      "independent-family-review-required": 2358,
-      "no-explicit-family-mapping": 2664,
+      "independent-family-review-required": 2359,
+      "no-explicit-family-mapping": 2663,
       "scope-excluded-not-passed": 111
     },
     "verified_behavioral_acceptances": 0
@@ -14704,7 +14704,8 @@
       "owner": "WP-216",
       "exclusion": null,
       "candidate_native_paths": [
-        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsServiceTest.kt"
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsServiceTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/HeardRepeatStoreAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -39744,8 +39745,13 @@
       "exclusion": null,
       "original_detail_sha256": "35cf6df8cae74268354374dde7198171a41f82f889d8204729130777b4adb1ad",
       "assertion_status": "direct",
-      "candidate_mappings": [],
-      "acceptance": "no-explicit-family-mapping"
+      "candidate_mappings": [
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/HeardRepeatStoreAcceptanceTest.kt"
+        }
+      ],
+      "acceptance": "independent-family-review-required"
     },
     {
       "source_path": "MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift",

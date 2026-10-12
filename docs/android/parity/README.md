@@ -1,6 +1,34 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current proposed inspection is1141/5133families/159groups/76mandatory/0approved.
+Current proposed inspection is1182/5133families/167groups/77mandatory/0approved.
+The next41 disjoint full-body service comparisons cover22 HeardRepeats/
+19 ReactionService originals in eight groups. One store-only original now
+uses actual API31/native SQLite Room/RoomPersistenceStore rather than its
+existing fake counterpart: same radio/channel3/current timestamp/two IDs/
+message A/message B/outgoing-sent defaults and independent exact B/A queries.
+That real query is mandatory; fake execution adds no second original credit.
+Injected latest-index clock proves unequal-time ordering, not source10ms
+elapsed time or the disclosed equal-time tie adaptation. Complete native
+helpers/cache/correlation and actual App consumer were read. New selected
+native execution is pending; incoming192/pacing189 failures are untouched.
+Same reservation evolves27->28 through supported wp-owned/create admission.
+
+Qualified RF review5487680093/COMMENTED atce4/baseedc was actually read:
+all44 source/native/helper bindings have no new selected source mismatch,
+not donor6/supplement12/native replay/full acceptance. Actualce4 hosted
+38215116816/Linux114698441941 FAILED: App732/three unchanged default BLE
+pacing failures expected[0s]/actual[0s,0s]; later l10n/APK/backup skipped.
+Bounded source-only transport193 review6119887809 is posted atbasee508/
+head032c/three paths with no new selected source blocker, not APPROVED or
+fresh native/private/hardware verification. It does not repair caller189.
+Actual automatic193 run38218627083 selected every scope FALSE; Linux/Swift/
+SwiftData skipped. Its green aggregate is not native verification. Concrete
+classifier gap194 belongs to actual manifest WP004; queued owning repair
+must reconcile this worker's disjoint existing classifier support delta.
+Coordinator owns the separate legitimate full dispatch; no worker execution
+or acceptance is inferred from its pending status.
+
+Historical parser increment1141/5133families/159groups/76mandatory/0approved:
 Actual reviewed191 mergee508/parentsedc+f61/candidate-equal tree07ec0ba3
 is adopted. Only inherited ChatMapPreviewTest/WP317 deviation changed;
 executed worker reaction/RF/pacing/messaging blobs remain unchanged.

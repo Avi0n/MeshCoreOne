@@ -5,6 +5,363 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsServiceTest.kt",
+      "native_factory": "channelMessageFormatParseTests",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.reactions.HeardRepeatsServiceTest",
+      "runner_name": "original-case-id",
+      "comparison": "All eight complete bodies preserve NodeName:Hello world sender/body, no colon, colon-first, Sender:empty body, first-colon-only Time is10:30:00, padded-body trim, Node With Spaces and Alice-space:hello sender/body trim. Native nonnil field/DTO equality guards imply the original optional-nonnil predicates. Foundation scalar whitespaces and colon Character helper were read; selected ASCII cases do not certify every grapheme.",
+      "inputs": "Every complete original/native selected body and its independent literal/optional/branch assertions read. Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "adaptations": "Swift UUID/UInt8/UInt32/Int/Data/Date become RadioId-or-UUID/UByte/UInt/Long/immutableBytes/Instant with original raw fields. Source helper default channel messages outgoing/sent/plain/sendCount1/no path and echoSNR8/RSSI-70/raw01/packet010203/flood/groupText/typebits5/secret status success are retained; native echo packetHash test is a disclosed unused helper field. Heard-repeat service fake is not source in-memory SwiftData; native configured EntityKey radio partition is explicit. Pure ReactionService has no store in these19 originals. Source latest-candidate10ms delay becomes deterministic1ms-per-read clock for selected unequal-time ordering. Existing WP216 same-instant latest-versus-Swift-first and summary/canonical/Unicode adaptations remain unresolved outside these selected predicates; no global parity or cancellation equivalence is inferred. Native additionally propagates cancellation where source catches store errors; bounded source error adaptations need independent review, not broad silent success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/HeardRepeatsService.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionService.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageLRUCache.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelMessageFormat.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelRXCorrelation.swift",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsFixtures.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsInMemoryStores.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelMessageFormat.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelRXCorrelation.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/DeduplicationKey.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageLRUCache.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/RadioSessionContainer.kt"
+      ],
+      "consumer": "Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "unresolved": [
+        "Current selected execution/independent/persistent full acceptance pending; mounted192/189 defects remain blocking. No original credit from supplements, current fake Room/SwiftData, unexecuted device/radio/Swift/Dart/legal/signing or global acceptance."
+      ],
+      "methods": [
+        "parse with valid format returns sender and message",
+        "parse with no colon returns nil",
+        "parse with colon at start returns nil",
+        "parse with empty message returns empty text",
+        "parse with message containing colons only splits on first",
+        "parse trims whitespace from message",
+        "parse preserves spaces in sender name",
+        "parse trims leading and trailing whitespace from sender"
+      ]
+    },
+    {
+      "id": "reaction-service-original-heardrepeatsservice-processForRepeatsMatchingTests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsServiceTest.kt",
+      "native_factory": "processForRepeatsMatchingTests",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.reactions.HeardRepeatsServiceTest",
+      "runner_name": "original-case-id",
+      "comparison": "Four complete sent-echo originals retain channel2/north repeater check/now-120seconds/echo default42/path1 and count1/storedrepeat1/RXID/eventmessageID/eventcount1; channel0/hello sameRXID first1/secondnil/onlyone saved row; channel1/hello/stamp+5 no match; channel0/Hello/TEST-renamed sender/three unique echoes count3/three saved rows. The fifth original actual store query is separately bound only to real Room, not this fake counterpart.",
+      "inputs": "Every complete original/native selected body and its independent literal/optional/branch assertions read. Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "adaptations": "Swift UUID/UInt8/UInt32/Int/Data/Date become RadioId-or-UUID/UByte/UInt/Long/immutableBytes/Instant with original raw fields. Source helper default channel messages outgoing/sent/plain/sendCount1/no path and echoSNR8/RSSI-70/raw01/packet010203/flood/groupText/typebits5/secret status success are retained; native echo packetHash test is a disclosed unused helper field. Heard-repeat service fake is not source in-memory SwiftData; native configured EntityKey radio partition is explicit. Pure ReactionService has no store in these19 originals. Source latest-candidate10ms delay becomes deterministic1ms-per-read clock for selected unequal-time ordering. Existing WP216 same-instant latest-versus-Swift-first and summary/canonical/Unicode adaptations remain unresolved outside these selected predicates; no global parity or cancellation equivalence is inferred. Native additionally propagates cancellation where source catches store errors; bounded source error adaptations need independent review, not broad silent success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/HeardRepeatsService.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionService.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageLRUCache.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelMessageFormat.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelRXCorrelation.swift",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsFixtures.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsInMemoryStores.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelMessageFormat.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelRXCorrelation.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/DeduplicationKey.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageLRUCache.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/RadioSessionContainer.kt"
+      ],
+      "consumer": "Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "unresolved": [
+        "Current selected execution/independent/persistent full acceptance pending; mounted192/189 defects remain blocking. No original credit from supplements, current fake Room/SwiftData, unexecuted device/radio/Swift/Dart/legal/signing or global acceptance."
+      ],
+      "methods": [
+        "counts a repeat whose send is far outside the old 10s window",
+        "same RX log entry is counted once",
+        "no match for unknown timestamp",
+        "new-node rename then three TEST Hello echoes attach"
+      ]
+    },
+    {
+      "id": "reaction-service-original-heardrepeatsservice-incomingExtraPathTests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsServiceTest.kt",
+      "native_factory": "incomingExtraPathTests",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.reactions.HeardRepeatsServiceTest",
+      "runner_name": "original-case-id",
+      "comparison": "All nine complete bodies preserve stamps1704067200-206, TestNode/channel0 except skewed channel1, canonicalAA/extraBB/path1/count1/repeatBB/storedheard1; same canonicalAA nil/empty/zeroheard; second extraBB nil/one row; wire100 versus corrected receive1704067200/extraCC; empty pathBytes/path0; pre-message A1/B2 at1700000000/+1 with canonicalB2 harvestonlyA1; stamp42/Alice one/A1 versus Bob two/B2/canonicalC0 yieldsonlyAlice ID/noBob repeat; nil unknown canonical adoptsAA/path1/zeroheard/noextras; shuffled BB-later/AA-earlier with unknown canonical adoptsAA/path1/heard1/onlyBBextra. Complete source helpers, correlation, adopted-row refetch and native store were read.",
+      "inputs": "Every complete original/native selected body and its independent literal/optional/branch assertions read. Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "adaptations": "Swift UUID/UInt8/UInt32/Int/Data/Date become RadioId-or-UUID/UByte/UInt/Long/immutableBytes/Instant with original raw fields. Source helper default channel messages outgoing/sent/plain/sendCount1/no path and echoSNR8/RSSI-70/raw01/packet010203/flood/groupText/typebits5/secret status success are retained; native echo packetHash test is a disclosed unused helper field. Heard-repeat service fake is not source in-memory SwiftData; native configured EntityKey radio partition is explicit. Pure ReactionService has no store in these19 originals. Source latest-candidate10ms delay becomes deterministic1ms-per-read clock for selected unequal-time ordering. Existing WP216 same-instant latest-versus-Swift-first and summary/canonical/Unicode adaptations remain unresolved outside these selected predicates; no global parity or cancellation equivalence is inferred. Native additionally propagates cancellation where source catches store errors; bounded source error adaptations need independent review, not broad silent success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/HeardRepeatsService.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionService.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageLRUCache.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelMessageFormat.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelRXCorrelation.swift",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsFixtures.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsInMemoryStores.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelMessageFormat.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelRXCorrelation.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/DeduplicationKey.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageLRUCache.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/RadioSessionContainer.kt"
+      ],
+      "consumer": "Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "unresolved": [
+        "Current selected execution/independent/persistent full acceptance pending; mounted192/189 defects remain blocking. No original credit from supplements, current fake Room/SwiftData, unexecuted device/radio/Swift/Dart/legal/signing or global acceptance."
+      ],
+      "methods": [
+        "incoming channel RX with a different path inserts a repeat",
+        "incoming RX whose path equals message pathNodes inserts nothing",
+        "second incoming RX with the same extra path inserts nothing",
+        "clock-corrected incoming message still joins extra RX by wire timestamp",
+        "empty path extra is recorded as a 0-hop arrival",
+        "harvest after save records extras from RX rows that arrived first",
+        "harvest ignores a same-stamp 0x88 whose body does not match",
+        "harvest adopts a matching path onto an unknown incoming message",
+        "harvest adopts the first matching path and records the later extra"
+      ]
+    },
+    {
+      "id": "reaction-service-original-reactionservice-wireFormatTests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ReactionServiceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionServiceTest.kt",
+      "native_factory": "wireFormatTests",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.reactions.ReactionServiceTest",
+      "runner_name": "original-case-id",
+      "comparison": "Four complete bodies retain timestamp1704067200/AlphaNode/What's the situation at Main St today?/thumbsup prefix plus exact lowercase8Crockford regex; Node/ok/heartVS16 prefix and original tautological suffix-of-self guard; Node/Hello world identical full output; timestamps1704067200-vs1704067201 different output. Native extra3pe3nahw literal and own-parser suffix check are supplements, not independently certified goldens or extra originals.",
+      "inputs": "Every complete original/native selected body and its independent literal/optional/branch assertions read. Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "adaptations": "Swift UUID/UInt8/UInt32/Int/Data/Date become RadioId-or-UUID/UByte/UInt/Long/immutableBytes/Instant with original raw fields. Source helper default channel messages outgoing/sent/plain/sendCount1/no path and echoSNR8/RSSI-70/raw01/packet010203/flood/groupText/typebits5/secret status success are retained; native echo packetHash test is a disclosed unused helper field. Heard-repeat service fake is not source in-memory SwiftData; native configured EntityKey radio partition is explicit. Pure ReactionService has no store in these19 originals. Source latest-candidate10ms delay becomes deterministic1ms-per-read clock for selected unequal-time ordering. Existing WP216 same-instant latest-versus-Swift-first and summary/canonical/Unicode adaptations remain unresolved outside these selected predicates; no global parity or cancellation equivalence is inferred. Native additionally propagates cancellation where source catches store errors; bounded source error adaptations need independent review, not broad silent success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/HeardRepeatsService.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionService.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageLRUCache.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelMessageFormat.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelRXCorrelation.swift",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsFixtures.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsInMemoryStores.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelMessageFormat.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelRXCorrelation.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/DeduplicationKey.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageLRUCache.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/RadioSessionContainer.kt"
+      ],
+      "consumer": "Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "unresolved": [
+        "Current selected execution/independent/persistent full acceptance pending; mounted192/189 defects remain blocking. No original credit from supplements, current fake Room/SwiftData, unexecuted device/radio/Swift/Dart/legal/signing or global acceptance."
+      ],
+      "methods": [
+        "Builds correct wire format with Crockford Base32 identifier",
+        "Builds wire format with short message",
+        "Generated identifier is consistent",
+        "Different timestamps produce different identifiers"
+      ]
+    },
+    {
+      "id": "reaction-service-original-reactionservice-disambiguationTests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ReactionServiceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionServiceTest.kt",
+      "native_factory": "disambiguationTests",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.reactions.ReactionServiceTest",
+      "runner_name": "original-case-id",
+      "comparison": "Three complete bodies retain channel0/Node/Hello world index then parse/build and exact returned UUID; no cache/Node/thumbsup/abcd1234 nil; independent two IDs/Node/Same message/same timestamp latest-indexedid2. Actual source cache and native cache bodies read; native1ms-per-read clock replaces source10ms sleep only for selected strict ordering, not same-instant behavior or elapsed-time proof.",
+      "inputs": "Every complete original/native selected body and its independent literal/optional/branch assertions read. Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "adaptations": "Swift UUID/UInt8/UInt32/Int/Data/Date become RadioId-or-UUID/UByte/UInt/Long/immutableBytes/Instant with original raw fields. Source helper default channel messages outgoing/sent/plain/sendCount1/no path and echoSNR8/RSSI-70/raw01/packet010203/flood/groupText/typebits5/secret status success are retained; native echo packetHash test is a disclosed unused helper field. Heard-repeat service fake is not source in-memory SwiftData; native configured EntityKey radio partition is explicit. Pure ReactionService has no store in these19 originals. Source latest-candidate10ms delay becomes deterministic1ms-per-read clock for selected unequal-time ordering. Existing WP216 same-instant latest-versus-Swift-first and summary/canonical/Unicode adaptations remain unresolved outside these selected predicates; no global parity or cancellation equivalence is inferred. Native additionally propagates cancellation where source catches store errors; bounded source error adaptations need independent review, not broad silent success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/HeardRepeatsService.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionService.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageLRUCache.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelMessageFormat.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelRXCorrelation.swift",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsFixtures.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsInMemoryStores.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelMessageFormat.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelRXCorrelation.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/DeduplicationKey.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageLRUCache.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/RadioSessionContainer.kt"
+      ],
+      "consumer": "Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "unresolved": [
+        "Current selected execution/independent/persistent full acceptance pending; mounted192/189 defects remain blocking. No original credit from supplements, current fake Room/SwiftData, unexecuted device/radio/Swift/Dart/legal/signing or global acceptance."
+      ],
+      "methods": [
+        "Finds indexed message by hash and preview",
+        "Returns nil when no candidates exist",
+        "Returns most recently indexed when multiple candidates have same hash"
+      ]
+    },
+    {
+      "id": "reaction-service-original-reactionservice-pendingQueueTests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ReactionServiceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionServiceTest.kt",
+      "native_factory": "pendingQueueTests",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.reactions.ReactionServiceTest",
+      "runner_name": "original-case-id",
+      "comparison": "Five complete bodies preserve AlphaNode/Hello world/channel0/BetaNode/raw reaction/randomradio and independent count1/emoji/thumbsup/senderBetaNode; three thumbsup/heartVS16/laugh reactions count3/exactemoji set; Different text hash mismatch empty; clear before indexing empty; channel1 firstempty then channel0 count1 with same messageID. Returned arrays consume exact cache/pending keys, not fake DB persistence or merely registered actions.",
+      "inputs": "Every complete original/native selected body and its independent literal/optional/branch assertions read. Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "adaptations": "Swift UUID/UInt8/UInt32/Int/Data/Date become RadioId-or-UUID/UByte/UInt/Long/immutableBytes/Instant with original raw fields. Source helper default channel messages outgoing/sent/plain/sendCount1/no path and echoSNR8/RSSI-70/raw01/packet010203/flood/groupText/typebits5/secret status success are retained; native echo packetHash test is a disclosed unused helper field. Heard-repeat service fake is not source in-memory SwiftData; native configured EntityKey radio partition is explicit. Pure ReactionService has no store in these19 originals. Source latest-candidate10ms delay becomes deterministic1ms-per-read clock for selected unequal-time ordering. Existing WP216 same-instant latest-versus-Swift-first and summary/canonical/Unicode adaptations remain unresolved outside these selected predicates; no global parity or cancellation equivalence is inferred. Native additionally propagates cancellation where source catches store errors; bounded source error adaptations need independent review, not broad silent success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/HeardRepeatsService.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionService.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageLRUCache.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelMessageFormat.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelRXCorrelation.swift",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsFixtures.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsInMemoryStores.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelMessageFormat.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelRXCorrelation.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/DeduplicationKey.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageLRUCache.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/RadioSessionContainer.kt"
+      ],
+      "consumer": "Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "unresolved": [
+        "Current selected execution/independent/persistent full acceptance pending; mounted192/189 defects remain blocking. No original credit from supplements, current fake Room/SwiftData, unexecuted device/radio/Swift/Dart/legal/signing or global acceptance."
+      ],
+      "methods": [
+        "Queued reaction matches when message indexed",
+        "Multiple reactions for same target all match",
+        "Hash mismatch prevents false match",
+        "Clear removes all pending reactions",
+        "Pending reactions are scoped by channel"
+      ]
+    },
+    {
+      "id": "reaction-service-original-reactionservice-dmReactionTests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ReactionServiceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionServiceTest.kt",
+      "native_factory": "dmReactionTests",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.reactions.ReactionServiceTest",
+      "runner_name": "original-case-id",
+      "comparison": "Seven complete bodies preserve Hello world/thumbsup/1704067200 prefix/grapheme10/no@[; index then own-parser hash lookup exactmessageID; pending Alice/contact/randomradio count1/exactthumbsup; separate contact2 empty then contact1 count1; no cache/abcd1234 nil; Different text mismatch empty; clear before matching empty. Source per-contact identity and both independent branches remain; these do not prove the current no-op App pending bridge.",
+      "inputs": "Every complete original/native selected body and its independent literal/optional/branch assertions read. Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "adaptations": "Swift UUID/UInt8/UInt32/Int/Data/Date become RadioId-or-UUID/UByte/UInt/Long/immutableBytes/Instant with original raw fields. Source helper default channel messages outgoing/sent/plain/sendCount1/no path and echoSNR8/RSSI-70/raw01/packet010203/flood/groupText/typebits5/secret status success are retained; native echo packetHash test is a disclosed unused helper field. Heard-repeat service fake is not source in-memory SwiftData; native configured EntityKey radio partition is explicit. Pure ReactionService has no store in these19 originals. Source latest-candidate10ms delay becomes deterministic1ms-per-read clock for selected unequal-time ordering. Existing WP216 same-instant latest-versus-Swift-first and summary/canonical/Unicode adaptations remain unresolved outside these selected predicates; no global parity or cancellation equivalence is inferred. Native additionally propagates cancellation where source catches store errors; bounded source error adaptations need independent review, not broad silent success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/HeardRepeatsService.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionService.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageLRUCache.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelMessageFormat.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelRXCorrelation.swift",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsFixtures.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsInMemoryStores.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelMessageFormat.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelRXCorrelation.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/DeduplicationKey.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageLRUCache.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/RadioSessionContainer.kt"
+      ],
+      "consumer": "Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "unresolved": [
+        "Current selected execution/independent/persistent full acceptance pending; mounted192/189 defects remain blocking. No original credit from supplements, current fake Room/SwiftData, unexecuted device/radio/Swift/Dart/legal/signing or global acceptance."
+      ],
+      "methods": [
+        "Builds DM wire format",
+        "Indexes DM message and finds by hash",
+        "DM pending reactions match when message indexed",
+        "DM reactions scoped by contact",
+        "DM returns nil when no candidates in cache",
+        "DM hash mismatch prevents false match",
+        "Clear removes DM pending reactions"
+      ]
+    },
+    {
+      "id": "reaction-service-original-heard-repeat-real-room-exact-text-disambiguation",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/HeardRepeatStoreAcceptanceTest.kt",
+      "native_factory": null,
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.HeardRepeatStoreAcceptanceTest",
+      "runner_name": "annotated-method",
+      "comparison": "Complete source store-only original uses two actual in-memory SwiftData rows same randomradio/channel3/current timestamp, independent IDs/message A/message B/outgoing/sent/default helper fields and both exact query results B->bID/A->aID. New actual API31/native SQLite Room/RoomPersistenceStore/DAO counterpart preserves those inputs/independent guards without fake store, service startup or seeded radio workaround. Supplemental fetch-text and exactly-two-row guards prove durable storage; no extra original credit or physical/API37/SwiftData-execution claim.",
+      "inputs": "Every complete original/native selected body and its independent literal/optional/branch assertions read. Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "adaptations": "Swift UUID/UInt8/UInt32/Int/Data/Date become RadioId-or-UUID/UByte/UInt/Long/immutableBytes/Instant with original raw fields. Source helper default channel messages outgoing/sent/plain/sendCount1/no path and echoSNR8/RSSI-70/raw01/packet010203/flood/groupText/typebits5/secret status success are retained; native echo packetHash test is a disclosed unused helper field. Heard-repeat service fake is not source in-memory SwiftData; native configured EntityKey radio partition is explicit. Pure ReactionService has no store in these19 originals. Source latest-candidate10ms delay becomes deterministic1ms-per-read clock for selected unequal-time ordering. Existing WP216 same-instant latest-versus-Swift-first and summary/canonical/Unicode adaptations remain unresolved outside these selected predicates; no global parity or cancellation equivalence is inferred. Native additionally propagates cancellation where source catches store errors; bounded source error adaptations need independent review, not broad silent success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/HeardRepeatsService.swift",
+        "MC1Services/Sources/MC1Services/Services/ReactionService.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageLRUCache.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelMessageFormat.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ChannelRXCorrelation.swift",
+        "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsFixtures.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/reactions/ReactionsInMemoryStores.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/HeardRepeatsService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelMessageFormat.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ChannelRXCorrelation.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/DeduplicationKey.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageLRUCache.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/SyncCodecAdapters.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/RadioSessionContainer.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt"
+      ],
+      "consumer": "Complete frozen/native service tests, fixtures, actual methods and source/native parser/correlation/cache helpers read. Real current App forwards repeat harvest/distinct-path processing after repaired182, while source-compatible incoming reaction lookup/pending queue/MCO classification is still concretely broken at192. No claim that fake-store sent/repeat cases or pure ReactionService cache/queue cases prove SwiftData/Room/native UI/physical delivery. Existing actual mounted192 controls2PASS/required6FAIL atcb7/baseedc and default BLE189 three failures remain blocking and unchanged.",
+      "unresolved": [
+        "Current selected execution/independent/persistent full acceptance pending; mounted192/189 defects remain blocking. No original credit from supplements, current fake Room/SwiftData, unexecuted device/radio/Swift/Dart/legal/signing or global acceptance."
+      ],
+      "methods": [
+        "exact text disambiguates messages sharing channel and timestamp"
+      ]
+    },
+    {
       "id": "reaction-original-reactionparser-validFormatTests",
       "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ReactionParserTests.swift",
       "partial_source_file": true,
@@ -5341,7 +5698,7 @@
         "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/rf/GeodesicDistanceTest.kt",
         "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
       ],
-      "consumer": "Actual AppLineOfSightPathAnalyzer distance/full/segment calls delegate to the production RFCalculator, retaining coordinates/heights/frequency/k and feature result fields. These synchronous pure cases do not verify terrain-provider/network/elevation cancellation, rendered charts,60fps drag performance, physical RF reception or every IEEE input.",
+      "consumer": "Actual AppLineOfSightPathAnalyzer distance/full/segment calls delegate to the production RFCalculator, retaining coordinates/heights/frequency/k and feature result fields. These synchronous pure cases do not verify terrain-provider/network/elevation cancellation, rendered charts,60fps drag performance, physical RF reception or every IEEE input. Qualified independent source-only review5487680093/COMMENTED at actualce4/baseedc/2026-10-12T07:31:54Z was read: all44 complete originals/29+11+2+2 and their native/helper/result/log/Geodesic/App bindings matched immutable inputs, with no new selected source mismatch. Six donor/12supplement cases add no credit, no universal Darwin/UI/terrain/performance/hardware/private-receipt/full acceptance or relabeling65846 execution. Actualce4 hosted38215116816/Linux114698441941 is FAILURE: App732/three unchanged default pacing failures[0s]vs[0s,0s]/11m47; laterl10n/APK/backup skipped. This qualifies only those44 proposed source comparisons, not additional95/41 or full5133 acceptance.",
       "unresolved": [
         "Actual clean65846a7196403d7fe8e03a9248a21d5d9a404dc6/baseedc Windows :core:services:test --tests com.meshcoreone.android.core.services.diagnostics.rf.RFCalculatorTest --dependency-verification=strict --quiet discovered56/56PASS/0failures/errors/skips, all44 distinct selected original identities required and present across four disjoint groups. RF testblobd9ee7f0b73aceb584273e0ce13796feebcd7c89c unchanged. Twelve supplemental methods add no original credit. The existing local launcher also unintentionally selected incumbent protocol37/37PASS/all25 required names; this is retained as separate execution, not extra RF acceptance, and the mode guard is corrected without another native rerun. Actual readiness passed/sourceclean/supportedlocksreleased. Independent RF comparison/current hosted/persistent full acceptance remain pending; no universal Darwin libm, terrain/UI/cancellation/physical or global parity claim."
       ],
@@ -5401,7 +5758,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/PathAnalysisResult.kt",
         "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
       ],
-      "consumer": "Source/native core both use origin0 for full analysis, skip endpointswithin1m, preserve original obstruction full-path distances, retain worst/min/peak loss and80/60/0 thresholds. Actual App result conversion retains distance,losses,status,clearance,obstructions,frequency,k. Provider/UI/cancellation/performance remain distinct.",
+      "consumer": "Source/native core both use origin0 for full analysis, skip endpointswithin1m, preserve original obstruction full-path distances, retain worst/min/peak loss and80/60/0 thresholds. Actual App result conversion retains distance,losses,status,clearance,obstructions,frequency,k. Provider/UI/cancellation/performance remain distinct. Qualified independent source-only review5487680093/COMMENTED at actualce4/baseedc/2026-10-12T07:31:54Z was read: all44 complete originals/29+11+2+2 and their native/helper/result/log/Geodesic/App bindings matched immutable inputs, with no new selected source mismatch. Six donor/12supplement cases add no credit, no universal Darwin/UI/terrain/performance/hardware/private-receipt/full acceptance or relabeling65846 execution. Actualce4 hosted38215116816/Linux114698441941 is FAILURE: App732/three unchanged default pacing failures[0s]vs[0s,0s]/11m47; laterl10n/APK/backup skipped. This qualifies only those44 proposed source comparisons, not additional95/41 or full5133 acceptance.",
       "unresolved": [
         "Actual65846/baseedc RF56/56PASS/all44 unique required original names/zero failerror skip includes these11; no additional credit for12 supplements. Independent/full acceptance remains pending; no model-only result certifies mounted LOS UI or physical propagation."
       ],
@@ -5440,7 +5797,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/PathAnalysisResult.kt",
         "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
       ],
-      "consumer": "Actual feature projection retains returned frequencyMHz/refractionK, not reconstructed display defaults. These pure DTO assertions do not prove the mounted frequency/k controls update correctly.",
+      "consumer": "Actual feature projection retains returned frequencyMHz/refractionK, not reconstructed display defaults. These pure DTO assertions do not prove the mounted frequency/k controls update correctly. Qualified independent source-only review5487680093/COMMENTED at actualce4/baseedc/2026-10-12T07:31:54Z was read: all44 complete originals/29+11+2+2 and their native/helper/result/log/Geodesic/App bindings matched immutable inputs, with no new selected source mismatch. Six donor/12supplement cases add no credit, no universal Darwin/UI/terrain/performance/hardware/private-receipt/full acceptance or relabeling65846 execution. Actualce4 hosted38215116816/Linux114698441941 is FAILURE: App732/three unchanged default pacing failures[0s]vs[0s,0s]/11m47; laterl10n/APK/backup skipped. This qualifies only those44 proposed source comparisons, not additional95/41 or full5133 acceptance.",
       "unresolved": [
         "Actual65846/baseedc RF56/56PASS/all44 unique required originals/zero failerror skip includes these two returned-field methods. Independent source comparison and persistent/full acceptance remain pending."
       ],
@@ -5470,7 +5827,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/rf/RFCalculator.kt",
         "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
       ],
-      "consumer": "Actual App segment delegates selected coordinates/heights/frequency/k and maps resulting obstruction fields. Synchronous math preserves source selected segment origins; consumer drag/runtime/network/cancellation are separate unverified families.",
+      "consumer": "Actual App segment delegates selected coordinates/heights/frequency/k and maps resulting obstruction fields. Synchronous math preserves source selected segment origins; consumer drag/runtime/network/cancellation are separate unverified families. Qualified independent source-only review5487680093/COMMENTED at actualce4/baseedc/2026-10-12T07:31:54Z was read: all44 complete originals/29+11+2+2 and their native/helper/result/log/Geodesic/App bindings matched immutable inputs, with no new selected source mismatch. Six donor/12supplement cases add no credit, no universal Darwin/UI/terrain/performance/hardware/private-receipt/full acceptance or relabeling65846 execution. Actualce4 hosted38215116816/Linux114698441941 is FAILURE: App732/three unchanged default pacing failures[0s]vs[0s,0s]/11m47; laterl10n/APK/backup skipped. This qualifies only those44 proposed source comparisons, not additional95/41 or full5133 acceptance.",
       "unresolved": [
         "Actual65846/baseedc RF56/56PASS/all44 unique required originals/zero failerror skip includes both segment methods. Independent/full acceptance pending; overlapping Geodesic tests/Android edge cases do not add original credit."
       ],
