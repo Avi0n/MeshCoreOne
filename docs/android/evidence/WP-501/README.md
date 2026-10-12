@@ -12,7 +12,20 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-## Three independent reaction/warm-up originals: execution pending
+## Three independent reaction/warm-up originals: actual three-only PASS
+
+Actual clean85f863c97b70bc18b106b5065b2146a34562f25c/base d958 strict
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceReactionAndWarmupOriginalPredicateTest --dependency-verification=strict --quiet`
+PASS3discovered/3passed/0failure-error-skip/all3 exact identities,
+XML2026-10-12T16:36:24.886Z/native dde4de9a218d1739bb0ebaea9137d5951e706d78/
+canonical-LF SHA25665bbd877fc4cdb844d6897591c03e113840518927ae87279dc0233adbb5cbc03/
+24 fingerprints/private raw XML and independent-input receipt captured.
+ReadinessPASS/zero notice normalization/normal own supported native+Gradle
+lock release. All120 original rows/required target80/builders/required parsers/
+literal independent wire hashes/windows/200/optional IDs and empty-store
+completed warmUp execute on actual nativeSQLite/API31 Room. No previous
+aggregate/eight/fourteen/paired-unpaired warmUp replay or original inflation;
+source comparison/current successor hosted/full acceptance remain pending.
 
 Same producer reservation44 admits the new owned class, no product changes.
 Three complete original bodies/joins/72helperrows/24inputs register1468/5133
@@ -40,7 +53,7 @@ instead of source random public-key bytes explicitly disclosed.
 
 Declared new three-only command:
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceReactionAndWarmupOriginalPredicateTest --dependency-verification=strict --quiet`;
-native execution pending. Metadata93PASS; every old native suite/receipt
+actual three-only outcome above. Metadata93PASS; every old native suite/receipt
 unreplayed/unrebound. Actual public e2dd eight-result normal publicationEXIT0,
 Python15/parity93/local21/preflightPASS/scaffold35seconds FAILED incumbent
 BLE JAR transform lock Expected3/found0/inspectunrun/localfastUNVERIFIED;
@@ -416,7 +429,7 @@ unchanged selector was replayed for assignment/status or source-only reviews.
 
 | Issue | Repaired and bounded verification | Remaining |
 | --- | --- | --- |
-| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1465 proposals/187groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS/corrected warmUp-only1 PASS/new7 PASS/new8 RX PASS each on its own receipt;106/135 qualified source-compared. | 14/135 persistence originals unprovided, new7+8 source comparison and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
+| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1468 proposals/188groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS/corrected warmUp-only1 PASS/new7 PASS/new8 RX PASS/new3 reaction-warmUp PASS each on its own receipt;106/135 qualified source-compared. | 11/135 persistence originals unprovided, new7+8+3 source comparison and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
 | [170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170) | Restored independent2s WiFi milestones/checked elapsed helper; historical906df6fb52App+37protocol PASS and bounded qualified source comparison. | Current PR165 exact verification/reviewed persistent merge; no present hardware/global certification. |
 | [171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171) | Original populated1A2B3C route restored; historical7a98f99d13 model identities PASS and qualified source review, not new native replay. | Current reviewed PR165 merge/full acceptance; historical model result not new candidate execution. |
 | [172](https://github.com/cbattlegear/MeshCoreOne-Android/issues/172) | Restored18 URL/coordinate/scalar original predicates; historical6e98b6e460 chats PASS/all57 original identities and bounded source comparison. | Current reviewed PR165 merge/full audit, not universal Unicode/device certification. |

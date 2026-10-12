@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "ce89ffa3467990c1cb6b40231077a43acd2e192a31bb5c2830519902640216e6",
+  "proposal_sha256": "5f850f19eac6311834b99e7f312dca8d7100b98b59fe316217cb772539d92b23",
   "families": [
     {
       "group": "backup-envelope",
@@ -53018,7 +53018,7 @@
     },
     {
       "group": "persistence-original-restored-channel-reaction-and-database-warmup-predicates",
-      "comparison_sha256": "e06a43aeafc7731d5581c500096e9e1ef5248eb30cf6ec3f3bfbefdfc64a0a83",
+      "comparison_sha256": "d520d3cae18b987ac13a10240b564d1033ec39a1e5200e90ce4a6702397d523e",
       "source_file_family_count": 135,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -54826,7 +54826,7 @@
     },
     {
       "group": "persistence-original-restored-channel-reaction-and-database-warmup-predicates",
-      "comparison_sha256": "e06a43aeafc7731d5581c500096e9e1ef5248eb30cf6ec3f3bfbefdfc64a0a83",
+      "comparison_sha256": "d520d3cae18b987ac13a10240b564d1033ec39a1e5200e90ce4a6702397d523e",
       "source_file_family_count": 135,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -55083,7 +55083,7 @@
     },
     {
       "group": "persistence-original-restored-channel-reaction-and-database-warmup-predicates",
-      "comparison_sha256": "e06a43aeafc7731d5581c500096e9e1ef5248eb30cf6ec3f3bfbefdfc64a0a83",
+      "comparison_sha256": "d520d3cae18b987ac13a10240b564d1033ec39a1e5200e90ce4a6702397d523e",
       "source_file_family_count": 135,
       "group_compared_family_count": 3,
       "partial_source_file": true,

@@ -3,8 +3,13 @@
 Three complete channel-reaction/database warm-up originals registered:
 1468/5133/188groups/83mandatory/0approved,124/135 persistence proposed/
 11unprovided versus106/135 qualified source-compared/29uncompared.
-Three bodies/joins/72helperrows/24inputs/reservation44; native three-only
-execution pending. Original120 incoming/channel1/required target80/RemoteNode
+Three bodies/joins/72helperrows/24inputs/reservation44; actual clean85f/base d958
+native three-only3PASS/0bad/all3 exact identities/XML16:36:24.886Z/
+native dde4de9a/canonical-LF SHA65bbd877/24-input raw private receipt.
+ReadinessPASS/zero notices/normal own supported locks released; outcome-only
+all1468 source/native/helper/vector/joins unchanged, three comparison digests
+only. Source comparison/current successor hosted/full acceptance pending.
+Original120 incoming/channel1/required target80/RemoteNode
 and outgoing/channel2/Local message/nil sender both retain actual fresh
 builder/required parser/clipped300 window/limit200/optional exact foundID.
 Independent source-transcribed Python SHA256+little-endian UInt+prefix5+
