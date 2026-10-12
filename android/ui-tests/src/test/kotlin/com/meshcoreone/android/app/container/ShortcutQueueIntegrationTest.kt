@@ -55,6 +55,9 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         configure(h)
         h.manager.connect(h.target(target))
         h.eventually("shortcut services ready") { h.manager.connectionState == DeviceConnectionState.READY }
+        backing.saveChannel(ChannelDTO(
+            radioId = assertNotNull(h.appState.currentRadioId), index = 0u, name = "Synthetic channel",
+        ))
         return h
     }
 
@@ -229,7 +232,7 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         configure(h, holdSync = true, rejectSend = true)
         val connect = backgroundScope.launch { h.manager.connect(h.target(target)) }
         try {
-            h.eventually("actual SYNCING queue route", virtualBudgetMillis = 0) { h.manager.connectionState == DeviceConnectionState.SYNCING }
+            h.eventually("actual SYNCING queue route") { h.manager.connectionState == DeviceConnectionState.SYNCING }
             assertEquals(SendResult.Queued, flow(h).execute(TargetIdentity.contactId(contact), original))
             assertEquals(DeviceConnectionState.SYNCING, h.manager.connectionState)
             assertEquals(1, store.fetchPendingSends(radio).size)
