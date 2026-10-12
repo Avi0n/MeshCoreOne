@@ -52,6 +52,8 @@ def runtime_sources():
         "check.py": Path(__file__).with_name("check.py"),
         "fast.py": Path(__file__).with_name("fast.py"),
         "run.sh": Path(__file__).with_name("run.sh"),
+        "advisory.py": Path(__file__).with_name("advisory.py"),
+        "advisory_test.py": Path(__file__).with_name("advisory_test.py"),
         "inventory_rules.py": MODULE_ROOT / "inventory_rules.py",
     }
     files.update({
@@ -125,8 +127,9 @@ def install_runtime(target: Path, ledger: Ledger, owner: str, now: float):
             hook = target.parent / "hooks" / "meshcore-local"
             if hook.is_dir():
                 for source, name in (
-                    ("hook_test.py", "test_check.py"), ("check.py", "check.py"),
+                    ("advisory.py", "advisory.py"), ("advisory_test.py", "advisory_test.py"),
                     ("fast.py", "fast.py"), ("run.sh", "run.sh"),
+                    ("hook_test.py", "test_check.py"), ("check.py", "check.py"),
                 ):
                     replacement = hook / (name + ".next")
                     replacement.write_bytes((target / source).read_bytes())
