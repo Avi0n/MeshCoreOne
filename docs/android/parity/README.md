@@ -1,6 +1,15 @@
 # WP-501 source, case-family and consumer acceptance
 
 Current proposed inspection is938/5133families/137groups/67mandatory/0approved.
+Latest clean25a/base2cdda Windows ACK+Send execution actually69/68PASS/1FAIL/
+0errors/skips with all51 required names: ACK31PASS/all16selected, Send38/
+37PASS/1FAIL, only unchanged unstarted FEEDFACE routing issue186. Adapted
+genuine-ACK count/event/delivered/RTT123/one-wire guards pass, not identical
+seeded-state/physical receipt equivalence. ReadinessPASS/locksreleased;
+no Room/App/other native scopes selected, overall command remains FAILED.
+Executed blobs/exact command/history are in WP501receipt; evidence-only
+publication preserves them. Fresh independent adaptation/current-hosted/
+persistent/full acceptance remains required, zero approved families.
 Exact8f ACK selector actually31/28PASS/3FAIL/0errors/skips: native identity
 guard rejects three source-unstarted RTT/multi-attempt cases. Current counterparts
 add only actual session startup/SELF assertion, explicitly different input;

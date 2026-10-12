@@ -14,6 +14,25 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
 
+Latest clean25a57d382e325b5a07cfd5118cc466022d586bf5/base2cdda actual
+Windows command:
+`:core:services:test --tests com.meshcoreone.android.core.services.messaging.SourceAckTest --tests com.meshcoreone.android.core.services.messaging.SourceSendTest --dependency-verification=strict --quiet`.
+Discovered69/68PASS/1FAIL/0errors/skips; actual JUnit contains all51 required
+original ACK/send identities. SourceAck31/31PASS/all16selected IDs;
+SourceSend38/37PASS/1FAIL, only unchanged unstarted FEEDFACE/nil/path0 routing
+issue186. Both adapted genuine-ACK send-count cases pass the original count/
+event and stronger delivered/RTT123/one-wire predicates. These are explicit
+native safety counterparts, not passing identical seeded inputs or physical
+receipts. No Room/App/other native scopes selected; overall command is FAILED,
+not green with a removed failing method. ReadinessPASS/bothlocksreleased.
+Executed SourceAckdb77e85a58dcea991a136d98e293f6d502741416,
+SourceSend32a64a9d7293efff2da38269c78e006dd859bcfc and unchanged
+Harnessc2f05a47ad59324e0a4e24eb714a29f1b93327ce. Generated checks/parity92
+passed;8f Python363PASS remains historical, not new25a Python363 execution.
+Proposed938/137/67mandatory/0approved; independent/current-hosted/persistent
+acceptance/fullaudit remain blocked. Evidence-only publication must preserve
+these test/helper blobs, not rerun unchanged25a to chase the known owner defect.
+
 Requested immutable six-path185review completed at7fe/base2cdda:
 [6117861669](https://github.com/cbattlegear/MeshCoreOne-Android/pull/185#issuecomment-6117861669).
 No new bounded blocking finding; all five product/test blobs equal executed
