@@ -71,10 +71,12 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.annotation.LooperMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [31, 37], qualifiers = "en-rUS-w360dp-h900dp-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
+@LooperMode(LooperMode.Mode.INSTRUMENTATION_TEST)
 class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
     private val radio = RadioId(UUID(0, 101))
     private val contact = ContactDTO(id = UUID(0, 102), radioId = radio,
