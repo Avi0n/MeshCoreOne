@@ -217,7 +217,7 @@ class RadioSessionContainer private constructor(
         reactionService = SyncReactionAdapter(reactionService, gaps),
         advertisementService = SyncAdvertisementAdapter(advertisementService),
         rxLogService = SyncRxLogAdapter(rxLogService),
-        heardRepeatsService = SyncHeardRepeatsAdapter(heardRepeatsService, gaps),
+        heardRepeatsService = SyncHeardRepeatsAdapter(heardRepeatsService),
         roomServerService = SyncRoomServerAdapter(roomServerService),
         roomAdminService = SyncRoomAdminAdapter(roomAdminService),
         repeaterAdminService = SyncRepeaterAdminAdapter(repeaterAdminService),

@@ -149,7 +149,7 @@ class HeardRepeatsService(private val dataStore: HeardRepeatPersisting) {
      *
      * @return the updated heard-repeats count when an extra was recorded, null otherwise
      */
-    internal suspend fun recordDistinctPathIfNeeded(
+    suspend fun recordDistinctPathIfNeeded(
         message: MessageDTO,
         pathNodes: Bytes,
         pathLength: UByte,
@@ -203,7 +203,7 @@ class HeardRepeatsService(private val dataStore: HeardRepeatPersisting) {
      * Adopts an unknown canonical path from the earliest [ChannelRXCorrelation] match, then records later
      * distinct paths as extras. Only incoming channel messages are harvested.
      */
-    internal suspend fun harvestIncomingPaths(message: MessageDTO, decodedCandidates: List<RxLogEntryDTO>) {
+    suspend fun harvestIncomingPaths(message: MessageDTO, decodedCandidates: List<RxLogEntryDTO>) {
         if (message.isOutgoing || message.channelIndex == null) return
         val matching = ChannelRXCorrelation.matching(decodedCandidates, message.deduplicationKey)
         var current = message

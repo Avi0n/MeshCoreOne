@@ -42,11 +42,10 @@ import com.meshcoreone.android.core.contracts.domain.ReactionPersisting
 object ServiceVisibilityGaps {
     const val REACTION_TARGET_LOOKUP = "ReactionService.findTargetMessage/findDMTargetMessage are internal"
     const val REACTION_PENDING_QUEUE = "ReactionService.queuePendingReaction/queuePendingDMReaction are internal"
-    const val HEARD_REPEAT_INCOMING_PATHS = "HeardRepeatsService.recordDistinctPathIfNeeded/harvestIncomingPaths are internal"
     const val MESHCORE_OPEN_REACTIONS = "MeshCoreOpenReactionParser (and its parsed types) is internal"
 
     val ALL: List<String> = listOf(
-        REACTION_TARGET_LOOKUP, REACTION_PENDING_QUEUE, HEARD_REPEAT_INCOMING_PATHS, MESHCORE_OPEN_REACTIONS,
+        REACTION_TARGET_LOOKUP, REACTION_PENDING_QUEUE, MESHCORE_OPEN_REACTIONS,
     )
 }
 
@@ -112,20 +111,17 @@ internal class SyncReactionAdapter(
 }
 
 internal class SyncHeardRepeatsAdapter(
-    @Suppress("unused") private val heardRepeats: HeardRepeatsService,
-    private val gaps: GapReporter,
+    private val heardRepeats: HeardRepeatsService,
 ) : SyncHeardRepeatsServicing {
-    override suspend fun harvestIncomingPaths(message: MessageDTO, decodedCandidates: List<RxLogEntryDTO>) {
-        gaps.degraded(ServiceVisibilityGaps.HEARD_REPEAT_INCOMING_PATHS)
-    }
+    override suspend fun harvestIncomingPaths(message: MessageDTO, decodedCandidates: List<RxLogEntryDTO>) =
+        heardRepeats.harvestIncomingPaths(message, decodedCandidates)
 
     override suspend fun recordDistinctPathIfNeeded(
         message: MessageDTO, pathNodes: Bytes, pathLength: UByte, snr: Double?, rssi: Long?,
         receivedAt: Instant, rxLogEntryID: UUID?,
-    ): Long? {
-        gaps.degraded(ServiceVisibilityGaps.HEARD_REPEAT_INCOMING_PATHS)
-        return null
-    }
+    ): Long? = heardRepeats.recordDistinctPathIfNeeded(
+        message, pathNodes, pathLength, snr, rssi, receivedAt, rxLogEntryID,
+    )
 }
 
 /** Reaction text is "a reaction" when the PocketMesh wire format matches; meshcore-open formats are a named gap. */
