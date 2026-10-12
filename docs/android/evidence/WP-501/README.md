@@ -4,7 +4,7 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `ab1b8bbff9dc51f8bc734fd2d20708fc1d6af775`.
+Current integrated base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
@@ -13,6 +13,18 @@ Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
 ## Contact/history input increment and qualified reviews
+
+Actual PR203 MERGED13:24:21Z/#202 CLOSED13:24:22Z; independently verified
+merge d958471ab4835813881a5e7af36e8249a8b273a4 parentsab1b+57636b and
+candidate-equal tree8759e6fb07066dbd5f1bf5fb50bc4a051e167c2a, exact three paths.
+Quiet worker adoption407266aab4178f18ad812f680df2562d2588ee5c; no worker
+product overwrite/approval/mergegate/private owning11 certification.
+Regenerated audit/semantic: all1429 existing bindings/helper bytes unchanged,
+no binding referenced changed AppChatsFeature; metadata unchanged. The two
+mandatory consumer bodies remain exact native7d891e99/SHAfd62c6ad matching64e.
+Actual changed App product inputs justify only a two-consumer postfix invocation,
+not original-five/twelve/owning-six/incumbent-five replay. Fresh two-only
+execution pending; historical64e2FAIL/0c9 hosted2FAIL remain negative.
 
 Actual clean4c16e3d4cdfe2adb9afa065f9f9c591586689140/baseab1 strict Windows
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest --dependency-verification=strict --quiet`
@@ -27,10 +39,10 @@ selected; no original-five/deletion-two/unrelated replay or source/hosted/
 full135/5133/mounted/device certification. Parity93/config/ownership/provenance/
 audit/semantic checks passed for these inputs.
 
-Latest prepared inputs add twelve independent dedup/history/status/channel/
+The pre-execution prepared inputs added twelve independent dedup/history/status/channel/
 unread/terminal-ACK originals:1429/5133 proposals/182groups/83mandatory/0approved,
-85/135 persistence proposed/50remaining. Native discovery/source comparison
-pending; no unexecuted count or extra supplement-original credit. Source
+85/135 persistence proposed/50remaining. At that boundary native discovery/source
+comparison were pending; actual4c16 result is separately recorded above. Source
 Message initializer default0 maps to captured createdAt Unix seconds, applied
 explicitly to status setup; direct helper PENDING and channel helper SENT
 remain distinct. Blocked rawtype0/path0/empty/nil-heard, repeater path2/0102/

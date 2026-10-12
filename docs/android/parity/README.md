@@ -1,5 +1,12 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual owning203 d958/baseab1 adopted407266aa after independent parents/
+candidate-equal8759e6fb/exact three-path verification. All1429 bindings/helper
+bytes unchanged on regeneration; neither generated bindings nor previous receipts
+gain App execution credit. Two mandatory deletion bodies remain byte-identical
+64e/native7d891e99; fresh changed-product two-only execution pending. Original
+five/twelve/owning six not replayed;64e2FAIL/0c9 hosted2FAIL retained.
+
 Actual clean4c16e3d4cdfe2adb9afa065f9f9c591586689140/baseab1 twelve-only
 execution discovered/passed all12 exact identities,0 failures/errors/skips,
 XML13:26:54.335Z/native6e895f3c/SHA87197e52. No old native replay.
@@ -10,8 +17,8 @@ source/hosted/full acceptance remains pending.
 Latest increment:1429/5133 proposed/182groups/83mandatory/0approved,
 85/135 persistence proposed/50remaining. Twelve standalone dedup/history/
 status/channel/unread/terminal-ACK originals now retain complete independent
-contexts and every original predicate; native execution/source comparison
-pending. Source status initializer timestamp0 resolves to captured createdAt
+contexts and every original predicate; actual12 PASS recorded above, independent
+source comparison pending. Source status initializer timestamp0 resolves to captured createdAt
 Unix seconds, not a zero native DTO timestamp. Fresh radio/contact/UUID/current
 clock defaults retained; fixed44/55/56/66/67 keys are disclosed.
 
