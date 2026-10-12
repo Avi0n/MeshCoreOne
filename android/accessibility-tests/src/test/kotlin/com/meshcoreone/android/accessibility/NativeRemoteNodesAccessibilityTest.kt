@@ -89,6 +89,26 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         slider.performSemanticsAction(SemanticsActions.SetProgress) { assertTrue(it(0f)) }
         assertTrue("Native accessibility progress must select the actual earlier sample",
             slider.fetchSemanticsNode().config[SemanticsProperties.ContentDescription].any { it.contains("3.7 V") })
+        compose.onNodeWithTag("remote-history-content").performSemanticsAction(SemanticsActions.ScrollBy) {
+            assertTrue(it(0f, 64f))
+        }
+        val pointer = slider.fetchSemanticsNode()
+        val extension = ((48f * density - pointer.size.height) / 2f).coerceAtLeast(0f)
+        val centerX = pointer.size.width * .8f
+        val viewportBefore = compose.onNodeWithTag("remote-history-content").fetchSemanticsNode().boundsInRoot
+        assertTrue("The entire measured 48dp pointer square must be inside the native history viewport",
+            pointer.positionInRoot.y - extension >= viewportBefore.top &&
+                pointer.positionInRoot.y + pointer.size.height + extension <= viewportBefore.bottom &&
+                centerX - 24f * density >= 0f && centerX + 24f * density <= pointer.size.width)
+        for (x in listOf(centerX - 24f * density, centerX + 24f * density)) {
+            for (y in listOf(-extension, pointer.size.height + extension)) {
+                slider.performSemanticsAction(SemanticsActions.SetProgress) { assertTrue(it(1f)) }
+                slider.performTouchInput { click(Offset(x, y)) }
+                assertTrue("A native pointer at the 48dp square boundary must select the actual earlier sample",
+                    slider.fetchSemanticsNode().config[SemanticsProperties.ContentDescription].any { it.contains("3.7 V") })
+            }
+        }
+        println("WP503_REMOTE_HISTORY_POINTER|semanticHeight=${pointer.size.height / density}|extension=${extension / density}|verifiedSquare=48x48dp|corners=4")
         val value = compose.onNodeWithText("3.7 V", substring = true).performScrollTo().assertIsDisplayed()
         assertFont200Unclipped(value)
         val node = value.fetchSemanticsNode()
@@ -100,8 +120,6 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         assertEquals(1, rig.historyReads)
         compose.onNodeWithText(host.get().getString(L.remoteNodesDone)).performClick()
         compose.onNodeWithTag("remote-node-list").assertIsDisplayed()
-        assertTrue("The native non-gesture slider must retain a 48dp effective target",
-            measured.touchBoundsInRoot.width / density >= 48f && measured.touchBoundsInRoot.height / density >= 48f)
     }
 
     @Test fun frameworkSliderCalibratesNativeSemanticsVersusPointerTargetExpansion() {
@@ -127,6 +145,8 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         compose.runOnIdle { value.floatValue = .5f; callbacks = 0 }
         slider.performTouchInput { click(Offset(measured.size.width * .8f, measured.size.height + 2f)) }
         println("WP503_FRAMEWORK_SLIDER|bounds=${measured.touchBoundsInRoot}|size=${measured.size}|top2pxCallbacks=$top|bottom2pxCallbacks=$callbacks")
+        assertEquals("Native pointer expansion, not the 44px semantic box, must be calibrated", 1, top)
+        assertEquals(1, callbacks)
     }
 
     @Test fun emptyOfflineHistoryExplainsTheAbsenceOfSnapshotsWithoutDrawingAFakeChart() {
