@@ -145,6 +145,7 @@ fun ToolsDiagnosticsScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CliScreen(dependencies: ToolsDiagnosticsDependencies, connectionVersion: Int, modifier: Modifier) {
+    val hasCliService = dependencies.cli.repeaterAdminService() != null
     val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val text = remember(resources) { ResourcesDiagnosticsText(resources) }
@@ -157,11 +158,11 @@ private fun CliScreen(dependencies: ToolsDiagnosticsDependencies, connectionVers
     val clipboard = LocalClipboardManager.current
 
     DisposableEffect(holder) {
-        controller.onAppear()
-        onDispose {
-            controller.onDisappear()
-            holder.cleanup()
-        }
+        onDispose(holder::cleanup)
+    }
+    DisposableEffect(controller, hasCliService) {
+        if (hasCliService) controller.onAppear()
+        onDispose(controller::onDisappear)
     }
     LaunchedEffect(dependencies, connectionVersion) {
         if (connectionVersion > 0) holder.reset()
@@ -174,7 +175,19 @@ private fun CliScreen(dependencies: ToolsDiagnosticsDependencies, connectionVers
         }
     }
     LaunchedEffect(state.isWaitingForResponse) { controller.onWaitingChanged(state.isWaitingForResponse) }
-    LaunchedEffect(uiState.isKeyboardFocused) { if (uiState.isKeyboardFocused) focus.requestFocus() }
+    LaunchedEffect(uiState.isKeyboardFocused, hasCliService) {
+        if (hasCliService && uiState.isKeyboardFocused) focus.requestFocus()
+    }
+
+    if (!hasCliService) {
+        Column(modifier.verticalScroll(rememberScrollState())) {
+            DiagnosticMessage(
+                stringResource(AppToolsStrings.toolsCliNotConnected),
+                stringResource(AppToolsStrings.toolsCliNotConnectedDescription),
+            )
+        }
+        return
+    }
 
     Column(
         modifier.padding(horizontal = 12.dp).onPreviewKeyEvent { event ->
