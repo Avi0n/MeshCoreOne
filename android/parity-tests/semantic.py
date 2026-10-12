@@ -549,7 +549,7 @@ def bind_reviews(groups, repo=audit.REPO):
             native = candidates[0]
             helper_assertions = [
                 {"invocation": call, "definition": checked_helpers[call["name"]]}
-                for call in native.get("actions_and_helper_calls", [])
+                for call in native["assertions"] + native.get("actions_and_helper_calls", [])
                 if call["name"] in checked_helpers
             ]
             if not native["assertions"] and not helper_assertions:

@@ -1,6 +1,30 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current proposed inspection is1182/5133families/167groups/77mandatory/0approved.
+Current proposed inspection is1258/5133families/173groups/77mandatory/0approved.
+Adds76 complete original radio-preset comparisons in six disjoint groups:
+recommendation36/selectability16/visibility6/aliases15/encoding2/hashmode1.
+Every independent membership/exclusion/ordered alias/field/parameter branch
+is preserved. Actual assertRF four equalities and preset nonnull helper bodies
+are bound, alongside full28-row source/native catalogs/country lookup/DTOs
+and real App catalog/configurator/settings-holder consumers.
+Native visibility helper injects Locale.US versus source ambient locale;
+two encoding helpers use Europe rather than NorthAmerica and hashmode's
+availability is continentEurope rather than countriesNL. These are explicit
+different-input counterparts only for selected membership/set and pure getter
+predicates, not whole DTO or universal locale/order equivalence. Six native
+supplements/28 catalog rows add no original credit. Selected execution and
+independent/full acceptance pending;189/192 witnesses are unchanged.
+The audit caught a real helper-binding omission: assert-prefixed checked
+wrappers were classified as assertions, so their nested definitions were
+not attached. The binder now searches both call categories. New regression
+actually failed expected1/actual0 before the one-line fix; parity93 now PASS.
+Five RF parameter cases bind all four helper equalities each. Two prior chat
+cases add their existing bidi/invisible-scalar helper definitions only; every
+prior1182 source/native/input/assertion binding is otherwise unchanged.
+Initial isolated Python import failure discovered no real test; explicit
+repository controller import path resolved it, not native/acceptance evidence.
+
+Historical service increment1182/5133families/167groups/77mandatory/0approved:
 The next41 disjoint full-body service comparisons cover22 HeardRepeats/
 19 ReactionService originals in eight groups. One store-only original now
 uses actual API31/native SQLite Room/RoomPersistenceStore rather than its

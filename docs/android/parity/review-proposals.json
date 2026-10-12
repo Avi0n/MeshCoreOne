@@ -5,6 +5,316 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "radio-preset-original-radiopresetrecommendationtests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+      "native_factory": "recommendations",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.device.RadioPresetTest",
+      "runner_name": "original-case-id",
+      "comparison": "All36 complete bodies/independent branches preserve county LA/Sacramento/manualCA->wcmesh/us-ca/us-ca; AUQLD/AUWA/PANJ/DEMD/manualUS/CA/VIC/TX/PT/VN/NL/HUSKCR/CLBR/DE/BM exactIDs/nil; priorities110 and county->subdivision->country->continent precedence. LVMesh name/frequency910.525/BW500/SF10/CR5/hash2/NorthAmerica, Canada name/910.525/62.5/7/5/hash3/NA, Limburg name/869.618/62.5/8/8/hash2/EU, USA name, Chile927.875/62.5/8/5/SouthAmerica, Brazil923.125/62.5/8/8/SouthAmerica are preserved. Independent all11 hash-size lookups retain hu/sk/nz-lr/nz-narrow/lvmesh/ca/wcmesh/nl-li/nl/us-ca/cr. Alternatives preserve Sacramento wcmesh+us-ca; TX lvmesh/us-ca/wcmesh; DE eu-narrow/eu-lr/no-us-ca; PT two/no-EU; VN both; BR; CA inclusion/three exclusions; NL/nl-li/no-EU. assertRF's four real equalities and preset assertNotNull helper are explicitly bound, not discarded helper calls.",
+      "inputs": "All complete selected original/native bodies and local helper fields/actions read. Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "adaptations": "Swift Int64 priority/hashSize maps to Long, UInt8 SF/CR/mode to UByte and UInt32 scaled values to UInt; nullable mode and immutable snapshot catalog/key collections preserved. All selected ASCII ISO/subdivision/county/ID strings and independent fields/branches remain. Native assertRF replaces four inline equalities; both actual helper bodies are bound. Visibility helper Locale.US replaces unspecified source ambient Locale only for selected membership/set predicates; no universal locale/order equivalence. Two encoding helpers NorthAmerica->Europe and hash availability countriesNL->continentEurope are disclosed different-input counterparts only for pure getters unaffected by those fields; not full DTO/region equivalence. Native invalid conversion/mode typed errors differ from source traps and belong to six supplements, not76 passing originals. Stable aliases/catalog order retained; no physical reconfiguration, extra case from loop branches or current default consumer success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+        "MC1Services/Sources/MC1Services/Services/RadioPresets.swift",
+        "MC1Services/Sources/MC1Services/Services/RegionalAreas.swift",
+        "MC1Services/Sources/MC1Services/Models/RegionSelection.swift",
+        "MC1/Views/Settings/Sections/RadioPresetSection.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/SourceCases.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RadioPresets.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RegionalAreas.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RegionValues.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppSettingsFeature.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresets.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/AppOnboarding.kt",
+        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/RadioPresetStateHolder.kt"
+      ],
+      "checked_assertion_helpers": {
+        "assertRF": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "preset": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt"
+      },
+      "consumer": "Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "unresolved": [
+        "Actual selected native execution and independent different-input/full/persistent acceptance pending. Six native supplements/28 catalog rows/parameter branches add no original credit; no locale/Darwin/geocoder/UI/Room/physical-radio/full5133 parity claim."
+      ],
+      "methods": [
+        "LA, CA → WCMesh",
+        "Sacramento (no countyKey match) → us-ca",
+        "Manual California pick (countyKey nil) → us-ca",
+        "Queensland → au-qld",
+        "Western Australia → au-sa-wa",
+        "Pennsylvania → lvmesh",
+        "New Jersey → lvmesh",
+        "Delaware → us-ca",
+        "Maryland → us-ca",
+        "Manual US with no admin → us-ca",
+        "LVMesh preset carries the expected radio parameters",
+        "USA catalog name is USA",
+        "Canada → ca",
+        "Canada preset carries the expected radio parameters",
+        "Limburg preset carries the expected radio parameters",
+        "Victoria, AU (no sub-region preset) → au-915 (Tier 2)",
+        "Texas → us-ca",
+        "Lisbon (PT) → pt-868 (priority 110 beats pt-433)",
+        "Vietnam → vn-narrow (priority 110 beats deprecated vn)",
+        "Netherlands → nl (country tier beats EU continent)",
+        "Hungary, Slovakia, and Costa Rica recommend their country presets",
+        "catalog pathHashSize is set only on presets that name a hash",
+        "Chile → cl",
+        "Chile preset carries the expected radio parameters",
+        "Brazil → br",
+        "Brazil preset carries the expected radio parameters",
+        "Berlin (DE) → eu-narrow (priority 110 beats eu-lr)",
+        "Bermuda → nil (no continent mapping)",
+        "presets(for: Sacramento) includes wcmesh in alternatives",
+        "presets(for: Texas) includes lvmesh in membership",
+        "presets(for: DE) returns continent-tier presets",
+        "presets(for: PT) returns country-and-below only",
+        "presets(for: VN) includes both vn-narrow and vn",
+        "presets(for: BR) includes br",
+        "presets(for: CA) includes ca and excludes us-ca",
+        "presets(for: NL) includes nl and nl-li"
+      ]
+    },
+    {
+      "id": "radio-preset-original-radiopresetselectabilitytests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+      "native_factory": "selectability",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.device.RadioPresetTest",
+      "runner_name": "original-case-id",
+      "comparison": "All16 complete bodies retain LA/Sacramento/manualCA/TX/nil/LA/PANJ/DEMD/manualUS/nil/QLD/SA/manualAU/VIC and nil+TX+DE parameter loop. Every independent wcmesh/lvmesh/au-qld/au-sa-wa hidden/selectable and us-ca/eu-narrow/au-915 ungated assertion is preserved, including nil's four exclusions/two inclusions and Delaware+Maryland's independent branches. Normalized county keys are source input, not a newly tested Android geocoder or universal case-folding claim.",
+      "inputs": "All complete selected original/native bodies and local helper fields/actions read. Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "adaptations": "Swift Int64 priority/hashSize maps to Long, UInt8 SF/CR/mode to UByte and UInt32 scaled values to UInt; nullable mode and immutable snapshot catalog/key collections preserved. All selected ASCII ISO/subdivision/county/ID strings and independent fields/branches remain. Native assertRF replaces four inline equalities; both actual helper bodies are bound. Visibility helper Locale.US replaces unspecified source ambient Locale only for selected membership/set predicates; no universal locale/order equivalence. Two encoding helpers NorthAmerica->Europe and hash availability countriesNL->continentEurope are disclosed different-input counterparts only for pure getters unaffected by those fields; not full DTO/region equivalence. Native invalid conversion/mode typed errors differ from source traps and belong to six supplements, not76 passing originals. Stable aliases/catalog order retained; no physical reconfiguration, extra case from loop branches or current default consumer success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+        "MC1Services/Sources/MC1Services/Services/RadioPresets.swift",
+        "MC1Services/Sources/MC1Services/Services/RegionalAreas.swift",
+        "MC1Services/Sources/MC1Services/Models/RegionSelection.swift",
+        "MC1/Views/Settings/Sections/RadioPresetSection.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/SourceCases.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RadioPresets.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RegionalAreas.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RegionValues.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppSettingsFeature.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresets.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/AppOnboarding.kt",
+        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/RadioPresetStateHolder.kt"
+      ],
+      "checked_assertion_helpers": {
+        "assertRF": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "preset": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt"
+      },
+      "consumer": "Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "unresolved": [
+        "Actual selected native execution and independent different-input/full/persistent acceptance pending. Six native supplements/28 catalog rows/parameter branches add no original credit; no locale/Darwin/geocoder/UI/Room/physical-radio/full5133 parity claim."
+      ],
+      "methods": [
+        "SoCal county → WCMesh selectable",
+        "NorCal county → WCMesh hidden, us-ca still selectable",
+        "California with no county → WCMesh hidden",
+        "Non-CA US state → WCMesh hidden, us-ca selectable",
+        "nil region → WCMesh hidden, global presets selectable",
+        "SoCal county → WCMesh selectable, LVMesh hidden",
+        "Pennsylvania → LVMesh selectable, WCMesh hidden, us-ca selectable",
+        "New Jersey → LVMesh selectable",
+        "Delaware and Maryland → LVMesh hidden, us-ca selectable",
+        "Manual US with no admin → LVMesh hidden",
+        "nil region → LVMesh hidden, us-ca selectable",
+        "Queensland → au-qld selectable, au-sa-wa hidden",
+        "South Australia → au-sa-wa selectable, au-qld hidden",
+        "Manual AU with no admin → both AU sub-region presets hidden, au-915 selectable",
+        "Victoria → both AU sub-region presets hidden, au-915 selectable",
+        "Continent/country presets selectable for any region including nil"
+      ]
+    },
+    {
+      "id": "radio-preset-original-radiopresetvisiblepresetstests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+      "native_factory": "visibility",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.device.RadioPresetTest",
+      "runner_name": "original-case-id",
+      "comparison": "All6 complete bodies preserve CA us-ca/no-eu-narrow; active eu-narrow keeps both but alternatives excludes it; LA wcmesh+us-ca versus manualCA no-wcmesh/us-ca; PA lvmesh+us-ca versus TX no-lvmesh/us-ca; nil no-wcmesh/lvmesh/au-qld with us-ca/eu-narrow; manualBermuda set-equal nil fallback and nonempty. Native helper explicitly injects Locale.US while frozen helper uses ambient Locale.current: disclosed different-input selected membership/set-equivalence counterpart, not every-locale sort/order/UI/geolocation acceptance.",
+      "inputs": "All complete selected original/native bodies and local helper fields/actions read. Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "adaptations": "Swift Int64 priority/hashSize maps to Long, UInt8 SF/CR/mode to UByte and UInt32 scaled values to UInt; nullable mode and immutable snapshot catalog/key collections preserved. All selected ASCII ISO/subdivision/county/ID strings and independent fields/branches remain. Native assertRF replaces four inline equalities; both actual helper bodies are bound. Visibility helper Locale.US replaces unspecified source ambient Locale only for selected membership/set predicates; no universal locale/order equivalence. Two encoding helpers NorthAmerica->Europe and hash availability countriesNL->continentEurope are disclosed different-input counterparts only for pure getters unaffected by those fields; not full DTO/region equivalence. Native invalid conversion/mode typed errors differ from source traps and belong to six supplements, not76 passing originals. Stable aliases/catalog order retained; no physical reconfiguration, extra case from loop branches or current default consumer success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+        "MC1Services/Sources/MC1Services/Services/RadioPresets.swift",
+        "MC1Services/Sources/MC1Services/Services/RegionalAreas.swift",
+        "MC1Services/Sources/MC1Services/Models/RegionSelection.swift",
+        "MC1/Views/Settings/Sections/RadioPresetSection.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/SourceCases.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RadioPresets.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RegionalAreas.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RegionValues.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppSettingsFeature.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresets.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/AppOnboarding.kt",
+        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/RadioPresetStateHolder.kt"
+      ],
+      "checked_assertion_helpers": {
+        "assertRF": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "preset": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt"
+      },
+      "consumer": "Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "unresolved": [
+        "Actual selected native execution and independent different-input/full/persistent acceptance pending. Six native supplements/28 catalog rows/parameter branches add no original credit; no locale/Darwin/geocoder/UI/Room/physical-radio/full5133 parity claim."
+      ],
+      "methods": [
+        "US-CA includes us-ca and excludes eu-narrow",
+        "US-CA with active eu-narrow keeps both and presets(for:) does not contain eu-narrow",
+        "WCMesh only when the county matches; us-ca remains for California without that county",
+        "Pennsylvania shows LVMesh; Texas hides it",
+        "nil place uses locale list, hides county and sub-region presets, keeps country presets",
+        "Bermuda empty regional list falls back to locale list"
+      ]
+    },
+    {
+      "id": "radio-preset-original-radiopresetaliasidentitytests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+      "native_factory": "aliasesAndEncoding",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.device.RadioPresetTest",
+      "runner_name": "original-case-id",
+      "comparison": "All15 complete bodies preserve ordered BR aliases[au-sa-wa,br], CH[eu-narrow,ch,nl-li], NL[hu,nl,sk], HUNLSK country recommendations/DE nil, QLD and LVMesh independent singleton sets, USA[us-ca,ca]; preferred br/au-sa-wa/ch wins; stale br->us-ca nil; uniqueQLD with staleBR stillQLD; staleUSA preferredBR gives manualUS us-ca/CA ca/nil custom; BR AUSA/BR and CH CH/DE recommendations; unmatched manualUS/nil custom; preferredBR beatsAUSA; matchingPreset BRnil/QLD nonnil; alreadyConfigured BR membership and unique resultnotBR. Helpers resolve actual scaled RF tuples/all four fields, no first-match alias shortcut.",
+      "inputs": "All complete selected original/native bodies and local helper fields/actions read. Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "adaptations": "Swift Int64 priority/hashSize maps to Long, UInt8 SF/CR/mode to UByte and UInt32 scaled values to UInt; nullable mode and immutable snapshot catalog/key collections preserved. All selected ASCII ISO/subdivision/county/ID strings and independent fields/branches remain. Native assertRF replaces four inline equalities; both actual helper bodies are bound. Visibility helper Locale.US replaces unspecified source ambient Locale only for selected membership/set predicates; no universal locale/order equivalence. Two encoding helpers NorthAmerica->Europe and hash availability countriesNL->continentEurope are disclosed different-input counterparts only for pure getters unaffected by those fields; not full DTO/region equivalence. Native invalid conversion/mode typed errors differ from source traps and belong to six supplements, not76 passing originals. Stable aliases/catalog order retained; no physical reconfiguration, extra case from loop branches or current default consumer success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+        "MC1Services/Sources/MC1Services/Services/RadioPresets.swift",
+        "MC1Services/Sources/MC1Services/Services/RegionalAreas.swift",
+        "MC1Services/Sources/MC1Services/Models/RegionSelection.swift",
+        "MC1/Views/Settings/Sections/RadioPresetSection.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/SourceCases.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RadioPresets.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RegionalAreas.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RegionValues.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppSettingsFeature.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresets.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/AppOnboarding.kt",
+        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/RadioPresetStateHolder.kt"
+      ],
+      "checked_assertion_helpers": {
+        "assertRF": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "preset": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt"
+      },
+      "consumer": "Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "unresolved": [
+        "Actual selected native execution and independent different-input/full/persistent acceptance pending. Six native supplements/28 catalog rows/parameter branches add no original credit; no locale/Darwin/geocoder/UI/Room/physical-radio/full5133 parity claim."
+      ],
+      "methods": [
+        "Brazil RF matches au-sa-wa and br in catalog order",
+        "EU Narrow RF matches eu-narrow, ch, and nl-li in catalog order",
+        "Netherlands RF matches hu, nl, and sk in catalog order",
+        "unlabeled NL-family collision uses country recommendation",
+        "unique RF still returns a one-element set",
+        "USA RF matches us-ca and ca in catalog order",
+        "preferredID wins among aliases",
+        "stale preferredID does not win",
+        "stale preferredID on unique RF yields that unique preset",
+        "stale preferredID on USA/Canada RF uses recommendation or Custom",
+        "unlabeled collision uses recommended when it is in the set",
+        "unlabeled collision with no recommended in set is Custom",
+        "preferredID beats recommended",
+        "matchingPreset is unique-or-nil, not first-wins",
+        "alreadyConfigured is RF membership not first-match id"
+      ]
+    },
+    {
+      "id": "radio-preset-original-radiopresetencodingtests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+      "native_factory": "aliasesAndEncoding",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.device.RadioPresetTest",
+      "runner_name": "original-case-id",
+      "comparison": "Both complete bodies preserve independent frequency512.002MHz->512002kHz atBW62.5 and bandwidth62.501kHz->62501Hz at915MHz, SF7/CR5/testID/Test. Frozen helper is NorthAmerica/continentNorthAmerica, native shared helper is Europe/continentEurope: disclosed inert-field different-input counterpart for getters depending solely on frequency/bandwidth, not full RadioPreset value equivalence. Both definitions read; numeric literals are frozen expectations, not candidate-generated goldens.",
+      "inputs": "All complete selected original/native bodies and local helper fields/actions read. Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "adaptations": "Swift Int64 priority/hashSize maps to Long, UInt8 SF/CR/mode to UByte and UInt32 scaled values to UInt; nullable mode and immutable snapshot catalog/key collections preserved. All selected ASCII ISO/subdivision/county/ID strings and independent fields/branches remain. Native assertRF replaces four inline equalities; both actual helper bodies are bound. Visibility helper Locale.US replaces unspecified source ambient Locale only for selected membership/set predicates; no universal locale/order equivalence. Two encoding helpers NorthAmerica->Europe and hash availability countriesNL->continentEurope are disclosed different-input counterparts only for pure getters unaffected by those fields; not full DTO/region equivalence. Native invalid conversion/mode typed errors differ from source traps and belong to six supplements, not76 passing originals. Stable aliases/catalog order retained; no physical reconfiguration, extra case from loop branches or current default consumer success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+        "MC1Services/Sources/MC1Services/Services/RadioPresets.swift",
+        "MC1Services/Sources/MC1Services/Services/RegionalAreas.swift",
+        "MC1Services/Sources/MC1Services/Models/RegionSelection.swift",
+        "MC1/Views/Settings/Sections/RadioPresetSection.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/SourceCases.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RadioPresets.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RegionalAreas.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RegionValues.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppSettingsFeature.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresets.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/AppOnboarding.kt",
+        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/RadioPresetStateHolder.kt"
+      ],
+      "checked_assertion_helpers": {
+        "assertRF": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "preset": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt"
+      },
+      "consumer": "Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "unresolved": [
+        "Actual selected native execution and independent different-input/full/persistent acceptance pending. Six native supplements/28 catalog rows/parameter branches add no original credit; no locale/Darwin/geocoder/UI/Room/physical-radio/full5133 parity claim."
+      ],
+      "methods": [
+        "frequencyKHz rounds to the nearest kHz",
+        "bandwidthHz rounds to the nearest Hz"
+      ]
+    },
+    {
+      "id": "radio-preset-original-radiopresetpathhashsizetests",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+      "native_factory": "aliasesAndEncoding",
+      "runner_directory": "core/services/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.services.device.RadioPresetTest",
+      "runner_name": "original-case-id",
+      "comparison": "Complete original preserves independent nil->nil/size1->mode0/size2->mode1 with testID/Test/Europe/869.618/62.5/SF7/CR5. Frozen helper availability countriesNL versus native shared helper continentEurope is an explicit inert-field different-input counterpart for pathHashMode depending only on pathHashSize, not complete DTO equivalence or live firmware activation.",
+      "inputs": "All complete selected original/native bodies and local helper fields/actions read. Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "adaptations": "Swift Int64 priority/hashSize maps to Long, UInt8 SF/CR/mode to UByte and UInt32 scaled values to UInt; nullable mode and immutable snapshot catalog/key collections preserved. All selected ASCII ISO/subdivision/county/ID strings and independent fields/branches remain. Native assertRF replaces four inline equalities; both actual helper bodies are bound. Visibility helper Locale.US replaces unspecified source ambient Locale only for selected membership/set predicates; no universal locale/order equivalence. Two encoding helpers NorthAmerica->Europe and hash availability countriesNL->continentEurope are disclosed different-input counterparts only for pure getters unaffected by those fields; not full DTO/region equivalence. Native invalid conversion/mode typed errors differ from source traps and belong to six supplements, not76 passing originals. Stable aliases/catalog order retained; no physical reconfiguration, extra case from loop branches or current default consumer success.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/RadioPresetRecommendationTests.swift",
+        "MC1Services/Sources/MC1Services/Services/RadioPresets.swift",
+        "MC1Services/Sources/MC1Services/Services/RegionalAreas.swift",
+        "MC1Services/Sources/MC1Services/Models/RegionSelection.swift",
+        "MC1/Views/Settings/Sections/RadioPresetSection.swift",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/SourceCases.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RadioPresets.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RegionalAreas.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RegionValues.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppSettingsFeature.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresets.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/AppOnboarding.kt",
+        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/RadioPresetStateHolder.kt"
+      ],
+      "checked_assertion_helpers": {
+        "assertRF": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt",
+        "preset": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RadioPresetTest.kt"
+      },
+      "consumer": "Complete frozen/native76 bodies, local assertion/tuple/visibility helpers, actual28-row catalog and relevant country lookup/DTO definitions read. AppSettingsFeature projects IDs/names/region/repeat headers and resolves actual device RF/preferredID/region; actual onboarding catalog projects visible presets and AppStateRadioConfigurator forwards full preset to verified service then device editor. Settings holder separates programmatic selection from actual user write; source consumer/verified path-hash boundary and actual SettingsService apply method were read. No mounted settings/onboarding/Room preference/geocoder/permission/sorting/cancellation/real-radio activation proof is inferred from these pure selection cases. Current189/192 witnesses and full acceptance remain blocking.",
+      "unresolved": [
+        "Actual selected native execution and independent different-input/full/persistent acceptance pending. Six native supplements/28 catalog rows/parameter branches add no original credit; no locale/Darwin/geocoder/UI/Room/physical-radio/full5133 parity claim."
+      ],
+      "methods": [
+        "pathHashMode is pathHashSize minus one, or nil"
+      ]
+    },
+    {
       "id": "reaction-service-original-heardrepeatsservice-channelMessageFormatParseTests",
       "source_path": "MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift",
       "partial_source_file": true,

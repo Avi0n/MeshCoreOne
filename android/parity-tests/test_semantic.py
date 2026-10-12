@@ -189,7 +189,7 @@ class SemanticBindingTest(unittest.TestCase):
     def fixture(self):
         native = {
             "path": "android/native.kt", "method_or_family_name": "checked", "factory_method": None,
-            "assertions": [{"expression": "assertEquals(1, actual)"}], "class": "Native",
+            "assertions": [{"name": "assertEquals", "expression": "assertEquals(1, actual)"}], "class": "Native",
         }
         family = {
             "source_path": "Original.swift", "source_blob_sha": "a" * 40, "case_id": "Original::checked()",
@@ -291,6 +291,26 @@ class SemanticBindingTest(unittest.TestCase):
                 patch.object(semantic, "checked_assertion_helpers", return_value=definitions), \
                 self.assertRaisesRegex(PortError, "actual native assertions"):
             semantic.bind_reviews(groups)
+
+    def test_assert_prefixed_checked_helper_binds_its_real_nested_assertions(self):
+        groups, value = self.fixture()
+        native = groups["WP-101"]["families"][0]["native_proposals"][0]
+        invocation = {"name": "assertFields", "expression": "assertFields(actual)"}
+        native.update(assertions=[invocation], actions_and_helper_calls=[])
+        definitions = self.helper_definition(
+            "fun assertFields(value: Result) { assertEquals(1, value.first); assertEquals(2, value.second) }",
+            name="assertFields",
+        )
+        with patch.object(semantic, "load_json", return_value=value), \
+                patch.object(semantic, "checked_assertion_helpers", return_value=definitions):
+            family = semantic.bind_reviews(groups)["families"][0]
+        self.assertEqual(1, len(family["native_checked_helper_assertions"]))
+        checked = family["native_checked_helper_assertions"][0]
+        self.assertEqual(invocation, checked["invocation"])
+        self.assertEqual(["assertEquals(1, value.first)", "assertEquals(2, value.second)"],
+                         [call["expression"] for call in checked["definition"]["assertions"]])
+        self.assertEqual(["Native", "checked()"], family["runner_identity"])
+        self.assertIn("awaiting-independent-review", family["status"])
 
     def test_ambiguous_same_named_lambdas_fail_without_factory_qualification(self):
         groups, value = self.fixture()

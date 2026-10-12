@@ -12,7 +12,40 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-## Current reaction/repeat service originals and real Room query
+## Current radio-preset original comparisons
+
+Current proposals1258/5133families/173groups/77mandatory/0approved add76
+complete RadioPresetRecommendationTests source bodies/native counterparts
+across six disjoint groups. Exact county/subdivision/country/continent inputs,
+priorities/ID alternatives/independent exclusions/catalog RF fields/path hashes,
+ordered RF alias sets/preferred-stale-recommended-unique/custom resolution,
+rounding and nil/one/two hashmode branches are preserved and assertion-bound.
+Native assertRF four direct equalities and preset nonnull guard are explicit
+checked-helper bindings, not uninspected helper names. Full28-row source/native
+catalogs and country lookup/model/actual App consumer paths were read.
+Locale.US substitutes source ambient locale only for selected membership/set
+predicates. Encoding fixture region NorthAmerica->Europe and hashmode fixture
+availability countriesNL->continentEurope are disclosed inert-field different
+inputs, not whole DTO parity. Numeric expectations remain frozen literals;
+six native supplements/catalog rows add no original credit. New selected
+native execution/independent/persistent acceptance pending, not green totals.
+No product/test/helper/input/golden edit or replay of incoming192/pacing189
+failures; those and full acceptance remain blocked.
+Actual binding inspection initially found zero attached assertRF definitions:
+the lexer classifies assert-prefixed wrappers as assertions, while the binder
+searched only action/helper calls. A new test genuinely discovers52 semantic
+cases/one FAIL expected attached1/actual0 before the fix. The initial isolated
+command without controller import path failed import/no real discovery; it is
+not that regression evidence. Explicit existing PYTHONPATH resolves imports.
+One-line binder fix searches both categories, leaving native predicates intact.
+`python -m unittest discover -s android/parity-tests -p 'test_*.py' -q`
+now PASS93; audit/semantic --check PASS. All5 original RF parameter bodies
+attach four actual helper equality definitions each. Existing two chat bodies
+now additionally attach assertNoBidiControls/assertNoInvisibleScalars; all prior
+1182 executable source/native/input/assertion bindings otherwise unchanged.
+No current native execution is invented from this Python support repair.
+
+## Historical reaction/repeat service originals and real Room query
 
 Current proposals1182/5133families/167groups/77mandatory/0approved.
 Adds41 disjoint complete original service bodies in eight groups: HeardRepeats
