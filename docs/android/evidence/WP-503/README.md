@@ -1,11 +1,55 @@
 # WP-503 attempt evidence
 
-**Native Map List224 and LoS endpoint225 block acceptance; PR205/WP503 remain incomplete.**
+**Map List224, LoS endpoint225 and offline discovery226 block acceptance; PR205/WP503 remain incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native Nodes search/filter and offline discovery
+
+At exact `f010a979b796e6ec04549781effa43d852091d4b`, the installed serialized
+snapshot/preflight adapter executes the existing declared selector:
+
+```text
+:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeNodesAccessibilityTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m
+```
+
+**12 discovered/10 passed/2 failed,0 errors/skips.** Actual class annotations and
+native output select Robolectric SDK31/37 native graphics, actual Resourcesfont2/RTL.
+Original8 cases pass in this same execution; new search/filter/name-sort2 pass.
+These are native JVM mounted observations, not actual emulator/spoken TalkBack evidence.
+No source/CI result bundle is committed or a whole74-case JVM pass inferred.
+
+New passing states exercise real public list/holder and explicit offline store:
+auto-favorite selection; Repeaters/Rooms state and readable results; BQ query reaching
+the repeater while Rooms remains selected; CJK no-match heading; Q matching all types;
+native Name menu and actual AQ-before-BQ row geometry; scroll-reachable CJK favorite;
+and clearing query returning to the selected Room. Font and48dp assertions stay unchanged.
+
+The initial exact2ac selector discovers12/passes8/fails4, zero errors/skips.
+Its search case failed because BQ matched both the current input editor and real result.
+The corrected selector excludes SetText for that data-result query, preserving all
+font/order/visibility/target assertions; both search methods then pass. No product font
+finding is claimed by the observer ambiguity.
+
+The remaining failures are
+`offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner[31]`
+and its SDK37 invocation. Both log native indeterminate1/discoveredReads0 with current
+radio/available offline store/connectedDevice null, after actual native idling completes.
+Public load aborts before completing hasLoadedOnce; no I/O/transport/cancellable
+operation owns the displayed spinner. Native consumer blobs: DiscoveryStateHolder
+6958f6d6a45f96d7ba449fdb2296c3d18ac92609, DiscoveryScreen
+cb129b20c653cca4940fcce8ade8c474eb1b7d75, unchanged main d818.
+
+Actual [defect226](https://github.com/cbattlegear/MeshCoreOne-Android/issues/226) belongs
+to WP311/nodes-map-ui-engineer. Frozen db145 Discovery configures radio from
+connectedDevice too; no frozen active-radio fallback, iOS execution or automatic
+parity deviation is invented. Approved native honest loading/cached recovery requires
+product-owner correction or explicit reviewed live-only recovery policy. Later empty
+heading/description/font/target assertions remain unexecuted, not green. Existing
+WP501 parity/accounting and218 region findings are untouched; no new actor/product edit.
 
 ## Native populated telemetry and neutral RTL calibration
 

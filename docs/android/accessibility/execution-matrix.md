@@ -1,6 +1,20 @@
 # WP-503 native execution matrix
 
-**Native Map List224 and LoS endpoint225 block acceptance; WP503 remains incomplete.**
+**Native Map List224, LoS endpoint225 and offline discovery226 block acceptance; WP503 remains incomplete.**
+At exactf010a979b796e6ec04549781effa43d852091d4b, the scoped native Nodes class
+discovers12/passes10/fails2, zero errors/skips, on Robolectric SDK31/37 native graphics,
+actual Resources font2/RTL. Original8 pass; new auto-favorite/segment/cross-segment
+query/empty-search/native name-sort/retained-segment2 pass. Native font/48dp floors
+are unchanged. Initial2ac query matched both BQ result/editor; excluding SetText
+corrects that ambiguity, not a product font or selection failure.
+
+The new disconnected discovery1/API fails: native indeterminate1/discoveredReads0,
+known radio/readable store/no connectedDevice. WP311 defect226 owns the product
+recovery policy/correction; later empty-heading/font/targets remain UNEXECUTED.
+Frozen discovery shares the live-device radio guard: no invented source fallback,
+physical/emulator/TalkBack claim or automatic acceptance deviation. No full74-case
+JVM execution is inferred from this12-case selector.
+
 At exact5e5b23eb92a04b048cfbd650c1a9c2a7bdee8d8f, the whole remote class passes
 13/13 on each actual API31/37, zero failures/errors/skips. This includes populated
 channel/MCU units/GPS and actual map style-error/recovery/Labels/Clusters flows,

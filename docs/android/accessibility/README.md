@@ -1,11 +1,31 @@
 # WP-503 accessibility audit
 
-**Status: native Map List defect224 and LoS endpoint defect225 block acceptance. PR205 remains draft.**
+**Status: native Map List224, LoS endpoint225 and offline discovery226 block acceptance. PR205 remains draft.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
 ## Current execution and base refresh
+
+At exact `f010a979b796e6ec04549781effa43d852091d4b`, declared scoped Nodes execution
+discovers **12/passes10/fails2**, zero errors/skips, on Robolectric SDK31/37 native
+graphics with actual Resources font2/RTL. All original eight cases pass together.
+New search/filter/name-sort cases pass on both APIs: auto-favorite selection, non-gesture
+segment selection, queries crossing the selected segment, empty-search heading, native
+sort menu/row order and retained room segment after clearing. Unchanged font/48dp floors
+remain required. The initial2ac failure matched both a result and its same-text editor;
+excluding editable semantics fixes only that query ambiguity.
+
+The disconnected public discovery consumer fails once per API: indeterminate spinner1,
+datastore reads0, despite a known radio and available offline store. Its load returns on
+missing connectedDevice before finishing hasLoadedOnce; no actual operation owns this
+loading state. [WP311 defect226](https://github.com/cbattlegear/MeshCoreOne-Android/issues/226)
+owns product recovery, not an audit patch. Frozen Discovery also configures its radio
+from connectedDevice; this is not a claimed missing frozen fallback or iOS/device pass.
+The approved native honest loading/recovery requirement needs an explicit product-owner
+correction/policy. Later empty/font/target assertions are unexecuted after the spinner
+failure. [Exact scoped evidence](../evidence/WP-503/README.md#native-nodes-searchfilter-and-offline-discovery)
+distinguishes these native JVM observations from actual emulator/TalkBack execution.
 
 At exact `5e5b23eb92a04b048cfbd650c1a9c2a7bdee8d8f`, the complete remote class
 passes **13/13 on each actual API31/37**, zero failures/errors/skips. New populated
