@@ -3,6 +3,7 @@ package com.meshcoreone.android.parity
 
 import com.meshcoreone.android.app.container.BleRuntimeLink
 import com.meshcoreone.android.core.ble.BleClock
+import com.meshcoreone.android.core.ble.BleConfiguration
 import com.meshcoreone.android.core.ble.BleDeviceHandle
 import com.meshcoreone.android.core.ble.BleTransport
 import com.meshcoreone.android.core.ble.BluetoothAvailability
@@ -25,7 +26,6 @@ import com.meshcoreone.android.core.testing.TestClock
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
@@ -33,6 +33,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.Test
 
@@ -46,10 +47,25 @@ class BlePacingAcceptanceTest {
     @Test fun configuredUnknownBluetoothLinkKeepsConservativeSixtyMillisecondPacing() =
         assertPacing("SomeNewDevice XYZ", DevicePlatform.UNKNOWN, 60)
 
-    private fun assertPacing(model: String, expectedPlatform: DevicePlatform, milliseconds: Int) = runBlocking<Unit> {
+    @Test fun explicitPacingControlProvesAllThreeIndependentClockDeadlines() {
+        listOf(
+            Triple("Heltec V3", DevicePlatform.ESP32, 60),
+            Triple("T-Echo", DevicePlatform.NRF52, 25),
+            Triple("SomeNewDevice XYZ", DevicePlatform.UNKNOWN, 60),
+        ).forEach { (model, platform, milliseconds) ->
+            assertPacing(model, platform, milliseconds, BleConfiguration(writePacing = milliseconds.milliseconds))
+        }
+    }
+
+    private fun assertPacing(
+        model: String,
+        expectedPlatform: DevicePlatform,
+        milliseconds: Int,
+        configuration: BleConfiguration = BleConfiguration(),
+    ) = runBlocking<Unit> {
         val clock = TestClock()
         val facade = CompletingGatt(clock)
-        val ble = BleTransport(facade, clock = object : BleClock {
+        val ble = BleTransport(facade, configuration, clock = object : BleClock {
             override val now: Duration get() = clock.now
             override suspend fun sleepUntil(deadline: Duration) = clock.sleepUntil(deadline)
         })
@@ -69,8 +85,7 @@ class BlePacingAcceptanceTest {
             assertEquals(listOf(Duration.ZERO), facade.writeTimes)
             clock.advanceBy(1.milliseconds)
             yield()
-            assertTrue(second.isCompleted, "a completed callback must not require more than the source pacing interval")
-            second.await()
+            withTimeout(2_000) { second.await() }
             assertEquals(listOf(Duration.ZERO, milliseconds.milliseconds), facade.writeTimes)
             assertEquals(listOf(GattWriteMode.WithResponse, GattWriteMode.WithResponse), facade.writeModes)
         } finally {

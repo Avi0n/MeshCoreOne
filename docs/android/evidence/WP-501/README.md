@@ -64,6 +64,31 @@ from App's test classpath. Added the existing `:core:testing` only through
 `testImplementation`, with a wiring guard; no production/APK dependency,
 new timer implementation, speculative version or fixture expectation changed.
 Same revision26 admitted the directly necessary build wiring idempotently.
+Exact dedf9c1bb839655c0bc542a6cc9cb5768d7cf166/basea4fa then actually
+executed App-only52:49PASS/3FAIL/0errors/skips. Strict raw JUnit diagnostic
+verified all52 distinct required identities and exactly all three consumer
+AssertionErrors at line69: each observes two acknowledged writes at clock0
+`[0s, 0s]` before independent25/60/60ms deadline. All49 original identities
+pass. Readiness/traceability/l10n74 passed/locks released. This is real issue189
+consumer evidence, not a startup/compilation failure or physical-radio result;
+overall native command remains FAILED, unchanged messaging69 not rerun.
+
+Same-rig explicit caller-pacing positive control now covers all three source
+intervals in one supplemental JUnit method, not three discovered executions
+or extra original families/mandatory identities. It does not supply explicit
+pacing to the three real integration witnesses. Deadline completion waits only
+for bounded coroutine cleanup (2s wall timeout), while actual recorded write
+times must equal the exact virtual25/60/60ms boundaries and remain absent one
+millisecond before them. This avoids conflating immediate Deferred completion
+with callback timing. New control/changed helper execution remains pending.
+
+Independent6115227237 updated06:08:46Z was actually read: qualified all49
+detector/scalar comparisons at491a/a4fa, testd6686632/modelf7557b4c unchanged.
+Exact20 ESP32/23nRF52/3unknown/3pacing are source-compared, not universal
+localized containment, sibling Duration/live BLE proof or full5133 acceptance.
+Issue189 is independently source-confirmed and stays serialized owner-side.
+Source-only Windows184/PR190 review6118773652 is posted at exact5dda/basea4fa,
+with canonical bytes/strict consumers read; no native rerun/foreign cache access.
 Initial7b0ac0aa Python parity92 had91PASS/1FAIL because its existing wiring
 test still required67 mandatory methods; no native execution occurred there.
 The coupled assertion now requires70 and the exact three new distinct names,

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "663b9ac3df1789de449615863e20bdcef30c8dbd1f83193c3fba1296b8c9a946",
+  "proposal_sha256": "ed284a38f7c6d7f72a353a4fb4eca324f704de2ff0efa75a9c3327882ebd6609",
   "families": [
     {
       "group": "backup-envelope",
@@ -42230,7 +42230,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42342,7 +42342,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -42355,7 +42355,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42460,7 +42460,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -42473,7 +42473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42585,7 +42585,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -42598,7 +42598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42710,7 +42710,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -42723,7 +42723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42835,7 +42835,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -42848,7 +42848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -42960,7 +42960,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -42973,7 +42973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43085,7 +43085,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -43098,7 +43098,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43210,7 +43210,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -43223,7 +43223,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43335,7 +43335,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -43348,7 +43348,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43460,7 +43460,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -43473,7 +43473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43585,7 +43585,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -43598,7 +43598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43710,7 +43710,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -43723,7 +43723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43835,7 +43835,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -43848,7 +43848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -43960,7 +43960,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -43973,7 +43973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44085,7 +44085,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -44098,7 +44098,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44210,7 +44210,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -44223,7 +44223,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44335,7 +44335,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -44348,7 +44348,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44460,7 +44460,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -44473,7 +44473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44585,7 +44585,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -44598,7 +44598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44710,7 +44710,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -44723,7 +44723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44835,7 +44835,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -44848,7 +44848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -44960,7 +44960,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -44973,7 +44973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45085,7 +45085,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -45098,7 +45098,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45210,7 +45210,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -45223,7 +45223,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45335,7 +45335,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -45348,7 +45348,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45460,7 +45460,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -45473,7 +45473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45585,7 +45585,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -45598,7 +45598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45710,7 +45710,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -45723,7 +45723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45835,7 +45835,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -45848,7 +45848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -45960,7 +45960,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -45973,7 +45973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46085,7 +46085,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -46098,7 +46098,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46210,7 +46210,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -46223,7 +46223,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46335,7 +46335,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -46348,7 +46348,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46460,7 +46460,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -46473,7 +46473,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46585,7 +46585,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -46598,7 +46598,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46710,7 +46710,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -46723,7 +46723,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46835,7 +46835,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -46848,7 +46848,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -46960,7 +46960,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -46973,7 +46973,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47078,7 +47078,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -47091,7 +47091,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47203,7 +47203,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -47216,7 +47216,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47328,7 +47328,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -47341,7 +47341,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47453,7 +47453,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -47466,7 +47466,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47578,7 +47578,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -47591,7 +47591,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47703,7 +47703,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -47716,7 +47716,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47828,7 +47828,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -47841,7 +47841,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -47953,7 +47953,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -47966,7 +47966,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -48078,7 +48078,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -48091,7 +48091,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -48203,7 +48203,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -48216,7 +48216,7 @@
     },
     {
       "group": "device-platform-original-detection-and-pacing-values",
-      "comparison_sha256": "024a637a4b27901c9b45a326cea6a79f777fb42afff44bd4a8372782316cea24",
+      "comparison_sha256": "8c55f360bdb82e1ce8a1774a504b3a27551fffb23b192bda09cd1416b22d5a2f",
       "source_file_family_count": 49,
       "group_compared_family_count": 49,
       "partial_source_file": false,
@@ -48321,7 +48321,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt",
-          "sha256": "387f96d2a027d0e827fc5f4b6000f226200d7e655ff81fe52f6ce092c8e68b58"
+          "sha256": "cd1de4ba22f561641f03923c10f3d207577aac2d2e5d939c9c3345a4059ee500"
         }
       ],
       "native_checked_helper_assertions": [],
