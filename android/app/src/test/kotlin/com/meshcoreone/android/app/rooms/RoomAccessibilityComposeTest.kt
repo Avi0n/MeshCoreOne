@@ -337,9 +337,9 @@ class RoomAccessibilityComposeTest {
     }
 
     private fun assertMountedRoomBubblePairing(highContrast: Boolean) {
-        val outgoing = message(if (highContrast) "outgoing MMMM" else "MMMM #ops", self = true, status = MessageStatus.SENT)
-        val incoming = message("incoming MMMM").copy(timestamp = 101u)
-        val failed = message("failed MMMM", self = true, status = MessageStatus.FAILED).copy(timestamp = 102u)
+        val outgoing = message("MMMM #ops", self = true, status = MessageStatus.SENT)
+        val incoming = message("incoming MMMM #ops").copy(timestamp = 101u)
+        val failed = message("failed MMMM #ops", self = true, status = MessageStatus.FAILED).copy(timestamp = 102u)
         showRows(listOf(outgoing, incoming, failed), highContrast = highContrast)
         val frame = ThemeRegistry.default.resolve(ColorScheme.LIGHT, highContrast)
         val roles = MaterialRoles.from(frame)
@@ -354,17 +354,22 @@ class RoomAccessibilityComposeTest {
                 Triple(incoming, frame.incomingBubble, roles.onIncomingBubble),
                 Triple(failed, AppColors.Message.outgoingBubbleFailed(highContrast).compositeOver(frame.canvas), frame.outgoingText),
             )) {
-                val expectedForeground = accessibleForeground(preferred, background, WCAGContrast.AA_FLOOR)
+                val paintedBackground = background.toComposeColor().toThemeColor()
+                val expectedForeground = accessibleForeground(
+                    preferred.toComposeColor().toThemeColor(), paintedBackground, WCAGContrast.AA_FLOOR,
+                )
                 val layouts = mutableListOf<TextLayoutResult>()
                 val body = compose.onNodeWithText(message.text, useUnmergedTree = true)
                 body.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
                 val layout = layouts.single()
                 assertEquals(expectedForeground.toComposeColor(), layout.layoutInput.text.spanStyles.first().item.color)
-                if (message.text.contains('#')) {
-                    val start = message.text.indexOf('#')
-                    val link = layout.layoutInput.text.getLinkAnnotations(start, message.text.length).single().item
-                    assertEquals(frame.outgoingText.toComposeColor(), requireNotNull(link.styles?.style).color)
-                }
+                val start = message.text.indexOf('#')
+                val link = layout.layoutInput.text.getLinkAnnotations(start, message.text.length).single().item
+                val linkForeground = accessibleForeground(
+                    if (message.isFromSelf) frame.outgoingText else frame.hashtag,
+                    paintedBackground, WCAGContrast.AA_FLOOR,
+                )
+                assertEquals(linkForeground.toComposeColor(), requireNotNull(link.styles?.style).color)
                 val bounds = compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true)
                     .fetchSemanticsNode().boundsInRoot
                 val painted = bitmap.getPixel(bounds.center.x.toInt(), bounds.top.toInt() + 4)

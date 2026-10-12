@@ -68,9 +68,14 @@ These are deterministic Robolectric tests on API 31/37, not device/TalkBack obse
 The tightly coupled room rendering regression mounts actual Default/light bodies (including outgoing
 `#ops`), inspects the renderer's text/link styles and draws the native Compose view into an in-memory
 bitmap. It checks incoming/accent/failed bubble paint, the surrounding canvas and actual foreground
-glyph pixels against the approved palette/helpers and unchanged body contrast floor. It does not
-retain screenshots or claim device observation. Shared contextual rich-span changes belong to the
-WP-308 producer; no shared renderer edit is part of this repair.
+glyph pixels and hashtag styles against the approved palette/helpers and unchanged body contrast
+floor, in standard and increased-contrast appearances. The renderer receives the actual opaque
+bubble through the producer-owned `backgroundColor` API, with the source preferred foreground.
+Expected style colors resolve against the actual Compose paint representation, not unquantized
+palette values. It does not retain screenshots or claim device observation. Shared contextual
+rich-span changes belong to the WP-308 producer; no shared renderer edit is part of this repair.
+This API-consuming revision must be verified after the producer is available in the branch ancestry;
+preceding surface-only native results do not verify that integrated candidate.
 
 Readiness command:
 `python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit d958471ab4835813881a5e7af36e8249a8b273a4 --stages preflight`

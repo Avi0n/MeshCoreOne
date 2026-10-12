@@ -221,11 +221,8 @@ private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID)
             AppColors.Message.outgoingBubbleFailed(frame.highContrast).compositeOver(frame.canvas)
         else -> frame.accent
     }
-    val foreground = accessibleForeground(
-        if (message.isFromSelf) frame.outgoingText else tokens.roles.onIncomingBubble,
-        bubble,
-        WCAGContrast.AA_FLOOR,
-    )
+    val preferredForeground = if (message.isFromSelf) frame.outgoingText else tokens.roles.onIncomingBubble
+    val foreground = accessibleForeground(preferredForeground, bubble, WCAGContrast.AA_FLOOR)
     val statusLabel = stringResource(
         when (message.status) {
             MessageStatus.FAILED -> R.string.l10n_app_remotenodes_remotenodes_room_message_status_failedlabel
@@ -271,7 +268,8 @@ private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID)
                 MessageBody(
                     message.text, message.isFromSelf, currentUserName = null, onLink = { onLink(it) },
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    baseColor = foreground.toComposeColor(),
+                    baseColor = preferredForeground.toComposeColor(),
+                    backgroundColor = bubble.toComposeColor(),
                 )
             }
             if (message.isFromSelf) {
