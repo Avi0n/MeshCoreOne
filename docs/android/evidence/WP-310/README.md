@@ -46,7 +46,7 @@ and WP-503 audit ownership unchanged.
 - Policy revision: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 - Reservation session/attempt: `5ca13f75-8466-4dd5-b630-02b30841a5d0`; host-verified alias
   `c2cf31d5-3af6-4536-8bb1-5afcd36781bb` identifies the same worker, not a second session.
-  Initial revision 1 evolved through exact same-attempt CAS to revision 4, preserving identity and
+  Initial revision 1 evolved through exact same-attempt CAS to revision 5, preserving identity and
   immutable authorization. Owned room/docs edits use `wp-owned`; the bounded App consumer/test
   support uses `app-build-launcher`. Shared advisory intents are not pre-edit locks.
 - Prerequisites: PR #203 actually merged at the base above; PR #50 actually merged at
@@ -76,6 +76,16 @@ palette values. It does not retain screenshots or claim device observation. Shar
 rich-span changes belong to the WP-308 producer; no shared renderer edit is part of this repair.
 This API-consuming revision must be verified after the producer is available in the branch ancestry;
 preceding surface-only native results do not verify that integrated candidate.
+
+The approved dependency-integration lineage preserves actual merged main
+`b621ed186b32f024dc4c7ddbdc60d18a449343f9` and original WP-308 producer
+`06fceec24f920e87a4a267a55499236ca3c25959`, including the byte-identical WP-502
+AppChatsFeature queue adapter from `0ae51f7e1ca9c8a4c7aa962a0dfadae59923bf8e`.
+The actual l10n/traceability failure on that imported mixed-disposition header was corrected by
+merging the original producer's `d2b64b584892f0b63545f0e02c9c9e119b3d8b06`, not bypassing
+verification or independently rewriting App queue semantics. Original producer ownership/commits
+and disjoint WP-316 noise-floor work are preserved. This is compatible implementation integration,
+not acceptance based on closed issues, predecessor results or a formal macro receipt.
 
 Readiness command:
 `python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit d958471ab4835813881a5e7af36e8249a8b273a4 --stages preflight`
