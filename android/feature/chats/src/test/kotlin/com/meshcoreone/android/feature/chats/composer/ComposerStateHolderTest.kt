@@ -193,7 +193,7 @@ class ComposerStateHolderTest {
                 assertEquals("new draft", rig.state.draft)
                 assertEquals("new draft", rig.drafts.values[target.conversationId])
                 assertEquals("saved pending", rig.port.pendingMessages.single().text)
-                assertEquals(listOf(failure), rig.failures)
+                assertEquals(listOf<Throwable>(failure), rig.failures)
             }
         }
     }
