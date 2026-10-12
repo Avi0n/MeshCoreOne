@@ -5,6 +5,10 @@ treee147a94e/exact two paths, quietly adopted2faceef8 after normal native
 lock release. All1417 binding/helper inputs unchanged by that test-only
 adoption; no map/CLI/original replay or private hosted/Windows certification.
 Source6124055258 and historical map failure/retry/fast UNVERIFIED remain separate.
+Ordinary030a publication succeeds; fast Python semantic-check finds stale
+map-adoption output, preflight/scaffold/inspect unrun. Regenerated only
+WP307/WP317 map test metadata; semantic --check PASS/all1417 bindings unchanged,
+no native replay/count/credit. This failed fast check remains distinct.
 
 Current increment:1417/5133 proposed comparisons/181groups/83mandatory/
 zero approved;73/135 persistence proposed,62remaining. Five new independent

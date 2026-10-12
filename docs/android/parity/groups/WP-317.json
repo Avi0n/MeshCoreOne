@@ -2706,7 +2706,7 @@
         },
         {
           "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatMapPreviewTest.kt",
-          "sha256": "021bff655e223b1686222ecc96b29bf37e10798e712d88fb50747053053c5438",
+          "sha256": "9ff2a353e6cb31534651930676551f6461b0fb8be153d123d3dcbc567a18585f",
           "source_references": [
             "MC1/Views/Chats/Components/Fragments/MapPreviewFragmentView.swift",
             "MC1/Views/Settings/Sections/MapPreviewSettingsSection.swift"
@@ -2755,57 +2755,57 @@
             {
               "name": "queuedRendersCheckPersistedPrivacyBeforeInvokingTheTileRenderer",
               "line": 211,
-              "end_line": 242
+              "end_line": 245
             },
             {
               "name": "rendererExceptionIsARecoverableFallbackRatherThanAStuckSpinner",
-              "line": 244,
-              "end_line": 256
+              "line": 247,
+              "end_line": 259
             },
             {
               "name": "settingsTogglePersistsTheExistingIndependentPrivacyPreference",
-              "line": 258,
-              "end_line": 280
+              "line": 261,
+              "end_line": 283
             },
             {
               "name": "renderDeadlineAndProcessCloseCancelOwnedWorkAndNeverInventAnImage",
-              "line": 282,
-              "end_line": 310
+              "line": 285,
+              "end_line": 313
             },
             {
               "name": "render",
-              "line": 286,
-              "end_line": 286
+              "line": 289,
+              "end_line": 289
             },
             {
               "name": "report",
-              "line": 327,
-              "end_line": 327
+              "line": 330,
+              "end_line": 330
             },
             {
               "name": "mount",
-              "line": 328,
-              "end_line": 334
+              "line": 331,
+              "end_line": 337
             },
             {
               "name": "withFixture",
-              "line": 337,
-              "end_line": 368
+              "line": 340,
+              "end_line": 371
             },
             {
               "name": "render",
-              "line": 348,
-              "end_line": 348
+              "line": 351,
+              "end_line": 351
             },
             {
               "name": "fetch",
-              "line": 351,
-              "end_line": 352
+              "line": 354,
+              "end_line": 355
             },
             {
               "name": "bitmap",
-              "line": 370,
-              "end_line": 370
+              "line": 373,
+              "end_line": 373
             }
           ]
         }

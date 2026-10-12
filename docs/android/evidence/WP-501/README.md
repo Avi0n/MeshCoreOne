@@ -25,6 +25,14 @@ source-only; owning Windows20/hosted38247440405 outcomes are separate reported
 executions, not worker certification or second CI-result bundle. Prior map
 failure/retry/local fast UNVERIFIED remain historical, not rewritten.
 
+Ordinary030a7149 publication EXIT0/remote verified; its local fast check is
+UNVERIFIED at Python semantic-check: stale map-adoption generated WP-307
+output, preflight/scaffold/inspect unrun. Regeneration updates only WP-307/
+WP-317 generated ChatMapPreviewTest SHA/line/body metadata, not any1417
+comparison/binding/helper input/count. Actual semantic --check then PASS.
+This distinct publication failure is not the earlier BLE transform/EOCD
+failure or an App execution. No native replay or private CI-result bundle.
+
 Latest input increment adds five independent contact/history originals and two
 mandatory actual App single-deletion consumers. Current1417/5133 proposals/
 181groups/83mandatory/zero approved;73/135 persistence proposed/62remaining.
