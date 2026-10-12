@@ -65,6 +65,7 @@ class IncomingRepeatSyncTest : RoomProcessTest() {
             }
             val live = assertNotNull(harness.sessions.current)
             assertTrue(live.messagePollingService.hasMessageHandlersWired)
+            live.channelService.syncChannels(live.token.radioId, 1u, usePipelinedRead = false)
             assertEquals(secret, store.fetchChannels(live.token.radioId).single().secret)
             block(harness, live)
         } finally {
