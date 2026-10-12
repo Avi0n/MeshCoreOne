@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -272,6 +273,8 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
 
     @Test fun frameworkSecureDialogPrefillIsMaskedAndIdleAtSystemFont200() {
         val password = mutableStateOf("")
+        var placements = 0
+        val geometry = linkedSetOf<String>()
         content {
             MeshCoreTheme(motionScale = 0f) {
                 AuditSurface {
@@ -281,7 +284,11 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
                         title = { Text("Secure field control") },
                         text = {
                             OutlinedTextField(password.value, { password.value = it },
-                                modifier = Modifier.testTag("secure-field-control"),
+                                modifier = Modifier.testTag("secure-field-control").onGloballyPositioned {
+                                    placements++
+                                    val sample = "${it.size}|${it.boundsInRoot()}"
+                                    if (geometry.size < 16 && geometry.add(sample)) println("WP503_SECURE_GEOMETRY|$sample")
+                                },
                                 label = { Text("Password") }, visualTransformation = PasswordVisualTransformation())
                         },
                         confirmButton = { TextButton({}) { Text("Control") } },
@@ -289,9 +296,13 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
                 }
             }
         }
-        val field = compose.onNodeWithTag("secure-field-control").assertIsDisplayed()
-        assertEquals("\u2022".repeat(12), field.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
-        assertTrue(field.fetchSemanticsNode().config.contains(SemanticsProperties.Password))
+        try {
+            val field = compose.onNodeWithTag("secure-field-control").assertIsDisplayed()
+            assertEquals("\u2022".repeat(12), field.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
+            assertTrue(field.fetchSemanticsNode().config.contains(SemanticsProperties.Password))
+        } finally {
+            println("WP503_SECURE_PLACEMENTS|count=$placements|distinct=${geometry.size}")
+        }
     }
 
     @Test fun frameworkLinearProgressCalibratesExpandedSemanticsVersusActualNativeAllocation() {
