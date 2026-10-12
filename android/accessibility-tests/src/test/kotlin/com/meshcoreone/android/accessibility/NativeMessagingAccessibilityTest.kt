@@ -112,8 +112,8 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
             RoomConversationStateHolder.rows(listOf(message)), hasLoadedOnce = true)) { retried = true }
         val retry = host.get().getString(C.chatsMessageStatusRetry)
         assertTrue(compose.onAllNodes(hasText(retry)).fetchSemanticsNodes().isEmpty())
-        val customActions = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.CustomActions))
-            .fetchSemanticsNodes().flatMap { it.config[SemanticsProperties.CustomActions] }
+        val customActions = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.CustomActions))
+            .fetchSemanticsNodes().flatMap { it.config[SemanticsActions.CustomActions] }
         assertTrue(customActions.none { it.label == retry })
         assertTrue(!retried)
     }
@@ -135,9 +135,9 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
         roomContent(RoomConversationState(room, listOf(message),
             RoomConversationStateHolder.rows(listOf(message)), hasLoadedOnce = true))
         val label = C.chatsMessageActionOpenWebLink(host.get().resources, "example.com")
-        val nodes = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.CustomActions)).fetchSemanticsNodes()
+        val nodes = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.CustomActions)).fetchSemanticsNodes()
         assertTrue("The mounted room body has no named open-link action",
-            nodes.any { node -> node.config[SemanticsProperties.CustomActions].any { it.label == label } })
+            nodes.any { node -> node.config[SemanticsActions.CustomActions].any { it.label == label } })
     }
 
     @Test fun rememberPasswordSwitchHasPurposeAndCheckedStateOnOneNode() {

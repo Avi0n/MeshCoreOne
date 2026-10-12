@@ -38,7 +38,9 @@ class NativeDiagnosticsAccessibilityTest : NativeAccessibilityHarness() {
         }
         val graph = compose.onNodeWithTag("noise-floor-chart").assertIsDisplayed().fetchSemanticsNode()
         val summary = graph.config[SemanticsProperties.ContentDescription]
-        assertTrue("A generic chart label is not a data-bound alternative", summary.any { it.contains("1") })
+        assertTrue("Summary must expose the actual reading count", summary.any { Regex("\\b1\\b").containsMatchIn(it) })
+        assertTrue("Summary must expose actual minimum, maximum and average",
+            summary.any { Regex("-110").findAll(it).count() == 3 })
         compose.onNodeWithTag("diagnostics-page:NOISE_FLOOR").assertIsSelected()
         compose.onNodeWithText("-110 dBm").assertIsDisplayed()
         for (id in listOf(T.toolsNoiseFloorMinimum, T.toolsNoiseFloorMaximum, T.toolsNoiseFloorAverage)) {
