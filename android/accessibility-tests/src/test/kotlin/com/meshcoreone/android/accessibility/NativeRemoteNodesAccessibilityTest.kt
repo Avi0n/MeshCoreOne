@@ -119,13 +119,13 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         }
         val slider = compose.onNodeWithTag("framework-slider").assertIsDisplayed()
         val measured = slider.fetchSemanticsNode()
-        slider.performTouchInput { click(Offset(size.width * .8f, size.height / 2f)) }
+        slider.performTouchInput { click(Offset(measured.size.width * .8f, measured.size.height / 2f)) }
         assertTrue("The framework control must receive an actual interior pointer event", callbacks > 0)
         compose.runOnIdle { value.floatValue = .5f; callbacks = 0 }
-        slider.performTouchInput { click(Offset(size.width * .8f, -2f)) }
+        slider.performTouchInput { click(Offset(measured.size.width * .8f, -2f)) }
         val top = callbacks
         compose.runOnIdle { value.floatValue = .5f; callbacks = 0 }
-        slider.performTouchInput { click(Offset(size.width * .8f, size.height + 2f)) }
+        slider.performTouchInput { click(Offset(measured.size.width * .8f, measured.size.height + 2f)) }
         println("WP503_FRAMEWORK_SLIDER|bounds=${measured.touchBoundsInRoot}|size=${measured.size}|top2pxCallbacks=$top|bottom2pxCallbacks=$callbacks")
     }
 
