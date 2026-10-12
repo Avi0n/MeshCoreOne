@@ -19,7 +19,7 @@ Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-The existing typed reservation was evolved to revision 5, not replaced.
+The existing typed reservation was evolved to revision 7, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -28,6 +28,11 @@ Revision 4 admits the coordinator-assigned #215 app send assembly at
 of published composer producer `b644c9a1d2522ae1519d9359e21b37988dbead68`.
 That three-file correction is integrated as `2518046f5`; unrelated unintegrated
 contrast claims were not imported during the disjoint documentation merge.
+Revision 6 admits the existing producer's native keyboard diagnostics; revision 7
+admits its published queue-shaped API/failure callback and associated tests.
+The source owner remains WP-308. Integration of `a423da64e`, `6eb6f7b8c`,
+and `a1c9c88da` is `710baeea0`; the authoritative App-only consumer is
+`0ae51f7e1ca9c8a4c7aa962a0dfadae59923bf8e`, actually published on PR #206.
 
 WP-407 is the only dependency. Its PR #164 merge
 `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`, merged
@@ -42,6 +47,7 @@ coordinator integration.
 | --- | --- |
 | `ConversationScreenCases` | Production `ChatTimeline`/`ComposerBar`, fixed synthetic identities/time, original CJK/Hebrew/ZWJ text; focus/draft retention, accessible retry, offline send rejection, exact UTF-8 boundary, distinct loading/empty/error recovery and 48dp send target. Mounted Enter/NumPadEnter with/without Shift exercises 24 connection/overflow/blank/cooldown/sending/enabled families at controlled 200% font. Consumer assertions informed by frozen `ChatInputBar.swift` and `ChatConversationMessagesContent.swift`; not a claim to port every Swift test. |
 | `ConnectedConversationComposeTest` | Actual AppContainer/Room/service graph and existing protocol-speaking firmware harness. Reference `RESP_CODE_ERR=1`, `ErrorCode.notFound=2` rejects a real send; original text/FAILED persistence, visible failure/retry, consumed draft, one connection owner and actual send command are asserted. Expected error bytes are independent of the Kotlin encoder. |
+| `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
@@ -109,6 +115,18 @@ environment and pinned Linux toolchain. Never invoke Gradle on mounted Windows
   tracked separately in #211 with the existing WP-504 producer; no bypass or
   foreign-lock change occurred. Exact hosted checks remain authoritative at
   [run 38273168422](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38273168422).
+- The `70cc1c413` hardware fixture had a compilation error; no tests are credited.
+  The corrected `aaf3845bdca08d8a1e8f078b6881dd3d83bce0e0` discovered ten:
+  eight passed/two failed (1m13s). Paging passed; all twelve unmodified key
+  families passed, while all twelve Shift families reported zero callbacks
+  but missing newline. The other failure was the connected send.
+- With the real producer Shift fallback integrated, `d47193cf9` discovered
+  **ten: nine passed/one failed** (1m28s). All 24 mounted key families and
+  the corrected paging case passed; the old app send recovery still failed.
+- Ordinary `git push origin HEAD` actually published App consumer
+  `0ae51f7e1ca9c8a4c7aa962a0dfadae59923bf8e`: the installed repaired hook
+  queued ten seconds, recorded this exact candidate **UNVERIFIED**, then
+  pushed successfully. This is publication, not a current check or merge pass.
 - `python tools\android-port\controller\validate.py` **passed** the frozen
   inventory: 1,866 tracked reference files, 64 WPs, 178 dependency edges.
   This proves traceability validation, not behavior parity.
@@ -150,7 +168,7 @@ The earlier Windows launcher failure is historical and host-specific:
 The installed `android-37.0` was not substituted. No license acceptance,
 SDK provisioning, signing or release action occurred.
 
-## Open consumer regressions
+## Consumer repairs awaiting exact-candidate verification
 
 The connected assertion exposes a producer-owned app assembly gap:
 `AppChatsFeature.sender().sendPendingDirect` bypasses the send queue and calls
@@ -162,12 +180,17 @@ The event adapter and ViewModel already handle the missing failure event.
 The exact app path plus `add-direct-support-wiring` is admitted by the trusted
 `app-build-launcher` rule. The coordinator assigned bounded #215 to this same
 worker and reservation; app queue assembly is being repaired without changing
-core `notify=false` or injecting fake UI state. A further queue-shaped composer
-port alignment is routed to its producer: existing low-level timestamp flags
-and wire-return receipts cannot silently become ignored arguments or fabricated
-durable attempt counts. The exact `ComposerPorts.kt` +
-`add-direct-support-wiring` query rejects admission because no trusted rule
-matches; that interface is not edited here.
+core `notify=false` or injecting fake UI state. The producer's actual published
+queue-shaped port is now integrated, removing low-level timestamp flags and
+wire-return receipts rather than ignoring arguments or inventing attempt counts.
+The historical direct-edit admission rejection was resolved by serialized
+primary-owner production and trusted disjoint integration, not a bypass.
+The App-only consumer routes pending envelopes to the captured service queue;
+manual DM retry still persists once then signals only. Channel retry/Send Again
+uses genuine stored text/timestamp metadata. Non-cancelled local failure persists
+unless delivered, marks only the visible matching thread seen and broadcasts
+the actual failure event. The new tests and mounted recovery require current
+positive discovery.
 
 The hardware regression follows the frozen `handleHardwareSend` contract:
 disabled Return returns false for normal multiline editing, with no send
@@ -175,6 +198,9 @@ callback; enabled Return sends once; Shift preserves newline editing.
 #212 is serialized to the existing WP-308 composer producer. WP-502 changes
 its owned mounted test fixture/runners and integrates the actual published
 producer correction, rather than duplicating a product handler implementation.
+The disabled guard and Shift editor fallback are integrated through actual
+`b644c9a1d` and `149581edb` lineage; the `d47193cf9` host cohort passes all 24
+families. This remains distinct from device keyboard evidence.
 
 The next local-content fixture explicitly suppresses transient Material ripples
 for static rendering inputs, advances the injected Compose animation clock,
