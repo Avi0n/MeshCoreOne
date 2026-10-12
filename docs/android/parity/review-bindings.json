@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "66f72896959c639c874a52737547b25890033c85f701cb392d1083886a418762",
+  "proposal_sha256": "cc3be09fe5e905819abdd4d2727d788b6ec3945ed0d1e5cba73ece90fa9336e8",
   "families": [
     {
       "group": "backup-envelope",
@@ -69351,7 +69351,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -69718,7 +69718,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -70241,7 +70241,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -71178,7 +71178,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -71521,7 +71521,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -71984,7 +71984,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -72411,7 +72411,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -74970,7 +74970,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -75722,7 +75722,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -76053,7 +76053,7 @@
     },
     {
       "group": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
-      "comparison_sha256": "b4ee141fb5a532f58a08fd449e1cdddb36c7bca65a64e715bcf726ab808b163f",
+      "comparison_sha256": "38ec7b7f3434b80b625875bc9a411eb2af024afa2dc0ab3a1f5a1ebb13b6ccf2",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -79842,6 +79842,339 @@
       "runner_identity": [
         "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
         "newestUnreadSelectionRetainsTheOriginalRowIdentityAndText"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-phone-clamp-and-backup-consumer-predicate",
+      "comparison_sha256": "8daaa0d8c32c381ebdeab0f7f4dde3106b80e568f6f232b82efcceace2589f39",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 1,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::phone clock clamp agrees between touch and backup helpers()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "89be931ac20110c3068c2a320b6642145b32d46c571e08ffe79f5a35d28d4c8e",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3556,
+          "expression": "#expect(fromStatic == fromBackup)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3557,
+          "expression": "#expect(fromStatic < farFuture)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPhoneTimestampClampOriginalPredicateTest.kt",
+        "sha256": "2bb740c24e73d0c9dde2bee5569ecc85c8babf5ed0db5e9f09840e6f536fde1c",
+        "class": "com.meshcoreone.android.core.data.repository.ParityPhoneTimestampClampOriginalPredicateTest",
+        "method_or_family_name": "originalCurrentUnixUIntWrappingThirtyDaysAndSecondNowMatchRealBackupRestoreAndClampBelowFuture",
+        "line": 22,
+        "end_line": 54,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "0ee48851686ecb6486401f92d2fac0c39ba4b9d42b98821b8b1fec1b6b260367",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNotNull",
+            "line": 42,
+            "expression": "assertNotNull(store.fetchContact(EntityKey(radio, contact.id)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 45,
+            "expression": "assertEquals(fromStatic, fromBackup)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 46,
+            "expression": "assertTrue(fromStatic < farFuture)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 47,
+            "expression": "assertEquals(now.epochSecond.toUInt() + 300u, fromStatic)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 48,
+            "expression": "assertEquals(contact.id, restored.id)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 49,
+            "expression": "assertEquals(radio, restored.radioId)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 50,
+            "expression": "assertEquals(farFuture, contact.lastHeardTimestamp)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Instant.now",
+            "line": 23,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 23,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 24,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RoomPersistenceStore.clampedPhoneClockTimestamp",
+            "line": 26,
+            "expression": "RoomPersistenceStore.clampedPhoneClockTimestamp(farFuture, now)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 27,
+            "expression": "RadioId(UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 27,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DeviceDTO",
+            "line": 28,
+            "expression": "DeviceDTO(\n            id = UUID.randomUUID(), radioId = radio, publicKey = Bytes(ByteArray(32) { 0x44 }),\n            nodeName = \"ClampRadio\",\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 29,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 29,
+            "expression": "Bytes(ByteArray(32) { 0x44 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 29,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactDTO",
+            "line": 32,
+            "expression": "ContactDTO(\n            id = UUID.randomUUID(), radioId = radio, publicKey = Bytes(ByteArray(32) { 0x55 }),\n            name = \"ClampContact\", typeRawValue = 1u, lastHeardTimestamp = farFuture,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 33,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 33,
+            "expression": "Bytes(ByteArray(32) { 0x55 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 33,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreStorage.get",
+            "line": 36,
+            "expression": "MeshCoreStorage.get(context)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AppBackupService",
+            "line": 38,
+            "expression": "AppBackupService(storage.backupPreferences, \"1.0.0\", \"42\", clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "service.importBackup",
+            "line": 39,
+            "expression": "service.importBackup(envelope(\n                devices = listOf(device), contacts = listOf(contact), exportDate = now,\n            ), store)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "envelope",
+            "line": 39,
+            "expression": "envelope(\n                devices = listOf(device), contacts = listOf(contact), exportDate = now,\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 40,
+            "expression": "listOf(device)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 40,
+            "expression": "listOf(contact)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 42,
+            "expression": "store.fetchContact(EntityKey(radio, contact.id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 42,
+            "expression": "EntityKey(radio, contact.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "now.epochSecond.toUInt",
+            "line": 47,
+            "expression": "now.epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "storage.close",
+            "line": 52,
+            "expression": "storage.close()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::phone clock clamp agrees between touch and backup helpers()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+          "sha256": "15e67b5c656596423983ada907a349a77d752b68a6178fac65338eadeb59cb73"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
+          "sha256": "f49c27a2cf1df63d4a1d93dff889318830c2c1a5e657549fa0af03241eba943f"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift",
+          "sha256": "9d4465443763361614ba0707042da465fbeeae33ca48549fe250d4c662c5fa1b"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Sync/SyncCoordinator.swift",
+          "sha256": "f6d3eca0aee60e08d63abf239831f23ebee695fa5a3f7513068a9c7a90fed952"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPhoneTimestampClampOriginalPredicateTest.kt",
+          "sha256": "2bb740c24e73d0c9dde2bee5569ecc85c8babf5ed0db5e9f09840e6f536fde1c"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+          "sha256": "ef5a72ba17a2a43ca27df043a1cc18cd8250bf1343651abfb8a8164c1ed03a0d"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
+          "sha256": "fda4f644c3d3bef95de3978a3fc757c8afffebd4b82bea67ddbbacf942ee60cf"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+          "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+          "sha256": "5f56d8d3fef14d94b5916cd888da9c69222eda448ad7375c64718b190ae463b2"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/AppBackupService.kt",
+          "sha256": "dfc8732e98bf1530983d4c7499558cd4d6196b7165b8588526fedd4212c1b04c"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/AppBackupEnvelope.kt",
+          "sha256": "5abf0d26b1c94408c1291928557ab8da08bd9a1a37f61d4764e256f477a115bc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupDatabaseRestore.kt",
+          "sha256": "30ef63c3a853bf8ae640251680e9c7b2a5ded38036e81f1b8062c0c31a6898c2"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MeshCoreDatabase.kt",
+          "sha256": "b6e2e9d31f891592d9d55c19b58aee231025624bbabc3f477db22102ee61233f"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioEntities.kt",
+          "sha256": "a758968c25b8c22cfa6e47d86dab4c6ad837eb7916f3c8e074d483ba0feec750"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/datastore/src/main/kotlin/com/meshcoreone/android/core/datastore/MeshCoreStorage.kt",
+          "sha256": "abc4ee8fd95ac8b3733cbe2566168faafa9f992b33a618b240f84f74f56b1f96"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.core.data.repository.ParityPhoneTimestampClampOriginalPredicateTest",
+        "originalCurrentUnixUIntWrappingThirtyDaysAndSecondNowMatchRealBackupRestoreAndClampBelowFuture"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },

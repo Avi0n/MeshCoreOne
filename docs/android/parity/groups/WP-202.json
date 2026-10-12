@@ -8024,6 +8024,7 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/DeviceContactSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/MessageSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPhoneTimestampClampOriginalPredicateTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
@@ -8400,6 +8401,20 @@
               "name": "originalThreeSpammerAndOneFriendChannelZeroRowsRetainOneMatchingFriendPending99",
               "line": 268,
               "end_line": 289
+            }
+          ]
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPhoneTimestampClampOriginalPredicateTest.kt",
+          "sha256": "2bb740c24e73d0c9dde2bee5569ecc85c8babf5ed0db5e9f09840e6f536fde1c",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "originalCurrentUnixUIntWrappingThirtyDaysAndSecondNowMatchRealBackupRestoreAndClampBelowFuture",
+              "line": 22,
+              "end_line": 54
             }
           ]
         },
@@ -67966,6 +67981,215 @@
             "PersistenceStoreTests::phone clock clamp agrees between touch and backup helpers()",
             "shared-clamp-native-policy-not-backup-import",
             "PersistenceStoreTests::updateDeviceLastContactSync stores radio-ahead watermark without phone clamp()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPhoneTimestampClampOriginalPredicateTest.kt",
+          "sha256": "2bb740c24e73d0c9dde2bee5569ecc85c8babf5ed0db5e9f09840e6f536fde1c",
+          "class": "com.meshcoreone.android.core.data.repository.ParityPhoneTimestampClampOriginalPredicateTest",
+          "method_or_family_name": "originalCurrentUnixUIntWrappingThirtyDaysAndSecondNowMatchRealBackupRestoreAndClampBelowFuture",
+          "line": 22,
+          "end_line": 54,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "0ee48851686ecb6486401f92d2fac0c39ba4b9d42b98821b8b1fec1b6b260367",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 42,
+              "expression": "assertNotNull(store.fetchContact(EntityKey(radio, contact.id)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 45,
+              "expression": "assertEquals(fromStatic, fromBackup)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 46,
+              "expression": "assertTrue(fromStatic < farFuture)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 47,
+              "expression": "assertEquals(now.epochSecond.toUInt() + 300u, fromStatic)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 48,
+              "expression": "assertEquals(contact.id, restored.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 49,
+              "expression": "assertEquals(radio, restored.radioId)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 50,
+              "expression": "assertEquals(farFuture, contact.lastHeardTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Instant.now",
+              "line": 23,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 23,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 24,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RoomPersistenceStore.clampedPhoneClockTimestamp",
+              "line": 26,
+              "expression": "RoomPersistenceStore.clampedPhoneClockTimestamp(farFuture, now)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 27,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 27,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DeviceDTO",
+              "line": 28,
+              "expression": "DeviceDTO(\n            id = UUID.randomUUID(), radioId = radio, publicKey = Bytes(ByteArray(32) { 0x44 }),\n            nodeName = \"ClampRadio\",\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 29,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 29,
+              "expression": "Bytes(ByteArray(32) { 0x44 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 29,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactDTO",
+              "line": 32,
+              "expression": "ContactDTO(\n            id = UUID.randomUUID(), radioId = radio, publicKey = Bytes(ByteArray(32) { 0x55 }),\n            name = \"ClampContact\", typeRawValue = 1u, lastHeardTimestamp = farFuture,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 33,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 33,
+              "expression": "Bytes(ByteArray(32) { 0x55 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 33,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 36,
+              "expression": "MeshCoreStorage.get(context)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 38,
+              "expression": "AppBackupService(storage.backupPreferences, \"1.0.0\", \"42\", clock)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 39,
+              "expression": "service.importBackup(envelope(\n                devices = listOf(device), contacts = listOf(contact), exportDate = now,\n            ), store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "envelope",
+              "line": 39,
+              "expression": "envelope(\n                devices = listOf(device), contacts = listOf(contact), exportDate = now,\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 40,
+              "expression": "listOf(device)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 40,
+              "expression": "listOf(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 42,
+              "expression": "store.fetchContact(EntityKey(radio, contact.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 42,
+              "expression": "EntityKey(radio, contact.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "now.epochSecond.toUInt",
+              "line": 47,
+              "expression": "now.epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 52,
+              "expression": "storage.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::phone clock clamp agrees between touch and backup helpers()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }

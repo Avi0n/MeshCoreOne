@@ -1,5 +1,19 @@
 # WP-501 source, case-family and consumer acceptance
 
+Final phone-clamp original registered:1479/5133 proposals/190groups/
+83mandatory/0approved,135/135 persistence originals proposed/zero unprovided,
+NOT135 accepted. Qualified independent source-only remains106/135/
+29uncompared. One body/join/22fingerprints/reservation46; fresh strict one-only
+execution and independent comparison pending. First current Unix UInt32
+wrapping30-day future plus separately sampled second now are preserved;
+static result is compared to the actual stored contact reached through public
+backup import/real Room restore under that same clock, not two static calls.
+Source equality/less-than predicates remain; literal300 tolerance and actual
+row/identity/input preservation are supplemental, not iOS/bidirectional proof.
+All1478 incumbent complete bindings unchanged on this additive registration.
+
+Historical ten-only outcome:
+
 Ten complete contact/channel/sender deletion originals are newly registered:
 1478/5133 proposals/189groups/83mandatory/0approved,134/135 persistence
 proposed/one phone-clamp original unprovided. Qualified independent
@@ -7,7 +21,12 @@ SOURCE-ONLY comparison remains106/135/29uncompared. All1468 incumbent
 complete bindings are unchanged; ten new bodies/joins have50 declared
 input fingerprints each. Same durable producer reservation44->45 admits
 only the unique core-data friend-access test path, not product ownership.
-Fresh strict ten-only execution and independent comparison are pending.
+Actual clean dae06a3fa11c9d4df83f252ecde22207608cd6dc/base d958 strict
+core-data ten-only10PASS/0bad/all10 exact identities/XML16:52:53.104Z/
+native25043f82/canonical-LF SHA450588d6/private raw50-input receipt.
+ReadinessPASS/zero notices/normal supported own locks released. Outcome-only
+all1478 original/native/helper/vector/runner fields unchanged, ten comparison
+digests only. Independent comparison/successor hosted remain pending.
 Original early/late callbacks, single-message cascade, absent-parent cleanup,
 three-channel/sender inputs, fresh queued RX zero-before/fault/matchingID/
 finalflush and channel rollback followed by actual sibling piggyback retain

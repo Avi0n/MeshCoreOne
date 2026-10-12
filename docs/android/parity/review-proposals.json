@@ -5,6 +5,49 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "persistence-original-restored-phone-clamp-and-backup-consumer-predicate",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPhoneTimestampClampOriginalPredicateTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.repository.ParityPhoneTimestampClampOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "phone clock clamp agrees between touch and backup helpers"
+      ],
+      "comparison": "One final independent complete persistence original. Actual first current Unix UInt32 wrapping +60*60*24*30 retains source farFuture; separate second ambient current Date now retained. Direct static clampedPhoneClockTimestamp(stamp,now) compared to actual persisted contact lastHeardTimestamp reached via public AppBackupService.importBackup/real Room transaction/BackupDatabaseRestore.insertContacts using SAME now storeClock, not calling candidate static helper twice or naming a fixture a backup helper. BOTH original equality and less-than-farFuture predicates retained. Supplementary literal frozen5*60 tolerance expectation nowUnix+300, required actual persisted row/exact contactID/radio and unchanged original farFuture DTO prove actual consumer and immutable input; one original, not extra backup/platform credit.",
+      "inputs": "Original createTestStore setup precedes first currentDate, unsigned UInt32 wrapping addition30days and separately sampled secondDate. Mutable injected RepositoryClock freezes precisely that second now for actual store and service; not BackupRoomTest fixed2023 clock or a different service/store clock. Additional native consumer setup uses fresh radio/contact/device UUIDs, fixed32-byte44/55 keys, ClampRadio/ClampContact/typechat and actual native DTO remaining defaults, native-only concrete envelope exportDate=now/actual validated manifest/no preferences/all other arrays empty. These supplemental device/contact defaults are NOT purported delegated original fixtures, expected packet/codec goldens or independent Swift execution.",
+      "adaptations": "Same durable producer reservation45->46 automatically admits ONLY unique disjoint core-data test support through merge-integration/merge-disjoint-semantic-edits, preserving all product/shared-build owners. Original private actor backup helper has no independent Android public twin; counterpart is actual public backup restore consumer, verified by fetching persisted row from real nativeSQLite/API31 Room under same injected current clock. Process MeshCoreStorage supplies real preference role and closes in finally; inherited repository owned scope/store/database cleanup remains. Public static helper is evaluated ONCE; no fake backup clamp or candidate self-oracle. Stronger native consumer predicates are supplementary to the source equality/bound, not bidirectional iOS codec/restore/API37/mounted/hardware/cancellation/full-backup certification.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift",
+        "MC1Services/Sources/MC1Services/Sync/SyncCoordinator.swift",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPhoneTimestampClampOriginalPredicateTest.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTestValues.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryPolicies.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/AppBackupService.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/AppBackupEnvelope.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupDatabaseRestore.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MeshCoreDatabase.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioEntities.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+        "android/core/datastore/src/main/kotlin/com/meshcoreone/android/core/datastore/MeshCoreStorage.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt"
+      ],
+      "consumer": "Complete frozen source original3550 plus actual frozen BackupHelpers private nullablebackup/static clamp253-257 and directly used SyncCoordinator.timestampToleranceFuture=5*60 read against native RoomPersistenceStore static delegate/RepositoryPolicies checked300 bound, actual AppBackupService validation/withBackupRestore/storeClock transaction and BackupDatabaseRestore inserted-contact copy/DAO projection, real same-clock RepositoryTest and actual-envelope helper. No old aggregate or previous ten/three/eight/seven replay.",
+      "unresolved": [
+        "Fresh strict one-only native execution and independent complete-source comparison pending.1479/5133 proposals/190groups/83mandatory/0approved;135/135 PersistenceStore originals now proposed/zero unprovided, NOT135 accepted or independently compared. Qualified source-only remains106/135/29uncompared. Historical actual dae0 ten-only10PASS and other exact receipts preserved; no source pre-read credit/current hosted/hardware/iOS/bidirectional backup/full WP501 acceptance."
+      ]
+    },
+    {
       "id": "persistence-original-restored-contact-channel-and-sender-deletion-predicates",
       "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
       "partial_source_file": true,
@@ -79,9 +122,9 @@
         "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageRepeatDTO.kt",
         "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DiagnosticDTOs.kt"
       ],
-      "consumer": "All ten full source bodies and delegated pending/direct-message/repeat/device/contact/RX fixtures plus actual source contact/channel cascade staging/fault/rollback definitions read against native ContactRepository candidate/delete callback phases, MessageRepository slot/sender filters, RepositoryCascades dependent deletes, RoomRepositoryContext preflush/save/rollback, actual DAO queries, mappings and same-DB RepositoryTest harness. Source random keys explicitly substituted, distinct frame identities retained. Prior CascadeSourceTest read only; no old aggregate/native family replay or producer product edit.",
+      "consumer": "All ten full source bodies and delegated pending/direct-message/repeat/device/contact/RX fixtures plus actual source contact/channel cascade staging/fault/rollback definitions read against native ContactRepository candidate/delete callback phases, MessageRepository slot/sender filters, RepositoryCascades dependent deletes, RoomRepositoryContext preflush/save/rollback, actual DAO queries, mappings and same-DB RepositoryTest harness. Source random keys explicitly substituted, distinct frame identities retained. Prior CascadeSourceTest read only; no old aggregate/native family replay or producer product edit. Actual cleandae06a3fa11c9d4df83f252ecde22207608cd6dc/base d958 strict Windows core-data ten-only execution:10discovered/10PASS/0failure-error-skip/all10 exact identities/XML2026-10-12T16:52:53.104Z/native25043f82e9e5ef6fb6dcba2a3971559c3bd9371c/canonicalLF SHA256450588d6eb4d5328abfab36cf19891078a19da7c3ce2ecf71ba5d02541872299/50 input fingerprints. Actual nativeSQLite/API31 Room verifies all ten independent original fixture/action/predicate bodies, staged AFTER DELETE FAIL/outer rollback, late callback timing, fresh RX zero-before/matchingID/finalflush and post-fault original sibling piggyback. ReadinessPASS/zero notice normalization/normal supported own native+Gradle lock release. Private raw XML/full-input receipt captured before overwrite. No old aggregate/new seven/eight/three replay/source comparison approval/current successor hosted/mounted/API37/iOS/hardware/bidirectional backup/full acceptance.",
       "unresolved": [
-        "Fresh strict ten-only discovery/execution and independent complete-source comparison pending. Candidate1478/5133/189groups/83mandatory/0approved;134/135 PersistenceStore proposed/one phone-clamp original unprovided. Qualified source-only subtotal remains106/135/29uncompared, including no extra credit for seven/eight/three/ten producer tests or source pre-reads. Preserve all historical positive/negative receipts and actual e888 three intake6128579048; no current hosted/iOS/API37/mounted/hardware/bidirectional backup/full acceptance claim."
+        "Actual clean dae0 ten-only10PASS/0bad; independent complete-source comparison/current successor hosted/reviewed merge/full audit pending.1478/5133 proposals/189groups/83mandatory/0approved;134/135 persistence proposed/one phone-clamp original unprovided versus106/135 qualified source-only/29uncompared. Preserve historical positives/negatives, explicit staged fault/fixture adaptations and all other current groups; no unchanged replay/source pre-read credit."
       ]
     },
     {

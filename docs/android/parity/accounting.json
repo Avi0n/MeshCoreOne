@@ -14,8 +14,8 @@
       "scope-excluded-not-passed": 80
     },
     "family_dispositions": {
-      "independent-family-review-required": 2359,
-      "no-explicit-family-mapping": 2663,
+      "independent-family-review-required": 2360,
+      "no-explicit-family-mapping": 2662,
       "scope-excluded-not-passed": 111
     },
     "verified_behavioral_acceptances": 0
@@ -14390,6 +14390,7 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/DeviceContactSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/MessageSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPersistenceDeletionOriginalPredicateTest.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPhoneTimestampClampOriginalPredicateTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
@@ -35217,8 +35218,13 @@
       "exclusion": null,
       "original_detail_sha256": "e97bc41cc5dd26c14af0960f86e12407ab424314e85c12e3e1a0a3caf75af5f5",
       "assertion_status": "direct",
-      "candidate_mappings": [],
-      "acceptance": "no-explicit-family-mapping"
+      "candidate_mappings": [
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityPhoneTimestampClampOriginalPredicateTest.kt"
+        }
+      ],
+      "acceptance": "independent-family-review-required"
     },
     {
       "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
