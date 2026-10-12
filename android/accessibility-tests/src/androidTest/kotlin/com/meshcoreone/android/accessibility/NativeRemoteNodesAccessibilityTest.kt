@@ -68,16 +68,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
-import org.robolectric.annotation.LooperMode
+import androidx.test.ext.junit.runners.AndroidJUnit4
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [31, 37], qualifiers = "en-rUS-w360dp-h900dp-mdpi")
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
-@LooperMode(LooperMode.Mode.INSTRUMENTATION_TEST)
-class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
+@RunWith(AndroidJUnit4::class)
+class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
     private val radio = RadioId(UUID(0, 101))
     private val contact = ContactDTO(id = UUID(0, 102), radioId = radio,
         publicKey = Bytes(ByteArray(32) { 0x33 }), name = "\u4e2d\u6587 remote",
@@ -91,11 +85,11 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         assertTrue(failure.fetchSemanticsNode().config.contains(SemanticsProperties.LiveRegion))
         assertEquals(1, rig.catalogReads)
         compose.runOnIdle { rig.catalogFailure = false }
-        compose.onNodeWithText(host.get().getString(L.remoteNodesStatusRefresh)).performClick()
+        compose.onNodeWithText(activity.getString(L.remoteNodesStatusRefresh)).performClick()
         compose.onNode(hasText(contact.displayName) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
             .assertIsDisplayed()
         compose.onNodeWithTag("remote-error").assertDoesNotExist()
-        compose.onNodeWithText(host.get().getString(L.remoteNodesRoomDisconnectedBanner)).assertIsDisplayed()
+        compose.onNodeWithText(activity.getString(L.remoteNodesRoomDisconnectedBanner)).assertIsDisplayed()
         assertVisibleClickTargetsAtLeast48Dp()
         assertEquals(2, rig.catalogReads)
     }
@@ -104,11 +98,11 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         val rig = Rig()
         mount(rig)
         openHistory()
-        val title = host.get().getString(L.remoteNodesHistoryBattery)
+        val title = activity.getString(L.remoteNodesHistoryBattery)
         val slider = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress) and
             hasContentDescription(title, substring = true)).performScrollTo().assertIsDisplayed()
         val measured = slider.fetchSemanticsNode()
-        val density = host.get().resources.displayMetrics.density
+        val density = activity.resources.displayMetrics.density
         println("WP503_REMOTE_HISTORY_TARGET|bounds=${measured.touchBoundsInRoot}|size=${measured.size}")
         assertTrue("The current sample must expose the real latest voltage and unit",
             measured.config[SemanticsProperties.ContentDescription].any { it.contains("3.9 V") })
@@ -144,7 +138,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
                 node.boundsInRoot.left >= viewport.left && node.boundsInRoot.right <= viewport.right &&
                 node.boundsInRoot.top >= viewport.top && node.boundsInRoot.bottom <= viewport.bottom)
         assertEquals(1, rig.historyReads)
-        compose.onNodeWithText(host.get().getString(L.remoteNodesDone)).performClick()
+        compose.onNodeWithText(activity.getString(L.remoteNodesDone)).performClick()
         compose.onNodeWithTag("remote-node-list").assertIsDisplayed()
     }
 
@@ -179,7 +173,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         val rig = Rig().apply { empty = true }
         mount(rig)
         openHistory()
-        val empty = compose.onNodeWithText(host.get().getString(L.remoteNodesHistoryNoSnapshotsMessage))
+        val empty = compose.onNodeWithText(activity.getString(L.remoteNodesHistoryNoSnapshotsMessage))
             .performScrollTo().assertIsDisplayed()
         assertFont200Unclipped(empty)
         assertEquals(0, compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).fetchSemanticsNodes().size)
@@ -195,13 +189,13 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         assertEquals("\u2022".repeat(12), password.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
         val remember = rememberToggle().performScrollTo().assertIsOn().assertIsEnabled()
         assertModalTarget(remember)
-        assertScrollableFont200Unclipped(compose.onNodeWithText(host.get().getString(L.remoteNodesAuthRememberPassword),
+        assertScrollableFont200Unclipped(compose.onNodeWithText(activity.getString(L.remoteNodesAuthRememberPassword),
             useUnmergedTree = true))
         remember.performClick().assertIsOff()
-        val flood = compose.onNode(hasText(host.get().getString(L.remoteNodesAuthFloodRouting)) and
+        val flood = compose.onNode(hasText(activity.getString(L.remoteNodesAuthFloodRouting)) and
             SemanticsMatcher.keyIsDefined(SemanticsProperties.ToggleableState)).performScrollTo()
         flood.assertIsOn().assertIsNotEnabled()
-        assertScrollableFont200Unclipped(compose.onNodeWithText(host.get().getString(L.remoteNodesAuthNoRouteFooter),
+        assertScrollableFont200Unclipped(compose.onNodeWithText(activity.getString(L.remoteNodesAuthNoRouteFooter),
             useUnmergedTree = true))
         assertModalTarget(compose.onNodeWithTag("remote-login").assertIsEnabled())
         cancelAuthentication()
@@ -217,7 +211,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         val password = compose.onNodeWithTag("remote-login-password").performScrollTo()
         password.performTextReplacement("0123456789ABCDEextra")
         assertScrollableFont200Unclipped(compose.onNodeWithText(
-            L.remoteNodesAuthPasswordTooLongRepeaters(host.get().resources, 15), useUnmergedTree = true))
+            L.remoteNodesAuthPasswordTooLongRepeaters(activity.resources, 15), useUnmergedTree = true))
         compose.onNodeWithTag("remote-login").performClick()
         val failure = compose.onNodeWithTag("remote-error").performScrollTo().assertIsDisplayed()
         assertScrollableFont200Unclipped(failure)
@@ -241,7 +235,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         compose.onNodeWithTag("remote-login-password").assertIsNotEnabled()
         rememberToggle().assertIsNotEnabled()
         assertScrollableFont200Unclipped(compose.onNodeWithText(
-            L.remoteNodesAuthSecondsRemaining(host.get().resources, 30), useUnmergedTree = true))
+            L.remoteNodesAuthSecondsRemaining(activity.resources, 30), useUnmergedTree = true))
         val progress = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo) and
             hasAnyAncestor(isDialog()))
         val measured = progress.fetchSemanticsNode()
@@ -320,7 +314,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
             }
         }
         val node = compose.onNodeWithTag("framework-progress-control").assertIsDisplayed().fetchSemanticsNode()
-        val density = host.get().resources.displayMetrics.density
+        val density = activity.resources.displayMetrics.density
         val visual = node.layoutInfo.coordinates.boundsInRoot()
         println("WP503_FRAMEWORK_PROGRESS|semantics=${node.size}|allocation=$allocation|layout=${node.layoutInfo.width}x${node.layoutInfo.height}|visual=$visual")
         assertEquals(4f, allocation.height / density, 0f)
@@ -329,7 +323,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         assertEquals(allocation.height.toFloat(), visual.height, 0f)
     }
 
-    private fun rememberToggle() = compose.onNode(hasText(host.get().getString(L.remoteNodesAuthRememberPassword)) and
+    private fun rememberToggle() = compose.onNode(hasText(activity.getString(L.remoteNodesAuthRememberPassword)) and
         SemanticsMatcher.keyIsDefined(SemanticsProperties.ToggleableState))
 
     private fun assertModalTarget(interaction: SemanticsNodeInteraction) {
@@ -337,7 +331,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         assertTrue(generateSequence(node) { it.parent }.any { it.config.contains(SemanticsProperties.IsDialog) })
         val viewport = generateSequence(node) { it.parent }.last().boundsInRoot
         val bounds = node.touchBoundsInRoot
-        val density = host.get().resources.displayMetrics.density
+        val density = activity.resources.displayMetrics.density
         println("WP503_REMOTE_AUTH_TARGET|bounds=$bounds|viewport=$viewport")
         assertTrue("The actual enabled modal control must retain a complete 48dp target",
             bounds.width / density >= 48f && bounds.height / density >= 48f &&
@@ -346,7 +340,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
     }
 
     private fun cancelAuthentication() {
-        val cancel = compose.onNodeWithText(host.get().getString(L.remoteNodesCancel)).assertIsEnabled()
+        val cancel = compose.onNodeWithText(activity.getString(L.remoteNodesCancel)).assertIsEnabled()
         assertModalTarget(cancel)
         cancel.performClick()
         compose.onNodeWithTag("remote-login-password").assertDoesNotExist()
@@ -364,7 +358,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
     }
 
     private fun openHistory() {
-        compose.onNodeWithText(host.get().getString(L.remoteNodesHistoryOverviewTitle)).performScrollTo().performClick()
+        compose.onNodeWithText(activity.getString(L.remoteNodesHistoryOverviewTitle)).performScrollTo().performClick()
         compose.onNodeWithTag("remote-history-content").assertIsDisplayed()
     }
 

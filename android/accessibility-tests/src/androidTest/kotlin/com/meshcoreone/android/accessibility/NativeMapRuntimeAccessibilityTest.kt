@@ -27,14 +27,10 @@ import com.meshcoreone.android.feature.tools.los.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
+import androidx.test.ext.junit.runners.AndroidJUnit4
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [31, 37], qualifiers = "en-rUS-w360dp-h900dp-mdpi")
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
-class NativeMapRuntimeAccessibilityTest : NativeAccessibilityHarness() {
+@RunWith(AndroidJUnit4::class)
+class NativeMapRuntimeAccessibilityTest : DeviceAccessibilityHarness() {
     @Test fun actualNativeMapEntryExposesReachableRefreshAndConsumesPendingFocus() {
         observeRuntime()
         var loads = 0
@@ -53,7 +49,7 @@ class NativeMapRuntimeAccessibilityTest : NativeAccessibilityHarness() {
                 }
             }
         }
-        val refresh = compose.onNodeWithText(host.get().getString(R.string.l10n_app_map_map_controls_refresh))
+        val refresh = compose.onNodeWithText(activity.getString(R.string.l10n_app_map_map_controls_refresh))
             .assertIsDisplayed()
         assertFont200Unclipped(refresh)
         assertVisibleClickTargetsAtLeast48Dp()
@@ -88,11 +84,11 @@ class NativeMapRuntimeAccessibilityTest : NativeAccessibilityHarness() {
             },
         )
         content { MeshCoreTheme(motionScale = 0f) { AuditSurface { LineOfSightEntry(dependencies) } } }
-        compose.onNodeWithContentDescription(host.get().getString(T.toolsLineOfSight)).assertIsDisplayed()
-        val heading = compose.onNode(hasText(host.get().getString(T.toolsLineOfSight)) and
+        compose.onNodeWithContentDescription(activity.getString(T.toolsLineOfSight)).assertIsDisplayed()
+        val heading = compose.onNode(hasText(activity.getString(T.toolsLineOfSight)) and
             SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         assertScrollableFont200Unclipped(heading)
-        val points = compose.onAllNodes(hasText(host.get().getString(T.toolsLineOfSightNotSelected)),
+        val points = compose.onAllNodes(hasText(activity.getString(T.toolsLineOfSightNotSelected)),
             useUnmergedTree = true).fetchSemanticsNodes()
         assertEquals("Both real endpoints must remain explicitly unselected", 2, points.size)
         for (point in points) {
@@ -100,7 +96,7 @@ class NativeMapRuntimeAccessibilityTest : NativeAccessibilityHarness() {
                 it.id == point.id
             }, useUnmergedTree = true))
         }
-        compose.onNodeWithText(host.get().getString(T.toolsLineOfSightAnalyze)).assertDoesNotExist()
+        compose.onNodeWithText(activity.getString(T.toolsLineOfSightAnalyze)).assertDoesNotExist()
     }
 
     private fun observeRuntime() {

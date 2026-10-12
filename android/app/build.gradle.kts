@@ -101,6 +101,9 @@ android {
     // AndroidOnly: WP-503 Execute owned accessibility suites with the existing native App test runner.
     sourceSets.getByName("test").kotlin.srcDir(rootProject.file("accessibility-tests/src/test/kotlin"))
     sourceSets.getByName("androidTest").kotlin.srcDir(rootProject.file("accessibility-tests/src/androidTest/kotlin"))
+    listOf("test", "androidTest").forEach { name ->
+        sourceSets.getByName(name).kotlin.srcDir(rootProject.file("accessibility-tests/src/shared/kotlin"))
+    }
 
     // AndroidOnly: WP-504 Release optimization and isolated, non-shipping workload target.
     buildTypes.getByName("release") {
