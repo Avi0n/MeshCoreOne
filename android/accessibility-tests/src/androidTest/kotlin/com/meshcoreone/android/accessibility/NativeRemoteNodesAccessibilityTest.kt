@@ -28,6 +28,8 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.isDialog
@@ -49,6 +51,7 @@ import com.meshcoreone.android.core.contracts.FeatureRoute
 import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.generated.AppRemoteNodesStrings as L
+import com.meshcoreone.android.core.l10n.generated.AppMapStrings as M
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.NodeStatusSnapshotDTO
 import com.meshcoreone.android.core.model.RadioId
@@ -69,6 +72,7 @@ import com.meshcoreone.android.feature.remotenodes.dependencies.*
 import java.io.IOException
 import java.time.Instant
 import java.util.UUID
+import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.awaitCancellation
@@ -78,6 +82,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 
 @RunWith(AndroidJUnit4::class)
 class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
@@ -131,6 +140,72 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         assertEquals(0, rig.passwordReads)
         assertEquals(0, rig.loginAttempts)
         println("WP503_REMOTE_GUEST_STATUS|statusReads=1|telemetryReads=3|registered=3|teardown=1|realRadio=false")
+    }
+
+    @Test fun populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200() {
+        assertEquals("This independent Fahrenheit oracle requires the actual US device locale",
+            "US", Locale.getDefault().country)
+        val rig = Rig().apply {
+            savedGuest = true
+            // LPP: channel1 25.5C/22.5C/3.85V/GPS(37.7749,-122.4194,42m), channel2 55.5%.
+            telemetryRaw = Bytes.fromHex("016700ff016700e101740181018805c395ed51fe00106802686f")
+            ready()
+        }
+        mount(rig)
+        compose.onNodeWithTag("open-node:${contact.id}").performClick()
+        val telemetry = compose.onNode(hasText(activity.getString(L.remoteNodesStatusTelemetry)) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).performScrollTo()
+        telemetry.performClick()
+        compose.waitUntil { rig.telemetryReads == 1 }
+        for (channel in listOf(1, 2)) {
+            val heading = compose.onNode(hasText(activity.getString(L.remoteNodesStatusChannel, channel)) and
+                SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            assertScrollableFont200Unclipped(heading)
+        }
+        for (label in listOf(L.remoteNodesStatusSensorTemperature, L.remoteNodesStatusSensorMcuTemperature,
+            L.remoteNodesStatusSensorVoltage, L.remoteNodesStatusSensorGps, L.remoteNodesStatusSensorHumidity)) {
+            assertScrollableFont200Unclipped(compose.onNodeWithText(activity.getString(label)))
+        }
+        for (value in listOf("77.9 \u00b0F", "72.5 \u00b0F", "3.850 V", "55.5%",
+            "37.77490, -122.41940 @ 42.0m")) {
+            assertScrollableFont200Unclipped(compose.onNodeWithText(value))
+        }
+        compose.onNodeWithText(activity.getString(L.remoteNodesStatusNoSensorData)).assertDoesNotExist()
+        compose.onNodeWithText(activity.getString(L.remoteNodesStatusNoTelemetryData)).assertDoesNotExist()
+        val viewMap = compose.onNodeWithText(activity.getString(L.remoteNodesStatusViewOnMap)).performScrollTo()
+        assertFont200Unclipped(viewMap)
+        assertVisibleClickTargetsAtLeast48Dp()
+        viewMap.performClick()
+        val mapTitle = activity.getString(L.remoteNodesStatusLocationMapTitle)
+        val mapHeading = compose.onNode(hasText(mapTitle) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+        assertScrollableFont200Unclipped(mapHeading)
+        onView(withContentDescription(mapTitle)).check(matches(isDisplayed()))
+        val satellite = compose.onNodeWithText(activity.getString(M.mapStyleSatellite))
+        satellite.performScrollTo().assertIsNotSelected().performClick().assertIsSelected()
+        assertScrollableFont200Unclipped(compose.onNodeWithText("OpenFreeMap does not provide satellite imagery."))
+        onView(withContentDescription(mapTitle)).check(doesNotExist())
+        val standard = compose.onNodeWithText(activity.getString(M.mapStyleStandard))
+        standard.performScrollTo().assertIsNotSelected().performClick().assertIsSelected()
+        mapHeading.performScrollTo()
+        onView(withContentDescription(mapTitle)).check(matches(isDisplayed()))
+        val labels = compose.onNodeWithText(activity.getString(M.mapControlsShowLabels)).performScrollTo()
+        labels.assertIsOn().performClick().assertIsOff().performClick().assertIsOn()
+        val clusters = compose.onNodeWithText(activity.getString(M.mapControlsClusterNodes)).performScrollTo()
+        clusters.assertIsOn().performClick().assertIsOff().performClick().assertIsOn()
+        assertVisibleClickTargetsAtLeast48Dp()
+        compose.onNode(hasText(activity.getString(L.remoteNodesDone)) and
+            hasAnyAncestor(SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange)))
+            .performScrollTo().performClick()
+        assertScrollableFont200Unclipped(compose.onNodeWithText("37.77490, -122.41940 @ 42.0m"))
+        compose.onNodeWithText(activity.getString(L.remoteNodesDone)).performClick()
+        compose.onNodeWithTag("remote-node-list").assertIsDisplayed()
+        compose.waitUntil { rig.statusTeardowns == 1 }
+        assertEquals(1, rig.telemetryReads)
+        assertEquals(0, rig.statusReads)
+        assertEquals(3, rig.handlerRegistrations)
+        assertEquals(0, rig.loginAttempts)
+        println("WP503_REMOTE_POPULATED_TELEMETRY|channels=2|points=5|reads=1|nativeMap=true|styleRecovery=true|realRadio=false")
     }
 
     @Test fun catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow() {
@@ -443,6 +518,7 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         var pendingAuthentication = false
         var savedGuest = false
         var telemetryFailure = false
+        var telemetryRaw = Bytes.EMPTY
         var statusReads = 0
         var telemetryReads = 0
         var handlerRegistrations = 0
@@ -479,7 +555,7 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
                 assertTrue(requireNotNull(timeout) > Duration.ZERO)
                 telemetryReads++
                 if (telemetryFailure) throw IOException("Deterministic guest telemetry read failure")
-                return TelemetryResponse(contact.publicKey.prefix(6), null, Bytes.EMPTY)
+                return TelemetryResponse(contact.publicKey.prefix(6), null, telemetryRaw)
             }
             override fun setStatusHandler(handler: suspend (StatusResponse) -> Unit) { handlerRegistrations++ }
             override fun setTelemetryHandler(handler: suspend (TelemetryResponse) -> Unit) { handlerRegistrations++ }
