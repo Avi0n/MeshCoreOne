@@ -12,6 +12,22 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Latest actual new-base execution
+
+Clean `32bcb318c5b19cdeedecd7703a085e511c4498c6`, actual based3f:
+`python <session-files>\wp501-native-check.py --head 32bcb318c5b19cdeedecd7703a085e511c4498c6 --owned-inputs`
+executes the declared app selector below, then
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.parser.OriginalBugFixCasesTest --tests com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest.parsing --tests com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest.types --dependency-verification=strict --quiet`.
+Actual required/discovered/run/passed app70/70 (66mandatory+4repair) and
+protocol58/58 (34bugfix+24RxLog),0failure/error/skip. Supported native/Gradle
+locks/readiness passed/released. Exact clean combined declared Python command
+below passed363/363,0failure/error/skip. This executes all repaired175inputs
+and namedRxLog predicates on the actual merged main graph, not historical
+a19 proof. App/collector/BugFix/RxLog executed blobs remain respectively
+9f1ac6fe/a65804ea/d4127ddc/8d9406fd; no product/test-byte/golden change.
+Evidence-only follow-up does not become new native/current-hosted execution.
+Independent current-candidate review and full WP501 acceptance remain pending.
+
 ## Actual merged-base adoption
 
 Coordinator-directed adoption of PR176's actual maintainer merge
@@ -26,8 +42,9 @@ generated accounting/WP307/WP312/WP317 worklists reflect actual inherited map
 consumers without promoting them to accepted families. Same reservation20/
 initial authorization/base250/source/manifest/policy remain unchanged.
 Prior594/5f/AF2 execution retains its a19-base identity; it is not new-base
-proof. Fresh declared app70 and exact-candidate hosted verification remain
-required. No other checkout, producer edit, additional worker or merge action.
+proof. Fresh declared app70 passed at32bcb above; exact-candidate hosted
+verification remains required. No other checkout, producer edit, additional
+worker or merge action.
 
 The first adoption check rejected stale WP307 output because accounting was
 generated after semantic worklists; the documented dependency order
@@ -39,6 +56,13 @@ outputs. The simultaneous Python363/363passed, but that worktree was not
 fully clean and is not promoted as clean-candidate proof. Commit the omitted
 generated worklist before the unchanged native/current-head Python rerun;
 no input/threshold/check/cache bypass or product failure inferred.
+
+Coordinator's [additional bounded53-family source read](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6115227237)
+at AF2/a19 reports no selected-case blocker for NewCommands12/V115Commands14/
+FactoryReset2/V112Protocol25, retaining actual helper-name/date/grapheme/
+version/cache/high-level consumer limits. Those original/native test bytes
+survive adoption unchanged. This source-only result is not a new-base rerun,
+full815/5133 approval or privileged gate.
 
 Latest completed hosted candidate: [af2f6f597 primary38183893582](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38183893582),
 actual SUCCESS/all six jobs/basea19. Full18868-line official log read directly:

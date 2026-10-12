@@ -51,14 +51,21 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Clean exact32bcb318c on actuald3f-base executed all70required app cases
+(66mandatory+4repair) and combined58original protocol cases (34BugFix+24RxLog),
+0failure/error/skip, with supported locks/readiness passed/released. Clean
+declared Python363/363passed. All issue175 inputs and namedRxLog assertions
+actually execute; unchanged oldbase proof is not substituted.815/121inspected,
+0candidate-approved acceptance, independent/current-hosted/fullaudit pending.
+
 Adopted actual main `d3f942576e2406cf588cb491994297598e2af681` after
 coordinator-directed PR176 merge: parentsa19/a4e, actual tree0124b863
 equals revieweda4e, merge timestamp refreshed. All51owned commits rebase
 cleanly to d701d2c8; worker app/protocol/collector bytes unchanged.
 Regenerated accounting and WP307/WP312/WP317 worklists include inherited map
 mounting, not additional semantic acceptance.173is inherited merged repair,
-not an open worker product blocker. Fresh current-base app70/hosted checks
-pending; olda19-base594/5f/AF2 passes are not promoted to new-base execution.
+not an open worker product blocker. Fresh current-base app70 passed above;
+hosted checks pending. Olda19-base594/5f/AF2 passes are not promoted.
 Initial reservation/base250 and revision20/source/manifest/policy preserved.
 
 Exact `594ab698fab90654beb3b40ad06c924355231605` passed34/34 original
