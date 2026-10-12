@@ -16,7 +16,7 @@
   available-slot ordering, hashtag full-name passphrase, cancellation propagation, deterministic room
   ordering/grouping and Material 3 sheet/accessibility behavior.
 - `WP-310-source-test-parity`: frozen room ordering and channel validation/confirmation families are bound
-  to 26 Android assertions. Translation is separately owned by WP-406.
+  to 26 Android assertions. Message translation is user-excluded from active scope and future builds.
 
 ## Verification
 
@@ -32,3 +32,69 @@ Pinned session-local JDK 21.0.12.1 and Android SDK 37.2/build-tools 37.0.0 were 
    - Discovered: 158; passed: 158; failed: 0; errors: 0; skipped: 0.
 
 No Android device, camera, physical radio, hardware, signing or release verification is claimed.
+
+## Bounded issue #207 follow-up
+
+The entries above describe the initial contribution, not acceptance of the current four-defect
+repair or the full WP. The follow-up is limited to A503-01..04 (incoming author context, outgoing
+room status, named link actions and Remember Password semantics). It leaves WP-501 parity/accounting
+and WP-503 audit ownership unchanged.
+
+- Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
+- Frozen source: `db14559b39d32322b06477c6ae676112f583db50`.
+- Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
+- Policy revision: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
+- Reservation session/attempt: `5ca13f75-8466-4dd5-b630-02b30841a5d0`; host-verified alias
+  `c2cf31d5-3af6-4536-8bb1-5afcd36781bb` identifies the same worker, not a second session.
+  Initial revision 1 evolved through exact same-attempt CAS to revision 5, preserving identity and
+  immutable authorization. Owned room/docs edits use `wp-owned`; the bounded App consumer/test
+  support uses `app-build-launcher`. Shared advisory intents are not pre-edit locks.
+- Prerequisites: PR #203 actually merged at the base above; PR #50 actually merged at
+  `738b10092237a48f6d0a38590fbacea7e8ddfe5f`, verified as an ancestor. Their existing evidence
+  was read; this repair does not upgrade their overall acceptance.
+
+Frozen inputs read: complete `RoomMessageBubble.swift`, all six complete
+`RoomMessageBubbleA11yLabelTests.swift` cases, `RoomMessageDTO+Status.swift`,
+`RoomAuthenticationSheet.swift`, `NodeAuthenticationSheet.swift`, and the English Chats/RemoteNodes
+resources. Existing formatter, link accessibility naming/ordering/cap, MessageBody, dispatcher/router,
+state holder and actual App route consumers were inspected. Frozen bubble/tests/auth blobs match the
+pin. No frozen source or localization resource was edited.
+
+`RoomAccessibilityComposeTest` retains the six original predicate families and adds all six room
+statuses, merged/unmerged production semantics, real state-holder retry and join results, shared
+mention/hashtag/map routing, link order/dedup/cap, an unconsumed action result and Spanish localization.
+These are deterministic Robolectric tests on API 31/37, not device/TalkBack observations.
+
+The tightly coupled room rendering regression mounts actual Default/light bodies (including outgoing
+`#ops`), inspects the renderer's text/link styles and draws the native Compose view into an in-memory
+bitmap. It checks incoming/accent/failed bubble paint, the surrounding canvas and actual foreground
+glyph pixels and hashtag styles against the approved palette/helpers and unchanged body contrast
+floor, in standard and increased-contrast appearances. The renderer receives the actual opaque
+bubble through the producer-owned `backgroundColor` API, with the source preferred foreground.
+Expected style colors resolve against the actual Compose paint representation, not unquantized
+palette values. It does not retain screenshots or claim device observation. Shared contextual
+rich-span changes belong to the WP-308 producer; no shared renderer edit is part of this repair.
+This API-consuming revision must be verified after the producer is available in the branch ancestry;
+preceding surface-only native results do not verify that integrated candidate.
+
+The approved dependency-integration lineage preserves actual merged main
+`663fa73fab99356f7097534288e820a126890195` and original WP-308 producer
+`06fceec24f920e87a4a267a55499236ca3c25959`, including the byte-identical WP-502
+AppChatsFeature queue adapter from `0ae51f7e1ca9c8a4c7aa962a0dfadae59923bf8e`.
+The actual l10n/traceability failure on that imported mixed-disposition header was corrected by
+merging the original producer's `d2b64b584892f0b63545f0e02c9c9e119b3d8b06`, not bypassing
+verification or independently rewriting App queue semantics. The subsequent original producer
+`03753f129984598436b57218ee7f4b82ab99395e` incorporates the WP-502 failure-before-seen
+correction from `78f33d27a9cf777d5bc319175f2c3c498f34e85e` through its own transfer commit
+`5d8d86c61`. The imported AppChatsFeature blob
+`ac0301b1b167a4f0f2a97fb2b522b51e68b67ced` matches that original App-only publication
+byte-for-byte. Original producer ownership/commits, disjoint WP-316 noise-floor work and reviewed
+WP-504 App build/test/release support are preserved. This is compatible implementation integration,
+not acceptance based on closed issues, predecessor results or a formal macro receipt.
+
+Readiness command:
+`python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit d958471ab4835813881a5e7af36e8249a8b273a4 --stages preflight`
+passed using the supported Git-bundle/ext4 snapshot and installed pinned Linux toolchain.
+Candidate native regression results will be reported on the exact commit in the PR/issue.
+No duplicate hosted CI-result bundle is retained here. Formal WP-310 verification is still
+`configured: false`; full-WP/device/physical-radio/human acceptance is not claimed.
