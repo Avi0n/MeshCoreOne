@@ -78,13 +78,18 @@ This API-consuming revision must be verified after the producer is available in 
 preceding surface-only native results do not verify that integrated candidate.
 
 The approved dependency-integration lineage preserves actual merged main
-`b621ed186b32f024dc4c7ddbdc60d18a449343f9` and original WP-308 producer
+`663fa73fab99356f7097534288e820a126890195` and original WP-308 producer
 `06fceec24f920e87a4a267a55499236ca3c25959`, including the byte-identical WP-502
 AppChatsFeature queue adapter from `0ae51f7e1ca9c8a4c7aa962a0dfadae59923bf8e`.
 The actual l10n/traceability failure on that imported mixed-disposition header was corrected by
 merging the original producer's `d2b64b584892f0b63545f0e02c9c9e119b3d8b06`, not bypassing
-verification or independently rewriting App queue semantics. Original producer ownership/commits
-and disjoint WP-316 noise-floor work are preserved. This is compatible implementation integration,
+verification or independently rewriting App queue semantics. The subsequent original producer
+`03753f129984598436b57218ee7f4b82ab99395e` incorporates the WP-502 failure-before-seen
+correction from `78f33d27a9cf777d5bc319175f2c3c498f34e85e` through its own transfer commit
+`5d8d86c61`. The imported AppChatsFeature blob
+`ac0301b1b167a4f0f2a97fb2b522b51e68b67ced` matches that original App-only publication
+byte-for-byte. Original producer ownership/commits, disjoint WP-316 noise-floor work and reviewed
+WP-504 App build/test/release support are preserved. This is compatible implementation integration,
 not acceptance based on closed issues, predecessor results or a formal macro receipt.
 
 Readiness command:
