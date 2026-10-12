@@ -263,7 +263,8 @@ class ChatMapPreviewTest : RoomProcessTest() {
             compose.onNodeWithContentDescription(toggle).assertIsOn().performClick()
             compose.waitUntil(10_000) {
                 h.settle()
-                runBlocking { !storage.preferences.get(AppStorageKey.showMapPreviewThumbnails) }
+                runBlocking { !storage.preferences.get(AppStorageKey.showMapPreviewThumbnails) } &&
+                    compose.onAllNodes(hasContentDescription(toggle) and isOff()).fetchSemanticsNodes().size == 1
             }
             compose.onNodeWithContentDescription(toggle).assertIsOff()
             assertFalse(storage.preferences.get(AppStorageKey.linkPreviewsEnabled))
