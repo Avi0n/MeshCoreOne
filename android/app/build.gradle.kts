@@ -85,6 +85,19 @@ android {
     sourceSets.getByName("test").kotlin.srcDir(
         "src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases",
     )
+    // AndroidOnly: WP-502 Test-only external sources; no product dependency or parity-runner change.
+    sourceSets.getByName("test").kotlin.srcDirs(
+        "../ui-tests/src/shared/kotlin",
+        "../ui-tests/src/test/kotlin",
+        "../screenshot-tests/src/shared/kotlin",
+        "../screenshot-tests/src/test/kotlin",
+    )
+    sourceSets.getByName("androidTest").kotlin.srcDirs(
+        "../ui-tests/src/shared/kotlin",
+        "../ui-tests/src/androidTest/kotlin",
+        "../screenshot-tests/src/shared/kotlin",
+        "../screenshot-tests/src/androidTest/kotlin",
+    )
 }
 
 class ContentPlatformSdkArguments(
@@ -108,6 +121,7 @@ val prepareAppPlatformSdks = tasks.register<Sync>("prepareAppPlatformSdks") {
 }
 tasks.withType<Test>().configureEach {
     dependsOn(prepareAppPlatformSdks)
+    systemProperty("wp502ScreenshotDirectory", rootProject.file("screenshot-tests/build/screens").absolutePath)
     forkEvery = 1
     jvmArgumentProviders.add(ContentPlatformSdkArguments(
         layout.buildDirectory.dir("platform-sdks"),

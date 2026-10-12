@@ -1,6 +1,13 @@
 # WP-502 execution-readiness handoff
 
-**Status: BLOCKED before UI implementation/execution. This is not WP-502 acceptance.**
+**Status: implementation in progress; full WP-502 acceptance remains BLOCKED.**
+
+The initial readiness handoff below records the Windows failure and missing
+WP-specific CI admission. Subsequent user direction resumed implementation using
+the installed Linux runner, whose existing pre-push checks passed at
+`3fce7297eaf47b97ccf9f5ff9359e1699ac1ab01`. Owned production-content Compose
+cases and test-only app source-directory wiring are now being validated.
+Do not treat this initial handoff or a JVM rendering result as device acceptance.
 
 Issue: [#135](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135).
 Owner: `test-parity-engineer`; dedicated project session
@@ -97,7 +104,6 @@ Existing WP-301/302 render tests and WP-407 instrumentation are relevant prior
 art, not newly executed WP-502 evidence. Screenshots alone cannot prove send,
 retry, persistence, connection lifecycle, or permission isolation.
 
-No Kotlin tests, golden images, screenshot comparisons, test discovery counts,
-device results, physical-radio evidence, or reviewed adaptations are delivered
-by this handoff. All themes remain unlocked, original message text/localization
+No device results, physical-radio evidence, or reviewed golden baselines are
+delivered by this initial handoff. All themes remain unlocked, original message text/localization
 remain in scope, and message translation remains excluded.
