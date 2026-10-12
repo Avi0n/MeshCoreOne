@@ -316,7 +316,8 @@ class ConversationScreenCases(
                     draft.value = TextFieldValue(state.draft, TextRange(state.draft.length))
                 }
                 val field = compose.onNode(hasSetTextAction())
-                field.performClick().performTextReplacement(state.draft).assertIsFocused()
+                field.performClick().performTextReplacement(state.draft)
+                field.assertIsFocused()
                 val button = compose.onNodeWithContentDescription(resources().getString(
                     if (label == "overflow") C.chatsInputTooLong else C.chatsInputSendMessage,
                 ))
