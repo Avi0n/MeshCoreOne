@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "0b42bd15e11733c68c89b38463d1f035c78083ea74fe45696543480f657d36d4",
+  "proposal_sha256": "93319ad67e78b104a1a47d8c3dd7c96b0fdc73a79e3c98c8bdf49f83ba9e4f9e",
   "families": [
     {
       "group": "backup-envelope",
@@ -39116,7 +39116,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
@@ -39219,7 +39219,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
@@ -39473,7 +39473,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
@@ -45954,7 +45954,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt",
@@ -46057,7 +46057,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt",
@@ -46142,7 +46142,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt",
@@ -46245,7 +46245,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt",
@@ -46353,7 +46353,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/BLETransportOpenedSignal.kt",
@@ -46445,7 +46445,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/BLETransportOpenedSignal.kt",
@@ -46561,7 +46561,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/BLETransportOpenedSignal.kt",
@@ -46690,7 +46690,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/BLETransportOpenedSignal.kt",
@@ -46801,7 +46801,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
@@ -46904,7 +46904,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
@@ -47025,7 +47025,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
@@ -47122,7 +47122,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
@@ -47231,7 +47231,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt",
@@ -47322,7 +47322,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
@@ -47405,7 +47405,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
@@ -47446,7 +47446,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "listener flips message to .delivered after a flood of non-matching events",
         "line": 339,
@@ -47636,7 +47636,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
@@ -47677,7 +47677,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "listener restart after disconnect/reconnect still observes ACKs",
         "line": 352,
@@ -47861,7 +47861,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
@@ -48144,7 +48144,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -48157,7 +48157,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -48183,7 +48183,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "a genuine send exception still fails the DM through the outer catch",
         "line": 274,
@@ -48311,7 +48311,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -48344,7 +48344,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -48376,7 +48376,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "checkExpiredAcks cannot fail a DM while its retry loop is still inside waitForEvent",
         "line": 280,
@@ -48570,7 +48570,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -48603,7 +48603,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -48635,7 +48635,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "checkExpiredAcks respects a slow-preset per-attempt timeout that exceeds a tiny give-up window",
         "line": 293,
@@ -48841,7 +48841,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -48874,7 +48874,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -48900,7 +48900,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingChannelMessage accepts user text that fills the composed cap",
         "line": 154,
@@ -49010,7 +49010,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -49043,7 +49043,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -49105,7 +49105,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingChannelMessage saves to dataStore with pending status",
         "line": 139,
@@ -49251,7 +49251,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -49284,7 +49284,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -49297,7 +49297,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingChannelMessage throws when user text plus node name exceeds composed cap",
         "line": 148,
@@ -49407,7 +49407,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -49440,7 +49440,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -49453,7 +49453,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingChannelMessage without a device assumes a 31-byte name",
         "line": 160,
@@ -49569,7 +49569,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -49652,7 +49652,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage creates message with pending status",
         "line": 74,
@@ -49774,7 +49774,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -49845,7 +49845,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage returns DTO with correct fields",
         "line": 95,
@@ -49943,7 +49943,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -49996,7 +49996,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage stamps lastMessageDate so a first DM appears in the chat list before any send succeeds",
         "line": 101,
@@ -50112,7 +50112,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -50146,7 +50146,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage throws invalidRecipient for repeater",
         "line": 83,
@@ -50226,7 +50226,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -50260,7 +50260,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage throws messageTooLong for oversized text",
         "line": 89,
@@ -50340,7 +50340,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -50361,7 +50361,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -50387,7 +50387,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "failMessageAndRethrow does not downgrade a delivered DB row",
         "line": 246,
@@ -50527,7 +50527,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -50560,7 +50560,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -50580,7 +50580,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "finalizeSend exhaustion does not downgrade a delivered DB row",
         "line": 255,
@@ -50708,7 +50708,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -50741,7 +50741,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -50754,7 +50754,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "resendChannelMessage throws when message is not a channel message",
         "line": 185,
@@ -50852,7 +50852,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -50885,7 +50885,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -50898,7 +50898,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "resendChannelMessage throws when message not found",
         "line": 179,
@@ -50984,7 +50984,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -51017,7 +51017,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51055,7 +51055,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "resendChannelMessage writes .sent before broadcasting .resent and refreshes counts",
         "line": 191,
@@ -51237,7 +51237,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -51270,7 +51270,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51296,7 +51296,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "resendDirectMessage increments sendCount and broadcasts .resent on a successful resend",
         "line": 201,
@@ -51472,7 +51472,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -51505,7 +51505,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51555,7 +51555,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "retry exhaustion leaves the DM .sent with its pending entry alive, never prematurely .failed",
         "line": 263,
@@ -51701,7 +51701,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -51734,7 +51734,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51772,7 +51772,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendChannelMessage saves message to dataStore before send attempt",
         "line": 128,
@@ -51924,7 +51924,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -51957,7 +51957,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51970,7 +51970,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendChannelMessage throws when user text plus node name exceeds composed cap",
         "line": 121,
@@ -52080,7 +52080,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -52145,7 +52145,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendDirectMessage saves message to dataStore before send attempt",
         "line": 52,
@@ -52285,7 +52285,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -52319,7 +52319,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendDirectMessage throws invalidRecipient for repeater contacts",
         "line": 40,
@@ -52411,7 +52411,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -52445,7 +52445,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendDirectMessage throws messageTooLong for oversized text",
         "line": 46,
@@ -52525,7 +52525,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -52546,7 +52546,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -52559,7 +52559,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendDirectMessage tracks pending ACK before session.sendMessage so the listener cannot race",
         "line": 228,
@@ -52693,7 +52693,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -52739,7 +52739,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendMessageWithRetry throws invalidRecipient for repeater contacts",
         "line": 62,
@@ -52819,7 +52819,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -52853,7 +52853,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendMessageWithRetry throws messageTooLong for oversized text",
         "line": 68,
@@ -52933,7 +52933,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -52954,7 +52954,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -52967,7 +52967,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendMessageWithRetry tracks pending ACK before session.sendMessage",
         "line": 237,
@@ -53101,7 +53101,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -53134,7 +53134,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -53160,7 +53160,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingChannelMessage sets failed status on send error",
         "line": 173,
@@ -53270,7 +53270,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -53303,7 +53303,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -53316,7 +53316,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingChannelMessage throws when message not found",
         "line": 167,
@@ -53402,7 +53402,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -53435,7 +53435,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -53461,7 +53461,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingDirectMessage does not bump sendCount or broadcast .resent on first send",
         "line": 215,
@@ -53619,7 +53619,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -53665,7 +53665,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingDirectMessage rejects concurrent send for same messageID",
         "line": 109,
@@ -53763,7 +53763,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -53797,7 +53797,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingDirectMessage throws when message not found",
         "line": 115,
@@ -53877,7 +53877,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
@@ -53898,7 +53898,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -53930,7 +53930,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "the retry loop escalates from direct to flood via resetPath after exactly config.floodAfter direct failures",
         "line": 314,
@@ -54058,7 +54058,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -54091,7 +54091,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "fdc7c1b3313c6120d289cd63ee1ad273815a424cc6e21b376c245ef5b20d4b58",
+      "comparison_sha256": "3ddc50b228d03a42975bfe4b0d8d2b355341ed098fb4a4844ff14e78ebba9ea6",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -54117,7 +54117,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "78217976643ccb7511efd462b93bd70db622bd12985274fcc7298415a3401dcd",
+        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "the retry loop sends exactly config.maxAttempts times under sustained non-ACK",
         "line": 307,
@@ -54227,7 +54227,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
@@ -54382,7 +54382,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
@@ -54537,7 +54537,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageServiceConfig.kt",
@@ -54678,7 +54678,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
@@ -54805,7 +54805,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
@@ -54926,7 +54926,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
@@ -55035,7 +55035,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",
@@ -55180,7 +55180,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/MessagingTestSupport.kt",
-          "sha256": "5e40e9b65562314010111dde1ea23f9eaaddd95f995b0a8e0e61a3cee016bc43"
+          "sha256": "f0a15b12a60181c03768db998430b4a6b9729a23ca9d1d46575dc087fa3080c4"
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChannelRXCorrelation.kt",

@@ -14,6 +14,21 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
 
+Actual clean14f73f79cac2d1d69de536ea5ba68d845ad197c9/base2cdda executed
+the current covering selectors below: messaging210/207PASS/3FAIL/0errors/skips;
+Room/App selectors did not execute after that task failed. New SourceSend
+38 registrations have35PASS/3FAIL. Resend's original sendCount2 is actually1;
+first-send's original sendCount1/noResent pass but retained one-wire guard
+finds5sends. Both use original pre-delivered ABCDEF12 with no fresh ACK.
+Unstarted finalize also propagates raw mock NotConnected. The fixture now
+normalizes that mock error to the actual MeshTransportError.NotConnected
+contract; fresh native execution must distinguish that support repair from
+any remaining routing-error product mismatch. No source input/startup/new ACK
+is changed to force green. Exact clean14f declared combinedPython363/363PASS,
+0failure/error/skip/readinessPASS/native locksreleased; earlier dirty361/2error
+history remains. These are failed native acceptance witnesses, not full79
+original success or execution of later helper bytes. No second CI bundle.
+
 Next23 complete original SendTests input/assertion comparisons are proposed
 without a passing-execution claim:922families/136groups/67mandatory/0approved.
 Both deliberately pre-delivered PendingAck cases preserve ABCDEF12/30 and

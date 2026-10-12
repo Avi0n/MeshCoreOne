@@ -6,8 +6,8 @@ package com.meshcoreone.android.core.services.messaging
 import com.meshcoreone.android.core.contracts.domain.*
 import com.meshcoreone.android.core.contracts.domain.errors.*
 import com.meshcoreone.android.core.model.*
-import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.bytes.ByteWriter
+import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.event.EventDispatcher
 import com.meshcoreone.android.core.protocol.event.MeshEvent
 import com.meshcoreone.android.core.protocol.model.CommandCode

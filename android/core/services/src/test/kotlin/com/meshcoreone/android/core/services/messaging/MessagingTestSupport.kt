@@ -250,6 +250,7 @@ internal class FirmwareTransport(private val senderPublicKey: Bytes = SELF) : Me
     override suspend fun send(data: Bytes) {
         try { mock.send(data) }
         catch (failure: MockTransportException.SendFailed) { throw MeshTransportError.SendFailed(failure.reason) }
+        catch (failure: MockTransportException.NotConnected) { throw MeshTransportError.NotConnected }
         beforeReply?.invoke(data)
         when (CommandCode.fromRawValue(data[0])) {
             CommandCode.APP_START -> mock.simulateReceive(appStartReply)
