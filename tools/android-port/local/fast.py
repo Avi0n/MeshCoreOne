@@ -9,11 +9,14 @@ import sys
 import time
 
 
-def scaffold_options():
-    return [
+def scaffold_options(advisory=False):
+    options = [
         "--console=plain", "--dependency-verification", "strict", "--build-cache",
         "--no-parallel", "--max-workers=4", "-PscaffoldTestHeap=512m",
     ]
+    if advisory:
+        options.extend(["--no-daemon", "-Pkotlin.compiler.execution.strategy=in-process"])
+    return options
 
 
 def local_test_command(repo):
@@ -42,6 +45,7 @@ def main():
     parser.add_argument("--work", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--stages", required=True)
+    parser.add_argument("--advisory", action="store_true")
     args = parser.parse_args()
     sys.path.insert(0, str(args.repo / "tools" / "android-port"))
     from controller import ci
@@ -70,7 +74,7 @@ def main():
         elif stage == "preflight":
             ci.preflight(state, args.output)
         elif stage == "scaffold":
-            options = scaffold_options()
+            options = scaffold_options(args.advisory)
             project = args.repo / "android"
             execute([str(args.repo / "android" / "gradlew"), "-p", str(project),
                      *ci.TASKS[stage], *options], args.repo, environment, args.output / f"gradle-{stage}.log")
@@ -86,6 +90,15 @@ def main():
             print(json.dumps(report, indent=2), flush=True)
         elif stage == "inspect":
             ci.inspect(state, args.output)
+        elif stage in ("benchmark", "benchmark-dependencies"):
+            from controller.performance import verify_build
+            options = scaffold_options(args.advisory)
+            if stage == "benchmark-dependencies":
+                options += ["--write-locks", "--write-verification-metadata", "sha256"]
+            execute([str(args.repo / "android" / "gradlew"), "-p", str(args.repo / "android"),
+                     *ci.TASKS["benchmark"], *options], args.repo, environment, args.output / f"gradle-{stage}.log")
+            if stage == "benchmark":
+                print(json.dumps(verify_build(args.repo, Path(state["android_home"]), environment), indent=2))
         else:
             raise ValueError("Unknown local stage: " + stage)
         print(f"===== PASS: {stage} =====", flush=True)

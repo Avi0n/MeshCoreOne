@@ -7,11 +7,40 @@ key="$3"
 tool="$4"
 stages="$5"
 overlay="$6"
+mode="${7:-manual}"
+queue_seconds="${8:-10}"
+fast_seconds="${9:-180}"
 work="${ANDROID_LOCAL_HOME:-$HOME/meshcoreone-work}"
 mkdir -p "$work/local-checks"
-echo "Waiting for shared local Gradle lane (other workstreams may be running)..."
-exec 9>"$work/local-checks/gradle.lock"
-flock 9
+py="${ANDROID_LOCAL_PYTHON:-$work/venv312/bin/python}"
+[[ -x "$py" ]] || { echo "BLOCKED: provision pinned Python at $py" >&2; exit 1; }
+if [[ "$mode" == "owned-lock" ]]; then
+  [[ "$work/local-checks/gradle.lock" -ef /proc/self/fd/9 ]] && flock -n 9 || {
+    echo "BLOCKED: bounded runner did not inherit its actual lane lock" >&2; exit 1;
+  }
+else
+  [[ "$mode" == "manual" || "$mode" == "advisory" ]] || {
+    echo "BLOCKED: unknown local launcher mode: $mode" >&2; exit 1;
+  }
+  echo "Waiting for shared local Gradle lane (other workstreams may be running)..."
+  exec 9>"$work/local-checks/gradle.lock"
+  if [[ "$mode" == "advisory" ]]; then
+    if flock -E 75 -w "$queue_seconds" 9; then
+      :
+    else
+      status=$?
+      if [[ "$status" == 75 ]]; then
+        echo "UNVERIFIED: shared local Gradle lane queued beyond ${queue_seconds}s" >&2
+      else
+        echo "BLOCKED: advisory lane acquisition failed with status $status" >&2
+      fi
+      exit "$status"
+    fi
+    exec "$py" "$tool/advisory.py" --seconds "$fast_seconds" -- \
+      bash "$0" "$bundle" "$revision" "$key" "$tool" "$stages" "$overlay" owned-lock
+  fi
+  flock 9
+fi
 repo="$work/local-checks/repos/$key"
 # Import from ext4 rather than repeatedly seeking through the Windows mount.
 cp "$bundle" "$work/local-checks/input.bundle"
@@ -29,8 +58,6 @@ if ! git -C "$repo" cat-file -e "$revision^{commit}" 2>/dev/null; then
   git -C "$repo" fetch --quiet "$bundle" HEAD '+refs/*:refs/local-input/*'
 fi
 git -C "$repo" checkout --detach --force "$revision"
-py="${ANDROID_LOCAL_PYTHON:-$work/venv312/bin/python}"
-[[ -x "$py" ]] || { echo "BLOCKED: provision pinned Python at $py" >&2; exit 1; }
 if [[ -n "$overlay" ]]; then
   "$py" - "$repo" "$overlay" <<'PY'
 import json
@@ -54,4 +81,6 @@ sed -i 's/\r$//' "$repo/android/gradlew"
 chmod +x "$repo/android/gradlew"
 output="$(mktemp -d "$work/local-checks/run-XXXXXXXX")"
 echo "Local reports: $output"
-"$py" "$tool/fast.py" --repo "$repo" --work "$work" --output "$output" --stages "$stages"
+options=()
+[[ "$mode" != "owned-lock" ]] || options+=(--advisory)
+"$py" "$tool/fast.py" --repo "$repo" --work "$work" --output "$output" --stages "$stages" "${options[@]}"
