@@ -228,7 +228,7 @@ class RoomAccessibilityComposeTest {
     }
 
     @Test fun mentionHashtagAndMapActionsUseTheSharedDispatcherAndRouter() {
-        val body = "@[Alice] #ops meshcore://map?lat=38.5&lon=-121.5"
+        val body = "@[Alice] #ops 38.5, -121.5"
         val fixture = Fixture(listOf(message(body)))
         showRoute(fixture)
         val label = "Alice: $body"
@@ -290,12 +290,33 @@ class RoomAccessibilityComposeTest {
         compose.runOnIdle { assertFalse(action.action()) }
     }
 
+    @Test fun aLinkContactLookupFailureIsVisibleAndDoesNotLoseRoomState() {
+        val reported = mutableListOf<Pair<String, Throwable>>()
+        val fixture = Fixture(listOf(message()), diagnostic = { operation, failure -> reported += operation to failure })
+        showRoute(fixture)
+        val failure = java.io.IOException("Fixture contact lookup unavailable")
+        compose.runOnIdle {
+            fixture.holder.updateDraft("keep this draft")
+            fixture.holder.reportLinkFailure(failure)
+        }
+        compose.onNodeWithText(failure.message!!).assertExists().performClick()
+        assertEquals(listOf("load room link contacts" to failure), reported)
+        assertNull(fixture.holder.state.value.failure)
+        assertEquals("keep this draft", fixture.holder.state.value.draft)
+        assertEquals(session, fixture.holder.state.value.session)
+        assertSingleMessageLabel("Alice: hello")
+    }
+
     private fun showRoute(fixture: Fixture) {
         show { RoomConversationRoute(fixture.holder, fixture.links) }
         compose.waitUntil { fixture.holder.state.value.hasLoadedOnce }
     }
 
-    private inner class Fixture(messages: List<RoomMessageDTO>, private val room: RemoteNodeSessionDTO = session) :
+    private inner class Fixture(
+        messages: List<RoomMessageDTO>,
+        private val room: RemoteNodeSessionDTO = session,
+        diagnostic: (String, Throwable) -> Unit = { operation, failure -> throw AssertionError(operation, failure) },
+    ) :
         RoomConversationDependencies, ChatLinkEnvironment {
         var stored = messages
         val retries = mutableListOf<Pair<UUID, UUID>>()
@@ -305,7 +326,7 @@ class RoomAccessibilityComposeTest {
         val maps = mutableListOf<Pair<Double, Double>>()
         val hashtags = mutableListOf<String>()
         override val events = emptyFlow<RoomConversationEvent>()
-        override val diagnostics = RoomConversationDiagnostics { operation, failure -> throw AssertionError(operation, failure) }
+        override val diagnostics = RoomConversationDiagnostics(diagnostic)
         override val data = object : RoomConversationDataSource {
             override suspend fun fetchMessages(session: RemoteNodeSessionDTO) = stored
             override suspend fun refreshSession(session: RemoteNodeSessionDTO) = room

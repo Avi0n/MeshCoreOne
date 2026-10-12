@@ -111,6 +111,9 @@ private fun AppChatConversation(
         }
         if (selected is ChatSelection.Room) {
             val radio = selected.session.radioId
+            val holder = remember(feature, selected) {
+                RoomConversationStateHolder(selected.session, feature.room(selected.session), scope)
+            }
             val list = remember(feature, radio) { feature.listFor(radio) }
             val contacts = remember(feature, radio) { mutableStateOf(emptyList<com.meshcoreone.android.core.model.ContactDTO>()) }
             LaunchedEffect(list) {
@@ -120,8 +123,7 @@ private fun AppChatConversation(
                     } catch (cancelled: CancellationException) {
                         throw cancelled
                     } catch (failure: Exception) {
-                        feature.report("Load room link contacts", failure)
-                        throw failure
+                        holder.reportLinkFailure(failure)
                     }
                 }
             }
@@ -137,9 +139,6 @@ private fun AppChatConversation(
                     openExternal = uriHandler::openUri,
                     navigateToContact = coordinator::navigateToContactDetail,
                 )
-            }
-            val holder = remember(feature, selected) {
-                RoomConversationStateHolder(selected.session, feature.room(selected.session), scope)
             }
             if (state.pendingRoomAuthentication?.id == selected.session.id &&
                 state.pendingRoomAuthentication?.radioId == selected.session.radioId
