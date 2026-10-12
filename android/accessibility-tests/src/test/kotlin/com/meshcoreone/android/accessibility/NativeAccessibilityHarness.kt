@@ -52,7 +52,7 @@ abstract class NativeAccessibilityHarness {
     protected lateinit var host: ActivityController<ComponentActivity>
 
     @Suppress("DEPRECATION")
-    @Before fun attachNativeWindowAtSystemFont200() {
+    @Before fun attachNativeWindowAtSystemFont200() = compose.runOnUiThread {
         RuntimeEnvironment.setFontScale(2f)
         RuntimeEnvironment.setQualifiers("+ldrtl")
         val application = ApplicationProvider.getApplicationContext<Context>()
@@ -74,13 +74,13 @@ abstract class NativeAccessibilityHarness {
         assertEquals(2f, host.get().resources.configuration.fontScale, 0f)
     }
 
-    @After fun closeNativeWindow() {
+    @After fun closeNativeWindow() = compose.runOnUiThread {
         host.windowFocusChanged(false)
         host.pause().stop().destroy()
     }
 
     protected fun content(body: @Composable () -> Unit) {
-        host.get().setContent(content = body)
+        compose.runOnUiThread { host.get().setContent(content = body) }
     }
 
     @Composable
