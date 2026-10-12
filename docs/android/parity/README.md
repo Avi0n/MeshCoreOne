@@ -1,5 +1,21 @@
 # WP-501 source, case-family and consumer acceptance
 
+Eight new separately joined complete RX maintenance originals registered:
+1465/5133 proposals/187groups/83mandatory/0approved,121/135 persistence
+proposed/14unprovided;106/135 qualified source-compared/29uncompared.
+Eight bodies/joins/232helperrows/29inputs; strict core-data eight-only native
+execution pending. Same producer reservation43 admits a unique disjoint
+core-data friend-access test, not product API changes or owner-test replacement.
+Fresh single-row partial flush0->1/SAME database secondstore1, literal
+1100/1101/1000/1100-first/101-last, cold1100->1202 and original new channel
+fault contexts preserved. Existing WP201 typed-corruption adaptation is
+explicit, NOT Swift corrupt-row defaults equivalence; one compound original,
+six supplemental field failures not new credit. SQLite staged AFTER INSERT
+FAIL/outer Room rollback maps the source DEBUG pre-save fault, not engine
+identity. All1457 prior bindings unchanged; no prior native family replay.
+
+Historical seven-only outcome and106/135 source-review provenance:
+
 Actual clean4db/base d958 new seven-only7PASS/0bad/all7 identities,
 XML15:37:18.299Z/nativebefc410a/SHA7497a9dc/32 fingerprints/private raw XML.
 All24 original expectations+7 required rows execute on actual Room;

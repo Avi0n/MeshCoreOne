@@ -8023,6 +8023,7 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/DeviceContactSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/MessageSourceTest.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
@@ -8288,6 +8289,65 @@
               "name": "newestUnreadSelectionExcludesReadOutgoingAndOtherContactRows",
               "line": 159,
               "end_line": 177
+            }
+          ]
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+          "sha256": "3def80f43f6d0d7e467b2514458e41bdbcfb0e4978869a499374a87773efb31b",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "radio",
+              "line": 30,
+              "end_line": 40
+            },
+            {
+              "name": "originalRx",
+              "line": 42,
+              "end_line": 52
+            },
+            {
+              "name": "originalSixCorruptValuesRetainFullRawInputAndSurfaceTypedFieldFailureWithoutFallbackOrMutation",
+              "line": 58,
+              "end_line": 88
+            },
+            {
+              "name": "originalStrict1100Then1101GateRetains1000AndExactFirst1100Last101",
+              "line": 91,
+              "end_line": 106
+            },
+            {
+              "name": "originalClearAfter1101RowsRetainsOnly42AfterNextSaveAndPrune",
+              "line": 109,
+              "end_line": 120
+            },
+            {
+              "name": "originalColdSecondStoreOverSameDatabaseRetains1100Then1202CycleTo1000",
+              "line": 123,
+              "end_line": 140
+            },
+            {
+              "name": "originalExactlyOneBatchRetainsFetchedBatchSizeAndInitiatedSaveOne",
+              "line": 143,
+              "end_line": 152
+            },
+            {
+              "name": "originalQueued42ChannelOneRetainsZeroSavesOptionalMatchingIdAndExplicitFinalFlush",
+              "line": 155,
+              "end_line": 164
+            },
+            {
+              "name": "originalNewChannelInsertFailureRetainsQueued42ChannelOneZeroBeforeMatchingIdAndOneDiagnosticRow",
+              "line": 167,
+              "end_line": 190
+            },
+            {
+              "name": "originalFreshSingleQueuedRowRetainsZeroThenOneSavesAndSameDatabaseSecondStoreOneRow",
+              "line": 193,
+              "end_line": 205
             }
           ]
         },
@@ -52678,6 +52738,222 @@
       ],
       "native_proposals": [
         {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+          "sha256": "3def80f43f6d0d7e467b2514458e41bdbcfb0e4978869a499374a87773efb31b",
+          "class": "com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalSixCorruptValuesRetainFullRawInputAndSurfaceTypedFieldFailureWithoutFallbackOrMutation",
+          "line": 58,
+          "end_line": 88,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "4620a1ed35e736bb6f2ae42b2d8b91b2873ceb5e8be0425f7fb0c27ecf65d789",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFailsWith",
+              "line": 68,
+              "expression": "assertFailsWith<PersistenceStoreException> { store.fetchRxLogEntries(radio) }",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 69,
+              "expression": "assertEquals(\"rx.routeType\", assertIs<DatabaseValueException>(failure.cause).field)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 69,
+              "expression": "assertIs<DatabaseValueException>(failure.cause)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 70,
+              "expression": "assertEquals(raw, assertNotNull(db.rxLogs().byId(radio.value, raw.id)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 70,
+              "expression": "assertNotNull(db.rxLogs().byId(radio.value, raw.id))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 71,
+              "expression": "assertEquals(1, issues.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 86,
+              "expression": "assertEquals(field, assertFailsWith<DatabaseValueException> { row.toDTO() }.field)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFailsWith",
+              "line": 86,
+              "expression": "assertFailsWith<DatabaseValueException> { row.toDTO() }",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 59,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 59,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RxLogEntryEntity",
+              "line": 60,
+              "expression": "RxLogEntryEntity(\n            radio.value, UUID.randomUUID(), StoredInstant.from(Instant.now()), null, null,\n            999, -1, 5000, null, 400, Bytes.EMPTY, Bytes.EMPTY, Bytes.EMPTY,\n            \"deadbeef\", 9999, null, DecryptStatus.NOT_APPLICABLE.rawValue, null, null,\n            -10, null, SnapshotList.empty(), 0,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 61,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "StoredInstant.from",
+              "line": 61,
+              "expression": "StoredInstant.from(Instant.now())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 61,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.empty",
+              "line": 64,
+              "expression": "SnapshotList.empty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "db.rxLogs",
+              "line": 66,
+              "expression": "db.rxLogs()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "insert",
+              "line": 66,
+              "expression": "insert(raw)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 68,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "db.rxLogs",
+              "line": 70,
+              "expression": "db.rxLogs()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byId",
+              "line": 70,
+              "expression": "byId(radio.value, raw.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "raw.copy",
+              "line": 73,
+              "expression": "raw.copy(\n            routeType = RouteType.FLOOD.rawValue.toLong(), payloadType = PayloadType.UNKNOWN.rawValue.toLong(),\n            payloadVersion = 0, pathLength = 0, channelIndex = null, senderTimestamp = null,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RouteType.FLOOD.rawValue.toLong",
+              "line": 74,
+              "expression": "RouteType.FLOOD.rawValue.toLong()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PayloadType.UNKNOWN.rawValue.toLong",
+              "line": 74,
+              "expression": "PayloadType.UNKNOWN.rawValue.toLong()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 77,
+              "expression": "listOf(\n            \"rx.routeType\" to valid.copy(routeType = 999),\n            \"rx.payloadType\" to valid.copy(payloadType = -1),\n            \"rx.payloadVersion\" to valid.copy(payloadVersion = 5000),\n            \"rx.pathLength\" to valid.copy(pathLength = 400),\n            \"rx.channelIndex\" to valid.copy(channelIndex = 9999),\n            \"rx.senderTimestamp\" to valid.copy(senderTimestamp = -10),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "valid.copy",
+              "line": 78,
+              "expression": "valid.copy(routeType = 999)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "valid.copy",
+              "line": 79,
+              "expression": "valid.copy(payloadType = -1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "valid.copy",
+              "line": 80,
+              "expression": "valid.copy(payloadVersion = 5000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "valid.copy",
+              "line": 81,
+              "expression": "valid.copy(pathLength = 400)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "valid.copy",
+              "line": 82,
+              "expression": "valid.copy(channelIndex = 9999)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "valid.copy",
+              "line": 83,
+              "expression": "valid.copy(senderTimestamp = -10)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 85,
+              "expression": "for ((field, row) in isolated)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "row.toDTO",
+              "line": 86,
+              "expression": "row.toDTO()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::RxLogEntryDTO(from:) falls back on out-of-range stored values instead of trapping()",
+            "WP-201-reviewed-typed-corruption-adaptation"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
           "sha256": "ef5b45070717587ccfa6d12472177e01d265666cb73cc3264636b8f6ada95ff9",
           "class": "com.meshcoreone.android.core.data.repository.RxLogSourceTest",
@@ -54029,6 +54305,131 @@
       ],
       "native_proposals": [
         {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+          "sha256": "3def80f43f6d0d7e467b2514458e41bdbcfb0e4978869a499374a87773efb31b",
+          "class": "com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalStrict1100Then1101GateRetains1000AndExactFirst1100Last101",
+          "line": 91,
+          "end_line": 106,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "24274963a4343f057b3a976f5d7b5fa4c9d58383b45a7ea308812925c822741b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 98,
+              "expression": "assertEquals(1100, before.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 103,
+              "expression": "assertEquals(1000, after.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 104,
+              "expression": "assertEquals(1100u, after.firstOrNull()?.senderTimestamp)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 105,
+              "expression": "assertEquals(101u, after.lastOrNull()?.senderTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 92,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 93,
+              "expression": "for (index in 0 until 1100)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 94,
+              "expression": "store.saveRxLogEntry(originalRx(radio, index.toUInt()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 94,
+              "expression": "originalRx(radio, index.toUInt())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toUInt",
+              "line": 94,
+              "expression": "index.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.pruneRxLogEntries",
+              "line": 95,
+              "expression": "store.pruneRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 97,
+              "expression": "store.fetchRxLogEntries(radio, 1200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 99,
+              "expression": "store.saveRxLogEntry(originalRx(radio, 1100u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 99,
+              "expression": "originalRx(radio, 1100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.pruneRxLogEntries",
+              "line": 100,
+              "expression": "store.pruneRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 102,
+              "expression": "store.fetchRxLogEntries(radio, 1200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "after.firstOrNull",
+              "line": 104,
+              "expression": "after.firstOrNull()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "after.lastOrNull",
+              "line": 105,
+              "expression": "after.lastOrNull()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::RX log prune is deferred until threshold is exceeded()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
           "sha256": "ef5b45070717587ccfa6d12472177e01d265666cb73cc3264636b8f6ada95ff9",
           "class": "com.meshcoreone.android.core.data.repository.RxLogSourceTest",
@@ -54275,6 +54676,113 @@
       ],
       "native_proposals": [
         {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+          "sha256": "3def80f43f6d0d7e467b2514458e41bdbcfb0e4978869a499374a87773efb31b",
+          "class": "com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalClearAfter1101RowsRetainsOnly42AfterNextSaveAndPrune",
+          "line": 109,
+          "end_line": 120,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "59a8b3ac10e8095bdeafc6267a64f0c9713832bb0bde20e0adea5796693c80cf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 118,
+              "expression": "assertEquals(1, entries.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 119,
+              "expression": "assertEquals(42u, entries.firstOrNull()?.senderTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 110,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 111,
+              "expression": "for (index in 0 until 1101)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 111,
+              "expression": "store.saveRxLogEntry(originalRx(radio, index.toUInt()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 111,
+              "expression": "originalRx(radio, index.toUInt())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toUInt",
+              "line": 111,
+              "expression": "index.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.pruneRxLogEntries",
+              "line": 112,
+              "expression": "store.pruneRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.clearRxLogEntries",
+              "line": 113,
+              "expression": "store.clearRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 114,
+              "expression": "store.saveRxLogEntry(originalRx(radio, 42u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 114,
+              "expression": "originalRx(radio, 42u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.pruneRxLogEntries",
+              "line": 115,
+              "expression": "store.pruneRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 117,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "entries.firstOrNull",
+              "line": 119,
+              "expression": "entries.firstOrNull()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Clearing RX log resets cached count for future pruning()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
           "sha256": "ef5b45070717587ccfa6d12472177e01d265666cb73cc3264636b8f6ada95ff9",
           "class": "com.meshcoreone.android.core.data.repository.RxLogSourceTest",
@@ -54515,6 +55023,131 @@
       ],
       "native_proposals": [
         {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+          "sha256": "3def80f43f6d0d7e467b2514458e41bdbcfb0e4978869a499374a87773efb31b",
+          "class": "com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalColdSecondStoreOverSameDatabaseRetains1100Then1202CycleTo1000",
+          "line": 123,
+          "end_line": 140,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6753435f4a32a04f204ac3b7031fcbfb867e9ec361d7b35d09149dfd39186f5a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 129,
+              "expression": "assertEquals(1100, store.fetchRxLogEntries(radio, 1200).size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 136,
+              "expression": "assertEquals(1000, storeB.fetchRxLogEntries(radio, 1300).size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 124,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 125,
+              "expression": "for (index in 0 until 1100)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 126,
+              "expression": "store.saveRxLogEntry(originalRx(radio, index.toUInt()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 126,
+              "expression": "originalRx(radio, index.toUInt())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toUInt",
+              "line": 126,
+              "expression": "index.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.pruneRxLogEntries",
+              "line": 127,
+              "expression": "store.pruneRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 129,
+              "expression": "store.fetchRxLogEntries(radio, 1200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "newStore",
+              "line": 130,
+              "expression": "newStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 132,
+              "expression": "for (index in 1100 until 1202)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storeB.saveRxLogEntry",
+              "line": 133,
+              "expression": "storeB.saveRxLogEntry(originalRx(radio, index.toUInt()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 133,
+              "expression": "originalRx(radio, index.toUInt())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toUInt",
+              "line": 133,
+              "expression": "index.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storeB.pruneRxLogEntries",
+              "line": 134,
+              "expression": "storeB.pruneRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storeB.fetchRxLogEntries",
+              "line": 136,
+              "expression": "storeB.fetchRxLogEntries(radio, 1300)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storeB.close",
+              "line": 138,
+              "expression": "storeB.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::A store rebuilt over a populated container seeds its prune cache from disk()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
           "sha256": "ef5b45070717587ccfa6d12472177e01d265666cb73cc3264636b8f6ada95ff9",
           "class": "com.meshcoreone.android.core.data.repository.RxLogSourceTest",
@@ -54742,6 +55375,89 @@
         }
       ],
       "native_proposals": [
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+          "sha256": "3def80f43f6d0d7e467b2514458e41bdbcfb0e4978869a499374a87773efb31b",
+          "class": "com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalExactlyOneBatchRetainsFetchedBatchSizeAndInitiatedSaveOne",
+          "line": 143,
+          "end_line": 152,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "e7306b3bb9921993e03b67f8e69a72d725943e07191ef02b2d41bb183c337dac",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 145,
+              "expression": "assertEquals(20L, RxLogRetention.BATCH_SIZE)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 150,
+              "expression": "assertEquals(RxLogRetention.BATCH_SIZE.toInt(), store.fetchRxLogEntries(radio, 40).size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 151,
+              "expression": "assertEquals(1L, store.rxInitiatedSaveCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 144,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 146,
+              "expression": "for (index in 0 until RxLogRetention.BATCH_SIZE)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 147,
+              "expression": "store.saveRxLogEntry(originalRx(radio, index.toUInt()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 147,
+              "expression": "originalRx(radio, index.toUInt())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toUInt",
+              "line": 147,
+              "expression": "index.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RxLogRetention.BATCH_SIZE.toInt",
+              "line": 150,
+              "expression": "RxLogRetention.BATCH_SIZE.toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 150,
+              "expression": "store.fetchRxLogEntries(radio, 40)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::saveRxLogEntry commits once per batchSize inserts()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
           "sha256": "ef5b45070717587ccfa6d12472177e01d265666cb73cc3264636b8f6ada95ff9",
@@ -55415,6 +56131,71 @@
       ],
       "native_proposals": [
         {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+          "sha256": "3def80f43f6d0d7e467b2514458e41bdbcfb0e4978869a499374a87773efb31b",
+          "class": "com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalQueued42ChannelOneRetainsZeroSavesOptionalMatchingIdAndExplicitFinalFlush",
+          "line": 155,
+          "end_line": 164,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "f819514e7b62cb00d89ab3313a8f2df877e2ea17ed99091e8f40df4e3a67f847",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 160,
+              "expression": "assertEquals(0L, store.rxInitiatedSaveCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 162,
+              "expression": "assertEquals(dto.id, found?.id)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 156,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 157,
+              "expression": "originalRx(radio, 42u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 158,
+              "expression": "store.saveRxLogEntry(dto)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.findRxLogEntry",
+              "line": 161,
+              "expression": "store.findRxLogEntry(radio, 1u, 42u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.flushPendingRxLogEntries",
+              "line": 163,
+              "expression": "store.flushPendingRxLogEntries()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::findRxLogEntry sees an insert before the batch save()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
           "sha256": "ef5b45070717587ccfa6d12472177e01d265666cb73cc3264636b8f6ada95ff9",
           "class": "com.meshcoreone.android.core.data.repository.RxLogSourceTest",
@@ -55756,6 +56537,149 @@
       ],
       "native_proposals": [
         {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+          "sha256": "3def80f43f6d0d7e467b2514458e41bdbcfb0e4978869a499374a87773efb31b",
+          "class": "com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalNewChannelInsertFailureRetainsQueued42ChannelOneZeroBeforeMatchingIdAndOneDiagnosticRow",
+          "line": 167,
+          "end_line": 190,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6ea2116730424e7b152f19515348a253a7a50eef09df5b279a9fb0d8eea58a77",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 171,
+              "expression": "assertEquals(0L, store.rxInitiatedSaveCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFailsWith",
+              "line": 176,
+              "expression": "assertFailsWith<PersistenceStoreException> {\n                store.batchSaveChannels(\n                    radio, SnapshotList.of(ChannelInfo(1u, \"Test\", Bytes(ByteArray(16) { 0x42 }))),\n                    SnapshotList.empty(), null,\n                )\n            }",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 186,
+              "expression": "assertEquals(0, store.fetchChannels(radio).size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 187,
+              "expression": "assertEquals(dto.id, store.findRxLogEntry(radio, 1u, 42u)?.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 188,
+              "expression": "assertEquals(1, store.fetchRxLogEntries(radio, 40).size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 168,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 169,
+              "expression": "originalRx(radio, 42u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 170,
+              "expression": "store.saveRxLogEntry(dto)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "db.openHelper.writableDatabase.execSQL",
+              "line": 172,
+              "expression": "db.openHelper.writableDatabase.execSQL(\n            \"CREATE TRIGGER reject_original_channel_insert AFTER INSERT ON channels BEGIN SELECT RAISE(FAIL, 'test'); END\",\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.batchSaveChannels",
+              "line": 177,
+              "expression": "store.batchSaveChannels(\n                    radio, SnapshotList.of(ChannelInfo(1u, \"Test\", Bytes(ByteArray(16) { 0x42 }))),\n                    SnapshotList.empty(), null,\n                )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 178,
+              "expression": "SnapshotList.of(ChannelInfo(1u, \"Test\", Bytes(ByteArray(16) { 0x42 })))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelInfo",
+              "line": 178,
+              "expression": "ChannelInfo(1u, \"Test\", Bytes(ByteArray(16) { 0x42 }))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 178,
+              "expression": "Bytes(ByteArray(16) { 0x42 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 178,
+              "expression": "ByteArray(16)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.empty",
+              "line": 179,
+              "expression": "SnapshotList.empty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "db.openHelper.writableDatabase.execSQL",
+              "line": 183,
+              "expression": "db.openHelper.writableDatabase.execSQL(\"DROP TRIGGER reject_original_channel_insert\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchChannels",
+              "line": 186,
+              "expression": "store.fetchChannels(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.findRxLogEntry",
+              "line": 187,
+              "expression": "store.findRxLogEntry(radio, 1u, 42u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 188,
+              "expression": "store.fetchRxLogEntries(radio, 40)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.flushPendingRxLogEntries",
+              "line": 189,
+              "expression": "store.flushPendingRxLogEntries()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::batchSaveChannels rollback does not drop unsaved RxLog inserts()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
           "sha256": "ef5b45070717587ccfa6d12472177e01d265666cb73cc3264636b8f6ada95ff9",
           "class": "com.meshcoreone.android.core.data.repository.RxLogSourceTest",
@@ -56043,6 +56967,89 @@
         }
       ],
       "native_proposals": [
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+          "sha256": "3def80f43f6d0d7e467b2514458e41bdbcfb0e4978869a499374a87773efb31b",
+          "class": "com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalFreshSingleQueuedRowRetainsZeroThenOneSavesAndSameDatabaseSecondStoreOneRow",
+          "line": 193,
+          "end_line": 205,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "74141ac14892b7ab67b7d21690af2cc9f5703650672aa7d748a8b4ee4f6fa4bc",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 196,
+              "expression": "assertEquals(0L, store.rxInitiatedSaveCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 198,
+              "expression": "assertEquals(1L, store.rxInitiatedSaveCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 201,
+              "expression": "assertEquals(1, storeB.fetchRxLogEntries(radio).size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 194,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 195,
+              "expression": "store.saveRxLogEntry(originalRx(radio, 1u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "originalRx",
+              "line": 195,
+              "expression": "originalRx(radio, 1u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.flushPendingRxLogEntries",
+              "line": 197,
+              "expression": "store.flushPendingRxLogEntries()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "newStore",
+              "line": 199,
+              "expression": "newStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storeB.fetchRxLogEntries",
+              "line": 201,
+              "expression": "storeB.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storeB.close",
+              "line": 203,
+              "expression": "storeB.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::flushPendingRxLogEntries commits a partial batch()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
           "sha256": "ef5b45070717587ccfa6d12472177e01d265666cb73cc3264636b8f6ada95ff9",

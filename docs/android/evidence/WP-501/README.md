@@ -12,7 +12,63 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-## Seven independent orphan/unread originals
+## Eight independent RX maintenance originals: execution pending
+
+Actual assigned issue [212](https://github.com/cbattlegear/MeshCoreOne-Android/issues/212)
+was read into the audit intake: frozen disabled hardware-send returns false
+for newline fallback; current native preview key handling consumes/calls
+non-Shift Return without the existing canSend guard. Holder still prevents
+invalid transmissions. SAME active WP-308 product producer0f0c and SAME
+WP-502 fb112 mounted-key-test producer own the repair; no duplicate issue,
+worker, product edit or WP-501 execution claim.
+Assigned [211](https://github.com/cbattlegear/MeshCoreOne-Android/issues/211)
+belongs to SAME WP-504 shared-launcher producer. The normal exact
+ed24f6426f4e15f05e11e6380d4514e5b982c8fd publication was queued at the
+shared local Gradle lane (941seconds at the actual interim status read),
+then completed normally with EXIT0. Actual public ed24/base d958 and the
+returned template-preserved PR body were verified; bounded seven-original
+intake [6127984500](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6127984500)
+binds proposal687ae0c7309f166c0d8f664cce610ed7cafa0a746288b090d54d8f8b7e9ee046/
+comparison70eb69cb4d35f7d003d297cc7cb562f0fa136bf0cf593908891db7ceb8836f48/
+7bodies/7joins/224rows/32inputs. Normal hook Python15/parity93/local21/
+preflightPASS; scaffold21seconds FAILED incumbent BLE contracts/model/protocol
+JAR transform lock protocol Expected3/found0; inspectunrun/localfastUNVERIFIED.
+No current hosted PASS, hook bypass, foreign lock/process change or queue
+repair duplicated here. The eight RX originals below are not in public ed24.
+
+The same WP-501 producer automatically evolved reservation42->43 through
+trusted merge-integration/merge-disjoint-semantic-edits for the unique new
+core-data test path. Existing WP-202 product/tests and other workers'
+registrations remain unchanged; proper Kotlin friend access exposes the
+actual internal initiated-save counter without reflection or a product seam.
+Eight bodies/joins/232helperrows/29inputs register1465/5133 proposals/
+187groups/83mandatory/0approved,121/135 persistence proposed/14unprovided.
+Qualified independent source comparison remains106/135/29uncompared.
+
+The fresh partial-flush original is exactly one queued timestamp1, initiated
+count0->explicitflush->count1, then a second store over the SAME database with
+fetchcount1. Strict1100->1101->1000/first1100/last101, clearthen42, original
+cold1100->1202 cycle without extra preparatory flush, exact declared batch20,
+queued42/channel1/save0/matchingID, and the fresh new1/Test/secret42x16
+channel fault preserve independent original setups and predicates.
+
+The source corrupt-row successful defaults are deliberately NOT restored:
+already documented WP-201 typed-corruption adaptation retains the complete
+999/-1/5000/400/9999/-10/emptybytes/deadbeef input, field/cause/report/raw-row
+retention and six supplemental isolated field errors. One family, not six
+new originals or literal fallback equivalence. The DEBUG before-save hook
+maps to SQLite AFTER INSERT RAISE(FAIL,'test'), preserving a staged new row
+and requiring the actual outer Room transaction to roll it back; source
+hook/SwiftData engine identity is not claimed.
+
+Declared targeted command:
+`:core:data:testDebugUnitTest --tests com.meshcoreone.android.core.data.repository.ParityRxMaintenanceOriginalPredicateTest --dependency-verification=strict --quiet`.
+Native execution pending; metadata93PASS, all1457 incumbent complete bindings
+unchanged. Seven orphan originals' existing4db receipt and every earlier
+positive/negative/source-only result remain immutable, not replayed or
+rebound to these new test inputs.
+
+## Historical seven independent orphan/unread originals
 
 Actual clean4dbbb2df4597e85df833d78cb0da85898c1854e4/base d958
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest --dependency-verification=strict --quiet`
@@ -294,7 +350,7 @@ unchanged selector was replayed for assignment/status or source-only reviews.
 
 | Issue | Repaired and bounded verification | Remaining |
 | --- | --- | --- |
-| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1457 proposals/186groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS/corrected warmUp-only1 PASS/new7 PASS each on its own receipt;106/135 qualified source-compared. | 22/135 persistence originals unprovided, new7 source comparison and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
+| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1465 proposals/187groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS/corrected warmUp-only1 PASS/new7 PASS each on its own receipt;106/135 qualified source-compared. | 14/135 persistence originals unprovided, new8 RX execution/new7+8 source comparison and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
 | [170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170) | Restored independent2s WiFi milestones/checked elapsed helper; historical906df6fb52App+37protocol PASS and bounded qualified source comparison. | Current PR165 exact verification/reviewed persistent merge; no present hardware/global certification. |
 | [171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171) | Original populated1A2B3C route restored; historical7a98f99d13 model identities PASS and qualified source review, not new native replay. | Current reviewed PR165 merge/full acceptance; historical model result not new candidate execution. |
 | [172](https://github.com/cbattlegear/MeshCoreOne-Android/issues/172) | Restored18 URL/coordinate/scalar original predicates; historical6e98b6e460 chats PASS/all57 original identities and bounded source comparison. | Current reviewed PR165 merge/full audit, not universal Unicode/device certification. |
