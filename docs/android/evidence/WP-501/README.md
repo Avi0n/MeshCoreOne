@@ -12,6 +12,22 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Python-reference original command comparison
+
+Complete28frozen originals/31builder equalities and complete fixture blob
+`6535c34bed8e45a5ba9f8cf5b7dbb3b72a244832` compared with actual native
+factory/reference/original/expect/catalog/scalar/byte/key/date/text helpers
+and selected public session consumers. Existing test/production/golden bytes
+unchanged; disclosed overrides bind native base names to actual source-suffix
+runner identities without teaching the validator to guess computed names.
+`python tools\android-port\extract_vectors.py --check` passed49vectors with
+`candidate_kotlin_executed=false`; checks literal/provenance/count/digests,
+not a freshly executed meshcore_py generator (advertised script absent at pin).
+Raw nilpath trace vector stays distinct from both public consumers' typed
+pre-send rejection.843families/122groups/66mandatory/same reservation20,
+immutable28runner execution and independent review pending. No native/iOS/
+hardware/full acceptance claim from source inspection or vector validation.
+
 ## Latest actual new-base execution
 
 Clean `32bcb318c5b19cdeedecd7703a085e511c4498c6`, actual based3f:
