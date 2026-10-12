@@ -1,6 +1,13 @@
 // AndroidOnly: WP-503 Public remote-node offline/catalog/history flows with deterministic read-only ports and native non-gesture chart selection.
 package com.meshcoreone.android.accessibility
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Slider
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -12,6 +19,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
+import androidx.compose.ui.unit.dp
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
@@ -74,8 +84,6 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         val measured = slider.fetchSemanticsNode()
         val density = host.get().resources.displayMetrics.density
         println("WP503_REMOTE_HISTORY_TARGET|bounds=${measured.touchBoundsInRoot}|size=${measured.size}")
-        assertTrue("The native non-gesture slider must retain a 48dp effective target",
-            measured.touchBoundsInRoot.width / density >= 48f && measured.touchBoundsInRoot.height / density >= 48f)
         assertTrue("The current sample must expose the real latest voltage and unit",
             measured.config[SemanticsProperties.ContentDescription].any { it.contains("3.9 V") })
         slider.performSemanticsAction(SemanticsActions.SetProgress) { assertTrue(it(0f)) }
@@ -92,6 +100,33 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         assertEquals(1, rig.historyReads)
         compose.onNodeWithText(host.get().getString(L.remoteNodesDone)).performClick()
         compose.onNodeWithTag("remote-node-list").assertIsDisplayed()
+        assertTrue("The native non-gesture slider must retain a 48dp effective target",
+            measured.touchBoundsInRoot.width / density >= 48f && measured.touchBoundsInRoot.height / density >= 48f)
+    }
+
+    @Test fun frameworkSliderCalibratesNativeSemanticsVersusPointerTargetExpansion() {
+        val value = mutableFloatStateOf(.5f)
+        var callbacks = 0
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    Column(Modifier.padding(64.dp)) {
+                        Slider(value.floatValue, { value.floatValue = it; callbacks++ },
+                            modifier = Modifier.testTag("framework-slider"))
+                    }
+                }
+            }
+        }
+        val slider = compose.onNodeWithTag("framework-slider").assertIsDisplayed()
+        val measured = slider.fetchSemanticsNode()
+        slider.performTouchInput { click(Offset(size.width * .8f, size.height / 2f)) }
+        assertTrue("The framework control must receive an actual interior pointer event", callbacks > 0)
+        compose.runOnIdle { value.floatValue = .5f; callbacks = 0 }
+        slider.performTouchInput { click(Offset(size.width * .8f, -2f)) }
+        val top = callbacks
+        compose.runOnIdle { value.floatValue = .5f; callbacks = 0 }
+        slider.performTouchInput { click(Offset(size.width * .8f, size.height + 2f)) }
+        println("WP503_FRAMEWORK_SLIDER|bounds=${measured.touchBoundsInRoot}|size=${measured.size}|top2pxCallbacks=$top|bottom2pxCallbacks=$callbacks")
     }
 
     @Test fun emptyOfflineHistoryExplainsTheAbsenceOfSnapshotsWithoutDrawingAFakeChart() {
