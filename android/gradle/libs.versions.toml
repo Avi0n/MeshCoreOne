@@ -25,6 +25,8 @@ glance = "1.2.0"
 # AndroidOnly: WP-311 Approved PORTING_PLAN CameraX + ZXing adaptation for QR scan/share.
 camerax = "1.6.2"
 zxing = "3.5.4"
+# AndroidOnly: WP-504 Stable Google Maven publication, not a measured performance budget.
+benchmark = "1.5.0"
 
 [libraries]
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -66,6 +68,7 @@ androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.r
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "benchmark" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
