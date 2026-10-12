@@ -2,6 +2,10 @@
 package com.meshcoreone.android.accessibility
 
 import android.view.accessibility.AccessibilityNodeInfo
+import android.app.UiAutomation
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
@@ -28,7 +32,25 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
+    @Test fun frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton() {
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        var clicks = 0
+        val label = "WP503 native accessibility button"
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface { Column { TextButton({ clicks++ }) { Text(label) } } }
+            }
+        }
+        val root = nativeRoot(automation)
+        val button = root.findAccessibilityNodeInfosByText(label).single { it.isClickable }
+        assertTrue(button.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.id))
+        compose.waitUntil { clicks == 1 }
+        assertVisibleClickTargetsAtLeast48Dp()
+        println("WP503_PLATFORM_ACCESSIBILITY_CONTROL|namedButton=true|actualCallback=1|package=${root.packageName}")
+    }
+
     @Test fun savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200() {
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         val radio = RadioId(UUID(0, 301))
         val east = ContactDTO(id = UUID(0, 302), radioId = radio,
             publicKey = Bytes(ByteArray(32) { 0x55 }), name = "East saved repeater",
@@ -79,10 +101,9 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
         onView(withContentDescription(activity.getString(T.toolsLineOfSight))).check(matches(isDisplayed()))
         assertScrollableFont200Unclipped(compose.onNode(hasText(activity.getString(T.toolsLineOfSight)) and
             SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)))
-        val root = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.rootInActiveWindow) {
-            "The real native test activity must own a focused accessibility window"
-        }
-        assertEquals(activity.packageName, root.packageName.toString())
+        val root = nativeRoot(automation)
+        assertTrue("The actual platform hierarchy must contain this mounted feature, not a stale app window",
+            root.findAccessibilityNodeInfosByText(activity.getString(T.toolsLineOfSight)).isNotEmpty())
         for (contact in listOf(east, west)) {
             val named = root.findAccessibilityNodeInfosByText(contact.displayName)
             val actionable = named.filter { it.isClickable }
@@ -103,5 +124,14 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
         assertVisibleClickTargetsAtLeast48Dp()
         assertEquals(1, catalogReads)
         assertEquals(1, elevationReads)
+    }
+
+    private fun nativeRoot(automation: UiAutomation): AccessibilityNodeInfo {
+        var root: AccessibilityNodeInfo? = null
+        compose.waitUntil {
+            root = automation.rootInActiveWindow
+            root?.packageName?.toString() == activity.packageName
+        }
+        return requireNotNull(root)
     }
 }
