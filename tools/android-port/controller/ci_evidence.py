@@ -184,6 +184,10 @@ WP501_ACCEPTANCE_CASES = {
      "actualTerminalGhostRetainsTheCanonicalPrefixAndOriginalInput"),
     ("com.meshcoreone.android.parity.CliCompletionUnicodeAcceptanceTest",
      "actualTerminalTabAppliesTheVerbatimCanonicalPrefixMatch"),
+    ("com.meshcoreone.android.parity.ConversationDeletionAcceptanceTest",
+     "actualAppDeletionRecomputesRecencyFromRemainingDatabaseHistory"),
+    ("com.meshcoreone.android.parity.ConversationDeletionAcceptanceTest",
+     "actualAppDeletionClearsTheLastMessageDateAndRemovesTheEmptyConversation"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

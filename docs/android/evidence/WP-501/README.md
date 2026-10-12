@@ -12,6 +12,34 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Contact/history input increment and qualified reviews
+
+Latest input increment adds five independent contact/history originals and two
+mandatory actual App single-deletion consumers. Current1417/5133 proposals/
+181groups/83mandatory/zero approved;73/135 persistence proposed/62remaining.
+Native discovery/result not yet claimed. Exact bounded command will select
+only `PersistenceContactOriginalPredicateTest` and
+`ConversationDeletionAcceptanceTest`; no old group replay.
+
+Qualified SOURCE-ONLY COMMENTED reviews
+[5490750483](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5490750483)
+and [5490788581](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5490788581)
+at actual6716/base6863 fully read/reconciled. Actual proposaldb8fff53,
+86/1204/14 and5/115/23 joins/helper accounting and all selected input bytes
+guarded;91 prior rows change only comparison digests,1321 unchanged,5 new
+original rows. Native originals/bodies/execution inputs remain unchanged.
+RawUTF16 mismatch is explicitly historical pre-adoption. No private901/4ca
+certification/current6716 replay/APPROVED/full135 or WP acceptance.
+
+Store recency original calls recompute explicitly. Actual mounted App Delete
+calls feature.delete then timeline.refresh, neither of which rederives the
+persisted contact date; AppState refresh only advances list/unread state.
+Two mandatory independent adapter witnesses retain raw store deletion,
+remaining-row/count/date and real list membership observations, with55 and1
+messages respectively. They do not directly invoke recompute to hide this
+consumer gap or claim mounted paging/physical-device coverage. Actual native
+outcome remains pending; owning product changes are not made in this WP.
+
 ## Verified reviewed CLI repair adoption
 
 Actual PR199 MERGED6863a0acb08b01026218962218f5dd60895547d4/11:58:17Z,

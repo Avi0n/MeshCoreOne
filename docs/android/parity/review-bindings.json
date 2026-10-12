@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "db8fff53a51310bf28940275584b67497dd4ad9bb7f00e5ce74df7f4f7d21e87",
+  "proposal_sha256": "0e26d200c47032f11486b68648b44c918d9b48618a55a46fc8d5588f2951f4d5",
   "families": [
     {
       "group": "backup-envelope",
@@ -56885,6 +56885,187 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "persistence-original-restored-contact-history-predicates",
+      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Save and fetch contact from frame()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2b305e5a03086c9952dc5ef29e3f5c00c703cb3b1173e5b9aec424c16cac60ab",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 474,
+          "expression": "#expect(contact != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 475,
+          "expression": "#expect(contact?.name == \"Alice\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 476,
+          "expression": "#expect(contact?.type == .chat)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+        "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba",
+        "class": "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "method_or_family_name": "originalAliceReadbackRetainsTheIndependentParentAndAllThreePredicates",
+        "line": 39,
+        "end_line": 47,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "f4a1a01b9b848e291cfc26e93a3c17417c9963cb3c741894c6aee232f6a385be",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNotNull",
+            "line": 44,
+            "expression": "assertNotNull(contact)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 45,
+            "expression": "assertEquals(\"Alice\", contact.name)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 46,
+            "expression": "assertEquals(ContactType.CHAT, contact.type)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 40,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 41,
+            "expression": "store.saveContact(device.radioId, frame(\"Alice\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 41,
+            "expression": "frame(\"Alice\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 43,
+            "expression": "store.fetchContact(EntityKey(device.radioId, contactID))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 43,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Save and fetch contact from frame()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Channels.swift",
+          "sha256": "0e515c7e045ca30d5c76ab86d96344dc6592d8c027f5b64d2380ed8b5715964b"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+          "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ChannelRepository.kt",
+          "sha256": "65753f9ef328fcc01d99083d701504ca0dd3234341fb648be2ad307d6242da89"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "originalAliceReadbackRetainsTheIndependentParentAndAllThreePredicates"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "persistence-original-restored-device-retry-predicates",
       "comparison_sha256": "06c1231762140af67a106268647235b7780e736caf8f3dc7c0eef6709c8a526e",
       "source_file_family_count": 135,
@@ -57918,6 +58099,223 @@
       "runner_identity": [
         "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
         "mutingRetainsTheInitialFalseAndBothOriginalTransitions"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-contact-history-predicates",
+      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::Update contact last message and unread count()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "f51d5f77cc1f2bdbd661f6dd0bed8f7f7e8aedf6e7836958d222a70e142f1ae4",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 508,
+          "expression": "#expect(contact?.unreadCount == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 509,
+          "expression": "#expect(contact?.lastMessageDate != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 514,
+          "expression": "#expect(contact?.unreadCount == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+        "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba",
+        "class": "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "method_or_family_name": "originalUnreadTransitionRetainsCurrentDateTwoIncrementsAndAllIntermediateReads",
+        "line": 50,
+        "end_line": 64,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "aaab64944babb1ad6a8cc5a06f1c9c004fc2c3bc6757cc57fd934299f8dc4d4b",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 60,
+            "expression": "assertEquals(2L, contact?.unreadCount)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 61,
+            "expression": "assertNotNull(contact?.lastMessageDate)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 63,
+            "expression": "assertEquals(0L, store.fetchContact(key)?.unreadCount)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 51,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 52,
+            "expression": "store.saveContact(device.radioId, frame())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 52,
+            "expression": "frame()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 53,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 54,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.updateContactLastMessage",
+            "line": 55,
+            "expression": "store.updateContactLastMessage(key, now)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.incrementUnreadCount",
+            "line": 56,
+            "expression": "store.incrementUnreadCount(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.incrementUnreadCount",
+            "line": 57,
+            "expression": "store.incrementUnreadCount(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 59,
+            "expression": "store.fetchContact(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.clearUnreadCount",
+            "line": 62,
+            "expression": "store.clearUnreadCount(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchContact",
+            "line": 63,
+            "expression": "store.fetchContact(key)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::Update contact last message and unread count()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Channels.swift",
+          "sha256": "0e515c7e045ca30d5c76ab86d96344dc6592d8c027f5b64d2380ed8b5715964b"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+          "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ChannelRepository.kt",
+          "sha256": "65753f9ef328fcc01d99083d701504ca0dd3234341fb648be2ad307d6242da89"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "originalUnreadTransitionRetainsCurrentDateTwoIncrementsAndAllIntermediateReads"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
@@ -62252,7 +62650,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "2c3a0227135ef00b7c56474313b4cf54b2fa30ef2b794fa8645abf02c3db585e",
+      "comparison_sha256": "2a8cd14149f62307dac834d5f60c5df5124a5ce3905b70b2dcbc96a280c2adfa",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -62433,7 +62831,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "2c3a0227135ef00b7c56474313b4cf54b2fa30ef2b794fa8645abf02c3db585e",
+      "comparison_sha256": "2a8cd14149f62307dac834d5f60c5df5124a5ce3905b70b2dcbc96a280c2adfa",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -62842,7 +63240,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "2c3a0227135ef00b7c56474313b4cf54b2fa30ef2b794fa8645abf02c3db585e",
+      "comparison_sha256": "2a8cd14149f62307dac834d5f60c5df5124a5ce3905b70b2dcbc96a280c2adfa",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -63203,7 +63601,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "2c3a0227135ef00b7c56474313b4cf54b2fa30ef2b794fa8645abf02c3db585e",
+      "comparison_sha256": "2a8cd14149f62307dac834d5f60c5df5124a5ce3905b70b2dcbc96a280c2adfa",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -63432,7 +63830,7 @@
     },
     {
       "group": "persistence-original-restored-device-cascade-predicates",
-      "comparison_sha256": "2c3a0227135ef00b7c56474313b4cf54b2fa30ef2b794fa8645abf02c3db585e",
+      "comparison_sha256": "2a8cd14149f62307dac834d5f60c5df5124a5ce3905b70b2dcbc96a280c2adfa",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -63608,6 +64006,662 @@
       "runner_identity": [
         "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
         "dataDeletionRetainsTheCompleteOriginalSeedAndDevicePlusNineEmptyPredicates"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-contact-history-predicates",
+      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::deleteMessagesForChannel removes all messages for a channel()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "90e96b6595689370a4617c843168b5c0d281d0e9e077dc4eac00ca9c14505c2c",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 658,
+          "expression": "#expect(channel0Messages.count == 5)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 661,
+          "expression": "#expect(channel1Messages.count == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 664,
+          "expression": "#expect(contactMessages.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 671,
+          "expression": "#expect(channel0Messages.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 675,
+          "expression": "#expect(channel1Messages.count == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 679,
+          "expression": "#expect(contactMessages.count == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+        "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba",
+        "class": "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "method_or_family_name": "originalFiveThreeAndOneHistoriesRetainEveryChannelAndContactPredicate",
+        "line": 117,
+        "end_line": 145,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "b3f81b01b2e97c0e9036161fb0d5b6e469bde332ad846cc5f609a7df00c11199",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 137,
+            "expression": "assertEquals(5, store.fetchMessages(device.radioId, 0u).size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 138,
+            "expression": "assertEquals(3, store.fetchMessages(device.radioId, 1u).size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 139,
+            "expression": "assertEquals(1, store.fetchMessages(contact).size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 142,
+            "expression": "assertTrue(store.fetchMessages(device.radioId, 0u).isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 143,
+            "expression": "assertEquals(3, store.fetchMessages(device.radioId, 1u).size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 144,
+            "expression": "assertEquals(1, store.fetchMessages(contact).size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 118,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 119,
+            "expression": "for (i in 0..<5)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 120,
+            "expression": "store.saveMessage(MessageDTO(\n                radioId = device.radioId, channelIndex = 0u, text = \"Channel 0 Message $i\",\n                timestamp = Instant.now().epochSecond.toUInt() + i.toUInt(),\n            ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 120,
+            "expression": "MessageDTO(\n                radioId = device.radioId, channelIndex = 0u, text = \"Channel 0 Message $i\",\n                timestamp = Instant.now().epochSecond.toUInt() + i.toUInt(),\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 122,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 122,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "i.toUInt",
+            "line": 122,
+            "expression": "i.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 125,
+            "expression": "for (i in 0..<3)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 126,
+            "expression": "store.saveMessage(MessageDTO(\n                radioId = device.radioId, channelIndex = 1u, text = \"Channel 1 Message $i\",\n                timestamp = Instant.now().epochSecond.toUInt() + (i + 100).toUInt(),\n            ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 126,
+            "expression": "MessageDTO(\n                radioId = device.radioId, channelIndex = 1u, text = \"Channel 1 Message $i\",\n                timestamp = Instant.now().epochSecond.toUInt() + (i + 100).toUInt(),\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 128,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 128,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toUInt",
+            "line": 128,
+            "expression": "toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 131,
+            "expression": "store.saveContact(device.radioId, frame(\"Contact1\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 131,
+            "expression": "frame(\"Contact1\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 132,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 133,
+            "expression": "store.saveMessage(MessageDTO(\n            radioId = device.radioId, contactID = contactID, text = \"Contact message\",\n            timestamp = Instant.now().epochSecond.toUInt() + 200u,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 133,
+            "expression": "MessageDTO(\n            radioId = device.radioId, contactID = contactID, text = \"Contact message\",\n            timestamp = Instant.now().epochSecond.toUInt() + 200u,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 135,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 135,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 137,
+            "expression": "store.fetchMessages(device.radioId, 0u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 138,
+            "expression": "store.fetchMessages(device.radioId, 1u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 139,
+            "expression": "store.fetchMessages(contact)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteMessagesForChannel",
+            "line": 140,
+            "expression": "store.deleteMessagesForChannel(device.radioId, 0u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 142,
+            "expression": "store.fetchMessages(device.radioId, 0u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 142,
+            "expression": "isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 143,
+            "expression": "store.fetchMessages(device.radioId, 1u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 144,
+            "expression": "store.fetchMessages(contact)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::deleteMessagesForChannel removes all messages for a channel()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Channels.swift",
+          "sha256": "0e515c7e045ca30d5c76ab86d96344dc6592d8c027f5b64d2380ed8b5715964b"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+          "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ChannelRepository.kt",
+          "sha256": "65753f9ef328fcc01d99083d701504ca0dd3234341fb648be2ad307d6242da89"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "originalFiveThreeAndOneHistoriesRetainEveryChannelAndContactPredicate"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-contact-history-predicates",
+      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::deleteMessagesForContact removes all messages for a contact()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "db4890ff080483219ad1da4e81c78dc7013dc5edc9d588d0a5fc5f442dede602",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 551,
+          "expression": "#expect(contact1Messages.count == 5)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 554,
+          "expression": "#expect(contact2Messages.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 561,
+          "expression": "#expect(contact1Messages.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 565,
+          "expression": "#expect(contact2Messages.count == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+        "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba",
+        "class": "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "method_or_family_name": "originalFiveAndOneContactHistoriesRetainEveryPreAndPostDeletionCount",
+        "line": 67,
+        "end_line": 89,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "eb20653a9c1e3ddc178fef33f7b6e46262dc27deeb672687b6f24a3525513af6",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 83,
+            "expression": "assertEquals(5, store.fetchMessages(first).size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 84,
+            "expression": "assertEquals(1, store.fetchMessages(second).size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 87,
+            "expression": "assertTrue(store.fetchMessages(first).isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 88,
+            "expression": "assertEquals(1, store.fetchMessages(second).size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 68,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 69,
+            "expression": "store.saveContact(device.radioId, frame(\"Contact1\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 69,
+            "expression": "frame(\"Contact1\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 70,
+            "expression": "for (i in 0..<5)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 71,
+            "expression": "store.saveMessage(MessageDTO(\n                radioId = device.radioId, contactID = firstID, text = \"Message $i\",\n                timestamp = Instant.now().epochSecond.toUInt() + i.toUInt(),\n            ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 71,
+            "expression": "MessageDTO(\n                radioId = device.radioId, contactID = firstID, text = \"Message $i\",\n                timestamp = Instant.now().epochSecond.toUInt() + i.toUInt(),\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 73,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 73,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "i.toUInt",
+            "line": 73,
+            "expression": "i.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 76,
+            "expression": "store.saveContact(device.radioId, frame(\"Contact2\", 0x56))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 76,
+            "expression": "frame(\"Contact2\", 0x56)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 77,
+            "expression": "store.saveMessage(MessageDTO(\n            radioId = device.radioId, contactID = secondID, text = \"Other message\",\n            timestamp = Instant.now().epochSecond.toUInt() + 100u,\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 77,
+            "expression": "MessageDTO(\n            radioId = device.radioId, contactID = secondID, text = \"Other message\",\n            timestamp = Instant.now().epochSecond.toUInt() + 100u,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.now",
+            "line": 79,
+            "expression": "Instant.now()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "epochSecond.toUInt",
+            "line": 79,
+            "expression": "epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 81,
+            "expression": "EntityKey(device.radioId, firstID)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 82,
+            "expression": "EntityKey(device.radioId, secondID)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 83,
+            "expression": "store.fetchMessages(first)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 84,
+            "expression": "store.fetchMessages(second)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteMessagesForContact",
+            "line": 85,
+            "expression": "store.deleteMessagesForContact(first)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 87,
+            "expression": "store.fetchMessages(first)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 87,
+            "expression": "isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessages",
+            "line": 88,
+            "expression": "store.fetchMessages(second)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::deleteMessagesForContact removes all messages for a contact()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Channels.swift",
+          "sha256": "0e515c7e045ca30d5c76ab86d96344dc6592d8c027f5b64d2380ed8b5715964b"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+          "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ChannelRepository.kt",
+          "sha256": "65753f9ef328fcc01d99083d701504ca0dd3234341fb648be2ad307d6242da89"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "originalFiveAndOneContactHistoriesRetainEveryPreAndPostDeletionCount"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
@@ -64433,6 +65487,337 @@
       "runner_identity": [
         "com.meshcoreone.android.parity.PersistenceOriginalPredicateTest",
         "newestUnreadSelectionRetainsTheOriginalRowIdentityAndText"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-contact-history-predicates",
+      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::recomputeContactLastMessageDate keeps a conversation visible while older messages remain and clears it only when empty()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "f38a59b49a1dfeb0107dc7e2c27f56c410c76fd807cf9225c07f7645030980c0",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 593,
+          "expression": "#expect(newDate == messages[2].date)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 595,
+          "expression": "#expect(conversations.contains { $0.id == contactID })",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 601,
+          "expression": "#expect(newDate == messages[1].date)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 603,
+          "expression": "#expect(conversations.contains { $0.id == contactID })",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 609,
+          "expression": "#expect(newDate == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 611,
+          "expression": "#expect(!conversations.contains { $0.id == contactID })",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+        "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba",
+        "class": "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "method_or_family_name": "originalThreeMessagesRetainAllDateAndConversationMembershipTransitions",
+        "line": 92,
+        "end_line": 114,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "0d43f262ad2ba7fb0b07b286625be6a097d5f8462480565dbc55d3119c4bf34f",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 105,
+            "expression": "assertEquals(messages[2].date, store.recomputeContactLastMessageDate(key))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 106,
+            "expression": "assertTrue(store.fetchConversations(device.radioId).any { it.id == contactID })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 108,
+            "expression": "assertEquals(messages[1].date, store.recomputeContactLastMessageDate(key))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 109,
+            "expression": "assertTrue(store.fetchConversations(device.radioId).any { it.id == contactID })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 112,
+            "expression": "assertNull(store.recomputeContactLastMessageDate(key))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 113,
+            "expression": "assertTrue(store.fetchConversations(device.radioId).none { it.id == contactID })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 93,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 94,
+            "expression": "store.saveContact(device.radioId, frame(\"Conversation\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "frame",
+            "line": 94,
+            "expression": "frame(\"Conversation\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 95,
+            "expression": "EntityKey(device.radioId, contactID)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 96,
+            "expression": "Instant.ofEpochSecond(1_700_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 98,
+            "expression": "MessageDTO(\n                radioId = device.radioId, contactID = contactID, text = \"Message $i\",\n                timestamp = base.epochSecond.toUInt() + i.toUInt(), createdAt = base.plusSeconds(i.toLong()),\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "base.epochSecond.toUInt",
+            "line": 100,
+            "expression": "base.epochSecond.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "i.toUInt",
+            "line": 100,
+            "expression": "i.toUInt()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "base.plusSeconds",
+            "line": 100,
+            "expression": "base.plusSeconds(i.toLong())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "i.toLong",
+            "line": 100,
+            "expression": "i.toLong()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 103,
+            "expression": "for (message in messages)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 103,
+            "expression": "store.saveMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.recomputeContactLastMessageDate",
+            "line": 105,
+            "expression": "store.recomputeContactLastMessageDate(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchConversations",
+            "line": 106,
+            "expression": "store.fetchConversations(device.radioId)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteMessage",
+            "line": 107,
+            "expression": "store.deleteMessage(EntityKey(device.radioId, messages[2].id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 107,
+            "expression": "EntityKey(device.radioId, messages[2].id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.recomputeContactLastMessageDate",
+            "line": 108,
+            "expression": "store.recomputeContactLastMessageDate(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchConversations",
+            "line": 109,
+            "expression": "store.fetchConversations(device.radioId)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteMessage",
+            "line": 110,
+            "expression": "store.deleteMessage(EntityKey(device.radioId, messages[1].id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 110,
+            "expression": "EntityKey(device.radioId, messages[1].id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteMessage",
+            "line": 111,
+            "expression": "store.deleteMessage(EntityKey(device.radioId, messages[0].id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 111,
+            "expression": "EntityKey(device.radioId, messages[0].id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.recomputeContactLastMessageDate",
+            "line": 112,
+            "expression": "store.recomputeContactLastMessageDate(key)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchConversations",
+            "line": 113,
+            "expression": "store.fetchConversations(device.radioId)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::recomputeContactLastMessageDate keeps a conversation visible while older messages remain and clears it only when empty()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Contact.swift",
+          "sha256": "c404d89dec418edde9985c261b3a4985c09cc7fc9839f685fa4d4b15672450bd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Contacts.swift",
+          "sha256": "e40533c31ddc9e26bd4c62f66a94de84d761c3747b3be0cc40da18090b96e4f7"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Channels.swift",
+          "sha256": "0e515c7e045ca30d5c76ab86d96344dc6592d8c027f5b64d2380ed8b5715964b"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Messages.swift",
+          "sha256": "4d7ac4ba2cde75a0adb7614af85a0f60e701ea75e3fa1624e0128687b6c839ac"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
+          "sha256": "198c4e29091dac48c571d03fbbb4fcb732a9bd0fcbab5e26bae18cb1e95b57ba"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ContactRepository.kt",
+          "sha256": "a208d174d1d5e1c9cbb4bd341c632280dad4d57a1dc12eef85f67f07b9b6c91b"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/ChannelRepository.kt",
+          "sha256": "65753f9ef328fcc01d99083d701504ca0dd3234341fb648be2ad307d6242da89"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ContactDTO.kt",
+          "sha256": "29a0ca59fcb43491e86022329b602094d009d82e1eda794027a2be85ec548910"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest",
+        "originalThreeMessagesRetainAllDateAndConversationMembershipTransitions"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
@@ -138287,7 +139672,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -138439,7 +139824,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -138566,7 +139951,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -138712,7 +140097,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -138839,7 +140224,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -138985,7 +140370,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -139149,7 +140534,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -139276,7 +140661,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -139464,7 +140849,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -139610,7 +140995,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -139737,7 +141122,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -139895,7 +141280,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -140022,7 +141407,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -140186,7 +141571,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -140313,7 +141698,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -140477,7 +141862,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -140635,7 +142020,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -140799,7 +142184,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -140926,7 +142311,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -141114,7 +142499,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -141272,7 +142657,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -141442,7 +142827,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -141642,7 +143027,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -141830,7 +143215,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -141988,7 +143373,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -142127,7 +143512,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -142285,7 +143670,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -142485,7 +143870,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -142685,7 +144070,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -142867,7 +144252,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -143025,7 +144410,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -143152,7 +144537,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -143304,7 +144689,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -143431,7 +144816,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -143583,7 +144968,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -143741,7 +145126,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -143868,7 +145253,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -143995,7 +145380,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -144122,7 +145507,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -144249,7 +145634,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -144376,7 +145761,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -144558,7 +145943,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -144704,7 +146089,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -144850,7 +146235,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -145020,7 +146405,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -145147,7 +146532,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -145299,7 +146684,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -145457,7 +146842,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -145596,7 +146981,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -145748,7 +147133,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -145911,7 +147296,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -146074,7 +147459,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -146213,7 +147598,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -146407,7 +147792,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -146607,7 +147992,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -146753,7 +148138,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -146899,7 +148284,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -147087,7 +148472,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -147347,7 +148732,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -147474,7 +148859,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -147662,7 +149047,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -147808,7 +149193,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -148002,7 +149387,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -148178,7 +149563,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -148324,7 +149709,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -148512,7 +149897,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -148663,7 +150048,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -148790,7 +150175,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -148917,7 +150302,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -149044,7 +150429,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -149195,7 +150580,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -149377,7 +150762,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -149504,7 +150889,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -149631,7 +151016,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -149758,7 +151143,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -149885,7 +151270,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -150012,7 +151397,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -150158,7 +151543,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -150285,7 +151670,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -150412,7 +151797,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -150539,7 +151924,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -150685,7 +152070,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -150812,7 +152197,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -150939,7 +152324,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -151084,7 +152469,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,
@@ -151229,7 +152614,7 @@
     },
     {
       "group": "cli-completion-original-complete-source-predicates",
-      "comparison_sha256": "8f49983b36f002f80353b6bef38134fbf7fd0cb62c83de614610760117f520c5",
+      "comparison_sha256": "aa7c884ea693e67f3adcf1f6725a4694aa6c2981435698a212dbfc0b20c823fd",
       "source_file_family_count": 86,
       "group_compared_family_count": 86,
       "partial_source_file": false,

@@ -1,5 +1,31 @@
 # WP-501 source, case-family and consumer acceptance
 
+Current increment:1417/5133 proposed comparisons/181groups/83mandatory/
+zero approved;73/135 persistence proposed,62remaining. Five new independent
+contact/history originals preserve Alice readback, two unread increments and
+clear, separate five/one histories, original fixed-date three-message recency
+and visibility transitions, and separate five/three/one channel/direct counts.
+Message/direct-helper OUTGOING/PENDING defaults remain correct; channel-delete
+also uses the source Message initializer, not the SENT channel helper.
+Fixed44/55/56 keys versus source randomness and API31 Room versus SwiftData
+are explicit adaptations. Native execution/source comparison pending.
+
+Qualified SOURCE-ONLY CLI86 review5490750483 and cascade5 review5490788581 at
+6716/base6863 are reconciled additively with guarded unchanged selected bytes,
+1204/14 and115/23 helper accounting. Raw UTF16-mismatch wording is historical
+pre-adoption, not current NFC behavior. Historical55b0 negatives/original87,
+owning1f56, worker901four and4ca5 receipts remain distinct; no unchanged replay,
+private certification/APPROVED/global acceptance. All68 previously restored
+persistence originals are source-compared with qualifications, not135 accepted.
+
+Two additional mandatory App deletion consumers independently exercise
+remaining55-row history and final-message conversation removal. Frozen single
+delete recomputes database recency; actual App delete currently only deletes
+and refreshes. Source-selected store recompute succeeds only when explicitly
+called and cannot substitute for this adapter. Native results pending; no
+production edit, mounted Compose paging/TalkBack/API37 or fault-injection claim.
+Older paragraphs below retain their original snapshot accounting.
+
 Actual reviewed CLI199 merge6863a0acb08b01026218962218f5dd60895547d4
 is verified/adopted quietly atfd41b24d46bd56a920afece219c7b70ace81de6c:
 parents e0b6+1f56/exact five paths/candidate-equal tree991ed66c.
