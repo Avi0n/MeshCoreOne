@@ -1,6 +1,6 @@
-// AndroidOnly: WP-407 Bind the existing chat list/timeline/composer to the single process store and live radio graph.
-// ReferenceInput: MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift@db14559b39d32322b06477c6ae676112f583db50
-// ReferenceInput: MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift@db14559b39d32322b06477c6ae676112f583db50
+// WP-407 native composition binds the existing chat list/timeline/composer to the single process store and live radio graph.
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.app.navigation.ChannelLinkRequest
@@ -9,6 +9,7 @@ import com.meshcoreone.android.app.navigation.HashtagJoinRequest
 import com.meshcoreone.android.app.state.MessageEvent
 import com.meshcoreone.android.core.contracts.domain.ChannelQuery
 import com.meshcoreone.android.core.contracts.domain.EntityKey
+import com.meshcoreone.android.core.contracts.domain.PersistenceStoreException
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
 import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceError
@@ -246,23 +247,28 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
 
     internal suspend fun failPending(message: MessageDTO) {
         if (store.updateMessageStatusUnlessDelivered(EntityKey(message.radioId, message.id), MessageStatus.FAILED)) {
+            app.messageEventStream.send(MessageEvent.MessageFailed(message.id))
+            app.refreshConversations()
             val state = navigation.state.value
             val open = if (state.selectedTab == com.meshcoreone.android.core.contracts.AppTab.CHATS) {
                 state.stacks.getValue(com.meshcoreone.android.core.contracts.AppTab.CHATS).last().destination
                     as? com.meshcoreone.android.app.navigation.NavigationDestination.Chat
             } else null
-            when (val selection = open?.selection) {
-                is com.meshcoreone.android.app.navigation.ChatSelection.Direct ->
-                    if (selection.contact.radioId == message.radioId && selection.contact.id == message.contactID) {
-                        store.markFailedSendsSeen(EntityKey(message.radioId, selection.contact.id))
-                    }
-                is com.meshcoreone.android.app.navigation.ChatSelection.Channel ->
-                    if (selection.channel.radioId == message.radioId && selection.channel.index == message.channelIndex) {
-                        store.markFailedSendsSeen(message.radioId, selection.channel.index)
-                    }
-                else -> Unit
+            try {
+                when (val selection = open?.selection) {
+                    is com.meshcoreone.android.app.navigation.ChatSelection.Direct ->
+                        if (selection.contact.radioId == message.radioId && selection.contact.id == message.contactID) {
+                            store.markFailedSendsSeen(EntityKey(message.radioId, selection.contact.id))
+                        }
+                    is com.meshcoreone.android.app.navigation.ChatSelection.Channel ->
+                        if (selection.channel.radioId == message.radioId && selection.channel.index == message.channelIndex) {
+                            store.markFailedSendsSeen(message.radioId, selection.channel.index)
+                        }
+                    else -> Unit
+                }
+            } catch (failure: PersistenceStoreException) {
+                report("Mark visible failed send seen", failure)
             }
-            app.messageEventStream.send(MessageEvent.MessageFailed(message.id))
             app.refreshConversations()
         }
     }
