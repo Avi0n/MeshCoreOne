@@ -1,9 +1,26 @@
 # WP-501 source, case-family and consumer acceptance
 
-Next prepared increment:1435/5133 proposals/183groups/83mandatory/0approved,
+Actual clean3728/base d958 six-only6PASS/zero bad/all6 identities,
+XML14:02:56.632Z/native35ae246e/SHA2113eda9, real required-contact/node/
+all-fields/read-state predicates;39 helper fingerprints/raw private XML captured.
+Normal supported locks released; no old selector replay or independent/source/
+hosted/mounted/API37 credit. Current assigned per-issue repair/verification/
+remaining-merge statuses are in WP501 evidence; all nine remain OPEN, not accepted.
+
+Actual f01b/base d958 hosted38258372765 attempt1/all6jobs SUCCESS14:09:41Z,
+full authoritative19127-line log/result/final guard read directly; controller364/
+Python102/App849/20positive module suites/protocol4711/localization25 zero-bad,
+real pinned Swift codec/SwiftData restore-export within declared scopes.
+APK103969304/static16KiBtrue/runtimefalse, no second bundle or local3728
+execution relabel/global certification. Qualified f01b config4 SOURCE-ONLY
+5491934457/repaired pending14 5491934694 reconciled, matching m.id prerequisite
+restored/other13+9helpers unchanged; old blocked review/negatives retained.
+No source-only issue closure/private certification/native replay/subtotal credit.
+
+Current increment:1435/5133 proposals/183groups/83mandatory/0approved,
 91/135 persistence proposed/44remaining; six complete independent watermark/
 stable-save/existing-discovery/missing-discovery/muted-contact/channel-level
-originals registered (234helperrows/39inputs), native/source comparison pending.
+originals registered (234helperrows/39inputs), actual6PASS/source comparison pending.
 Every first/second read, required matching node/contact, all six restored node
 fields and unknownEE false retained; source ambient clocks/fixed-key/Room/engine/
 mounted/API37 limits disclosed. No old selector replay or original-credit inflation.

@@ -14,7 +14,93 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Contact/history input increment and qualified reviews
 
-Next prepared six originals:1435/5133 proposals/183groups/83mandatory/0approved,
+Actual clean3728210e443a8d80fc718f178b917a5b93ae6b03/base d958 strict
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceContactClockAndBadgeOriginalPredicateTest --dependency-verification=strict --quiet`
+PASSED6discovered/6passed/0failures-errors-skips/all6 exact method identities.
+XML2026-10-12T14:02:56.632Z/native35ae246e982c1b1c286f71816ccf05474ea176af/
+SHA2562113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837.
+All required contact/node matching/public fields/first-second read predicates
+execute on actual Room;39 input fingerprints/private raw XML/new receipt
+captured. Readiness PASS/zero notice normalizations/both supported locks released
+normally/public records empty. Only new six originals selected; no old native
+replay/independent source/current-hosted/full audit/mounted badge/API37 credit.
+
+Actual publishedf01b/base d958 hosted
+[38258372765](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38258372765)
+attempt1 completed SUCCESS14:09:41Z/all6jobs/all5selected scopes.
+Full19127-line authoritative log and labelled result bodies read directly,
+no second CI-result bundle saved/hashed/uploaded/revalidated. Classifier
+fail_safe=false; strict1541-task graph/no duplicate CI evidence, controller364/
+Python102/App849 and all20 nonzero module suites passed,0failure/error/skip.
+Selected protocol4711/data410/database45/services2647/model166/chats362;
+backup/data and localization25 overlap those module totals, not added twice.
+Actual Swift codec/independent crypto passed in declared non-Kotlin-restore scope;
+actual SwiftData restore/export passed bound source db145/base d958/head f01b/
+run38258372765/attempt1. Final guard success/actual scope env read.
+APK103969304bytes/static16KiB true/runtime and physical-device verification false.
+Initial local display of final guard hit cp1252 BOM encoding failure; UTF-8
+read completed, not CI failure/retry. This is exact f01b evidence, not local3728
+six execution/current successor/full parity, and does not erase localfast
+UNVERIFIED or historical0c9/64e negatives.
+
+Actual f01b/base d958 COMMENTED/SOURCE-ONLY
+[5491934457](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5491934457)
+config4 and
+[5491934694](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5491934694)
+repaired pending14 full bodies read/reconciled additively. Config guards2+2
+bodies/joins/6+6helperrows/3inputs per group, all selected groups/rows/helper
+bytes unchanged from prepared0c9; that stale-head review was rejected before
+publication, not an actual old review. All seven default/six custom/two boundary
+predicates retained; negative/nonfinite validation, retry/ACK/cancellation not
+certified, source-unused flags remain values. Pending14/14/126rows/9inputs,
+only204 matching m.id prerequisite restored/body1968ede1, other13/all9helpers
+unchanged. No new selected blocker/APPROVED/private504d or0081 certification/
+issue closure/native replay/new original or PersistenceStore subtotal credit.
+Old0c9 BLOCKED/b58d15PASS/pre203 recency negatives retained. New twelve-unread
+comparison still in progress with12/12/324/27 guard, no verdict claimed.
+
+## Assigned issue handoff
+
+Actual GitHub refresh: all nine below OPEN/assigned `cbattlegear`, the available
+repository identity; existing sole WP-501 producer/PR165 remains responsible,
+not a replacement worker. Closed/idle states never imply merge/acceptance.
+The historical exact receipts below remain their original snapshots; no
+unchanged selector was replayed for assignment/status or source-only reviews.
+
+| Issue | Repaired and bounded verification | Remaining |
+| --- | --- | --- |
+| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1435 proposals/183groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS each on its own receipt. | 44/135 persistence originals unprovided, new12+6 source comparisons and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
+| [170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170) | Restored independent2s WiFi milestones/checked elapsed helper; historical906df6fb52App+37protocol PASS and bounded qualified source comparison. | Current PR165 exact verification/reviewed persistent merge; no present hardware/global certification. |
+| [171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171) | Original populated1A2B3C route restored; historical7a98f99d13 model identities PASS and qualified source review, not new native replay. | Current reviewed PR165 merge/full acceptance; historical model result not new candidate execution. |
+| [172](https://github.com/cbattlegear/MeshCoreOne-Android/issues/172) | Restored18 URL/coordinate/scalar original predicates; historical6e98b6e460 chats PASS/all57 original identities and bounded source comparison. | Current reviewed PR165 merge/full audit, not universal Unicode/device certification. |
+| [174](https://github.com/cbattlegear/MeshCoreOne-Android/issues/174) | Three required non-null scope-key guards restored; historical9fc6e33c38 original identities PASS. | Current reviewed PR165 merge/full acceptance; no newer execution relabel. |
+| [175](https://github.com/cbattlegear/MeshCoreOne-Android/issues/175) | Five original112233445566 prefixes restored without shared-default changes; historical594ab69834 protocol+70 App PASS, later32bcb31858 selected protocol+70 App PASS on then-merged graph. | Current reviewed PR165 merge/source-test audit; historical inputs/results retained. |
+| [177](https://github.com/cbattlegear/MeshCoreOne-Android/issues/177) | Both original80-byte prerequisites restored; final3262d79b73 selected protocol cases PASS/all70 originals, qualified source6115227237 read final blobs. | Current reviewed PR165 merge/full acceptance; predecessor7bdb result not final-scope substitute. |
+| [178](https://github.com/cbattlegear/MeshCoreOne-Android/issues/178) | Three59-byte prerequisites plus full default client-ID suffix restored; same final3262d79b73 PASS/qualified source comparison. | Current reviewed PR165 merge/full audit; no double-count of shared73 receipt. |
+| [204](https://github.com/cbattlegear/MeshCoreOne-Android/issues/204) | Required matching m.id persisted retry row restored; genuine changed-method-only504de99b1PASS/XML13:43:31.251Z, publishedf01b; qualified corrected-source5491934694 and exactf01b hosted SUCCESS. | Reviewed persistent PR165 merge/full acceptance; no closure/private certification, old0c9 blocked review/b58d15 remain distinct. |
+
+Separately owning181/185 and202/203 are actually merged/closed prerequisites,
+not duplicate WP-501 repairs. User-directed independent WP-502/503/504 workers
+do not replace/expand this WP or depend on idle501; real shared build/test
+registration overlap must be serialized through the coordinator. No additional
+WP-501 actor or ownership/product overwrite introduced. Hardware/release remain
+their actual dependency/human-gated packages, not emulator success.
+
+Actual App-build support reconciliation published
+[6125979380](https://github.com/cbattlegear/MeshCoreOne-Android/issues/137#issuecomment-6125979380):
+public f01b/base d958 has only three test-support hunks, no release work.
+Trusted CapabilityEngine combines those three keys with two separate WP-504
+release R8/profileable-target intent keys, advisory merge_allowed true.
+Supported same-producer reconcile admits update-directly-required-build-wiring/
+dependency-resolution-metadata: WP-504 native03b14ac6 reservation2->3;
+WP-501 native d6056690 reservation39->39 byte-identical. Both identities and
+authorization audit contexts retained, no release/recreate/manual ledger edit/
+foreign checkout/build changes/benchmark bundle/native replay. Intent receipt
+does not certify unwritten implementation, budgets, protected merge or devices.
+
+## Current six-original increment and retained boundaries
+
+Six originals:1435/5133 proposals/183groups/83mandatory/0approved,
 91/135 persistence proposed/44remaining;73 source-compared/new12+6 pending.
 Reservation38->39 automatically admits only the new owned clock/contact/badge
 test class; authorization/pins unchanged. Six separate declarations/bodies/joins/
@@ -27,7 +113,8 @@ Correct returned channel UUID/ContactSaveResult contracts used; no test-made
 discovery row in the missing-node scenario. Source ambient date/UUIDs retained,
 fixed44/55/56 keys disclosed; actual Room API31 not full-default/concurrency/
 backup clamp/engine/cancellation/mounted badge/API37/hardware certification.
-Six-only native execution/current independent source pending.
+Six-only native execution passed as recorded above; current independent source
+comparison remains pending.
 
 Qualified Dedup3 SOURCE-ONLY5491670428 at0c9/baseab1 fully read/reconciled,
 guard3/3/3/6helperrows/2inputs/comparison337c4620. Together with prefix review
