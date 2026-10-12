@@ -12,12 +12,24 @@ Both source/native DTOs have a legacy date fallback; one committed-column
 supplement ensures original DTO readback predicates are not replaced by
 that projection. Actual API31 Room/native SQLite/store; fixed keys and
 real Date()/wall-clock limits disclosed. Supported reservation32->33;
-new15-room selector pending,51/135 proposed/remaining84 unresolved.
+actual corrected15-room selector positive,51/135 proposed/remaining84 unresolved.
 All prior1380 bindings and older native witnesses/receipts unchanged.
 Initial a7ac6fcbe/base9e5 execution failed compilation before native test
 discovery on an assumed generic flush API. Room writes already commit
 before returning; only that nonexistent call was removed, preserving the
 actual committed-column assertion and every original input/predicate.
+Actual cleanfd5e9c5ff57aa8f26bf54eb10dbad88624afda7d/base9e5 strict Windows
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest --dependency-verification=strict --quiet`
+discovers15/15PASS/zeroFAIL-error-skip/all15 original identities,
+XML2026-10-12T10:35:49.620Z/native453fe03588fd6c094acc3d23a5ebe35165b9de16.
+ReadinessPASS/cleaninputs/zero notice normalizations/locks normally released;
+only corrected new class ran. Failed a7ac and old hop15/RX14/seven/pacing4
+receipts remain distinct; no older selector replay or full acceptance.
+Incoming192 fixed2024 fixtures need explicit EPOCH+scheduler SyncClock
+after genuine producer/helper adoption: defaultSYSTEM2026 shifts stored
+timestamp, while v1 and source/native lookup use the2024 stored-time window.
+Preserve all raw vectors/assertions and old2PASS6FAIL receipt; no SQL/policy
+change. Coordinator2307/helper support is not yet published/adopted.
 
 Previous1380/5133 proposed comparisons/177groups/81mandatory/zero fully
 approved behavioral acceptances add15 independent persistence originals:

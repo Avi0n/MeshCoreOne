@@ -33,7 +33,7 @@ real current Date() is selected input, not elapsed/scheduler/universal
 clock/identity/hash evidence. No all-ties/races/cancellation/rollback/
 SwiftData/API37/device/mounted service/room consumer verdict.
 Same reservation32->33/owned-create retains immutable authorization/pins.
-New15-room exact selector pending;51/135 proposed/remaining84 unresolved;
+Actual corrected15-room exact selector positive;51/135 proposed/remaining84 unresolved;
 all earlier1380 objects and older executed inputs/witnesses unchanged.
 Initial a7ac6fcbe5a5ed18cec0a91dea8d767b3f613ce9/base9e5 strict selector
 failed at app:compileDebugUnitTestKotlin before native discovery:
@@ -41,6 +41,24 @@ unresolved flush API,1m49. Actual RoomRepositoryContext awaits committed
 Room writes; no room flush API is needed. Removed only that nonexistent
 call, retaining committed-column and all original assertions/inputs.
 Readiness and notice checks passed; no15-native PASS claimed at a7ac.
+Actual clean`fd5e9c5ff57aa8f26bf54eb10dbad88624afda7d`/base9e5
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceRoomOriginalPredicateTest --dependency-verification=strict --quiet`
+discovers15/15PASS/zeroFAIL-error-skip/all15 distinct original runner
+identities, XML2026-10-12T10:35:49.620Z/native
+`453fe03588fd6c094acc3d23a5ebe35165b9de16`. ReadinessPASS JDK21.0.12.1/
+SDK37.2/tools37/own private state, clean tracked inputs, zero notice
+normalizations and supported native/Gradle locks normally released.
+Only corrected new class ran; a7ac compile-before-discovery failure and
+older hop15/RX14/seven/pacing4/19/49/53 remain separate, no unchanged replay.
+Positive local Room execution is not independent/source/full acceptance.
+
+Incoming192 calibration is required after genuine producer/helper adoption.
+Fixed2024 vectors plus default SyncClock.SYSTEM2026 shift stored timestamp
+while retaining senderTimestamp2024; frozen/native v1 lookup uses stored
+timestamp only. Explicit fixture EPOCH+scheduler SyncClock must retain
+all raw vector values/assertions and old2PASS6FAIL identity. Coordinator
+2307 optional harness injection/product input is not yet published/adopted;
+worker eight bodies/helper remain unchanged, no SQL/policy edit or replay.
 
 ## Actual reviewed197 adoption and disjoint registration checks
 
