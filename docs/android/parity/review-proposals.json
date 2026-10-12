@@ -4150,7 +4150,7 @@
         "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
       ],
       "consumer": "Actual AppLineOfSightPathAnalyzer distance/full/segment calls delegate to the production RFCalculator, retaining coordinates/heights/frequency/k and feature result fields. These synchronous pure cases do not verify terrain-provider/network/elevation cancellation, rendered charts,60fps drag performance, physical RF reception or every IEEE input.",
-      "unresolved": ["New selected RF body proposals have not yet been independently reviewed or executed at this candidate. Existing registration/full-module totals are not promoted to44-family acceptance; actual required names/current hosted/persistent full acceptance remain required."],
+      "unresolved": ["Actual clean65846a7196403d7fe8e03a9248a21d5d9a404dc6/baseedc Windows :core:services:test --tests com.meshcoreone.android.core.services.diagnostics.rf.RFCalculatorTest --dependency-verification=strict --quiet discovered56/56PASS/0failures/errors/skips, all44 distinct selected original identities required and present across four disjoint groups. RF testblobd9ee7f0b73aceb584273e0ce13796feebcd7c89c unchanged. Twelve supplemental methods add no original credit. The existing local launcher also unintentionally selected incumbent protocol37/37PASS/all25 required names; this is retained as separate execution, not extra RF acceptance, and the mode guard is corrected without another native rerun. Actual readiness passed/sourceclean/supportedlocksreleased. Independent RF comparison/current hosted/persistent full acceptance remain pending; no universal Darwin libm, terrain/UI/cancellation/physical or global parity claim."],
       "methods": [
         "Speed of light constant is correct",
         "Earth radius constant is correct",
@@ -4208,7 +4208,7 @@
         "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
       ],
       "consumer": "Source/native core both use origin0 for full analysis, skip endpointswithin1m, preserve original obstruction full-path distances, retain worst/min/peak loss and80/60/0 thresholds. Actual App result conversion retains distance,losses,status,clearance,obstructions,frequency,k. Provider/UI/cancellation/performance remain distinct.",
-      "unresolved": ["Current candidate actual RF discovery and independent/full acceptance remain pending; no model-only result certifies mounted LOS UI or physical propagation."],
+      "unresolved": ["Actual65846/baseedc RF56/56PASS/all44 unique required original names/zero failerror skip includes these11; no additional credit for12 supplements. Independent/full acceptance remains pending; no model-only result certifies mounted LOS UI or physical propagation."],
       "methods": [
         "Clear path with flat terrain returns clear status",
         "Clear path has only FSPL, no diffraction loss",
@@ -4245,7 +4245,7 @@
         "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
       ],
       "consumer": "Actual feature projection retains returned frequencyMHz/refractionK, not reconstructed display defaults. These pure DTO assertions do not prove the mounted frequency/k controls update correctly.",
-      "unresolved": ["Actual selected RF execution, independent source comparison and persistent/full acceptance remain pending."],
+      "unresolved": ["Actual65846/baseedc RF56/56PASS/all44 unique required originals/zero failerror skip includes these two returned-field methods. Independent source comparison and persistent/full acceptance remain pending."],
       "methods": [
         "PathAnalysisResult includes frequency used in calculation",
         "PathAnalysisResult includes k-factor used in calculation"
@@ -4273,7 +4273,7 @@
         "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppLineOfSight.kt"
       ],
       "consumer": "Actual App segment delegates selected coordinates/heights/frequency/k and maps resulting obstruction fields. Synchronous math preserves source selected segment origins; consumer drag/runtime/network/cancellation are separate unverified families.",
-      "unresolved": ["Actual selected RF discovery/independent/full acceptance pending; overlapping Geodesic tests/Android edge cases do not add original credit."],
+      "unresolved": ["Actual65846/baseedc RF56/56PASS/all44 unique required originals/zero failerror skip includes both segment methods. Independent/full acceptance pending; overlapping Geodesic tests/Android edge cases do not add original credit."],
       "methods": [
         "analyzePathSegment works with ArraySlice",
         "analyzePathSegment handles overlapping slice indices"

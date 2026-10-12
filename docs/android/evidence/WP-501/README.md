@@ -25,8 +25,22 @@ defaults and inclusive subList ends match. Native checked numeric assertions
 are explicitly byte/body-bound using the existing helper mechanism; initial
 generation rejected unbound rfCalc helpers, then ordinary bindings resolved it.
 No native product/test/input/golden bytes changed. Six overlapping Geodesic
-cases and native supplements add no original credit. Current RF discovery/
-independent acceptance remain pending; no universal Darwin log10 bit parity,
+cases and native supplements add no original credit.
+Actual clean65846a7196403d7fe8e03a9248a21d5d9a404dc6/baseedc Windows
+`:core:services:test --tests com.meshcoreone.android.core.services.diagnostics.rf.RFCalculatorTest --dependency-verification=strict --quiet`
+discovered56/56PASS/zero failures-errors-skips, requiring all44 distinct
+selected original identities across four disjoint groups in real JUnit.
+RF testblobd9ee7f0b73aceb584273e0ce13796feebcd7c89c binds unchanged inputs.
+Twelve supplemental cases are not12originals. Actual readinessPASS/sourceclean/
+supportedlocksreleased. The existing local launcher inadvertently also selected
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.session.OriginalContactsAndSettingsCasesTest --tests com.meshcoreone.android.core.protocol.session.OriginalMessageCasesTest --tests com.meshcoreone.android.core.protocol.transport.WiFiTransportTest --dependency-verification=strict --quiet`;
+actual37/37PASS/zero failerror skip/all25 required names is retained as separate
+incumbent scope, not extra RF acceptance. The mode guard now excludes RF and
+platform-only modes from that default tail; no unchanged native rerun.
+Actual `python -m unittest discover -s android/parity-tests -p 'test_*.py' -q`
+passed92; audit/semantic --check passed, still zero full approved acceptances.
+Independent RF/persistent/current hosted acceptance remains pending;
+no universal Darwin log10 bit parity,
 mounted terrain/UI/cancellation/60fps/physical RF or full acceptance claim.
 
 Subsequent actual190 Windows-byte mergeedc was independently verified:

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "e5fca5e3606f20adb58859c22416ca4642b6a15b86ff58daa877d482f7bc55db",
+  "proposal_sha256": "1022babafec5824b7e4feb0c6f90b1095b109ed362fc721a781baed05d6378b8",
   "families": [
     {
       "group": "backup-envelope",
@@ -51978,7 +51978,7 @@
     },
     {
       "group": "rf-original-returned-frequency-and-refraction-fields",
-      "comparison_sha256": "d3ad15ce37628c980206bfdab5ce0ad60fb5d51f864f6596bb03fc11d4330f1c",
+      "comparison_sha256": "f16cbe62d04c1238c05cce3c2b3f8a37b84a78990698afbc7facfd65d4634a2c",
       "source_file_family_count": 44,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -52087,7 +52087,7 @@
     },
     {
       "group": "rf-original-returned-frequency-and-refraction-fields",
-      "comparison_sha256": "d3ad15ce37628c980206bfdab5ce0ad60fb5d51f864f6596bb03fc11d4330f1c",
+      "comparison_sha256": "f16cbe62d04c1238c05cce3c2b3f8a37b84a78990698afbc7facfd65d4634a2c",
       "source_file_family_count": 44,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -52196,7 +52196,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -52301,7 +52301,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -52406,7 +52406,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -52529,7 +52529,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -52718,7 +52718,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -52914,7 +52914,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -53013,7 +53013,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -53143,7 +53143,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -53248,7 +53248,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -53383,7 +53383,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -53525,7 +53525,7 @@
     },
     {
       "group": "rf-original-profile-clearance-loss-and-degenerate-inputs",
-      "comparison_sha256": "c2dfec2d8653849cb65f1d99f5eddb258a2b06f6983639a75b71c2f79ad89e78",
+      "comparison_sha256": "b3a5fd4c87ccf955d44e07afba07c2e6e0b19b822065b24954e1266bda44361f",
       "source_file_family_count": 44,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -53624,7 +53624,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -53735,7 +53735,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -53846,7 +53846,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -53957,7 +53957,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -54068,7 +54068,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -54179,7 +54179,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -54374,7 +54374,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -54491,7 +54491,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -54602,7 +54602,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -54713,7 +54713,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -54830,7 +54830,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -55067,7 +55067,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -55197,7 +55197,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -55302,7 +55302,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -55413,7 +55413,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -55543,7 +55543,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -55660,7 +55660,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -55897,7 +55897,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -56008,7 +56008,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -56125,7 +56125,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -56309,7 +56309,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -56420,7 +56420,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -56531,7 +56531,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -56768,7 +56768,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -56885,7 +56885,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -56990,7 +56990,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -57101,7 +57101,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -57212,7 +57212,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -57323,7 +57323,7 @@
     },
     {
       "group": "rf-original-propagation-constants-formulas-and-distance",
-      "comparison_sha256": "6a3dc2771feae193c4f381d53fe00ed67cf93910be231ad846c69561f193f886",
+      "comparison_sha256": "8cda823680e9088ba7e1a255cef3415c0c2959760a1536f787c0291338566590",
       "source_file_family_count": 44,
       "group_compared_family_count": 29,
       "partial_source_file": true,
@@ -57434,7 +57434,7 @@
     },
     {
       "group": "rf-original-inclusive-array-slice-segment-origins",
-      "comparison_sha256": "095c71062abe52519c2f83f9fe5b066e668a1b55f22a1f2b26d97af4d7934f7f",
+      "comparison_sha256": "8d45a597eeaa71bf142d86456145a9733aa331b720fcbe9d53b02931f4d29401",
       "source_file_family_count": 44,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -57549,7 +57549,7 @@
     },
     {
       "group": "rf-original-inclusive-array-slice-segment-origins",
-      "comparison_sha256": "095c71062abe52519c2f83f9fe5b066e668a1b55f22a1f2b26d97af4d7934f7f",
+      "comparison_sha256": "8d45a597eeaa71bf142d86456145a9733aa331b720fcbe9d53b02931f4d29401",
       "source_file_family_count": 44,
       "group_compared_family_count": 2,
       "partial_source_file": true,

@@ -8,7 +8,11 @@ sample profiles, invalid-input branches and real assertion-helper bodies are
 bound; six overlapping GeodesicDistance cases and Android supplements do not
 add original credit. Complete math/results and actual App analyzer projection
 were read, not mounted LOS UI/terrain/cancellation/60fps or physical RF proof.
-Current-candidate RF execution and independent acceptance remain pending.
+Actual clean65846/baseedc RF56/56PASS/zero failures-errors-skips includes
+all44 distinct selected originals;12supplements add no original credit.
+The existing local launcher's unintended incumbent protocol37/37PASS/all25
+required names is separately retained; its mode guard is corrected without
+another native run. Independent/persistent full acceptance remains pending.
 Actual190 mergeedc/parentsa4fa+5dda/candidate-equal treefe854720 is
 subsequently adopted with exactly its inherited three-path delta; worker/native
 bytes preserved. Explicit own two-path EOL refresh restores canonical bytes
