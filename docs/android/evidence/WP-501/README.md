@@ -4,13 +4,30 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `e508efe1525244efc472cc9eda2b6801bf30b31a`.
+Current integrated base: `18546695d204dd7e5ba4b70913b7fb64e825edb6`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
+
+Actual reviewed193 merge185466/parentse508+032c has independently verified
+candidate-equal tree252bc0c6f11328b60087a44f252772255021795a and exactly
+inherited BleTransport/BleWriteTest/WP205 deviation. Clean same-branch
+adoption preserves worker input blobs and actual older execution bindings;
+it is not caller189 success or an unchanged witness rerun.
+Qualified independent COMMENTED5488069493 atbb2238/basee508/08:15:37Z was
+fully read and reconciled into all16 parser groups/95 original comparisons.
+Complete original/native/registration/helper/consumer bodies have no new
+selected-body mismatch. No fresh Swift/Dart/native/private certification,
+e2fa relabel, duplicate credit, formal approval or full acceptance. Selected
+parser blobs da310abdfd980bc6445214382927adfa9f2227f1 and
+236efcdcbe84ab98783f023b1afd9994305a4b23 remain unchanged after adoption.
+Coordinator reports exact full193 dispatch38218985629 genuinely selected/
+passed native/oracles; this worker has not read the six authoritative logs
+and creates no second hosted-result bundle. Empty automatic193 green and
+producer local EOCD failure remain separate evidence.
 
 ## Current radio-preset original comparisons
 

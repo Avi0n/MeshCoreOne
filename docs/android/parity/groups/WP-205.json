@@ -495,7 +495,7 @@
       "native_contracts": [
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTransport.kt",
-          "sha256": "36ea13e7fc1f802e6fc9fd36c9007086f692fd9b7fb0e602f70de891eedc2433",
+          "sha256": "fe300ec288f883e69693e34fcb96fca5e4a7b703fabefe4747f4599d22b6cbb0",
           "source_references": [
             "MC1Services/Sources/MC1Services/Transport/BLEStateMachine+CallbackHandlers.swift",
             "MC1Services/Sources/MC1Services/Transport/BLEStateMachine.swift",
@@ -515,228 +515,233 @@
             },
             {
               "name": "connect",
-              "line": 114,
-              "end_line": 114
+              "line": 117,
+              "end_line": 117
             },
             {
               "name": "connect",
-              "line": 116,
-              "end_line": 220
+              "line": 119,
+              "end_line": 223
             },
             {
               "name": "disconnect",
-              "line": 222,
-              "end_line": 235
-            },
-            {
-              "name": "isConnected",
-              "line": 237,
-              "end_line": 237
-            },
-            {
-              "name": "receivedData",
-              "line": 238,
+              "line": 225,
               "end_line": 238
             },
             {
-              "name": "supportsWriteWithoutResponse",
-              "line": 239,
+              "name": "isConnected",
+              "line": 240,
               "end_line": 240
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "receivedData",
+              "line": 241,
+              "end_line": 241
+            },
+            {
+              "name": "supportsWriteWithoutResponse",
               "line": 242,
-              "end_line": 246
+              "end_line": 243
+            },
+            {
+              "name": "supportsPipelinedReads",
+              "line": 245,
+              "end_line": 249
             },
             {
               "name": "updateFirmwareCapabilities",
-              "line": 248,
-              "end_line": 261
+              "line": 251,
+              "end_line": 264
+            },
+            {
+              "name": "updateWritePacing",
+              "line": 266,
+              "end_line": 276
             },
             {
               "name": "recordBondVerification",
-              "line": 263,
-              "end_line": 268
+              "line": 278,
+              "end_line": 283
             },
             {
               "name": "clearBondVerification",
-              "line": 270,
-              "end_line": 275
+              "line": 285,
+              "end_line": 290
             },
             {
               "name": "bondVerification",
-              "line": 277,
-              "end_line": 277
-            },
-            {
-              "name": "setAppSessionLive",
-              "line": 279,
-              "end_line": 288
-            },
-            {
-              "name": "setBondRefreshedHandler",
-              "line": 290,
+              "line": 292,
               "end_line": 292
             },
             {
-              "name": "isBondRefreshCurrent",
+              "name": "setAppSessionLive",
               "line": 294,
-              "end_line": 300
+              "end_line": 303
+            },
+            {
+              "name": "setBondRefreshedHandler",
+              "line": 305,
+              "end_line": 307
+            },
+            {
+              "name": "isBondRefreshCurrent",
+              "line": 309,
+              "end_line": 315
             },
             {
               "name": "readRssi",
-              "line": 302,
-              "end_line": 331
+              "line": 317,
+              "end_line": 346
             },
             {
               "name": "send",
-              "line": 333,
-              "end_line": 333
+              "line": 348,
+              "end_line": 348
             },
             {
               "name": "sendWithoutResponse",
-              "line": 334,
-              "end_line": 334
+              "line": 349,
+              "end_line": 349
             },
             {
               "name": "send",
-              "line": 336,
-              "end_line": 371
+              "line": 351,
+              "end_line": 383
             },
             {
               "name": "awaitWritePacing",
-              "line": 373,
-              "end_line": 393
+              "line": 385,
+              "end_line": 406
             },
             {
               "name": "perform",
-              "line": 395,
-              "end_line": 400
+              "line": 408,
+              "end_line": 413
             },
             {
               "name": "performLocked",
-              "line": 402,
-              "end_line": 456
-            },
-            {
-              "name": "onReply",
-              "line": 459,
-              "end_line": 470
-            },
-            {
-              "name": "onFailure",
-              "line": 472,
+              "line": 415,
               "end_line": 477
             },
             {
+              "name": "onReply",
+              "line": 480,
+              "end_line": 495
+            },
+            {
+              "name": "onFailure",
+              "line": 497,
+              "end_line": 502
+            },
+            {
               "name": "onNotification",
-              "line": 479,
-              "end_line": 488
+              "line": 504,
+              "end_line": 513
             },
             {
               "name": "onDisconnected",
-              "line": 490,
-              "end_line": 499
-            },
-            {
-              "name": "onUnavailable",
-              "line": 501,
-              "end_line": 507
-            },
-            {
-              "name": "onBondChanged",
-              "line": 509,
-              "end_line": 518
-            },
-            {
-              "name": "onLinkFailure",
-              "line": 520,
+              "line": 515,
               "end_line": 524
             },
             {
-              "name": "handleCallback",
+              "name": "onUnavailable",
               "line": 526,
-              "end_line": 537
+              "end_line": 532
+            },
+            {
+              "name": "onBondChanged",
+              "line": 534,
+              "end_line": 543
+            },
+            {
+              "name": "onLinkFailure",
+              "line": 545,
+              "end_line": 549
+            },
+            {
+              "name": "handleCallback",
+              "line": 551,
+              "end_line": 562
             },
             {
               "name": "onRejectedCallback",
-              "line": 539,
-              "end_line": 541
+              "line": 564,
+              "end_line": 566
             },
             {
               "name": "callbackConnection",
-              "line": 544,
-              "end_line": 555
+              "line": 569,
+              "end_line": 580
             },
             {
               "name": "reject",
-              "line": 557,
-              "end_line": 561
+              "line": 582,
+              "end_line": 586
             },
             {
               "name": "checkConnection",
-              "line": 563,
-              "end_line": 570
+              "line": 588,
+              "end_line": 595
             },
             {
               "name": "setPhase",
-              "line": 572,
-              "end_line": 578
+              "line": 597,
+              "end_line": 603
             },
             {
               "name": "terminate",
-              "line": 580,
-              "end_line": 583
+              "line": 605,
+              "end_line": 608
             },
             {
               "name": "terminateLocked",
-              "line": 585,
-              "end_line": 600
+              "line": 610,
+              "end_line": 625
             },
             {
               "name": "beginClose",
-              "line": 602,
-              "end_line": 626
+              "line": 627,
+              "end_line": 651
             },
             {
               "name": "awaitConnectionClose",
-              "line": 628,
-              "end_line": 630
+              "line": 653,
+              "end_line": 655
             },
             {
               "name": "awaitClose",
-              "line": 632,
-              "end_line": 641
+              "line": 657,
+              "end_line": 666
             },
             {
               "name": "snapshot",
-              "line": 643,
-              "end_line": 652
+              "line": 668,
+              "end_line": 677
             },
             {
               "name": "publish",
-              "line": 654,
-              "end_line": 654
+              "line": 679,
+              "end_line": 679
             },
             {
               "name": "maximumCommandBytes",
-              "line": 656,
-              "end_line": 657
+              "line": 681,
+              "end_line": 682
             },
             {
               "name": "writeCommands",
-              "line": 659,
-              "end_line": 660
+              "line": 684,
+              "end_line": 685
             },
             {
               "name": "requireProperty",
-              "line": 663,
-              "end_line": 667
+              "line": 688,
+              "end_line": 692
             },
             {
               "name": "availabilityFailure",
-              "line": 669,
-              "end_line": 674
+              "line": 694,
+              "end_line": 699
             }
           ]
         }
@@ -756,7 +761,7 @@
       "native_contracts": [
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTransport.kt",
-          "sha256": "36ea13e7fc1f802e6fc9fd36c9007086f692fd9b7fb0e602f70de891eedc2433",
+          "sha256": "fe300ec288f883e69693e34fcb96fca5e4a7b703fabefe4747f4599d22b6cbb0",
           "source_references": [
             "MC1Services/Sources/MC1Services/Transport/BLEStateMachine+CallbackHandlers.swift",
             "MC1Services/Sources/MC1Services/Transport/BLEStateMachine.swift",
@@ -776,228 +781,233 @@
             },
             {
               "name": "connect",
-              "line": 114,
-              "end_line": 114
+              "line": 117,
+              "end_line": 117
             },
             {
               "name": "connect",
-              "line": 116,
-              "end_line": 220
+              "line": 119,
+              "end_line": 223
             },
             {
               "name": "disconnect",
-              "line": 222,
-              "end_line": 235
-            },
-            {
-              "name": "isConnected",
-              "line": 237,
-              "end_line": 237
-            },
-            {
-              "name": "receivedData",
-              "line": 238,
+              "line": 225,
               "end_line": 238
             },
             {
-              "name": "supportsWriteWithoutResponse",
-              "line": 239,
+              "name": "isConnected",
+              "line": 240,
               "end_line": 240
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "receivedData",
+              "line": 241,
+              "end_line": 241
+            },
+            {
+              "name": "supportsWriteWithoutResponse",
               "line": 242,
-              "end_line": 246
+              "end_line": 243
+            },
+            {
+              "name": "supportsPipelinedReads",
+              "line": 245,
+              "end_line": 249
             },
             {
               "name": "updateFirmwareCapabilities",
-              "line": 248,
-              "end_line": 261
+              "line": 251,
+              "end_line": 264
+            },
+            {
+              "name": "updateWritePacing",
+              "line": 266,
+              "end_line": 276
             },
             {
               "name": "recordBondVerification",
-              "line": 263,
-              "end_line": 268
+              "line": 278,
+              "end_line": 283
             },
             {
               "name": "clearBondVerification",
-              "line": 270,
-              "end_line": 275
+              "line": 285,
+              "end_line": 290
             },
             {
               "name": "bondVerification",
-              "line": 277,
-              "end_line": 277
-            },
-            {
-              "name": "setAppSessionLive",
-              "line": 279,
-              "end_line": 288
-            },
-            {
-              "name": "setBondRefreshedHandler",
-              "line": 290,
+              "line": 292,
               "end_line": 292
             },
             {
-              "name": "isBondRefreshCurrent",
+              "name": "setAppSessionLive",
               "line": 294,
-              "end_line": 300
+              "end_line": 303
+            },
+            {
+              "name": "setBondRefreshedHandler",
+              "line": 305,
+              "end_line": 307
+            },
+            {
+              "name": "isBondRefreshCurrent",
+              "line": 309,
+              "end_line": 315
             },
             {
               "name": "readRssi",
-              "line": 302,
-              "end_line": 331
+              "line": 317,
+              "end_line": 346
             },
             {
               "name": "send",
-              "line": 333,
-              "end_line": 333
+              "line": 348,
+              "end_line": 348
             },
             {
               "name": "sendWithoutResponse",
-              "line": 334,
-              "end_line": 334
+              "line": 349,
+              "end_line": 349
             },
             {
               "name": "send",
-              "line": 336,
-              "end_line": 371
+              "line": 351,
+              "end_line": 383
             },
             {
               "name": "awaitWritePacing",
-              "line": 373,
-              "end_line": 393
+              "line": 385,
+              "end_line": 406
             },
             {
               "name": "perform",
-              "line": 395,
-              "end_line": 400
+              "line": 408,
+              "end_line": 413
             },
             {
               "name": "performLocked",
-              "line": 402,
-              "end_line": 456
-            },
-            {
-              "name": "onReply",
-              "line": 459,
-              "end_line": 470
-            },
-            {
-              "name": "onFailure",
-              "line": 472,
+              "line": 415,
               "end_line": 477
             },
             {
+              "name": "onReply",
+              "line": 480,
+              "end_line": 495
+            },
+            {
+              "name": "onFailure",
+              "line": 497,
+              "end_line": 502
+            },
+            {
               "name": "onNotification",
-              "line": 479,
-              "end_line": 488
+              "line": 504,
+              "end_line": 513
             },
             {
               "name": "onDisconnected",
-              "line": 490,
-              "end_line": 499
-            },
-            {
-              "name": "onUnavailable",
-              "line": 501,
-              "end_line": 507
-            },
-            {
-              "name": "onBondChanged",
-              "line": 509,
-              "end_line": 518
-            },
-            {
-              "name": "onLinkFailure",
-              "line": 520,
+              "line": 515,
               "end_line": 524
             },
             {
-              "name": "handleCallback",
+              "name": "onUnavailable",
               "line": 526,
-              "end_line": 537
+              "end_line": 532
+            },
+            {
+              "name": "onBondChanged",
+              "line": 534,
+              "end_line": 543
+            },
+            {
+              "name": "onLinkFailure",
+              "line": 545,
+              "end_line": 549
+            },
+            {
+              "name": "handleCallback",
+              "line": 551,
+              "end_line": 562
             },
             {
               "name": "onRejectedCallback",
-              "line": 539,
-              "end_line": 541
+              "line": 564,
+              "end_line": 566
             },
             {
               "name": "callbackConnection",
-              "line": 544,
-              "end_line": 555
+              "line": 569,
+              "end_line": 580
             },
             {
               "name": "reject",
-              "line": 557,
-              "end_line": 561
+              "line": 582,
+              "end_line": 586
             },
             {
               "name": "checkConnection",
-              "line": 563,
-              "end_line": 570
+              "line": 588,
+              "end_line": 595
             },
             {
               "name": "setPhase",
-              "line": 572,
-              "end_line": 578
+              "line": 597,
+              "end_line": 603
             },
             {
               "name": "terminate",
-              "line": 580,
-              "end_line": 583
+              "line": 605,
+              "end_line": 608
             },
             {
               "name": "terminateLocked",
-              "line": 585,
-              "end_line": 600
+              "line": 610,
+              "end_line": 625
             },
             {
               "name": "beginClose",
-              "line": 602,
-              "end_line": 626
+              "line": 627,
+              "end_line": 651
             },
             {
               "name": "awaitConnectionClose",
-              "line": 628,
-              "end_line": 630
+              "line": 653,
+              "end_line": 655
             },
             {
               "name": "awaitClose",
-              "line": 632,
-              "end_line": 641
+              "line": 657,
+              "end_line": 666
             },
             {
               "name": "snapshot",
-              "line": 643,
-              "end_line": 652
+              "line": 668,
+              "end_line": 677
             },
             {
               "name": "publish",
-              "line": 654,
-              "end_line": 654
+              "line": 679,
+              "end_line": 679
             },
             {
               "name": "maximumCommandBytes",
-              "line": 656,
-              "end_line": 657
+              "line": 681,
+              "end_line": 682
             },
             {
               "name": "writeCommands",
-              "line": 659,
-              "end_line": 660
+              "line": 684,
+              "end_line": 685
             },
             {
               "name": "requireProperty",
-              "line": 663,
-              "end_line": 667
+              "line": 688,
+              "end_line": 692
             },
             {
               "name": "availabilityFailure",
-              "line": 669,
-              "end_line": 674
+              "line": 694,
+              "end_line": 699
             }
           ]
         }
@@ -1136,7 +1146,7 @@
       "native_contracts": [
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTransport.kt",
-          "sha256": "36ea13e7fc1f802e6fc9fd36c9007086f692fd9b7fb0e602f70de891eedc2433",
+          "sha256": "fe300ec288f883e69693e34fcb96fca5e4a7b703fabefe4747f4599d22b6cbb0",
           "source_references": [
             "MC1Services/Sources/MC1Services/Transport/BLEStateMachine+CallbackHandlers.swift",
             "MC1Services/Sources/MC1Services/Transport/BLEStateMachine.swift",
@@ -1156,228 +1166,233 @@
             },
             {
               "name": "connect",
-              "line": 114,
-              "end_line": 114
+              "line": 117,
+              "end_line": 117
             },
             {
               "name": "connect",
-              "line": 116,
-              "end_line": 220
+              "line": 119,
+              "end_line": 223
             },
             {
               "name": "disconnect",
-              "line": 222,
-              "end_line": 235
-            },
-            {
-              "name": "isConnected",
-              "line": 237,
-              "end_line": 237
-            },
-            {
-              "name": "receivedData",
-              "line": 238,
+              "line": 225,
               "end_line": 238
             },
             {
-              "name": "supportsWriteWithoutResponse",
-              "line": 239,
+              "name": "isConnected",
+              "line": 240,
               "end_line": 240
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "receivedData",
+              "line": 241,
+              "end_line": 241
+            },
+            {
+              "name": "supportsWriteWithoutResponse",
               "line": 242,
-              "end_line": 246
+              "end_line": 243
+            },
+            {
+              "name": "supportsPipelinedReads",
+              "line": 245,
+              "end_line": 249
             },
             {
               "name": "updateFirmwareCapabilities",
-              "line": 248,
-              "end_line": 261
+              "line": 251,
+              "end_line": 264
+            },
+            {
+              "name": "updateWritePacing",
+              "line": 266,
+              "end_line": 276
             },
             {
               "name": "recordBondVerification",
-              "line": 263,
-              "end_line": 268
+              "line": 278,
+              "end_line": 283
             },
             {
               "name": "clearBondVerification",
-              "line": 270,
-              "end_line": 275
+              "line": 285,
+              "end_line": 290
             },
             {
               "name": "bondVerification",
-              "line": 277,
-              "end_line": 277
-            },
-            {
-              "name": "setAppSessionLive",
-              "line": 279,
-              "end_line": 288
-            },
-            {
-              "name": "setBondRefreshedHandler",
-              "line": 290,
+              "line": 292,
               "end_line": 292
             },
             {
-              "name": "isBondRefreshCurrent",
+              "name": "setAppSessionLive",
               "line": 294,
-              "end_line": 300
+              "end_line": 303
+            },
+            {
+              "name": "setBondRefreshedHandler",
+              "line": 305,
+              "end_line": 307
+            },
+            {
+              "name": "isBondRefreshCurrent",
+              "line": 309,
+              "end_line": 315
             },
             {
               "name": "readRssi",
-              "line": 302,
-              "end_line": 331
+              "line": 317,
+              "end_line": 346
             },
             {
               "name": "send",
-              "line": 333,
-              "end_line": 333
+              "line": 348,
+              "end_line": 348
             },
             {
               "name": "sendWithoutResponse",
-              "line": 334,
-              "end_line": 334
+              "line": 349,
+              "end_line": 349
             },
             {
               "name": "send",
-              "line": 336,
-              "end_line": 371
+              "line": 351,
+              "end_line": 383
             },
             {
               "name": "awaitWritePacing",
-              "line": 373,
-              "end_line": 393
+              "line": 385,
+              "end_line": 406
             },
             {
               "name": "perform",
-              "line": 395,
-              "end_line": 400
+              "line": 408,
+              "end_line": 413
             },
             {
               "name": "performLocked",
-              "line": 402,
-              "end_line": 456
-            },
-            {
-              "name": "onReply",
-              "line": 459,
-              "end_line": 470
-            },
-            {
-              "name": "onFailure",
-              "line": 472,
+              "line": 415,
               "end_line": 477
             },
             {
+              "name": "onReply",
+              "line": 480,
+              "end_line": 495
+            },
+            {
+              "name": "onFailure",
+              "line": 497,
+              "end_line": 502
+            },
+            {
               "name": "onNotification",
-              "line": 479,
-              "end_line": 488
+              "line": 504,
+              "end_line": 513
             },
             {
               "name": "onDisconnected",
-              "line": 490,
-              "end_line": 499
-            },
-            {
-              "name": "onUnavailable",
-              "line": 501,
-              "end_line": 507
-            },
-            {
-              "name": "onBondChanged",
-              "line": 509,
-              "end_line": 518
-            },
-            {
-              "name": "onLinkFailure",
-              "line": 520,
+              "line": 515,
               "end_line": 524
             },
             {
-              "name": "handleCallback",
+              "name": "onUnavailable",
               "line": 526,
-              "end_line": 537
+              "end_line": 532
+            },
+            {
+              "name": "onBondChanged",
+              "line": 534,
+              "end_line": 543
+            },
+            {
+              "name": "onLinkFailure",
+              "line": 545,
+              "end_line": 549
+            },
+            {
+              "name": "handleCallback",
+              "line": 551,
+              "end_line": 562
             },
             {
               "name": "onRejectedCallback",
-              "line": 539,
-              "end_line": 541
+              "line": 564,
+              "end_line": 566
             },
             {
               "name": "callbackConnection",
-              "line": 544,
-              "end_line": 555
+              "line": 569,
+              "end_line": 580
             },
             {
               "name": "reject",
-              "line": 557,
-              "end_line": 561
+              "line": 582,
+              "end_line": 586
             },
             {
               "name": "checkConnection",
-              "line": 563,
-              "end_line": 570
+              "line": 588,
+              "end_line": 595
             },
             {
               "name": "setPhase",
-              "line": 572,
-              "end_line": 578
+              "line": 597,
+              "end_line": 603
             },
             {
               "name": "terminate",
-              "line": 580,
-              "end_line": 583
+              "line": 605,
+              "end_line": 608
             },
             {
               "name": "terminateLocked",
-              "line": 585,
-              "end_line": 600
+              "line": 610,
+              "end_line": 625
             },
             {
               "name": "beginClose",
-              "line": 602,
-              "end_line": 626
+              "line": 627,
+              "end_line": 651
             },
             {
               "name": "awaitConnectionClose",
-              "line": 628,
-              "end_line": 630
+              "line": 653,
+              "end_line": 655
             },
             {
               "name": "awaitClose",
-              "line": 632,
-              "end_line": 641
+              "line": 657,
+              "end_line": 666
             },
             {
               "name": "snapshot",
-              "line": 643,
-              "end_line": 652
+              "line": 668,
+              "end_line": 677
             },
             {
               "name": "publish",
-              "line": 654,
-              "end_line": 654
+              "line": 679,
+              "end_line": 679
             },
             {
               "name": "maximumCommandBytes",
-              "line": 656,
-              "end_line": 657
+              "line": 681,
+              "end_line": 682
             },
             {
               "name": "writeCommands",
-              "line": 659,
-              "end_line": 660
+              "line": 684,
+              "end_line": 685
             },
             {
               "name": "requireProperty",
-              "line": 663,
-              "end_line": 667
+              "line": 688,
+              "end_line": 692
             },
             {
               "name": "availabilityFailure",
-              "line": 669,
-              "end_line": 674
+              "line": 694,
+              "end_line": 699
             }
           ]
         }
@@ -1397,7 +1412,7 @@
       "native_contracts": [
         {
           "path": "android/core/ble/src/main/kotlin/com/meshcoreone/android/core/ble/BleTransport.kt",
-          "sha256": "36ea13e7fc1f802e6fc9fd36c9007086f692fd9b7fb0e602f70de891eedc2433",
+          "sha256": "fe300ec288f883e69693e34fcb96fca5e4a7b703fabefe4747f4599d22b6cbb0",
           "source_references": [
             "MC1Services/Sources/MC1Services/Transport/BLEStateMachine+CallbackHandlers.swift",
             "MC1Services/Sources/MC1Services/Transport/BLEStateMachine.swift",
@@ -1417,228 +1432,233 @@
             },
             {
               "name": "connect",
-              "line": 114,
-              "end_line": 114
+              "line": 117,
+              "end_line": 117
             },
             {
               "name": "connect",
-              "line": 116,
-              "end_line": 220
+              "line": 119,
+              "end_line": 223
             },
             {
               "name": "disconnect",
-              "line": 222,
-              "end_line": 235
-            },
-            {
-              "name": "isConnected",
-              "line": 237,
-              "end_line": 237
-            },
-            {
-              "name": "receivedData",
-              "line": 238,
+              "line": 225,
               "end_line": 238
             },
             {
-              "name": "supportsWriteWithoutResponse",
-              "line": 239,
+              "name": "isConnected",
+              "line": 240,
               "end_line": 240
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "receivedData",
+              "line": 241,
+              "end_line": 241
+            },
+            {
+              "name": "supportsWriteWithoutResponse",
               "line": 242,
-              "end_line": 246
+              "end_line": 243
+            },
+            {
+              "name": "supportsPipelinedReads",
+              "line": 245,
+              "end_line": 249
             },
             {
               "name": "updateFirmwareCapabilities",
-              "line": 248,
-              "end_line": 261
+              "line": 251,
+              "end_line": 264
+            },
+            {
+              "name": "updateWritePacing",
+              "line": 266,
+              "end_line": 276
             },
             {
               "name": "recordBondVerification",
-              "line": 263,
-              "end_line": 268
+              "line": 278,
+              "end_line": 283
             },
             {
               "name": "clearBondVerification",
-              "line": 270,
-              "end_line": 275
+              "line": 285,
+              "end_line": 290
             },
             {
               "name": "bondVerification",
-              "line": 277,
-              "end_line": 277
-            },
-            {
-              "name": "setAppSessionLive",
-              "line": 279,
-              "end_line": 288
-            },
-            {
-              "name": "setBondRefreshedHandler",
-              "line": 290,
+              "line": 292,
               "end_line": 292
             },
             {
-              "name": "isBondRefreshCurrent",
+              "name": "setAppSessionLive",
               "line": 294,
-              "end_line": 300
+              "end_line": 303
+            },
+            {
+              "name": "setBondRefreshedHandler",
+              "line": 305,
+              "end_line": 307
+            },
+            {
+              "name": "isBondRefreshCurrent",
+              "line": 309,
+              "end_line": 315
             },
             {
               "name": "readRssi",
-              "line": 302,
-              "end_line": 331
+              "line": 317,
+              "end_line": 346
             },
             {
               "name": "send",
-              "line": 333,
-              "end_line": 333
+              "line": 348,
+              "end_line": 348
             },
             {
               "name": "sendWithoutResponse",
-              "line": 334,
-              "end_line": 334
+              "line": 349,
+              "end_line": 349
             },
             {
               "name": "send",
-              "line": 336,
-              "end_line": 371
+              "line": 351,
+              "end_line": 383
             },
             {
               "name": "awaitWritePacing",
-              "line": 373,
-              "end_line": 393
+              "line": 385,
+              "end_line": 406
             },
             {
               "name": "perform",
-              "line": 395,
-              "end_line": 400
+              "line": 408,
+              "end_line": 413
             },
             {
               "name": "performLocked",
-              "line": 402,
-              "end_line": 456
-            },
-            {
-              "name": "onReply",
-              "line": 459,
-              "end_line": 470
-            },
-            {
-              "name": "onFailure",
-              "line": 472,
+              "line": 415,
               "end_line": 477
             },
             {
+              "name": "onReply",
+              "line": 480,
+              "end_line": 495
+            },
+            {
+              "name": "onFailure",
+              "line": 497,
+              "end_line": 502
+            },
+            {
               "name": "onNotification",
-              "line": 479,
-              "end_line": 488
+              "line": 504,
+              "end_line": 513
             },
             {
               "name": "onDisconnected",
-              "line": 490,
-              "end_line": 499
-            },
-            {
-              "name": "onUnavailable",
-              "line": 501,
-              "end_line": 507
-            },
-            {
-              "name": "onBondChanged",
-              "line": 509,
-              "end_line": 518
-            },
-            {
-              "name": "onLinkFailure",
-              "line": 520,
+              "line": 515,
               "end_line": 524
             },
             {
-              "name": "handleCallback",
+              "name": "onUnavailable",
               "line": 526,
-              "end_line": 537
+              "end_line": 532
+            },
+            {
+              "name": "onBondChanged",
+              "line": 534,
+              "end_line": 543
+            },
+            {
+              "name": "onLinkFailure",
+              "line": 545,
+              "end_line": 549
+            },
+            {
+              "name": "handleCallback",
+              "line": 551,
+              "end_line": 562
             },
             {
               "name": "onRejectedCallback",
-              "line": 539,
-              "end_line": 541
+              "line": 564,
+              "end_line": 566
             },
             {
               "name": "callbackConnection",
-              "line": 544,
-              "end_line": 555
+              "line": 569,
+              "end_line": 580
             },
             {
               "name": "reject",
-              "line": 557,
-              "end_line": 561
+              "line": 582,
+              "end_line": 586
             },
             {
               "name": "checkConnection",
-              "line": 563,
-              "end_line": 570
+              "line": 588,
+              "end_line": 595
             },
             {
               "name": "setPhase",
-              "line": 572,
-              "end_line": 578
+              "line": 597,
+              "end_line": 603
             },
             {
               "name": "terminate",
-              "line": 580,
-              "end_line": 583
+              "line": 605,
+              "end_line": 608
             },
             {
               "name": "terminateLocked",
-              "line": 585,
-              "end_line": 600
+              "line": 610,
+              "end_line": 625
             },
             {
               "name": "beginClose",
-              "line": 602,
-              "end_line": 626
+              "line": 627,
+              "end_line": 651
             },
             {
               "name": "awaitConnectionClose",
-              "line": 628,
-              "end_line": 630
+              "line": 653,
+              "end_line": 655
             },
             {
               "name": "awaitClose",
-              "line": 632,
-              "end_line": 641
+              "line": 657,
+              "end_line": 666
             },
             {
               "name": "snapshot",
-              "line": 643,
-              "end_line": 652
+              "line": 668,
+              "end_line": 677
             },
             {
               "name": "publish",
-              "line": 654,
-              "end_line": 654
+              "line": 679,
+              "end_line": 679
             },
             {
               "name": "maximumCommandBytes",
-              "line": 656,
-              "end_line": 657
+              "line": 681,
+              "end_line": 682
             },
             {
               "name": "writeCommands",
-              "line": 659,
-              "end_line": 660
+              "line": 684,
+              "end_line": 685
             },
             {
               "name": "requireProperty",
-              "line": 663,
-              "end_line": 667
+              "line": 688,
+              "end_line": 692
             },
             {
               "name": "availabilityFailure",
-              "line": 669,
-              "end_line": 674
+              "line": 694,
+              "end_line": 699
             }
           ]
         }
@@ -2641,7 +2661,7 @@
         },
         {
           "path": "android/core/ble/src/test/kotlin/com/meshcoreone/android/core/ble/BleWriteTest.kt",
-          "sha256": "ed99a312a36ac9a92ded5222b37764442ef591951f1129ae907b4559efb7d684",
+          "sha256": "166fe88df0059d8aceac4ba190fa6fe56c796f20cc66c3945bf2372c76550880",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Transport/BLEStateMachineRestorationAndTeardownTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Transport/BLEStateMachineWriteWithoutResponseTests.swift"
@@ -2649,88 +2669,148 @@
           "methods": [
             {
               "name": "without response capability requires characteristic and verified firmware evidence",
-              "line": 21,
-              "end_line": 30
+              "line": 22,
+              "end_line": 31
             },
             {
               "name": "write only ESP32 characteristic stays on acknowledged writes",
-              "line": 32,
-              "end_line": 44
+              "line": 33,
+              "end_line": 45
             },
             {
               "name": "unverified without response falls back to acknowledged send",
-              "line": 46,
-              "end_line": 52
+              "line": 47,
+              "end_line": 53
             },
             {
               "name": "pipelining is independent firmware opt in not inferred from MTU",
-              "line": 54,
-              "end_line": 61
+              "line": 55,
+              "end_line": 62
             },
             {
               "name": "larger unverified firmware frames fail before issuing or truncating",
-              "line": 63,
-              "end_line": 71
+              "line": 64,
+              "end_line": 72
             },
             {
               "name": "MTU minus three and the firmware limit both constrain complete writes",
-              "line": 73,
-              "end_line": 83
+              "line": 74,
+              "end_line": 84
             },
             {
               "name": "ATT attribute maximum is 512 and oversized commands are never split",
-              "line": 85,
-              "end_line": 95
+              "line": 86,
+              "end_line": 96
             },
             {
               "name": "firmware maximum can be smaller than ATT capability",
-              "line": 97,
-              "end_line": 105
+              "line": 98,
+              "end_line": 106
             },
             {
               "name": "firmware capabilities cannot be replaced or inherited by a new generation",
-              "line": 107,
-              "end_line": 122
+              "line": 108,
+              "end_line": 123
             },
             {
               "name": "concurrent writes are serialized through completion not just initial calls",
-              "line": 124,
-              "end_line": 145
+              "line": 125,
+              "end_line": 146
             },
             {
               "name": "write commands and acknowledged writes share the entire operation queue",
-              "line": 147,
-              "end_line": 168
+              "line": 148,
+              "end_line": 169
             },
             {
               "name": "write readiness timeout is exactly five seconds and invalidates its GATT",
-              "line": 170,
-              "end_line": 185
+              "line": 171,
+              "end_line": 186
             },
             {
               "name": "cancelling a queued send does not cancel the unrelated active write",
-              "line": 187,
-              "end_line": 203
+              "line": 188,
+              "end_line": 204
             },
             {
               "name": "queued old generation send cannot write to a rapid reconnection",
-              "line": 205,
-              "end_line": 223
+              "line": 206,
+              "end_line": 224
             },
             {
               "name": "stale write callback is dropped instead of resuming the newer write",
-              "line": 225,
-              "end_line": 245
+              "line": 226,
+              "end_line": 246
             },
             {
               "name": "write pacing applies to sequential and queued acknowledged writes",
-              "line": 247,
-              "end_line": 262
+              "line": 248,
+              "end_line": 263
             },
             {
               "name": "verified write commands skip acknowledged write pacing as in the source",
-              "line": 264,
-              "end_line": 273
+              "line": 265,
+              "end_line": 274
+            },
+            {
+              "name": "generation pacing update enforces independent 25 and 60 millisecond boundaries",
+              "line": 276,
+              "end_line": 295
+            },
+            {
+              "name": "pacing captures the policy and time at ACK rather than continuation resumption",
+              "line": 297,
+              "end_line": 340
+            },
+            {
+              "name": "positive policy update leaves the previous ACK deadline unchanged",
+              "line": 342,
+              "end_line": 358
+            },
+            {
+              "name": "zero policy bypasses a previous ACK deadline",
+              "line": 360,
+              "end_line": 369
+            },
+            {
+              "name": "replacement connection resets both dynamic policy and previous ACK deadline",
+              "line": 371,
+              "end_line": 397
+            },
+            {
+              "name": "pacing updates reject disconnected and stale connection generations",
+              "line": 399,
+              "end_line": 418
+            },
+            {
+              "name": "invalid pacing durations do not mutate the valid live policy",
+              "line": 420,
+              "end_line": 439
+            },
+            {
+              "name": "verified commands bypass dynamic pacing but unverified commands remain acknowledged",
+              "line": 441,
+              "end_line": 468
+            },
+            {
+              "name": "cancelling a dynamic pacing wait preserves the live link and cancels its sleeper",
+              "line": 470,
+              "end_line": 487
+            },
+            {
+              "name": "disconnect terminates a dynamic pacing wait before its deadline",
+              "line": 489,
+              "end_line": 506
+            },
+            {
+              "name": "zero update does not wake an already parked source pacing sleep",
+              "line": 508,
+              "end_line": 529
+            },
+            {
+              "name": "duplicate ACK cannot replace the accepted callback pacing snapshot",
+              "line": 531,
+              "end_line": 561
             }
           ]
         }
@@ -3068,7 +3148,7 @@
       "native_contracts": [
         {
           "path": "android/core/ble/src/test/kotlin/com/meshcoreone/android/core/ble/BleWriteTest.kt",
-          "sha256": "ed99a312a36ac9a92ded5222b37764442ef591951f1129ae907b4559efb7d684",
+          "sha256": "166fe88df0059d8aceac4ba190fa6fe56c796f20cc66c3945bf2372c76550880",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Transport/BLEStateMachineRestorationAndTeardownTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Transport/BLEStateMachineWriteWithoutResponseTests.swift"
@@ -3076,88 +3156,148 @@
           "methods": [
             {
               "name": "without response capability requires characteristic and verified firmware evidence",
-              "line": 21,
-              "end_line": 30
+              "line": 22,
+              "end_line": 31
             },
             {
               "name": "write only ESP32 characteristic stays on acknowledged writes",
-              "line": 32,
-              "end_line": 44
+              "line": 33,
+              "end_line": 45
             },
             {
               "name": "unverified without response falls back to acknowledged send",
-              "line": 46,
-              "end_line": 52
+              "line": 47,
+              "end_line": 53
             },
             {
               "name": "pipelining is independent firmware opt in not inferred from MTU",
-              "line": 54,
-              "end_line": 61
+              "line": 55,
+              "end_line": 62
             },
             {
               "name": "larger unverified firmware frames fail before issuing or truncating",
-              "line": 63,
-              "end_line": 71
+              "line": 64,
+              "end_line": 72
             },
             {
               "name": "MTU minus three and the firmware limit both constrain complete writes",
-              "line": 73,
-              "end_line": 83
+              "line": 74,
+              "end_line": 84
             },
             {
               "name": "ATT attribute maximum is 512 and oversized commands are never split",
-              "line": 85,
-              "end_line": 95
+              "line": 86,
+              "end_line": 96
             },
             {
               "name": "firmware maximum can be smaller than ATT capability",
-              "line": 97,
-              "end_line": 105
+              "line": 98,
+              "end_line": 106
             },
             {
               "name": "firmware capabilities cannot be replaced or inherited by a new generation",
-              "line": 107,
-              "end_line": 122
+              "line": 108,
+              "end_line": 123
             },
             {
               "name": "concurrent writes are serialized through completion not just initial calls",
-              "line": 124,
-              "end_line": 145
+              "line": 125,
+              "end_line": 146
             },
             {
               "name": "write commands and acknowledged writes share the entire operation queue",
-              "line": 147,
-              "end_line": 168
+              "line": 148,
+              "end_line": 169
             },
             {
               "name": "write readiness timeout is exactly five seconds and invalidates its GATT",
-              "line": 170,
-              "end_line": 185
+              "line": 171,
+              "end_line": 186
             },
             {
               "name": "cancelling a queued send does not cancel the unrelated active write",
-              "line": 187,
-              "end_line": 203
+              "line": 188,
+              "end_line": 204
             },
             {
               "name": "queued old generation send cannot write to a rapid reconnection",
-              "line": 205,
-              "end_line": 223
+              "line": 206,
+              "end_line": 224
             },
             {
               "name": "stale write callback is dropped instead of resuming the newer write",
-              "line": 225,
-              "end_line": 245
+              "line": 226,
+              "end_line": 246
             },
             {
               "name": "write pacing applies to sequential and queued acknowledged writes",
-              "line": 247,
-              "end_line": 262
+              "line": 248,
+              "end_line": 263
             },
             {
               "name": "verified write commands skip acknowledged write pacing as in the source",
-              "line": 264,
-              "end_line": 273
+              "line": 265,
+              "end_line": 274
+            },
+            {
+              "name": "generation pacing update enforces independent 25 and 60 millisecond boundaries",
+              "line": 276,
+              "end_line": 295
+            },
+            {
+              "name": "pacing captures the policy and time at ACK rather than continuation resumption",
+              "line": 297,
+              "end_line": 340
+            },
+            {
+              "name": "positive policy update leaves the previous ACK deadline unchanged",
+              "line": 342,
+              "end_line": 358
+            },
+            {
+              "name": "zero policy bypasses a previous ACK deadline",
+              "line": 360,
+              "end_line": 369
+            },
+            {
+              "name": "replacement connection resets both dynamic policy and previous ACK deadline",
+              "line": 371,
+              "end_line": 397
+            },
+            {
+              "name": "pacing updates reject disconnected and stale connection generations",
+              "line": 399,
+              "end_line": 418
+            },
+            {
+              "name": "invalid pacing durations do not mutate the valid live policy",
+              "line": 420,
+              "end_line": 439
+            },
+            {
+              "name": "verified commands bypass dynamic pacing but unverified commands remain acknowledged",
+              "line": 441,
+              "end_line": 468
+            },
+            {
+              "name": "cancelling a dynamic pacing wait preserves the live link and cancels its sleeper",
+              "line": 470,
+              "end_line": 487
+            },
+            {
+              "name": "disconnect terminates a dynamic pacing wait before its deadline",
+              "line": 489,
+              "end_line": 506
+            },
+            {
+              "name": "zero update does not wake an already parked source pacing sleep",
+              "line": 508,
+              "end_line": 529
+            },
+            {
+              "name": "duplicate ACK cannot replace the accepted callback pacing snapshot",
+              "line": 531,
+              "end_line": 561
             }
           ]
         }

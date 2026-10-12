@@ -1,5 +1,20 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual reviewed193 transport merge185466 is adopted: parentse508+032c,
+candidate-equal tree252bc0c6 independently verified; exactly inherited
+BleTransport/BleWriteTest/WP205 deviation changed. Worker preset/service/
+Room/parser/incoming/pacing input blobs are unchanged; previous executions
+retain actual e508/edc bases. This transport prerequisite does not close189
+or repair the actual App caller; no unchanged witness rerun.
+Qualified independent COMMENTED5488069493 atbb2238/basee508 was read:
+all95 original/native/registration/helper bindings/actual consumers compared
+with no new selected-body mismatch. Selected parser blobs remain unchanged.
+No e2fa relabel, fresh Swift/Dart, private certification, duplicate original
+credit, formal approval or full-WP acceptance; Unicode/order/consumer limits
+remain. Coordinator reports full193 dispatch38218985629 positive selected
+checks; this worker has not independently read its six authoritative logs.
+Empty automatic green and producer local EOCD failure remain distinct.
+
 Current proposed inspection is1258/5133families/173groups/77mandatory/0approved.
 Adds76 complete original radio-preset comparisons in six disjoint groups:
 recommendation36/selectability16/visibility6/aliases15/encoding2/hashmode1.
@@ -12,7 +27,7 @@ two encoding helpers use Europe rather than NorthAmerica and hashmode's
 availability is continentEurope rather than countriesNL. These are explicit
 different-input counterparts only for selected membership/set and pure getter
 predicates, not whole DTO or universal locale/order equivalence. Six native
-supplements/28 catalog rows add no original credit. Selected execution and
+supplements/28 catalog rows add no original credit.
 Actual clean4fc/basee508 strict Windows RadioPresetTest82/82PASS/zero
 FAIL-error-skip/all76 unique original names checked in real XML. Six
 supplements add no original credit. ReadinessPASS/locksreleased; no other
@@ -57,7 +72,7 @@ SwiftData skipped. Its green aggregate is not native verification. Concrete
 classifier gap194 belongs to actual manifest WP004; queued owning repair
 must reconcile this worker's disjoint existing classifier support delta.
 Coordinator owns the separate legitimate full dispatch; no worker execution
-or acceptance is inferred from its pending status.
+or full acceptance is inferred from merge state or reported check success.
 
 Historical parser increment1141/5133families/159groups/76mandatory/0approved:
 Actual reviewed191 mergee508/parentsedc+f61/candidate-equal tree07ec0ba3
