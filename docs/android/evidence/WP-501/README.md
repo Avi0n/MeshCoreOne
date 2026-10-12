@@ -4,13 +4,34 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `9ed1da0b340f1d29bb6db4d84d9aa6fa3352d7ff`.
+Current integrated base: `9e5b4340022d5aae416ca2a2f6eafea564681860`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
+
+## Actual reviewed197 adoption and disjoint registration checks
+
+Independently verified actual merge`9e5b4340022d5aae416ca2a2f6eafea564681860`,
+parents9ed1+9ff71/candidate-equal tree
+`56f86a02129ffa6ee68f7885ae8555b6493a072d`; exactly classifier/test/WP004
+deviation changed. Genuine same-branch rebase yields31ba3f83e941b6b12fac3f55aeb19978308aec2d,
+preserving all1380 binding/proposal objects and every worker native input.
+The worker's controller parity-tests/docs-parity and scaffold parity-tests
+registrations remain additive to owning004's native-prefix/typed fail-safe
+repair. Actual `python tools\android-port\oracle\run_tests.py --quiet`
+102/102PASS and
+`python tools\android-port\controller\test_runner.py --tests android\parity-tests --quiet`
+93/93PASS/zeroFAIL-error-skip at31ba; verification-config/semantic/accounting/
+diff checksPASS. These are combined Python assertions, not a replay of
+producer native/private102 evidence or unchanged15/14/7/4/19/49/53 selectors.
+Qualified SOURCE-ONLY6121536833 remains9ff/base9ed; all private native
+execution receipts retain their actual old heads/bases. Coordinator reports
+official38230136163 genuinely all5selected/all6jobs success with positive
+native/Swift-codec/SwiftData/final guards; worker has not read those complete
+authoritative logs and retains no second hosted-result bundle.
 
 ## Current hop, ordering and first-path originals
 
