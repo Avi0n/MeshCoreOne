@@ -74,9 +74,11 @@ abstract class NativeAccessibilityHarness {
         assertEquals(2f, host.get().resources.configuration.fontScale, 0f)
     }
 
-    @After fun closeNativeWindow() = compose.runOnUiThread {
-        host.windowFocusChanged(false)
-        host.pause().stop().destroy()
+    @After fun closeNativeWindow() {
+        compose.runOnUiThread {
+            host.windowFocusChanged(false)
+            host.pause().stop().destroy()
+        }
     }
 
     protected fun content(body: @Composable () -> Unit) {
