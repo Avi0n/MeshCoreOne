@@ -10,6 +10,12 @@ actual-timeline guard controls passed; the corrected native font oracle and all 
 appearance selections passed. Populated diagnostics still failed on zero-height metrics.
 These are distinct candidate/selector results, not a new full-suite pass.
 See [exact evidence](../evidence/WP-503/README.md).
+Independent producer-byte re-audits now pass diagnostics 6/6 at product29c9b530d
+(including actual 600dp scroll movement) and contrast/guards/direct 8/8 at product149581edb
+(760/760 records clear unchanged floors). Own shell-only probes pass 4/4 at audit8f2c73d0c,
+with synthetic editor content explicitly excluded from feature acceptance. Real room
+candidate83e957917 fails production compilation before discovery; producer integration
+is required. These distinct candidates are not a combined/full-matrix acceptance.
 The remaining states/flows/windows below are NOT RUN. Do not reuse historical screenshots
 or promote a partial automated check to observed TalkBack/whole-WP acceptance.
 

@@ -116,6 +116,44 @@ reject the verified project-handle/CLI alias; no identity guard blocked executio
 | `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeAppearanceAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeFontAuditRegressionTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`, `1fad28d89f750675285c354c28f91239bc04890e` | Discovered/run 10, passed 8, failed 2, errors/skips 0. Appearance 2/2, font regressions 4/4 and disconnected diagnostics 2/2 pass; populated diagnostics 0/2. |
 | Same focused task/options, `abc86cb0dfd885d4dabd14a07f637ea031ad9b29` | Same 10 run/8 passed/2 failed, zero errors/skips. Rejects empty line measurements and records all three graph widgets' zero heights before failing. |
 | Same focused task/options, `d825ea3d2ec82a270012890767097c77a3aa95c9` | Same 10 run/8 passed/2 failed, zero errors/skips. Compiles native scroll-reachability support; current non-scrolling product still has all three numeric widgets at zero height. No normative failure reclassified. |
+| `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeShellAccessibilityTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`, `8f2c73d0c25afa383af229809ecef9b3b18c7a12` | Discovered/run/passed 4, failures/errors/skips 0. Actual compact 360dp and expanded 1080dp native shell, Resources font 2.0/RTL, five localized Tab roles/selection/heading/unread, effective targets, tab-stack draft retention and real Activity Back. Content is an explicit shell-only editor focus probe, not feature-content acceptance or TalkBack traversal. Initial a1db797 test compile failed on missing assertion import/chained Unit; zero discovery was rejected and fixed before this run. |
+
+## Independent genuine-product candidate re-audits
+
+The existing serialized managed snapshot mounts committed owned audit inputs against each
+exact producer commit, importing both revisions. Only WP-owned audit sources and already
+admitted additive App test registration are applied in that disposable snapshot. All producer
+build additions are preserved; no product byte is edited, invented, reverted or merged here.
+These are actual local native candidate executions, not borrowed producer results, hosted
+acceptance, review approval or passes of this branch's unchanged baseline product.
+
+All commands below use the same declared App task options shown above.
+
+| Exact task selectors / product and audit inputs | Actual result |
+| --- | --- |
+| `--tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest`; product `29c9b530d9da9312dc1306c3d84c8d783cf4fc05`, owned audit `fff04369c106fcda15372297eec6f72c4739bfd4` | Discovered/run/passed 4, failures/errors/skips 0, SDK31/37. Minimum/Maximum/Average become 253x42/260x42/259x42 with contained nonempty lines; summary/count/current data and disconnected explanation pass at Resources font 2.0/RTL. At 900dp metrics fit; this first result alone does not prove offscreen scroll movement. |
+| Same selector/product; owned audit `8f2c73d0c25afa383af229809ecef9b3b18c7a12` | Discovered/run/passed 6, failures/errors/skips 0. Adds a real 360x600dp case: all three widgets initially have zero visible bounds but actual height 42; native `performScrollTo` moves Minimum y611 -> 558, then Maximum/Average y600 -> 558. Each complete text box becomes visible with bottom 600, zero-tolerance line bounds, no truncation/ellipsis. Actual scroll movement is asserted, not simultaneous fit. |
+| `--tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.rendered* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.direct* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.audit*`; product `149581edb8067126d2845f971c3854fe89cba2c1`, owned audit `39fcaf873b53616720545f36f4121bb1e9037442` | Discovered/run/passed 8, failures/errors/skips 0, SDK31/37. Unchanged painted-feature assertions produce exactly 760 records, **0 failing records**, minimum **4.517812074094317:1**, Marine/light/high-contrast/outgoing hashtag (4.5 floor). All high-contrast identity floors remain 7. Actual timeline guard controls and mixed-direction retry/font/targets also pass. |
+| `--tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.room* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.remember*`; product `83e9579176b1930c3e682d6f080e8598a3a1b608`, owned audit `39fcaf873b53616720545f36f4121bb1e9037442` plus its checked `fixtures/room-link-api.patch` | **FAILED before discovery**, not zero-test success: production `RoomConversationScreen.kt:272:21`, `No parameter with name 'backgroundColor' found`. Actual contextual room caller depends on WP-308's genuine MessageBody API absent from this standalone product commit. Serialized producer/coordinator integration is required; no room acceptance claimed. |
+
+The committed room fixture patch changes only owned audit calls to the genuine required
+`onLink` API using named arguments and verifies a native custom action invokes the exact
+URL callback. It preserves all six room distinctions and the associated switch test. It is
+snapshot-only until actual compatible product bytes are adopted on this branch, then should
+be applied to the owned fixture and removed. No compatibility overload, fake production
+wiring or old compilation against new APIs is asserted.
+
+The room executable build overlap is handed off in
+[comment6128524649](https://github.com/cbattlegear/MeshCoreOne-Android/issues/207#issuecomment-6128524649).
+Actual graph movement is handed off in
+[comment6128449712](https://github.com/cbattlegear/MeshCoreOne-Android/issues/214#issuecomment-6128449712).
+
+Hosted [run38276221835](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38276221835)
+at exact published `fff04369c106fcda15372297eec6f72c4739bfd4` **FAILED**:
+App reported 710 tests completed, 14 failed, including normative legacy room/contrast
+assertions. Swift codec oracle succeeded; restore oracle was skipped. This is the hosted
+result, not an iOS/device/whole-WP pass, and is not transferred to later audit/product inputs.
+No duplicate CI-result bundle is retained.
 
 Both executing candidates measured **38 effective frames x 2 directions x 5 emitted ranges
 x 2 SDKs = 760** actual foreground/background records. **162 fail** unchanged thresholds,

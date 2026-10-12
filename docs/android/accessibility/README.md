@@ -71,6 +71,12 @@ This confirmed finding is assigned in
 repair routing across WP-308 spans, WP-307 bubbles and WP-301 roles. WP-503 makes no new
 palette/identity choice and does not edit those production surfaces.
 
+Independent re-audit of genuine WP-308 product `149581edb8067126d2845f971c3854fe89cba2c1`
+with owned audit `39fcaf873b53616720545f36f4121bb1e9037442` passed 8/8 native cases,
+errors/skips 0. The unchanged rich-span/pixel family measured exactly **760 records,
+0 below floors**, minimum **4.517812074094317:1**. Historical 162 baseline failures remain
+recorded; this is not a pass of the branch's legacy product, device evidence or merge approval.
+
 ## Qualified font/viewport diagnostics
 
 The room authentication sheet is a non-scrolling Column. Appearance cards constrain
@@ -101,12 +107,26 @@ At exact `22309ff1eb9a1ccddecdd3375ec2de1aee77a812`, the earlier role/guard coho
 passed 18, failed 8: existing theme-role families passed 10/10 and actual-timeline live-region
 controls passed 4/4. These selected results do not replace the recorded contrast/room failures.
 
+Independent actual WP-316 product `29c9b530d9da9312dc1306c3d84c8d783cf4fc05` plus owned
+audit `8f2c73d0c25afa383af229809ecef9b3b18c7a12` now passes **6/6** SDK31/37 diagnostics
+cases. A real 360x600dp window starts all three statistics offscreen; native `performScrollTo`
+moves them into complete visibility with actual 42px text height, zero-tolerance line
+geometry and no truncation/ellipsis. This proves scroll movement/reachability, not hypothetical
+scroll modifiers, simultaneous fit or physical TalkBack. Original 900dp/disconnected cases
+also pass against those genuine product bytes.
+
 ## Existing strengths to preserve
 
 `NativeNavigationShell` uses current available width, Material navigation, tab selection,
 localized rail icon descriptions, unread state descriptions, headings, focus restoration
 and native Navigation 3 Back. It scales navigation height and suppresses transition
 duration when motion scale is zero. These are source observations, not device certification.
+
+Owned native shell execution at exact8f2c73d0c passes 4/4 SDK31/37 cases using actual
+Resources font 2.0/RTL, compact/expanded native windows, localized Tab roles/selection,
+heading/unread, effective targets, draft retention and Activity Back. The shell content is
+an explicitly synthetic editor focus probe: it verifies shell plumbing, not Nodes/Map/other
+feature behavior or observed TalkBack focus/traversal.
 
 The composer supplies localized icon labels, security/limit semantics, explicit shared
 touch targets, and a small failure-only polite live region. The direct/channel timeline
@@ -131,3 +151,7 @@ WP-308's dedicated producer owns #208; the existing coordinator owns WP-316 repa
 No nested worker, golden update, threshold relaxation, signing action or repository-setting
 change occurred. Required repaired room link APIs must be reconciled in owned fixtures only
 against genuinely adopted product bytes; old compilation is not repair evidence.
+The actual standalone PR209 head83e957917 cannot compile its contextual room caller:
+`RoomConversationScreen.kt:272`, missing `MessageBody.backgroundColor`. Owned fixture
+adaptation is checked/committed, but executable room re-audit remains blocked on serialized
+compatible WP-310/WP-308 product integration, not hypothetical identity or permissions.
