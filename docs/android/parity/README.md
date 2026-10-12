@@ -13,7 +13,13 @@ harness53418b1f->cf7ff426 SHA256. Regeneration changes209 existing rows
 ONLY in assertion_helper_inputs;1407/179/81/0 accounting unchanged.
 Old cb7/baseedc2PASS6FAIL and every prior private execution/source review
 retain actual input identities; no helper-only relabel or unchanged replay.
-Changed-input eight execution pending; controls may resolve cache-first,
+Actual clean514636dd26a1b64e3633a4aaea715df7c9488d79/basee0b6 strict
+eight-only selector8/8PASS/zeroFAIL-error-skip/all8 actual identities,
+XML2026-10-12T11:14:46.209Z/witness0dac0c95/harnessc6fb962f.
+ReadinessPASS/clean inputs/zero notice normalizations/locks released
+normally. No older/native producer selector replay;24 reaction groups
+receive additive current-input qualifications, not extra original credit.
+Controls may resolve cache-first,
 not independently certify DB fallback. No production SQL/window/hash/
 timestamp-policy change or producer four/private certification.
 
@@ -34,10 +40,15 @@ store-level cases do not prove mounted pairing/activation/retry loops,
 full cascades, races/cancellation/rollback, SwiftData/API37/device parity.
 Same typed reservation33->34 admits the owned file/create; immutable
 authorization/source/manifest/policy preserved. Twelve-name native
-execution pending;63/135 persistence proposed/remaining72 unresolved.
+execution at the same clean514/basee0b6 is12/12PASS/zeroFAIL-error-skip/
+all12 original identities, XML2026-10-12T11:17:33.261Z/native78658d84.
+ReadinessPASS/zero notice normalizations/locks normally released;
+only the new class selected.63/135 persistence proposed/remaining72 unresolved.
 All1395 earlier comparison rows/178groups and native witnesses/receipts
-remain unchanged. PR198 source-only comparison and pending genuine
-adoption/calibrated eight remain separate; no unchanged selector replay.
+remain unchanged by original restoration;209 helper-only input updates
+from genuine adoption/calibration are disclosed separately above.
+PR198 source-only comparison, old failures and actual changed-input
+eight remain separate; no unchanged selector replay or full acceptance.
 
 Current1395/5133 proposed comparisons/178groups/81mandatory/zero fully
 approved behavioral acceptances add15 room/session originals, preserving

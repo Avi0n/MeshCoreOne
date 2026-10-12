@@ -44,8 +44,23 @@ Regeneration changes209 existing rows only in assertion_helper_inputs;
 1407/179/81/0 counts and all original/native body bindings unchanged.
 Old cb7/baseedc2PASS6FAIL, producer dd2294PASS, and older private/source
 reviews retain separate input identities; no unchanged rerun/relabel.
-Changed-input eight exact selector pending:
+Changed-input eight exact selector:
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.IncomingReactionAcceptanceTest --dependency-verification=strict --quiet`.
+Actual clean`514636dd26a1b64e3633a4aaea715df7c9488d79`/basee0b6
+discovers8/8PASS/zeroFAIL-error-skip/all8 actual JUnit identities,
+XML2026-10-12T11:14:46.209Z/witness
+`0dac0c95a6f190d0dfd3ca24c1b04988398fb6c4`/harness
+`c6fb962fca19d1ff87c48eaa05868514a08d614a`.
+ReadinessPASS JDK21.0.12.1/SDK37.2/tools37/own private state; clean
+tracked inputs/five exact notices verified/zero normalizations/supported
+native and Gradle locks released normally. Only changed-input eight ran;
+no unchanged97/41/producer4/other native replay.24 reaction groups receive
+additive current-input qualifications without extra original credit.
+Recording the25 outcome/qualification-only group changes updates148
+comparison_sha256 values only; all source/native/helper execution bytes
+remain identical to514, and1259 other complete binding rows are unchanged.
+Normal lock release and actual local scope reported on existing192:
+[6123224221](https://github.com/cbattlegear/MeshCoreOne-Android/issues/192#issuecomment-6123224221).
 Historical controls may hit cache, not independently prove DB fallback.
 No production query/window/hash/timestamp-policy change.
 
@@ -69,12 +84,20 @@ contact0x55 keys replace source randomness, UUIDs/current wire reads
 retained. No universal identity/clock/default/cascade/repeat/race/
 cancellation/rollback, SwiftData/API37/device or mounted consumer proof.
 Same typed reservation33->34/owned-create keeps immutable pins and
-authorization. Exact twelve-name native execution pending:
+authorization. Exact twelve-name native execution:
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest --dependency-verification=strict --quiet`.
+Actual same clean`514636dd26a1b64e3633a4aaea715df7c9488d79`/basee0b6
+discovers12/12PASS/zeroFAIL-error-skip/all12 distinct original identities,
+XML2026-10-12T11:17:33.261Z/native
+`78658d844501b889aff9ab67eb80d40ee1272384`. ReadinessPASS/clean inputs/
+zero notice normalizations/supported native and Gradle locks normally
+released. Only the new device class selected; no old original replay.
 63/135 persistence proposed/remaining72 unresolved; all1395 previous
 comparison rows/178groups and actual private/source-review identities
-remain unchanged, not replayed/recounted/relabelled. PR198 actual source
-comparison remains separate; genuine adoption/calibrated eight pending.
+remain unchanged by original restoration;209 helper-input updates from
+adoption are separately disclosed above, not replayed/recounted/relabelled.
+PR198 actual source comparison, old failures and changed-input eight stay
+separate. Local12 is not independent/full acceptance.
 
 ## Current room/session original predicates
 
