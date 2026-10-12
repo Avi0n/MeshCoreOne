@@ -115,6 +115,11 @@ geometry and no truncation/ellipsis. This proves scroll movement/reachability, n
 scroll modifiers, simultaneous fit or physical TalkBack. Original 900dp/disconnected cases
 also pass against those genuine product bytes.
 
+PR216/#214 subsequently merged as real main `b621ed186b32f024dc4c7ddbdc60d18a449343f9`.
+It is adopted here at `1f341947246b0a67f7abd0185ca9cabf91a5afa4`; the affected six native
+diagnostics cases pass again on this branch. #214 is retired as an active defect while
+its historical zero-height rows and actual native movement proof remain.
+
 ## Existing strengths to preserve
 
 `NativeNavigationShell` uses current available width, Material navigation, tab selection,
@@ -127,6 +132,12 @@ Resources font 2.0/RTL, compact/expanded native windows, localized Tab roles/sel
 heading/unread, effective targets, draft retention and Activity Back. The shell content is
 an explicitly synthetic editor focus probe: it verifies shell plumbing, not Nodes/Map/other
 feature behavior or observed TalkBack focus/traversal.
+
+Actual offline NodesEntry execution at exactda40e8bed passes 4/4 SDK31/37 cases: cached
+CJK name, selected Contacts, textual blocked status, real row route, font 2.0/RTL/targets,
+and localized disconnected Sync recovery dialog/dismissal preserving cached data.
+The public entry uses deterministic read-only service seams, not its null-dependency
+scaffold. This is not long-name/discovery/detail/all-Nodes or device acceptance.
 
 The composer supplies localized icon labels, security/limit semantics, explicit shared
 touch targets, and a small failure-only polite live region. The direct/channel timeline
@@ -155,3 +166,7 @@ The actual standalone PR209 head83e957917 cannot compile its contextual room cal
 `RoomConversationScreen.kt:272`, missing `MessageBody.backgroundColor`. Owned fixture
 adaptation is checked/committed, but executable room re-audit remains blocked on serialized
 compatible WP-310/WP-308 product integration, not hypothetical identity or permissions.
+Actual newer room9892e7c7f still fails that same missing production parameter before
+discovery. New composer948951f27 independently fails the actual AppChatsFeature adapter's
+obsolete queue-send overrides/unresolved resendChannel before discovery. Their producers/
+App owner must serialize integration; the older149 native pass is not transferred to948.

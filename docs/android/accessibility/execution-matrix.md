@@ -16,6 +16,10 @@ Independent producer-byte re-audits now pass diagnostics 6/6 at product29c9b530d
 with synthetic editor content explicitly excluded from feature acceptance. Real room
 candidate83e957917 fails production compilation before discovery; producer integration
 is required. These distinct candidates are not a combined/full-matrix acceptance.
+Actual mainb621 graph repair is now adopted at OWN1f341947 and affected diagnostics6/6
+pass again. Actual offline Nodes entry/routing/recovery4/4 passes atda40e8bed. Other Nodes
+states are NOT RUN. New standalone room989 and composer948 fail actual product/App
+compilation before discovery; older candidate success/failure is not transferred.
 The remaining states/flows/windows below are NOT RUN. Do not reuse historical screenshots
 or promote a partial automated check to observed TalkBack/whole-WP acceptance.
 

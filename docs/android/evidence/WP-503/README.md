@@ -117,6 +117,8 @@ reject the verified project-handle/CLI alias; no identity guard blocked executio
 | Same focused task/options, `abc86cb0dfd885d4dabd14a07f637ea031ad9b29` | Same 10 run/8 passed/2 failed, zero errors/skips. Rejects empty line measurements and records all three graph widgets' zero heights before failing. |
 | Same focused task/options, `d825ea3d2ec82a270012890767097c77a3aa95c9` | Same 10 run/8 passed/2 failed, zero errors/skips. Compiles native scroll-reachability support; current non-scrolling product still has all three numeric widgets at zero height. No normative failure reclassified. |
 | `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeShellAccessibilityTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`, `8f2c73d0c25afa383af229809ecef9b3b18c7a12` | Discovered/run/passed 4, failures/errors/skips 0. Actual compact 360dp and expanded 1080dp native shell, Resources font 2.0/RTL, five localized Tab roles/selection/heading/unread, effective targets, tab-stack draft retention and real Activity Back. Content is an explicit shell-only editor focus probe, not feature-content acceptance or TalkBack traversal. Initial a1db797 test compile failed on missing assertion import/chained Unit; zero discovery was rejected and fixed before this run. |
+| `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeNodesAccessibilityTest` with the same strict options; `da40e8bed9951119ba70dbd686bdd57d411e5359` | Discovered/run/passed 4, failures/errors/skips 0, SDK31/37. Actual non-null-dependency `NodesEntry` loads a cached CJK node while disconnected, exposes selected Contacts/textual blocked status, measures real font 2.0/RTL/targets and invokes the correct contact route. Actual Sync action shows localized recovery dialog; scaled text/dismissal retains cached content. Read-only deterministic store; unexpected transports/mutations/codecs fail explicitly, not successful stand-ins. No physical announcement, all-name-length or full Nodes acceptance. |
+| `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest` with the same strict options; OWN merged-input candidate `1f341947246b0a67f7abd0185ca9cabf91a5afa4` | Discovered/run/passed 6, failures/errors/skips 0. Actual main `b621ed186b32f024dc4c7ddbdc60d18a449343f9` (PR216 merge) adopted through a normal Git merge; affected 600/900dp/disconnected native cases rerun on this branch, not merely producer snapshot proof. |
 
 ## Independent genuine-product candidate re-audits
 
@@ -147,6 +149,28 @@ The room executable build overlap is handed off in
 [comment6128524649](https://github.com/cbattlegear/MeshCoreOne-Android/issues/207#issuecomment-6128524649).
 Actual graph movement is handed off in
 [comment6128449712](https://github.com/cbattlegear/MeshCoreOne-Android/issues/214#issuecomment-6128449712).
+
+PR216/#214 is now genuinely merged as main `b621ed186b32f024dc4c7ddbdc60d18a449343f9`
+(parents d958/29c9), not inferred from closure. Bounded independent source/native review
+`5493735210` is **COMMENTED**, not a fabricated protected approval. Actual two-file diff
+and frozen NoiseFloorView were read; no substantive remaining defect in this bounded
+numeric-reachability repair was found. Authoritative hosted
+[run38277362005](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38277362005)
+is successful at exact29c9. Historical negative rows remain; #214 is retired as an active
+defect. Its device qualification is not relabeled as device/full-WP evidence.
+
+New genuine published room `9892e7c7f0d6a0466dec2abf84e87a34adef57ea` was independently
+retried with the checked owned required-onLink fixture. It **still failed** production
+compilation on the missing backgroundColor parameter, with zero discovery rejected.
+This is actual new-head execution, not transfer of the earlier83 failure.
+
+New genuine composer `948951f27a95149136c221e0a94ac6a698219683` was independently retried
+with the same unchanged contrast/direct/guard selectors. It **failed before discovery**:
+`AppChatsFeature.kt:232` unresolved `resendChannel`; line341 anonymous adapter lacks required
+abstract members; lines347/349/351/358/359/361 old pending/send/resend direct/channel
+overrides no longer match the queue-acceptance API. Real producer/App integration is
+required and reported in #208. The earlier149 8/8/760 pass does not apply to948.
+No product substitutes or duplicate edits were made.
 
 Hosted [run38276221835](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38276221835)
 at exact published `fff04369c106fcda15372297eec6f72c4739bfd4` **FAILED**:
