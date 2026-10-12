@@ -77,11 +77,17 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
             createdAt = Instant.ofEpochSecond(100), isFromSelf = self, statusRawValue = status.rawValue,
         )
 
-    private fun roomContent(state: RoomConversationState, retry: (UUID) -> Unit = {}) {
+    private fun roomContent(
+        state: RoomConversationState,
+        onLink: (String) -> Boolean = { error("This room case must not invoke a link") },
+        retry: (UUID) -> Unit = {},
+    ) {
         content {
             MeshCoreTheme(motionScale = 0f) {
                 AuditSurface {
-                    RoomConversationContent(state, {}, {}, retry, {}, { }, { "Fixture failure" })
+                    RoomConversationContent(state = state, onDraftChanged = {}, onSend = {},
+                        onRetry = retry, onLink = onLink, onReconnect = {}, onDismissError = {},
+                        failureText = { "Fixture failure" })
                 }
             }
         }
@@ -157,12 +163,17 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
 
     @Test fun roomHttpsMessageExposesANamedNonGestureLinkAction() {
         val message = roomMessage("see https://example.com")
+        val opened = mutableListOf<String>()
         roomContent(RoomConversationState(room, listOf(message),
-            RoomConversationStateHolder.rows(listOf(message)), hasLoadedOnce = true))
+            RoomConversationStateHolder.rows(listOf(message)), hasLoadedOnce = true),
+            onLink = { opened.add(it) })
         val label = C.chatsMessageActionOpenWebLink(host.get().resources, "example.com")
         val nodes = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.CustomActions)).fetchSemanticsNodes()
         assertTrue("The mounted room body has no named open-link action",
             nodes.any { node -> node.config[SemanticsActions.CustomActions].any { it.label == label } })
+        val action = nodes.flatMap { it.config[SemanticsActions.CustomActions] }.single { it.label == label }
+        compose.runOnIdle { assertTrue("The native custom action must route the actual URL", action.action()) }
+        assertEquals(listOf("https://example.com"), opened)
     }
 
     @Test fun rememberPasswordSwitchHasPurposeAndCheckedStateOnOneNode() {
