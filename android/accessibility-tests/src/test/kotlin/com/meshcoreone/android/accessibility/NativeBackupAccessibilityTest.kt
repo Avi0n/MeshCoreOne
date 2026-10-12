@@ -1,9 +1,6 @@
 // AndroidOnly: WP-503 Native backup UI flows with the real holder and explicit document/engine ports; not codec or restore compatibility evidence.
 package com.meshcoreone.android.accessibility
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -29,8 +26,6 @@ import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.math.ceil
-import kotlin.math.floor
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
@@ -174,8 +169,8 @@ class NativeBackupAccessibilityTest : NativeAccessibilityHarness() {
     private fun reachableText(text: String, modal: Boolean = true, scroll: Boolean = true) {
         if (scroll) (if (modal) modalList() else mainList()).performScrollToNode(hasText(text))
         val interaction = compose.onNodeWithText(text, useUnmergedTree = true).assertIsDisplayed()
-        if (modal) inspectDialogInk(interaction)
-        assertFont200Unclipped(interaction)
+        if (modal) assertFont200PaintedUnclipped(interaction, requireNotNull(ShadowDialog.getLatestDialog().window).decorView)
+        else assertFont200Unclipped(interaction)
         val node = interaction.fetchSemanticsNode()
         val root = generateSequence(node) { it.parent }.last()
         val bounds = node.boundsInRoot
@@ -184,43 +179,6 @@ class NativeBackupAccessibilityTest : NativeAccessibilityHarness() {
             bounds.width == node.size.width.toFloat() && bounds.height == node.size.height.toFloat() &&
                 bounds.left >= root.boundsInRoot.left && bounds.top >= root.boundsInRoot.top &&
                 bounds.right <= root.boundsInRoot.right && bounds.bottom <= root.boundsInRoot.bottom)
-    }
-
-    private fun inspectDialogInk(interaction: SemanticsNodeInteraction) {
-        val layout = textLayout(interaction)
-        val bounds = interaction.fetchSemanticsNode().boundsInWindow
-        val bitmap = compose.runOnUiThread {
-            val decor = requireNotNull(ShadowDialog.getLatestDialog().window).decorView
-            Bitmap.createBitmap(decor.width, decor.height, Bitmap.Config.ARGB_8888).also { decor.draw(Canvas(it)) }
-        }
-        try {
-            val colors = mutableMapOf<Int, Int>()
-            for (y in floor(bounds.top).toInt() until ceil(bounds.bottom).toInt()) {
-                for (x in floor(bounds.left).toInt() until ceil(bounds.right).toInt()) {
-                    val color = bitmap.getPixel(x, y)
-                    colors[color] = (colors[color] ?: 0) + 1
-                }
-            }
-            val background = requireNotNull(colors.maxByOrNull { it.value }).key
-            val actualInk = colors.filterKeys { it != background }.values.sum()
-            val reference = Bitmap.createBitmap(ceil(layout.multiParagraph.width).toInt(),
-                ceil(layout.multiParagraph.height).toInt(), Bitmap.Config.ARGB_8888)
-            try {
-                reference.eraseColor(background)
-                layout.multiParagraph.paint(androidx.compose.ui.graphics.Canvas(Canvas(reference)),
-                    color = if (layout.layoutInput.style.color == Color.Unspecified) Color.Black else layout.layoutInput.style.color)
-                var referenceInk = 0
-                for (y in 0 until reference.height) for (x in 0 until reference.width) {
-                    if (reference.getPixel(x, y) != background) referenceInk++
-                }
-                println("WP503_BACKUP_INK|text=${layout.layoutInput.text}|actual=$actualInk|reference=$referenceInk" +
-                    "|bounds=$bounds|nativeWindow=${bitmap.width}x${bitmap.height}|color=${layout.layoutInput.style.color}")
-            } finally {
-                reference.recycle()
-            }
-        } finally {
-            bitmap.recycle()
-        }
     }
 
     private fun checkCount(labelId: Int, count: String) {

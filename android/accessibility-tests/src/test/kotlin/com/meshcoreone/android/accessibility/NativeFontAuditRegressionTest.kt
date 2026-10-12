@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import org.junit.Assert.assertThrows
@@ -52,5 +53,38 @@ class NativeFontAuditRegressionTest : NativeAccessibilityHarness() {
             assertFont200Unclipped(compose.onNodeWithTag("font-clipped"))
         }
         assertTrue(failure.message.orEmpty().contains("truncated") || failure.message.orEmpty().contains("clips"))
+    }
+
+    @Test fun centeredParagraphAllocationDoesNotReplaceCompleteNativeGlyphEvidence() {
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    Column {
+                        Text("No data was changed.", Modifier.testTag("font-center"),
+                            style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+                    }
+                }
+            }
+        }
+        val node = compose.onNodeWithTag("font-center")
+        val layout = font200Layout(node)
+        assertTrue("Reproduce the centered allocated-width counterexample", layout.getLineRight(0) > layout.size.width)
+        assertFont200PaintedUnclipped(node)
+    }
+
+    @Test fun completeNativeGlyphOracleStillRejectsActualClipping() {
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    Column {
+                        Text("clipped native text", Modifier.size(32.dp, 4.dp).testTag("font-paint-clipped"),
+                            style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+                    }
+                }
+            }
+        }
+        assertThrows(AssertionError::class.java) {
+            assertFont200PaintedUnclipped(compose.onNodeWithTag("font-paint-clipped"))
+        }
     }
 }

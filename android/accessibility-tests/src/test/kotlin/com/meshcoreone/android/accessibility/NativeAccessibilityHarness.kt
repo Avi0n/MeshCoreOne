@@ -231,8 +231,76 @@ abstract class NativeAccessibilityHarness {
         }
     }
 
-    private fun nativeWindowBitmap(): Bitmap = compose.runOnUiThread {
-        val view = host.get().window.decorView
+    protected fun assertFont200PaintedUnclipped(node: SemanticsNodeInteraction, view: View = host.get().window.decorView) {
+        val layout = font200Layout(node)
+        assertTrue(layout.layoutInput.text.isNotEmpty() && layout.lineCount > 0)
+        assertFalse("Native text was truncated", layout.multiParagraph.didExceedMaxLines)
+        for (line in 0 until layout.lineCount) assertFalse("Native text was ellipsized", layout.isLineEllipsized(line))
+        val bounds = node.fetchSemanticsNode().boundsInWindow
+        val window = nativeWindowBitmap(view)
+        try {
+            val left = floor(bounds.left).toInt()
+            val top = floor(bounds.top).toInt()
+            val width = ceil(bounds.right).toInt() - left
+            val height = ceil(bounds.bottom).toInt() - top
+            assertTrue("Text must be inside its actual native window",
+                left >= 0 && top >= 0 && width > 0 && height > 0 &&
+                    left + width <= window.width && top + height <= window.height)
+            val actual = Bitmap.createBitmap(window, left, top, width, height)
+            try {
+                val histogram = mutableMapOf<Int, Int>()
+                for (y in 0 until actual.height) for (x in 0 until actual.width) {
+                    val color = actual.getPixel(x, y)
+                    histogram[color] = (histogram[color] ?: 0) + 1
+                }
+                val background = requireNotNull(histogram.maxByOrNull { it.value }).key
+                assertTrue("Text needs an unambiguous background", histogram.getValue(background) > width * height / 2)
+                val reference = Bitmap.createBitmap(ceil(layout.multiParagraph.width).toInt() + 1,
+                    ceil(layout.multiParagraph.height).toInt() + 1, Bitmap.Config.ARGB_8888)
+                try {
+                    reference.eraseColor(background)
+                    val canvas = Canvas(reference)
+                    canvas.translate(bounds.left - left, bounds.top - top)
+                    layout.multiParagraph.paint(androidx.compose.ui.graphics.Canvas(canvas),
+                        color = if (layout.layoutInput.style.color == Color.Unspecified) Color.Black else layout.layoutInput.style.color)
+                    fun ink(bitmap: Bitmap): Triple<Int, Int, IntArray> {
+                        var minX = bitmap.width
+                        var minY = bitmap.height
+                        var maxX = -1
+                        var maxY = -1
+                        for (y in 0 until bitmap.height) for (x in 0 until bitmap.width) {
+                            if (bitmap.getPixel(x, y) != background) {
+                                minX = minOf(minX, x); minY = minOf(minY, y)
+                                maxX = maxOf(maxX, x); maxY = maxOf(maxY, y)
+                            }
+                        }
+                        assertTrue("Zero painted glyphs is not evidence", maxX >= minX && maxY >= minY)
+                        val inkWidth = maxX - minX + 1
+                        val inkHeight = maxY - minY + 1
+                        return Triple(inkWidth, inkHeight, IntArray(inkWidth * inkHeight) { index ->
+                            bitmap.getPixel(minX + index % inkWidth, minY + index / inkWidth)
+                        })
+                    }
+                    val observed = ink(actual)
+                    val expected = ink(reference)
+                    println("WP503_FONT_FULL_INK|text=${layout.layoutInput.text}|actual=${observed.first}x${observed.second}" +
+                        "|reference=${expected.first}x${expected.second}|bounds=$bounds")
+                    assertEquals("The full paragraph ink width must survive native painting", expected.first, observed.first)
+                    assertEquals("The full paragraph ink height must survive native painting", expected.second, observed.second)
+                    assertTrue("Every actual glyph pixel must match the complete, unclipped native paragraph",
+                        expected.third.contentEquals(observed.third))
+                } finally {
+                    reference.recycle()
+                }
+            } finally {
+                actual.recycle()
+            }
+        } finally {
+            window.recycle()
+        }
+    }
+
+    private fun nativeWindowBitmap(view: View = host.get().window.decorView): Bitmap = compose.runOnUiThread {
         assertTrue("Native window has no pixels", view.width > 0 && view.height > 0)
         Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888).also { view.draw(Canvas(it)) }
     }
