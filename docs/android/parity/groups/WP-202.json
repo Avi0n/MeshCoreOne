@@ -8026,6 +8026,7 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactClockAndBadgeOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
@@ -8461,6 +8462,55 @@
               "name": "dataRepeatDeletionUsesOnlyTheOriginalBroadcastAndTwoIndependentDefaultRepeats",
               "line": 176,
               "end_line": 186
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactClockAndBadgeOriginalPredicateTest.kt",
+          "sha256": "2113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "device",
+              "line": 24,
+              "end_line": 32
+            },
+            {
+              "name": "frame",
+              "line": 34,
+              "end_line": 37
+            },
+            {
+              "name": "originalThirtyDayRadioAheadWatermarkRetainsRequiredDeviceAndUnclampedReadback",
+              "line": 40,
+              "end_line": 48
+            },
+            {
+              "name": "originalStableThenRenamedFrameRetainsBothIsNewFlagsStableIdAndOptionalName",
+              "line": 51,
+              "end_line": 64
+            },
+            {
+              "name": "originalExistingDiscoveredNodeRetainsRequiredContactNodeStampAndUnknownEeFalse",
+              "line": 67,
+              "end_line": 80
+            },
+            {
+              "name": "originalMissingDiscoveredNodeRetainsInitialEmptyRequiredMatchAndAllSixFrameFields",
+              "line": 83,
+              "end_line": 98
+            },
+            {
+              "name": "originalAliceTwoAndMutedBobOneRetainIndependentContactsAndExactlyTwoUnread",
+              "line": 101,
+              "end_line": 113
+            },
+            {
+              "name": "originalAllMutedMentionsOnlyStatesRetainFourIndependentChannelCountsAndMentionIncrement",
+              "line": 116,
+              "end_line": 129
             }
           ]
         },
@@ -62898,6 +62948,77 @@
             "PersistenceStoreTests::updateDeviceLastContactSync stores radio-ahead watermark without phone clamp()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactClockAndBadgeOriginalPredicateTest.kt",
+          "sha256": "2113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837",
+          "class": "com.meshcoreone.android.parity.PersistenceContactClockAndBadgeOriginalPredicateTest",
+          "method_or_family_name": "originalThirtyDayRadioAheadWatermarkRetainsRequiredDeviceAndUnclampedReadback",
+          "line": 40,
+          "end_line": 48,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6c0c5c65e6d67a8b69e50cabfdcaa620fa87de5f3aefd4e4e86da3fbe2f142a0",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 46,
+              "expression": "assertNotNull(store.fetchDevice(device.radioId))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 47,
+              "expression": "assertEquals(radioAhead, fetched.lastContactSync)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 41,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 42,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 42,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUInt",
+              "line": 43,
+              "expression": "toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.updateDeviceLastContactSync",
+              "line": 44,
+              "expression": "store.updateDeviceLastContactSync(device.radioId, radioAhead)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 46,
+              "expression": "store.fetchDevice(device.radioId)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::updateDeviceLastContactSync stores radio-ahead watermark without phone clamp()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -63125,6 +63246,95 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::Save and fetch contact from frame()",
             "PersistenceStoreTests::Fetch contact by public key()",
+            "PersistenceStoreTests::saveContact from frame returns isNew true then false with stable id()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactClockAndBadgeOriginalPredicateTest.kt",
+          "sha256": "2113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837",
+          "class": "com.meshcoreone.android.parity.PersistenceContactClockAndBadgeOriginalPredicateTest",
+          "method_or_family_name": "originalStableThenRenamedFrameRetainsBothIsNewFlagsStableIdAndOptionalName",
+          "line": 51,
+          "end_line": 64,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5798ddeafbee2d025a59007a7983af0469d64eca724fbcf1e0f0a8b491a16171",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 55,
+              "expression": "assertTrue(first.isNew)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 61,
+              "expression": "assertFalse(second.isNew)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 62,
+              "expression": "assertEquals(first.id, second.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 63,
+              "expression": "assertEquals(\"Renamed\", store.fetchContact(EntityKey(device.radioId, first.id))?.name)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 52,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 53,
+              "expression": "frame(\"Stable\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 54,
+              "expression": "store.saveContact(device.radioId, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame.copy",
+              "line": 56,
+              "expression": "frame.copy(\n            name = \"Renamed\", lastAdvertTimestamp = frame.lastAdvertTimestamp + 1u,\n            lastModified = frame.lastModified + 1u,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 60,
+              "expression": "store.saveContact(device.radioId, updated)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 63,
+              "expression": "store.fetchContact(EntityKey(device.radioId, first.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 63,
+              "expression": "EntityKey(device.radioId, first.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::saveContact from frame returns isNew true then false with stable id()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -63453,6 +63663,137 @@
             "PersistenceStoreTests::touchContactHeard creates a missing discovered node()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactClockAndBadgeOriginalPredicateTest.kt",
+          "sha256": "2113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837",
+          "class": "com.meshcoreone.android.parity.PersistenceContactClockAndBadgeOriginalPredicateTest",
+          "method_or_family_name": "originalExistingDiscoveredNodeRetainsRequiredContactNodeStampAndUnknownEeFalse",
+          "line": 67,
+          "end_line": 80,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6f20442ba60215ff12877eba4e068361e4e18a836da29cb72c18637c3b871e65",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 73,
+              "expression": "assertTrue(store.touchContactHeard(device.radioId, frame.publicKey, stamp))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 74,
+              "expression": "assertNotNull(store.fetchContact(device.radioId, frame.publicKey))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 75,
+              "expression": "assertEquals(1_800_000_000u, contact.lastHeardTimestamp)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 77,
+              "expression": "assertNotNull(nodes.firstOrNull { it.publicKey == frame.publicKey })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 78,
+              "expression": "assertEquals(stamp, node.lastHeard)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 79,
+              "expression": "assertFalse(store.touchContactHeard(device.radioId, Bytes(ByteArray(32) { 0xEE.toByte() }), stamp))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 68,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 69,
+              "expression": "frame(\"Heard\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 70,
+              "expression": "store.saveContact(device.radioId, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 71,
+              "expression": "store.upsertDiscoveredNode(device.radioId, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 72,
+              "expression": "Instant.ofEpochSecond(1_800_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.touchContactHeard",
+              "line": 73,
+              "expression": "store.touchContactHeard(device.radioId, frame.publicKey, stamp)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 74,
+              "expression": "store.fetchContact(device.radioId, frame.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 76,
+              "expression": "store.fetchDiscoveredNodes(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.touchContactHeard",
+              "line": 79,
+              "expression": "store.touchContactHeard(device.radioId, Bytes(ByteArray(32) { 0xEE.toByte() }), stamp)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 79,
+              "expression": "Bytes(ByteArray(32) { 0xEE.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 79,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 79,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::touchContactHeard bumps contact and existing discovered node()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -63775,6 +64116,131 @@
           ],
           "explicit_original_case_ids": [
             "PersistenceStoreTests::touchContactHeard bumps contact and existing discovered node()",
+            "PersistenceStoreTests::touchContactHeard creates a missing discovered node()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactClockAndBadgeOriginalPredicateTest.kt",
+          "sha256": "2113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837",
+          "class": "com.meshcoreone.android.parity.PersistenceContactClockAndBadgeOriginalPredicateTest",
+          "method_or_family_name": "originalMissingDiscoveredNodeRetainsInitialEmptyRequiredMatchAndAllSixFrameFields",
+          "line": 83,
+          "end_line": 98,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "17546353f5b8f1b70459a00729d17964a7a7534fa25e4eccb0a1ad7ff408c498",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 87,
+              "expression": "assertTrue(store.fetchDiscoveredNodes(device.radioId).isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 89,
+              "expression": "assertTrue(store.touchContactHeard(device.radioId, frame.publicKey, stamp))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 91,
+              "expression": "assertNotNull(nodes.firstOrNull { it.publicKey == frame.publicKey })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 92,
+              "expression": "assertEquals(frame.name, node.name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 93,
+              "expression": "assertEquals(frame.type.rawValue, node.typeRawValue)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 94,
+              "expression": "assertEquals(frame.lastAdvertTimestamp, node.lastAdvertTimestamp)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 95,
+              "expression": "assertEquals(frame.latitude, node.latitude)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 96,
+              "expression": "assertEquals(frame.longitude, node.longitude)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 97,
+              "expression": "assertEquals(stamp, node.lastHeard)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 84,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 85,
+              "expression": "frame(\"NoDiscoverRow\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 86,
+              "expression": "store.saveContact(device.radioId, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 87,
+              "expression": "store.fetchDiscoveredNodes(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 87,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 88,
+              "expression": "Instant.ofEpochSecond(1_800_000_500)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.touchContactHeard",
+              "line": 89,
+              "expression": "store.touchContactHeard(device.radioId, frame.publicKey, stamp)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 90,
+              "expression": "store.fetchDiscoveredNodes(device.radioId)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::touchContactHeard creates a missing discovered node()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -64605,6 +65071,107 @@
             "PersistenceStoreTests::Get total unread counts excludes repeater contacts()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactClockAndBadgeOriginalPredicateTest.kt",
+          "sha256": "2113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837",
+          "class": "com.meshcoreone.android.parity.PersistenceContactClockAndBadgeOriginalPredicateTest",
+          "method_or_family_name": "originalAliceTwoAndMutedBobOneRetainIndependentContactsAndExactlyTwoUnread",
+          "line": 101,
+          "end_line": 113,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "084c63348bf2c1c2973fee052fe7f817f794b0d658f64fb26ee50fe0342d9eb8",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 112,
+              "expression": "assertEquals(2L, store.getTotalUnreadCounts(device.radioId).contacts)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 102,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 103,
+              "expression": "store.saveContact(device.radioId, frame(\"Alice\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 103,
+              "expression": "frame(\"Alice\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 104,
+              "expression": "EntityKey(device.radioId, alice.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.incrementUnreadCount",
+              "line": 105,
+              "expression": "store.incrementUnreadCount(aliceKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.incrementUnreadCount",
+              "line": 106,
+              "expression": "store.incrementUnreadCount(aliceKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 107,
+              "expression": "store.saveContact(device.radioId, frame(\"Bob\", 0x56))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 107,
+              "expression": "frame(\"Bob\", 0x56)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 108,
+              "expression": "EntityKey(device.radioId, bob.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.incrementUnreadCount",
+              "line": 109,
+              "expression": "store.incrementUnreadCount(bobKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setContactMuted",
+              "line": 110,
+              "expression": "store.setContactMuted(bobKey, true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.getTotalUnreadCounts",
+              "line": 112,
+              "expression": "store.getTotalUnreadCounts(device.radioId)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Muted contacts excluded from badge count()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -65054,6 +65621,143 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::Get total unread counts()",
             "PersistenceStoreTests::Get total unread counts excludes repeater-role sessions()",
+            "PersistenceStoreTests::Notification levels affect badge count correctly()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactClockAndBadgeOriginalPredicateTest.kt",
+          "sha256": "2113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837",
+          "class": "com.meshcoreone.android.parity.PersistenceContactClockAndBadgeOriginalPredicateTest",
+          "method_or_family_name": "originalAllMutedMentionsOnlyStatesRetainFourIndependentChannelCountsAndMentionIncrement",
+          "line": 116,
+          "end_line": 129,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "abbb59dcaf88ea721f0f51eb207223ad8b78614a017b947a846cf1ee86ff1f67",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 122,
+              "expression": "assertEquals(2L, store.getTotalUnreadCounts(device.radioId).channels)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 124,
+              "expression": "assertEquals(0L, store.getTotalUnreadCounts(device.radioId).channels)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 126,
+              "expression": "assertEquals(0L, store.getTotalUnreadCounts(device.radioId).channels)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 128,
+              "expression": "assertEquals(1L, store.getTotalUnreadCounts(device.radioId).channels)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 117,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveChannel",
+              "line": 118,
+              "expression": "store.saveChannel(device.radioId, ChannelInfo(1u, \"Test\", Bytes(ByteArray(16) { 0x42 })))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelInfo",
+              "line": 118,
+              "expression": "ChannelInfo(1u, \"Test\", Bytes(ByteArray(16) { 0x42 }))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 118,
+              "expression": "Bytes(ByteArray(16) { 0x42 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 118,
+              "expression": "ByteArray(16)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 119,
+              "expression": "EntityKey(device.radioId, channel)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.incrementChannelUnreadCount",
+              "line": 120,
+              "expression": "store.incrementChannelUnreadCount(key)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.incrementChannelUnreadCount",
+              "line": 121,
+              "expression": "store.incrementChannelUnreadCount(key)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.getTotalUnreadCounts",
+              "line": 122,
+              "expression": "store.getTotalUnreadCounts(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setChannelNotificationLevel",
+              "line": 123,
+              "expression": "store.setChannelNotificationLevel(key, NotificationLevel.MUTED)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.getTotalUnreadCounts",
+              "line": 124,
+              "expression": "store.getTotalUnreadCounts(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setChannelNotificationLevel",
+              "line": 125,
+              "expression": "store.setChannelNotificationLevel(key, NotificationLevel.MENTIONS_ONLY)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.getTotalUnreadCounts",
+              "line": 126,
+              "expression": "store.getTotalUnreadCounts(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.incrementChannelUnreadMentionCount",
+              "line": 127,
+              "expression": "store.incrementChannelUnreadMentionCount(key)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.getTotalUnreadCounts",
+              "line": 128,
+              "expression": "store.getTotalUnreadCounts(device.radioId)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::Notification levels affect badge count correctly()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"

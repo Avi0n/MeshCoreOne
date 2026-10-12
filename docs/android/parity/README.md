@@ -1,5 +1,17 @@
 # WP-501 source, case-family and consumer acceptance
 
+Next prepared increment:1435/5133 proposals/183groups/83mandatory/0approved,
+91/135 persistence proposed/44remaining; six complete independent watermark/
+stable-save/existing-discovery/missing-discovery/muted-contact/channel-level
+originals registered (234helperrows/39inputs), native/source comparison pending.
+Every first/second read, required matching node/contact, all six restored node
+fields and unknownEE false retained; source ambient clocks/fixed-key/Room/engine/
+mounted/API37 limits disclosed. No old selector replay or original-credit inflation.
+Qualified unchanged Dedup3 SOURCE-ONLY5491670428 at0c9/baseab1 reconciled;
+all four Dedup families source-compared, not accepted/private0081 certification.
+Actual publishedf01b normalpush EXIT0/localfastUNVERIFIED: Python15/parity93/
+local21/preflightPASS, scaffold20s BLE transforms Expected3/found0/inspectunrun.
+
 Actual204 corrected original clean504d/base d958 one-method strict core-data
 1PASS/zero bad/XML13:43:31.251Z/native31a794ec/body1968ede1. Assigned8 plus
 required matching m.id row plus its sequence8 all execute; no unchanged15 replay/
