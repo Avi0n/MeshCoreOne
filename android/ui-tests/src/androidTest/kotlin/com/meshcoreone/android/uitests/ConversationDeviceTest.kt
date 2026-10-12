@@ -31,6 +31,8 @@ class ConversationDeviceTest {
     @Test fun offlineAndByteOverflowAreCapabilityIndependent() = cases.offlineAndUtf8OverflowDoNotInvokeSend()
     @Test fun actualDeviceShowsDistinctTimelineLoadingEmptyAndFailure() =
         cases.loadingEmptyAndFailureRemainDistinctAndRetryIsAccessible()
+    @Test fun actualDeviceHardwareReturnUsesSendGuardsAndMultilineFallback() =
+        cases.hardwareReturnRespectsSendGuardsAndMultilineFallback()
     @Test fun actualDeviceLocalImageRecoveryAndPreviewSafety() =
         localContent().imageFailureRetryViewerAndPreviewSafety(output("content"))
     @Test fun actualDeviceOfflineLocalMapRecoveryAndCoordinateActions() =

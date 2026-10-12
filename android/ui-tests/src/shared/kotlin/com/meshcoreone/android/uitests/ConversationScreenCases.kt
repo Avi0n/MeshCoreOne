@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -38,6 +39,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -47,6 +49,7 @@ import com.meshcoreone.android.core.l10n.generated.AppChatsStrings as C
 import com.meshcoreone.android.core.l10n.generated.AppLocalizableStrings as L
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.feature.chats.composer.ComposerUiState
+import com.meshcoreone.android.feature.chats.composer.ComposerSendPhase
 import com.meshcoreone.android.feature.chats.composer.ui.ComposerBar
 import com.meshcoreone.android.feature.chats.composer.ui.ComposerBarActions
 import com.meshcoreone.android.feature.chats.composer.ui.ShareAvailability
@@ -91,6 +94,7 @@ class ConversationScreenCases(
     private val selected = mutableStateOf(ScreenCase("initial"))
     private val draft = mutableStateOf(TextFieldValue("Retained draft"))
     private val timelineOverride = mutableStateOf<ChatTimelineState?>(null)
+    private val composerOverride = mutableStateOf<ComposerUiState?>(null)
     private var effectiveScheme: ColorScheme? = null
     private var retries = 0
     private var sendRequests = 0
@@ -150,10 +154,10 @@ class ConversationScreenCases(
                                 Modifier.weight(1f),
                             )
                             ComposerBar(
-                                state = ComposerUiState(
-                                    draft = draft.value.text, maxBytes = 160,
+                                state = (composerOverride.value ?: ComposerUiState(
+                                    maxBytes = 160,
                                     isConnected = case.state != ConversationState.OFFLINE,
-                                ),
+                                )).copy(draft = draft.value.text),
                                 fieldValue = draft.value,
                                 placeholder = localized.getString(C.chatsInputAccessibilityLabel),
                                 share = ShareAvailability(location = false, myInfo = false),
@@ -273,18 +277,80 @@ class ConversationScreenCases(
 
     fun loadingEmptyAndFailureRemainDistinctAndRetryIsAccessible() {
         show(ScreenCase("timeline-states"))
-        compose.runOnIdle { timelineOverride.value = ChatTimelineState(isLoading = true) }
+        compose.runOnIdle { timelineOverride.value = ChatTimelineState(isLoading = true, hasMoreMessages = false) }
         compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertIsDisplayed()
         compose.onNodeWithText(resources().getString(C.chatsRowNoMessages)).assertDoesNotExist()
         compose.runOnIdle { timelineOverride.value = ChatTimelineState(hasLoadedOnce = true, hasMoreMessages = false) }
         compose.onNodeWithText(resources().getString(C.chatsRowNoMessages)).assertIsDisplayed()
         compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
-        compose.runOnIdle { timelineOverride.value = ChatTimelineState(loadError = IOException("Synthetic unavailable store")) }
+        compose.runOnIdle {
+            timelineOverride.value = ChatTimelineState(
+                loadError = IOException("Synthetic unavailable store"), hasMoreMessages = false,
+            )
+        }
+
         compose.onNodeWithText(resources().getString(C.chatsErrorLoadConversationsFailed)).assertIsDisplayed()
         compose.onNodeWithText(resources().getString(C.chatsRowNoMessages)).assertDoesNotExist()
         compose.onNodeWithText(resources().getString(L.commonTryAgain)).assertIsEnabled().performClick()
         assertEquals(1, loadRetries)
         compose.onNodeWithContentDescription(resources().getString(C.chatsInputSendMessage)).assertIsNotEnabled()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    fun hardwareReturnRespectsSendGuardsAndMultilineFallback() {
+            show(ScreenCase("hardware-return", fontScale = 2f))
+            val enabled = ComposerUiState(draft = originalText, maxBytes = 160, isConnected = true)
+            val disabled = listOf(
+                "disconnected" to enabled.copy(isConnected = false),
+                "overflow" to enabled.copy(draft = "\u4e2d".repeat(54)),
+                "blank" to enabled.copy(draft = " \t"),
+                "cooldown" to enabled.copy(isCoolingDown = true),
+                "sending" to enabled.copy(sendPhase = ComposerSendPhase.Sending),
+            )
+            val differences = mutableListOf<String>()
+            var exercised = 0
+
+            fun check(label: String, state: ComposerUiState, key: Key, shift: Boolean, canSend: Boolean) {
+                compose.runOnIdle {
+                    composerOverride.value = state
+                    draft.value = TextFieldValue(state.draft, TextRange(state.draft.length))
+                }
+                val field = compose.onNode(hasSetTextAction())
+                field.performClick().performTextReplacement(state.draft).assertIsFocused()
+                val button = compose.onNodeWithContentDescription(resources().getString(
+                    if (label == "overflow") C.chatsInputTooLong else C.chatsInputSendMessage,
+                ))
+                if (canSend) button.assertIsEnabled() else button.assertIsNotEnabled()
+                val before = compose.runOnIdle { sendRequests }
+                field.performKeyInput {
+                    if (shift) keyDown(Key.ShiftLeft)
+                    pressKey(key)
+                    if (shift) keyUp(Key.ShiftLeft)
+                }
+                val (calls, text) = compose.runOnIdle { (sendRequests - before) to draft.value.text }
+                val expectedCalls = if (canSend && !shift) 1 else 0
+                val expectedText = state.draft + if (expectedCalls == 0) "\n" else ""
+                val case = "$label/${if (key == Key.Enter) "Enter" else "NumPadEnter"}/shift=$shift"
+                if (calls != expectedCalls) differences += "$case: send callbacks expected=$expectedCalls actual=$calls"
+                if (text != expectedText) differences += "$case: normal multiline fallback/draft was not preserved"
+                exercised++
+                println("WP502_HARDWARE|$case|sendCallbacks=$calls|normalText=${text == expectedText}")
+            }
+
+            try {
+                for (key in listOf(Key.Enter, Key.NumPadEnter)) {
+                    for ((label, state) in disabled) {
+                        check(label, state, key, shift = false, canSend = false)
+                        check(label, state, key, shift = true, canSend = false)
+                    }
+                    check("enabled", enabled, key, shift = false, canSend = true)
+                    check("enabled", enabled, key, shift = true, canSend = true)
+                }
+                assertEquals("Every hardware guard/key/modifier family must execute", 24, exercised)
+                assertTrue(differences.joinToString("\n"), differences.isEmpty())
+            } finally {
+                compose.runOnIdle { composerOverride.value = null }
+            }
     }
 
     fun capture(case: ScreenCase, directory: File) {
@@ -293,6 +359,7 @@ class ConversationScreenCases(
     }
 
     fun captureMountedScreen(id: String, directory: File, tag: String = "wp502-screen") {
+        compose.mainClock.advanceTimeBy(1_000)
         val first = pixels(tag)
         val second = pixels(tag)
         assertEquals(first.width, second.width)
@@ -325,10 +392,14 @@ class ConversationScreenCases(
             compose.runOnUiThread {
                 val decor = activity.window.decorView
                 assertTrue(rect.left >= 0 && rect.top >= 0 && rect.right <= decor.width && rect.bottom <= decor.height)
-                PixelCopy.request(activity.window, rect, bitmap, {
-                    result = it
-                    completed.countDown()
-                }, Handler(Looper.getMainLooper()))
+                assertTrue("Device screenshots require the native hardware window", decor.isHardwareAccelerated)
+                decor.viewTreeObserver.registerFrameCommitCallback {
+                    PixelCopy.request(activity.window, rect, bitmap, {
+                        result = it
+                        completed.countDown()
+                    }, Handler(Looper.getMainLooper()))
+                }
+                decor.invalidate()
             }
             assertTrue("Native window capture timed out", completed.await(10, TimeUnit.SECONDS))
             assertEquals("Native window capture failed", PixelCopy.SUCCESS, result)

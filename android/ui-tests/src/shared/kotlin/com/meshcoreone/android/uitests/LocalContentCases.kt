@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -52,14 +55,17 @@ class LocalContentCases(
 ) {
     private val capture = ConversationScreenCases(compose, activity, setContent, device)
 
+    @OptIn(ExperimentalMaterial3Api::class)
     private fun mount(content: @Composable () -> Unit) {
         setContent {
-            MeshCoreTheme(motionScale = 0f) {
+            CompositionLocalProvider(LocalRippleConfiguration provides null) {
+              MeshCoreTheme(motionScale = 0f) {
                 Surface(if (device) Modifier.windowInsetsPadding(WindowInsets.systemBars) else Modifier) {
                     Column(Modifier.width(320.dp).height(600.dp).testTag("wp502-local-content")) {
                         Text("Self-authored local fixture: \u4e2d\u6587 \u05e9\u05dc\u05d5\u05dd")
                         content()
                     }
+                  }
                 }
             }
         }
@@ -110,6 +116,7 @@ class LocalContentCases(
             assertEquals(listOf(url), opened)
         } finally {
             setContent {}
+            compose.waitForIdle()
             bitmap.recycle()
         }
     }
@@ -146,6 +153,7 @@ class LocalContentCases(
             capture.captureMountedScreen("local-offline-schematic-map", directory, "wp502-local-content")
         } finally {
             setContent {}
+            compose.waitForIdle()
             previews.close()
             scope.cancel()
             bitmap.recycle()
