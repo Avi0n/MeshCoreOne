@@ -36,8 +36,9 @@ message row deletion mid-send, original contactABx32/TestContact, timeout10,
 SelfInfo01x32/Test and literal MESSAGE_SENT flags0/ABCDEF12/5000. Existing
 services source-ID registration is retained and repaired but not double-credited.
 Shared fixture defaults remain unchanged for every existing caller.
-Current covering execution/positive identities, shared harness/Room regressions
-and independent/current-hosted review remain required. Additional35send bodies
+Current covering execution/positive identities and shared harness/Room regressions
+passed at cleanb371 as recorded below; independent/current-hosted review and
+persistent accepted merge remain required. Additional35send bodies
 read exposed unresolved literal/helper/registered-name reductions; they are
 not yet credited or called equivalent.
 
@@ -73,7 +74,46 @@ reopen, radio/message/pending/sort-date assertions and test identity.
 No fake/in-memory replacement or weakened reopen assertion.
 Declared combined Python command in this receipt passed363/363 at exactfd8f,
 zero failures/errors/skips; this does not prove later native fixture bytes.
-Fresh clean-head native execution remains required.
+The later repaired clean-head native execution is separately recorded below.
+
+### Actual adopted-base listener/bookkeeping execution
+
+Clean `b37110635dc94831cd371ebdc2cd0d1cb88d5220` / base440d executed:
+
+`:core:services:test --tests com.meshcoreone.android.core.services.messaging.* :core:data:testDebugUnitTest --tests com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest --tests com.meshcoreone.android.core.data.messaging.MessagingRoomIntegrationTest :app:testDebugUnitTest --tests com.meshcoreone.android.parity.MessageKeyAcceptanceTest --tests com.meshcoreone.android.app.platform.InlineContentCancellationTest --dependency-verification=strict --quiet`
+
+Actual210/210all messaging consumers/all32required identities;
+44/44real Room (pending15+integration29/all44required identities);
+5/5App (original aggregate1+all4merged179fixture IDs), zero failures/errors/skips.
+This covers44proposed original families, not259new originals. Current35send
+registrations are passing regressions, not faithful original-family credit.
+The external operational wrapper also actually invoked its default
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.session.OriginalContactsAndSettingsCasesTest --tests com.meshcoreone.android.core.protocol.session.OriginalMessageCasesTest --tests com.meshcoreone.android.core.protocol.transport.WiFiTransportTest --dependency-verification=strict --quiet`:
+37/37/all25required identities/0failure/error/skip. This extra invocation
+was not requested new coverage; its targeted-mode fallthrough is corrected
+for future runs, with no repeat execution, new original credit or4711claim.
+First b371attempt refused the actual producer182hardlock before execution;
+unchanged retry started only after supported empty records. Both native/Gradle
+locks released normally and the requested one-invocation182handoff was posted.
+
+Exact same cleanb371 declared combined controller/local/parity command:
+`python tools\android-port\controller\test_runner.py --include-tests tools\android-port\local --include-tests android\parity-tests --quiet`
+363discovered/run/passed, zero failure/error/skip. Final fixture/Room failures
+were repaired rather than masked; the full-services CRLF failure remains failed.
+Local readiness passed; API31Robolectric/native SQLite, not physical device/iOS.
+Build prerequisite converters/notices passed their stated exact scopes only.
+
+Executed Git blobs: SourceSend`200861a54b11ce7cb3d39bfc0033846c62772fd5`;
+shared MessagingTestSupport`2318c45322230b33136a9b31ce5fe302654d3382`;
+Room integration`0f6c81d0cae17cd1889b9dff37a260406f4c2698`;
+pending persistence`5d3136dc5c71d9bffbb342d21b40ebb8931a5163`;
+adopted179fixture`79a06e2cd2b144176aff227444bbed592af3da8f`.
+440d is an actual ancestor; inherited179bytes were neither worker-edited nor
+replaced with prior204execution. Later evidence-only publication does not
+constitute another native execution or authoritative hosted result.
+Confirmed producer-owned182incoming-repeat and181durable mounted retry
+remain outside worker product edits. Independent/current-hosted/persistent
+acceptance and full887/5133audit remain unfinished/0approved.
 
 ## Next original pending-send persistence increment
 

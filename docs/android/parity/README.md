@@ -10,8 +10,17 @@ admits the disjoint listener/harness/real-Room support paths. Two complete
 listener originals now retain actual one-byte i%256 noise, literal restart
 11223344 and real subscriber1/0/1 via the production dispatcher. Original
 bookkeeping now also has an exact selected-row deletion/ABCDEF12/5000/timeout10
-consumer through real in-memory Room, not fake map clearing. Current covering
-execution remains required; neither three originals nor helpers add extra credit.
+consumer through real in-memory Room, not fake map clearing. Clean exact
+b37110635dc94831cd371ebdc2cd0d1cb88d5220/base440d covering execution passed
+210all shared messaging consumers/all32required identities,44realRoom
+(pending15+all29integrationmethods) and5App (aggregate1+all4adopted179cases),
+zero failures/errors/skips; declared combinedPython363/363/readinessPASS.
+An additional default protocol-wrapper invocation actually passed37/all25IDs,
+not new original credit; targeted fallthrough is corrected without a rerun.
+FullWindows2640had2unchanged CRLF failures and stays failed, not substituted
+by subset success. Exact commands/blobs/failure history are in WP501receipt.
+Independent/current-hosted/persistent merge and producer-owned181/182remain
+required; neither three originals nor helpers/regressions add extra credit.
 
 The preceding increment proposed 884/5133 original families in 132 groups,
 67 mandatory App methods and zero approved behavioral acceptances. The next
