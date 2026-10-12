@@ -2,12 +2,21 @@
 
 Next ten complete pending-maintenance/cascade originals registered:
 1445/5133 proposals/184groups/83mandatory/0approved;101/135 PersistenceStore/
-34remaining,73 qualified source-compared/new12+6+10 pending. Ten bodies/joins/
+34remaining,85 qualified source-compared/new6+10 pending. Ten bodies/joins/
 290helperrows/29inputs, all original nil/zero/positive attempts/independent
 returns/identity membership/parent-preservation/survivor counts retained.
 Same reservation40; only ten-new selector prepared, no old native replay.
 Native execution/source comparison pending, real-store committed predicates
 not fault-injection/queue/mounted/API37/hardware certification.
+
+Initial clean1d4 ten-only compile failed at nonexistent fetchAllMessages,
+zero native discovery/credit. Only all-radio empty read corrected to actual
+production Room full-radio backupPageWithoutPreviewBlobs SELECT, not narrower
+channel read/product edit; parent preservation uses exact device.id UUID
+lookup, not native RadioId overload. Fresh corrected ten-only execution pending.
+Qualified actualbc7 SOURCE-ONLY5492147839 twelve unchanged originals/324rows/
+27inputs reconciled:85/135 source-compared/50remaining, not proposed101/135/
+34unprovided or full acceptance/private4c16 certification/unchanged replay.
 
 Actual clean3728/base d958 six-only6PASS/zero bad/all6 identities,
 XML14:02:56.632Z/native35ae246e/SHA2113eda9, real required-contact/node/

@@ -136,7 +136,7 @@ class PersistencePendingMaintenanceOriginalPredicateTest : RoomProcessTest() {
         store.deleteMessage(EntityKey(device.radioId, messageID))
         val remainingPending = store.fetchPendingSends(device.radioId)
         assertTrue(remainingPending.isEmpty())
-        val remainingMessages = store.fetchAllMessages(device.radioId)
+        val remainingMessages = db.messages().backupPageWithoutPreviewBlobs(device.radioId.value, Long.MAX_VALUE, 0)
         assertTrue(remainingMessages.isEmpty())
     }
 
@@ -165,7 +165,7 @@ class PersistencePendingMaintenanceOriginalPredicateTest : RoomProcessTest() {
 
         store.deleteDeviceData(device.id)
         assertTrue(store.fetchPendingSends(device.radioId).isEmpty())
-        assertNotNull(store.fetchDevice(device.radioId))
+        assertNotNull(store.fetchDevice(device.id))
     }
 
     @OriginalCase("PersistenceStoreTests::deleteMessagesForContact cascades PendingSends and spares unrelated contacts()")
