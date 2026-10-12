@@ -12,6 +12,46 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Qualified seven-case review and separate CLI repair source comparison
+
+Actual SOURCE-ONLY COMMENTED
+[5490136033](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5490136033)
+at46a50ef5e64e955762a53a51774cc12270f48f1d/basee0b6/11:33:01Z fully
+read/reconciled. Actual whole proposal
+`91437a5700139e1bcd83c9380a75610bfb39f1364510732a5e8c4bb9bbd50bd7`
+verified; selected seven group/rows/helpers unchanged514->46a,
+133helperrows/19unique input bytes independently guarded. Since33bf only
+the admitted harness bytes changed, preserving SYSTEM/RoomProcessTest
+behavior and binding current input. Native seven8548d1cf/direct PENDING
+fixtures unchanged; no SENT edit/replay. Historical730ac/base1857PASS
+and every fixed-key/randomness/clock/default/engine/race/rollback/other-
+ghost/mute/mounted/device qualification remain, no private certification/
+APPROVED/full135 verdict. Only seven comparison digests update with this
+additive consumer qualification; execution bytes/1407count unchanged.
+
+Separate bounded exact published199/1f56a12ccc81efcb2b108b7381edcb9a4219d3af/
+basee0b6 SOURCE-ONLY
+[6123440454](https://github.com/cbattlegear/MeshCoreOne-Android/pull/199#issuecomment-6123440454)
+reads complete185-added/5-removed five-file delta/full files, frozen
+engine/Tools+Node terminal/86 originals, complete native87/86joins,
+all9 supplementary methods, actual Tools+Node+controller/mount/callback
+consumers and unchanged retained oracle. Five exact blobs:
+838f6052a4d8196c84c679955683ec7b014fe5f0/
+228741addb4b2fc13cc682843309a24aaad9e520/
+5200c07bc3a99c40488cef51fcab9edfafa57068/
+be8175d77eba394361ac45cd58aff3067d80e515/
+2458e870c70e1edd0ae8ee9e1762cd3ee3434553.
+No new selected-source blocker; NFC comparison/case-sensitive distinct
+keep raw learned arrays/input and first verbatim custom representative.
+Source Set representation/order and SDK-wide Character equivalence
+remain qualified. Initial guard wrongly probed worker-only four from
+owning199; failed closed, then actual delta/worker boundary checked.
+Worker fourdfa34783 unchanged at46a/514 and absent in owning main base/
+head; no candidate execution attribution. Coordinator reports164 native
+cases, not worker-private certification or a substitute for these four.
+Genuine merge/adoption/changed-four receipt pending; retain55b0/base185
+negatives, no original87/unrelated replay or APPROVED/global acceptance.
+
 ## Adopted reaction repair and explicit fixture-clock inputs
 
 Actual reviewed PR198 merge `e0b6a36e96ee54de9aaf7a554a192249358a6831`
