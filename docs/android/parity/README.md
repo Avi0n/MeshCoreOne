@@ -12,7 +12,11 @@ independent assertion is bound alongside complete helpers and actual incoming
 consumers. Native supplements/184 codebook entries do not add original credit.
 Source self-roundtrips/manual-hash comparisons are not independent new goldens;
 selected graphemes do not certify all Swift/JDK Unicode segmentation.
-Pure-parser execution/independent/persistent acceptance remain pending.
+Actual cleane2fa/basee508 strict Windows pure-parser selection97/97PASS/
+zeroerror-skip/all95 distinct original identities: Pocket46/MeshCoreOpen51,
+two Pocket supplements without original credit. No other native selector
+executed; isolated-mode guard prevents the previous incumbent protocol tail.
+Parity92/checksPASS; independent/persistent full acceptance remains pending.
 Actual App192 remains blocked by six unchanged mounted failures, not hidden
 by pure-parser comparisons, removed scope or unexecuted hardware claims.
 Incoming reaction bridge defect192 is separately routed WP303/necessaryWP216:

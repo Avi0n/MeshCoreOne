@@ -26,8 +26,20 @@ selected indices/count184 remain their actual families, not184 new cases.
 Source self-roundtrip/manual-hash expectations are not independent new
 packet goldens. Native supplements and known Unicode segmentation limits
 remain disclosed without extra original credit or universal Swift/Dart proof.
-Current selected parser execution and independent/persistent acceptance
-remain pending; actual mounted192 six failures stay blocking.
+Actual clean `e2fa3adc18047fe17ed48362cfa6724fffbbec2d` /basee508 Windows
+`:core:services:test --tests com.meshcoreone.android.core.services.reactions.ReactionParserTest --tests com.meshcoreone.android.core.services.reactions.MeshCoreOpenReactionParserTest --dependency-verification=strict --quiet`
+discovered97/97PASS/zeroFAIL-error-skip with all95 unique original identities
+independently checked in actual XML. Pocket46 contains44 originals plus two
+distinct supplemental roundtrip/known doubled-ZWJ methods; MeshCoreOpen51
+contains51 originals. Blobda310abdfd980bc6445214382927adfa9f2227f1/
+236efcdcbe84ab98783f023b1afd9994305a4b23 binds actual executed tests.
+Existing allowlisted launcher readiness passes JDK21.0.12.1/SDK37.2/tools37/
+explicit private state; supported locks release normally. No extra incumbent
+protocol/App/RF/pacing/incoming native selection or unchanged replay.
+Actual `python -m unittest discover -s android/parity-tests -p 'test_*.py' -q`
+passes92; audit/semantic --check and git diff --check PASS. Evidence-only
+follow-up preserves native/expected/helper bytes; full independent/persistent
+acceptance remains pending and actual mounted192 six failures stay blocking.
 
 Actual reviewed PR191 mergee508 is independently verified/adopted:
 parentsedc+f61, candidate-equal tree07ec0ba3c216d06f7f1bd4b5c26dbc31ff6ccf65,
