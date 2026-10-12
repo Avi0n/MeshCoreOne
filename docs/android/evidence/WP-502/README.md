@@ -19,7 +19,7 @@ Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-The existing typed reservation was evolved to revision 9, not replaced.
+The existing typed reservation was evolved to revision 10, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -82,7 +82,57 @@ At `f1c2a8fb7`, shortcut discovery was seven/five passed/two failed; at
 `cbf9adaaf`, eight/seven passed/one failed. These are not relabeled as passes.
 The fixes wait for a real held contact query and use a genuinely distinct
 connection target for different-radio confirmation. Matching current-device
-execution and exact hosted checks are separate prerequisites.
+execution and exact hosted checks are separate prerequisites. Actual main
+`cd436cb63c3b651241058d16db2fa576cbc6d412` is subsequently integrated at
+`bad5aca388b98ac76ed482027b36150425fcfa60`, preserving the landed shared composer
+and byte-identical App failure adapter. The same 30 selected cases pass there
+(1m20s); exact hosted results remain authoritative, not this local observation.
+
+### Matching native device observations at `bad5aca38`
+
+The declared `:app:assembleDebug :app:assembleDebugAndroidTest` produced matching
+target/test APKs. Target SHA256:
+`7c049d30463bf7e653fdd1f188efb4eb13bc426cd2cf26a2ed31c9049aa457fb`;
+test SHA256:
+`be1c975557ad77d7d2099a73d01905d3d7156a558e6806803a6f214be97db52d`.
+These identify actual device-installed bytes, not another reproducible CI bundle.
+
+Scoped `adb -s emulator-5556 shell am instrument -w -e class` executed
+`ConversationDeviceTest,NativeCapabilityTest,NativePlatformTest,NavigationKeyboardBackTest`
+using their registered full package names and
+`com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Actual API31: **12 discovered/12 passed**, 119.52s, SDK31/4KiB pages,
+1080x2400/density420, AOSP/no GMS, observed OS font2/no default network.
+Actual API37: **12 discovered/12 passed**, 151.66s, full37.2/16KiB pages,
+1344x2992/density480, GMS present, observed OS font2/no default network.
+Each retained 58 theme/font/SYSTEM and two local-content PNGs. Paging, 24 actual
+mounted Return/NumPadEnter/Shift families and strict identical-draw local image/map
+assertions pass. These are current-window observations, not folding continuity,
+physical TalkBack/radio evidence or approved goldens.
+
+The same command selected only
+`com.meshcoreone.android.uitests.PlatformApiBoundaryDeviceTest` on actual isolated
+AOSP API33/34/36. Each **two discovered/two passed** (0.055s/0.341s/0.083s),
+with denied notification advisory behavior, pre37 LAN independence, connectedDevice
+registration/normal permission and the public CDM method boundary checked without
+removing a bond. All observed 4KiB pages/no GMS/no default network.
+
+Missing images were installed using the actually available Linux SDK CLI into an
+owned private SDK, using existing accepted SDK licenses without accepting new ones,
+telemetry disabled and no shared SDK update. Extraction moved from a stalled
+mounted Windows directory to ext4; the first fast-copy ENOMEM was repaired via
+bounded streaming/Windows transfer. A startup transport miss and API37 `svc data`
+exit20 occurred before test execution. A later API37 attempt timed out at450s
+with an unresponsive emulator and remains failed/unverified, not a pass.
+Only its verified owned QEMU child was stopped; completed owned staging was cleaned,
+then the unchanged assertions passed on matching APKs. Both normal successful AVD
+runs were shut down through scoped adb; the API31 font setting was restored.
+
+Non-reproducible native logs/PNGs are retained in this worker's session
+`files/api31-device-bad5`, `files/api37-device-bad5` and scoped
+`api*-instrumentation-bad5-private.txt` / `api33-boundary-bad5-private.txt`.
+Raw emulator logs are not committed. Earlier binaries and failures below retain
+their original identities. Full WP acceptance/review is not claimed.
 
 The installed supported lane is the Git-bundle/ext4 snapshot launcher:
 
