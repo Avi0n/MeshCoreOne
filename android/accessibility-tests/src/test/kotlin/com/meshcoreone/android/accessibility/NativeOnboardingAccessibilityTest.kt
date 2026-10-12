@@ -4,7 +4,6 @@ package com.meshcoreone.android.accessibility
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -12,6 +11,8 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
@@ -73,11 +74,13 @@ class NativeOnboardingAccessibilityTest : NativeAccessibilityHarness() {
         val title = compose.onNodeWithText(host.get().getString(O.permissionsTitle))
         title.assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         assertReadable(title)
-        val next = compose.onNodeWithText(host.get().getString(O.permissionsContinue))
+        val cardScroll = hasAnyAncestor(SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange))
+        val next = compose.onNode(hasText(host.get().getString(O.permissionsContinue)) and hasClickAction() and !cardScroll)
         assertReadable(next)
         next.performClick()
         assertEquals("Optional denial must not prevent continuing", 1, continued)
-        val request = compose.onNodeWithText(host.get().getString(O.permissionsRequest)).performScrollTo()
+        val request = compose.onNode(hasText(host.get().getString(O.permissionsRequest)) and hasClickAction() and cardScroll)
+            .performScrollTo()
         assertReadable(request)
         assertVisibleClickTargetsAtLeast48Dp()
         request.performClick()
@@ -108,6 +111,9 @@ class NativeOnboardingAccessibilityTest : NativeAccessibilityHarness() {
         title.assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         assertReadable(title)
         val address = compose.onNode(hasSetTextAction() and hasText(host.get().getString(O.wifiConnectionIpAddressPlaceholder)))
+        println("WP503_INITIAL_FOCUS|before=${address.fetchSemanticsNode().config}|window=${host.get().window.decorView.hasWindowFocus()}")
+        compose.runOnUiThread { host.windowFocusChanged(true) }
+        println("WP503_INITIAL_FOCUS|after=${address.fetchSemanticsNode().config}|window=${host.get().window.decorView.hasWindowFocus()}")
         address.assertIsFocused()
         address.performTextReplacement("radio.local")
         address.performImeAction()
