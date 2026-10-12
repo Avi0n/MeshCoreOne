@@ -8,6 +8,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.meshcoreone.android.app.state.MessageEvent
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
+import com.meshcoreone.android.core.contracts.domain.ConnectionTarget
 import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.contracts.domain.PersistenceStoreException
 import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceError
@@ -50,8 +51,11 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         }
     }
 
-    private suspend fun connected(test: TestScope, backing: RoomPersistenceStore = store): ContainerHarness {
-        val h = ContainerHarness(test, backing)
+    private suspend fun connected(
+        test: TestScope, backing: RoomPersistenceStore = store,
+        identity: (ConnectionTarget) -> Bytes = { key(7) },
+    ): ContainerHarness {
+        val h = ContainerHarness(test, backing, identity = identity)
         configure(h)
         h.manager.connect(h.target(target))
         h.eventually("shortcut services ready") { h.manager.connectionState == DeviceConnectionState.READY }
@@ -167,6 +171,27 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         } finally { h.container.close() }
     }
 
+    @Test fun confirmationRadioReplacementNeverQueuesOrCreatesTheOldRecipient() = runTest {
+        var identity = key(7)
+        val h = connected(this, identity = { identity })
+        try {
+            val recipient = recipients(h).first()
+            val result = flow(h) {
+                h.manager.disconnect(RuntimeDisconnectReason.USER_INITIATED)
+                identity = key(8)
+                h.manager.connect(h.target(target))
+                h.eventually("replacement radio ready") { h.manager.connectionState == DeviceConnectionState.READY }
+                true
+            }.execute(id(recipient), original)
+            assertNotEquals(recipient.radioId, h.appState.currentRadioId)
+            assertEquals(SendResult.NeedsForeground, result)
+            assertTrue(messages(store, recipient).isEmpty())
+            assertTrue(store.fetchPendingSends(recipient.radioId).isEmpty())
+            assertTrue(store.fetchPendingSends(assertNotNull(h.appState.currentRadioId)).isEmpty())
+            assertTrue(h.links.radios.all { firmware -> firmware.sent.none { it[0].toInt() in 2..3 } })
+        } finally { h.container.close() }
+    }
+
     @Test fun cancellationAfterPendingPublicationPropagatesButAcceptedQueueSurvivesGenerationReplacement() = runTest {
         val h = connected(this)
         val recipient = recipients(h).first()
@@ -194,7 +219,10 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
                     store.fetchPendingSendsForMessage(EntityKey(recipient.radioId, pendingID.await())).size == 1
                 }
             }
-            assertSame(cancellation, observed)
+            val actual = assertNotNull(observed)
+            // Coroutine stack-trace recovery may copy the exception, retaining the original as its cause.
+            assertTrue(actual === cancellation || actual.cause === cancellation)
+            assertEquals(cancellation.message, actual.message)
             assertTrue(assertNotNull(caller).isCancelled)
             val key = EntityKey(recipient.radioId, pendingID.await())
             assertNotEquals(MessageStatus.FAILED, assertNotNull(store.fetchMessage(key)).status)
@@ -233,6 +261,9 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         val connect = backgroundScope.launch { h.manager.connect(h.target(target)) }
         try {
             h.eventually("actual SYNCING queue route") { h.manager.connectionState == DeviceConnectionState.SYNCING }
+            h.eventually("registered held contact-list request") {
+                h.links.radios.single().sent.any { it[0].toInt() == 4 }
+            }
             assertEquals(SendResult.Queued, flow(h).execute(TargetIdentity.contactId(contact), original))
             assertEquals(DeviceConnectionState.SYNCING, h.manager.connectionState)
             assertEquals(1, store.fetchPendingSends(radio).size)
