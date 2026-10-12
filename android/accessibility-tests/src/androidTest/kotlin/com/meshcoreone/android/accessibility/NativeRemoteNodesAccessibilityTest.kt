@@ -1,4 +1,4 @@
-// AndroidOnly: WP-503 Public remote-node catalog/history/authentication flows with deterministic ports and actual native scroll, controls and cancellation.
+// AndroidOnly: WP-503 Public remote-node catalog/history/authentication/status flows with deterministic ports and actual native scroll, controls and cancellation.
 package com.meshcoreone.android.accessibility
 
 import androidx.compose.foundation.layout.Column
@@ -46,15 +46,23 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
+import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.generated.AppRemoteNodesStrings as L
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.NodeStatusSnapshotDTO
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.model.RemoteNodeSessionDTO
+import com.meshcoreone.android.core.model.RemoteNodeRole
+import com.meshcoreone.android.core.model.RoomPermissionLevel
 import com.meshcoreone.android.core.model.snapshot
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.ContactType
+import com.meshcoreone.android.core.protocol.event.ContactMessage
+import com.meshcoreone.android.core.protocol.event.NeighboursResponse
+import com.meshcoreone.android.core.protocol.event.OwnerInfoResponse
+import com.meshcoreone.android.core.protocol.event.StatusResponse
+import com.meshcoreone.android.core.protocol.event.TelemetryResponse
 import com.meshcoreone.android.feature.remotenodes.RemoteNodesEntry
 import com.meshcoreone.android.feature.remotenodes.common.RemoteNodesClock
 import com.meshcoreone.android.feature.remotenodes.dependencies.*
@@ -77,6 +85,53 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
     private val contact = ContactDTO(id = UUID(0, 102), radioId = radio,
         publicKey = Bytes(ByteArray(32) { 0x33 }), name = "\u4e2d\u6587 remote",
         typeRawValue = ContactType.REPEATER.rawValue, lastHeardTimestamp = null)
+
+    @Test fun guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200() {
+        val rig = Rig().apply { savedGuest = true; ready() }
+        mount(rig)
+        compose.onNodeWithTag("open-node:${contact.id}").performClick()
+        compose.onNodeWithTag("remote-management").assertIsDisplayed()
+        compose.onNodeWithText(activity.getString(L.remoteNodesPermissionGuest)).assertIsDisplayed()
+        assertFont200Unclipped(compose.onNodeWithText(activity.getString(L.remoteNodesStatusGuestMode)))
+        compose.onNodeWithTag("remote-tab:SETTINGS").assertDoesNotExist()
+        compose.onNodeWithTag("remote-tab:CLI").assertDoesNotExist()
+        val status = compose.onNode(hasText(activity.getString(L.remoteNodesStatusTitle)) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).performScrollTo()
+        status.performClick()
+        compose.waitUntil { rig.statusReads == 1 }
+        for (value in listOf("3.700V", "-90 dBm", "5.0 dB", "-110 dBm")) {
+            assertScrollableFont200Unclipped(compose.onNodeWithText(value, substring = true))
+        }
+        status.performScrollTo().performClick()
+        val telemetry = compose.onNode(hasText(activity.getString(L.remoteNodesStatusTelemetry)) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).performScrollTo()
+        telemetry.performClick()
+        compose.waitUntil { rig.telemetryReads == 1 }
+        assertScrollableFont200Unclipped(compose.onNodeWithText(activity.getString(L.remoteNodesStatusNoSensorData)))
+        assertScrollableFont200Unclipped(compose.onNodeWithText(activity.getString(L.remoteNodesStatusNoTelemetryData)))
+        compose.onNodeWithText(activity.getString(L.remoteNodesStatusViewOnMap)).assertDoesNotExist()
+        assertEquals(0, compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).fetchSemanticsNodes().size)
+        compose.runOnIdle { rig.telemetryFailure = true }
+        val reload = compose.onNodeWithTag("reload:${L.remoteNodesStatusTelemetry}")
+        reload.performScrollTo().performClick()
+        val error = compose.onNodeWithTag("remote-error").performScrollTo().assertIsDisplayed()
+        assertScrollableFont200Unclipped(error)
+        assertTrue(error.fetchSemanticsNode().config.contains(SemanticsProperties.LiveRegion))
+        assertEquals(2, rig.telemetryReads)
+        compose.runOnIdle { rig.telemetryFailure = false }
+        reload.performScrollTo().performClick()
+        compose.onNodeWithTag("remote-error").assertDoesNotExist()
+        assertEquals(3, rig.telemetryReads)
+        assertVisibleClickTargetsAtLeast48Dp()
+        compose.onNodeWithText(activity.getString(L.remoteNodesDone)).performClick()
+        compose.onNodeWithTag("remote-node-list").assertIsDisplayed()
+        compose.waitUntil { rig.statusTeardowns == 1 }
+        assertEquals(3, rig.handlerRegistrations)
+        assertEquals(1, rig.statusReads)
+        assertEquals(0, rig.passwordReads)
+        assertEquals(0, rig.loginAttempts)
+        println("WP503_REMOTE_GUEST_STATUS|statusReads=1|telemetryReads=3|registered=3|teardown=1|realRadio=false")
+    }
 
     @Test fun catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow() {
         val rig = Rig().apply { catalogFailure = true }
@@ -386,6 +441,12 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         var cancelledAuthentications = 0
         var authenticationFailure = false
         var pendingAuthentication = false
+        var savedGuest = false
+        var telemetryFailure = false
+        var statusReads = 0
+        var telemetryReads = 0
+        var handlerRegistrations = 0
+        var statusTeardowns = 0
         var expectedPassword = "cached-audit"
         var expectedRemember = true
         override val updates = MutableStateFlow(RemoteNodesConnection(radio, null, false))
@@ -394,7 +455,47 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         override suspend fun catalog(): RemoteNodesCatalog {
             catalogReads++
             if (catalogFailure) throw IOException("Deterministic catalog read failure")
-            return RemoteNodesCatalog(listOf(contact), emptyList(), emptyList())
+            return RemoteNodesCatalog(listOf(contact), emptyList(), if (savedGuest) listOf(guestSession) else emptyList())
+        }
+        private val guestSession = RemoteNodeSessionDTO(
+            id = UUID(0, 105), radioId = radio, publicKey = contact.publicKey, name = contact.displayName,
+            role = RemoteNodeRole.REPEATER, permissionLevel = RoomPermissionLevel.GUEST, isConnected = true,
+        )
+        private val statusPort = object : RepeaterAdminPort {
+            override suspend fun requestStatus(session: EntityKey, timeout: Duration?): StatusResponse {
+                assertEquals(EntityKey(radio, guestSession.id), session)
+                assertTrue(requireNotNull(timeout) > Duration.ZERO)
+                statusReads++
+                return StatusResponse(
+                    publicKeyPrefix = contact.publicKey.prefix(6), battery = 3700, txQueueLength = 0,
+                    noiseFloor = -110, lastRSSI = -90, packetsReceived = 22u, packetsSent = 11u,
+                    airtime = 60u, uptime = 3600u, sentFlood = 1u, sentDirect = 10u,
+                    receivedFlood = 2u, receivedDirect = 20u, fullEvents = 0, lastSNR = 5.0,
+                    directDuplicates = 1, floodDuplicates = 2, rxAirtime = 120u,
+                )
+            }
+            override suspend fun requestTelemetry(session: EntityKey, timeout: Duration?): TelemetryResponse {
+                assertEquals(EntityKey(radio, guestSession.id), session)
+                assertTrue(requireNotNull(timeout) > Duration.ZERO)
+                telemetryReads++
+                if (telemetryFailure) throw IOException("Deterministic guest telemetry read failure")
+                return TelemetryResponse(contact.publicKey.prefix(6), null, Bytes.EMPTY)
+            }
+            override fun setStatusHandler(handler: suspend (StatusResponse) -> Unit) { handlerRegistrations++ }
+            override fun setTelemetryHandler(handler: suspend (TelemetryResponse) -> Unit) { handlerRegistrations++ }
+            override fun setNeighboursHandler(handler: suspend (NeighboursResponse) -> Unit) { handlerRegistrations++ }
+            override fun clearStatusHandlers() { statusTeardowns++ }
+            override fun clearHandlers() = error("Status teardown must not clear the shared CLI handler")
+            override fun setCLIHandler(handler: suspend (ContactMessage, ContactDTO) -> Unit) =
+                error("Guest status must not register a CLI handler")
+            override suspend fun sendCommand(session: EntityKey, command: String, timeout: Duration): String =
+                error("Guest status must not issue device-changing commands")
+            override suspend fun sendRawCommand(session: EntityKey, command: String, timeout: Duration): String =
+                error("Guest status must not send raw CLI commands")
+            override suspend fun requestOwnerInfo(session: EntityKey, timeout: Duration?): OwnerInfoResponse =
+                error("No owner-information request made")
+            override suspend fun fetchAllNeighbors(session: EntityKey, timeout: Duration?): NeighboursResponse =
+                error("No neighbors request made")
         }
         private val store = object : RemoteNodeHistoryStore {
             override suspend fun fetchNodeStatusSnapshots(nodePublicKey: Bytes, since: Instant?) =
@@ -431,13 +532,18 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
             }
             override val faults = object : RemoteNodeFaultClassifier {
                 override fun isTimeout(error: Throwable): Boolean {
-                    assertTrue("Only the explicit injected authentication error is classified", error is IOException)
+                    assertTrue("Only the explicit injected I/O failures are classified", error is IOException)
                     return false
                 }
-                override fun isRemoteNoResponseYet(error: Throwable): Boolean = error("Unexpected service fault")
+                override fun isRemoteNoResponseYet(error: Throwable): Boolean {
+                    assertTrue("Only the explicit telemetry failure reaches status retry classification",
+                        savedGuest && telemetryFailure && error is IOException &&
+                            error.message == "Deterministic guest telemetry read failure")
+                    return false
+                }
                 override fun isBinarySessionTimeout(error: Throwable): Boolean = error("Unexpected service fault")
             }
-            override fun repeaterAdmin(): RepeaterAdminPort? = null
+            override fun repeaterAdmin(): RepeaterAdminPort? = if (savedGuest) statusPort else null
             override fun roomAdmin(): RoomAdminPort? = null
             override fun binaryTelemetry(): BinaryTelemetryPort? = null
             override fun nodeSnapshots(): NodeSnapshotPort? = null
