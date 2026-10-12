@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "943c49473e21277709121b807940e25d0aed1f46a170f92c4c9b50507ea34633",
+  "proposal_sha256": "6811d71ad9cc365dac5a2e19046c33bf407ca1d673d5fc4fc4b44b6c5cbf0b16",
   "families": [
     {
       "group": "backup-envelope",
@@ -56313,7 +56313,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -56532,7 +56532,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -56709,7 +56709,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -60089,7 +60089,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -60296,7 +60296,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -60521,7 +60521,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -60716,7 +60716,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -60935,7 +60935,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -61160,7 +61160,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -61421,7 +61421,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -62251,6 +62251,416 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "persistence-original-restored-device-cascade-predicates",
+      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::deleteDevice removes only device record, preserves all associated data()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "1166da7edd1c1bd5d8ecf64f83cd55510db951cf77cb62e0314c8c43d612ce1a",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 261,
+          "expression": "#expect(fetchedDevice == nil, \"Device record should be deleted\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+        "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf",
+        "class": "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "method_or_family_name": "registryDeletionRetainsTheCompleteOriginalSeedAndEightPreservationCounts",
+        "line": 133,
+        "end_line": 140,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "b4915d5885c834429c4f2e230a1c803d100235e278db07a61256fc7895a5de11",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 138,
+            "expression": "assertNull(store.fetchDevice(device.id))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertAllDataExists",
+            "line": 139,
+            "expression": "assertAllDataExists(device.radioId, seeded)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 134,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "seedAllEntityTypes",
+            "line": 135,
+            "expression": "seedAllEntityTypes(device.radioId)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteDevice",
+            "line": 136,
+            "expression": "store.deleteDevice(device.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 138,
+            "expression": "store.fetchDevice(device.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::deleteDevice removes only device record, preserves all associated data()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageRepeatDTO+Testing.swift",
+          "sha256": "39d4e099ef8e51fd4b9292e5e638a3ea306b5a26ec8601da6669bbd29ccf09d0"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/MessageRepeat.swift",
+          "sha256": "8f637e26fa0a91d85ad7998ddfe3526b6758ce6c2bc3d54c12c820dfd20d0196"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Reaction.swift",
+          "sha256": "8f86af928b584f8b8990d8739f8cc1b725bb3e6987d0630bdc15cb559a544341"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+          "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt",
+          "sha256": "072c9a9df0870907a942735f3b045ce0edcd16d4e395978eac1a70bc43650110"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageRepeatDTO.kt",
+          "sha256": "7b1faab679d694bef63f3136402383718e03f2878872a8f2bcbf7fe1f330674e"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DiagnosticDTOs.kt",
+          "sha256": "de6962f7827818465c4c56b880a8da31550499a6fb5fe60be835f6a3bcbdbdbe"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "registryDeletionRetainsTheCompleteOriginalSeedAndEightPreservationCounts"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-device-cascade-predicates",
+      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::deleteDeviceAndData does not trap when a message has heard repeats (cascade-vs-batch)()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2961f0c5385e7e2ef99911643432bb22eaf468debb8f1b49a931dd29e38eb993",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 329,
+          "expression": "#expect(try await store.fetchDevice(id: device.id) == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 330,
+          "expression": "#expect(try await store.fetchMessage(id: message.id) == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 331,
+          "expression": "#expect(try await store.fetchMessageRepeats(messageID: message.id).isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+        "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf",
+        "class": "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "method_or_family_name": "combinedRepeatDeletionUsesOnlyTheOriginalBroadcastAndTwoIndependentDefaultRepeats",
+        "line": 163,
+        "end_line": 173,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "7c0ed16e2a614175ee84605b9fd8cc14b0967d76219d9b95e27c80f22b8c6bcf",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 170,
+            "expression": "assertNull(store.fetchDevice(device.id))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 171,
+            "expression": "assertNull(store.fetchMessage(message))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 172,
+            "expression": "assertTrue(store.fetchMessageRepeats(message).isEmpty())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 164,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "message",
+            "line": 165,
+            "expression": "message(device.radioId, \"broadcast\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 166,
+            "expression": "repeat(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 167,
+            "expression": "repeat(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteDeviceAndData",
+            "line": 168,
+            "expression": "store.deleteDeviceAndData(device.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 170,
+            "expression": "store.fetchDevice(device.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessage",
+            "line": 171,
+            "expression": "store.fetchMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessageRepeats",
+            "line": 172,
+            "expression": "store.fetchMessageRepeats(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 172,
+            "expression": "isEmpty()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::deleteDeviceAndData does not trap when a message has heard repeats (cascade-vs-batch)()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageRepeatDTO+Testing.swift",
+          "sha256": "39d4e099ef8e51fd4b9292e5e638a3ea306b5a26ec8601da6669bbd29ccf09d0"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/MessageRepeat.swift",
+          "sha256": "8f637e26fa0a91d85ad7998ddfe3526b6758ce6c2bc3d54c12c820dfd20d0196"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Reaction.swift",
+          "sha256": "8f86af928b584f8b8990d8739f8cc1b725bb3e6987d0630bdc15cb559a544341"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+          "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt",
+          "sha256": "072c9a9df0870907a942735f3b045ce0edcd16d4e395978eac1a70bc43650110"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageRepeatDTO.kt",
+          "sha256": "7b1faab679d694bef63f3136402383718e03f2878872a8f2bcbf7fe1f330674e"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DiagnosticDTOs.kt",
+          "sha256": "de6962f7827818465c4c56b880a8da31550499a6fb5fe60be835f6a3bcbdbdbe"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "combinedRepeatDeletionUsesOnlyTheOriginalBroadcastAndTwoIndependentDefaultRepeats"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "persistence-original-restored-device-retry-predicates",
       "comparison_sha256": "ce454402760f369e14542c5633905d4c50039ea007de70b6b4af968e15d9df0a",
       "source_file_family_count": 135,
@@ -62427,6 +62837,187 @@
       "runner_identity": [
         "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
         "absentCombinedDeletionRetainsItsIndependentEmptyStoreAction"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-device-cascade-predicates",
+      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::deleteDeviceAndData removes device and all data atomically()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "ca22b11335fa411d14eedb00881741aae9d260a81422855723f3d214ba0d761c",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 299,
+          "expression": "#expect(fetchedDevice == nil, \"Device record should be deleted\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+        "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf",
+        "class": "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "method_or_family_name": "combinedDeletionRetainsTheCompleteOriginalSeedAndDevicePlusNineEmptyPredicates",
+        "line": 153,
+        "end_line": 160,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "f6b08dd23c658b09f456b1b048424c12f49848e65a1919912230850eadacb662",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 158,
+            "expression": "assertNull(store.fetchDevice(device.id))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertAllDataDeleted",
+            "line": 159,
+            "expression": "assertAllDataDeleted(device.radioId, seeded)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 154,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "seedAllEntityTypes",
+            "line": 155,
+            "expression": "seedAllEntityTypes(device.radioId)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteDeviceAndData",
+            "line": 156,
+            "expression": "store.deleteDeviceAndData(device.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 158,
+            "expression": "store.fetchDevice(device.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::deleteDeviceAndData removes device and all data atomically()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageRepeatDTO+Testing.swift",
+          "sha256": "39d4e099ef8e51fd4b9292e5e638a3ea306b5a26ec8601da6669bbd29ccf09d0"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/MessageRepeat.swift",
+          "sha256": "8f637e26fa0a91d85ad7998ddfe3526b6758ce6c2bc3d54c12c820dfd20d0196"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Reaction.swift",
+          "sha256": "8f86af928b584f8b8990d8739f8cc1b725bb3e6987d0630bdc15cb559a544341"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+          "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt",
+          "sha256": "072c9a9df0870907a942735f3b045ce0edcd16d4e395978eac1a70bc43650110"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageRepeatDTO.kt",
+          "sha256": "7b1faab679d694bef63f3136402383718e03f2878872a8f2bcbf7fe1f330674e"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DiagnosticDTOs.kt",
+          "sha256": "de6962f7827818465c4c56b880a8da31550499a6fb5fe60be835f6a3bcbdbdbe"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "combinedDeletionRetainsTheCompleteOriginalSeedAndDevicePlusNineEmptyPredicates"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
@@ -62611,8 +63202,418 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "persistence-original-restored-device-cascade-predicates",
+      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::deleteDeviceData reaps a message and its heard repeats while preserving the device()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "e8e68bd7a33cd6a2ed744af6d046ec6687376f7f3aef2240693d983bc012718c",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 354,
+          "expression": "#expect(try await store.fetchDevice(id: device.id) != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 355,
+          "expression": "#expect(try await store.fetchMessage(id: message.id) == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 356,
+          "expression": "#expect(try await store.fetchMessageRepeats(messageID: message.id).isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+        "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf",
+        "class": "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "method_or_family_name": "dataRepeatDeletionUsesOnlyTheOriginalBroadcastAndTwoIndependentDefaultRepeats",
+        "line": 176,
+        "end_line": 186,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "a169ff3c774a69970074766eb78acc1a5f3f94aa16bfdca86bfb0d3a36928365",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNotNull",
+            "line": 183,
+            "expression": "assertNotNull(store.fetchDevice(device.id))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 184,
+            "expression": "assertNull(store.fetchMessage(message))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 185,
+            "expression": "assertTrue(store.fetchMessageRepeats(message).isEmpty())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 177,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "message",
+            "line": 178,
+            "expression": "message(device.radioId, \"broadcast\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 179,
+            "expression": "repeat(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 180,
+            "expression": "repeat(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteDeviceData",
+            "line": 181,
+            "expression": "store.deleteDeviceData(device.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 183,
+            "expression": "store.fetchDevice(device.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessage",
+            "line": 184,
+            "expression": "store.fetchMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessageRepeats",
+            "line": 185,
+            "expression": "store.fetchMessageRepeats(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 185,
+            "expression": "isEmpty()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::deleteDeviceData reaps a message and its heard repeats while preserving the device()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageRepeatDTO+Testing.swift",
+          "sha256": "39d4e099ef8e51fd4b9292e5e638a3ea306b5a26ec8601da6669bbd29ccf09d0"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/MessageRepeat.swift",
+          "sha256": "8f637e26fa0a91d85ad7998ddfe3526b6758ce6c2bc3d54c12c820dfd20d0196"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Reaction.swift",
+          "sha256": "8f86af928b584f8b8990d8739f8cc1b725bb3e6987d0630bdc15cb559a544341"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+          "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt",
+          "sha256": "072c9a9df0870907a942735f3b045ce0edcd16d4e395978eac1a70bc43650110"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageRepeatDTO.kt",
+          "sha256": "7b1faab679d694bef63f3136402383718e03f2878872a8f2bcbf7fe1f330674e"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DiagnosticDTOs.kt",
+          "sha256": "de6962f7827818465c4c56b880a8da31550499a6fb5fe60be835f6a3bcbdbdbe"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "dataRepeatDeletionUsesOnlyTheOriginalBroadcastAndTwoIndependentDefaultRepeats"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-device-cascade-predicates",
+      "comparison_sha256": "4953b5051c14f225703a697817df49bcd2a1d6297bc203a21e145051f9feb30d",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::deleteDeviceData removes all associated data but not device record()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "cf99854271574c4f8dc32ec9524a50567d3415cad5aecfe8172dbe6b4e66ef93",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 280,
+          "expression": "#expect(fetchedDevice != nil, \"Device record should be preserved\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+        "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf",
+        "class": "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "method_or_family_name": "dataDeletionRetainsTheCompleteOriginalSeedAndDevicePlusNineEmptyPredicates",
+        "line": 143,
+        "end_line": 150,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "00ee2f6bad1383847c6e2e79af30f8ddaaed737ef9d32d65e68bdf09fc92b716",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNotNull",
+            "line": 148,
+            "expression": "assertNotNull(store.fetchDevice(device.id))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertAllDataDeleted",
+            "line": 149,
+            "expression": "assertAllDataDeleted(device.radioId, seeded)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 144,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "seedAllEntityTypes",
+            "line": 145,
+            "expression": "seedAllEntityTypes(device.radioId)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.deleteDeviceData",
+            "line": 146,
+            "expression": "store.deleteDeviceData(device.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 148,
+            "expression": "store.fetchDevice(device.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::deleteDeviceData removes all associated data but not device record()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageRepeatDTO+Testing.swift",
+          "sha256": "39d4e099ef8e51fd4b9292e5e638a3ea306b5a26ec8601da6669bbd29ccf09d0"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Message.swift",
+          "sha256": "6ef9808020995024a7847fe4e5bb5f07b72d4a85edfec5ea8be263931d51e399"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/MessageRepeat.swift",
+          "sha256": "8f637e26fa0a91d85ad7998ddfe3526b6758ce6c2bc3d54c12c820dfd20d0196"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Reaction.swift",
+          "sha256": "8f86af928b584f8b8990d8739f8cc1b725bb3e6987d0630bdc15cb559a544341"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+          "sha256": "0790e6968091b228cb96ec52fde7166c11bbc2c9e5584043cada03b9e0db46fe"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+          "sha256": "6138925172156fe24e36061bccf3c8ca6696dc7d22b0a1db591ceda8d97968cf"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt",
+          "sha256": "072c9a9df0870907a942735f3b045ce0edcd16d4e395978eac1a70bc43650110"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+          "sha256": "54b072c30df5949d69fe923726ec2f7c0eb66abe44859ba8cd5a3c46b601faeb"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+          "sha256": "bb237803f01e29c32ae9f164c2134654ff2910fdf2682abd8f4ff7ff1e5d482c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+          "sha256": "de07d698c723455bed628af95fd757676bf26d861dff2f438890002d358fde8d"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageRepeatDTO.kt",
+          "sha256": "7b1faab679d694bef63f3136402383718e03f2878872a8f2bcbf7fe1f330674e"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DiagnosticDTOs.kt",
+          "sha256": "de6962f7827818465c4c56b880a8da31550499a6fb5fe60be835f6a3bcbdbdbe"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+          "sha256": "63808a0036fb2d83543acbb61399dd426aac86f506890cf31bc4b1d7b318f4d9"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+          "sha256": "62d2c2241dea80e852b77f1b7cc9598305a36453962c06d70e57a81ee97b99dc"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+        "dataDeletionRetainsTheCompleteOriginalSeedAndDevicePlusNineEmptyPredicates"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -62909,7 +63910,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -63698,7 +64699,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,
@@ -63935,7 +64936,7 @@
     },
     {
       "group": "persistence-original-restored-rx-region-predicates",
-      "comparison_sha256": "c6636c4dc86c88173977bc594d0356542da09e6d76fcb059ab8cee726dbde0de",
+      "comparison_sha256": "89c6b3f4e1efdcc62b4895e277ad5dd681db5aacd72cdfcde7ad7ba13df3eb8f",
       "source_file_family_count": 135,
       "group_compared_family_count": 14,
       "partial_source_file": true,

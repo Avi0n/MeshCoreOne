@@ -1,5 +1,26 @@
 # WP-501 source, case-family and consumer acceptance
 
+Five standalone cascade originals are now proposed, bringing the inventory to
+1412/5133 comparisons/180 groups/81 mandatory consumers/zero approved:
+68/135 persistence proposed,67 remaining. Three preserve the complete original
+seed and parent plus eight preservation or nine deletion predicates; two use
+only the original broadcast and two independent default repeats
+(path31/length0/SNR8.5/RSSI-90/nil RX link). Original nil reaction links/raw
+emoji, room Author and RX sender12345 are retained. Fixed keys replace random
+keys explicitly; current dates and independent UUIDs remain. Real API31 Room
+transactions replace SwiftData, not engine crash/rollback/concurrency/device
+certification. Same reservation34->35 admits only the owned class/create.
+Five-name execution pending; no older selector replay or aggregate credit.
+
+Qualified RX14 SOURCE-ONLY COMMENTED5490272431 at46a50/basee0b6/
+11:46:18Z is read/reconciled additively:14 complete originals/counterparts/
+joins,266helperrows/19inputs and actual Room overlay/transaction/mapping/
+DAO/fromParsed/reprocess consumers. Reviewed proposal91437a57 and selected
+group/rows/helper bytes guarded. Fixed-key/current-clock/hash-input-not-oracle/
+separate typed-corruption/engine/cancellation/retention/mounted/API37 limits
+remain; oldf880/base9ed1 private14PASS is not current46a execution,
+certification/APPROVED/full135. No unchanged native replay.
+
 Qualified seven-case SOURCE-ONLY COMMENTED5490136033 at actual46a50/basee0b6/
 11:33:01Z is fully read/reconciled additively. Whole proposal91437a57,
 selected seven group/rows unchanged514->46a and133helperrows/19unique

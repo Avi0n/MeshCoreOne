@@ -5,6 +5,55 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "persistence-original-restored-device-cascade-predicates",
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+      "native_factory": null,
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.PersistenceCascadeOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "comparison": "Five complete selected source originals have independent actual Room counterparts. Three retain complete seedAllEntityTypes and original parent nil/non-null plus eight exact preservation counts or nine empty-delete predicates. Seed preserves TestContact/Hello!/OUTGOING/PENDING/current Unix/one repeat31/pathLength0/SNR8.5/RSSI-90/nil RX link; Private/index1/16bytes42; Reactor/thumbs-up/raw thumbs-up/AABBCCDD/nil contact+channel; TestRoom/ROOM_SERVER/geography/disconnected/GUEST/bookmark0; author01020304/Author/Room message/current Unix; Spammer; original RX raw15010203/payloadABCDEF/groupText/flood/0/bits5/path42/len1/SNR10.5/RSSI-65/channel1/TestChannel/success/sender12345/Hello mesh!; distinct Discovered frame. Two repeat-specific originals independently seed ONLY device/TestContact/broadcast/outgoing PENDING/current Unix/TWO independently constructed default repeats31/path0/SNR8.5/RSSI-90, not aggregate all-entity/pending rows or42/43 paths. Each retains parent preservation/deletion, missing message and empty repeats.",
+      "inputs": "Complete source device/frame/message/repeat/room/reaction/RX/default/count/action inputs retained. Fixed32-byte44 device/55 contact/56 discovered/66 room keys replace disclosed source random keys; UUIDs and separate current Date()/Unix reads retained. Reaction contactID/channelIndex remain nil, original raw emoji is not aggregate reaction text; room author and exact original RX payload/sender/decryption values restored. Native DTO/ParsedRx constructors create fixture INPUTS only, never expected packet/hash oracles. No original count credit from aggregate multi-annotation filenames.",
+      "adaptations": "Inherited actual API31 RoomProcessTest/nativeSQLite/production transaction store replaces isolated SwiftData. RadioId/EntityKey/Bytes/Instant/UInt retain selected partition/identity/binary/date semantics. Source all-data-exists helper asserts eight counts, NOT direct message/repeat presence; deleted helper asserts nine empties including repeats, NOT direct message absence. These exact helper limits are preserved, while two repeat-specific originals supply their own missing-row checks. Atomicity in the source title is postcondition evidence only, not injected rollback/cancellation/concurrent observer proof. No every-entity/PendingSend/trace/snapshot/unrelated partition/randomness/stable hash/clock/SwiftData/API37/device/mounted forget certification.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageRepeatDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Models/Message.swift",
+        "MC1Services/Sources/MC1Services/Models/MessageRepeat.swift",
+        "MC1Services/Sources/MC1Services/Models/Reaction.swift",
+        "MC1Services/Sources/MC1Services/Models/RoomMessage.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+        "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceCascadeOriginalPredicateTest.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/CascadeSourceTest.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RepositoryCascades.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageRepeatDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DiagnosticDTOs.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RoomDTOs.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt",
+        "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt"
+      ],
+      "consumer": "Complete selected original helper/default and actual source/native cascade/transaction/dependent-delete bodies read. Source wipes repeats before batch message deletion to avoid SwiftData relationship traps; native deletes real repeat/pending dependents before message rows in the same transaction. Source/native device-only removal preserves child radio partition; actual pairing forgetData versus factory reset chooses hard/data deletion, while failed pairing deletes only registry and ordinary removal ghosts. Selected store cases do not execute those mounted callbacks or demonstrate SwiftData crash behavior. Five-name native execution pending; all prior inputs/witnesses/receipts unchanged.",
+      "unresolved": [
+        "Five-name native execution and independent/full acceptance pending.68/135 persistence originals proposed/67remaining, not135 accepted. Canonical196 genuine merge/adoption/changed-four and exact-current hosted/full1412/5133 audit remain unresolved; no unchanged unrelated native replay."
+      ],
+      "methods": [
+        "deleteDevice removes only device record, preserves all associated data",
+        "deleteDeviceData removes all associated data but not device record",
+        "deleteDeviceAndData removes device and all data atomically",
+        "deleteDeviceAndData does not trap when a message has heard repeats (cascade-vs-batch)",
+        "deleteDeviceData reaps a message and its heard repeats while preserving the device"
+      ]
+    },
+    {
       "id": "persistence-original-restored-device-retry-predicates",
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
@@ -206,7 +255,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RxLogTypes.kt",
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogRegionReprocessor.kt"
       ],
-      "consumer": "Actual source/native diagnostic storage/projection/query/update and region reprocess consumer bodies read. Reprocess consumes transport-coded arrival order/retention, raw payloadTypeBits, nil versus singleton/ambiguous dual fields and original sender clock to correlate channel or first-prefix-byte direct messages; missing region matches, receivedAt/count/non-null codes and changed AB/Alice/Bob inputs cannot be replaced by aggregate labels. Production reprocess broadcasts touched message IDs after writes; these store-level original counterparts do not prove the mounted reprocess stream, cancellation, live interleavings or UI invalidation. Actual cleanf88094284ed7af63dc302b41f2eaa9536a2fcd9f /base9ed1 strict Windows :app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest --dependency-verification=strict --quiet discovers14/14PASS/zeroFAIL-error-skip/all14 distinct original identities at2026-10-12T09:41:08.296Z/native3ecbeecfc3921784ffc8fc9814a79b721fcb8c42. ReadinessPASS JDK21.0.12.1/SDK37.2/tools37/own private state; clean tracked inputs/zero notice normalizations and supported locks normally released. Only this new native class ran; no previous7/4/19/49/53/incumbent replay. All older receipts/witnesses remain unchanged. This predates any197 adoption and is not relabeled as an evidence-only successor execution.",
+      "consumer": "Actual source/native diagnostic storage/projection/query/update and region reprocess consumer bodies read. Reprocess consumes transport-coded arrival order/retention, raw payloadTypeBits, nil versus singleton/ambiguous dual fields and original sender clock to correlate channel or first-prefix-byte direct messages; missing region matches, receivedAt/count/non-null codes and changed AB/Alice/Bob inputs cannot be replaced by aggregate labels. Production reprocess broadcasts touched message IDs after writes; these store-level original counterparts do not prove the mounted reprocess stream, cancellation, live interleavings or UI invalidation. Actual cleanf88094284ed7af63dc302b41f2eaa9536a2fcd9f /base9ed1 strict Windows :app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest --dependency-verification=strict --quiet discovers14/14PASS/zeroFAIL-error-skip/all14 distinct original identities at2026-10-12T09:41:08.296Z/native3ecbeecfc3921784ffc8fc9814a79b721fcb8c42. ReadinessPASS JDK21.0.12.1/SDK37.2/tools37/own private state; clean tracked inputs/zero notice normalizations and supported locks normally released. Only this new native class ran; no previous7/4/19/49/53/incumbent replay. All older receipts/witnesses remain unchanged. This predates any197 adoption and is not relabeled as an evidence-only successor execution. Qualified independent SOURCE-ONLY COMMENTED5490272431 at actual46a50ef5e64e955762a53a51774cc12270f48f1d/basee0b6,2026-10-12T11:46:18Z,https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5490272431 fully read/reconciled additively:14 complete original/counterpart bodies/joins/266helperrows/19uniqueinputs and frozen model/projection/protocol/diagnostic-policy/actual Room overlay/transaction/entity/mapping/DAO/fromParsed/reprocess consumers compared, no selected-source blocker. Actual proposal91437a5700139e1bcd83c9380a75610bfb39f1364510732a5e8c4bb9bbd50bd7 and unchanged selected group/rows/helper bytes verified. Fixed-key/current-clock/hash-fixture-not-oracle/typed-corruption-separate/engine/rollback/concurrency/cancellation/retention/batching/deadline/mounted/API37/device limits retained. Current ContainerHarness binding preserves SYSTEM/RoomProcessTest behavior. Historicalf880/base9ed1 native14PASS remains old-input private execution, not current46a execution/certification/APPROVED/full135/fullWP501; no native replay.",
       "unresolved": [
         "Actual fourteen-name native execution is positive, not independent/full acceptance. Remaining114 of135 persistence originals require bounded comparisons/restored missing inputs/predicates; fixture/native-hash-input/SwiftData/clock-tie/cancellation/mounted consumer limits remain. Incoming192/canonical196 failures, exact-current hosted/persistent/full1365/5133 proposed-family audit remain unresolved."
       ],

@@ -12,6 +12,38 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Five restored cascade originals and additive RX14 source review
+
+Current proposals1412/5133/180groups/81mandatory/zero approved include five
+standalone source cases251-357 with complete seed/assertion helpers152-248,
+device/frame/repeat/room/RX defaults and actual transactional cascade/
+dependent-delete/pairing consumers.68/135 persistence proposed/67remaining.
+Three preserve parent nil/non-null plus all original eight preservation or
+nine deletion predicates; the two repeat cases seed only broadcast and two
+independently constructed default repeats, retaining message-nil/repeats-empty.
+Default repeat31/length0/SNR8.5/RSSI-90/nil RX link, nil reaction contact/
+channel/raw thumbs-up, room Author, full original RX12345 and separate
+current dates/UUIDs are retained. Fixed32-byte44/55/56/66 keys explicitly
+replace source randomness. Real API31 Room/nativeSQLite transactions replace
+SwiftData, not source-engine relationship-trap/rollback/concurrency or every-
+entity/PendingSend/trace/snapshot/device/mounted forget certification.
+Same-owner typed reservation34->35 admits only the owned class/create;
+immutable authorization/pins unchanged. Five-name native execution pending.
+All earlier native methods/helpers/receipts remain unchanged.
+
+Actual SOURCE-ONLY COMMENTED
+[5490272431](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5490272431)
+at46a50/basee0b6/2026-10-12T11:46:18Z fully read/reconciled additively.
+Reviewed proposal91437a5700139e1bcd83c9380a75610bfb39f1364510732a5e8c4bb9bbd50bd7
+and unchanged selected14group/rows/266helperrows/19input bytes guarded.
+Complete original/native/default/model/projection/protocol/diagnostic-policy/
+real Room overlay/transaction/mapping/DAO/fromParsed/reprocess consumers
+compared, no selected-source blocker. Fixed-key/current-clock/hash-fixture-
+not-oracle/separate typed-corruption/engine/rollback/concurrency/cancellation/
+retention/batching/deadline/mounted/API37/device limits retained. Historical
+f880/base9ed1 private14PASS remains old-input execution, not current46a
+certification/APPROVED/full135/fullWP501; no native replay.
+
 ## Qualified seven-case review and separate CLI repair source comparison
 
 Actual SOURCE-ONLY COMMENTED
