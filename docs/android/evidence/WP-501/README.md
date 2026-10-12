@@ -61,6 +61,20 @@ App fixture4/aggregate1; it does not retry/exclude-and-green full2640.
 The real-Room bookkeeping fixture uses the existing parent/contact seed
 before the actual send, retaining source AB contact rather than orphan rows.
 
+Exact fd8f8c42079b48f4e2cfa1791e7a4c79910402bd/440d targeted invocation
+passed all210 messaging consumers, then discovered44data/42pass/2fail,
+0errors/skips; App not executed. New bookkeeping's expected SendFailed
+escaped runTest through its reporting backgroundScope; send now belongs
+to the existing supervised connection scope and its exception is explicitly
+awaited/asserted. The unchanged cold-file regression failed at a measured
+278-character Windows SQLite path. Its same per-test-private database now
+uses cold.db:240characters/journal248, below260, preserving actual file
+reopen, radio/message/pending/sort-date assertions and test identity.
+No fake/in-memory replacement or weakened reopen assertion.
+Declared combined Python command in this receipt passed363/363 at exactfd8f,
+zero failures/errors/skips; this does not prove later native fixture bytes.
+Fresh clean-head native execution remains required.
+
 ## Next original pending-send persistence increment
 
 Fifteen complete frozen originals and actual helper/model/DAO/transaction

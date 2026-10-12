@@ -3428,7 +3428,7 @@
       "native_contracts": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
-          "sha256": "37d65c47f5b6b6ab5cb3db40ea7c8f08d1dbb7d064974500b68695386eb50673",
+          "sha256": "847f670a05de21eec4f89e83d1c2ea23a1c22db6d20ca6cc59cde2f1408fb222",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
@@ -3508,262 +3508,262 @@
             {
               "name": "coldStoreReopenRecoversTheSameRadioMessageAndPendingSendWithoutRewritingSortDate",
               "line": 180,
-              "end_line": 199
+              "end_line": 200
             },
             {
               "name": "actualHydrationDrainsOneRadioInFIFOOrderAndLeavesTheOtherPartitionUntouched",
-              "line": 201,
-              "end_line": 215
+              "line": 202,
+              "end_line": 216
             },
             {
               "name": "actualBackupConsumerBackfillsOnlyNilIncomingKeysAndUsesOutgoingUUIDIdentity",
-              "line": 217,
-              "end_line": 230
+              "line": 218,
+              "end_line": 231
             },
             {
               "name": "deliveredManualRetryRowDoesNotEmitAnotherPacketOrLoseItsPersistedStatus",
-              "line": 232,
-              "end_line": 243
+              "line": 233,
+              "end_line": 244
             },
             {
               "name": "twoRadioGenerationsDoNotCloseTheProcessStoreOrDuplicateMonitors",
-              "line": 245,
-              "end_line": 256
+              "line": 246,
+              "end_line": 257
             },
             {
               "name": "actualClosedRepositoryFailureCannotAdvanceAttemptCountOrSendOnTheWire",
-              "line": 258,
-              "end_line": 268
+              "line": 259,
+              "end_line": 269
             },
             {
               "name": "acceptedBlockedInsertFinishesBeforeShutdownAndSuccessorHydration",
-              "line": 270,
-              "end_line": 297
+              "line": 271,
+              "end_line": 298
             },
             {
               "name": "insertPendingSendAssigningSequence",
-              "line": 275,
-              "end_line": 278
+              "line": 276,
+              "end_line": 279
             },
             {
               "name": "acceptedInsertStorageFailureIsIncludedInShutdownInsteadOfBeingLostAfterItReturns",
-              "line": 299,
-              "end_line": 326
+              "line": 300,
+              "end_line": 327
             },
             {
               "name": "insertPendingSendAssigningSequence",
-              "line": 304,
-              "end_line": 307
+              "line": 305,
+              "end_line": 308
             },
             {
               "name": "realAckDuringBlockedRetryStatusPreventsAnotherWireAttempt",
-              "line": 328,
-              "end_line": 346
+              "line": 329,
+              "end_line": 347
             },
             {
               "name": "updateMessageRetryStatus",
-              "line": 333,
-              "end_line": 336
+              "line": 334,
+              "end_line": 337
             },
             {
               "name": "trueAckAndFinalReadFailureRecoverOneResendClaimWithoutRecountingANewClaim",
-              "line": 348,
-              "end_line": 375
+              "line": 349,
+              "end_line": 376
             },
             {
               "name": "incrementMessageSendCount",
-              "line": 353,
-              "end_line": 354
+              "line": 354,
+              "end_line": 355
             },
             {
               "name": "fetchMessage",
-              "line": 355,
-              "end_line": 361
+              "line": 356,
+              "end_line": 362
             },
             {
               "name": "persistedCallbackUsesRealRoomAndCanCloseWithoutJoiningItsOwnSend",
-              "line": 377,
-              "end_line": 392
+              "line": 378,
+              "end_line": 393
             },
             {
               "name": "unacknowledgedResendRetiredByFailAllDoesNotIncrementTheActualRoomCount",
-              "line": 394,
-              "end_line": 406
+              "line": 395,
+              "end_line": 407
             },
             {
               "name": "actualRoomExpiryCannotTurnMissingAckTrackingIntoAConfirmedResend",
-              "line": 408,
-              "end_line": 422
+              "line": 409,
+              "end_line": 423
             },
             {
               "name": "genuineRoomAckRetiresItsLookupBeforeAcceptanceAndCountsExactlyOneResend",
-              "line": 424,
-              "end_line": 439
+              "line": 425,
+              "end_line": 440
             },
             {
               "name": "manualPollingRoomConsumerCanCloseWithAnExplicitUnfinishedRecordReport",
-              "line": 441,
-              "end_line": 463
+              "line": 442,
+              "end_line": 464
             },
             {
               "name": "livePollingRoomConsumerCanAwaitItsOwnGenerationCloseWithoutLeakingHandlers",
-              "line": 465,
-              "end_line": 480
+              "line": 466,
+              "end_line": 481
             },
             {
               "name": "deletedAcceptedAckDoesNotPoisonActualRoomExpiryOrTheLiveMonitor",
-              "line": 482,
-              "end_line": 498
+              "line": 483,
+              "end_line": 499
             },
             {
               "name": "actualRoomExpiryIsolatesOneStorageFailureAndCanRecoverItsRetainedEntry",
-              "line": 500,
-              "end_line": 520
+              "line": 501,
+              "end_line": 521
             },
             {
               "name": "updateMessageStatusUnlessDelivered",
-              "line": 505,
-              "end_line": 508
+              "line": 506,
+              "end_line": 509
             },
             {
               "name": "realSessionPushAfterManualNoMoreIsDeliveredOnceIntoRoomWithLiveContext",
-              "line": 522,
-              "end_line": 538
+              "line": 523,
+              "end_line": 539
             },
             {
               "name": "disconnectedInlineSendCommitsFailedInRoomButSettledAcceptedSendStaysSent",
-              "line": 540,
-              "end_line": 553
+              "line": 541,
+              "end_line": 554
             },
             {
               "name": "disconnectedQueuedRetryKeepsItsActualRoomEnvelopeAndClearsTheRetryingStatus",
-              "line": 555,
-              "end_line": 568
+              "line": 556,
+              "end_line": 569
             },
             {
               "name": "malformedRoomEnvelopeDoesNotStopValidLaterHydrationOrLoseItsRepairableRow",
-              "line": 570,
-              "end_line": 585
+              "line": 571,
+              "end_line": 586
             },
             {
               "name": "preflightFaultRestoresActualFailedRoomRowToPendingWithoutAdvancingItsCounter",
-              "line": 587,
-              "end_line": 602
+              "line": 588,
+              "end_line": 603
             },
             {
               "name": "incrementPendingSendAttemptCount",
-              "line": 591,
-              "end_line": 591
+              "line": 592,
+              "end_line": 592
             },
             {
               "name": "missingCLIConsumerDoesNotBlockLaterRoomPersistenceAndItsRecordCanBeRetried",
-              "line": 604,
-              "end_line": 618
+              "line": 605,
+              "end_line": 619
             },
             {
               "name": "committedInlineRoomSaveAtDisconnectFailsBeforeTheWireAndPreservesTheProcessStore",
-              "line": 620,
-              "end_line": 640
+              "line": 621,
+              "end_line": 641
             },
             {
               "name": "saveMessage",
-              "line": 624,
-              "end_line": 626
+              "line": 625,
+              "end_line": 627
             },
             {
               "name": "acceptedRoomBookkeepingFinishesBeforeDisconnectTeardownWithoutInventingAnAck",
-              "line": 642,
-              "end_line": 662
+              "line": 643,
+              "end_line": 663
             },
             {
               "name": "updateMessageAck",
-              "line": 646,
-              "end_line": 649
+              "line": 647,
+              "end_line": 650
             },
             {
               "name": "sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted",
-              "line": 666,
-              "end_line": 688
+              "line": 667,
+              "end_line": 689
             },
             {
               "name": "saveIncomingContact",
-              "line": 690,
-              "end_line": 697
+              "line": 691,
+              "end_line": 698
             },
             {
               "name": "incomingContactPacket",
-              "line": 699,
-              "end_line": 701
+              "line": 700,
+              "end_line": 702
             },
             {
               "name": "set",
-              "line": 707,
-              "end_line": 710
+              "line": 708,
+              "end_line": 711
             },
             {
               "name": "subscribeTransitions",
-              "line": 711,
-              "end_line": 719
+              "line": 712,
+              "end_line": 720
             },
             {
               "name": "close",
-              "line": 717,
-              "end_line": 717
+              "line": 718,
+              "end_line": 718
             },
             {
               "name": "snapshot",
-              "line": 721,
-              "end_line": 725
+              "line": 722,
+              "end_line": 726
             },
             {
               "name": "sent",
-              "line": 740,
-              "end_line": 740
-            },
-            {
-              "name": "isConnected",
               "line": 741,
               "end_line": 741
             },
             {
-              "name": "connect",
+              "name": "isConnected",
               "line": 742,
               "end_line": 742
             },
             {
-              "name": "disconnect",
+              "name": "connect",
               "line": 743,
               "end_line": 743
             },
             {
-              "name": "receivedData",
+              "name": "disconnect",
               "line": 744,
               "end_line": 744
             },
             {
-              "name": "supportsWriteWithoutResponse",
+              "name": "receivedData",
               "line": 745,
               "end_line": 745
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "supportsWriteWithoutResponse",
               "line": 746,
               "end_line": 746
             },
             {
-              "name": "send",
+              "name": "supportsPipelinedReads",
               "line": 747,
-              "end_line": 775
+              "end_line": 747
+            },
+            {
+              "name": "send",
+              "line": 748,
+              "end_line": 776
             },
             {
               "name": "pushAck",
-              "line": 776,
-              "end_line": 778
+              "line": 777,
+              "end_line": 779
             },
             {
               "name": "pushPacket",
-              "line": 779,
-              "end_line": 779
+              "line": 780,
+              "end_line": 780
             }
           ]
         },
@@ -3814,7 +3814,7 @@
       "native_contracts": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
-          "sha256": "37d65c47f5b6b6ab5cb3db40ea7c8f08d1dbb7d064974500b68695386eb50673",
+          "sha256": "847f670a05de21eec4f89e83d1c2ea23a1c22db6d20ca6cc59cde2f1408fb222",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
@@ -3894,262 +3894,262 @@
             {
               "name": "coldStoreReopenRecoversTheSameRadioMessageAndPendingSendWithoutRewritingSortDate",
               "line": 180,
-              "end_line": 199
+              "end_line": 200
             },
             {
               "name": "actualHydrationDrainsOneRadioInFIFOOrderAndLeavesTheOtherPartitionUntouched",
-              "line": 201,
-              "end_line": 215
+              "line": 202,
+              "end_line": 216
             },
             {
               "name": "actualBackupConsumerBackfillsOnlyNilIncomingKeysAndUsesOutgoingUUIDIdentity",
-              "line": 217,
-              "end_line": 230
+              "line": 218,
+              "end_line": 231
             },
             {
               "name": "deliveredManualRetryRowDoesNotEmitAnotherPacketOrLoseItsPersistedStatus",
-              "line": 232,
-              "end_line": 243
+              "line": 233,
+              "end_line": 244
             },
             {
               "name": "twoRadioGenerationsDoNotCloseTheProcessStoreOrDuplicateMonitors",
-              "line": 245,
-              "end_line": 256
+              "line": 246,
+              "end_line": 257
             },
             {
               "name": "actualClosedRepositoryFailureCannotAdvanceAttemptCountOrSendOnTheWire",
-              "line": 258,
-              "end_line": 268
+              "line": 259,
+              "end_line": 269
             },
             {
               "name": "acceptedBlockedInsertFinishesBeforeShutdownAndSuccessorHydration",
-              "line": 270,
-              "end_line": 297
+              "line": 271,
+              "end_line": 298
             },
             {
               "name": "insertPendingSendAssigningSequence",
-              "line": 275,
-              "end_line": 278
+              "line": 276,
+              "end_line": 279
             },
             {
               "name": "acceptedInsertStorageFailureIsIncludedInShutdownInsteadOfBeingLostAfterItReturns",
-              "line": 299,
-              "end_line": 326
+              "line": 300,
+              "end_line": 327
             },
             {
               "name": "insertPendingSendAssigningSequence",
-              "line": 304,
-              "end_line": 307
+              "line": 305,
+              "end_line": 308
             },
             {
               "name": "realAckDuringBlockedRetryStatusPreventsAnotherWireAttempt",
-              "line": 328,
-              "end_line": 346
+              "line": 329,
+              "end_line": 347
             },
             {
               "name": "updateMessageRetryStatus",
-              "line": 333,
-              "end_line": 336
+              "line": 334,
+              "end_line": 337
             },
             {
               "name": "trueAckAndFinalReadFailureRecoverOneResendClaimWithoutRecountingANewClaim",
-              "line": 348,
-              "end_line": 375
+              "line": 349,
+              "end_line": 376
             },
             {
               "name": "incrementMessageSendCount",
-              "line": 353,
-              "end_line": 354
+              "line": 354,
+              "end_line": 355
             },
             {
               "name": "fetchMessage",
-              "line": 355,
-              "end_line": 361
+              "line": 356,
+              "end_line": 362
             },
             {
               "name": "persistedCallbackUsesRealRoomAndCanCloseWithoutJoiningItsOwnSend",
-              "line": 377,
-              "end_line": 392
+              "line": 378,
+              "end_line": 393
             },
             {
               "name": "unacknowledgedResendRetiredByFailAllDoesNotIncrementTheActualRoomCount",
-              "line": 394,
-              "end_line": 406
+              "line": 395,
+              "end_line": 407
             },
             {
               "name": "actualRoomExpiryCannotTurnMissingAckTrackingIntoAConfirmedResend",
-              "line": 408,
-              "end_line": 422
+              "line": 409,
+              "end_line": 423
             },
             {
               "name": "genuineRoomAckRetiresItsLookupBeforeAcceptanceAndCountsExactlyOneResend",
-              "line": 424,
-              "end_line": 439
+              "line": 425,
+              "end_line": 440
             },
             {
               "name": "manualPollingRoomConsumerCanCloseWithAnExplicitUnfinishedRecordReport",
-              "line": 441,
-              "end_line": 463
+              "line": 442,
+              "end_line": 464
             },
             {
               "name": "livePollingRoomConsumerCanAwaitItsOwnGenerationCloseWithoutLeakingHandlers",
-              "line": 465,
-              "end_line": 480
+              "line": 466,
+              "end_line": 481
             },
             {
               "name": "deletedAcceptedAckDoesNotPoisonActualRoomExpiryOrTheLiveMonitor",
-              "line": 482,
-              "end_line": 498
+              "line": 483,
+              "end_line": 499
             },
             {
               "name": "actualRoomExpiryIsolatesOneStorageFailureAndCanRecoverItsRetainedEntry",
-              "line": 500,
-              "end_line": 520
+              "line": 501,
+              "end_line": 521
             },
             {
               "name": "updateMessageStatusUnlessDelivered",
-              "line": 505,
-              "end_line": 508
+              "line": 506,
+              "end_line": 509
             },
             {
               "name": "realSessionPushAfterManualNoMoreIsDeliveredOnceIntoRoomWithLiveContext",
-              "line": 522,
-              "end_line": 538
+              "line": 523,
+              "end_line": 539
             },
             {
               "name": "disconnectedInlineSendCommitsFailedInRoomButSettledAcceptedSendStaysSent",
-              "line": 540,
-              "end_line": 553
+              "line": 541,
+              "end_line": 554
             },
             {
               "name": "disconnectedQueuedRetryKeepsItsActualRoomEnvelopeAndClearsTheRetryingStatus",
-              "line": 555,
-              "end_line": 568
+              "line": 556,
+              "end_line": 569
             },
             {
               "name": "malformedRoomEnvelopeDoesNotStopValidLaterHydrationOrLoseItsRepairableRow",
-              "line": 570,
-              "end_line": 585
+              "line": 571,
+              "end_line": 586
             },
             {
               "name": "preflightFaultRestoresActualFailedRoomRowToPendingWithoutAdvancingItsCounter",
-              "line": 587,
-              "end_line": 602
+              "line": 588,
+              "end_line": 603
             },
             {
               "name": "incrementPendingSendAttemptCount",
-              "line": 591,
-              "end_line": 591
+              "line": 592,
+              "end_line": 592
             },
             {
               "name": "missingCLIConsumerDoesNotBlockLaterRoomPersistenceAndItsRecordCanBeRetried",
-              "line": 604,
-              "end_line": 618
+              "line": 605,
+              "end_line": 619
             },
             {
               "name": "committedInlineRoomSaveAtDisconnectFailsBeforeTheWireAndPreservesTheProcessStore",
-              "line": 620,
-              "end_line": 640
+              "line": 621,
+              "end_line": 641
             },
             {
               "name": "saveMessage",
-              "line": 624,
-              "end_line": 626
+              "line": 625,
+              "end_line": 627
             },
             {
               "name": "acceptedRoomBookkeepingFinishesBeforeDisconnectTeardownWithoutInventingAnAck",
-              "line": 642,
-              "end_line": 662
+              "line": 643,
+              "end_line": 663
             },
             {
               "name": "updateMessageAck",
-              "line": 646,
-              "end_line": 649
+              "line": 647,
+              "end_line": 650
             },
             {
               "name": "sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted",
-              "line": 666,
-              "end_line": 688
+              "line": 667,
+              "end_line": 689
             },
             {
               "name": "saveIncomingContact",
-              "line": 690,
-              "end_line": 697
+              "line": 691,
+              "end_line": 698
             },
             {
               "name": "incomingContactPacket",
-              "line": 699,
-              "end_line": 701
+              "line": 700,
+              "end_line": 702
             },
             {
               "name": "set",
-              "line": 707,
-              "end_line": 710
+              "line": 708,
+              "end_line": 711
             },
             {
               "name": "subscribeTransitions",
-              "line": 711,
-              "end_line": 719
+              "line": 712,
+              "end_line": 720
             },
             {
               "name": "close",
-              "line": 717,
-              "end_line": 717
+              "line": 718,
+              "end_line": 718
             },
             {
               "name": "snapshot",
-              "line": 721,
-              "end_line": 725
+              "line": 722,
+              "end_line": 726
             },
             {
               "name": "sent",
-              "line": 740,
-              "end_line": 740
-            },
-            {
-              "name": "isConnected",
               "line": 741,
               "end_line": 741
             },
             {
-              "name": "connect",
+              "name": "isConnected",
               "line": 742,
               "end_line": 742
             },
             {
-              "name": "disconnect",
+              "name": "connect",
               "line": 743,
               "end_line": 743
             },
             {
-              "name": "receivedData",
+              "name": "disconnect",
               "line": 744,
               "end_line": 744
             },
             {
-              "name": "supportsWriteWithoutResponse",
+              "name": "receivedData",
               "line": 745,
               "end_line": 745
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "supportsWriteWithoutResponse",
               "line": 746,
               "end_line": 746
             },
             {
-              "name": "send",
+              "name": "supportsPipelinedReads",
               "line": 747,
-              "end_line": 775
+              "end_line": 747
+            },
+            {
+              "name": "send",
+              "line": 748,
+              "end_line": 776
             },
             {
               "name": "pushAck",
-              "line": 776,
-              "end_line": 778
+              "line": 777,
+              "end_line": 779
             },
             {
               "name": "pushPacket",
-              "line": 779,
-              "end_line": 779
+              "line": 780,
+              "end_line": 780
             }
           ]
         },
@@ -4346,7 +4346,7 @@
       "native_contracts": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
-          "sha256": "37d65c47f5b6b6ab5cb3db40ea7c8f08d1dbb7d064974500b68695386eb50673",
+          "sha256": "847f670a05de21eec4f89e83d1c2ea23a1c22db6d20ca6cc59cde2f1408fb222",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
@@ -4426,262 +4426,262 @@
             {
               "name": "coldStoreReopenRecoversTheSameRadioMessageAndPendingSendWithoutRewritingSortDate",
               "line": 180,
-              "end_line": 199
+              "end_line": 200
             },
             {
               "name": "actualHydrationDrainsOneRadioInFIFOOrderAndLeavesTheOtherPartitionUntouched",
-              "line": 201,
-              "end_line": 215
+              "line": 202,
+              "end_line": 216
             },
             {
               "name": "actualBackupConsumerBackfillsOnlyNilIncomingKeysAndUsesOutgoingUUIDIdentity",
-              "line": 217,
-              "end_line": 230
+              "line": 218,
+              "end_line": 231
             },
             {
               "name": "deliveredManualRetryRowDoesNotEmitAnotherPacketOrLoseItsPersistedStatus",
-              "line": 232,
-              "end_line": 243
+              "line": 233,
+              "end_line": 244
             },
             {
               "name": "twoRadioGenerationsDoNotCloseTheProcessStoreOrDuplicateMonitors",
-              "line": 245,
-              "end_line": 256
+              "line": 246,
+              "end_line": 257
             },
             {
               "name": "actualClosedRepositoryFailureCannotAdvanceAttemptCountOrSendOnTheWire",
-              "line": 258,
-              "end_line": 268
+              "line": 259,
+              "end_line": 269
             },
             {
               "name": "acceptedBlockedInsertFinishesBeforeShutdownAndSuccessorHydration",
-              "line": 270,
-              "end_line": 297
+              "line": 271,
+              "end_line": 298
             },
             {
               "name": "insertPendingSendAssigningSequence",
-              "line": 275,
-              "end_line": 278
+              "line": 276,
+              "end_line": 279
             },
             {
               "name": "acceptedInsertStorageFailureIsIncludedInShutdownInsteadOfBeingLostAfterItReturns",
-              "line": 299,
-              "end_line": 326
+              "line": 300,
+              "end_line": 327
             },
             {
               "name": "insertPendingSendAssigningSequence",
-              "line": 304,
-              "end_line": 307
+              "line": 305,
+              "end_line": 308
             },
             {
               "name": "realAckDuringBlockedRetryStatusPreventsAnotherWireAttempt",
-              "line": 328,
-              "end_line": 346
+              "line": 329,
+              "end_line": 347
             },
             {
               "name": "updateMessageRetryStatus",
-              "line": 333,
-              "end_line": 336
+              "line": 334,
+              "end_line": 337
             },
             {
               "name": "trueAckAndFinalReadFailureRecoverOneResendClaimWithoutRecountingANewClaim",
-              "line": 348,
-              "end_line": 375
+              "line": 349,
+              "end_line": 376
             },
             {
               "name": "incrementMessageSendCount",
-              "line": 353,
-              "end_line": 354
+              "line": 354,
+              "end_line": 355
             },
             {
               "name": "fetchMessage",
-              "line": 355,
-              "end_line": 361
+              "line": 356,
+              "end_line": 362
             },
             {
               "name": "persistedCallbackUsesRealRoomAndCanCloseWithoutJoiningItsOwnSend",
-              "line": 377,
-              "end_line": 392
+              "line": 378,
+              "end_line": 393
             },
             {
               "name": "unacknowledgedResendRetiredByFailAllDoesNotIncrementTheActualRoomCount",
-              "line": 394,
-              "end_line": 406
+              "line": 395,
+              "end_line": 407
             },
             {
               "name": "actualRoomExpiryCannotTurnMissingAckTrackingIntoAConfirmedResend",
-              "line": 408,
-              "end_line": 422
+              "line": 409,
+              "end_line": 423
             },
             {
               "name": "genuineRoomAckRetiresItsLookupBeforeAcceptanceAndCountsExactlyOneResend",
-              "line": 424,
-              "end_line": 439
+              "line": 425,
+              "end_line": 440
             },
             {
               "name": "manualPollingRoomConsumerCanCloseWithAnExplicitUnfinishedRecordReport",
-              "line": 441,
-              "end_line": 463
+              "line": 442,
+              "end_line": 464
             },
             {
               "name": "livePollingRoomConsumerCanAwaitItsOwnGenerationCloseWithoutLeakingHandlers",
-              "line": 465,
-              "end_line": 480
+              "line": 466,
+              "end_line": 481
             },
             {
               "name": "deletedAcceptedAckDoesNotPoisonActualRoomExpiryOrTheLiveMonitor",
-              "line": 482,
-              "end_line": 498
+              "line": 483,
+              "end_line": 499
             },
             {
               "name": "actualRoomExpiryIsolatesOneStorageFailureAndCanRecoverItsRetainedEntry",
-              "line": 500,
-              "end_line": 520
+              "line": 501,
+              "end_line": 521
             },
             {
               "name": "updateMessageStatusUnlessDelivered",
-              "line": 505,
-              "end_line": 508
+              "line": 506,
+              "end_line": 509
             },
             {
               "name": "realSessionPushAfterManualNoMoreIsDeliveredOnceIntoRoomWithLiveContext",
-              "line": 522,
-              "end_line": 538
+              "line": 523,
+              "end_line": 539
             },
             {
               "name": "disconnectedInlineSendCommitsFailedInRoomButSettledAcceptedSendStaysSent",
-              "line": 540,
-              "end_line": 553
+              "line": 541,
+              "end_line": 554
             },
             {
               "name": "disconnectedQueuedRetryKeepsItsActualRoomEnvelopeAndClearsTheRetryingStatus",
-              "line": 555,
-              "end_line": 568
+              "line": 556,
+              "end_line": 569
             },
             {
               "name": "malformedRoomEnvelopeDoesNotStopValidLaterHydrationOrLoseItsRepairableRow",
-              "line": 570,
-              "end_line": 585
+              "line": 571,
+              "end_line": 586
             },
             {
               "name": "preflightFaultRestoresActualFailedRoomRowToPendingWithoutAdvancingItsCounter",
-              "line": 587,
-              "end_line": 602
+              "line": 588,
+              "end_line": 603
             },
             {
               "name": "incrementPendingSendAttemptCount",
-              "line": 591,
-              "end_line": 591
+              "line": 592,
+              "end_line": 592
             },
             {
               "name": "missingCLIConsumerDoesNotBlockLaterRoomPersistenceAndItsRecordCanBeRetried",
-              "line": 604,
-              "end_line": 618
+              "line": 605,
+              "end_line": 619
             },
             {
               "name": "committedInlineRoomSaveAtDisconnectFailsBeforeTheWireAndPreservesTheProcessStore",
-              "line": 620,
-              "end_line": 640
+              "line": 621,
+              "end_line": 641
             },
             {
               "name": "saveMessage",
-              "line": 624,
-              "end_line": 626
+              "line": 625,
+              "end_line": 627
             },
             {
               "name": "acceptedRoomBookkeepingFinishesBeforeDisconnectTeardownWithoutInventingAnAck",
-              "line": 642,
-              "end_line": 662
+              "line": 643,
+              "end_line": 663
             },
             {
               "name": "updateMessageAck",
-              "line": 646,
-              "end_line": 649
+              "line": 647,
+              "end_line": 650
             },
             {
               "name": "sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted",
-              "line": 666,
-              "end_line": 688
+              "line": 667,
+              "end_line": 689
             },
             {
               "name": "saveIncomingContact",
-              "line": 690,
-              "end_line": 697
+              "line": 691,
+              "end_line": 698
             },
             {
               "name": "incomingContactPacket",
-              "line": 699,
-              "end_line": 701
+              "line": 700,
+              "end_line": 702
             },
             {
               "name": "set",
-              "line": 707,
-              "end_line": 710
+              "line": 708,
+              "end_line": 711
             },
             {
               "name": "subscribeTransitions",
-              "line": 711,
-              "end_line": 719
+              "line": 712,
+              "end_line": 720
             },
             {
               "name": "close",
-              "line": 717,
-              "end_line": 717
+              "line": 718,
+              "end_line": 718
             },
             {
               "name": "snapshot",
-              "line": 721,
-              "end_line": 725
+              "line": 722,
+              "end_line": 726
             },
             {
               "name": "sent",
-              "line": 740,
-              "end_line": 740
-            },
-            {
-              "name": "isConnected",
               "line": 741,
               "end_line": 741
             },
             {
-              "name": "connect",
+              "name": "isConnected",
               "line": 742,
               "end_line": 742
             },
             {
-              "name": "disconnect",
+              "name": "connect",
               "line": 743,
               "end_line": 743
             },
             {
-              "name": "receivedData",
+              "name": "disconnect",
               "line": 744,
               "end_line": 744
             },
             {
-              "name": "supportsWriteWithoutResponse",
+              "name": "receivedData",
               "line": 745,
               "end_line": 745
             },
             {
-              "name": "supportsPipelinedReads",
+              "name": "supportsWriteWithoutResponse",
               "line": 746,
               "end_line": 746
             },
             {
-              "name": "send",
+              "name": "supportsPipelinedReads",
               "line": 747,
-              "end_line": 775
+              "end_line": 747
+            },
+            {
+              "name": "send",
+              "line": 748,
+              "end_line": 776
             },
             {
               "name": "pushAck",
-              "line": 776,
-              "end_line": 778
+              "line": 777,
+              "end_line": 779
             },
             {
               "name": "pushPacket",
-              "line": 779,
-              "end_line": 779
+              "line": 780,
+              "end_line": 780
             }
           ]
         },
@@ -20951,43 +20951,43 @@
         },
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/messaging/MessagingRoomIntegrationTest.kt",
-          "sha256": "37d65c47f5b6b6ab5cb3db40ea7c8f08d1dbb7d064974500b68695386eb50673",
+          "sha256": "847f670a05de21eec4f89e83d1c2ea23a1c22db6d20ca6cc59cde2f1408fb222",
           "class": "com.meshcoreone.android.core.data.messaging.MessagingRoomIntegrationTest",
           "method_or_family_name": "sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted",
-          "line": 666,
-          "end_line": 688,
+          "line": 667,
+          "end_line": 689,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "a448a5091e60c3fd9c7f3377417c29bd2afb7647b6bc46db3271e724d9a99244",
+          "body_sha256": "9aa24ffc0280c2db929bca94aa357a09d4d4a6208c3dc629c536ea90850b7e23",
           "registration": null,
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 678,
+              "line": 679,
               "expression": "assertEquals(1, g.firmware.sent().size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 681,
+              "line": 682,
               "expression": "assertNull(store.fetchMessage(EntityKey(radio, saved.id)))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFailsWith",
-              "line": 683,
+              "line": 684,
               "expression": "assertFailsWith<Exception> { sending.await() }",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 684,
+              "line": 685,
               "expression": "assertEquals(1, g.service.pendingAckCount)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 686,
+              "line": 687,
               "expression": "assertFalse(events.events.toList().any { it.event is MessageStatusEvent.Failed })",
               "assertion_or_checked_wait": true
             }
@@ -20995,157 +20995,157 @@
           "actions_and_helper_calls": [
             {
               "name": "runTest",
-              "line": 666,
+              "line": 667,
               "expression": "runTest(scheduler)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "contact.copy",
-              "line": 667,
+              "line": 668,
               "expression": "contact.copy(publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), name = \"TestContact\", lastHeardTimestamp = null)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes",
-              "line": 667,
+              "line": 668,
               "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ByteArray",
-              "line": 667,
+              "line": 668,
               "expression": "ByteArray(32)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toByte",
-              "line": 667,
+              "line": 668,
               "expression": "toByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "seed",
-              "line": 668,
+              "line": 669,
               "expression": "seed()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "RadioGeneration",
-              "line": 669,
+              "line": 670,
               "expression": "RadioGeneration(28, sessionTimeout = 10.0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 671,
+              "line": 672,
               "expression": "Bytes.of(0xAB, 0xCD, 0xEF, 0x12)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CompletableDeferred",
-              "line": 673,
+              "line": 674,
               "expression": "CompletableDeferred()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.start",
-              "line": 674,
+              "line": 675,
               "expression": "g.start()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.service.statusEvents",
-              "line": 675,
+              "line": 676,
               "expression": "g.service.statusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.service.sendDirectMessage",
-              "line": 676,
+              "line": 677,
               "expression": "g.service.sendDirectMessage(\"hi\", contact)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 677,
+              "line": 678,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.firmware.sent",
-              "line": 678,
+              "line": 679,
               "expression": "g.firmware.sent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "store.fetchMessages",
-              "line": 679,
+              "line": 680,
               "expression": "store.fetchMessages(EntityKey(radio, contact.id), 10, 0)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 679,
+              "line": 680,
               "expression": "EntityKey(radio, contact.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "first",
-              "line": 679,
+              "line": 680,
               "expression": "first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "store.deleteMessage",
-              "line": 680,
+              "line": 681,
               "expression": "store.deleteMessage(EntityKey(radio, saved.id))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 680,
+              "line": 681,
               "expression": "EntityKey(radio, saved.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "store.fetchMessage",
-              "line": 681,
+              "line": 682,
               "expression": "store.fetchMessage(EntityKey(radio, saved.id))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "EntityKey",
-              "line": 681,
+              "line": 682,
               "expression": "EntityKey(radio, saved.id)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.firmware.acceptanceGate?.complete",
-              "line": 682,
+              "line": 683,
               "expression": "g.firmware.acceptanceGate?.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "sending.await",
-              "line": 683,
+              "line": 684,
               "expression": "sending.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.service.finishStatusEvents",
-              "line": 685,
+              "line": 686,
               "expression": "g.service.finishStatusEvents()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "events.events.toList",
-              "line": 686,
+              "line": 687,
               "expression": "events.events.toList()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "g.stop",
-              "line": 687,
+              "line": 688,
               "expression": "g.stop()",
               "assertion_or_checked_wait": false
             }

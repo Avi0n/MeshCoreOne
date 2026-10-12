@@ -178,7 +178,8 @@ class MessagingRoomIntegrationTest {
     }
 
     @Test fun coldStoreReopenRecoversTheSameRadioMessageAndPendingSendWithoutRewritingSortDate() = runTest(scheduler) {
-        val name = "wp208-${UUID.randomUUID()}.db"
+        // Robolectric isolates each test directory; native Windows SQLite still limits path length.
+        val name = "cold.db"
         store.close(); db.close(); db = database(name); store = RoomPersistenceStore(db, process, clock.wallClock)
         seed()
         val sort = base.minusSeconds(86400)
@@ -673,7 +674,7 @@ class MessagingRoomIntegrationTest {
         g.firmware.acceptanceGate = CompletableDeferred()
         g.start()
         val events = g.service.statusEvents()
-        val sending = backgroundScope.async { g.service.sendDirectMessage("hi", contact) }
+        val sending = g.scope.async { g.service.sendDirectMessage("hi", contact) }
         runCurrent()
         assertEquals(1, g.firmware.sent().size)
         val saved = store.fetchMessages(EntityKey(radio, contact.id), 10, 0).first()
