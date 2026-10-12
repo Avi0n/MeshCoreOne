@@ -4315,7 +4315,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceListenerIntegrationTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendDMBookkeepingTests.swift",
@@ -4687,7 +4687,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceListenerIntegrationTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendDMBookkeepingTests.swift",
@@ -4717,7 +4717,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceListenerIntegrationTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendDMBookkeepingTests.swift",
@@ -20048,7 +20048,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "listener flips message to .delivered after a flood of non-matching events",
           "line": 249,
@@ -20404,7 +20404,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "listener restart after disconnect/reconnect still observes ACKs",
           "line": 262,
@@ -20806,14 +20806,14 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails",
           "line": 234,
           "end_line": 248,
           "factory_method": "sending",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "b589bfd06213ed3294c3fa99c614a59e42138391bc0edb4c607dca0da103cd84",
+          "body_sha256": "f264a5317a009e76bc4353ffc7d3082b9a52478f60b890faae4c021451449204",
           "registration": "original(\"MessageServiceSendDMBookkeepingTests\", \"sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails\")",
           "assertions": [
             {
@@ -20839,13 +20839,13 @@
             {
               "name": "Harness",
               "line": 235,
-              "expression": "Harness(this, sessionTimeout = 10.0,\n                contact = ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), \"TestContact\"))",
+              "expression": "Harness(this, sessionTimeout = 10.0,\n                contact = ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), \"TestContact\", lastHeardTimestamp = null))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ContactDTO",
               "line": 236,
-              "expression": "ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), \"TestContact\")",
+              "expression": "ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), \"TestContact\", lastHeardTimestamp = null)",
               "assertion_or_checked_wait": false
             },
             {
@@ -21204,7 +21204,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage throws invalidRecipient for repeater contacts",
           "line": 22,
@@ -21331,7 +21331,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage throws messageTooLong for oversized text",
           "line": 28,
@@ -21465,7 +21465,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage saves message to dataStore before send attempt",
           "line": 34,
@@ -21586,7 +21586,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendMessageWithRetry throws invalidRecipient for repeater contacts",
           "line": 40,
@@ -21701,7 +21701,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendMessageWithRetry throws messageTooLong for oversized text",
           "line": 46,
@@ -21853,7 +21853,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage creates message with pending status",
           "line": 52,
@@ -21986,7 +21986,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage throws invalidRecipient for repeater",
           "line": 57,
@@ -22101,7 +22101,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage throws messageTooLong for oversized text",
           "line": 63,
@@ -22253,7 +22253,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage returns DTO with correct fields",
           "line": 69,
@@ -22417,7 +22417,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingMessage stamps lastMessageDate so a first DM appears in the chat list before any send succeeds",
           "line": 74,
@@ -22586,7 +22586,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingDirectMessage rejects concurrent send for same messageID",
           "line": 80,
@@ -22719,7 +22719,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingDirectMessage throws when message not found",
           "line": 85,
@@ -22846,7 +22846,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendChannelMessage throws when user text plus node name exceeds composed cap",
           "line": 91,
@@ -23004,7 +23004,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendChannelMessage saves message to dataStore before send attempt",
           "line": 98,
@@ -23174,7 +23174,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingChannelMessage saves to dataStore with pending status",
           "line": 104,
@@ -23337,7 +23337,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingChannelMessage throws when user text plus node name exceeds composed cap",
           "line": 110,
@@ -23501,7 +23501,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingChannelMessage accepts user text that fills the composed cap",
           "line": 116,
@@ -23640,7 +23640,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "createPendingChannelMessage without a device assumes a 31-byte name",
           "line": 122,
@@ -23761,7 +23761,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingChannelMessage throws when message not found",
           "line": 128,
@@ -23889,7 +23889,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingChannelMessage sets failed status on send error",
           "line": 134,
@@ -24004,7 +24004,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "resendChannelMessage throws when message not found",
           "line": 139,
@@ -24125,7 +24125,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "resendChannelMessage throws when message is not a channel message",
           "line": 145,
@@ -24371,7 +24371,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "resendChannelMessage writes .sent before broadcasting .resent and refreshes counts",
           "line": 149,
@@ -24780,7 +24780,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "resendDirectMessage increments sendCount and broadcasts .resent on a successful resend",
           "line": 157,
@@ -25159,7 +25159,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendPendingDirectMessage does not bump sendCount or broadcast .resent on first send",
           "line": 166,
@@ -25355,7 +25355,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendDirectMessage tracks pending ACK before session.sendMessage so the listener cannot race",
           "line": 174,
@@ -25533,7 +25533,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "sendMessageWithRetry tracks pending ACK before session.sendMessage",
           "line": 180,
@@ -25721,7 +25721,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "failMessageAndRethrow does not downgrade a delivered DB row",
           "line": 186,
@@ -25927,7 +25927,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "finalizeSend exhaustion does not downgrade a delivered DB row",
           "line": 191,
@@ -26274,7 +26274,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "retry exhaustion leaves the DM .sent with its pending entry alive, never prematurely .failed",
           "line": 195,
@@ -26525,7 +26525,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "a genuine send exception still fails the DM through the outer catch",
           "line": 202,
@@ -26850,7 +26850,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "checkExpiredAcks cannot fail a DM while its retry loop is still inside waitForEvent",
           "line": 207,
@@ -27241,7 +27241,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "checkExpiredAcks respects a slow-preset per-attempt timeout that exceeds a tiny give-up window",
           "line": 214,
@@ -27600,7 +27600,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "the retry loop sends exactly config.maxAttempts times under sustained non-ACK",
           "line": 222,
@@ -27905,7 +27905,7 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-          "sha256": "7b37f30143b3cce478e5eace50d89700fa5e01d35197456367128ff367eed544",
+          "sha256": "39f42b448a2b4e57bc49e070e0de599910c70cba7ff4e6103e7935f3155cd0b0",
           "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
           "method_or_family_name": "the retry loop escalates from direct to flood via resetPath after exactly config.floodAfter direct failures",
           "line": 227,

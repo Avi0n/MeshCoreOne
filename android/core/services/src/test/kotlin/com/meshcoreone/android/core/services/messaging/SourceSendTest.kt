@@ -233,7 +233,7 @@ class SourceSendTest {
         },
         original("MessageServiceSendDMBookkeepingTests", "sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails") {
             val h = Harness(this, sessionTimeout = 10.0,
-                contact = ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), "TestContact"))
+                contact = ContactDTO(CONTACT, RADIO, Bytes(ByteArray(32) { 0xAB.toByte() }), "TestContact", lastHeardTimestamp = null))
             h.start(); val events = h.service.statusEvents()
             h.transport.expectedAckOverride = Bytes.of(0xAB, 0xCD, 0xEF, 0x12)
             h.transport.suggestedTimeout = 5000u
