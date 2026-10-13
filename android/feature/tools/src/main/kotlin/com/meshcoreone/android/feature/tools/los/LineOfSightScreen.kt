@@ -331,7 +331,7 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
                                 onClick = { holder.toggleContact(contact) },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = ColorGreen,
-                                    contentColor = androidx.compose.ui.graphics.Color.White,
+                                    contentColor = androidx.compose.ui.graphics.Color.Black,
                                 ),
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                             ) {
