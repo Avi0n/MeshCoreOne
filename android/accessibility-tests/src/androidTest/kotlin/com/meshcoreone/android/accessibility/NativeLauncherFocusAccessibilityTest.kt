@@ -1,4 +1,4 @@
-// AndroidOnly: WP-503 Observe real launcher/process graph, cached composer, system motion and native focus/window/IME behavior in explicit isolated fixtures.
+// AndroidOnly: WP-503 Observe real launcher/process graph, cached composer, system motion, queued effects and native focus/window/IME behavior in explicit isolated fixtures.
 package com.meshcoreone.android.accessibility
 
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -15,7 +15,9 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -52,17 +54,68 @@ import com.meshcoreone.android.core.model.MessageStatus
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.feature.onboarding.OnboardingState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.AtomicBoolean
 import java.time.Instant
 import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test fun actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample() {
+        val measuring = AtomicBoolean(false)
+        val queuedDuringMeasure = AtomicReference<Boolean?>(null)
+        val inlineDuringMeasure = AtomicReference<Boolean?>(null)
+        val inlineScope = CoroutineScope(UnconfinedTestDispatcher())
+        val label = "Native effect scheduling"
+        try {
+            content {
+                MeshCoreTheme {
+                    AuditSurface {
+                        SubcomposeLayout { constraints ->
+                            check(measuring.compareAndSet(false, true))
+                            val placeables = try {
+                                subcompose("effect-scheduling") {
+                                    LaunchedEffect(Unit) {
+                                        queuedDuringMeasure.compareAndSet(null, measuring.get())
+                                    }
+                                    SideEffect {
+                                        inlineScope.launch {
+                                            inlineDuringMeasure.compareAndSet(null, measuring.get())
+                                        }
+                                    }
+                                    Text(label)
+                                }.map { it.measure(constraints) }
+                            } finally {
+                                measuring.set(false)
+                            }
+                            val placeable = placeables.single()
+                            layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
+                        }
+                    }
+                }
+            }
+            compose.waitUntil { queuedDuringMeasure.get() != null && inlineDuringMeasure.get() != null }
+            println("WP503_NATIVE_EFFECT_SCHEDULING|sdk=${android.os.Build.VERSION.SDK_INT}" +
+                "|inlineDuringMeasure=${inlineDuringMeasure.get()}|auditedDuringMeasure=${queuedDuringMeasure.get()}")
+            assertEquals("The inline control must detect actual subcomposition measurement", true, inlineDuringMeasure.get())
+            assertEquals("Audited effects must not resume inside actual native measurement", false, queuedDuringMeasure.get())
+            assertFont200Unclipped(compose.onNodeWithText(label))
+        } finally {
+            inlineScope.cancel()
+        }
+    }
+
     @Test fun realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft() = withTouchExploration {
         val application = requireNotNull(activity.application as? MeshCoreApplication)
         val container = runBlocking { application.container.await() }

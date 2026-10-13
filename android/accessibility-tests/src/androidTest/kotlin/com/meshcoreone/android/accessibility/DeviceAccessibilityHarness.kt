@@ -26,9 +26,7 @@ import org.junit.Rule
 
 abstract class DeviceAccessibilityHarness : NativeAccessibilityAssertions() {
     @OptIn(ExperimentalTestApi::class)
-    @get:Rule public override val compose = createAndroidComposeRule<MainActivity>(
-        effectContext = StandardTestDispatcher(),
-    )
+    @get:Rule public override val compose = createAndroidComposeRule<MainActivity>()
     override val activity: MainActivity get() = compose.activity
 
     @Before fun requireActualSystemFont200AndSelectedApi() {
