@@ -24,11 +24,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -53,6 +55,7 @@ import com.meshcoreone.android.feature.chats.timeline.TimelineRow
 import com.meshcoreone.android.feature.chats.timeline.TimelineScrollAnchor
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.UUID
 import kotlinx.coroutines.launch
 
 /** Route wrapper: retains the supplied screen owner and performs no radio/session work. */
@@ -105,27 +108,20 @@ fun ChatTimeline(
 ) {
     val visualRows = state.rows.asReversed()
     val scope = rememberCoroutineScope()
-    var restoredSavedAnchor by remember(state.hasLoadedOnce) { mutableStateOf(false) }
+    var savedViewportMessageId by rememberSaveable { mutableStateOf<String?>(null) }
+    var savedViewportOffset by rememberSaveable { mutableIntStateOf(0) }
+    val savedViewportAnchor = savedViewportMessageId?.let {
+        TimelineScrollAnchor(UUID.fromString(it), savedViewportOffset)
+    }
     LaunchedEffect(state.initialAnchor, state.initialAnchorConsumed, visualRows) {
         if (state.initialAnchorConsumed || visualRows.isEmpty()) return@LaunchedEffect
-        val target = when (val anchor = state.initialAnchor) {
-            InitialTimelineAnchor.Latest -> 0
-            is InitialTimelineAnchor.Message -> visualRows.indexOfFirst {
-                it is TimelineRow.Message && it.message.id == anchor.messageId
-            }.coerceAtLeast(0)
-            null -> return@LaunchedEffect
-        }
-        listState.scrollToItem(target)
+        val position = resolveInitialTimelinePosition(
+            state.initialAnchor,
+            savedViewportAnchor,
+            visualRows,
+        ) ?: return@LaunchedEffect
+        listState.scrollToItem(position.index, position.offset)
         callbacks.onInitialAnchorConsumed()
-    }
-    LaunchedEffect(state.initialAnchorConsumed, state.scrollAnchor, visualRows) {
-        if (!state.initialAnchorConsumed || restoredSavedAnchor) return@LaunchedEffect
-        val saved = state.scrollAnchor ?: return@LaunchedEffect
-        val target = visualRows.indexOfFirst {
-            it is TimelineRow.Message && it.message.id == saved.messageId
-        }
-        if (target >= 0) listState.scrollToItem(target, saved.offset)
-        restoredSavedAnchor = true
     }
     LaunchedEffect(listState, visualRows) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.map { it.index } }.collect { visible ->
@@ -133,6 +129,10 @@ fun ChatTimeline(
             val anchor = listState.firstVisibleItemIndex.let { visualIndex ->
                 (visualRows.getOrNull(visualIndex) as? TimelineRow.Message)?.message?.id
             }?.let { TimelineScrollAnchor(it, listState.firstVisibleItemScrollOffset) }
+            if (anchor != null) {
+                savedViewportOffset = anchor.offset
+                savedViewportMessageId = anchor.messageId.toString()
+            }
             callbacks.onScrollPositionChanged(anchor, atLatest)
             if (visible.any { it >= visualRows.lastIndex - 3 } && state.hasMoreMessages && !state.isLoadingOlder) {
                 callbacks.onLoadOlder()
@@ -232,6 +232,31 @@ fun ChatTimeline(
             }
         }
     }
+}
+
+internal data class TimelineViewportPosition(val index: Int, val offset: Int)
+
+internal fun resolveInitialTimelinePosition(
+    anchor: InitialTimelineAnchor?,
+    savedAnchor: TimelineScrollAnchor?,
+    visualRows: List<TimelineRow>,
+): TimelineViewportPosition? {
+    val messageId = when (anchor) {
+        InitialTimelineAnchor.Latest -> savedAnchor?.messageId
+        is InitialTimelineAnchor.Message -> anchor.messageId
+        null -> return null
+    }
+    if (messageId == null) return TimelineViewportPosition(0, 0)
+    val index = visualRows.indexOfFirst { row ->
+        row is TimelineRow.Message && row.message.id == messageId
+    }
+    if (index < 0) return if (anchor == InitialTimelineAnchor.Latest) {
+        TimelineViewportPosition(0, 0)
+    } else {
+        null
+    }
+    val offset = if (anchor == InitialTimelineAnchor.Latest) savedAnchor?.offset ?: 0 else 0
+    return TimelineViewportPosition(index, offset)
 }
 
 @Composable
