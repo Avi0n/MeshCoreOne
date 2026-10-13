@@ -133,10 +133,14 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 assertEquals(draft, currentEdit.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
                 assertFont200Unclipped(currentEdit)
                 assertNativeTargetContained(descendants(root()).filter { it.isEditable }.toList().single(), root())
+                compose.waitUntil {
+                    compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex),
+                        useUnmergedTree = true).fetchSemanticsNodes().size == 1
+                }
                 val retained = compose.onNodeWithText(target.text, useUnmergedTree = true)
                 println("WP503_NATIVE_CHAT_WINDOW_AFTER|sdk=${android.os.Build.VERSION.SDK_INT}|size=$size" +
                     "|message=${target.id}|visibleMatches=${compose.onAllNodesWithText(target.text, useUnmergedTree = true).fetchSemanticsNodes().size}" +
-                    "|entry=${entry.id}|draftSaved=true|realStore=true|realGraph=true|physicalTalkBack=false")
+                    "|entry=${entry.id}|draftSaved=true|timelineLoaded=true|realStore=true|realGraph=true|physicalTalkBack=false")
                 retained.assertIsDisplayed()
                 assertFont200Unclipped(retained)
                 assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
