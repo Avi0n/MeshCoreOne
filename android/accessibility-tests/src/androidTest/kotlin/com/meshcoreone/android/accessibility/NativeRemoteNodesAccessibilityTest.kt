@@ -52,6 +52,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
 import com.meshcoreone.android.core.contracts.domain.EntityKey
@@ -254,10 +255,10 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
                 AuditSurface {
                     Column(Modifier.fillMaxWidth().padding(horizontal = 28.dp)) {
                         Text("55.5%", Modifier.testTag("neutral-rtl"),
-                            style = MaterialTheme.typography.bodyLarge)
+                            style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Right))
                         Box(Modifier.size(50.dp, 60.dp).clipToBounds().testTag("neutral-rtl-viewport")) {
                             Text("55.5%", Modifier.requiredWidth(76.dp).testTag("neutral-rtl-clipped"),
-                                style = MaterialTheme.typography.bodyLarge)
+                                style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Right))
                         }
                     }
                 }
