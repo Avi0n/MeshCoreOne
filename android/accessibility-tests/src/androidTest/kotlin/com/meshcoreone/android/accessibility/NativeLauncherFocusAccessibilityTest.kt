@@ -309,8 +309,8 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         val bounds = Rect().also(node::getBoundsInScreen)
         val viewport = Rect().also(window::getBoundsInScreen)
         val density = activity.resources.displayMetrics.density
-        assertTrue("The actual native target must be fully contained", viewport.contains(bounds))
-        assertTrue("The actual native target must be48dp",
+        assertTrue("The actual native target $bounds must be fully contained in $viewport", viewport.contains(bounds))
+        assertTrue("The actual native target $bounds must be48dp at density=$density; text=${node.text}",
             bounds.width() / density >= 48f && bounds.height() / density >= 48f)
         return bounds
     }
