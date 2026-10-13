@@ -28,8 +28,10 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performScrollToNode
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -39,6 +41,11 @@ import com.meshcoreone.android.core.contracts.AppTab
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.designsystem.LocalMeshTheme
+import com.meshcoreone.android.core.designsystem.AppColorSchemePreference
+import com.meshcoreone.android.core.designsystem.ThemeRegistry
+import com.meshcoreone.android.core.designsystem.ThemeServiceState
+import com.meshcoreone.android.core.designsystem.labelResource
+import com.meshcoreone.android.core.designsystem.localizedName
 import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings
@@ -577,6 +584,105 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             shell("wm size ${override ?: "reset"}")
             compose.runOnUiThread {
                 if (container.navigation.state.value.selectedSetting == SettingsDetail.LANGUAGE) container.navigation.back()
+                container.navigation.selectTab(AppTab.CHATS)
+                onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, originalFlag)
+            }
+        }
+    }
+
+    @Test fun realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions() = withTouchExploration {
+        val application = requireNotNull(activity.application as? MeshCoreApplication)
+        val container = runBlocking { application.container.await() }
+        val onboarding = requireNotNull(container.onboarding)
+        val service = requireNotNull(container.themeService)
+        val originalFlag = onboarding.flags.getBoolean(OnboardingState.KEY_HAS_COMPLETED)
+        val originalSelection = runBlocking { service.refreshFromPreferences() }.selection
+        assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
+        assertEquals(ThemeRegistry.allThemes, service.availableToCurrentUser)
+        assertEquals(10, service.availableToCurrentUser.size)
+        val resources = activity.resources
+        fun nativeCard(label: String): AccessibilityNodeInfo {
+            val matches = descendants(root()).filter {
+                it.className?.toString() == "android.widget.Button" &&
+                    it.contentDescription?.toString()?.startsWith(label) == true
+            }.toList()
+            assertEquals("Exactly one real theme button must retain its complete $label label", 1, matches.size)
+            return matches.single().also { assertTrue(it.refresh()) }
+        }
+        try {
+            compose.runOnUiThread { onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, true) }
+            compose.waitUntil { compose.onAllNodesWithTag("tab:CHATS").fetchSemanticsNodes().size == 1 }
+            assertTrue(nativeTab(root(), AppTab.SETTINGS).performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            val appearance = activity.getString(AppSettingsStrings.appearanceTitle)
+            val entry = compose.onNodeWithText(appearance, useUnmergedTree = true).performScrollTo()
+            assertFont200Unclipped(entry)
+            val action = namedAction(root(), appearance)
+            assertNativeTargetContained(action, root())
+            assertTrue(action.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            compose.waitForIdle()
+            assertEquals(SettingsDetail.APPEARANCE, container.navigation.state.value.selectedSetting)
+            assertFont200Unclipped(compose.onNodeWithTag("navigation-heading", useUnmergedTree = true))
+            for (scheme in AppColorSchemePreference.entries) {
+                val grid = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex))
+                grid.performScrollToIndex(0)
+                val schemeLabel = activity.getString(scheme.labelResource)
+                val schemeAction = namedAction(root(), schemeLabel)
+                assertNativeTargetContained(schemeAction, root())
+                assertTrue(schemeAction.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                compose.waitUntil { (service.state.value as? ThemeServiceState.Ready)?.selection?.colorSchemePreference == scheme }
+                compose.waitForIdle()
+                for (choice in AppColorSchemePreference.entries) {
+                    val label = activity.getString(choice.labelResource)
+                    val radio = namedAction(root(), label)
+                    assertEquals("The actual scheme radio selection must be textual and exclusive", choice == scheme, radio.isSelected)
+                    assertNativeTargetContained(radio, root())
+                    assertFont200Unclipped(compose.onNodeWithText(label, useUnmergedTree = true))
+                }
+                for ((index, theme) in service.availableToCurrentUser.withIndex()) {
+                    grid.performScrollToIndex(index + 1)
+                    val name = theme.localizedName(resources)
+                    val selectedLabel = AppSettingsStrings.appearanceAccessibilityThemeCardSelectedLabel(resources, name)
+                    val ownedLabel = AppSettingsStrings.appearanceAccessibilityThemeCardOwnedLabel(resources, name)
+                    val current = service.state.value
+                    assertTrue("The real theme service must remain ready", current is ThemeServiceState.Ready)
+                    val wasSelected = (current as ThemeServiceState.Ready).selection.current.id == theme.id
+                    val card = nativeCard(if (wasSelected) selectedLabel else ownedLabel)
+                    assertNativeTargetContained(card, root())
+                    if (!wasSelected) {
+                        assertTrue("Every unselected theme must actually be unlocked", card.isEnabled)
+                        assertTrue(card.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                    }
+                    compose.waitUntil { (service.state.value as? ThemeServiceState.Ready)?.selection?.current?.id == theme.id }
+                    compose.waitForIdle()
+                    val persisted = runBlocking { service.refreshFromPreferences() }.selection
+                    assertEquals(theme.id, persisted.current.id)
+                    assertEquals(scheme, persisted.colorSchemePreference)
+                    assertEquals(theme.effectiveColorScheme(scheme), persisted.effectiveColorScheme)
+                    compose.onNodeWithContentDescription(selectedLabel).assertIsDisplayed().assertIsNotEnabled()
+                    val selectedCard = nativeCard(selectedLabel)
+                    assertTrue("Selected state must disable duplicate selection", !selectedCard.isEnabled)
+                    assertNativeTargetContained(selectedCard, root())
+                    assertTrue(selectedCard.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+                    assertTrue(selectedCard.refresh())
+                    assertTrue(selectedCard.isAccessibilityFocused)
+                    assertFont200Unclipped(compose.onNode(
+                        hasText(name) and SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult),
+                        useUnmergedTree = true,
+                    ))
+                    println("WP503_NATIVE_APPEARANCE|sdk=${android.os.Build.VERSION.SDK_INT}|theme=${theme.id.rawValue}" +
+                        "|scheme=${scheme.rawValue}|effective=${persisted.effectiveColorScheme}|persisted=true" +
+                        "|selectedText=true|duplicateDisabled=true|focus=true|target48=true|fontScale=2.0" +
+                        "|realGraph=true|physicalTalkBack=false")
+                }
+            }
+            assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
+        } finally {
+            runBlocking {
+                service.setCurrent(originalSelection.current.id)
+                service.setColorSchemePreference(originalSelection.colorSchemePreference)
+            }
+            compose.runOnUiThread {
+                if (container.navigation.state.value.selectedSetting == SettingsDetail.APPEARANCE) container.navigation.back()
                 container.navigation.selectTab(AppTab.CHATS)
                 onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, originalFlag)
             }
