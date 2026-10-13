@@ -1,0 +1,47 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Assert failed: The component with Text + InputText + EditableText contains 'Cached history 15 中文' (ignoreCase: false) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200$lambda$0(NativeLauncherFocusAccessibilityTest.kt:140)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda4.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:451)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(NativeLauncherFocusAccessibilityTest.kt:60)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+java.lang.AssertionError: Assert failed: The component with Text + InputText + EditableText contains 'Cached history 15 中文' (ignoreCase: false) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200$lambda$0(NativeLauncherFocusAccessibilityTest.kt:140)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda4.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:451)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(NativeLauncherFocusAccessibilityTest.kt:60)
+
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 8.613
+There was 1 failure:
+1) realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+java.lang.AssertionError: Assert failed: The component with Text + InputText + EditableText contains 'Cached history 15 中文' (ignoreCase: false) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200$lambda$0(NativeLauncherFocusAccessibilityTest.kt:140)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda4.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:451)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(NativeLauncherFocusAccessibilityTest.kt:60)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

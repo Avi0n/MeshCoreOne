@@ -1,0 +1,5 @@
+10-12 20:54:17.849  3227  3869 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:54:19.901  3227  3869 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 20:54:20.785  3227  3869 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+10-12 20:54:20.812  3227  3869 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1344x2992
+10-12 20:54:30.442  3227  3869 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=

@@ -1,6 +1,27 @@
 # WP-503 native execution matrix
 
-**Offline discovery226 and Reset Path228 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
+**Offline discovery226, Reset Path228 and cached-chat resize230 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
+Current exact5a8ee1990250e8bed32010b50fcda86174ab1097 complete native inventory
+**26/25PASS/1FAIL per actual API31/37**,0 errors/skips56.431s/65.670s. All prior25
+methods pass. Real process-store seeded cached direct conversation, native editor
+ACTION_SET_TEXT and middle-message native scroll execute. After actual360->900 Activity
+recreation, navigation entry/all stacks/selected chat and CJK/RTL draft survive with
+native font2/contained48dp/disconnected state; loaded timeline loses the pre-resize
+message (zero visible matches) and its strict visibility assertion fails on both APIs.
+Actual assigned WP307230 owns model/timeline/App lifetime correction, not audit product
+edits/new worker. No force-scroll rescue; subsequent900->360 return checks UNEXECUTED.
+Original window/flags/draft and only owned synthetic device data are restored.
+Exactfcfd full26/25PASS/1FAIL each API and earlier302 scoped1/1FAIL each are distinct.
+Initialdc63 API37 focus failure and scopedfcfd API31 native measure/layout exceptions
+are preserved with unestablished root cause, not both-API product proof or repaired.
+Actual loaded-LazyColumn prerequisite/refresh precede strict retained-message checks;
+no floor/timeout/assertion or source-pin changes.
+Exact published42138333380492 FAILED/App800/4, actual job115088310203 visible default
+discovery226/Reset228 identities; controller/Swift codec passed, SwiftData skipped/final
+guard failed. No complete per-case hosted breakdown/duplicate bundle/new-native inference.
+
+## Prior complete system-motion cohort
+
 Current exact286e9fb4cdcb50b62522456e891050e5200ba623 **25/25PASS per actual API31/37**,
 0 failures/errors/skips52.654s/62.279s, complete current Android inventory in one
 invocation/API. Launcher5 includes new real system motion observer0->1->0 with
@@ -115,8 +136,9 @@ Early API37 root-null and bare/by-text control failures
 are harness diagnostics, not both-API product proof or physical TalkBack observations.
 
 Current mandatory instrumentation inventory is13 remote,3 Map/runtime,2 LoS-platform,
-1 Point A contrast,1 Point B contrast and5 launcher-focus/window/motion methods per API.
-The complete25/API execution at286 passes above. Existing full-matrix/remaining
+1 Point A contrast,1 Point B contrast and6 launcher-focus/window/motion/chat methods per API.
+Current complete26/API execution at5a8 passes25/fails1 above; prior25/API at286 passes.
+Existing full-matrix/remaining
 feature motion/resize/detail/draft/scroll and physical TalkBack gates remain unverified.
 
 At exact fixture39d87b60af67486ad2ce824110d841e229617114, the complete remote class

@@ -1,0 +1,13 @@
+10-12 21:00:06.987  2757  2777 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 21:00:06.997  2757  2777 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 21:00:07.291  2757  2777 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+10-12 21:00:07.306  2757  2777 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1080x2400
+10-12 21:00:08.590  2757  2777 I System.out: WP503_NATIVE_CHAT_EDITOR|sdk=31|focusedBefore=false|focusActionAdvertised=true
+10-12 21:00:08.781  2757  2777 I System.out: WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 21:00:08.782  2757  2777 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+10-12 21:00:08.782  2757  2777 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+10-12 21:00:10.033  2757  2777 I System.out: WP503_FONT|text=Cached history 15 中文|size=286 x 40|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=286.0x40.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 21:00:10.033  2757  2777 I System.out: WP503_FONT_LINE|text=Cached history 15 中文|line=0|left=0.02734375|right=286.0|top=0.0|bottom=40.0
+10-12 21:00:10.084  2757  2777 I System.out: WP503_NATIVE_CHAT_WINDOW_BEFORE|sdk=31|message=00000000-0000-0000-0000-00000007ad4b|textBounds=Rect.fromLTRB(50.0, 252.0, 336.0, 292.0)|entry=5|draftSaved=true|realStore=true|realGraph=true|physicalTalkBack=false
+10-12 21:00:10.156  2757  2777 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size 900x900|response=
+10-12 21:00:10.902  2757  2777 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=

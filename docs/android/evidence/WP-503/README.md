@@ -1,13 +1,86 @@
 # WP-503 attempt evidence
 
-**Offline discovery226 and Reset Path228 block acceptance; PR205/WP503 remain incomplete with remaining physical/matrix/review gates.**
+**Offline discovery226, Reset Path228 and cached-chat resize230 block acceptance; PR205/WP503 remain incomplete with remaining physical/matrix/review gates.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
-## Actual default-to-reduced motion and current complete native inventory
+## Real cached-chat draft and scrolled-message window regression
+
+Exact **5a8ee1990250e8bed32010b50fcda86174ab1097** adds one owned Android-only
+MainActivity/process-store/chat regression, without a product edit. Strict declared
+App assembly passes; [input binding](device-chat-window-5a8-inputs.json) records actual
+APK bytes. The same declared package/runner below discovers **26/passes25/fails1 on
+actual API31**,0 errors/skips,56.431s
+([transcript](device-chat-window-5a8-api31.txt), [metrics](device-chat-window-5a8-metrics-api31.txt)),
+and **26/passes25/fails1 on actual API37**,0 errors/skips,65.670s
+([transcript](device-chat-window-5a8-api37.txt), [metrics](device-chat-window-5a8-metrics-api37.txt)).
+The complete current inventory is remote13, Map/runtime3, original LoS2, A1/B1 and
+launcher/window/motion/chat6. All earlier25 cases pass together; only
+`realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200`
+fails at strict retained-message assertion line146. Neither command passes.
+
+Only synthetic inactive device/contact/36 incoming read messages are seeded through
+the real process store. Native editor ACTION_FOCUS/ACTION_SET_TEXT saves mixed CJK/
+RTL draft through the real draft store. A real LazyColumn scroll exposes middle
+message15 and its native per-message accessibility row; native font2 checks pass.
+Public360->900 resize actually recreates the Activity. Exact entry8/all stacks/
+selected chat and draft survive. The actual draft still has complete native font2
+and a contained48dp target; connection remains DISCONNECTED. The loaded LazyColumn
+then exposes **zero matches for that previously visible middle message** on both APIs.
+No audit rescue scroll is performed. The retained-message assertion fails; later
+retained-message font and900->360 return checks remain UNEXECUTED.
+
+Actual assigned [WP307 defect230](https://github.com/cbattlegear/MeshCoreOne-Android/issues/230)
+owns the timeline/ChatViewModel lifetime and directly necessary App consumer correction.
+Relevant actual App `remember(feature, conversation)` creates the plain model in the
+Activity composition; model `open` reinitializes latest/unread anchor and the LazyList
+state is composition-owned. These are investigated lifetime surfaces, not a proven
+repair. Frozen ChatConversationView retains model/scroll state with `@State` and
+ChatTimeline attaches per-conversation coordinator/render state. No iOS run, new
+WP501 binding, audit product patch, new worker or active WP307 repair is claimed.
+Only the owned synthetic device data, original draft/onboarding/service flags and
+original window override are restored.
+
+Exactfcfd predecessor complete inventory also **26/25PASS/1FAIL per API**,0 errors/
+skips,54.099s/66.267s ([API31](device-chat-window-fcfd-api31.txt),
+[API37](device-chat-window-fcfd-api37.txt), [metrics31](device-chat-window-fcfd-metrics-api31.txt),
+[metrics37](device-chat-window-fcfd-metrics-api37.txt), [inputs](device-chat-window-fcfd-inputs.json)).
+Earlier302 scoped execution fails1/1 per API,0 errors/skips,6.760s/8.613s
+([API31](device-chat-window-302-api31.txt), [API37](device-chat-window-302-api37.txt),
+[metrics31](device-chat-window-302-metrics-api31.txt),
+[metrics37](device-chat-window-302-metrics-api37.txt), [inputs](device-chat-window-302-inputs.json)).
+Initialdc63 API31 fails1/1 at post-resize visibility,10.074s; API37 fails1/1 before
+resize at native focus,23.116s
+([API31](device-chat-window-dc63-api31.txt), [API37](device-chat-window-dc63-api37.txt),
+[metrics31](device-chat-window-dc63-metrics-api31.txt),
+[metrics37](device-chat-window-dc63-metrics-api37.txt), [inputs](device-chat-window-dc63-inputs.json)).
+Initial API37 focus-failure root cause is unestablished, not both-API product proof.
+Refreshing the actual editor and requiring actual input focus permits both native
+set-text flows; no focus, draft, font, target or scroll assertion is weakened.
+
+Two scopedfcfd API31 attempts separately fail with
+`IllegalArgumentException: performMeasureAndLayout called during measure layout`
+through real `ChatTimeline.kt:118`/LazyListState.scrollToItem
+([first](device-chat-window-layout-fcfd-api31.txt),
+[metrics](device-chat-window-layout-fcfd-metrics-api31.txt),
+[repeat](device-chat-window-layout-repeat-fcfd-api31.txt),
+[repeat metrics](device-chat-window-layout-repeat-fcfd-metrics-api31.txt)).
+Root cause is unestablished; do not label flaky, swallow it, increase timeout or
+claim the layout exception is repaired. The unchanged fullfcfd and final5a8 invocations
+independently reach the loaded-timeline loss on both APIs. No source/threshold changes.
+The fixture waits for the actual loaded LazyColumn, not the requested retained message
+or a longer idle timeout, and final5a8 makes disconnected-state checks precede failure.
+
+Exact published421 [38333380492](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38333380492)
+**FAILED/App800/4**. Completed authoritative Linux job115088310203 log visibly names
+default disconnected discovery226 and Reset228; aggregate4, not a complete per-case
+hosted listing. Controller/Swift codec passed, SwiftData skipped/final guard failed.
+No duplicate hosted bundle, predecessor/successor credit or native26-case inference.
+
+## Prior actual default-to-reduced motion and complete native inventory
 
 Exact executed **286e9fb4cdcb50b62522456e891050e5200ba623** adds two Android-only
 launcher tests, with no product change. The declared strict App assembly command

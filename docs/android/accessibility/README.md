@@ -1,11 +1,36 @@
 # WP-503 accessibility audit
 
-**Status: offline discovery226 and Reset Path228 block acceptance. PR205 remains draft; remaining physical/matrix/review gates are unverified.**
+**Status: offline discovery226, Reset Path228 and cached-chat resize230 block acceptance. PR205 remains draft; remaining physical/matrix/review gates are unverified.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Current native system motion and complete Android inventory
+## Current actual cached-chat window and draft regression
+
+Exact5a8ee1990250e8bed32010b50fcda86174ab1097 complete native inventory discovers
+**26/passes25/fails1 on each actual API31/37**,0 errors/skips56.431s/65.670s.
+All previous25 cases pass; new actual MainActivity/process-store cached-chat case
+fails its retained-message visibility assertion after real360->900 Activity recreation.
+Native ACTION_SET_TEXT saves the CJK/RTL draft. Actual navigation entry/all stacks/
+selected conversation and draft survive; native font2/contained48dp and disconnected
+state checks pass. The loaded LazyColumn loses the previously visible middle message:
+zero visible matches on both APIs, without an audit rescue scroll.
+
+Assigned [WP307 defect230](https://github.com/cbattlegear/MeshCoreOne-Android/issues/230)
+owns timeline/model lifetime and directly necessary App support. No audit product edit,
+new worker or verified active repair is implied. Original window, flags/draft and only
+owned synthetic device data are restored. Later return-resize checks remain unexecuted.
+[Current evidence](../evidence/WP-503/README.md#real-cached-chat-draft-and-scrolled-message-window-regression)
+retains actual source/APKs, complete positive discovery, normative failures and earlier
+native-focus/layout diagnostics. The separate API31 native measure/layout exception
+has unestablished root cause, not a silent catch, increased timeout or claimed repair.
+
+Exact published42138333380492 **FAILED/App800/4**, authoritative115088310203 log
+names default discovery226/Reset228, not a full hosted per-case listing. Controller/
+Swift codec passed; SwiftData skipped/final guard failed. No duplicate hosted bundle,
+predecessor/successor credit or inference that hosted CI executed the new native fixture.
+
+## Prior native system motion and complete Android inventory
 
 Exact286e9fb4cdcb50b62522456e891050e5200ba623 adds two owned native launcher cases.
 The complete current inventory **25/25PASS on each actual API31/37**,0 failures/errors/
@@ -20,7 +45,7 @@ The initial compact API31 failure was text-only scroll calibration: an already49
 action was clipped to41dp when only its unmerged label was scrolled into view. Scrolling
 the merged action exposes its full target while preserving strict font/48dp/containment
 assertions. Both the negative and exact corrected positive remain in
-[current native evidence](../evidence/WP-503/README.md#actual-default-to-reduced-motion-and-current-complete-native-inventory).
+[motion evidence](../evidence/WP-503/README.md#prior-actual-default-to-reduced-motion-and-complete-native-inventory).
 This closes only the launcher/provider motion gap, not all remaining feature/window
 states, physical TalkBack or independent acceptance/review.
 
