@@ -14,16 +14,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.meshcoreone.android.MainActivity
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 
 abstract class DeviceAccessibilityHarness : NativeAccessibilityAssertions() {
-    @get:Rule public override val compose = createAndroidComposeRule<MainActivity>()
+    @OptIn(ExperimentalTestApi::class)
+    @get:Rule public override val compose = createAndroidComposeRule<MainActivity>(
+        effectContext = StandardTestDispatcher(),
+    )
     override val activity: MainActivity get() = compose.activity
 
     @Before fun requireActualSystemFont200AndSelectedApi() {
