@@ -83,7 +83,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 val label = tabLabel(tab)
                 assertTrue("The native selected tab must retain its spoken name",
                     descendants(after).any { it.text?.toString() == label || it.contentDescription?.toString() == label })
-                assertFont200Unclipped(compose.onNodeWithTag("tab-label:${tab.name}"))
+                assertFont200Unclipped(compose.onNodeWithTag("tab-label:${tab.name}", useUnmergedTree = true))
                 println("WP503_NATIVE_LAUNCHER_FOCUS|sdk=${android.os.Build.VERSION.SDK_INT}|tab=$tab|nativeSelected=true" +
                     "|accessibilityFocus=true|bounds=$bounds|fontScale=2.0|completedPreferenceSeeded=true" +
                     "|realGraph=true|realRadio=false|physicalTalkBack=false")
@@ -118,6 +118,8 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             info.flags = original or AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE
             automation().serviceInfo = info
             compose.waitUntil { manager.isTouchExplorationEnabled }
+            println("WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=${android.os.Build.VERSION.SDK_INT}" +
+                "|touchExploration=${manager.isTouchExplorationEnabled}|physicalTalkBack=false")
             block()
         } finally {
             info.flags = original
