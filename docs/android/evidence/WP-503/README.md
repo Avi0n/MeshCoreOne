@@ -7,6 +7,72 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Actual composer share popup and cached contact cancel
+
+Exact **41d1e41ff7d0dca767e244e07c074fb853494dea** extends the actual cached
+composer method after its existing keyboard/Back assertions, without replacing
+the process graph, product or any original assertion/deadline. Declared strict
+App assembly passes; [actual binding](device-menu-41d1-inputs.json):
+unchanged App105464909 bytes/af1af8d4c963502180ac4425b4da5896e2d9792fef29572a31cb3b02347fd373;
+test2830987 bytes/fc1e4298c038f4dfc085609ab63496a109ac628ae202c9685f20bb5491aca6a3.
+The original cached-chat resize fixture body equals publishedfad8; Map/LoS fixtures
+and production bytes remain unchanged.
+
+Declared scoped command remains
+`adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+**API31:1/1PASS**,0 failures/errors/skips4.188s
+([transcript](device-menu-41d1-api31.txt), [metrics](device-menu-41d1-metrics-api31.txt));
+**API37:1/1PASS**,0 failures/errors/skips8.051s
+([transcript](device-menu-41d1-api37.txt), [metrics](device-menu-41d1-metrics-api37.txt)).
+
+Full declared command replaces the class selector with
+`-e package com.meshcoreone.android.accessibility`.
+**API31:27/26PASS/1FAIL**,0 error/skip statuses58.042s
+([transcript](device-menu-full-41d1-api31.txt), [metrics](device-menu-full-41d1-metrics-api31.txt));
+**API37:27/26PASS/1FAIL**,0 error/skip statuses70.030s
+([transcript](device-menu-full-41d1-api37.txt), [metrics](device-menu-full-41d1-metrics-api37.txt)).
+Strict parsing verifies27 unique starts/26 passes/one-2 failure/no error or skip codes.
+All prior25 passing methods and extended composer method pass. Only unchanged
+cached-chat fixture fails: API31 its loaded retained-message assertion331; API37
+instead throws native `performMeasureAndLayout called during measure layout` through
+real ChatTimeline.kt:118. Cause unestablished;37's later resize/retention assertions
+are unexecuted. This is not new both-API loaded-message-loss proof or a full command pass.
+
+Actual native Share focus/click opens the real popup. Location/Contact/My Info labels
+have full actual font2/RTL layouts with zero clipping; location/my-info remain
+disabled in this inactive-radio/no-authorized-location fixture. Native Contact opens
+the real AlertDialog. Public graph environment queries actual process-store contacts
+for the conversation radio; the synthetic CJK cached contact is genuinely displayed,
+not an injected chooser substitute. Cancel's full font2 layout remains contained.
+
+| Native target | API31 bounds | API37 bounds | Actual size |
+| --- | --- | --- | --- |
+| Share Contact popup action | (149,546)-(348,594) | (149,648)-(348,696) | 199x48dp |
+| Cached CJK contact chooser row | (54,352)-(305,406) | (54,398)-(305,452) | 251x54dp |
+| Native Cancel | (54,430)-(158,484) | (54,476)-(158,530) | 104x54dp |
+
+Every target is contained in its own actual popup/dialog window; none is inferred
+from background Activity bounds or expanded semantics. Native Cancel retains exact
+chat entry9/stacks/draft and leaves IME hidden. Returned native Share focus is
+automatically true on both APIs and is refreshed/required true; focus is requested
+only when absent. This is native focus-state evidence, not physical TalkBack return/
+speech/traversal or a real shared-token insertion (the chooser is cancelled).
+Original draft/onboarding/service flags and only owned synthetic device data are
+restored. Public post-run reads confirm360x900/animator0 before helper shutdown.
+
+Original **53f09cf569bed40739f10d73b9ecbb7c498ea244**
+[input binding](device-menu-53f09-inputs.json) and scoped negatives remain:
+API31 **1/1FAIL**,0 error/skip statuses4.708s
+([transcript](device-menu-53f09-api31.txt), [metrics](device-menu-53f09-metrics-api31.txt)),
+at redundant native focus request after real picker Cancel; all prior menu/font/
+geometry/draft checks execute. API37 **1/1FAIL**,0 error/skip statuses11.116s
+([transcript](device-menu-53f09-api37.txt), [metrics](device-menu-53f09-metrics-api37.txt)),
+before the method body at existing touch-exploration activation1000ms deadline.
+Initial31 return focus state was not sampled; later41d observes automatic=true
+and guards duplicate requests while still requiring actual focus. Causal proof for
+the initial31 failure is limited; original37 activation-delay cause is unestablished.
+No flaky label, changed helper/deadline, assertion removal or product repair claim.
+
 ## Actual cached composer platform IME and native Back
 
 Exact **8d306e5411f07874c49846a359b50cd9e1b6c2b8** adds one owned Android-only

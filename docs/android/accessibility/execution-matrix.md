@@ -1,7 +1,20 @@
 # WP-503 native execution matrix
 
 **Offline discovery226, Reset Path228 and cached-chat resize230 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
-Current exact8d306e5411f07874c49846a359b50cd9e1b6c2b8 complete actual native inventory
+Current exact41d1e41ff7d0dca767e244e07c074fb853494dea full native inventory
+**27/26PASS/1FAIL per actual API31/37**,0 error/skip statuses58.042s/70.030s.
+Extended native composer popup/contact-picker/Cancel flow also passes scoped1/1
+each,4.188s/8.051s. All labels/CJK contact/Cancel retain actual font2/RTL with zero
+clipping; optional shares disabled, Contact199x48dp/contact251x54dp/Cancel104x54dp
+wholly contained in their respective native windows. Native Cancel retains real
+entry/stacks/draft, hidden IME and automatic Share focus. All previous25 passing
+methods pass. Unchanged cached-chat fixture alone fails: API31 loaded-message
+loss230; API37 native measure/layout exception via ChatTimeline.kt:118 with
+unestablished cause, not new loaded-message evidence. Original53f31 duplicate-focus
+request and37 pre-body touch-exploration deadline remain distinct negative records.
+No timeout/floor/strict assertion changes, product edits, fake graph or whole-WP pass.
+
+Prior exact8d306e5411f07874c49846a359b50cd9e1b6c2b8 complete actual native inventory
 **27/26PASS/1FAIL per API31/37**,0 errors/skips57.947s/65.337s. New actual cached
 composer/IME case passes1/API within these commands and separately1/1 each,
 3.213s/4.201s. Actual native click/input focus/public accepting-text binding, hidden->
@@ -156,7 +169,8 @@ are harness diagnostics, not both-API product proof or physical TalkBack observa
 
 Current mandatory instrumentation inventory is13 remote,3 Map/runtime,2 LoS-platform,
 1 Point A contrast,1 Point B contrast and7 launcher-focus/window/motion/chat/IME methods per API.
-Current complete27/API at8d passes26/fails1; prior26/API at5a8 passes25/fails1;
+Current complete27/API at41d passes26/fails1 with distinct per-API causes above;
+prior27/API at8d passes26/fails1; prior26/API at5a8 passes25/fails1;
 earlier25/API at286 passes.
 Existing full-matrix/remaining
 feature motion/resize/detail/draft/scroll and physical TalkBack gates remain unverified.

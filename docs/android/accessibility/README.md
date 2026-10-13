@@ -5,7 +5,29 @@ This is not accessibility acceptance, a completed WP, or permission to close iss
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Current actual cached composer and platform keyboard audit
+## Current actual composer popup and contact-picker cancellation
+
+Exact41d1e41ff7d0dca767e244e07c074fb853494dea extends the real cached composer
+flow after native keyboard Back. Scoped **1/1PASS per API31/37**,0 failures/errors/
+skips4.188s/8.051s. Named native Share opens the real popup; all three labels and
+cached CJK contact/Cancel text have complete font2/RTL layouts. Optional location/
+my-info shares stay disabled. Actual Share Contact199x48dp opens the graph-backed
+cached-contact dialog; contact251x54dp/Cancel104x54dp are fully contained in their
+own native windows. Native Cancel preserves real entry/stacks/draft, leaves IME
+hidden and confirms automatically retained native Share focus on both APIs.
+
+Full current native inventory **27/26PASS/1FAIL per API31/37**,0 error/skip statuses
+58.042s/70.030s. All previous25 passing methods and extended composer case pass.
+The unchanged cached-chat fixture alone fails: API31 retained-message loss230;
+API37 instead throws the separately retained native measure/layout exception through
+ChatTimeline.kt:118. Root cause unestablished; this37 run is not loaded-message-loss
+proof. No rescue scroll, broad catch, raised deadline or physical TalkBack inference.
+[Current modal evidence](../evidence/WP-503/README.md#actual-composer-share-popup-and-cached-contact-cancel)
+retains exact source/APKs, all native positives and original53f diagnostics. Earlier
+API31 redundant focus-request failure and API37 pre-body touch-exploration deadline
+are not silently relabeled passing, flaky or a new product defect.
+
+## Prior actual cached composer and platform keyboard audit
 
 Exact8d306e5411f07874c49846a359b50cd9e1b6c2b8 complete actual native inventory
 **27/26PASS/1FAIL per API31/37**,0 errors/skips57.947s/65.337s. The new real
