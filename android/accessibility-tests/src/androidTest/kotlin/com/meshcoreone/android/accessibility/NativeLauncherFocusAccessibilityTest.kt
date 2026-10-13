@@ -72,6 +72,9 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
                 val window = root()
                 val after = nativeTab(window, tab)
+                println("WP503_NATIVE_LAUNCHER_SELECTION|sdk=${android.os.Build.VERSION.SDK_INT}|tab=$tab" +
+                    "|nativeSelected=${after.isSelected}|accessibilityFocus=${after.isAccessibilityFocused}" +
+                    "|realSelected=${container.navigation.state.value.selectedTab}")
                 assertTrue("The native selected state must match the real navigation state", after.isSelected)
                 assertTrue("Recomposition must retain native accessibility focus on the selected tab", after.isAccessibilityFocused)
                 val tabs = AppTab.entries.map { nativeTab(window, it) }
@@ -149,7 +152,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             }
         }
         assertEquals("The real native tree must expose exactly one named $label action", 1, nodes.size)
-        return nodes.single()
+        return nodes.single().also { assertTrue("Refresh the actual named $label action", it.refresh()) }
     }
 
     private fun tabLabel(tab: AppTab): String = activity.getString(when (tab) {
