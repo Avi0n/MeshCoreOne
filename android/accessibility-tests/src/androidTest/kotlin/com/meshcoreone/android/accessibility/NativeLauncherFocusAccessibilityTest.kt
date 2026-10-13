@@ -12,6 +12,7 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
@@ -115,9 +116,18 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             assertTrue("Observe the actual hidden-to-visible keyboard transition", !imeVisible())
             assertTrue("Actual native editor click must open the platform input session",
                 editor.performAction(AccessibilityNodeInfo.ACTION_CLICK))
-            compose.waitUntil { imeVisible() }
-            assertTrue(editor.refresh())
+            compose.waitForIdle()
+            compose.waitUntil { editor.refresh() && editor.isFocused }
             assertTrue("Actual keyboard editor must have native input focus", editor.isFocused)
+            val input = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            compose.waitUntil {
+                var accepting = false
+                compose.runOnUiThread { accepting = input.isAcceptingText }
+                accepting
+            }
+            println("WP503_NATIVE_CHAT_IME_INPUT|sdk=${android.os.Build.VERSION.SDK_INT}" +
+                "|nativeInputFocus=true|acceptingText=true|physicalTalkBack=false")
+            compose.waitUntil { imeVisible() }
             assertTrue(editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, Bundle().apply {
                 putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, draft)
             }))
