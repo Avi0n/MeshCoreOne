@@ -64,8 +64,20 @@ class DiscoveryStateHolder(
         val dataStore = session.offlineDataStore()
         val radioId = knownRadioId()
         if (dataStore == null || radioId == null) {
-            // Nothing readable to show: resolve to the empty state rather than an unowned spinner.
-            mutableState.update { it.copy(discoveredNodes = emptyList(), addedPublicKeys = emptySet(), hasLoadedOnce = true, isLoading = false) }
+            val unavailable = if (radioId == null) {
+                R.string.l10n_app_contacts_contacts_add_error_notconnected
+            } else {
+                R.string.l10n_app_contacts_contacts_detail_error_servicesunavailable
+            }
+            mutableState.update {
+                it.copy(
+                    discoveredNodes = emptyList(),
+                    addedPublicKeys = emptySet(),
+                    hasLoadedOnce = true,
+                    isLoading = false,
+                    errorMessage = NodesMessage.res(unavailable),
+                )
+            }
             applyFilter()
             return
         }

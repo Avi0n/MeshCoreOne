@@ -67,6 +67,24 @@ class DiscoveryNativeTest {
         assertTrue(holder.state.value.hasLoadedOnce)
         assertFalse(holder.state.value.isLoading)
         assertTrue(holder.state.value.visibleNodes.isEmpty())
+        assertEquals(
+            NodesMessage.res(R.string.l10n_app_contacts_contacts_add_error_notconnected),
+            holder.state.value.errorMessage,
+        )
+    }
+
+    @Test
+    fun `discovery without an offline store reports that services are unavailable`() = scenario {
+        val harness = Harness(clock).connect()
+        harness.session.offlineStore = null
+        val holder = DiscoveryStateHolder(harness.dependencies, scope)
+        holder.loadDiscoveredNodes()
+        assertTrue(holder.state.value.hasLoadedOnce)
+        assertFalse(holder.state.value.isLoading)
+        assertEquals(
+            NodesMessage.res(R.string.l10n_app_contacts_contacts_detail_error_servicesunavailable),
+            holder.state.value.errorMessage,
+        )
     }
 
     @Test
