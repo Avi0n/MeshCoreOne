@@ -1,8 +1,13 @@
 // AndroidOnly: WP-503 Observe real launcher/process graph tab selection and platform accessibility focus in an explicit completed-onboarding fixture.
 package com.meshcoreone.android.accessibility
 
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.Context
 import android.graphics.Rect
+import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -11,6 +16,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.meshcoreone.android.app.MeshCoreApplication
 import com.meshcoreone.android.core.contracts.AppTab
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
+import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.feature.onboarding.OnboardingState
 import kotlinx.coroutines.runBlocking
@@ -21,7 +27,26 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
-    @Test fun realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable() {
+    @Test fun frameworkControlCanAcquireRealNativeAccessibilityFocus() = withTouchExploration {
+        var calls = 0
+        val label = "Native focus control"
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface { Button(onClick = { calls++ }) { Text(label) } }
+            }
+        }
+        val native = namedAction(root(), label)
+        assertTrue("Actual framework native focus must be available",
+            native.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+        assertTrue(native.refresh())
+        assertTrue(native.isAccessibilityFocused)
+        assertTrue(native.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+        compose.runOnIdle { assertEquals(1, calls) }
+        assertTrue(namedAction(root(), label).isAccessibilityFocused)
+        println("WP503_NATIVE_FOCUS_CONTROL|sdk=${android.os.Build.VERSION.SDK_INT}|focused=true|callback=1|physicalTalkBack=false")
+    }
+
+    @Test fun realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable() = withTouchExploration {
         InstrumentationRegistry.getInstrumentation().uiAutomation
         val application = requireNotNull(activity.application as? MeshCoreApplication)
         val container = runBlocking { application.container.await() }
@@ -81,8 +106,29 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
 
     private fun automation() = InstrumentationRegistry.getInstrumentation().uiAutomation
 
-    private fun nativeTab(root: AccessibilityNodeInfo, tab: AppTab): AccessibilityNodeInfo {
-        val label = tabLabel(tab)
+    private fun withTouchExploration(block: () -> Unit) {
+        val manager = activity.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        val info = automation().serviceInfo
+        println("WP503_NATIVE_FOCUS_SERVICE|sdk=${android.os.Build.VERSION.SDK_INT}|capabilities=${info.capabilities}" +
+            "|flags=${info.flags}|touchExploration=${manager.isTouchExplorationEnabled}|physicalTalkBack=false")
+        assertTrue("UiAutomation must actually support requesting touch exploration",
+            info.capabilities and AccessibilityServiceInfo.CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION != 0)
+        val original = info.flags
+        try {
+            info.flags = original or AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE
+            automation().serviceInfo = info
+            compose.waitUntil { manager.isTouchExplorationEnabled }
+            block()
+        } finally {
+            info.flags = original
+            automation().serviceInfo = info
+        }
+    }
+
+    private fun nativeTab(root: AccessibilityNodeInfo, tab: AppTab): AccessibilityNodeInfo =
+        namedAction(root, tabLabel(tab))
+
+    private fun namedAction(root: AccessibilityNodeInfo, label: String): AccessibilityNodeInfo {
         val nodes = descendants(root).filter {
             it.text?.toString() == label || it.contentDescription?.toString() == label
         }.mapNotNull { named ->
@@ -90,12 +136,12 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         }.distinct().toList()
         if (nodes.size != 1) {
             descendants(root).forEach {
-                println("WP503_NATIVE_LAUNCHER_TREE|tab=$tab|class=${it.className}|text=${it.text}" +
+                println("WP503_NATIVE_LAUNCHER_TREE|label=$label|class=${it.className}|text=${it.text}" +
                     "|description=${it.contentDescription}|clickable=${it.isClickable}|selected=${it.isSelected}" +
                     "|focusable=${it.isScreenReaderFocusable}|extras=${it.extras}|childCount=${it.childCount}")
             }
         }
-        assertEquals("The real native tree must expose exactly one named $tab action", 1, nodes.size)
+        assertEquals("The real native tree must expose exactly one named $label action", 1, nodes.size)
         return nodes.single()
     }
 
