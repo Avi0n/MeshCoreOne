@@ -1,11 +1,75 @@
 # WP-503 attempt evidence
 
-**Offline discovery226, Reset Path228 and cached-chat resize230 block acceptance; PR205/WP503 remain incomplete with remaining physical/matrix/review gates.**
+**Offline discovery226, Reset Path228, cached-chat resize230 and Appearance radio targets231 block acceptance; PR205/WP503 remain incomplete with remaining physical/matrix/review gates.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Actual App Appearance selection
+
+Exact **48a6a9d3fd3e7641902ddeaf6874886a3401199b**, Android tree
+9a8548fe2d30af4240cdf288f70a31704d8446ae. Actual MainActivity/process graph opens
+Settings -> Appearance and selects all10 unlocked themes under3 scheme preferences.
+Native radio checked/checkable state is distinct from tab-style selected state.
+Whole-entry scrolling avoids measuring a partially scrolled label-only entry.
+Actual bridge readiness uses the existing standard deadline and refreshed ancestry.
+No product, dependency, floor, original assertion/fixture or golden change.
+
+Declared strict App assembly passes:
+`:app:assembleDebug :app:assembleDebugAndroidTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
+[Actual binding](device-appearance-inputs.json): unchanged production App105464909/
+af1af8d4c963502180ac4425b4da5896e2d9792fef29572a31cb3b02347fd373;
+test2904731/be721f66547221bdc4607b7a107308825a2e752565c3e946a658f785b887240b.
+Both actual post-profiles retain360x900/mdpi/font2/all animation scales0:
+`device-appearance-profile-api31/37.txt`,4096/16384-byte pages respectively.
+
+Declared actual command:
+`adb -s SERIAL shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+**API31:30 methods/28PASS/2 failed identities**,90.721s;
+**API37:30 methods/28PASS/2 failed identities**,112.957s.
+Both have0 error/skip statuses; strict unique-start/pass/-2 inventory is checked.
+Actual transcripts/metrics: `device-appearance-full-api31/37*`.
+All prior28 passing methods remain passing. Original230 body equals publishede680
+byte-for-byte and still loses the actual loaded middle message after recreation;
+no layout exception in these invocations, later return-resize checks unexecuted.
+
+Each API reaches30 unique theme/preference states. Actual preference refresh resolves
+theme/choice/effective forced-dark Ember; all names are full font200, theme cards retain
+contained48dp native bounds, selected text/duplicate disabling and native focus.
+Original theme/scheme/onboarding restore is asserted and emitted once. This is not
+cold-process preference survival or physical TalkBack speech certification.
+Each full command retains380 unique actual message-paint measurements with all
+unchanged4.5/7 floors clearing, minimum4.517812074094317:1.
+
+**The Appearance case fails**, not a positive result: System/Light native radio rows
+are328x42dp, including enabled/clickable unselected states; Dark328x48dp.
+12 observed samples/API include8 sub48dp observations. JUnit ErrorCollector keeps
+these assertions strict while allowing later theme flow observations. Runner summaries
+report9 failure assertions (8 radio geometry +1 original230), not9 failed methods.
+[Actual assigned WP318 defect231](https://github.com/cbattlegear/MeshCoreOne-Android/issues/231)
+requires producer repair; no current-main active repair/admission is independently verified.
+Source selectable Row lacks explicit minimum allocation; physical touch overlap/ownership
+is not separately calibrated. No WP503 product edit or duplicate worker.
+
+Earlier exact7f3c97e7c8b5c8258332651caace3d24ddc2b40f scoped cases fail1/1 each:
+31 partial entry bounds304x41dp after scrolling only text;37 selected System action
+missing because native radio uses checked state, not isSelected.
+Records `device-appearance-initial-api31/37*` bind initial-inputs.
+Corrected8363198878c158bebc348fe5508685f78cf789c3 cases fail1/1 each at real
+System328x42dp,3.470s/5.379s; `device-appearance-target-api31/37*`/target-inputs.
+765049eb0e2898aba91e9392cbbf7ea1c3023f6d scoped cases fail one identity each with
+8 target reports13.317s/16.563s;30 unique actual state metrics each are retained in
+`device-appearance-scoped-api31/37*`/flow-inputs. Its first full31 discovers30/
+28PASS/2 failed identities78.250s, but Appearance additionally misses the native Dark
+checkable ancestor; it does not prove all30 theme states. First full37 reaches30/
+28PASS/2 failed identities with8 radio+1 chat reports; `device-appearance-full-first-*`.
+Native availability is awaited/refreshed at48a6; exact older availability cause remains
+unproven. Initial console parser failed on CP1252 CJK output, no validation pass credited;
+ASCII-safe strict parsing subsequently confirms current identities/metrics/floors.
+All26 files retain actual native evidence, not a duplicate hosted/JVM result bundle.
+Physical/remaining matrix/approved golden/independent review/admission gates stay open.
 
 ## Actual all-theme message contrast
 

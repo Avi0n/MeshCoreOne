@@ -1,11 +1,38 @@
 # WP-503 accessibility audit
 
-**Status: offline discovery226, Reset Path228 and cached-chat resize230 block acceptance. PR205 remains draft; remaining physical/matrix/review gates are unverified.**
+**Status: offline discovery226, Reset Path228, cached-chat resize230 and Appearance radio targets231 block acceptance. PR205 remains draft; remaining physical/matrix/review gates are unverified.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Current all-theme message contrast on actual Android
+## Current real App Appearance selection on actual Android
+
+Exact48a6a9d3fd3e7641902ddeaf6874886a3401199b adds real disconnected
+launcher -> Settings -> Appearance traversal, not a fake controller or standalone
+screen. Both APIs reach all10 unlocked themes x3 preferences:30 unique states,
+actual preference refresh, forced-dark Ember behavior, unclipped font200 names,
+selected text/duplicate disabling, contained48dp theme cards and native focus.
+Original theme/scheme/onboarding flags restore and are asserted.
+
+**Complete native30/28PASS/2 failed identities per API31/37**,0 error/skip statuses,
+90.721s/112.957s. All prior28 passing methods remain passing, including380 unique
+painted message spans per API/minimum4.517812074094317:1. Unchanged230 still loses
+the loaded middle message; new Appearance case fails8 strict target assertions:
+System/Light native rows328x42dp, including unselected clickable states; Dark328x48dp.
+JUnit summaries report9 failure assertions, not9 failed methods. No whole-command pass.
+[WP318 defect231](https://github.com/cbattlegear/MeshCoreOne-Android/issues/231)
+requires an admitted producer repair; WP503 changes no product surface.
+
+Owned traversal now scrolls the whole entry and reads native radio checked/checkable
+state rather than tab-style selected state. Actual public bridge readiness uses the
+existing standard deadline and refreshes ancestry. Earlier selector/availability
+negatives are retained; the older missing-Dark ancestor's cause is not proven.
+Geometry collection still fails JUnit and permits observing later theme states.
+[Actual Appearance evidence](../evidence/WP-503/README.md#actual-app-appearance-selection)
+binds commands/APKs/negative records. Physical TalkBack, cold-process preference
+survival, approved goldens and the remaining feature/theme/window matrix are unverified.
+
+## Prior all-theme message contrast on actual Android
 
 Exactdc6fcf7424e39043a143ef10331572b29dc21917 shares the original message
 contrast audit between JVM and Android; no duplicate algorithm or relaxed family.
@@ -38,7 +65,7 @@ scheduler: unconfined effects are not always inline, so that first hypothesis al
 was insufficient. This is a bounded harness scheduling correction, not a chat repair
 or proof that every historical layout exception has the same cause.
 
-Current full inventory **28/27PASS/1FAIL per actual API31/37**,0 error/skip statuses
+That prior full inventory **28/27PASS/1FAIL per actual API31/37**,0 error/skip statuses
 61.804s/78.424s. All prior26 passing methods plus the new scheduling control pass.
 The unchanged strict cached-chat fixture reaches genuine loaded-message loss230
 on both APIs; no native layout exception occurs in these invocations. Selection/

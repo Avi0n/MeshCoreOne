@@ -1,0 +1,9 @@
+--------- beginning of main
+10-12 23:48:18.123  8159  8195 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 23:48:18.143  8159  8195 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 23:48:18.190  8159  8195 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+10-12 23:48:19.842  8159  8195 I System.out: WP503_FONT|text=Appearance|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 23:48:19.843  8159  8195 I System.out: WP503_FONT_LINE|text=Appearance|line=0|left=0.0|right=148.45312|top=0.0|bottom=33.0
+10-12 23:48:20.283  8159  8195 I System.out: WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 848)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 23:48:20.284  8159  8195 I System.out: WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+10-12 23:48:20.344  8159  8195 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=System|checked=true|checkable=true

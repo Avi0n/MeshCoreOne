@@ -1,7 +1,25 @@
 # WP-503 native execution matrix
 
-**Offline discovery226, Reset Path228 and cached-chat resize230 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
-Current exactdc6fcf7424e39043a143ef10331572b29dc21917 complete native inventory
+**Offline discovery226, Reset Path228, cached-chat resize230 and Appearance radio targets231 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
+Current exact48a6a9d3fd3e7641902ddeaf6874886a3401199b complete native inventory
+**30/28PASS/2 failed identities per actual31/37**,0 error/skip statuses90.721s/
+112.957s. All prior28 passing methods pass. Unchanged230 loses the loaded message;
+new real App Appearance case reports8 strict48dp failures for System/Light328x42dp
+native radio rows, including unselected clickable states; Dark328x48dp.
+Runner summaries report9 failed assertions, not9 failed methods.
+
+Both complete commands reach all10 unlocked themes x3 preferences/30 unique actual
+App states: freshly resolved persistence/effective Ember rule, selected text/duplicate
+disabling, unclipped font200 names, contained48dp theme cards and native focus.
+Actual preferences/onboarding restore and are asserted. Both retain380 unique message
+paint rows, minimum4.517812074094317:1 with all unchanged4.5/7 floors clearing.
+No whole-command/physical TalkBack/cold-process persistence or golden acceptance.
+Product defect231 belongs to WP318; no active current-main repair/admission is verified.
+Whole-entry scrolling/native checked-state/readiness guards are owned traversal changes,
+not relaxed geometry. Initial selector/availability negatives remain separate.
+[Exact commands/bindings](../evidence/WP-503/README.md#actual-app-appearance-selection).
+
+Prior exactdc6fcf7424e39043a143ef10331572b29dc21917 complete native inventory
 **29/28PASS/1FAIL per actual31/37**,0 error/skip statuses76.107s/118.269s. All
 prior27 passing methods plus all-theme contrast pass; unchanged230 alone reaches
 retained-message loss on both APIs, no layout exception in these invocations.

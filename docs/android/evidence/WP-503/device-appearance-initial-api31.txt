@@ -1,0 +1,53 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: The actual native target Rect(28, 519 - 332, 560) must be48dp at density=1.0; text=null
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.assertNativeTargetContained(NativeLauncherFocusAccessibilityTest.kt:796)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions$lambda$0(NativeLauncherFocusAccessibilityTest.kt:620)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda9.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:815)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions(NativeLauncherFocusAccessibilityTest.kt:593)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+java.lang.AssertionError: The actual native target Rect(28, 519 - 332, 560) must be48dp at density=1.0; text=null
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.assertNativeTargetContained(NativeLauncherFocusAccessibilityTest.kt:796)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions$lambda$0(NativeLauncherFocusAccessibilityTest.kt:620)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda9.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:815)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions(NativeLauncherFocusAccessibilityTest.kt:593)
+
+INSTRUMENTATION_STATUS: test=realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 3.095
+There was 1 failure:
+1) realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+java.lang.AssertionError: The actual native target Rect(28, 519 - 332, 560) must be48dp at density=1.0; text=null
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.assertNativeTargetContained(NativeLauncherFocusAccessibilityTest.kt:796)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions$lambda$0(NativeLauncherFocusAccessibilityTest.kt:620)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda9.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:815)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions(NativeLauncherFocusAccessibilityTest.kt:593)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
