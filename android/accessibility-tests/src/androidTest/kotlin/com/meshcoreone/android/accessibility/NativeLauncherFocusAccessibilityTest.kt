@@ -31,7 +31,8 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         try {
             compose.runOnUiThread { onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, true) }
             compose.waitUntil { compose.onAllNodesWithTag("tab:CHATS").fetchSemanticsNodes().size == 1 }
-            for (tab in AppTab.entries) {
+            assertEquals(AppTab.CHATS, container.navigation.state.value.selectedTab)
+            for (tab in AppTab.entries.filter { it != AppTab.CHATS } + AppTab.CHATS) {
                 val tag = "tab:${tab.name}"
                 val before = nativeTab(root(), tab)
                 assertTrue("The real native tab must be actionable", before.isClickable)
@@ -85,7 +86,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         val nodes = descendants(root).filter {
             it.text?.toString() == label || it.contentDescription?.toString() == label
         }.mapNotNull { named ->
-            generateSequence(named) { it.parent }.firstOrNull { it.isClickable }
+            generateSequence(named) { it.parent }.firstOrNull { it.isClickable || it.isSelected }
         }.distinct().toList()
         if (nodes.size != 1) {
             descendants(root).forEach {
