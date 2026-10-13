@@ -5,7 +5,28 @@ This is not accessibility acceptance, a completed WP, or permission to close iss
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Current calibrated native effect scheduling
+## Current all-theme message contrast on actual Android
+
+Exactdc6fcf7424e39043a143ef10331572b29dc21917 shares the original message
+contrast audit between JVM and Android; no duplicate algorithm or relaxed family.
+Targeted original JVM method **2/2PASS**,0 failures/errors/skips760 measured spans.
+Actual API31/37 scoped **1/1PASS each**,12.787s/29.897s: each renders all10 themes,
+38 effective scheme/high-contrast frames and76 incoming/channel versus outgoing/direct
+states. All380 emitted spans per API clear unchanged4.5/7 floors against their actual
+native painted bubble; minimum4.517812074094317:1. All body layouts retain system
+font2/RTL and zero clipping. This is feature-consumer paint evidence, not physical
+TalkBack, native theme-picker persistence or completed all-feature/theme coverage.
+
+Complete native **29/28PASS/1FAIL per actual31/37**,0 error/skip statuses76.107s/
+118.269s; all prior27 passing methods and new all-theme case pass. Unchanged230
+alone still loses the cached middle message after Activity recreation on both APIs.
+Initial API37 full invocation crashes before discovery; public exit reason3 LOW_MEMORY/
+status9/rss282MB is retained, not a pass or flaky label. Actual real launcher readiness
+COLD3459ms precedes unchanged replay; no proof of repaired memory/cold-start behavior.
+[Native all-theme evidence](../evidence/WP-503/README.md#actual-all-theme-message-contrast)
+retains exact positives/negative/bindings. Product, physical/matrix/review gates persist.
+
+## Prior calibrated native effect scheduling
 
 Exact273d74949f7756d46df32290ee2494b9e6ba1004 uses explicit queued effect
 scheduling in the owned Android-only harness, without changing production bytes,

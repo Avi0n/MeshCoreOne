@@ -7,6 +7,73 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Actual all-theme message contrast
+
+Exact **dc6fcf7424e39043a143ef10331572b29dc21917** extracts the prior original
+38-effective-frame message audit into one shared consumer/helper used by both JVM
+and Android wrappers. Original method names, directions, emitted-style resolution,
+38-frame/no-zero guards, actual system-font/paint oracle and4.5/7 floors remain
+unchanged. Actual ChatTimeline/MessageBody render, not palette-only oracles, fake
+pixel fills, preview density or a substitute feature renderer. This is bounded native
+message-paint evidence, not a real theme-picker persistence or full all-feature matrix.
+
+Declared strict App assembly passes:
+`:app:assembleDebug :app:assembleDebugAndroidTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
+[Actual binding](device-native-themes-inputs.json): unchanged production App105464909/
+af1af8d4c963502180ac4425b4da5896e2d9792fef29572a31cb3b02347fd373;
+test2881123/ca58f51b6b3d63dc41aaab3831f6e6437d54357603485036d1053d459d5b6bd3.
+Targeted declared original JVM selector
+`:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.renderedDirectAndChannelSpansClearTheirPaintedBubblesInAll38EffectiveFrames*`
+with the same strict options passes **2/2**,0 failures/errors/skips and760 span
+measurements. Positive suite discovery is checked, not compile-only success.
+No new80-case JVM invocation or duplicate reproducible hosted/JVM bundle is retained.
+
+Scoped declared Android command:
+`adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeMessagingContrastAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+**API31:1/1PASS**,0 failures/errors/skips12.787s; **API37:1/1PASS**,0 failures/errors/
+skips29.897s. Transcripts/metrics `device-native-themes-scoped-api31/37*`.
+Each API requires exactly380 unique emitted-span identities,10 themes,38 effective
+scheme/high-contrast frames and76 incoming/channel versus outgoing/direct states.
+All fonts are actual system2/RTL with zero clipping; each native dominant painted
+bubble background matches the consumer's emitted surface. All span contrast ratios
+clear their unchanged4.5/7 floors; minimum4.517812074094317:1 on each API.
+
+Full declared Android command replaces the class selector with
+`-e package com.meshcoreone.android.accessibility`. **API31:29/28PASS/1FAIL**,
+0 error/skip statuses76.107s; `device-native-themes-full-api31*`.
+Initial **API37 full crashes before discovery**, `device-native-themes-full-api37.txt`;
+public [ApplicationExitInfo](device-native-themes-crash-exit-info-api37.txt) records
+reason3 LOW_MEMORY/status9/rss282MB, not an asserted-feature failure/zero-test pass.
+No case body/contrast inventory is credited to this crashed invocation.
+Real public [launcher readiness](device-native-themes-launch-api37.txt) then reports
+Statusok/COLD/TotalTime3459ms. Unchanged same-APK full replay **29/28PASS/1FAIL**,
+0 error/skip statuses118.269s; `device-native-themes-full-replay-api37*`.
+This is actual responsiveness, not a proven startup-memory repair or performance
+budget. No emulator-memory/UI deadline increase, retry exclusion or flaky label.
+
+Strict parsing requires29 unique starts,28 passes,one-2 failure/no error or skip
+statuses for both complete invocations. All prior27 passing methods and new all-theme
+case pass. Full transcripts also retain380 complete unique contrast rows per API.
+Original230 fixture/production remain unchanged; both APIs reach actual loaded
+middle-message loss after360->900 recreation while entry/stacks/selection/CJK/RTL
+draft survive, visibleMatches0. No native measure/layout exception in these commands.
+Later return-resize assertions remain unexecuted; neither full command passes.
+Initial console parser had an IndentationError before execution; corrected positive
+parsing is required, no pass credited to that failed parser.
+
+Public post-run360x900/font2/animator0 reads succeeded before owned helper shutdown.
+Actual synthetic fixtures/settings restore; only four named helper images are removed.
+No product/WP501 accounting/WP504 release/R8/threshold/golden changes. Physical
+TalkBack, remaining feature/theme/window matrix, acceptance admission and independent
+current-head review plus WP311226/228 and WP307230 repairs still block completion.
+
+Exact publishedcddd [38343701258](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38343701258)
+is **COMPLETED/FAILURE/App800/4**; authoritative115120487974 directly read, visible
+default discovery226/Reset228, aggregate4 not a complete per-case hosted listing.
+Classification/policy/Swift codec pass, Linux/android-ci fail, SwiftData skips.
+That CI exercises no native230 or this new all-theme Android case. No successor credit
+or duplicate hosted bundle.
+
 ## Actual calibrated native effect scheduling
 
 Exact **273d74949f7756d46df32290ee2494b9e6ba1004** changes only owned native

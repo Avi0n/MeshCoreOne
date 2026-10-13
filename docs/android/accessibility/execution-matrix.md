@@ -1,7 +1,23 @@
 # WP-503 native execution matrix
 
 **Offline discovery226, Reset Path228 and cached-chat resize230 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
-Current exact273d74949f7756d46df32290ee2494b9e6ba1004 full native inventory
+Current exactdc6fcf7424e39043a143ef10331572b29dc21917 complete native inventory
+**29/28PASS/1FAIL per actual31/37**,0 error/skip statuses76.107s/118.269s. All
+prior27 passing methods plus all-theme contrast pass; unchanged230 alone reaches
+retained-message loss on both APIs, no layout exception in these invocations.
+New shared original message audit passes scoped1/1 each12.787s/29.897s. Each API
+measures10 themes/38 effective frames/76 directions/380 unique emitted spans against
+actual painted bubbles, all unchanged4.5/7 floors, minimum4.517812074094317:1.
+Body fonts are actual system2/RTL, unclipped. Targeted original JVM method2/2PASS,
+760 spans,0 failures/errors/skips; not a new complete80-case JVM result.
+
+Initial full37 crashes before discovery: public LOW_MEMORY/reason3/status9/rss282MB,
+not zero-test success. Actual public launcher COLD3459ms readiness precedes unchanged
+full replay; causal memory fix/cold-start budget is not established. Both complete
+commands still fail230. No product, source-pin, assertion, threshold, timeout, golden
+or dependency changes; physical/remaining feature-theme/window/review gates remain.
+
+Prior exact273d74949f7756d46df32290ee2494b9e6ba1004 full native inventory
 **28/27PASS/1FAIL per actual31/37**,0 error/skip statuses61.804s/78.424s.
 New real native measurement scheduling control passes scoped1/1 each1.639s/2.757s;
 all prior26 passing methods pass in the full invocations. Original strict cached-chat
