@@ -216,7 +216,9 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             assertTrue("Cancelling the real contact picker must not reopen the keyboard", !imeVisible())
             val returnedShare = namedAction(appWindow(), shareLabel)
             val automaticFocus = returnedShare.isAccessibilityFocused
-            assertTrue(returnedShare.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+            println("WP503_NATIVE_CHAT_SHARE_RETURN_FOCUS|sdk=${android.os.Build.VERSION.SDK_INT}" +
+                "|automaticNativeFocus=$automaticFocus|physicalTalkBack=false")
+            if (!automaticFocus) assertTrue(returnedShare.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
             assertTrue(returnedShare.refresh())
             assertTrue(returnedShare.isAccessibilityFocused)
             println("WP503_NATIVE_CHAT_SHARE_CANCEL|sdk=${android.os.Build.VERSION.SDK_INT}" +
