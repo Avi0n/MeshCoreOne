@@ -4,6 +4,7 @@ package com.meshcoreone.android.accessibility
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.graphics.Rect
+import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.provider.Settings
 import android.view.View
@@ -12,12 +13,18 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -29,6 +36,15 @@ import com.meshcoreone.android.core.designsystem.LocalMeshTheme
 import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings
 import com.meshcoreone.android.app.navigation.SettingsDetail
+import com.meshcoreone.android.app.navigation.NavigationDestination
+import com.meshcoreone.android.core.model.ChatConversationID
+import com.meshcoreone.android.core.model.ContactDTO
+import com.meshcoreone.android.core.model.DeviceDTO
+import com.meshcoreone.android.core.model.MessageDTO
+import com.meshcoreone.android.core.model.MessageDirection
+import com.meshcoreone.android.core.model.MessageStatus
+import com.meshcoreone.android.core.model.RadioId
+import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.feature.onboarding.OnboardingState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -36,9 +52,104 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicReference
+import java.time.Instant
+import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
+    @Test fun realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200() = withTouchExploration {
+        val application = requireNotNull(activity.application as? MeshCoreApplication)
+        val container = runBlocking { application.container.await() }
+        val onboarding = requireNotNull(container.onboarding)
+        val originalFlag = onboarding.flags.getBoolean(OnboardingState.KEY_HAS_COMPLETED)
+        val sizes = shell("wm size")
+        assertTrue(Regex("(?m)^Physical size: \\d+x\\d+$").containsMatchIn(sizes))
+        val override = Regex("(?m)^Override size: (\\d+x\\d+)$").find(sizes)?.groupValues?.get(1)
+        val radio = RadioId(UUID(0, 503001))
+        val device = DeviceDTO(id = UUID(0, 503001), radioId = radio,
+            publicKey = Bytes(ByteArray(32) { 0x50 }), nodeName = "Native resize fixture")
+        val contact = ContactDTO(id = UUID(0, 503002), radioId = radio,
+            publicKey = Bytes(ByteArray(32) { 0x51 }), name = "Cached \u4e2d\u6587 peer")
+        val conversation = ChatConversationID.dm(radio, contact.id)
+        val drafts = container.chatsFeature.drafts
+        val originalDraft = drafts.get(conversation)
+        val draft = "Draft \u4e2d\u6587 \u0645\u0631\u062d\u0628\u0627"
+        val history = List(36) { index ->
+            val time = Instant.ofEpochSecond(1_700_000_000L + index)
+            MessageDTO(id = UUID(0, 503100L + index), radioId = radio, contactID = contact.id,
+                text = "Cached history $index \u4e2d\u6587", timestamp = time.epochSecond.toUInt(),
+                createdAt = time, sortDate = time, direction = MessageDirection.INCOMING,
+                status = MessageStatus.DELIVERED, isRead = true)
+        }
+        val target = history[15]
+        var seeded = false
+        try {
+            runBlocking {
+                assertEquals("Never overwrite pre-existing fixture data", null, container.processStore.fetchDevice(device.id))
+                container.processStore.saveDevice(device)
+                seeded = true
+                container.processStore.saveContact(contact)
+                history.forEach { container.processStore.saveMessage(it) }
+            }
+            compose.runOnUiThread {
+                onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, true)
+                container.navigation.navigateToChat(contact)
+            }
+            compose.waitUntil {
+                compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText)).fetchSemanticsNodes().size == 1
+            }
+            val editor = descendants(root()).filter { it.isEditable }.toList().single()
+            assertNativeTargetContained(editor, root())
+            assertTrue(editor.performAction(AccessibilityNodeInfo.ACTION_FOCUS))
+            assertTrue(editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, Bundle().apply {
+                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, draft)
+            }))
+            compose.waitUntil { drafts.get(conversation) == draft }
+            val edit = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText))
+            assertFont200Unclipped(edit)
+            val list = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex), useUnmergedTree = true)
+            list.performScrollToNode(hasText(target.text))
+            val text = compose.onNodeWithText(target.text, useUnmergedTree = true).assertIsDisplayed()
+            assertFont200Unclipped(text)
+            assertTrue(descendants(root()).any { it.contentDescription?.toString()?.contains(target.text) == true })
+            val selected = container.navigation.state.value.chatsSelectedRoute
+            val entry = container.navigation.state.value.activeStack.last()
+            val stacks = container.navigation.state.value.stacks
+            println("WP503_NATIVE_CHAT_WINDOW_BEFORE|sdk=${android.os.Build.VERSION.SDK_INT}|message=${target.id}" +
+                "|textBounds=${text.fetchSemanticsNode().boundsInRoot}|entry=${entry.id}|draftSaved=true" +
+                "|realStore=true|realGraph=true|physicalTalkBack=false")
+            for ((size, tag) in listOf("900x900" to "navigation-rail", "360x900" to "navigation-hidden")) {
+                resizeWindow(size, tag)
+                assertEquals(stacks, container.navigation.state.value.stacks)
+                assertEquals(entry, container.navigation.state.value.activeStack.last())
+                assertEquals(selected, container.navigation.state.value.chatsSelectedRoute)
+                assertEquals(draft, drafts.get(conversation))
+                val currentEdit = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText))
+                assertEquals(draft, currentEdit.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
+                assertFont200Unclipped(currentEdit)
+                assertNativeTargetContained(descendants(root()).filter { it.isEditable }.toList().single(), root())
+                val retained = compose.onNodeWithText(target.text, useUnmergedTree = true)
+                println("WP503_NATIVE_CHAT_WINDOW_AFTER|sdk=${android.os.Build.VERSION.SDK_INT}|size=$size" +
+                    "|message=${target.id}|visibleMatches=${compose.onAllNodesWithText(target.text, useUnmergedTree = true).fetchSemanticsNodes().size}" +
+                    "|entry=${entry.id}|draftSaved=true|realStore=true|realGraph=true|physicalTalkBack=false")
+                retained.assertIsDisplayed()
+                assertFont200Unclipped(retained)
+                assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
+            }
+        } finally {
+            shell("wm size ${override ?: "reset"}")
+            compose.runOnUiThread {
+                if (container.navigation.state.value.activeStack.last().destination is NavigationDestination.Chat) {
+                    container.navigation.back()
+                }
+                container.navigation.selectTab(AppTab.CHATS)
+                drafts.set(conversation, originalDraft)
+                onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, originalFlag)
+            }
+            if (seeded) runBlocking { container.processStore.deleteDeviceAndData(device.id) }
+        }
+    }
+
     @Test fun actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride() {
         val resolver = activity.contentResolver
         val original = Settings.Global.getFloat(resolver, Settings.Global.ANIMATOR_DURATION_SCALE)
