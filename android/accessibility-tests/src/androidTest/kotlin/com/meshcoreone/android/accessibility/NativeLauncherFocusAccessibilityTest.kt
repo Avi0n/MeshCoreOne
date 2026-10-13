@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -39,6 +40,7 @@ import com.meshcoreone.android.core.designsystem.LocalMeshTheme
 import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings
+import com.meshcoreone.android.core.l10n.generated.AppLocalizableStrings
 import com.meshcoreone.android.app.navigation.SettingsDetail
 import com.meshcoreone.android.app.navigation.NavigationDestination
 import com.meshcoreone.android.core.model.ChatConversationID
@@ -172,6 +174,55 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             println("WP503_NATIVE_CHAT_IME_BACK|sdk=${android.os.Build.VERSION.SDK_INT}|imeVisible=false" +
                 "|entry=${entry.id}|stacksRetained=true|draftSaved=true|disconnectedSendDisabled=true" +
                 "|realStore=true|realGraph=true|physicalTalkBack=false")
+            val shareLabel = activity.getString(AppChatsStrings.chatsInputShareButtonAccessibilityLabel)
+            val restoredShare = namedAction(appWindow(), shareLabel)
+            assertTrue(restoredShare.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+            assertTrue(restoredShare.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            val contactLabel = activity.getString(AppChatsStrings.chatsShareContact)
+            compose.waitUntil { compose.onAllNodesWithText(contactLabel).fetchSemanticsNodes().size == 1 }
+            for (label in listOf(activity.getString(AppChatsStrings.chatsShareLocation), contactLabel,
+                activity.getString(AppChatsStrings.chatsShareMyInfo))) {
+                compose.onNodeWithText(label, useUnmergedTree = true).assertIsDisplayed()
+                assertFont200Unclipped(compose.onNodeWithText(label, useUnmergedTree = true))
+            }
+            compose.onNodeWithText(activity.getString(AppChatsStrings.chatsShareLocation)).assertIsNotEnabled()
+            compose.onNodeWithText(activity.getString(AppChatsStrings.chatsShareMyInfo)).assertIsNotEnabled()
+            val popup = root()
+            val contactAction = namedAction(popup, contactLabel)
+            val contactBounds = assertNativeTargetContained(contactAction, popup)
+            assertTrue(contactAction.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+            assertTrue(contactAction.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            val inDialog = SemanticsMatcher("Inside the actual contact picker dialog") { node ->
+                generateSequence(node.parent) { it.parent }.any { it.config.contains(SemanticsProperties.IsDialog) }
+            }
+            val cachedContact = compose.onNode(hasText(contact.displayName).and(inDialog), useUnmergedTree = true)
+            cachedContact.assertIsDisplayed()
+            assertFont200Unclipped(cachedContact)
+            val dialog = root()
+            val cachedAction = namedAction(dialog, contact.displayName)
+            val cachedBounds = assertNativeTargetContained(cachedAction, dialog)
+            val cancelLabel = activity.getString(AppLocalizableStrings.commonCancel)
+            assertFont200Unclipped(compose.onNode(hasText(cancelLabel).and(inDialog), useUnmergedTree = true))
+            val cancel = namedAction(dialog, cancelLabel)
+            val cancelBounds = assertNativeTargetContained(cancel, dialog)
+            assertTrue(cancel.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+            assertTrue(cancel.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            compose.waitUntil {
+                compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.IsDialog)).fetchSemanticsNodes().isEmpty()
+            }
+            assertEquals(entry, container.navigation.state.value.activeStack.last())
+            assertEquals(stacks, container.navigation.state.value.stacks)
+            assertEquals(draft, drafts.get(conversation))
+            assertTrue("Cancelling the real contact picker must not reopen the keyboard", !imeVisible())
+            val returnedShare = namedAction(appWindow(), shareLabel)
+            val automaticFocus = returnedShare.isAccessibilityFocused
+            assertTrue(returnedShare.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+            assertTrue(returnedShare.refresh())
+            assertTrue(returnedShare.isAccessibilityFocused)
+            println("WP503_NATIVE_CHAT_SHARE_CANCEL|sdk=${android.os.Build.VERSION.SDK_INT}" +
+                "|contactMenu=$contactBounds|cachedContact=$cachedBounds|cancel=$cancelBounds" +
+                "|optionalSharesDisabled=true|automaticNativeFocus=$automaticFocus|nativeFocusReacquired=true" +
+                "|entry=${entry.id}|stacksRetained=true|draftSaved=true|realStore=true|realGraph=true|physicalTalkBack=false")
         } finally {
             compose.runOnUiThread {
                 requireNotNull(activity.window.decorView.windowInsetsController).hide(WindowInsets.Type.ime())
