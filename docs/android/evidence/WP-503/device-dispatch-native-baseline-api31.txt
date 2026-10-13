@@ -1,0 +1,44 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Audited effects must not resume inside native measurement expected:<false> but was:<true>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample(NativeLauncherFocusAccessibilityTest.kt:124)
+
+INSTRUMENTATION_STATUS: stream=
+Error in actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+java.lang.AssertionError: Audited effects must not resume inside native measurement expected:<false> but was:<true>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample(NativeLauncherFocusAccessibilityTest.kt:124)
+
+INSTRUMENTATION_STATUS: test=actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 1.684
+There was 1 failure:
+1) actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+java.lang.AssertionError: Audited effects must not resume inside native measurement expected:<false> but was:<true>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample(NativeLauncherFocusAccessibilityTest.kt:124)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

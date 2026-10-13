@@ -5,7 +5,29 @@ This is not accessibility acceptance, a completed WP, or permission to close iss
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Current actual composer popup and contact-picker cancellation
+## Current calibrated native effect scheduling
+
+Exact273d74949f7756d46df32290ee2494b9e6ba1004 uses explicit queued effect
+scheduling in the owned Android-only harness, without changing production bytes,
+deadlines, assertions, targets, contrast or goldens. A real MainActivity/subcomposition
+control distinguishes test-clock frames from actual parent View measurement.
+Original default scheduler9cc fails the native-phase assertion1/1 per actual31/37;
+queued273 passes1/1 each. The initial frame-only control7f79 passes under the default
+scheduler: unconfined effects are not always inline, so that first hypothesis alone
+was insufficient. This is a bounded harness scheduling correction, not a chat repair
+or proof that every historical layout exception has the same cause.
+
+Current full inventory **28/27PASS/1FAIL per actual API31/37**,0 error/skip statuses
+61.804s/78.424s. All prior26 passing methods plus the new scheduling control pass.
+The unchanged strict cached-chat fixture reaches genuine loaded-message loss230
+on both APIs; no native layout exception occurs in these invocations. Selection/
+stacks/draft survive; retained message has zero visible matches after360->900.
+Later return-resize checks remain unexecuted. WP307/current App product ownership,
+physical TalkBack, remaining matrix, acceptance admission and review gates persist.
+[Calibrated scheduling evidence](../evidence/WP-503/README.md#actual-calibrated-native-effect-scheduling)
+retains both native-phase negatives and positives. PR205 stays draft.
+
+## Prior actual composer popup and contact-picker cancellation
 
 Exact41d1e41ff7d0dca767e244e07c074fb853494dea extends the real cached composer
 flow after native keyboard Back. Scoped **1/1PASS per API31/37**,0 failures/errors/
@@ -16,7 +38,7 @@ cached-contact dialog; contact251x54dp/Cancel104x54dp are fully contained in the
 own native windows. Native Cancel preserves real entry/stacks/draft, leaves IME
 hidden and confirms automatically retained native Share focus on both APIs.
 
-Full current native inventory **27/26PASS/1FAIL per API31/37**,0 error/skip statuses
+Then complete native inventory **27/26PASS/1FAIL per API31/37**,0 error/skip statuses
 58.042s/70.030s. All previous25 passing methods and extended composer case pass.
 The unchanged cached-chat fixture alone fails: API31 retained-message loss230;
 API37 instead throws the separately retained native measure/layout exception through

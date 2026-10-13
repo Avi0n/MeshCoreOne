@@ -1,7 +1,24 @@
 # WP-503 native execution matrix
 
 **Offline discovery226, Reset Path228 and cached-chat resize230 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
-Current exact41d1e41ff7d0dca767e244e07c074fb853494dea full native inventory
+Current exact273d74949f7756d46df32290ee2494b9e6ba1004 full native inventory
+**28/27PASS/1FAIL per actual31/37**,0 error/skip statuses61.804s/78.424s.
+New real native measurement scheduling control passes scoped1/1 each1.639s/2.757s;
+all prior26 passing methods pass in the full invocations. Original strict cached-chat
+fixture body is byte-identical to4ee and alone fails: both APIs reach loaded-message
+loss230 after360->900; no measure/layout exception in these runs. Subsequent return
+checks remain unexecuted. Native product repair remains with admitted WP307/App.
+
+Original default9cc control fails1/1 each1.684s/3.015s with actual effects resuming
+inside native View measurement. Explicit StandardTestDispatcher queues them outside
+that measurement. Test-frame control7f79 instead passes1/1 each1.658s/2.505s under
+the original default, so unconfined scheduling alone did not prove the original
+exception. The refined two-phase native control calibrates the specific scheduling
+hazard; it does not prove every historical exception's cause or fix chat lifetime.
+No product/dependency/timeout/floor/assertion/golden change. Actual profiles and
+synthetic fixture state restore; physical TalkBack/full matrix/review remain unverified.
+
+Prior exact41d1e41ff7d0dca767e244e07c074fb853494dea full native inventory
 **27/26PASS/1FAIL per actual API31/37**,0 error/skip statuses58.042s/70.030s.
 Extended native composer popup/contact-picker/Cancel flow also passes scoped1/1
 each,4.188s/8.051s. All labels/CJK contact/Cancel retain actual font2/RTL with zero

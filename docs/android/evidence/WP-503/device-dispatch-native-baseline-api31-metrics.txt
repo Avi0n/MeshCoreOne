@@ -1,0 +1,4 @@
+--------- beginning of main
+10-12 22:39:07.097  3145  3161 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 22:39:07.227  3145  3161 I System.out: WP503_NATIVE_EFFECT_SCHEDULING|sdk=31|phase=frame|inlineDuringMeasure=true|auditedDuringMeasure=false
+10-12 22:39:07.228  3145  3161 I System.out: WP503_NATIVE_EFFECT_SCHEDULING|sdk=31|phase=native|inlineDuringMeasure=true|auditedDuringMeasure=true

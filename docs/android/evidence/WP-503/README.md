@@ -7,6 +7,72 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Actual calibrated native effect scheduling
+
+Exact **273d74949f7756d46df32290ee2494b9e6ba1004** changes only owned native
+harness scheduling and adds a two-phase native subcomposition calibration. App
+production bytes remain105464909/af1af8d4c963502180ac4425b4da5896e2d9792fef29572a31cb3b02347fd373.
+Test2850043/c255b2f72e8ef453cbded188df2f718b974be1e93b31faddbd162425308a584e;
+[actual input binding](device-dispatch-final-inputs.json).
+Declared strict App assembly passes through the installed serialized snapshot:
+`:app:assembleDebug :app:assembleDebugAndroidTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
+
+Installed cached Compose test1.10.6 bytecode identifies the default UnconfinedTestDispatcher
+and supported effectContext API. Original retained41d37 stack includes its continuation
+interceptors, LaunchedEffect.onRemembered and Scaffold subcomposition during native
+measurement. Merely replacing the default and observing a favorable replay would not
+establish causality. Initial **7f79d3df74122031ce8657a5f1592e5f2d8f602a**
+frame-only control actually passes under the original default,1/1 per API31/37,
+1.658s/2.505s. [Binding](device-dispatch-baseline-inputs.json), transcripts/metrics
+`device-dispatch-baseline-api31/37*` retain this disconfirming result.
+
+Refined **9ccad23de8b8e6f1c4fc9c0fc25fe513b7320156** uses the same real
+MainActivity and SubcomposeLayout, then deliberately measures its actual parent View
+at an8px-narrower constraint outside a test-clock frame. This is a controlled native
+measurement probe, not a replacement feature renderer or a chat-window acceptance
+result. The deliberate inline Unconfined scope records true in both phases and is
+cancelled. Audited LaunchedEffect records false in the test frame but true in native
+measurement. Strict assertion expects false: **1/1FAIL each API**,0 error/skip statuses,
+1.684s/3.015s. [Binding](device-dispatch-native-baseline-inputs.json), transcripts/
+metrics `device-dispatch-native-baseline-api31/37*` retain exact negatives.
+
+Explicit StandardTestDispatcher in the owned harness queues effects outside native
+measurement. At273 the same two-phase assertions pass **1/1 per API31/37**,0 failures/
+errors/skips1.639s/2.757s. Inline probes remain true; audited effects are false in both
+phases; actual font2 native control text is unclipped. The native-view readiness guard/
+comment are the only additional calibration changes, not relaxed expectations.
+Transcripts/metrics: `device-dispatch-final-control-api31/37*`.
+Scoped declared command:
+`adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+
+Full declared command substitutes `-e package com.meshcoreone.android.accessibility`.
+**API31:28/27PASS/1FAIL**,0 error/skip statuses61.804s; **API37:28/27PASS/1FAIL**,
+0 error/skip statuses78.424s. Transcripts/metrics `device-dispatch-final-full-api31/37*`
+require28 unique starts,27 passes,one-2 failure and no skipped/error statuses. All prior
+26 passing cases and the new control pass. Original cached-chat fixture body equals
+published4ee byte-for-byte; both APIs reach its genuine loaded-message loss230 after
+actual360->900 Activity recreation. Real entry/stacks/selection/CJK/RTL draft survive,
+but retained message15 has visibleMatches0. No layout exception in these invocations;
+later900->360 checks remain unexecuted. This verifies the bounded harness hazard,
+not every historical exception's cause, physical speech or a product lifetime repair.
+Original synthetic fixture/state/settings restore. Public post-run360x900/font2/animator0
+reads succeeded before owned helper shutdown; physical/matrix/review gates persist.
+
+Initial03c exploratory queued runs27/26PASS/1FAIL both APIs likewise reached230,
+but were insufficient causal proof; the calibrated native-phase red/green above is
+the supporting correction evidence. Initial console parser incorrectly expected
+System.out markers in instrumentation stdout and failed; corrected strict parsing uses
+their real logcat transcripts. No pass was credited to that failed parser.
+
+Exact published4ee [38340573762](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38340573762)
+is **COMPLETED/FAILURE/App800/4**. Authoritative completed Linux115111093700 directly
+names default discovery226/Reset228; aggregate4 is not a complete per-case hosted
+listing. Classification/policy/Swift codec pass, Linux/android-ci fail, SwiftData skips.
+It exercises no native230 behavior or273 scheduling control. Predecessor0a55
+[38339703700](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38339703700)
+is COMPLETED/CANCELLED, not passed/in progress. No successor credit or duplicate
+hosted/JVM bundle. #226/#228/#230 and acceptance admission/review remain open.
+
 ## Actual composer share popup and cached contact cancel
 
 Exact **41d1e41ff7d0dca767e244e07c074fb853494dea** extends the actual cached
