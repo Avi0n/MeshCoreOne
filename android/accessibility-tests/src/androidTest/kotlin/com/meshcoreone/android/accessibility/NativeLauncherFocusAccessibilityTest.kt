@@ -109,9 +109,11 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 }
             }
             compose.waitUntil { queuedDuringMeasure.containsKey("frame") && inlineDuringMeasure.containsKey("frame") }
+            // Probe platform measurement outside a test-clock frame.
             compose.runOnUiThread {
                 phase.set("native")
-                val view = activity.findViewById<View>(android.R.id.content)
+                val view = requireNotNull(activity.findViewById<View>(android.R.id.content))
+                assertTrue(view.width > 8 && view.height > 0)
                 view.forceLayout()
                 view.measure(View.MeasureSpec.makeMeasureSpec(view.width - 8, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(view.height, View.MeasureSpec.EXACTLY))
