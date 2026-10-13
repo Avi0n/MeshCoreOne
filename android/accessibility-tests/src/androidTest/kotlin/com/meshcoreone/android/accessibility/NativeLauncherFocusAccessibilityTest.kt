@@ -1,4 +1,4 @@
-// AndroidOnly: WP-503 Observe real launcher/process graph tab selection and platform accessibility focus in an explicit completed-onboarding fixture.
+// AndroidOnly: WP-503 Observe real launcher/process graph, cached composer, system motion and native focus/window/IME behavior in explicit isolated fixtures.
 package com.meshcoreone.android.accessibility
 
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -7,7 +7,9 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.provider.Settings
+import android.view.KeyEvent
 import android.view.View
+import android.view.WindowInsets
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.material3.Button
@@ -35,6 +37,7 @@ import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.designsystem.LocalMeshTheme
 import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings
+import com.meshcoreone.android.core.l10n.generated.AppChatsStrings
 import com.meshcoreone.android.app.navigation.SettingsDetail
 import com.meshcoreone.android.app.navigation.NavigationDestination
 import com.meshcoreone.android.core.model.ChatConversationID
@@ -57,6 +60,125 @@ import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
+    @Test fun realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft() = withTouchExploration {
+        val application = requireNotNull(activity.application as? MeshCoreApplication)
+        val container = runBlocking { application.container.await() }
+        val onboarding = requireNotNull(container.onboarding)
+        val originalFlag = onboarding.flags.getBoolean(OnboardingState.KEY_HAS_COMPLETED)
+        val radio = RadioId(UUID(0, 503201))
+        val device = DeviceDTO(id = UUID(0, 503201), radioId = radio,
+            publicKey = Bytes(ByteArray(32) { 0x52 }), nodeName = "Native keyboard fixture")
+        val contact = ContactDTO(id = UUID(0, 503202), radioId = radio,
+            publicKey = Bytes(ByteArray(32) { 0x53 }), name = "Keyboard \u4e2d\u6587 peer", lastHeardTimestamp = null)
+        val conversation = ChatConversationID.dm(radio, contact.id)
+        val drafts = container.chatsFeature.drafts
+        val originalDraft = drafts.get(conversation)
+        val draft = "Draft \u4e2d\u6587 \u0645\u0631\u062d\u0628\u0627"
+        val originalWindowFlags = automation().serviceInfo.flags
+        var seeded = false
+        fun appWindow(): AccessibilityNodeInfo {
+            var window: AccessibilityNodeInfo? = null
+            compose.waitUntil {
+                window = automation().windows.mapNotNull { it.root }
+                    .singleOrNull { it.packageName?.toString() == activity.packageName }
+                window != null
+            }
+            return requireNotNull(window).also { assertTrue(it.refresh()) }
+        }
+        fun imeVisible(): Boolean {
+            var visible = false
+            compose.runOnUiThread {
+                visible = requireNotNull(activity.window.decorView.rootWindowInsets).isVisible(WindowInsets.Type.ime())
+            }
+            return visible
+        }
+        try {
+            val service = automation().serviceInfo
+            service.flags = originalWindowFlags or AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+            automation().serviceInfo = service
+            runBlocking {
+                assertEquals("Never overwrite pre-existing fixture data", null, container.processStore.fetchDevice(device.id))
+                container.processStore.saveDevice(device)
+                seeded = true
+                container.processStore.saveContact(contact)
+            }
+            compose.runOnUiThread {
+                onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, true)
+                container.navigation.navigateToChat(contact)
+            }
+            compose.waitUntil {
+                compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText)).fetchSemanticsNodes().size == 1
+            }
+            val entry = container.navigation.state.value.activeStack.last()
+            val stacks = container.navigation.state.value.stacks
+            val editor = descendants(appWindow()).filter { it.isEditable }.toList().single()
+            assertTrue("Observe the actual hidden-to-visible keyboard transition", !imeVisible())
+            assertTrue("Actual native editor click must open the platform input session",
+                editor.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            compose.waitUntil { imeVisible() }
+            assertTrue(editor.refresh())
+            assertTrue("Actual keyboard editor must have native input focus", editor.isFocused)
+            assertTrue(editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, Bundle().apply {
+                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, draft)
+            }))
+            compose.waitUntil { drafts.get(conversation) == draft }
+            assertFont200Unclipped(compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText)))
+            val window = appWindow()
+            val visible = Rect()
+            compose.runOnUiThread {
+                val decor = activity.window.decorView
+                val bottom = requireNotNull(decor.rootWindowInsets).getInsets(WindowInsets.Type.ime()).bottom
+                assertTrue("Actual visible IME must allocate a nonzero inset", bottom > 0)
+                val position = IntArray(2).also(decor::getLocationOnScreen)
+                visible.set(position[0], position[1], position[0] + decor.width, position[1] + decor.height - bottom)
+                println("WP503_NATIVE_CHAT_IME_INSETS|sdk=${android.os.Build.VERSION.SDK_INT}|imeBottom=$bottom" +
+                    "|decorHeight=${decor.height}|visible=$visible|actualIme=true|physicalTalkBack=false")
+            }
+            val nativeEditor = descendants(window).filter { it.isEditable }.toList().single()
+            val sendLabel = activity.getString(AppChatsStrings.chatsInputSendMessage)
+            val send = descendants(window).filter { it.contentDescription?.toString() == sendLabel }.toList().single()
+            val share = namedAction(window, activity.getString(AppChatsStrings.chatsInputShareButtonAccessibilityLabel))
+            for (node in listOf(nativeEditor, send, share)) {
+                val bounds = assertNativeTargetContained(node, window)
+                assertTrue("The actual native composer target $bounds must be above the visible IME in $visible",
+                    visible.contains(bounds))
+                println("WP503_NATIVE_CHAT_IME_TARGET|sdk=${android.os.Build.VERSION.SDK_INT}|name=${node.contentDescription}" +
+                    "|bounds=$bounds|visible=$visible|native48dp=true|actualIme=true|physicalTalkBack=false")
+            }
+            assertTrue("Disconnected send must remain disabled with the actual keyboard open", !send.isEnabled)
+            assertEquals(activity.getString(AppChatsStrings.chatsInputRequiresConnection),
+                AccessibilityNodeInfoCompat.wrap(send).stateDescription?.toString())
+            assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
+            assertEquals(draft, nativeEditor.text?.toString())
+            InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+            compose.waitUntil { !imeVisible() }
+            assertEquals(entry, container.navigation.state.value.activeStack.last())
+            assertEquals(stacks, container.navigation.state.value.stacks)
+            assertEquals(draft, drafts.get(conversation))
+            assertEquals(draft, compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText))
+                .fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
+            assertFont200Unclipped(compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText)))
+            assertNativeTargetContained(descendants(appWindow()).filter { it.isEditable }.toList().single(), appWindow())
+            println("WP503_NATIVE_CHAT_IME_BACK|sdk=${android.os.Build.VERSION.SDK_INT}|imeVisible=false" +
+                "|entry=${entry.id}|stacksRetained=true|draftSaved=true|disconnectedSendDisabled=true" +
+                "|realStore=true|realGraph=true|physicalTalkBack=false")
+        } finally {
+            compose.runOnUiThread {
+                requireNotNull(activity.window.decorView.windowInsetsController).hide(WindowInsets.Type.ime())
+                if (container.navigation.state.value.activeStack.last().destination is NavigationDestination.Chat) {
+                    container.navigation.back()
+                }
+                container.navigation.selectTab(AppTab.CHATS)
+                drafts.set(conversation, originalDraft)
+                onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, originalFlag)
+            }
+            val service = automation().serviceInfo
+            service.flags = originalWindowFlags
+            automation().serviceInfo = service
+            if (seeded) runBlocking { container.processStore.deleteDeviceAndData(device.id) }
+        }
+    }
+
     @Test fun realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200() = withTouchExploration {
         val application = requireNotNull(activity.application as? MeshCoreApplication)
         val container = runBlocking { application.container.await() }
