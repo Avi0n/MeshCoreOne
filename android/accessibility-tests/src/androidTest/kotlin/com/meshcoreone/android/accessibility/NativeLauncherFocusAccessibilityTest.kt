@@ -602,20 +602,29 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         assertEquals(10, service.availableToCurrentUser.size)
         val resources = activity.resources
         fun nativeCard(label: String): AccessibilityNodeInfo {
-            val matches = descendants(root()).filter {
-                it.className?.toString() == "android.widget.Button" &&
-                    it.contentDescription?.toString()?.startsWith(label) == true
-            }.toList()
-            assertEquals("Exactly one real theme button must retain its complete $label label", 1, matches.size)
-            return matches.single().also { assertTrue(it.refresh()) }
+            val card = namedAction(root(), label)
+            assertTrue("The actual named theme action must retain its Button role",
+                descendants(card).any { it.className?.toString() == "android.widget.Button" })
+            println("WP503_NATIVE_APPEARANCE_CARD|label=$label|enabled=${card.isEnabled}|clickable=${card.isClickable}")
+            return card
+        }
+        fun nativeRadio(label: String): AccessibilityNodeInfo {
+            val matches = descendants(root()).filter { it.text?.toString() == label }
+                .mapNotNull { named -> generateSequence(named) { it.parent }.firstOrNull { it.isCheckable } }
+                .distinct().toList()
+            assertEquals("Exactly one named native $label radio must expose checked state", 1, matches.size)
+            return matches.single().also {
+                assertTrue(it.refresh())
+                println("WP503_NATIVE_APPEARANCE_RADIO|label=$label|checked=${it.isChecked}|checkable=${it.isCheckable}")
+            }
         }
         try {
             compose.runOnUiThread { onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, true) }
             compose.waitUntil { compose.onAllNodesWithTag("tab:CHATS").fetchSemanticsNodes().size == 1 }
             assertTrue(nativeTab(root(), AppTab.SETTINGS).performAction(AccessibilityNodeInfo.ACTION_CLICK))
             val appearance = activity.getString(AppSettingsStrings.appearanceTitle)
-            val entry = compose.onNodeWithText(appearance, useUnmergedTree = true).performScrollTo()
-            assertFont200Unclipped(entry)
+            compose.onNode(hasText(appearance) and SemanticsMatcher.keyIsDefined(SemanticsActions.OnClick)).performScrollTo()
+            assertFont200Unclipped(compose.onNodeWithText(appearance, useUnmergedTree = true))
             val action = namedAction(root(), appearance)
             assertNativeTargetContained(action, root())
             assertTrue(action.performAction(AccessibilityNodeInfo.ACTION_CLICK))
@@ -626,15 +635,15 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 val grid = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex))
                 grid.performScrollToIndex(0)
                 val schemeLabel = activity.getString(scheme.labelResource)
-                val schemeAction = namedAction(root(), schemeLabel)
+                val schemeAction = nativeRadio(schemeLabel)
                 assertNativeTargetContained(schemeAction, root())
-                assertTrue(schemeAction.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                if (!schemeAction.isChecked) assertTrue(schemeAction.performAction(AccessibilityNodeInfo.ACTION_CLICK))
                 compose.waitUntil { (service.state.value as? ThemeServiceState.Ready)?.selection?.colorSchemePreference == scheme }
                 compose.waitForIdle()
                 for (choice in AppColorSchemePreference.entries) {
                     val label = activity.getString(choice.labelResource)
-                    val radio = namedAction(root(), label)
-                    assertEquals("The actual scheme radio selection must be textual and exclusive", choice == scheme, radio.isSelected)
+                    val radio = nativeRadio(label)
+                    assertEquals("The actual scheme radio checked state must be textual and exclusive", choice == scheme, radio.isChecked)
                     assertNativeTargetContained(radio, root())
                     assertFont200Unclipped(compose.onNodeWithText(label, useUnmergedTree = true))
                 }
