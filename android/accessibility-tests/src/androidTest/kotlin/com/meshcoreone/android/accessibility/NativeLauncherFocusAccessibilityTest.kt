@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
     @Test fun realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable() {
-        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        InstrumentationRegistry.getInstrumentation().uiAutomation
         val application = requireNotNull(activity.application as? MeshCoreApplication)
         val container = runBlocking { application.container.await() }
         assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
@@ -33,7 +33,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             compose.waitUntil { compose.onAllNodesWithTag("tab:CHATS").fetchSemanticsNodes().size == 1 }
             for (tab in AppTab.entries) {
                 val tag = "tab:${tab.name}"
-                val before = nativeTagged(root(), tag)
+                val before = nativeTab(root(), tab)
                 assertTrue("The real native tab must be actionable", before.isClickable)
                 assertTrue("Platform accessibility focus must reach $tag",
                     before.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
@@ -44,23 +44,17 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 assertEquals(tab, container.navigation.state.value.selectedTab)
                 assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
                 val window = root()
-                val after = nativeTagged(window, tag)
+                val after = nativeTab(window, tab)
                 assertTrue("The native selected state must match the real navigation state", after.isSelected)
                 assertTrue("Recomposition must retain native accessibility focus on the selected tab", after.isAccessibilityFocused)
-                val tabs = AppTab.entries.map { nativeTagged(window, "tab:${it.name}") }
+                val tabs = AppTab.entries.map { nativeTab(window, it) }
                 assertEquals("Exactly one actual native tab must be selected", 1, tabs.count { it.isSelected })
                 val bounds = Rect().also(after::getBoundsInScreen)
                 val viewport = Rect().also(window::getBoundsInScreen)
                 val density = activity.resources.displayMetrics.density
                 assertTrue("The native tab target must be fully contained", viewport.contains(bounds))
                 assertTrue("The real native tab target must be48dp", bounds.width() / density >= 48f && bounds.height() / density >= 48f)
-                val label = activity.getString(when (tab) {
-                    AppTab.CHATS -> R.string.tab_chats
-                    AppTab.NODES -> R.string.tab_nodes
-                    AppTab.MAP -> R.string.tab_map
-                    AppTab.TOOLS -> R.string.tab_tools
-                    AppTab.SETTINGS -> R.string.tab_settings
-                })
+                val label = tabLabel(tab)
                 assertTrue("The native selected tab must retain its spoken name",
                     descendants(after).any { it.text?.toString() == label || it.contentDescription?.toString() == label })
                 assertFont200Unclipped(compose.onNodeWithTag("tab-label:${tab.name}"))
@@ -86,11 +80,24 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
 
     private fun automation() = InstrumentationRegistry.getInstrumentation().uiAutomation
 
-    private fun nativeTagged(root: AccessibilityNodeInfo, tag: String): AccessibilityNodeInfo {
-        val nodes = descendants(root).filter { it.extras.getString("androidx.compose.ui.semantics.testTag") == tag }.toList()
-        assertEquals("The real native tree must expose exactly one $tag", 1, nodes.size)
+    private fun nativeTab(root: AccessibilityNodeInfo, tab: AppTab): AccessibilityNodeInfo {
+        val label = tabLabel(tab)
+        val nodes = descendants(root).filter {
+            it.text?.toString() == label || it.contentDescription?.toString() == label
+        }.mapNotNull { named ->
+            generateSequence(named) { it.parent }.firstOrNull { it.isClickable }
+        }.distinct().toList()
+        assertEquals("The real native tree must expose exactly one named $tab action", 1, nodes.size)
         return nodes.single()
     }
+
+    private fun tabLabel(tab: AppTab): String = activity.getString(when (tab) {
+        AppTab.CHATS -> R.string.tab_chats
+        AppTab.NODES -> R.string.tab_nodes
+        AppTab.MAP -> R.string.tab_map
+        AppTab.TOOLS -> R.string.tab_tools
+        AppTab.SETTINGS -> R.string.tab_settings
+    })
 
     private fun descendants(node: AccessibilityNodeInfo): Sequence<AccessibilityNodeInfo> = sequence {
         yield(node)
