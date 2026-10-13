@@ -390,7 +390,7 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
             val replacement = connected(this, backing, rejectSend = true)
             resumed = replacement
             replacement.eventually("reopened shortcut queue drains through the replacement process graph") {
-                runBlocking {
+                replacement.sessions.current?.chatSendQueueService?.queuedEnvelopeCount == 0 && runBlocking {
                     backing.fetchPendingSends(keys.first().radioId).isEmpty() &&
                         keys.all { backing.fetchMessage(it)?.status == MessageStatus.FAILED }
                 }
