@@ -66,6 +66,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.ConcurrentHashMap
 import java.time.Instant
 import java.util.UUID
 
@@ -74,8 +75,9 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test fun actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample() {
         val measuring = AtomicBoolean(false)
-        val queuedDuringMeasure = AtomicReference<Boolean?>(null)
-        val inlineDuringMeasure = AtomicReference<Boolean?>(null)
+        val phase = AtomicReference("frame")
+        val queuedDuringMeasure = ConcurrentHashMap<String, Boolean>()
+        val inlineDuringMeasure = ConcurrentHashMap<String, Boolean>()
         val inlineScope = CoroutineScope(UnconfinedTestDispatcher())
         val label = "Native effect scheduling"
         try {
@@ -84,14 +86,15 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                     AuditSurface {
                         SubcomposeLayout { constraints ->
                             check(measuring.compareAndSet(false, true))
+                            val measuredPhase = phase.get()
                             val placeables = try {
-                                subcompose("effect-scheduling") {
+                                subcompose(measuredPhase) {
                                     LaunchedEffect(Unit) {
-                                        queuedDuringMeasure.compareAndSet(null, measuring.get())
+                                        queuedDuringMeasure.putIfAbsent(measuredPhase, measuring.get())
                                     }
                                     SideEffect {
                                         inlineScope.launch {
-                                            inlineDuringMeasure.compareAndSet(null, measuring.get())
+                                            inlineDuringMeasure.putIfAbsent(measuredPhase, measuring.get())
                                         }
                                     }
                                     Text(label)
@@ -105,11 +108,21 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                     }
                 }
             }
-            compose.waitUntil { queuedDuringMeasure.get() != null && inlineDuringMeasure.get() != null }
-            println("WP503_NATIVE_EFFECT_SCHEDULING|sdk=${android.os.Build.VERSION.SDK_INT}" +
-                "|inlineDuringMeasure=${inlineDuringMeasure.get()}|auditedDuringMeasure=${queuedDuringMeasure.get()}")
-            assertEquals("The inline control must detect actual subcomposition measurement", true, inlineDuringMeasure.get())
-            assertEquals("Audited effects must not resume inside actual native measurement", false, queuedDuringMeasure.get())
+            compose.waitUntil { queuedDuringMeasure.containsKey("frame") && inlineDuringMeasure.containsKey("frame") }
+            compose.runOnUiThread {
+                phase.set("native")
+                val view = activity.findViewById<View>(android.R.id.content)
+                view.forceLayout()
+                view.measure(View.MeasureSpec.makeMeasureSpec(view.width - 8, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(view.height, View.MeasureSpec.EXACTLY))
+            }
+            compose.waitUntil { queuedDuringMeasure.containsKey("native") && inlineDuringMeasure.containsKey("native") }
+            for (measuredPhase in listOf("frame", "native")) {
+                println("WP503_NATIVE_EFFECT_SCHEDULING|sdk=${android.os.Build.VERSION.SDK_INT}|phase=$measuredPhase" +
+                    "|inlineDuringMeasure=${inlineDuringMeasure[measuredPhase]}|auditedDuringMeasure=${queuedDuringMeasure[measuredPhase]}")
+                assertEquals("The inline control must detect $measuredPhase subcomposition measurement", true, inlineDuringMeasure[measuredPhase])
+                assertEquals("Audited effects must not resume inside $measuredPhase measurement", false, queuedDuringMeasure[measuredPhase])
+            }
             assertFont200Unclipped(compose.onNodeWithText(label))
         } finally {
             inlineScope.cancel()
