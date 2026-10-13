@@ -81,6 +81,7 @@ import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
+    // Geometry failures still fail JUnit, without skipping later theme/persistence observations.
     @get:Rule val appearanceTargetErrors = ErrorCollector()
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -612,10 +613,25 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             println("WP503_NATIVE_APPEARANCE_CARD|label=$label|enabled=${card.isEnabled}|clickable=${card.isClickable}")
             return card
         }
-        fun nativeRadio(label: String): AccessibilityNodeInfo {
-            val matches = descendants(root()).filter { it.text?.toString() == label }
-                .mapNotNull { named -> generateSequence(named) { it.parent }.firstOrNull { it.isCheckable } }
-                .distinct().toList()
+        fun nativeRadio(choice: AppColorSchemePreference): AccessibilityNodeInfo {
+            val label = activity.getString(choice.labelResource)
+            assertFont200Unclipped(compose.onNodeWithText(label, useUnmergedTree = true).assertIsDisplayed())
+            val current = service.state.value
+            assertTrue("Native radio readiness requires the actual ready preference owner", current is ThemeServiceState.Ready)
+            val expectedChecked = (current as ThemeServiceState.Ready).selection.colorSchemePreference == choice
+            var matches = emptyList<AccessibilityNodeInfo>()
+            compose.waitUntil {
+                val window = automation().rootInActiveWindow
+                if (window?.packageName?.toString() != activity.packageName) return@waitUntil false
+                assertTrue("Refresh the actual radio window before reading native checked state", window.refresh())
+                matches = descendants(window).filter { it.text?.toString() == label }
+                    .mapNotNull { named ->
+                        generateSequence(named) { it.parent }.onEach {
+                            assertTrue("Refresh the actual named radio ancestry", it.refresh())
+                        }.firstOrNull { it.isCheckable }
+                    }.distinct().toList()
+                matches.size == 1 && matches.single().isChecked == expectedChecked
+            }
             assertEquals("Exactly one named native $label radio must expose checked state", 1, matches.size)
             return matches.single().also {
                 assertTrue(it.refresh())
@@ -640,15 +656,14 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             for (scheme in AppColorSchemePreference.entries) {
                 val grid = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex))
                 grid.performScrollToIndex(0)
-                val schemeLabel = activity.getString(scheme.labelResource)
-                val schemeAction = nativeRadio(schemeLabel)
+                val schemeAction = nativeRadio(scheme)
                 appearanceTargetErrors.checkSucceeds { assertNativeTargetContained(schemeAction, root()) }
                 if (!schemeAction.isChecked) assertTrue(schemeAction.performAction(AccessibilityNodeInfo.ACTION_CLICK))
                 compose.waitUntil { (service.state.value as? ThemeServiceState.Ready)?.selection?.colorSchemePreference == scheme }
                 compose.waitForIdle()
                 for (choice in AppColorSchemePreference.entries) {
                     val label = activity.getString(choice.labelResource)
-                    val radio = nativeRadio(label)
+                    val radio = nativeRadio(choice)
                     assertEquals("The actual scheme radio checked state must be textual and exclusive", choice == scheme, radio.isChecked)
                     appearanceTargetErrors.checkSucceeds { assertNativeTargetContained(radio, root()) }
                     assertFont200Unclipped(compose.onNodeWithText(label, useUnmergedTree = true))
@@ -695,12 +710,16 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             runBlocking {
                 service.setCurrent(originalSelection.current.id)
                 service.setColorSchemePreference(originalSelection.colorSchemePreference)
+                assertEquals(originalSelection, service.refreshFromPreferences().selection)
             }
             compose.runOnUiThread {
                 if (container.navigation.state.value.selectedSetting == SettingsDetail.APPEARANCE) container.navigation.back()
                 container.navigation.selectTab(AppTab.CHATS)
                 onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, originalFlag)
             }
+            assertEquals(originalFlag, onboarding.flags.getBoolean(OnboardingState.KEY_HAS_COMPLETED))
+            println("WP503_NATIVE_APPEARANCE_RESTORED|theme=${originalSelection.current.id.rawValue}" +
+                "|scheme=${originalSelection.colorSchemePreference.rawValue}|onboarding=$originalFlag")
         }
     }
 
