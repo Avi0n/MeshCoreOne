@@ -70,6 +70,8 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.Rule
+import org.junit.rules.ErrorCollector
 import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.atomic.AtomicBoolean
@@ -79,6 +81,8 @@ import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
+    @get:Rule val appearanceTargetErrors = ErrorCollector()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test fun actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample() {
         val measuring = AtomicBoolean(false)
@@ -615,7 +619,9 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             assertEquals("Exactly one named native $label radio must expose checked state", 1, matches.size)
             return matches.single().also {
                 assertTrue(it.refresh())
-                println("WP503_NATIVE_APPEARANCE_RADIO|label=$label|checked=${it.isChecked}|checkable=${it.isCheckable}")
+                val bounds = Rect().also(it::getBoundsInScreen)
+                println("WP503_NATIVE_APPEARANCE_RADIO|label=$label|checked=${it.isChecked}|checkable=${it.isCheckable}" +
+                    "|bounds=$bounds|enabled=${it.isEnabled}|clickable=${it.isClickable}|actions=${it.actionList}")
             }
         }
         try {
@@ -636,7 +642,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 grid.performScrollToIndex(0)
                 val schemeLabel = activity.getString(scheme.labelResource)
                 val schemeAction = nativeRadio(schemeLabel)
-                assertNativeTargetContained(schemeAction, root())
+                appearanceTargetErrors.checkSucceeds { assertNativeTargetContained(schemeAction, root()) }
                 if (!schemeAction.isChecked) assertTrue(schemeAction.performAction(AccessibilityNodeInfo.ACTION_CLICK))
                 compose.waitUntil { (service.state.value as? ThemeServiceState.Ready)?.selection?.colorSchemePreference == scheme }
                 compose.waitForIdle()
@@ -644,7 +650,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                     val label = activity.getString(choice.labelResource)
                     val radio = nativeRadio(label)
                     assertEquals("The actual scheme radio checked state must be textual and exclusive", choice == scheme, radio.isChecked)
-                    assertNativeTargetContained(radio, root())
+                    appearanceTargetErrors.checkSucceeds { assertNativeTargetContained(radio, root()) }
                     assertFont200Unclipped(compose.onNodeWithText(label, useUnmergedTree = true))
                 }
                 for ((index, theme) in service.availableToCurrentUser.withIndex()) {
@@ -680,7 +686,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                     ))
                     println("WP503_NATIVE_APPEARANCE|sdk=${android.os.Build.VERSION.SDK_INT}|theme=${theme.id.rawValue}" +
                         "|scheme=${scheme.rawValue}|effective=${persisted.effectiveColorScheme}|persisted=true" +
-                        "|selectedText=true|duplicateDisabled=true|focus=true|target48=true|fontScale=2.0" +
+                        "|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0" +
                         "|realGraph=true|physicalTalkBack=false")
                 }
             }
