@@ -1,11 +1,120 @@
 # WP-503 attempt evidence
 
-**Map List224, offline discovery226, Reset Path228 and selected-B contrast in LoS repair227 block acceptance; PR205/WP503 remain incomplete.**
+**Offline discovery226 and Reset Path228 block acceptance; PR205/WP503 remain incomplete with remaining physical/matrix/review gates.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Complete native inventory with authentic Map and Point B repairs
+
+Exact executed **4690cfa37af2ba3b3ff46db64b2d925e8e63ca13** authentically integrates
+WP312 Map repair **cee2b806f88ecc313137e89f777a8b1035147da7** and WP315 B successor
+**66e76d434e9282bf6c339f338de9f535a2715e51**. Original Map fixture
+6d596bcb37e0ad501a981f969f04eca2b2e5171b equals original8eb; action3031457/
+A6ad88ce/B32c2819 are unchanged. Strict declared assembly passes and
+[exact actual APK binding](device-complete-469-inputs.json) records these input bytes.
+
+```text
+adb -s SERIAL shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+**Actual API31:23 discovered/23 passed,0 failures/errors/skips,46.338s**
+([transcript](device-complete-469-api31.txt), [metrics](device-complete-469-metrics-api31.txt)).
+**Actual API37:23 discovered/23 passed,0 failures/errors/skips,57.100s**
+([transcript](device-complete-469-api37.txt), [metrics](device-complete-469-metrics-api37.txt)).
+This is the complete current Android inventory in one invocation/API: remote13,
+Map/runtime3, original LoS platform2, A1/B1 and real launcher/focus/window3.
+It is not a JVM invocation, whole feature/window/motion matrix or physical TalkBack.
+
+The unchanged Map224 case now measures fully visible/contained **75x48dp** List:
+API31(84,127)-(159,175) inside(0,63)-(360,774); API37(84,116)-(159,164)
+inside(0,52)-(360,876). Native selection exposes CJK favorite and Other saved repeater.
+Favorite selection exposes the complete name and exact `37.8, -122.4` coordinates;
+Done removes the callout. Favorites selects/reopens List, retains the favorite, excludes
+Other and clears again. Every formerly unexecuted assertion now runs/passes on both APIs.
+This is actual MapLibre/native UI, not substituted JNI/renderer or terrain/download proof.
+The existing PR229 receives a bounded
+[COMMENTED exact-cee review5497680552](https://github.com/cbattlegear/MeshCoreOne-Android/pull/229#pullrequestreview-5497680552);
+no audit product edit.
+
+All76 native A paint records remain **5.116844937908165:1**; all76 unchanged B records
+now measure **4.829630939602952:1**, actual black on the same native green#1B8A5A,
+above unchanged4.5. Original saved A/B selections, two elevation reads/actual RF distance,
+all38 frames/API, paint/font/48dp and named platform action assertions pass unchanged.
+The earlier exact66/integrated2f scoped selector includes original LoS2/A1/B1 plus launcher3:
+**7/7PASS per API**,0 failures/errors/skips,25.839s/30.688s
+([API31](device-los-successor66-api31.txt), [API37](device-los-successor66-api37.txt),
+[metrics31](device-los-successor66-metrics-api31.txt),
+[metrics37](device-los-successor66-metrics-api37.txt),
+[input binding](device-los-successor66-inputs.json)).
+[COMMENTED review5497602656](https://github.com/cbattlegear/MeshCoreOne-Android/pull/227#pullrequestreview-5497602656)
+retires only the bounded B finding for exact66;12e failure remains historical.
+
+Same469 source executes the complete current owned JVM selection through the installed
+serialized snapshot/preflight adapter:
+
+```text
+:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.* --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m
+```
+
+**80 discovered/76 passed/4 failed,0 errors/skips**, eight suites with real native
+Robolectric SDK31/37 graphics/Resourcesfont2/RTL. Only discovery226 and Reset228 fail
+once per API; all other current messaging/contrast, backup, onboarding, appearance,
+diagnostics, shell and font controls pass in this same invocation. The command propagates
+failure; its reproducible JVM bundle is not committed. The complementary commands discover
+126 cases at one exact source, not126 passing cases, one runner or WP acceptance.
+All760 current painted message spans clear the unchanged4.5/7 floors,0 below,
+minimum4.517812074094317:1; these are actual emitted/native-painted records, not RGB proxies.
+
+Exact published420 [38328382718](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38328382718)
+**FAILED/App800/4**. The completed Linux job115072550914 authoritative log names default
+discovery226 and Reset228 methods; it does not supply a complete per-case listing in its
+truncated output. Controller/Swift codec passed, SwiftData skipped/final guard failed.
+No duplicate hosted bundle, predecessor/successor credit or current whole-WP pass.
+
+## Real current-window and neutral counterexample calibration
+
+Exactc52 whole launcher class3/3PASS per actual API31/37,0 failures/errors/skips,
+16.132s/21.588s ([API31](device-window-c52-api31.txt),
+[API37](device-window-c52-api37.txt), [metrics31](device-window-c52-metrics-api31.txt),
+[metrics37](device-window-c52-metrics-api37.txt), [inputs](device-window-c52-inputs.json)).
+This uses the same declared launcher class selector documented below; a76's original
+two methods remain part of the three-method class. It re-executes within2f/469 above.
+
+Public `wm size` changes only isolated fresh read-only test displays360x900->900x900
+rail->360x900. Both APIs actually recreate MainActivity on each transition. All five
+native rail names/actions/focus/selection,48dp containment/font2 headings and actual
+Language row navigation pass. The real detail entry5/all stacks/selected setting survive
+compact recreation; named48dp native Back/focus reacquisition returns real Settings.
+**automaticBackFocusRetained=false** is recorded; UiAutomation does not supply physical
+TalkBack restoration observations. Original window override, onboarding precondition
+and service flags are restored. Full draft/scroll/remaining-window/default-motion
+acceptance is not inferred.
+
+Prior exact2f whole native inventory23/API discovers **21PASS/2FAIL**,0 errors/skips,
+44.575s/56.045s ([API31](device-complete-before-map-api31.txt),
+[API37](device-complete-before-map-api37.txt),
+[metrics31](device-complete-before-map-metrics-api31.txt),
+[metrics37](device-complete-before-map-metrics-api37.txt)).
+Map224 remains genuine then; the other failure is an owned framework-control
+precondition. Actual neutral text's76px allocation retains304px paragraph but implicitly
+places its line0..76 rather than228..304. This is not a product font defect.
+
+Exact051 makes only both framework texts publicly right-aligned, deterministically
+retaining the original out-of-allocation coordinate assertion. Scoped control1/1PASS
+per actual API31/37,0 failures/errors/skips,1.846s/2.734s
+([API31](device-neutral-alignment-api31.txt), [API37](device-neutral-alignment-api37.txt),
+[metrics31](device-neutral-alignment-metrics-api31.txt),
+[metrics37](device-neutral-alignment-metrics-api37.txt),
+[inputs](device-neutral-alignment-inputs.json)).
+Coordinates228..304 remain outside native76px allocation; all22 actual/reference ink
+rows are exactly equal with zero tolerance. The actual50px ancestor-clipped sample
+loses ink and the same assertion rejects it. No strict assertion/shared helper/floor,
+product content or timeout is changed. This repaired control then passes in full469.
+
+## Historical intermediate findings
 
 ## Native LoS successor A pass and B contrast blocker
 

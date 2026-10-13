@@ -1,11 +1,60 @@
 # WP-503 accessibility audit
 
-**Status: Map List224, offline discovery226, Reset Path228 and selected-B contrast in LoS repair227 block acceptance. PR205 remains draft.**
+**Status: offline discovery226 and Reset Path228 block acceptance. PR205 remains draft; remaining physical/matrix/review gates are unverified.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Current execution and base refresh
+## Current complete Android inventory and producer re-audits
+
+At exact `4690cfa37af2ba3b3ff46db64b2d925e8e63ca13`, the **complete current owned
+Android inventory discovers23/passes23 on each actual API31/37**, zero failures/errors/
+skips,46.338s/57.100s. Authentic WP312 Map repair
+`cee2b806f88ecc313137e89f777a8b1035147da7` and WP315 Point B successor
+`66e76d434e9282bf6c339f338de9f535a2715e51` are genuinely integrated, not audit patches.
+Original Map/action/A/B fixtures remain byte-identical. This is a real combined
+46-case Android execution, not the JVM suite, full remaining matrix or physical TalkBack.
+
+The unchanged populated Map224 case now executes its formerly unreachable assertions:
+native List **75x48dp**, fully visible/contained; native selection, CJK/Other rows,
+selected favorite name and exact `37.8, -122.4` coordinates, Done dismissal and
+favorite-only filtering all pass on both APIs. A's76 native paint records remain
+5.116844937908165:1; unchanged B's76 records now measure **4.829630939602952:1**,
+clearing unchanged4.5 on the original green surface. The existing producer reviews
+retire only these exact bounded findings; historical224/B failures remain negative.
+[Current evidence](../evidence/WP-503/README.md#complete-native-inventory-with-authentic-map-and-point-b-repairs)
+binds exact source/APKs/unchanged fixtures and all actual discovered identities.
+
+Real window audit first passes whole launcher3/API atc52, then again within this23/API
+cohort. Actual360x900->900x900 rail->360x900 transitions recreate the Activity and
+preserve the real Language detail entry/all stacks/selection. Native rail Tab names/
+actions/focus, contained48dp targets, actual font2 headings and named native Back/
+focus reacquisition pass. **Automatic native Back focus is false**, explicitly recorded;
+physical TalkBack's restoration behavior is not inferred from automation.
+
+The previous full2f Android inventory discovers23/passes21/fails2 per API: original
+Map224 plus an owned framework-counterexample precondition. Actual neutral text retains
+304px paragraph but implicitly uses coordinates0..76, rather than228..304. Public
+right alignment makes only the framework counterexample deterministic; the original
+out-of-allocation coordinate assertion, exact22-row full-ink equality and actual50px
+ancestor-clip rejection remain unchanged and pass. No product/shared oracle is changed.
+
+Published420 exact [run38328382718](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38328382718)
+**FAILED/App800/4**. Visible named failures are discovery226 and Reset228; controller/
+Swift codec passed, SwiftData skipped/final guard failed. The completed Linux job
+115072550914 log is authoritative; no full per-case hosted breakdown or successor
+credit is inferred from its truncated output. No duplicate hosted bundle is retained.
+The complete current JVM selector is separate from the positive Android inventory.
+Live/adopted base remains d818; no current-head review/whole-WP success.
+At the same exact469 source, declared wildcard App JVM selection discovers **80/
+passes76/fails4**, zero errors/skips across all eight owned suites on native SDK31/37.
+Only discovery226/Reset228 fail once per API; all messaging/contrast, backup, onboarding,
+appearance, diagnostics, shell and font controls pass together. Its command fails.
+All760 current painted message spans clear unchanged4.5/7 floors, minimum4.517812074094317:1.
+The two complementary commands cover126 cases at one source; this is not126 passing
+cases, one runner invocation, a hosted result bundle or full-matrix acceptance.
+
+## Historical execution and base refresh
 
 Authentic WP315 successor `12e47ca119ef542a09a5070f73805da8ea9d5bf7` is integrated
 at `986d7e36f9ba88e7f90b20813b0fb1eb031ca0bf`. At executed audit

@@ -1,6 +1,33 @@
 # WP-503 native execution matrix
 
-**Map List224, offline discovery226, Reset Path228 and selected-B contrast in LoS repair227 block acceptance; WP503 remains incomplete.**
+**Offline discovery226 and Reset Path228 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
+Exact4690cfa37af2ba3b3ff46db64b2d925e8e63ca13 authentically integrates WP312cee
+and WP31566. Complete current Android inventory **23/23PASS per actual API31/37**,
+zero failures/errors/skips46.338s/57.100s. Original Map/action/A/B fixtures unchanged.
+Map List75x48dp fully visible/contained; selection/CJK callout37.8,-122.4/Done/
+favorite-only states all execute/pass. All76 B native records4.829630939602952>=4.5;
+A remains5.116844937908165 in76 records. These exact bounded producer findings retire,
+not historical failures, physical TalkBack, radio/terrain or remaining-state acceptance.
+
+Real360->900 rail->360 current-window changes recreate the Activity, retaining actual
+Language entry/stacks/selection. All five native rail names/actions/focus/font/48dp
+and native Back/focus reacquisition pass; automatic nativeBackFocus=false remains explicit.
+Full remaining resize/detail/draft/scroll and physical focus restoration are unverified.
+Prior2f full23/API passes21/fails2: Map224 plus implicit-coordinate framework calibration.
+Explicit public right alignment only in that control retains the coordinate assertion,
+22-row zero-tolerance full ink and real50px ancestor rejection; corrected control passes.
+
+Published42038328382718 FAILED/App800/4; visible named methods are discovery226/Reset228,
+not a complete hosted per-case listing. Controller/Swift codec passed, SwiftData skipped/
+final guard failed. No hosted bundle/successor credit. The JVM inventory is separate.
+At that same exact469 source, complete owned App JVM wildcard selection discovers80/
+passes76/fails4,0 errors/skips across eight native SDK31/37 suites. Only discovery226/
+Reset228 fail once per API. All other original/current owned cases pass together.
+Current760 painted spans clear unchanged4.5/7 floors,0 below,minimum4.517812074094317:1.
+The complementary80+23+23 cases are126 discovered, not126 passing or one invocation.
+
+## Historical intermediate executions
+
 Exact successor12e, integrated986d and executedd802, passes unchanged LoS platform2
 and A contrast1 on each actual API31/37;76 native A records5.116844937908165>=4.5.
 Separate new B audit fails1/API after38 effective frames/API: all76 native green
@@ -71,8 +98,8 @@ Early API37 root-null and bare/by-text control failures
 are harness diagnostics, not both-API product proof or physical TalkBack observations.
 
 Current mandatory instrumentation inventory is13 remote,3 Map/runtime,2 LoS-platform,
-1 Point A contrast,1 Point B contrast and2 launcher-focus methods per API.
-There is no passing combined22/API execution. Existing full-matrix,
+1 Point A contrast,1 Point B contrast and3 launcher-focus/window methods per API.
+The complete23/API execution at469 passes above. Existing full-matrix,
 physical TalkBack, expanded/resize and default-motion gates remain unverified.
 
 At exact fixture39d87b60af67486ad2ce824110d841e229617114, the complete remote class
