@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meshcoreone.android.core.l10n.generated.AppLocalizableStrings
 import com.meshcoreone.android.core.l10n.generated.AppRemoteNodesStrings as L
@@ -29,13 +31,17 @@ internal fun RemoteRegionsContent(
         state.isLoadingRegions, state.regionsError, enabled, { scope.launch { holder.fetchRegions() } },
     ) {
         state.regions.forEach { region ->
-            Column(Modifier.padding(start = (RegionFloodToggleRowLayout.visibleDepth(region.depth, 12.0) * 12).dp)) {
+            val indentPerLevel = with(LocalDensity.current) { RegionFloodToggleRowLayout.INDENT_PER_LEVEL.sp.toDp() }
+            val visibleDepth = RegionFloodToggleRowLayout.visibleDepth(region.depth, indentPerLevel.value.toDouble())
+            Column(Modifier.padding(start = indentPerLevel * visibleDepth)) {
                 RemoteValue(stringResource(L.remoteNodesSettingsRegionsRegionName), remoteText(RegionFloodToggleRowLayout.displayName(region)))
                 if (region.isHome) Text(stringResource(L.remoteNodesSettingsRegionsHomeRegion))
                 RemoteToggle(
                     L.remoteNodesSettingsRegionsFloodToggleCaption, region.floodAllowed,
                     { confirm(L.remoteNodesSettingsRegionsFloodToggleCaption) { holder.toggleRegionFlood(region.name) } },
                     enabled, androidx.compose.ui.semantics.Role.Switch,
+                    remoteText(RegionFloodToggleRowLayout.accessibilityLabel(region)),
+                    stringResource(L.remoteNodesSettingsRegionsFloodToggleHint),
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton({ add = AddRegionForm(selectedParent = if (region.isUnscoped) RepeaterRegionEntry.Parent.Unscoped else RepeaterRegionEntry.Parent.Named(region.name)) }, enabled = enabled) {

@@ -225,6 +225,20 @@ region parser edge cases (`settings_regions`), abbreviated duration formatting (
 location report formatting and calendar arithmetic (`history_location`), road-usage distance text
 (`map_road_usage`) and stable SHA-256 pin ids (`map_badge_ids`).
 
+## Region gutters and flood-switch semantics follow-up (issue #218)
+
+`RemoteRegionsContent` mounts `RegionFloodToggleRowLayout.visibleDepth` with the body-scaled indent
+(`12.sp` at the current font scale) instead of a hardcoded 12dp, and the flood switch exposes the
+`RegionFloodToggleRowLayout.accessibilityLabel(region)` text as its content description plus the
+localized `floodToggleHint` as its click label. `RemoteRegionsContentTest` (Robolectric SDK31, mounted
+Compose, no radio) asserts: gutter offsets 0/1/2/3/4/4 x 12dp at 1x and 0/1/2/2/2/2 x 24dp at 2x
+(root, child of Unscoped, named parent, deep child, depth-5 cap), six unique region/parent switch
+labels, the localized hint, switch role/on state/enabled/>=48dp height, one confirmation with the flood
+caption, and no CLI command. Not TalkBack, device or hardware evidence. The module now applies the
+existing `mesh.android.robolectric` convention and the already-cataloged `ui-test-junit4`; the
+`feature-remotenodes` lockfile gained only resolved test-classpath entries under the
+`dependency-resolution-metadata` capability.
+
 ## Not claimed
 
 Original-case counts are source-case parity for the logic layer only. They do not establish UI
