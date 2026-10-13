@@ -99,8 +99,13 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText)).fetchSemanticsNodes().size == 1
             }
             val editor = descendants(root()).filter { it.isEditable }.toList().single()
+            assertTrue("Refresh the actual native editor before its focus action", editor.refresh())
             assertNativeTargetContained(editor, root())
-            assertTrue(editor.performAction(AccessibilityNodeInfo.ACTION_FOCUS))
+            println("WP503_NATIVE_CHAT_EDITOR|sdk=${android.os.Build.VERSION.SDK_INT}|focusedBefore=${editor.isFocused}" +
+                "|focusActionAdvertised=${editor.actionList.any { it.id == AccessibilityNodeInfo.ACTION_FOCUS }}")
+            if (!editor.isFocused) assertTrue("Acquire actual native input focus", editor.performAction(AccessibilityNodeInfo.ACTION_FOCUS))
+            assertTrue(editor.refresh())
+            assertTrue("Actual native editor must have input focus", editor.isFocused)
             assertTrue(editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, Bundle().apply {
                 putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, draft)
             }))
