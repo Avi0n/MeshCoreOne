@@ -1,0 +1,18 @@
+{
+  "head": "d80259a9ac9d2a0ee4bd5c19f41fb6a376e7b153",
+  "producer": "12e47ca119ef542a09a5070f73805da8ea9d5bf7",
+  "integration": "986d7e36f9ba88e7f90b20813b0fb1eb031ca0bf",
+  "production_blob": "1273eec4b53b5e32ec348c27fed7e33159310d70",
+  "unchanged_action_fixture": "3031457bf42cc3437979fcb3e12aa584069c30d6",
+  "unchanged_point_a_fixture": "6ad88ceada36198db31309932900c5b51a39910d",
+  "apks": {
+    "wp503-device-app.apk": {
+      "size": 105464909,
+      "sha256": "c084a8876afd8fd18f9e6992dffbb906ffc4a7479a607eb31020e98ae3624064"
+    },
+    "wp503-device-test.apk": {
+      "size": 2734703,
+      "sha256": "10459db018cf3cb13ba4e7348f757820fb9ff3dec5d4b3a753cf9841e60511e0"
+    }
+  }
+}

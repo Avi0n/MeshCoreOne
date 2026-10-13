@@ -1,11 +1,61 @@
 # WP-503 accessibility audit
 
-**Status: Map List224, offline discovery226 and selected-label contrast in LoS repair227 block acceptance. PR205 remains draft.**
+**Status: Map List224, offline discovery226, Reset Path228 and selected-B contrast in LoS repair227 block acceptance. PR205 remains draft.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
 ## Current execution and base refresh
+
+Authentic WP315 successor `12e47ca119ef542a09a5070f73805da8ea9d5bf7` is integrated
+at `986d7e36f9ba88e7f90b20813b0fb1eb031ca0bf`. At executed audit
+`d80259a9ac9d2a0ee4bd5c19f41fb6a376e7b153`, the unchanged LoS action2 and
+Point A contrast1 cases **pass on each actual API31/37**. All76 native A paint
+records measure **5.116844937908165:1**, clearing unchanged4.5. The original
+764c/white-A failure below remains historical, not current.
+
+Separate additive Point B audit selects real saved A/B endpoints with exactly two
+elevation callbacks and the actual RF distance adapter. Each API discovers1/fails1,
+zero errors/skips, after38 effective frames. All76 native B paint records measure
+white on unchanged green `#1B8A5A` at **4.34815832982187:1**, below4.5.
+This finding and genuine A/action pass are transferred through a COMMENTED review
+of the same existing PR227. No product patch, new worker or threshold relaxation.
+[Successor evidence](../evidence/WP-503/README.md#native-los-successor-a-pass-and-b-contrast-blocker)
+binds unchanged fixtures and exact inputs; no terrain/physical TalkBack approval.
+
+Actual launcher audit `a76cd8594e6208856ccf47d28015e7d88cecb364` passes **2/2 on
+each actual API31/37**, zero failures/errors/skips. An independent Material control
+calibrates native accessibility focus. The real process graph then visits all five
+native tabs: actual ACTION_ACCESSIBILITY_FOCUS/click, retained focus, exact-one
+selection matching navigation state, named Tab role, contained72x160dp targets and
+unclipped native font2 labels pass. UiAutomation actually supports/enables public
+touch exploration; original service flags and the explicit completed-onboarding
+precondition are restored. The real connection stays DISCONNECTED. Native node
+refresh resolves stale selected attributes, not a product change or relaxed assertion.
+[Focus evidence](../evidence/WP-503/README.md#native-real-launcher-focus-calibration)
+preserves observer negatives and distinguishes this from physical TalkBack speech.
+
+At `f112d6aa05abb520bda074200828f7243de6dabd`, the complete native JVM Nodes class
+discovers **18/passes14/fails4**, zero errors/skips on SDK31/37. Original passing
+states, search/sort, real URI/QR/clipboard/copy-feedback/exact native chooser-intent
+and orthogonal CHAT/REPEATER/ROOM transport/history cases pass together. Discovery226
+still fails1/API. New [WP311 defect228](https://github.com/cbattlegear/MeshCoreOne-Android/issues/228)
+records Reset Path's **0x396px allocation and empty visible bounds** in the real fixed
+action Row at font2/RTL. Expanded48dp semantics do not make its missing label visible.
+No product edit or new producer; WP311 repair activity remains unconfirmed.
+[Nodes evidence](../evidence/WP-503/README.md#native-nodes-path-share-and-transport-roles)
+does not claim an actual chooser, physical clipboard or radio/persistence acceptance.
+The same declared scoped selector re-executes at exacta76 with **18/14PASS/4FAIL**,
+zero errors/skips; only the unchanged discovery226/Reset228 methods fail1/API each.
+This is a current executable failure, not a whole-command pass.
+
+Published d08's exact [run38323733310](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38323733310)
+**FAILED**, App794/2, the two discovery226 cases. Controller/Swift codec passed;
+SwiftData skipped/final guard failed. Completed job115057921557's authoritative log
+was read; no duplicate hosted bundle is retained. This does not verify later local
+audits. Live/adopted base remains d818.
+
+### Historical first LoS repair and Nodes execution
 
 Authentic WP315 repair227 at `764c3d1d5b585cdb49c3be3bbf57c853f08483b7` is
 integrated at `5c4fd4a4de1af9d41e98ba2631e8ead46cb93321`. The unchanged two-method
@@ -20,7 +70,7 @@ discovers1/fails1 on each actual API31/37, zero errors/skips. All38 effective th
 frames/API execute: selected A's emitted white label against measured native
 `#1677FF` paint is **4.104091535864498:1 in all76 records**, below unchanged4.5.
 This is not a source-only color calculation or an edited endpoint fixture. Selected B
-is not measured. The existing WP315 repair owns the contrast correction, not this audit.
+was not measured in that execution. The existing WP315 repair owns correction, not this audit.
 [Exact native evidence](../evidence/WP-503/README.md#authentic-los-repair-and-selected-label-contrast)
 preserves the distinct candidates, passing actions and failing contrast.
 

@@ -1,0 +1,116 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest:
+INSTRUMENTATION_STATUS: test=frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest:
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest:
+INSTRUMENTATION_STATUS: test=selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Point B label fails unchanged4.5:1 contrast: default:LIGHT:hc=false=4.34815832982187<4.5, default:LIGHT:hc=true=4.34815832982187<4.5, default:DARK:hc=false=4.34815832982187<4.5, default:DARK:hc=true=4.34815832982187<4.5, ember:DARK:hc=false=4.34815832982187<4.5, ember:DARK:hc=true=4.34815832982187<4.5, fern:LIGHT:hc=false=4.34815832982187<4.5, fern:LIGHT:hc=true=4.34815832982187<4.5, fern:DARK:hc=false=4.34815832982187<4.5, fern:DARK:hc=true=4.34815832982187<4.5, marine:LIGHT:hc=false=4.34815832982187<4.5, marine:LIGHT:hc=true=4.34815832982187<4.5, marine:DARK:hc=false=4.34815832982187<4.5, marine:DARK:hc=true=4.34815832982187<4.5, olive:LIGHT:hc=false=4.34815832982187<4.5, olive:LIGHT:hc=true=4.34815832982187<4.5, olive:DARK:hc=false=4.34815832982187<4.5, olive:DARK:hc=true=4.34815832982187<4.5, lavender:LIGHT:hc=false=4.34815832982187<4.5, lavender:LIGHT:hc=true=4.34815832982187<4.5, lavender:DARK:hc=false=4.34815832982187<4.5, lavender:DARK:hc=true=4.34815832982187<4.5, sakura:LIGHT:hc=false=4.34815832982187<4.5, sakura:LIGHT:hc=true=4.34815832982187<4.5, sakura:DARK:hc=false=4.34815832982187<4.5, sakura:DARK:hc=true=4.34815832982187<4.5, solarized:LIGHT:hc=false=4.34815832982187<4.5, solarized:LIGHT:hc=true=4.34815832982187<4.5, solarized:DARK:hc=false=4.34815832982187<4.5, solarized:DARK:hc=true=4.34815832982187<4.5, nord:LIGHT:hc=false=4.34815832982187<4.5, nord:LIGHT:hc=true=4.34815832982187<4.5, nord:DARK:hc=false=4.34815832982187<4.5, nord:DARK:hc=true=4.34815832982187<4.5, catppuccin:LIGHT:hc=false=4.34815832982187<4.5, catppuccin:LIGHT:hc=true=4.34815832982187<4.5, catppuccin:DARK:hc=false=4.34815832982187<4.5, catppuccin:DARK:hc=true=4.34815832982187<4.5
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest.selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames(NativeLineOfSightPointBContrastTest.kt:128)
+
+INSTRUMENTATION_STATUS: stream=
+Error in selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames(com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest):
+java.lang.AssertionError: Point B label fails unchanged4.5:1 contrast: default:LIGHT:hc=false=4.34815832982187<4.5, default:LIGHT:hc=true=4.34815832982187<4.5, default:DARK:hc=false=4.34815832982187<4.5, default:DARK:hc=true=4.34815832982187<4.5, ember:DARK:hc=false=4.34815832982187<4.5, ember:DARK:hc=true=4.34815832982187<4.5, fern:LIGHT:hc=false=4.34815832982187<4.5, fern:LIGHT:hc=true=4.34815832982187<4.5, fern:DARK:hc=false=4.34815832982187<4.5, fern:DARK:hc=true=4.34815832982187<4.5, marine:LIGHT:hc=false=4.34815832982187<4.5, marine:LIGHT:hc=true=4.34815832982187<4.5, marine:DARK:hc=false=4.34815832982187<4.5, marine:DARK:hc=true=4.34815832982187<4.5, olive:LIGHT:hc=false=4.34815832982187<4.5, olive:LIGHT:hc=true=4.34815832982187<4.5, olive:DARK:hc=false=4.34815832982187<4.5, olive:DARK:hc=true=4.34815832982187<4.5, lavender:LIGHT:hc=false=4.34815832982187<4.5, lavender:LIGHT:hc=true=4.34815832982187<4.5, lavender:DARK:hc=false=4.34815832982187<4.5, lavender:DARK:hc=true=4.34815832982187<4.5, sakura:LIGHT:hc=false=4.34815832982187<4.5, sakura:LIGHT:hc=true=4.34815832982187<4.5, sakura:DARK:hc=false=4.34815832982187<4.5, sakura:DARK:hc=true=4.34815832982187<4.5, solarized:LIGHT:hc=false=4.34815832982187<4.5, solarized:LIGHT:hc=true=4.34815832982187<4.5, solarized:DARK:hc=false=4.34815832982187<4.5, solarized:DARK:hc=true=4.34815832982187<4.5, nord:LIGHT:hc=false=4.34815832982187<4.5, nord:LIGHT:hc=true=4.34815832982187<4.5, nord:DARK:hc=false=4.34815832982187<4.5, nord:DARK:hc=true=4.34815832982187<4.5, catppuccin:LIGHT:hc=false=4.34815832982187<4.5, catppuccin:LIGHT:hc=true=4.34815832982187<4.5, catppuccin:DARK:hc=false=4.34815832982187<4.5, catppuccin:DARK:hc=true=4.34815832982187<4.5
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest.selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames(NativeLineOfSightPointBContrastTest.kt:128)
+
+INSTRUMENTATION_STATUS: test=selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Platform accessibility focus must reach tab:NODES
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:39)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+java.lang.AssertionError: Platform accessibility focus must reach tab:NODES
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:39)
+
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 18.298
+There were 2 failures:
+1) selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames(com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest)
+java.lang.AssertionError: Point B label fails unchanged4.5:1 contrast: default:LIGHT:hc=false=4.34815832982187<4.5, default:LIGHT:hc=true=4.34815832982187<4.5, default:DARK:hc=false=4.34815832982187<4.5, default:DARK:hc=true=4.34815832982187<4.5, ember:DARK:hc=false=4.34815832982187<4.5, ember:DARK:hc=true=4.34815832982187<4.5, fern:LIGHT:hc=false=4.34815832982187<4.5, fern:LIGHT:hc=true=4.34815832982187<4.5, fern:DARK:hc=false=4.34815832982187<4.5, fern:DARK:hc=true=4.34815832982187<4.5, marine:LIGHT:hc=false=4.34815832982187<4.5, marine:LIGHT:hc=true=4.34815832982187<4.5, marine:DARK:hc=false=4.34815832982187<4.5, marine:DARK:hc=true=4.34815832982187<4.5, olive:LIGHT:hc=false=4.34815832982187<4.5, olive:LIGHT:hc=true=4.34815832982187<4.5, olive:DARK:hc=false=4.34815832982187<4.5, olive:DARK:hc=true=4.34815832982187<4.5, lavender:LIGHT:hc=false=4.34815832982187<4.5, lavender:LIGHT:hc=true=4.34815832982187<4.5, lavender:DARK:hc=false=4.34815832982187<4.5, lavender:DARK:hc=true=4.34815832982187<4.5, sakura:LIGHT:hc=false=4.34815832982187<4.5, sakura:LIGHT:hc=true=4.34815832982187<4.5, sakura:DARK:hc=false=4.34815832982187<4.5, sakura:DARK:hc=true=4.34815832982187<4.5, solarized:LIGHT:hc=false=4.34815832982187<4.5, solarized:LIGHT:hc=true=4.34815832982187<4.5, solarized:DARK:hc=false=4.34815832982187<4.5, solarized:DARK:hc=true=4.34815832982187<4.5, nord:LIGHT:hc=false=4.34815832982187<4.5, nord:LIGHT:hc=true=4.34815832982187<4.5, nord:DARK:hc=false=4.34815832982187<4.5, nord:DARK:hc=true=4.34815832982187<4.5, catppuccin:LIGHT:hc=false=4.34815832982187<4.5, catppuccin:LIGHT:hc=true=4.34815832982187<4.5, catppuccin:DARK:hc=false=4.34815832982187<4.5, catppuccin:DARK:hc=true=4.34815832982187<4.5
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest.selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames(NativeLineOfSightPointBContrastTest.kt:128)
+2) realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+java.lang.AssertionError: Platform accessibility focus must reach tab:NODES
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:39)
+
+FAILURES!!!
+Tests run: 5,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1

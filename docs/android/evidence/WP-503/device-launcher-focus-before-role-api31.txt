@@ -1,0 +1,73 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: The real native tree must expose exactly one named Map action expected:<1> but was:<2>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.namedAction(NativeLauncherFocusAccessibilityTest.kt:146)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.nativeTab(NativeLauncherFocusAccessibilityTest.kt:131)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:73)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:123)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:49)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+java.lang.AssertionError: The real native tree must expose exactly one named Map action expected:<1> but was:<2>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.namedAction(NativeLauncherFocusAccessibilityTest.kt:146)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.nativeTab(NativeLauncherFocusAccessibilityTest.kt:131)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:73)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:123)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:49)
+
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 4.185
+There was 1 failure:
+1) realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+java.lang.AssertionError: The real native tree must expose exactly one named Map action expected:<1> but was:<2>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.namedAction(NativeLauncherFocusAccessibilityTest.kt:146)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.nativeTab(NativeLauncherFocusAccessibilityTest.kt:131)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:73)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:123)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:49)
+
+FAILURES!!!
+Tests run: 2,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

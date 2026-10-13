@@ -1,0 +1,88 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Failed to perform GetTextLayoutResult action.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'tab-label:NODES')
+However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performSemanticsAction(Actions.kt:589)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.textLayout(NativeAccessibilityAssertions.kt:51)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.font200Layout(NativeAccessibilityAssertions.kt:57)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertFont200Unclipped(NativeAccessibilityAssertions.kt:72)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:86)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:121)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:49)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+java.lang.AssertionError: Failed to perform GetTextLayoutResult action.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'tab-label:NODES')
+However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performSemanticsAction(Actions.kt:589)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.textLayout(NativeAccessibilityAssertions.kt:51)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.font200Layout(NativeAccessibilityAssertions.kt:57)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertFont200Unclipped(NativeAccessibilityAssertions.kt:72)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:86)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:121)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:49)
+
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 4.703
+There was 1 failure:
+1) realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+java.lang.AssertionError: Failed to perform GetTextLayoutResult action.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'tab-label:NODES')
+However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performSemanticsAction(Actions.kt:589)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.textLayout(NativeAccessibilityAssertions.kt:51)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.font200Layout(NativeAccessibilityAssertions.kt:57)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertFont200Unclipped(NativeAccessibilityAssertions.kt:72)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:86)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:121)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:49)
+
+FAILURES!!!
+Tests run: 2,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

@@ -1,13 +1,38 @@
 # WP-503 native execution matrix
 
-**Map List224, offline discovery226 and selected-label contrast in LoS repair227 block acceptance; WP503 remains incomplete.**
+**Map List224, offline discovery226, Reset Path228 and selected-B contrast in LoS repair227 block acceptance; WP503 remains incomplete.**
+Exact successor12e, integrated986d and executedd802, passes unchanged LoS platform2
+and A contrast1 on each actual API31/37;76 native A records5.116844937908165>=4.5.
+Separate new B audit fails1/API after38 effective frames/API: all76 native green
+paint/white-label records4.34815832982187<4.5. Existing PR227 owns correction.
+No terrain, full-matrix or physical TalkBack approval; earlier white-A failure is historical.
+
+Exacta76 real launcher/control2/2 passes on each actual API31/37,0 failures/errors/skips.
+Public supported UiAutomation touch exploration is actually enabled/restored; the real
+process graph stays DISCONNECTED with an explicitly seeded/restored onboarding flag.
+All five native Tab names/actions, acquired/retained accessibility focus, graph-matching
+exact-one native selection, contained72x160dp targets and font2 labels pass. Native role
+disambiguation, unmerged TextLayoutResult and refreshed native descendants calibrate
+earlier observer failures without weakening assertions. This is not physical speech/traversal.
+
+Exactf112 full native JVM Nodes class18/14PASS/4FAIL,0 errors/skips: original/search
+states plus real QR URI/clipboard/copy/reset/exact chooser intent and offline role/history
+cases pass. Discovery226 and zero-width Reset Path228 fail1/API each. Product ownership
+is WP311; active repair remains unconfirmed. Real chooser/radio/persistence are unverified.
+The same full18-case selector at exacta76 again discovers18/passes14/fails4,
+zero errors/skips; only those same four product regressions fail. Its command fails.
+Exact published d0838323733310 FAILED/App794/2 discovery226; controller/Swift codec
+passed, SwiftData skipped/final guard failed. No later candidate credit or hosted bundle.
+
+## Historical bounded cohorts
+
 Authentic producer764c, integrated5c4, passes the unchanged native LoS platform
 fixture2/2 per actual API31/37,0 failures/errors/skips. Named East/CJK West actions,
 native East ACTION_CLICK/one elevation read and selected-summary font/48dp pass.
 Initial API37 pre-discovery crash remains negative, root cause unestablished.
 Separate additive audit29bc executes38 effective frames/API but fails1/1 per API:
 selected A label4.104091535864498:1 versus unchanged4.5 in all76 native paint records.
-Selected B, terrain and physical TalkBack are not covered. Existing WP315 repair227
+Selected B, terrain and physical TalkBack were not covered in29bc. Existing WP315 repair227
 owns correction; historical endpoint225 failures below are not relabeled.
 
 Candidate d98438321296291 FAILED/App794/2, both disconnected Nodes discovery
@@ -45,8 +70,9 @@ fixture above. Its later endpoint/elevation/summary assertions were UNEXECUTED.
 Early API37 root-null and bare/by-text control failures
 are harness diagnostics, not both-API product proof or physical TalkBack observations.
 
-Current mandatory instrumentation inventory is13 remote,3 Map/runtime,2 LoS-platform
-and1 selected-LoS contrast method per API. There is no passing combined19/API execution. Existing full-matrix,
+Current mandatory instrumentation inventory is13 remote,3 Map/runtime,2 LoS-platform,
+1 Point A contrast,1 Point B contrast and2 launcher-focus methods per API.
+There is no passing combined22/API execution. Existing full-matrix,
 physical TalkBack, expanded/resize and default-motion gates remain unverified.
 
 At exact fixture39d87b60af67486ad2ce824110d841e229617114, the complete remote class

@@ -1,11 +1,145 @@
 # WP-503 attempt evidence
 
-**Map List224, offline discovery226 and selected-label contrast in LoS repair227 block acceptance; PR205/WP503 remain incomplete.**
+**Map List224, offline discovery226, Reset Path228 and selected-B contrast in LoS repair227 block acceptance; PR205/WP503 remain incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native LoS successor A pass and B contrast blocker
+
+Authentic WP315 successor `12e47ca119ef542a09a5070f73805da8ea9d5bf7` is integrated
+at `986d7e36f9ba88e7f90b20813b0fb1eb031ca0bf`. Production blob is
+1273eec4b53b5e32ec348c27fed7e33159310d70. Original native action fixture
+3031457bf42cc3437979fcb3e12aa584069c30d6 and Point A contrast fixture
+6ad88ceada36198db31309932900c5b51a39910d remain unchanged. Executed audit
+`d80259a9ac9d2a0ee4bd5c19f41fb6a376e7b153` passes declared strict assembly;
+[actual device inputs](device-los-successor12e-inputs.json) bind the real APKs.
+
+```text
+adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest,com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest,com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+**Each actual API31/37 discovers5/passes3/fails2,0 errors/skips**: original action2
+and unchanged A contrast1 PASS; new B contrast1 FAIL; then-uncalibrated launcher focus1
+FAIL. [API31 transcript](device-los-successor12e-api31.txt) and
+[API37 transcript](device-los-successor12e-api37.txt) preserve these distinct outcomes.
+[API31 native metrics](device-los-successor12e-metrics-api31.txt) and
+[API37 native metrics](device-los-successor12e-metrics-api37.txt) contain all38 A
+and38 B records per API, not an aggregate5/5 success.
+
+Native A black on unchanged blue#1677FF measures **5.116844937908165:1 in all76
+records**, above4.5. Earlier white-A failure below remains historical. Native B white
+on unchanged green#1B8A5A measures **4.34815832982187:1 in all76 records**, below4.5.
+The separate B fixture selects real saved A/B endpoints and checks exactly two elevation
+callbacks, real pure RF distance, every frame's font and actual painted background
+before final contrast failure. No terrain analysis or fake successful analysis is used.
+The original action/A files, floor and producer identity roles are untouched.
+
+This measured B finding and bounded genuine A/action pass were posted as a COMMENTED
+review at exact12e on existing PR227
+([5497333506](https://github.com/cbattlegear/MeshCoreOne-Android/pull/227#pullrequestreview-5497333506)) and in
+[issue136 handoff](https://github.com/cbattlegear/MeshCoreOne-Android/issues/136#issuecomment-6135192389).
+No protected approval, new worker or audit-authored production edit. Producer CI was
+still in progress at that handoff, not a current full hosted pass.
+Later independent refresh shows exact12e candidate38325565489 SUCCESS:
+classifier/controller/Linux/final guard passed; Swift codec and SwiftData were skipped
+by scope, not executed passes. It does not verify native B or PR205's newer head.
+
+Published d08 exact [run38323733310](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38323733310)
+**FAILED/App794/2**, both disconnected discovery226 methods. Controller/Swift codec
+passed, SwiftData skipped/final guard failed. The actual completed Linux job115057921557
+log was read through `gh api repos/cbattlegear/MeshCoreOne-Android/actions/jobs/115057921557/logs`;
+hosted result/log remain authoritative, with no duplicate bundle. Legacy WP218 diagnostic
+prefix is not defect ownership. No d08 result is transferred to later audit commits.
+
+## Native real launcher focus calibration
+
+At exact `a76cd8594e6208856ccf47d28015e7d88cecb364`, declared strict assembly passes
+and the [actual input binding](device-launcher-focus-inputs.json) records the unchanged
+12e production APK and calibrated audit APK.
+
+```text
+adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+**Actual API31:2 discovered/2 passed,0 failures/errors/skips,5.313s**
+([transcript](device-launcher-focus-api31.txt), [metrics](device-launcher-focus-metrics-api31.txt)).
+**Actual API37:2 discovered/2 passed,0 failures/errors/skips,6.919s**
+([transcript](device-launcher-focus-api37.txt), [metrics](device-launcher-focus-metrics-api37.txt)).
+This is an independent framework focus control plus the actual MainActivity/process
+graph flow, not five synthetic tab bodies or physical TalkBack speech/traversal.
+
+Actual UiAutomation capability bitsets15/API31 and11/API37 support requesting touch
+exploration. Original flags65554 leave actual manager.touchExploration=false. Public
+FLAG_REQUEST_TOUCH_EXPLORATION_MODE actually enables it; original flags are restored
+in finally. This calibrates d802's false native ACTION_ACCESSIBILITY_FOCUS without
+hidden APIs, fake TalkBack registration or timeout changes. The control acquires/retains
+native focus and invokes exactly one callback. All five real tabs then acquire/retain
+focus across actual native clicks, expose a named Tab role, match the real graph's
+selected tab/exact-one native selection and keep contained72x160dp targets with complete
+actual font2 label layouts. API31 bar bounds y614..774; API37 y716..876.
+
+The explicit completed-onboarding flag is seeded through the actual public flag contract
+and restored; no onboarding/radio success is claimed. The real graph remains DISCONNECTED.
+Touch exploration is a public automation configuration, not a physical speech observation.
+Font2/RTL/360x900/mdpi/animator0 and fresh read-only profiles remain unchanged.
+
+Earlier native observer negatives remain separate:
+[d51 API31](device-launcher-focus-before-unmerged-api31.txt) and
+[API37](device-launcher-focus-before-unmerged-api37.txt):2/1PASS/1FAIL each, merged
+TextLayoutResult lookup misses its actual tagged child; native focus/control already work.
+[e3d API31](device-launcher-focus-before-role-api31.txt) and
+[API37](device-launcher-focus-before-role-api37.txt):2/1PASS/1FAIL each, Map feature
+description duplicates the real Map Tab name. Actual native Tab role disambiguates it.
+[248 API31](device-launcher-focus-before-refresh-api31.txt) and
+[API37](device-launcher-focus-before-refresh-api37.txt):2/1PASS/1FAIL each, cached
+native selected attributes disagree after real Settings selection. Refreshing the exact
+native node resolves it; a76 retains the same strict selection/focus/font/48dp assertions.
+These are observer corrections, not product defects or retroactively passing old runs.
+
+## Native Nodes path share and transport roles
+
+At exact `f112d6aa05abb520bda074200828f7243de6dabd`, the installed serialized snapshot/
+preflight adapter executes the existing declared selector:
+
+```text
+:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeNodesAccessibilityTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m
+```
+
+**18 discovered/14 passed/4 failed,0 errors/skips**, real native Robolectric SDK31/37
+with actual Resourcesfont2/RTL. This is JVM-mounted evidence, not Android emulator,
+physical TalkBack or iOS execution; no JVM/hosted result bundle is retained.
+Original10 passing states, new QR2 and orthogonal role2 pass together. Discovery226
+and Reset Path228 each fail1/API. Earlier exactecff and diagnostic276 scoped path/share
+discover4/pass2/fail2,0 errors/skips; full276 discovers16/passes12/fails4.
+
+QR/share uses real `ContactService.exportContactURI` for independently expected
+`meshcore://contact/add?name=%E4%B8%AD&public_key=` + AA repeated32 + `&type=1`.
+Real named QR, compact native clipboard bytes, disabled copied feedback, controlled2s
+reset, dismissal/font/48dp and actual constructed ACTION_CHOOSER containing ACTION_SEND,
+text/plain, exact URI/subject pass. Robolectric captures the real native intent rather
+than launching an external chooser; real chooser/physical clipboard/persistence remain
+unverified. Independent CHAT/REPEATER/ROOM fixtures verify3/4/5 disabled transport labels,
+font2/RTL and enabled48dp saved-history callbacks with exact typed actions.
+
+Actual [assigned defect228](https://github.com/cbattlegear/MeshCoreOne-Android/issues/228)
+belongs to WP311. Product ContactDetailScreen blobf81c30c403852299b58312af8118af2c17a83245
+equals main d818: its fixed Row packs Discover/Edit/Reset. At360x900,font2/RTL,
+Discover210x54px and Edit78x206px remain visible/disabled with complete labels.
+Reset0x396px has empty visible bounds at(32,504), with semantic expanded target
+(8,504)-(56,900). Public native scrolling cannot make zero width visible. Frozen
+source exposes distinct section-row path buttons. Assertions after Reset's display
+failure remain unexecuted; the new orthogonal role case does not replace/weaken that
+regression. Discovery226 stays a separate product failure. Existing WP311 repair
+activity remains unconfirmed; no new actor or audit-owned product edit.
+Re-execution of the exact same declared full-class selector at
+`a76cd8594e6208856ccf47d28015e7d88cecb364` again discovers **18/passes14/fails4**,
+zero errors/skips. The actual emitted discovered identities are the original/search/
+QR/role cases passing and only discovery226/path228 failing once per SDK31/37.
+The command propagates failure; no whole-command pass, dropped mandatory case or
+duplicate native JVM result bundle is claimed.
 
 ## Authentic LoS repair and selected-label contrast
 
@@ -55,7 +189,7 @@ and exactly-one contact/elevation callback assertions before the final failure.
 Selected A label's actual resolved white foreground against measured native
 `#1677FF` button paint is **4.104091535864498:1 in all76 records**, below unchanged4.5.
 This is not a source-only RGB calculation. Nominal label text retains the4.5 floor
-despite system font2; selected B/green is not measured.
+despite system font2; selected B/green was not measured in29bc.
 
 Existing WP315 repair227 owns correction. The bounded COMMENTED review binds exact764c;
 no protected approval, new worker, palette/golden change or audit-owned production
