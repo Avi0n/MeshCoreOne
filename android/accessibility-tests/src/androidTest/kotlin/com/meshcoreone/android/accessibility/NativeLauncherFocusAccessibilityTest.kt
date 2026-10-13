@@ -102,10 +102,13 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 }
                 assertTrue(nativeTab(root(), AppTab.SETTINGS).performAction(AccessibilityNodeInfo.ACTION_CLICK))
                 val language = activity.getString(AppSettingsStrings.languageTitle)
-                val text = compose.onNodeWithText(language, useUnmergedTree = true).performScrollTo()
+                compose.onNodeWithText(language).performScrollTo()
+                val text = compose.onNodeWithText(language, useUnmergedTree = true)
                 assertFont200Unclipped(text)
                 val action = namedAction(root(), language)
-                assertNativeTargetContained(action, root())
+                val languageBounds = assertNativeTargetContained(action, root())
+                println("WP503_NATIVE_MOTION_LANGUAGE|sdk=${android.os.Build.VERSION.SDK_INT}|scale=$scale" +
+                    "|bounds=$languageBounds|scrollTarget=mergedAction|fontScale=2.0|physicalTalkBack=false")
                 assertTrue(action.performAction(AccessibilityNodeInfo.ACTION_CLICK))
                 compose.waitForIdle()
                 assertEquals(SettingsDetail.LANGUAGE, container.navigation.state.value.selectedSetting)
