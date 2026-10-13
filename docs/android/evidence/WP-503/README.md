@@ -7,6 +7,60 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Actual default-to-reduced motion and current complete native inventory
+
+Exact executed **286e9fb4cdcb50b62522456e891050e5200ba623** adds two Android-only
+launcher tests, with no product change. The declared strict App assembly command
+passes; [actual input binding](device-motion-286-inputs.json) records the APK bytes.
+The same declared package/runner command below discovers **25/passes25 on actual
+API31**,0 failures/errors/skips,52.654s
+([transcript](device-motion-286-api31.txt), [metrics](device-motion-286-metrics-api31.txt)),
+and **25/passes25 on actual API37**,0 failures/errors/skips,62.279s
+([transcript](device-motion-286-api37.txt), [metrics](device-motion-286-metrics-api37.txt)).
+All six classes execute: remote13, Map/runtime3, original LoS2, A1/B1 and launcher5.
+Original Map/action/A/B and all four WP311 JVM failure assertions remain unchanged.
+
+An independent framework control calls the real `MeshCoreTheme` provider **without
+an explicit motion-scale override**. Public shell settings and the actual Android
+ContentObserver update tokens through system0->1->0; observed scales0/1/0 and
+duration(300)0/300/0 pass on both APIs. This is provider calibration, not a feature
+substitute or proof of physical speech/listener-registration counts.
+
+The second case uses actual MainActivity/process graph and real native accessibility
+actions under all three actual platform animation scales1, then0. All five native tabs
+retain focus/unique selection,48dp viewport containment, unclipped font2 labels and
+unchanged independent root stacks. The connection remains DISCONNECTED. Real native
+Language/Back actions execute in each mode and restore those stacks. Full Language
+targets are **304x49dp**: API31(28,511)-(332,560), API37(28,589)-(332,638).
+All original system scales, onboarding flag and touch-exploration flags are restored;
+post-execution reads confirm all three scales0 and window override360x900 on both
+isolated devices. This retires only this launcher/provider motion gap, not remaining
+feature-state/detail/draft/scroll/window, physical TalkBack, radio or review gates.
+
+Initial exactca435 complete25/API yields **API31:24PASS/1FAIL**,0 errors/skips,68.366s,
+and **API37:25PASS**,0 errors/skips,126.594s
+([API31](device-motion-before-scroll-api31.txt),
+[API37](device-motion-before-scroll-api37.txt),
+[metrics31](device-motion-before-scroll-metrics-api31.txt),
+[metrics37](device-motion-before-scroll-metrics-api37.txt),
+[inputs](device-motion-before-scroll-inputs.json)).
+The new compact flow scrolled only the unmerged Language text. Exactd80 adds failure
+geometry and reproduces **1 discovered/1 failed** on actual API31,0 errors/skips,5.231s:
+the native action is clipped to(28,519)-(332,560), **304x41dp**
+([transcript](device-motion-geometry-api31.txt),
+[metrics](device-motion-geometry-metrics-api31.txt),
+[inputs](device-motion-geometry-inputs.json)).
+The actual ActionRow already allocates49dp. Scrolling its merged actionable semantics
+instead of the shorter text exposes the entire target; original strict font/48dp/
+containment checks then pass at286. No product, assertion threshold or timeout changes;
+the initial negative is retained, not relabeled as a passing execution.
+
+Exact published6d15 [38331513844](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38331513844)
+**FAILED/App800/4**. Authoritative completed Linux job115082430350 visibly names
+default disconnected discovery226 and Reset228 methods; the aggregate is four failures,
+not a complete per-case hosted listing. Controller/Swift codec passed; SwiftData
+skipped/final guard failed. No predecessor/successor credit or duplicate hosted bundle.
+
 ## Complete native inventory with authentic Map and Point B repairs
 
 Exact executed **4690cfa37af2ba3b3ff46db64b2d925e8e63ca13** authentically integrates
@@ -24,7 +78,7 @@ adb -s SERIAL shell am instrument -w -r -e package com.meshcoreone.android.acces
 ([transcript](device-complete-469-api31.txt), [metrics](device-complete-469-metrics-api31.txt)).
 **Actual API37:23 discovered/23 passed,0 failures/errors/skips,57.100s**
 ([transcript](device-complete-469-api37.txt), [metrics](device-complete-469-metrics-api37.txt)).
-This is the complete current Android inventory in one invocation/API: remote13,
+This was the complete Android inventory in one invocation/API: remote13,
 Map/runtime3, original LoS platform2, A1/B1 and real launcher/focus/window3.
 It is not a JVM invocation, whole feature/window/motion matrix or physical TalkBack.
 

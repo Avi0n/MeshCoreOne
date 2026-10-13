@@ -5,15 +5,41 @@ This is not accessibility acceptance, a completed WP, or permission to close iss
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Current complete Android inventory and producer re-audits
+## Current native system motion and complete Android inventory
+
+Exact286e9fb4cdcb50b62522456e891050e5200ba623 adds two owned native launcher cases.
+The complete current inventory **25/25PASS on each actual API31/37**,0 failures/errors/
+skips,52.654s/62.279s. The actual theme provider observes public system animation
+scale0->1->0 without an explicit override, with duration(300)0/300/0. Real MainActivity
+visits all five native tabs and Language/native Back with actual animator/window/
+transition scales1, then0: native focus/unique selection, font2/contained48dp targets,
+independent stacks and disconnected state pass. Language action measures304x49dp.
+Original settings/fixture/service flags are restored; no product or strict oracle changes.
+
+The initial compact API31 failure was text-only scroll calibration: an already49dp
+action was clipped to41dp when only its unmerged label was scrolled into view. Scrolling
+the merged action exposes its full target while preserving strict font/48dp/containment
+assertions. Both the negative and exact corrected positive remain in
+[current native evidence](../evidence/WP-503/README.md#actual-default-to-reduced-motion-and-current-complete-native-inventory).
+This closes only the launcher/provider motion gap, not all remaining feature/window
+states, physical TalkBack or independent acceptance/review.
+
+Exact published6d15 [38331513844](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38331513844)
+**FAILED/App800/4**, authoritative job115082430350. Visible default failures are
+discovery226 and Reset228; controller/Swift codec passed, SwiftData skipped/final guard
+failed. No duplicate hosted bundle, complete per-case hosted breakdown or successor credit.
+The retained four WP311 JVM regressions remain genuine product-owner blockers.
+
+## Prior complete Android inventory and producer re-audits
 
 At exact `4690cfa37af2ba3b3ff46db64b2d925e8e63ca13`, the **complete current owned
-Android inventory discovers23/passes23 on each actual API31/37**, zero failures/errors/
+Android inventory discovered23/passed23 on each actual API31/37**, zero failures/errors/
 skips,46.338s/57.100s. Authentic WP312 Map repair
 `cee2b806f88ecc313137e89f777a8b1035147da7` and WP315 Point B successor
 `66e76d434e9282bf6c339f338de9f535a2715e51` are genuinely integrated, not audit patches.
 Original Map/action/A/B fixtures remain byte-identical. This is a real combined
-46-case Android execution, not the JVM suite, full remaining matrix or physical TalkBack.
+46-case Android execution, not the expanded current25/API inventory, JVM suite,
+full remaining matrix or physical TalkBack.
 
 The unchanged populated Map224 case now executes its formerly unreachable assertions:
 native List **75x48dp**, fully visible/contained; native selection, CJK/Other rows,

@@ -1,0 +1,740 @@
+10-12 20:29:10.563  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:29:11.125  2942  3782 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 20:29:12.024  2942  3782 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+10-12 20:29:15.084  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=NODES|nativeSelected=true|accessibilityFocus=true|realSelected=NODES
+10-12 20:29:15.178  2942  3782 I System.out: WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:29:15.178  2942  3782 I System.out: WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+10-12 20:29:15.178  2942  3782 I System.out: WP503_FONT_LINE|text=Nodes|line=1|left=30.0|right=42.0|top=32.0|bottom=64.0
+10-12 20:29:15.179  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=NODES|nativeSelected=true|accessibilityFocus=true|bounds=Rect(216, 716 - 288, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 20:29:16.594  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=MAP|nativeSelected=true|accessibilityFocus=true|realSelected=MAP
+10-12 20:29:16.663  2942  3782 I System.out: WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:16.663  2942  3782 I System.out: WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+10-12 20:29:16.664  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=MAP|nativeSelected=true|accessibilityFocus=true|bounds=Rect(144, 716 - 216, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 20:29:17.722  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=TOOLS|nativeSelected=true|accessibilityFocus=true|realSelected=TOOLS
+10-12 20:29:17.762  2942  3782 I System.out: WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:17.763  2942  3782 I System.out: WP503_FONT_LINE|text=Tools|line=0|left=4.0|right=68.0|top=0.0|bottom=32.0
+10-12 20:29:17.763  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=TOOLS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(72, 716 - 144, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 20:29:18.637  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=SETTINGS|nativeSelected=true|accessibilityFocus=true|realSelected=SETTINGS
+10-12 20:29:18.678  2942  3782 I System.out: WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:29:18.678  2942  3782 I System.out: WP503_FONT_LINE|text=Settings|line=0|left=13.0|right=59.0|top=0.0|bottom=32.0
+10-12 20:29:18.678  2942  3782 I System.out: WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+10-12 20:29:18.678  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=SETTINGS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(0, 716 - 72, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 20:29:19.180  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=CHATS|nativeSelected=true|accessibilityFocus=true|realSelected=CHATS
+10-12 20:29:19.227  2942  3782 I System.out: WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:19.227  2942  3782 I System.out: WP503_FONT_LINE|text=Chats|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+10-12 20:29:19.227  2942  3782 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=CHATS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(288, 716 - 360, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 20:29:21.035  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:29:21.040  2942  3782 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 20:29:21.432  2942  3782 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+10-12 20:29:21.690  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 1.0|response=
+10-12 20:29:21.713  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global transition_animation_scale 1.0|response=
+10-12 20:29:21.746  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global window_animation_scale 1.0|response=
+10-12 20:29:22.511  2942  3782 I System.out: WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:29:22.511  2942  3782 I System.out: WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+10-12 20:29:22.511  2942  3782 I System.out: WP503_FONT_LINE|text=Nodes|line=1|left=30.0|right=42.0|top=32.0|bottom=64.0
+10-12 20:29:22.511  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=NODES|selected=true|focus=true|bounds=Rect(216, 716 - 288, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:23.597  2942  3782 I System.out: WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:23.597  2942  3782 I System.out: WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+10-12 20:29:23.597  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=MAP|selected=true|focus=true|bounds=Rect(144, 716 - 216, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:24.112  2942  3782 I System.out: WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:24.112  2942  3782 I System.out: WP503_FONT_LINE|text=Tools|line=0|left=4.0|right=68.0|top=0.0|bottom=32.0
+10-12 20:29:24.112  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=TOOLS|selected=true|focus=true|bounds=Rect(72, 716 - 144, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:24.813  2942  3782 I System.out: WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:29:24.813  2942  3782 I System.out: WP503_FONT_LINE|text=Settings|line=0|left=13.0|right=59.0|top=0.0|bottom=32.0
+10-12 20:29:24.813  2942  3782 I System.out: WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+10-12 20:29:24.813  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=SETTINGS|selected=true|focus=true|bounds=Rect(0, 716 - 72, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:25.294  2942  3782 I System.out: WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:25.294  2942  3782 I System.out: WP503_FONT_LINE|text=Chats|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+10-12 20:29:25.294  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=CHATS|selected=true|focus=true|bounds=Rect(288, 716 - 360, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:26.075  2942  3782 I System.out: WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:26.075  2942  3782 I System.out: WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+10-12 20:29:27.496  2942  3782 I System.out: WP503_NATIVE_MOTION_BACK|sdk=37|scale=1.0|languageNativeAction=true|nativeBack=true|stacksRestored=true|physicalTalkBack=false
+10-12 20:29:27.528  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+10-12 20:29:27.559  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global transition_animation_scale 0.0|response=
+10-12 20:29:27.605  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global window_animation_scale 0.0|response=
+10-12 20:29:28.745  2942  3782 I System.out: WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:29:28.747  2942  3782 I System.out: WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+10-12 20:29:28.747  2942  3782 I System.out: WP503_FONT_LINE|text=Nodes|line=1|left=30.0|right=42.0|top=32.0|bottom=64.0
+10-12 20:29:28.747  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=NODES|selected=true|focus=true|bounds=Rect(216, 716 - 288, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:30.670  2942  3782 I System.out: WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:30.670  2942  3782 I System.out: WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+10-12 20:29:30.670  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=MAP|selected=true|focus=true|bounds=Rect(144, 716 - 216, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:31.987  2942  3782 I System.out: WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:31.987  2942  3782 I System.out: WP503_FONT_LINE|text=Tools|line=0|left=4.0|right=68.0|top=0.0|bottom=32.0
+10-12 20:29:31.987  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=TOOLS|selected=true|focus=true|bounds=Rect(72, 716 - 144, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:32.765  2942  3782 I System.out: WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:29:32.765  2942  3782 I System.out: WP503_FONT_LINE|text=Settings|line=0|left=13.0|right=59.0|top=0.0|bottom=32.0
+10-12 20:29:32.766  2942  3782 I System.out: WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+10-12 20:29:32.766  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=SETTINGS|selected=true|focus=true|bounds=Rect(0, 716 - 72, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:33.439  2942  3782 I System.out: WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:33.439  2942  3782 I System.out: WP503_FONT_LINE|text=Chats|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+10-12 20:29:33.439  2942  3782 I System.out: WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=CHATS|selected=true|focus=true|bounds=Rect(288, 716 - 360, 876)|realGraph=true|physicalTalkBack=false
+10-12 20:29:34.031  2942  3782 I System.out: WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:34.031  2942  3782 I System.out: WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+10-12 20:29:35.345  2942  3782 I System.out: WP503_NATIVE_MOTION_BACK|sdk=37|scale=0.0|languageNativeAction=true|nativeBack=true|stacksRestored=true|physicalTalkBack=false
+10-12 20:29:35.373  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+10-12 20:29:35.402  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global transition_animation_scale 0.0|response=
+10-12 20:29:35.425  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global window_animation_scale 0.0|response=
+10-12 20:29:39.194  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:29:39.196  2942  3782 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 20:29:39.686  2942  3782 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+10-12 20:29:40.039  2942  3782 I System.out: WP503_NATIVE_FOCUS_CONTROL|sdk=37|focused=true|callback=1|physicalTalkBack=false
+10-12 20:29:42.114  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:29:42.120  2942  3782 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 20:29:42.320  2942  3782 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+10-12 20:29:42.368  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1344x2992
+10-12 20:29:42.732  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size 900x900|response=
+10-12 20:29:43.664  2942  3782 I System.out: WP503_NATIVE_WINDOW|sdk=37|size=900x900|bounds=Rect(0, 0 - 900, 900)|activityRecreated=true|shell=navigation-rail|fontScale=2.0|physicalTalkBack=false
+10-12 20:29:44.427  2942  3782 I System.out: WP503_FONT|text=Nodes|size=530 x 45|constraints=Constraints(minWidth = 0, maxWidth = 530, minHeight = 0, maxHeight = 848)|paragraph=530.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:44.427  2942  3782 I System.out: WP503_FONT_LINE|text=Nodes|line=0|left=0.0|right=102.0|top=0.0|bottom=45.0
+10-12 20:29:44.428  2942  3782 I System.out: WP503_NATIVE_RAIL|sdk=37|tab=NODES|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+10-12 20:29:46.647  2942  3782 I System.out: WP503_FONT|text=Map|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 848)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:46.657  2942  3782 I System.out: WP503_FONT_LINE|text=Map|line=0|left=0.0|right=70.0|top=0.0|bottom=45.0
+10-12 20:29:46.657  2942  3782 I System.out: WP503_NATIVE_RAIL|sdk=37|tab=MAP|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+10-12 20:29:48.484  2942  3782 I System.out: WP503_FONT|text=Tools|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 848)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:48.484  2942  3782 I System.out: WP503_FONT_LINE|text=Tools|line=0|left=0.0|right=86.30859|top=0.0|bottom=45.0
+10-12 20:29:48.485  2942  3782 I System.out: WP503_NATIVE_RAIL|sdk=37|tab=TOOLS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+10-12 20:29:49.012  2942  3782 I System.out: WP503_FONT|text=Settings|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 848)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:49.012  2942  3782 I System.out: WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+10-12 20:29:49.012  2942  3782 I System.out: WP503_NATIVE_RAIL|sdk=37|tab=SETTINGS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+10-12 20:29:49.326  2942  3782 I System.out: WP503_FONT|text=Chats|size=756 x 45|constraints=Constraints(minWidth = 0, maxWidth = 756, minHeight = 0, maxHeight = 848)|paragraph=756.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:49.327  2942  3782 I System.out: WP503_FONT_LINE|text=Chats|line=0|left=0.0|right=90.0|top=0.0|bottom=45.0
+10-12 20:29:49.327  2942  3782 I System.out: WP503_NATIVE_RAIL|sdk=37|tab=CHATS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+10-12 20:29:49.593  2942  3782 I System.out: WP503_FONT|text=Language|size=324 x 33|constraints=Constraints(minWidth = 0, maxWidth = 324, minHeight = 0, maxHeight = Infinity)|paragraph=324.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:49.594  2942  3782 I System.out: WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+10-12 20:29:50.195  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+10-12 20:29:51.477  2942  3782 I System.out: WP503_NATIVE_WINDOW|sdk=37|size=360x900|bounds=Rect(0, 0 - 360, 900)|activityRecreated=true|shell=navigation-hidden|fontScale=2.0|physicalTalkBack=false
+10-12 20:29:51.496  2942  3782 I System.out: WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 848)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:29:51.496  2942  3782 I System.out: WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+10-12 20:29:51.906  2942  3782 I System.out: WP503_NATIVE_WINDOW_DETAIL|sdk=37|expanded=900x900|compact=360x900|retainedEntry=7|nativeBack=true|focusReacquired=true|automaticBackFocusRetained=false|realGraph=true|physicalTalkBack=false
+10-12 20:29:51.957  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+10-12 20:29:55.220  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:29:55.257  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+10-12 20:29:55.314  2942  3782 I System.out: WP503_NATIVE_MOTION_PROVIDER|sdk=37|system=0.0|observed=0.0|duration=0|explicitOverride=false|frameworkControl=true|physicalTalkBack=false
+10-12 20:29:55.349  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 1.0|response=
+10-12 20:29:55.420  2942  3782 I System.out: WP503_NATIVE_MOTION_PROVIDER|sdk=37|system=1.0|observed=1.0|duration=300|explicitOverride=false|frameworkControl=true|physicalTalkBack=false
+10-12 20:29:55.443  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+10-12 20:29:55.653  2942  3782 I System.out: WP503_NATIVE_MOTION_PROVIDER|sdk=37|system=0.0|observed=0.0|duration=0|explicitOverride=false|frameworkControl=true|physicalTalkBack=false
+10-12 20:29:55.672  2942  3782 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+10-12 20:29:57.011  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:29:57.145  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:57.145  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:57.145  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:57.145  2942  3782 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 20:29:57.145  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:57.145  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:57.145  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 20:29:57.145  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=WP503 native accessibility button|description=null|clickable=false|children=0
+10-12 20:29:57.145  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 20:29:57.152  2942  3782 I System.out: WP503_PLATFORM_ACCESSIBILITY_SEARCH|byText=0|nativeChildren=1
+10-12 20:29:57.199  2942  3782 I System.out: WP503_TARGET|width=360.0|height=92.0|role=Button
+10-12 20:29:57.199  2942  3782 I System.out: WP503_PLATFORM_ACCESSIBILITY_CONTROL|namedButton=true|actualCallback=1|package=com.meshcoreone.android.debug
+10-12 20:29:58.629  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:29:59.262  2942  3782 I System.out: WP503_FONT|text=Line of Sight|size=201 x 48|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x48.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:29:59.262  2942  3782 I System.out: WP503_FONT_LINE|text=Line of Sight|line=0|left=0.0|right=201.0|top=0.0|bottom=48.0
+10-12 20:29:59.326  2942  3782 I System.out: WP503_SCROLL_LINE|text=Line of Sight|line=0|position=Offset(143.0, 406.0)->Offset(143.0, 406.0)|viewport=Rect.fromLTRB(0.0, 390.0, 360.0, 876.0)
+10-12 20:29:59.353  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.354  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.354  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.354  2942  3782 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.354  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.354  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.354  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.357  2942  3782 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.357  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+10-12 20:29:59.357  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.SurfaceView|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.357  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.360  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 20:29:59.360  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=8
+10-12 20:29:59.367  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+10-12 20:29:59.373  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+10-12 20:29:59.379  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.386  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.389  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+10-12 20:29:59.389  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 20:29:59.391  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.394  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.394  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+10-12 20:29:59.394  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 20:29:59.396  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+10-12 20:29:59.401  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 20:29:59.403  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=East saved repeater|description=null|clickable=false|children=0
+10-12 20:29:59.403  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.405  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 20:29:59.406  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=中文西側中繼|description=null|clickable=false|children=0
+10-12 20:29:59.406  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.SurfaceView|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=8
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+10-12 20:29:59.409  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+10-12 20:29:59.410  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.410  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.410  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+10-12 20:29:59.410  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 20:29:59.410  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.410  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.410  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+10-12 20:29:59.410  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 20:29:59.410  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+10-12 20:29:59.411  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 20:29:59.411  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=East saved repeater|description=null|clickable=false|children=0
+10-12 20:29:59.411  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.411  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 20:29:59.411  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=中文西側中繼|description=null|clickable=false|children=0
+10-12 20:29:59.411  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.411  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 20:29:59.412  2942  3782 I System.out: WP503_LOS_PLATFORM_ACTIONS|label=East saved repeater|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.SurfaceView|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=8
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.412  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+10-12 20:29:59.413  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 20:29:59.413  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.413  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.413  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+10-12 20:29:59.413  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 20:29:59.413  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+10-12 20:29:59.413  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 20:29:59.414  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=East saved repeater|description=null|clickable=false|children=0
+10-12 20:29:59.414  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.417  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 20:29:59.417  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=中文西側中繼|description=null|clickable=false|children=0
+10-12 20:29:59.417  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.417  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 20:29:59.417  2942  3782 I System.out: WP503_LOS_PLATFORM_ACTIONS|label=中文西側中繼|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false
+10-12 20:29:59.417  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.417  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.417  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.SurfaceView|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=8
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.418  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=East saved repeater|description=null|clickable=false|children=0
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.419  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+10-12 20:29:59.420  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=中文西側中繼|description=null|clickable=false|children=0
+10-12 20:29:59.420  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+10-12 20:29:59.420  2942  3782 I System.out: WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+10-12 20:29:59.635  2942  3782 I System.out: WP503_FONT|text=East saved repeater|size=245 x 42|constraints=Constraints(minWidth = 0, maxWidth = 264, minHeight = 0, maxHeight = Infinity)|paragraph=264.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:29:59.635  2942  3782 I System.out: WP503_FONT_LINE|text=East saved repeater|line=0|left=0.0|right=244.36328|top=0.0|bottom=42.0
+10-12 20:29:59.698  2942  3782 I System.out: WP503_SCROLL_LINE|text=East saved repeater|line=0|position=Offset(47.0, 532.0)->Offset(47.0, 532.0)|viewport=Rect.fromLTRB(0.0, 390.0, 360.0, 876.0)
+10-12 20:29:59.726  2942  3782 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+10-12 20:29:59.726  2942  3782 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+10-12 20:29:59.726  2942  3782 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+10-12 20:29:59.727  2942  3782 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+10-12 20:29:59.727  2942  3782 I System.out: WP503_TARGET|width=48.0|height=48.0|role=Button
+10-12 20:30:01.529  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:02.359  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:02.360  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:02.447  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=default:LIGHT:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:02.544  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:02.545  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:02.679  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=default:LIGHT:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:02.812  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:02.812  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:02.905  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=default:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:03.195  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:03.195  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:03.339  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=default:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:03.461  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:03.461  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:03.542  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=ember:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:03.694  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:03.694  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:03.770  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=ember:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:03.896  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:03.896  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:03.982  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=fern:LIGHT:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:04.144  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:04.145  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:04.250  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=fern:LIGHT:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:04.461  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:04.461  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:04.574  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=fern:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:04.715  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:04.715  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:04.775  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=fern:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:04.915  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:04.915  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:05.006  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=marine:LIGHT:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:05.147  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:05.147  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:05.213  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=marine:LIGHT:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:05.364  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:05.364  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:05.437  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=marine:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:05.586  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:05.587  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:05.645  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=marine:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:05.759  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:05.759  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:05.882  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=olive:LIGHT:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:05.995  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:05.995  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:06.073  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=olive:LIGHT:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:06.212  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:06.212  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:06.278  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=olive:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:06.377  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:06.377  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:06.458  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=olive:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:06.560  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:06.561  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:06.621  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=lavender:LIGHT:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:06.712  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:06.712  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:06.779  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=lavender:LIGHT:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:06.881  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:06.882  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:06.937  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=lavender:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:07.029  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:07.029  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:07.112  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=lavender:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:07.228  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:07.229  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:07.337  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=sakura:LIGHT:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:07.443  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:07.444  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:07.503  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=sakura:LIGHT:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:07.613  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:07.613  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:07.675  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=sakura:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:07.779  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:07.779  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:07.842  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=sakura:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:07.994  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:07.994  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:08.059  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=solarized:LIGHT:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:08.162  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:08.162  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:08.229  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=solarized:LIGHT:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:08.345  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:08.345  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:08.406  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=solarized:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:08.533  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:08.533  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:08.592  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=solarized:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:08.718  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:08.718  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:08.795  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=nord:LIGHT:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:08.929  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:08.929  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:08.993  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=nord:LIGHT:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:09.131  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:09.132  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:09.203  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=nord:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:09.327  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:09.327  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:09.391  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=nord:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:09.493  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:09.494  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:09.562  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=catppuccin:LIGHT:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:09.661  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:09.661  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:09.727  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=catppuccin:LIGHT:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:09.827  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:09.827  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:09.893  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=catppuccin:DARK:hc=false|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:10.106  2942  3782 I System.out: WP503_FONT|text=Saved endpoint|size=181 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:10.106  2942  3782 I System.out: WP503_FONT_LINE|text=Saved endpoint|line=0|left=0.0|right=180.64453|top=0.0|bottom=38.0
+10-12 20:30:10.185  2942  3782 I System.out: WP503_LOS_SELECTED_CONTRAST|frame=catppuccin:DARK:hc=true|ratio=5.116844937908165|minimum=4.5|realRadio=false
+10-12 20:30:11.609  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:12.612  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:12.612  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:12.685  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=default:LIGHT:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:12.862  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:12.862  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:12.936  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=default:LIGHT:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:13.316  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:13.316  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:13.451  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=default:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:13.692  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:13.695  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:13.780  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=default:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:14.131  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:14.131  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:14.199  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=ember:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:14.493  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:14.494  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:14.563  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=ember:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:14.727  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:14.727  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:14.790  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=fern:LIGHT:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:14.926  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:14.926  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:14.993  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=fern:LIGHT:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:15.219  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:15.220  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:15.308  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=fern:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:15.499  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:15.499  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:15.555  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=fern:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:15.877  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:15.877  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:15.955  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=marine:LIGHT:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:16.115  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:16.116  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:16.178  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=marine:LIGHT:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:16.325  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:16.325  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:16.387  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=marine:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:16.509  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:16.509  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:16.572  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=marine:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:16.659  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:16.660  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:16.726  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=olive:LIGHT:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:16.843  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:16.843  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:16.906  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=olive:LIGHT:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:17.045  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:17.045  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:17.108  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=olive:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:17.244  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:17.245  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:17.304  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=olive:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:17.478  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:17.478  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:17.541  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=lavender:LIGHT:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:17.659  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:17.659  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:17.724  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=lavender:LIGHT:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:17.884  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:17.885  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:17.963  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=lavender:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:18.076  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:18.076  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:18.135  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=lavender:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:18.259  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:18.259  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:18.321  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=sakura:LIGHT:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:18.443  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:18.443  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:18.503  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=sakura:LIGHT:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:18.630  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:18.630  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:18.686  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=sakura:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:18.793  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:18.793  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:18.854  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=sakura:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:19.096  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:19.096  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:19.159  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=solarized:LIGHT:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:19.275  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:19.276  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:19.358  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=solarized:LIGHT:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:19.477  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:19.477  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:19.535  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=solarized:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:19.646  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:19.646  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:19.703  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=solarized:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:19.810  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:19.810  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:19.874  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=nord:LIGHT:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:20.046  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:20.046  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:20.121  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=nord:LIGHT:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:20.292  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:20.292  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:20.352  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=nord:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:20.461  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:20.462  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:20.530  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=nord:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:20.675  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:20.676  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:20.755  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=catppuccin:LIGHT:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:20.864  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:20.864  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:20.919  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=catppuccin:LIGHT:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:21.031  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:21.031  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:21.088  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=catppuccin:DARK:hc=false|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:21.195  2942  3782 I System.out: WP503_FONT|text=Second endpoint|size=197 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:21.195  2942  3782 I System.out: WP503_FONT_LINE|text=Second endpoint|line=0|left=0.0|right=197.0|top=0.0|bottom=38.0
+10-12 20:30:21.252  2942  3782 I System.out: WP503_LOS_POINT_B_CONTRAST|frame=catppuccin:DARK:hc=true|ratio=4.829630939602952|minimum=4.5|realRadio=false
+10-12 20:30:22.275  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:22.275  2942  3782 I System.out: WP503_NATIVE_MAP_CAPABILITY|sdk=37|process64=true|supported=true
+10-12 20:30:22.475  2942  3782 I System.out: WP503_FONT|text=Line of Sight|size=201 x 48|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x48.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:22.475  2942  3782 I System.out: WP503_FONT_LINE|text=Line of Sight|line=0|left=0.0|right=201.0|top=0.0|bottom=48.0
+10-12 20:30:22.542  2942  3782 I System.out: WP503_SCROLL_LINE|text=Line of Sight|line=0|position=Offset(143.0, 406.0)->Offset(143.0, 406.0)|viewport=Rect.fromLTRB(0.0, 390.0, 360.0, 876.0)
+10-12 20:30:22.592  2942  3782 I System.out: WP503_FONT|text=Not selected|size=158 x 42|constraints=Constraints(minWidth = 0, maxWidth = 264, minHeight = 0, maxHeight = Infinity)|paragraph=264.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:22.592  2942  3782 I System.out: WP503_FONT_LINE|text=Not selected|line=0|left=0.0|right=158.0|top=0.0|bottom=42.0
+10-12 20:30:22.657  2942  3782 I System.out: WP503_SCROLL_LINE|text=Not selected|line=0|position=Offset(134.0, 532.0)->Offset(134.0, 532.0)|viewport=Rect.fromLTRB(0.0, 390.0, 360.0, 876.0)
+10-12 20:30:22.692  2942  3782 I System.out: WP503_FONT|text=Not selected|size=158 x 42|constraints=Constraints(minWidth = 0, maxWidth = 264, minHeight = 0, maxHeight = Infinity)|paragraph=264.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:22.692  2942  3782 I System.out: WP503_FONT_LINE|text=Not selected|line=0|left=0.0|right=158.0|top=0.0|bottom=42.0
+10-12 20:30:22.758  2942  3782 I System.out: WP503_SCROLL_LINE|text=Not selected|line=0|position=Offset(134.0, 606.0)->Offset(134.0, 606.0)|viewport=Rect.fromLTRB(0.0, 390.0, 360.0, 876.0)
+10-12 20:30:24.161  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:24.161  2942  3782 I System.out: WP503_NATIVE_MAP_CAPABILITY|sdk=37|process64=true|supported=true
+10-12 20:30:24.348  2942  3782 I System.out: WP503_FONT|text=Refresh contacts|size=197 x 30|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = 800)|paragraph=296.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:24.348  2942  3782 I System.out: WP503_FONT_LINE|text=Refresh contacts|line=0|left=0.0|right=196.75781|top=0.0|bottom=30.0
+10-12 20:30:24.379  2942  3782 I System.out: WP503_TARGET|width=229.0|height=48.0|role=Button
+10-12 20:30:24.379  2942  3782 I System.out: WP503_TARGET|width=179.0|height=48.0|role=Button
+10-12 20:30:24.379  2942  3782 I System.out: WP503_TARGET|width=75.0|height=48.0|role=Checkbox
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=138.0|height=48.0|role=Checkbox
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=140.0|height=48.0|role=Checkbox
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=163.0|height=48.0|role=Checkbox
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=192.0|height=48.0|role=Checkbox
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=172.0|height=48.0|role=Checkbox
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=184.0|height=48.0|role=Checkbox
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=137.0|height=48.0|role=Checkbox
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=101.0|height=48.0|role=Checkbox
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=173.0|height=48.0|role=Button
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=202.0|height=48.0|role=Button
+10-12 20:30:24.380  2942  3782 I System.out: WP503_TARGET|width=340.0|height=80.0|role=Button
+10-12 20:30:26.199  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:26.417  2942  3782 I System.out: WP503_MAP_LIST_CONTROL|bounds=Rect.fromLTRB(84.0, 116.0, 159.0, 164.0)|size=75 x 48|target=Rect.fromLTRB(84.0, 116.0, 159.0, 164.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+10-12 20:30:26.497  2942  3782 I System.out: WP503_FONT|text=List|size=43 x 30|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = 800)|paragraph=296.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:26.497  2942  3782 I System.out: WP503_FONT_LINE|text=List|line=0|left=0.0|right=43.0|top=0.0|bottom=30.0
+10-12 20:30:26.797  2942  3782 I System.out: WP503_FONT|text=中文測試中繼節點|size=197 x 76|constraints=Constraints(minWidth = 0, maxWidth = 197, minHeight = 0, maxHeight = Infinity)|paragraph=197.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:30:26.797  2942  3782 I System.out: WP503_FONT_LINE|text=中文測試中繼節點|line=0|left=0.0|right=182.0|top=0.0|bottom=38.0
+10-12 20:30:26.797  2942  3782 I System.out: WP503_FONT_LINE|text=中文測試中繼節點|line=1|left=0.0|right=26.0|top=38.0|bottom=76.0
+10-12 20:30:27.111  2942  3782 I System.out: WP503_FONT|text=中文測試中繼節點|size=224 x 42|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = 748)|paragraph=312.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:27.111  2942  3782 I System.out: WP503_FONT_LINE|text=中文測試中繼節點|line=0|left=0.0|right=224.0|top=0.0|bottom=42.0
+10-12 20:30:27.143  2942  3782 I System.out: WP503_FONT|text=37.8, -122.4|size=121 x 28|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = 706)|paragraph=312.0x28.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:27.143  2942  3782 I System.out: WP503_FONT_LINE|text=37.8, -122.4|line=0|left=0.0|right=121.0|top=0.0|bottom=28.0
+10-12 20:30:29.300  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:29.628  2942  2942 I System.out: WP503_REMOTE_PASSWORD_READ|count=1
+10-12 20:30:30.565  2942  3782 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(24.0, 345.0, 296.0, 421.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 824.0)
+10-12 20:30:30.596  2942  3782 I System.out: WP503_FONT|text=Remember Password|size=240 x 76|constraints=Constraints(minWidth = 0, maxWidth = 240, minHeight = 0, maxHeight = Infinity)|paragraph=240.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:30:30.596  2942  3782 I System.out: WP503_FONT_LINE|text=Remember Password|line=0|left=0.0|right=128.0|top=0.0|bottom=38.0
+10-12 20:30:30.596  2942  3782 I System.out: WP503_FONT_LINE|text=Remember Password|line=1|left=0.0|right=114.61719|top=38.0|bottom=76.0
+10-12 20:30:30.659  2942  3782 I System.out: WP503_SCROLL_LINE|text=Remember Password|line=0|position=Offset(24.0, 345.0)->Offset(24.0, 345.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:30:30.710  2942  3782 I System.out: WP503_SCROLL_LINE|text=Remember Password|line=1|position=Offset(24.0, 345.0)->Offset(24.0, 345.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:30:31.128  2942  3782 I System.out: WP503_FONT|text=No known route to this node. The network will find a path automatically.|size=272 x 152|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x152.0|widthOverflow=false|heightOverflow=false|lines=4
+10-12 20:30:31.128  2942  3782 I System.out: WP503_FONT_LINE|text=No known route to this node. The network will find a path automatically.|line=0|left=0.0|right=260.4922|top=0.0|bottom=38.0
+10-12 20:30:31.128  2942  3782 I System.out: WP503_FONT_LINE|text=No known route to this node. The network will find a path automatically.|line=1|left=0.0|right=259.0|top=38.0|bottom=76.0
+10-12 20:30:31.128  2942  3782 I System.out: WP503_FONT_LINE|text=No known route to this node. The network will find a path automatically.|line=2|left=0.0|right=121.0|top=76.0|bottom=114.0
+10-12 20:30:31.128  2942  3782 I System.out: WP503_FONT_LINE|text=No known route to this node. The network will find a path automatically.|line=3|left=0.0|right=161.38672|top=114.0|bottom=152.0
+10-12 20:30:31.197  2942  3782 I System.out: WP503_SCROLL_LINE|text=No known route to this node. The network will find a path automatically.|line=0|position=Offset(24.0, 570.0)->Offset(24.0, 570.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:30:31.245  2942  3782 I System.out: WP503_SCROLL_LINE|text=No known route to this node. The network will find a path automatically.|line=1|position=Offset(24.0, 570.0)->Offset(24.0, 570.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:30:31.294  2942  3782 I System.out: WP503_SCROLL_LINE|text=No known route to this node. The network will find a path automatically.|line=2|position=Offset(24.0, 570.0)->Offset(24.0, 570.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:30:31.343  2942  3782 I System.out: WP503_SCROLL_LINE|text=No known route to this node. The network will find a path automatically.|line=3|position=Offset(24.0, 570.0)->Offset(24.0, 570.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:30:31.409  2942  3782 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(24.0, 746.0, 145.0, 800.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 824.0)
+10-12 20:30:31.459  2942  3782 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(145.0, 746.0, 249.0, 800.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 824.0)
+10-12 20:30:32.846  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:33.212  2942  3782 I System.out: WP503_FONT|text=Guest Mode|size=150 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = 504)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:33.212  2942  3782 I System.out: WP503_FONT_LINE|text=Guest Mode|line=0|left=0.0|right=150.0|top=0.0|bottom=42.0
+10-12 20:30:33.404  2942  3782 I System.out: WP503_FONT|text=3.700V (48%)|size=169 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:33.405  2942  3782 I System.out: WP503_FONT_LINE|text=3.700V (48%)|line=0|left=0.0|right=169.0|top=0.0|bottom=33.0
+10-12 20:30:33.493  2942  3782 I System.out: WP503_SCROLL_LINE|text=3.700V (48%)|line=0|position=Offset(163.0, 602.0)->Offset(163.0, 602.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:33.579  2942  3782 I System.out: WP503_FONT|text=-90 dBm|size=105 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:33.579  2942  3782 I System.out: WP503_FONT_LINE|text=-90 dBm|line=0|left=0.0|right=105.0|top=0.0|bottom=33.0
+10-12 20:30:33.644  2942  3782 I System.out: WP503_SCROLL_LINE|text=-90 dBm|line=0|position=Offset(227.0, 827.0)->Offset(227.0, 827.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:33.676  2942  3782 I System.out: WP503_FONT|text=5.0 dB|size=79 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:33.676  2942  3782 I System.out: WP503_FONT_LINE|text=5.0 dB|line=0|left=0.0|right=79.0|top=0.0|bottom=33.0
+10-12 20:30:33.743  2942  3782 I System.out: WP503_SCROLL_LINE|text=5.0 dB|line=0|position=Offset(253.0, 756.0)->Offset(253.0, 756.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:33.827  2942  3782 I System.out: WP503_FONT|text=-110 dBm|size=121 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:33.829  2942  3782 I System.out: WP503_FONT_LINE|text=-110 dBm|line=0|left=0.0|right=121.0|top=0.0|bottom=33.0
+10-12 20:30:33.892  2942  3782 I System.out: WP503_SCROLL_LINE|text=-110 dBm|line=0|position=Offset(211.0, 827.0)->Offset(211.0, 827.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:34.244  2942  3782 I System.out: WP503_FONT|text=No sensor data|size=188 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:34.245  2942  3782 I System.out: WP503_FONT_LINE|text=No sensor data|line=0|left=0.0|right=188.0|top=0.0|bottom=42.0
+10-12 20:30:34.309  2942  3782 I System.out: WP503_SCROLL_LINE|text=No sensor data|line=0|position=Offset(144.0, 663.0)->Offset(144.0, 663.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:34.342  2942  3782 I System.out: WP503_FONT|text=No telemetry data|size=223 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:34.342  2942  3782 I System.out: WP503_FONT_LINE|text=No telemetry data|line=0|left=0.0|right=222.2461|top=0.0|bottom=42.0
+10-12 20:30:34.408  2942  3782 I System.out: WP503_SCROLL_LINE|text=No telemetry data|line=0|position=Offset(109.0, 705.0)->Offset(109.0, 705.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:34.642  2942  3782 I System.out: WP503_FONT|text=Deterministic guest telemetry read failure|size=304 x 84|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:30:34.642  2942  3782 I System.out: WP503_FONT_LINE|text=Deterministic guest telemetry read failure|line=0|left=0.0|right=241.0|top=0.0|bottom=42.0
+10-12 20:30:34.642  2942  3782 I System.out: WP503_FONT_LINE|text=Deterministic guest telemetry read failure|line=1|left=0.0|right=263.73047|top=42.0|bottom=84.0
+10-12 20:30:34.708  2942  3782 I System.out: WP503_SCROLL_LINE|text=Deterministic guest telemetry read failure|line=0|position=Offset(28.0, 663.0)->Offset(28.0, 663.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:34.762  2942  3782 I System.out: WP503_SCROLL_LINE|text=Deterministic guest telemetry read failure|line=1|position=Offset(28.0, 663.0)->Offset(28.0, 663.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=84.0|height=54.0|role=Button
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=147.0|height=54.0|role=Button
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=232.0|height=54.0|role=Button
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=191.0|height=108.0|role=Button
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=191.0|height=66.0|role=Button
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=191.0|height=66.0|role=Button
+10-12 20:30:34.960  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:35.097  2942  3782 I System.out: WP503_REMOTE_GUEST_STATUS|statusReads=1|telemetryReads=3|registered=3|teardown=1|realRadio=false
+10-12 20:30:36.186  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:36.511  2942  3782 I System.out: WP503_FONT|text=Connect to this node at least once to see history.|size=304 x 126|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 20:30:36.511  2942  3782 I System.out: WP503_FONT_LINE|text=Connect to this node at least once to see history.|line=0|left=0.0|right=286.72656|top=0.0|bottom=42.0
+10-12 20:30:36.511  2942  3782 I System.out: WP503_FONT_LINE|text=Connect to this node at least once to see history.|line=1|left=0.0|right=210.72656|top=42.0|bottom=84.0
+10-12 20:30:36.511  2942  3782 I System.out: WP503_FONT_LINE|text=Connect to this node at least once to see history.|line=2|left=0.0|right=88.51172|top=84.0|bottom=126.0
+10-12 20:30:37.630  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:37.732  2942  3782 I System.out: WP503_FONT|text=55.5%|size=76 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = 824)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:37.732  2942  3782 I System.out: WP503_FONT_LINE|text=55.5%|line=0|left=228.0|right=304.0|top=0.0|bottom=33.0
+10-12 20:30:37.742  2942  3782 I System.out: WP503_FONT|text=55.5%|size=76 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = 824)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:37.742  2942  3782 I System.out: WP503_FONT_LINE|text=55.5%|line=0|left=228.0|right=304.0|top=0.0|bottom=33.0
+10-12 20:30:37.791  2942  3782 I System.out: WP503_FONT_FULL_INK|text=55.5%|actual=[3, 43, 45, 47, 18, 19, 19, 20, 43, 46, 40, 31, 21, 24, 20, 30, 31, 33, 43, 48, 38, 22]|reference=[3, 43, 45, 47, 18, 19, 19, 20, 43, 46, 40, 31, 21, 24, 20, 30, 31, 33, 43, 48, 38, 22]|bounds=Rect.fromLTRB(256.0, 52.0, 332.0, 85.0)
+10-12 20:30:37.843  2942  3782 I System.out: WP503_FONT|text=55.5%|size=76 x 33|constraints=Constraints(minWidth = 0, maxWidth = 76, minHeight = 0, maxHeight = 60)|paragraph=76.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:30:37.843  2942  3782 I System.out: WP503_FONT_LINE|text=55.5%|line=0|left=0.0|right=76.0|top=0.0|bottom=33.0
+10-12 20:30:37.875  2942  3782 I System.out: WP503_FONT_FULL_INK|text=55.5%|actual=[3, 32, 33, 32, 10, 10, 10, 12, 27, 31, 26, 20, 10, 11, 10, 18, 19, 21, 27, 30, 22, 13]|reference=[3, 43, 45, 47, 18, 19, 19, 20, 43, 46, 40, 31, 21, 24, 20, 30, 31, 33, 43, 48, 38, 22]|bounds=Rect.fromLTRB(282.0, 85.0, 332.0, 118.0)
+10-12 20:30:37.877  2942  3782 I System.out: WP503_NEUTRAL_RTL_FONT_CONTROL|fullInk=true|actualAncestorClipRejected=true|tolerance=0
+10-12 20:30:39.078  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:39.163  2942  3782 I System.out: WP503_FRAMEWORK_PROGRESS|semantics=312 x 24|allocation=312 x 4|layout=312x4|visual=Rect.fromLTRB(24.0, 76.0, 336.0, 80.0)
+10-12 20:30:40.196  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:40.528  2942  3782 I System.out: WP503_FRAMEWORK_SLIDER|bounds=Rect.fromLTRB(54.0, 118.0, 306.0, 162.0)|size=252 x 44|top2pxCallbacks=1|bottom2pxCallbacks=1
+10-12 20:30:41.736  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:41.941  2942  2942 I System.out: WP503_SECURE_GEOMETRY|272 x 84|Rect.fromLTRB(24.0, 136.0, 296.0, 220.0)
+10-12 20:30:42.209  2942  3782 I System.out: WP503_SECURE_PLACEMENTS|count=4|distinct=1
+10-12 20:30:44.166  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:44.298  2942  3782 I System.out: WP503_FONT|text=Deterministic catalog read failure|size=328 x 84|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 750)|paragraph=328.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:30:44.298  2942  3782 I System.out: WP503_FONT_LINE|text=Deterministic catalog read failure|line=0|left=0.0|right=326.7422|top=0.0|bottom=42.0
+10-12 20:30:44.299  2942  3782 I System.out: WP503_FONT_LINE|text=Deterministic catalog read failure|line=1|left=0.0|right=77.74219|top=42.0|bottom=84.0
+10-12 20:30:44.527  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:44.527  2942  3782 I System.out: WP503_TARGET|width=232.0|height=54.0|role=Button
+10-12 20:30:45.918  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:46.262  2942  3782 I System.out: WP503_FONT|text=Telemetry|size=191 x 42|constraints=Constraints(minWidth = 0, maxWidth = 191, minHeight = 0, maxHeight = Infinity)|paragraph=191.0x42.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 20:30:46.262  2942  3782 I System.out: WP503_FONT_LINE|text=Telemetry|line=0|left=0.0|right=128.14532|top=0.0|bottom=42.0
+10-12 20:30:46.430  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:46.430  2942  3782 I System.out: WP503_TARGET|width=84.0|height=54.0|role=Button
+10-12 20:30:46.430  2942  3782 I System.out: WP503_TARGET|width=147.0|height=54.0|role=Button
+10-12 20:30:46.430  2942  3782 I System.out: WP503_TARGET|width=232.0|height=54.0|role=Button
+10-12 20:30:46.430  2942  3782 I System.out: WP503_TARGET|width=191.0|height=108.0|role=Button
+10-12 20:30:46.430  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:46.431  2942  3782 I System.out: WP503_TARGET|width=191.0|height=66.0|role=Button
+10-12 20:30:46.431  2942  3782 I System.out: WP503_TARGET|width=191.0|height=66.0|role=Button
+10-12 20:30:46.431  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:46.431  2942  3782 I System.out: WP503_PARTIAL_TARGET|position=Offset(141.0, 815.0)|size=191 x 66
+10-12 20:30:46.431  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:46.609  2942  3782 I System.out: WP503_REMOTE_PENDING_TELEMETRY|reads=1|cancelled=1|teardown=1|duplicateEnabled=false|realRadio=false
+10-12 20:30:48.701  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:49.234  2942  3782 I System.out: WP503_FONT|text=Channel 1|size=131 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:49.234  2942  3782 I System.out: WP503_FONT_LINE|text=Channel 1|line=0|left=0.0|right=129.20001|top=0.0|bottom=42.0
+10-12 20:30:49.315  2942  3782 I System.out: WP503_SCROLL_LINE|text=Channel 1|line=0|position=Offset(201.0, 671.0)->Offset(201.0, 671.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:49.437  2942  3782 I System.out: WP503_FONT|text=Channel 2|size=131 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:49.437  2942  3782 I System.out: WP503_FONT_LINE|text=Channel 2|line=0|left=0.0|right=129.20001|top=0.0|bottom=42.0
+10-12 20:30:49.510  2942  3782 I System.out: WP503_SCROLL_LINE|text=Channel 2|line=0|position=Offset(201.0, 818.0)->Offset(201.0, 818.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:49.594  2942  3782 I System.out: WP503_FONT|text=Temperature|size=150 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:49.594  2942  3782 I System.out: WP503_FONT_LINE|text=Temperature|line=0|left=0.0|right=149.08594|top=0.0|bottom=30.0
+10-12 20:30:49.658  2942  3782 I System.out: WP503_SCROLL_LINE|text=Temperature|line=0|position=Offset(182.0, 454.0)->Offset(182.0, 454.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:49.693  2942  3782 I System.out: WP503_FONT|text=MCU temperature|size=207 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:49.693  2942  3782 I System.out: WP503_FONT_LINE|text=MCU temperature|line=0|left=0.0|right=206.29688|top=0.0|bottom=30.0
+10-12 20:30:49.759  2942  3782 I System.out: WP503_SCROLL_LINE|text=MCU temperature|line=0|position=Offset(125.0, 525.0)->Offset(125.0, 525.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:49.798  2942  3782 I System.out: WP503_FONT|text=Voltage|size=91 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:49.798  2942  3782 I System.out: WP503_FONT_LINE|text=Voltage|line=0|left=0.0|right=90.41797|top=0.0|bottom=30.0
+10-12 20:30:49.864  2942  3782 I System.out: WP503_SCROLL_LINE|text=Voltage|line=0|position=Offset(241.0, 596.0)->Offset(241.0, 596.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:49.935  2942  3782 I System.out: WP503_FONT|text=GPS|size=51 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:49.935  2942  3782 I System.out: WP503_FONT_LINE|text=GPS|line=0|left=0.0|right=51.0|top=0.0|bottom=30.0
+10-12 20:30:50.010  2942  3782 I System.out: WP503_SCROLL_LINE|text=GPS|line=0|position=Offset(281.0, 709.0)->Offset(281.0, 709.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:50.130  2942  3782 I System.out: WP503_FONT|text=Humidity|size=106 x 30|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:50.130  2942  3782 I System.out: WP503_FONT_LINE|text=Humidity|line=0|left=0.0|right=106.0|top=0.0|bottom=30.0
+10-12 20:30:50.193  2942  3782 I System.out: WP503_SCROLL_LINE|text=Humidity|line=0|position=Offset(226.0, 830.0)->Offset(226.0, 830.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:50.279  2942  3782 I System.out: WP503_FONT|text=77.9 °F|size=87 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:50.280  2942  3782 I System.out: WP503_FONT_LINE|text=77.9 °F|line=0|left=0.0|right=87.0|top=0.0|bottom=33.0
+10-12 20:30:50.346  2942  3782 I System.out: WP503_SCROLL_LINE|text=77.9 °F|line=0|position=Offset(245.0, 452.0)->Offset(245.0, 452.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:50.376  2942  3782 I System.out: WP503_FONT|text=72.5 °F|size=87 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:50.376  2942  3782 I System.out: WP503_FONT_LINE|text=72.5 °F|line=0|left=0.0|right=87.0|top=0.0|bottom=33.0
+10-12 20:30:50.447  2942  3782 I System.out: WP503_SCROLL_LINE|text=72.5 °F|line=0|position=Offset(245.0, 523.0)->Offset(245.0, 523.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:50.479  2942  3782 I System.out: WP503_FONT|text=3.850 V|size=96 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:50.480  2942  3782 I System.out: WP503_FONT_LINE|text=3.850 V|line=0|left=0.0|right=96.0|top=0.0|bottom=33.0
+10-12 20:30:50.542  2942  3782 I System.out: WP503_SCROLL_LINE|text=3.850 V|line=0|position=Offset(236.0, 594.0)->Offset(236.0, 594.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:50.587  2942  3782 I System.out: WP503_FONT|text=37.77490, -122.41940 @ 42.0m|size=304 x 75|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x75.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:30:50.588  2942  3782 I System.out: WP503_FONT_LINE|text=37.77490, -122.41940 @ 42.0m|line=0|left=0.0|right=275.0|top=0.0|bottom=35.0
+10-12 20:30:50.588  2942  3782 I System.out: WP503_FONT_LINE|text=37.77490, -122.41940 @ 42.0m|line=1|left=0.0|right=112.0|top=35.0|bottom=75.0
+10-12 20:30:50.650  2942  3782 I System.out: WP503_SCROLL_LINE|text=37.77490, -122.41940 @ 42.0m|line=0|position=Offset(28.0, 707.0)->Offset(28.0, 707.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:50.711  2942  3782 I System.out: WP503_SCROLL_LINE|text=37.77490, -122.41940 @ 42.0m|line=1|position=Offset(28.0, 707.0)->Offset(28.0, 707.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:50.834  2942  3782 I System.out: WP503_FONT|text=55.5%|size=76 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:50.834  2942  3782 I System.out: WP503_FONT_LINE|text=55.5%|line=0|left=0.0|right=76.0|top=0.0|bottom=33.0
+10-12 20:30:50.885  2942  3782 I System.out: WP503_FONT_FULL_INK|text=55.5%|actual=[3, 43, 45, 47, 18, 19, 19, 20, 43, 46, 40, 31, 21, 24, 20, 30, 31, 33, 43, 48, 38, 22]|reference=[3, 43, 45, 47, 18, 19, 19, 20, 43, 46, 40, 31, 21, 24, 20, 30, 31, 33, 43, 48, 38, 22]|bounds=Rect.fromLTRB(256.0, 827.0, 332.0, 860.0)
+10-12 20:30:51.048  2942  3782 I System.out: WP503_FONT|text=View on Map|size=150 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:51.048  2942  3782 I System.out: WP503_FONT_LINE|text=View on Map|line=0|left=0.0|right=150.0|top=0.0|bottom=38.0
+10-12 20:30:51.080  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:51.081  2942  3782 I System.out: WP503_TARGET|width=84.0|height=54.0|role=Button
+10-12 20:30:51.081  2942  3782 I System.out: WP503_TARGET|width=147.0|height=54.0|role=Button
+10-12 20:30:51.081  2942  3782 I System.out: WP503_TARGET|width=232.0|height=54.0|role=Button
+10-12 20:30:51.081  2942  3782 I System.out: WP503_TARGET|width=174.0|height=54.0|role=Button
+10-12 20:30:51.679  2942  3782 I System.out: WP503_FONT|text=Location|size=113 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:30:51.679  2942  3782 I System.out: WP503_FONT_LINE|text=Location|line=0|left=0.0|right=111.80001|top=0.0|bottom=42.0
+10-12 20:30:51.979  2942  3782 I System.out: WP503_SCROLL_LINE|text=Location|line=0|position=Offset(219.0, 452.0)->Offset(219.0, 452.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:52.867  2942  3782 I System.out: WP503_FONT|text=OpenFreeMap does not provide satellite imagery.|size=304 x 126|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 20:30:52.867  2942  3782 I System.out: WP503_FONT_LINE|text=OpenFreeMap does not provide satellite imagery.|line=0|left=0.0|right=288.38672|top=0.0|bottom=42.0
+10-12 20:30:52.867  2942  3782 I System.out: WP503_FONT_LINE|text=OpenFreeMap does not provide satellite imagery.|line=1|left=0.0|right=197.52344|top=42.0|bottom=84.0
+10-12 20:30:52.867  2942  3782 I System.out: WP503_FONT_LINE|text=OpenFreeMap does not provide satellite imagery.|line=2|left=0.0|right=105.78516|top=84.0|bottom=126.0
+10-12 20:30:52.966  2942  3782 I System.out: WP503_SCROLL_LINE|text=OpenFreeMap does not provide satellite imagery.|line=0|position=Offset(28.0, 558.0)->Offset(28.0, 558.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:53.022  2942  3782 I System.out: WP503_SCROLL_LINE|text=OpenFreeMap does not provide satellite imagery.|line=1|position=Offset(28.0, 558.0)->Offset(28.0, 558.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:53.083  2942  3782 I System.out: WP503_SCROLL_LINE|text=OpenFreeMap does not provide satellite imagery.|line=2|position=Offset(28.0, 558.0)->Offset(28.0, 558.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:54.518  2942  3782 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 20:30:54.518  2942  3782 I System.out: WP503_TARGET|width=84.0|height=54.0|role=Button
+10-12 20:30:54.518  2942  3782 I System.out: WP503_TARGET|width=147.0|height=54.0|role=Button
+10-12 20:30:54.518  2942  3782 I System.out: WP503_TARGET|width=232.0|height=54.0|role=Button
+10-12 20:30:54.518  2942  3782 I System.out: WP503_TARGET|width=278.0|height=54.0|role=Button
+10-12 20:30:54.518  2942  3782 I System.out: WP503_TARGET|width=304.0|height=48.0|role=Checkbox
+10-12 20:30:54.518  2942  3782 I System.out: WP503_TARGET|width=304.0|height=48.0|role=Checkbox
+10-12 20:30:55.394  2942  3782 I System.out: WP503_FONT|text=37.77490, -122.41940 @ 42.0m|size=304 x 75|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x75.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:30:55.394  2942  3782 I System.out: WP503_FONT_LINE|text=37.77490, -122.41940 @ 42.0m|line=0|left=0.0|right=275.0|top=0.0|bottom=35.0
+10-12 20:30:55.394  2942  3782 I System.out: WP503_FONT_LINE|text=37.77490, -122.41940 @ 42.0m|line=1|left=0.0|right=112.0|top=35.0|bottom=75.0
+10-12 20:30:55.474  2942  3782 I System.out: WP503_SCROLL_LINE|text=37.77490, -122.41940 @ 42.0m|line=0|position=Offset(28.0, 785.0)->Offset(28.0, 785.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:55.526  2942  3782 I System.out: WP503_SCROLL_LINE|text=37.77490, -122.41940 @ 42.0m|line=1|position=Offset(28.0, 785.0)->Offset(28.0, 785.0)|viewport=Rect.fromLTRB(28.0, 452.0, 332.0, 860.0)
+10-12 20:30:55.626  2942  3782 I System.out: WP503_REMOTE_POPULATED_TELEMETRY|channels=2|points=5|reads=1|nativeMap=true|styleRecovery=true|realRadio=false
+10-12 20:30:57.189  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:30:57.418  2942  2942 I System.out: WP503_REMOTE_PASSWORD_READ|count=1
+10-12 20:30:58.287  2942  3782 I System.out: WP503_FONT|text=Up to 30 seconds remaining|size=272 x 76|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:30:58.287  2942  3782 I System.out: WP503_FONT_LINE|text=Up to 30 seconds remaining|line=0|left=0.0|right=201.7461|top=0.0|bottom=38.0
+10-12 20:30:58.287  2942  3782 I System.out: WP503_FONT_LINE|text=Up to 30 seconds remaining|line=1|left=0.0|right=114.75781|top=38.0|bottom=76.0
+10-12 20:30:58.349  2942  3782 I System.out: WP503_SCROLL_LINE|text=Up to 30 seconds remaining|line=0|position=Offset(24.0, 646.0)->Offset(24.0, 646.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:30:58.394  2942  3782 I System.out: WP503_SCROLL_LINE|text=Up to 30 seconds remaining|line=1|position=Offset(24.0, 646.0)->Offset(24.0, 646.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:30:58.533  2942  3782 I System.out: WP503_REMOTE_PENDING_PROGRESS|semantics=272 x 24|allocation=272x4|before=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|scroll=12.0|visual=Rect.fromLTRB(24.0, 718.0, 296.0, 722.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:30:58.601  2942  3782 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(145.0, 746.0, 249.0, 800.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 824.0)
+10-12 20:31:00.485  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:31:00.679  2942  2942 I System.out: WP503_REMOTE_PASSWORD_READ|count=1
+10-12 20:31:01.943  2942  3782 I System.out: WP503_FONT|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|size=272 x 190|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x190.0|widthOverflow=false|heightOverflow=false|lines=5
+10-12 20:31:01.944  2942  3782 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=0|left=0.0|right=235.51562|top=0.0|bottom=38.0
+10-12 20:31:01.944  2942  3782 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=1|left=0.0|right=265.7578|top=38.0|bottom=76.0
+10-12 20:31:01.944  2942  3782 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=2|left=0.0|right=231.23828|top=76.0|bottom=114.0
+10-12 20:31:01.944  2942  3782 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=3|left=0.0|right=267.98438|top=114.0|bottom=152.0
+10-12 20:31:01.944  2942  3782 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=4|left=0.0|right=94.75781|top=152.0|bottom=190.0
+10-12 20:31:02.035  2942  3782 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=0|position=Offset(24.0, 532.0)->Offset(24.0, 532.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:31:02.109  2942  3782 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=1|position=Offset(24.0, 532.0)->Offset(24.0, 532.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:31:02.165  2942  3782 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=2|position=Offset(24.0, 532.0)->Offset(24.0, 532.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:31:02.239  2942  3782 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=3|position=Offset(24.0, 532.0)->Offset(24.0, 532.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:31:02.359  2942  3782 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=4|position=Offset(24.0, 532.0)->Offset(24.0, 532.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:31:02.634  2942  3782 I System.out: WP503_FONT|text=Deterministic authentication failure|size=272 x 76|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 20:31:02.643  2942  3782 I System.out: WP503_FONT_LINE|text=Deterministic authentication failure|line=0|left=0.0|right=154.0|top=0.0|bottom=38.0
+10-12 20:31:02.643  2942  3782 I System.out: WP503_FONT_LINE|text=Deterministic authentication failure|line=1|left=0.0|right=243.75781|top=38.0|bottom=76.0
+10-12 20:31:02.710  2942  3782 I System.out: WP503_SCROLL_LINE|text=Deterministic authentication failure|line=0|position=Offset(24.0, 646.0)->Offset(24.0, 646.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:31:02.759  2942  3782 I System.out: WP503_SCROLL_LINE|text=Deterministic authentication failure|line=1|position=Offset(24.0, 646.0)->Offset(24.0, 646.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 722.0)
+10-12 20:31:03.132  2942  3782 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(145.0, 746.0, 249.0, 800.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 824.0)
+10-12 20:31:05.471  2942  3782 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 20:31:06.313  2942  3782 I System.out: WP503_REMOTE_HISTORY_TARGET|bounds=Rect.fromLTRB(34.0, 816.0, 326.0, 860.0)|size=292 x 44
+10-12 20:31:07.843  2942  3782 I System.out: WP503_REMOTE_HISTORY_POINTER|semanticHeight=44.0|extension=2.0|verifiedSquare=48x48dp|corners=4
+10-12 20:31:07.996  2942  3782 I System.out: WP503_FONT|text=Battery: 3.7 V |size=173 x 42|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 20:31:07.997  2942  3782 I System.out: WP503_FONT_LINE|text=Battery: 3.7 V |line=0|left=0.0|right=172.2461|top=0.0|bottom=42.0

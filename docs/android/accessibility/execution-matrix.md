@@ -1,6 +1,23 @@
 # WP-503 native execution matrix
 
 **Offline discovery226 and Reset Path228 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
+Current exact286e9fb4cdcb50b62522456e891050e5200ba623 **25/25PASS per actual API31/37**,
+0 failures/errors/skips52.654s/62.279s, complete current Android inventory in one
+invocation/API. Launcher5 includes new real system motion observer0->1->0 with
+duration0/300/0 and no explicit override, plus actual three-scale1/0 five-tab and
+Language/native Back flows. Native focus/unique selection/stacks/font2/contained48dp
+pass; full Language target304x49dp on both APIs. Original settings/flags restored.
+Initialca435 API31:25/24PASS/1FAIL and API37:25PASS remain distinct. Exactd80 native
+geometry confirms text-only scroll clipped the already49dp action to41dp; scrolling
+the merged action retains all strict assertions and exposes the complete target.
+No product/timeout/floor change. Physical TalkBack and remaining feature/window matrix
+remain unverified; all four WP311 JVM assertions are preserved.
+Exact published6d1538331513844 FAILED/App800/4, visible discovery226/Reset228 default
+methods; controller/Swift codec passed, SwiftData skipped/final guard failed. Completed
+job115082430350 is authoritative; no complete per-case hosted listing or duplicate bundle.
+
+## Prior complete producer-repair cohort
+
 Exact4690cfa37af2ba3b3ff46db64b2d925e8e63ca13 authentically integrates WP312cee
 and WP31566. Complete current Android inventory **23/23PASS per actual API31/37**,
 zero failures/errors/skips46.338s/57.100s. Original Map/action/A/B fixtures unchanged.
@@ -98,9 +115,9 @@ Early API37 root-null and bare/by-text control failures
 are harness diagnostics, not both-API product proof or physical TalkBack observations.
 
 Current mandatory instrumentation inventory is13 remote,3 Map/runtime,2 LoS-platform,
-1 Point A contrast,1 Point B contrast and3 launcher-focus/window methods per API.
-The complete23/API execution at469 passes above. Existing full-matrix,
-physical TalkBack, expanded/resize and default-motion gates remain unverified.
+1 Point A contrast,1 Point B contrast and5 launcher-focus/window/motion methods per API.
+The complete25/API execution at286 passes above. Existing full-matrix/remaining
+feature motion/resize/detail/draft/scroll and physical TalkBack gates remain unverified.
 
 At exact fixture39d87b60af67486ad2ce824110d841e229617114, the complete remote class
 passes10/10 on each actual API31/37, zero failures/errors/skips. The added guest flow
