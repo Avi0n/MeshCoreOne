@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.meshcoreone.android.app.MeshCoreApplication
@@ -128,14 +129,18 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
     }
 
     private fun nativeTab(root: AccessibilityNodeInfo, tab: AppTab): AccessibilityNodeInfo =
-        namedAction(root, tabLabel(tab))
+        namedAction(root, tabLabel(tab), requireTab = true)
 
-    private fun namedAction(root: AccessibilityNodeInfo, label: String): AccessibilityNodeInfo {
+    private fun namedAction(root: AccessibilityNodeInfo, label: String, requireTab: Boolean = false): AccessibilityNodeInfo {
         val nodes = descendants(root).filter {
             it.text?.toString() == label || it.contentDescription?.toString() == label
         }.mapNotNull { named ->
             generateSequence(named) { it.parent }.firstOrNull { it.isClickable || it.isSelected }
-        }.distinct().toList()
+        }.distinct().filter { action ->
+            !requireTab || descendants(action).any {
+                AccessibilityNodeInfoCompat.wrap(it).roleDescription?.toString() == "Tab"
+            }
+        }.toList()
         if (nodes.size != 1) {
             descendants(root).forEach {
                 println("WP503_NATIVE_LAUNCHER_TREE|label=$label|class=${it.className}|text=${it.text}" +
