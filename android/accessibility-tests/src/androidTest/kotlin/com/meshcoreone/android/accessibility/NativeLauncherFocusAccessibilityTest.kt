@@ -5,11 +5,13 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.graphics.Rect
 import android.os.ParcelFileDescriptor
+import android.provider.Settings
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -23,6 +25,7 @@ import com.meshcoreone.android.app.MeshCoreApplication
 import com.meshcoreone.android.core.contracts.AppTab
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
+import com.meshcoreone.android.core.designsystem.LocalMeshTheme
 import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings
 import com.meshcoreone.android.app.navigation.SettingsDetail
@@ -32,9 +35,102 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.atomic.AtomicReference
 
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
+    @Test fun actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride() {
+        val resolver = activity.contentResolver
+        val original = Settings.Global.getFloat(resolver, Settings.Global.ANIMATOR_DURATION_SCALE)
+        val observation = AtomicReference<Pair<Float, Int>>()
+        try {
+            content {
+                MeshCoreTheme {
+                    val tokens = LocalMeshTheme.current
+                    SideEffect { observation.set(tokens.motionScale to tokens.duration(300)) }
+                    AuditSurface { Text("Native motion observer") }
+                }
+            }
+            for (scale in listOf(0f, 1f, 0f)) {
+                shell("settings put global animator_duration_scale $scale")
+                assertEquals(scale, Settings.Global.getFloat(resolver, Settings.Global.ANIMATOR_DURATION_SCALE), 0f)
+                val expected = scale to if (scale == 0f) 0 else 300
+                compose.waitUntil { observation.get() == expected }
+                println("WP503_NATIVE_MOTION_PROVIDER|sdk=${android.os.Build.VERSION.SDK_INT}" +
+                    "|system=$scale|observed=${observation.get().first}|duration=${observation.get().second}" +
+                    "|explicitOverride=false|frameworkControl=true|physicalTalkBack=false")
+            }
+        } finally {
+            shell("settings put global animator_duration_scale $original")
+        }
+    }
+
+    @Test fun realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable() = withTouchExploration {
+        val application = requireNotNull(activity.application as? MeshCoreApplication)
+        val container = runBlocking { application.container.await() }
+        val onboarding = requireNotNull(container.onboarding)
+        val originalFlag = onboarding.flags.getBoolean(OnboardingState.KEY_HAS_COMPLETED)
+        val keys = listOf(Settings.Global.ANIMATOR_DURATION_SCALE,
+            Settings.Global.TRANSITION_ANIMATION_SCALE, Settings.Global.WINDOW_ANIMATION_SCALE)
+        val originalScales = keys.associateWith { Settings.Global.getFloat(activity.contentResolver, it) }
+        try {
+            compose.runOnUiThread { onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, true) }
+            compose.waitUntil { compose.onAllNodesWithTag("tab:CHATS").fetchSemanticsNodes().size == 1 }
+            assertEquals(AppTab.CHATS, container.navigation.state.value.selectedTab)
+            val stacks = container.navigation.state.value.stacks
+            for (scale in listOf(1f, 0f)) {
+                for (key in keys) {
+                    shell("settings put global $key $scale")
+                    assertEquals(scale, Settings.Global.getFloat(activity.contentResolver, key), 0f)
+                }
+                for (tab in AppTab.entries.filter { it != AppTab.CHATS } + AppTab.CHATS) {
+                    val before = nativeTab(root(), tab)
+                    assertTrue(before.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+                    assertTrue(before.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                    compose.onNodeWithTag("tab:${tab.name}").assertIsSelected()
+                    val window = root()
+                    val after = nativeTab(window, tab)
+                    assertTrue(after.isSelected && after.isAccessibilityFocused)
+                    val bounds = assertNativeTargetContained(after, window)
+                    assertEquals(tab, container.navigation.state.value.selectedTab)
+                    assertEquals(stacks, container.navigation.state.value.stacks)
+                    assertEquals(1, AppTab.entries.count { nativeTab(window, it).isSelected })
+                    assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
+                    assertFont200Unclipped(compose.onNodeWithTag("tab-label:${tab.name}", useUnmergedTree = true))
+                    println("WP503_NATIVE_MOTION_TAB|sdk=${android.os.Build.VERSION.SDK_INT}|scale=$scale|tab=$tab" +
+                        "|selected=true|focus=true|bounds=$bounds|realGraph=true|physicalTalkBack=false")
+                }
+                assertTrue(nativeTab(root(), AppTab.SETTINGS).performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                val language = activity.getString(AppSettingsStrings.languageTitle)
+                val text = compose.onNodeWithText(language, useUnmergedTree = true).performScrollTo()
+                assertFont200Unclipped(text)
+                val action = namedAction(root(), language)
+                assertNativeTargetContained(action, root())
+                assertTrue(action.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                compose.waitForIdle()
+                assertEquals(SettingsDetail.LANGUAGE, container.navigation.state.value.selectedSetting)
+                val window = root()
+                val back = namedAction(window, activity.getString(R.string.scaffold_back))
+                assertNativeTargetContained(back, window)
+                assertTrue(back.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+                assertTrue(back.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                compose.onNodeWithTag("bottom-navigation").assertIsDisplayed()
+                assertEquals(stacks, container.navigation.state.value.stacks)
+                assertEquals(null, container.navigation.state.value.selectedSetting)
+                assertTrue(nativeTab(root(), AppTab.CHATS).performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                println("WP503_NATIVE_MOTION_BACK|sdk=${android.os.Build.VERSION.SDK_INT}|scale=$scale" +
+                    "|languageNativeAction=true|nativeBack=true|stacksRestored=true|physicalTalkBack=false")
+            }
+        } finally {
+            for ((key, scale) in originalScales) shell("settings put global $key $scale")
+            compose.runOnUiThread {
+                if (container.navigation.state.value.selectedSetting == SettingsDetail.LANGUAGE) container.navigation.back()
+                container.navigation.selectTab(AppTab.CHATS)
+                onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, originalFlag)
+            }
+        }
+    }
+
     @Test fun realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable() = withTouchExploration {
         val application = requireNotNull(activity.application as? MeshCoreApplication)
         val container = runBlocking { application.container.await() }
