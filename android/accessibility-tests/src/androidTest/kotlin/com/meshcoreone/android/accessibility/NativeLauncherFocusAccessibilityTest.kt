@@ -69,7 +69,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         val device = DeviceDTO(id = UUID(0, 503001), radioId = radio,
             publicKey = Bytes(ByteArray(32) { 0x50 }), nodeName = "Native resize fixture")
         val contact = ContactDTO(id = UUID(0, 503002), radioId = radio,
-            publicKey = Bytes(ByteArray(32) { 0x51 }), name = "Cached \u4e2d\u6587 peer")
+            publicKey = Bytes(ByteArray(32) { 0x51 }), name = "Cached \u4e2d\u6587 peer", lastHeardTimestamp = null)
         val conversation = ChatConversationID.dm(radio, contact.id)
         val drafts = container.chatsFeature.drafts
         val originalDraft = drafts.get(conversation)
