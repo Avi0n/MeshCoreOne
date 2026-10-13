@@ -46,6 +46,30 @@ class DiscoveryNativeTest {
     }
 
     @Test
+    fun `disconnected discovery reads the cached radio's offline store and resolves instead of spinning`() = scenario {
+        val harness = Harness(clock).connect()
+        val radio = checkNotNull(harness.session.radioId)
+        harness.store.discovered += node(radioId = radio, name = "Cached", publicKey = Fixtures.repeated(0x32))
+        harness.session.device = null
+        val holder = DiscoveryStateHolder(harness.dependencies, scope)
+        holder.loadDiscoveredNodes()
+        assertTrue(holder.state.value.hasLoadedOnce)
+        assertFalse(holder.state.value.isLoading)
+        assertEquals(listOf("Cached"), holder.state.value.discoveredNodes.map { it.name })
+        assertTrue(harness.contactService.calls.isEmpty())
+    }
+
+    @Test
+    fun `discovery with no known radio resolves to the empty state`() = scenario {
+        val harness = Harness(clock)
+        val holder = DiscoveryStateHolder(harness.dependencies, scope)
+        holder.loadDiscoveredNodes()
+        assertTrue(holder.state.value.hasLoadedOnce)
+        assertFalse(holder.state.value.isLoading)
+        assertTrue(holder.state.value.visibleNodes.isEmpty())
+    }
+
+    @Test
     fun `bursts of reload requests coalesce into one load after the debounce`() = scenario {
         val harness = Harness(clock).connect()
         val radio = checkNotNull(harness.session.radioId)
