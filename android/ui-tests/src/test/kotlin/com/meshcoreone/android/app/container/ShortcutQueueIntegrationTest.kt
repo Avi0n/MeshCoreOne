@@ -48,7 +48,8 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
                     frame[0].toInt() == 4 && holdSync -> emptyList()
                     frame[0].toInt() == 0x1f && frame[1].toInt() == 0 ->
                         listOf(Bytes.of(0x12, 0) + Bytes.utf8("Synthetic channel").paddedOrTruncated(32) + Bytes(ByteArray(16) { 1 }))
-                    frame[0].toInt() in 2..3 -> if (rejectSend) listOf(Bytes.of(1, 2)) else emptyList()
+                    // notFound (2) is terminal for direct sends; channel illegalArgument (6) is terminal.
+                    frame[0].toInt() in 2..3 -> if (rejectSend) listOf(Bytes.of(1, if (frame[0].toInt() == 2) 2 else 6)) else emptyList()
                     else -> null
                 }
             }
@@ -58,9 +59,10 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
     private suspend fun connected(
         test: TestScope, backing: RoomPersistenceStore = store,
         identity: (ConnectionTarget) -> Bytes = { key(7) },
+        rejectSend: Boolean = false,
     ): ContainerHarness {
         val h = ContainerHarness(test, backing, identity = identity)
-        configure(h)
+        configure(h, rejectSend = rejectSend)
         h.manager.connect(h.target(target))
         h.eventually("shortcut services ready") { h.manager.connectionState == DeviceConnectionState.READY }
         backing.saveChannel(ChannelDTO(
@@ -354,7 +356,7 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         }
     }
 
-    @Test fun acceptedDirectAndChannelQueueRowsSurviveActualFileDatabaseAndStoreReopen() = runTest {
+    @Test fun acceptedDirectAndChannelQueueRowsSurviveActualFileStoreReopenAndDrainOnReconnect() = runTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val name = "wp502-shortcut-${UUID.randomUUID()}.db"
         val immediate = Executor { it.run() }
@@ -364,6 +366,7 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         var owner = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         var backing = RoomPersistenceStore(database, owner)
         val h = connected(this, backing)
+        var resumed: ContainerHarness? = null
         try {
             val keys = recipients(h, backing).map { recipient ->
                 assertEquals(SendResult.Queued, flow(h).execute(id(recipient), original))
@@ -384,7 +387,31 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
                 assertFalse(accepted.isResend)
             }
             assertEquals(2, backing.fetchPendingSends(keys.first().radioId).size)
+            val replacement = connected(this, backing, rejectSend = true)
+            resumed = replacement
+            replacement.eventually("reopened shortcut queue drains through the replacement process graph") {
+                runBlocking {
+                    backing.fetchPendingSends(keys.first().radioId).isEmpty() &&
+                        keys.all { backing.fetchMessage(it)?.status == MessageStatus.FAILED }
+                }
+            }
+            for (key in keys) {
+                val message = assertNotNull(backing.fetchMessage(key))
+                assertEquals(original, message.text)
+                assertEquals(MessageStatus.FAILED, message.status)
+                assertTrue(backing.fetchPendingSendsForMessage(key).isEmpty())
+            }
+            val firmware = replacement.links.radios.single()
+            assertEquals(1, firmware.sent.count { it[0].toInt() == 2 })
+            assertEquals(1, firmware.sent.count { it[0].toInt() == 3 })
+            assertEquals(keys.first().radioId, replacement.appState.currentRadioId)
+            assertEquals(1, replacement.lifecycle.created.size)
+            assertEquals(0, assertNotNull(replacement.sessions.current).chatSendQueueService.queuedEnvelopeCount)
+            assertEquals(1, backing.fetchMessages(keys.first().radioId, 0u, 100, 0).size)
+            val restoredContact = assertNotNull(backing.fetchContact(keys.first().radioId, peerKey))
+            assertEquals(1, backing.fetchMessages(EntityKey(keys.first().radioId, restoredContact.id), 100, 0).size)
         } finally {
+            resumed?.container?.close()
             h.container.close()
             backing.close()
             owner.cancel()
