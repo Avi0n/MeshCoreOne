@@ -107,12 +107,23 @@ than relying on a touch region expanded outside its measured bounds. Existing
 copy, theme, filter state, map renderer and callbacks are unchanged.
 
 The regression is the unchanged WP-503 fixture at
-`8eb2d610b7a954dedfefcba6a973c497c41ce8f1`:
+`8eb2d610b7a954dedfefcba6a973c497c41ce8f1` (fixture blob
+`6d596bcb37e0ad501a981f969f04eca2b2e5171b`):
 `NativeMapRuntimeAccessibilityTest#populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200`.
 Acceptance requires its actual API31/37 visibility, unclipped-font, contained
 48dp target, selection, coordinate and favorite-filter assertions. Local
 compile/lint/domain results alone do not establish that acceptance.
-Exact-candidate native re-execution is pending with the existing WP-503 owner.
+WP-503 reports exact candidate `cee2b806f88ecc313137e89f777a8b1035147da7`
+integrated and executed at `4690cfa37af2ba3b3ff46db64b2d925e8e63ca13`.
+Actual API31 and API37 each discovered and passed the complete owned inventory
+23/23, with 0 failures, errors or skips. The List measured 75x48dp, fully
+visible and within the viewport: API31 `(84,127)-(159,175)` inside
+`(0,63)-(360,774)`; API37 `(84,116)-(159,164)` inside `(0,52)-(360,876)`.
+Both APIs passed selection/unselection, CJK favorite and other saved repeater
+listing, exact `37.8,-122.4` coordinate display, Done dismissal, Favorites
+filter inclusion/exclusion and clearing. This is bounded issue #224 evidence,
+not full WP-312 acceptance, physical TalkBack/device evidence, actual radio or
+offline-download acceptance. Original failures remain historical.
 
 Local environment readiness passed with the pinned JDK 21/platform37.2 tools.
 The declared launcher command
