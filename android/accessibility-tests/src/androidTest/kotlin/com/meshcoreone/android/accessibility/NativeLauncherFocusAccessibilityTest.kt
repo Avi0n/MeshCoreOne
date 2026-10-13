@@ -87,6 +87,13 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         }.mapNotNull { named ->
             generateSequence(named) { it.parent }.firstOrNull { it.isClickable }
         }.distinct().toList()
+        if (nodes.size != 1) {
+            descendants(root).forEach {
+                println("WP503_NATIVE_LAUNCHER_TREE|tab=$tab|class=${it.className}|text=${it.text}" +
+                    "|description=${it.contentDescription}|clickable=${it.isClickable}|selected=${it.isSelected}" +
+                    "|focusable=${it.isScreenReaderFocusable}|extras=${it.extras}|childCount=${it.childCount}")
+            }
+        }
         assertEquals("The real native tree must expose exactly one named $tab action", 1, nodes.size)
         return nodes.single()
     }
