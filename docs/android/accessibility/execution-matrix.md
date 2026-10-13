@@ -1,7 +1,26 @@
 # WP-503 native execution matrix
 
 **Offline discovery226, Reset Path228 and cached-chat resize230 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
-Current exact5a8ee1990250e8bed32010b50fcda86174ab1097 complete native inventory
+Current exact8d306e5411f07874c49846a359b50cd9e1b6c2b8 complete actual native inventory
+**27/26PASS/1FAIL per API31/37**,0 errors/skips57.947s/65.337s. New actual cached
+composer/IME case passes1/API within these commands and separately1/1 each,
+3.213s/4.201s. Actual native click/input focus/public accepting-text binding, hidden->
+visible platform IME and insets/font2/RTL are asserted. Editor222x116dp, disabled
+Send49x49dp with requires-connection state and named Share49x49dp are wholly above
+the actual IME. Native hardware Back hides it while retaining real chat entry/stacks/
+CJK/RTL draft. No product, timeout, floor or oracle change; original fixture/flags
+are restored. All previous25 passing native cases pass; resize230 alone remains
+failing. Later return-resize checks are unexecuted. No complete-command pass inferred.
+API37 initial no-discovery startup is explicitly recorded LOW_MEMORY; later1/1
+visibility-deadline failure and actual app-specific IME timing are retained. Focus/
+input-binding prerequisites precede visibility at8d, but their causal relationship
+to the initial deadline failure is unestablished. Physical TalkBack/cold-start/remaining
+matrix/review gates persist. Exact published43338336095824 FAILED/App800/4, actual
+115096747094 visible default discovery226/Reset228; no new-native hosted inference
+or complete per-case hosted listing. Controller/Swift codec pass, SwiftData skip/
+final guard fail; no duplicate bundle.
+
+Prior exact5a8ee1990250e8bed32010b50fcda86174ab1097 complete native inventory
 **26/25PASS/1FAIL per actual API31/37**,0 errors/skips56.431s/65.670s. All prior25
 methods pass. Real process-store seeded cached direct conversation, native editor
 ACTION_SET_TEXT and middle-message native scroll execute. After actual360->900 Activity
@@ -22,7 +41,7 @@ guard failed. No complete per-case hosted breakdown/duplicate bundle/new-native 
 
 ## Prior complete system-motion cohort
 
-Current exact286e9fb4cdcb50b62522456e891050e5200ba623 **25/25PASS per actual API31/37**,
+Prior exact286e9fb4cdcb50b62522456e891050e5200ba623 **25/25PASS per actual API31/37**,
 0 failures/errors/skips52.654s/62.279s, complete current Android inventory in one
 invocation/API. Launcher5 includes new real system motion observer0->1->0 with
 duration0/300/0 and no explicit override, plus actual three-scale1/0 five-tab and
@@ -136,8 +155,9 @@ Early API37 root-null and bare/by-text control failures
 are harness diagnostics, not both-API product proof or physical TalkBack observations.
 
 Current mandatory instrumentation inventory is13 remote,3 Map/runtime,2 LoS-platform,
-1 Point A contrast,1 Point B contrast and6 launcher-focus/window/motion/chat methods per API.
-Current complete26/API execution at5a8 passes25/fails1 above; prior25/API at286 passes.
+1 Point A contrast,1 Point B contrast and7 launcher-focus/window/motion/chat/IME methods per API.
+Current complete27/API at8d passes26/fails1; prior26/API at5a8 passes25/fails1;
+earlier25/API at286 passes.
 Existing full-matrix/remaining
 feature motion/resize/detail/draft/scroll and physical TalkBack gates remain unverified.
 

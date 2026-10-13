@@ -7,6 +7,86 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Actual cached composer platform IME and native Back
+
+Exact **8d306e5411f07874c49846a359b50cd9e1b6c2b8** adds one owned Android-only
+real MainActivity/process-store/composer keyboard case, no production change.
+Installed serialized snapshot/preflight executes declared
+`:app:assembleDebug :app:assembleDebugAndroidTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`
+and **passes**. [Exact input binding](device-ime-8d306-inputs.json):
+App105464909 bytes/SHA256af1af8d4c963502180ac4425b4da5896e2d9792fef29572a31cb3b02347fd373;
+test2824523 bytes/SHA2569fcf638d52e82c2fab6ca19e5ada1ef0ce98fc2160431a194deb87ae302cfbe9.
+
+Actual declared full native command:
+`adb -s SERIAL shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+**API31:27 discovered/26PASS/1FAIL**,0 errors/skips57.947s
+([transcript](device-ime-full-8d306-api31.txt), [metrics](device-ime-full-8d306-metrics-api31.txt)).
+**API37:27/26PASS/1FAIL**,0 errors/skips65.337s
+([transcript](device-ime-full-8d306-api37.txt), [metrics](device-ime-full-8d306-metrics-api37.txt)).
+Strict parsing requires27 distinct starts/26 passes/one normative failure and no
+error/skip codes. Only unchanged
+`realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200`
+fails: real loaded timeline loses middle message after actual Activity recreation.
+All previous25 passing methods and the new keyboard method pass. Both full commands
+fail, not whole-WP acceptance or a passing54-case invocation.
+
+Scoped command replaces `-e package ...` with
+`-e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft`:
+**1/1PASS actual31**,0 failures/errors/skips3.213s
+([transcript](device-ime-8d306-api31.txt), [metrics](device-ime-8d306-metrics-api31.txt));
+**1/1PASS actual37**,0 failures/errors/skips4.201s
+([transcript](device-ime-8d306-api37.txt), [metrics](device-ime-8d306-metrics-api37.txt)).
+
+Only a new isolated inactive synthetic device/contact is seeded through the actual
+process store; no fake radio or replaced graph. Actual native ACTION_CLICK focuses
+the editor; refreshed native input focus and public InputMethodManager accepting-text
+state precede a real hidden-to-visible keyboard transition. Native ACTION_SET_TEXT
+saves `Draft 中文 مرحبا` in the real draft store. Complete actual font2/RTL layout
+is154x84px, two lines with zero clipping before/after Back. Public root-window IME
+insets measure actual unoccluded screen geometry, not a guessed/fixed keyboard height.
+
+| Actual full profile | IME/viewport | Editor | Disabled Send / named Share |
+| --- | --- | --- | --- |
+| AOSP31/no-GMS/4KiB/x86_64, mdpi360x900 | inset389px; (0,0)-(360,511) | (69,387)-(291,503),222x116dp | (12,454)-(61,503)/(299,454)-(348,503),49x49dp each |
+| PlayStore37.2/GMS/16KiB/x86_64, mdpi360x900 | inset299px; (0,0)-(360,601) | (69,477)-(291,593),222x116dp | (12,544)-(61,593)/(299,544)-(348,593),49x49dp each |
+
+All native targets are wholly contained both in their app window and above the actual
+IME. Send stays disabled with the exact localized requires-connection state; real
+connection is DISCONNECTED. Hardware KEYCODE_BACK hides the actual keyboard and
+preserves exact chat entry9/stacks/draft. This is native input/Back evidence, not
+physical TalkBack speech, a successful mesh send or a physical keyboard observation.
+Scoped37's actual inset425px/viewport bottom475 differs from full37; the unchanged
+public-inset assertions pass both. Original draft/onboarding/service flags and only
+owned fixture data are restored; finally hides IME solely for cleanup, not to rescue
+the measured Back assertion. Public post-run reads confirm360x900/animator0 before
+owned helpers are stopped. Cold-start and remaining state/review/admission gates persist.
+
+Original exact **7e748c208c4b83fef3513d916825f008fd306a98**
+[binding](device-ime-7e748-inputs.json) remains separate.
+API31 scoped **1/1PASS**,0 failures/errors/skips9.501s
+([transcript](device-ime-7e748-api31.txt), [metrics](device-ime-7e748-metrics-api31.txt));
+full **27/26PASS/1FAIL**,0 errors/skips58.419s
+([transcript](device-ime-full-7e748-api31.txt), [metrics](device-ime-full-7e748-metrics-api31.txt)).
+Initial API37 [instrumentation](device-ime-7e748-api37.txt) crashes before discovery;
+public [ApplicationExitInfo](device-ime-7e748-startup-exit-api37.txt) explicitly records
+LOW_MEMORY/reason3/status9/rss261MB. This is not a zero-test pass. No unrelated modem
+abort buffer is attributed to the app or committed as proof of its cause.
+Subsequent unchanged7e API37 scoped **1/1FAIL**,0 errors/skips5.302s
+([transcript](device-ime-7e748-retry-api37.txt), [metrics](device-ime-7e748-retry-metrics-api37.txt)).
+The original visible-IME condition expires at its default1000ms; app-specific
+[ImeTracker](device-ime-7e748-tracker-api37.txt) shows request21:29:14.097/onShown15.088
+and subsequent cleanup hide. At8d, actual native input focus/accepting-text binding
+are asserted before visible IME, without raising any default deadline or weakening
+font/48dp/containment/Back/draft checks. Their causal relationship to the initial
+timeout is unestablished; do not label flaky or claim repaired cold-start behavior.
+
+Exact published433 [38336095824](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38336095824)
+**FAILED/App800/4**, direct authoritative completed Linux115096747094 log.
+Visible default methods are discovery226 and Reset228; aggregate4 is not a complete
+hosted per-case listing. Controller/Swift codec pass, SwiftData skip/final guard fail.
+No duplicate hosted/JVM bundle, successor credit or hosted execution of native27.
+Last complete owned JVM469 remains80/76PASS/4FAIL,0 errors/skips, only226/228.
+
 ## Real cached-chat draft and scrolled-message window regression
 
 Exact **5a8ee1990250e8bed32010b50fcda86174ab1097** adds one owned Android-only

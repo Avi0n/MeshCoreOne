@@ -1,0 +1,10 @@
+10-12 21:29:12.181   695   902 I ImeTracker: com.meshcoreone.android.debug:e437da6c: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false userId 0 displayId 0
+10-12 21:29:12.183  9212  9212 I ImeTracker: com.meshcoreone.android.debug:e437da6c: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-12 21:29:14.097  9212  9212 I ImeTracker: com.meshcoreone.android.debug:518c5213: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT_BY_INSETS_API fromUser false userId 0 displayId 0
+10-12 21:29:14.108  9212  9212 I ImeTracker: com.meshcoreone.android.debug:0acc3432: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false userId 0 displayId 0
+10-12 21:29:14.109  9212  9212 I ImeTracker: com.meshcoreone.android.debug:0acc3432: onCancelled at PHASE_CLIENT_REPORT_REQUESTED_VISIBLE_TYPES
+10-12 21:29:15.088  9212  9212 I ImeTracker: com.meshcoreone.android.debug:518c5213: onShown
+10-12 21:29:15.138  9212  9212 I ImeTracker: com.meshcoreone.android.debug:359c1ce5: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_BY_INSETS_API fromUser false userId 0 displayId 0
+10-12 21:29:15.192  8479  8479 I ImeTracker: com.meshcoreone.android.debug:359c1ce5: onHidden
+10-12 21:29:15.813  9212  9212 I ImeTracker: com.meshcoreone.android.debug:45fa8a84: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false userId 0 displayId 0
+10-12 21:29:15.813  9212  9212 I ImeTracker: com.meshcoreone.android.debug:45fa8a84: onFailed at PHASE_CLIENT_VIEW_SERVED

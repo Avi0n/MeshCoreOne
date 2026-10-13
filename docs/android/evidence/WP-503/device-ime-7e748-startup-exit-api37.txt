@@ -1,0 +1,10 @@
+ACTIVITY MANAGER PROCESS EXIT INFO (dumpsys activity exit-info)
+Last Timestamp of Persistence Into Persistent Storage: 1969-12-31 18:00:00.000
+  package: com.meshcoreone.android.debug
+    Historical Process Exit for uid=10230
+        ApplicationExitInfo #0:
+          timestamp=2026-10-12 21:26:27.793 pid=4460 realUid=10230 packageUid=10230 definingUid=10230 user=0 startSeq=69
+          process=com.meshcoreone.android.debug reason=3 (LOW_MEMORY) subreason=0 (UNKNOWN) status=9
+          importance=400 pss=0.00 rss=261MB state=empty trace=null
+          description=null
+          anrInfo=null

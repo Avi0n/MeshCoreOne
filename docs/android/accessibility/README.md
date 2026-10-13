@@ -5,7 +5,36 @@ This is not accessibility acceptance, a completed WP, or permission to close iss
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Current actual cached-chat window and draft regression
+## Current actual cached composer and platform keyboard audit
+
+Exact8d306e5411f07874c49846a359b50cd9e1b6c2b8 complete actual native inventory
+**27/26PASS/1FAIL per API31/37**,0 errors/skips57.947s/65.337s. The new real
+process-store/composer keyboard case passes in both full invocations and separately
+1/1 per API,3.213s/4.201s. All previous25 passing cases remain passing; unchanged
+cached-chat resize230 remains the sole native failure. Neither full command passes.
+
+Actual native click/input focus and public accepting-text state precede the real
+hidden-to-visible IME transition. Public window insets measure the unoccluded viewport;
+editor222x116dp, disabled Send49x49dp and named Share49x49dp are fully above the
+actual keyboard. The CJK/RTL draft has two complete font2 lines with zero clipping.
+Disconnected Send retains its textual requires-connection state. Actual hardware Back
+hides the IME without leaving the chat or losing entry/stacks/draft. Only the isolated
+synthetic device/contact and original draft/onboarding/service flags are restored.
+
+[Source-bound keyboard evidence](../evidence/WP-503/README.md#actual-cached-composer-platform-ime-and-native-back)
+retains original diagnostics: API37 initial pre-discovery process exit is explicitly
+LOW_MEMORY, not a test pass; a later1/1 visibility-deadline failure and app-specific IME
+request/shown timing remain distinct. Actual focus/input-binding prerequisites now
+precede visibility, with unchanged default deadlines/strict assertions. Their causal
+relationship to that initial timeout is not established. No flaky label, physical
+TalkBack/keyboard claim, product patch or completed remaining matrix.
+
+Exact published433 [38336095824](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38336095824)
+**FAILED/App800/4**, actual job115096747094 visibly names default discovery226/Reset228.
+Controller/Swift codec pass, SwiftData skipped/final guard failed. Aggregate4 is not a
+complete hosted per-case listing; no duplicate bundle or new-native execution inferred.
+
+## Prior actual cached-chat window and draft regression
 
 Exact5a8ee1990250e8bed32010b50fcda86174ab1097 complete native inventory discovers
 **26/passes25/fails1 on each actual API31/37**,0 errors/skips56.431s/65.670s.

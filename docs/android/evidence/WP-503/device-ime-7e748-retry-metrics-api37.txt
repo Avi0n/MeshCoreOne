@@ -1,0 +1,4 @@
+--------- beginning of main
+10-12 21:29:12.257  9212  9234 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 21:29:12.280  9212  9234 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 21:29:12.639  9212  9234 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
