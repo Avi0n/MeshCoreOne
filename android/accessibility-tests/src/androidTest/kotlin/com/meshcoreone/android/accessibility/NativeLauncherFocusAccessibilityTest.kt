@@ -4,13 +4,18 @@ package com.meshcoreone.android.accessibility
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.graphics.Rect
+import android.os.ParcelFileDescriptor
+import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -19,6 +24,8 @@ import com.meshcoreone.android.core.contracts.AppTab
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.R
+import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings
+import com.meshcoreone.android.app.navigation.SettingsDetail
 import com.meshcoreone.android.feature.onboarding.OnboardingState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -28,6 +35,81 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
+    @Test fun realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable() = withTouchExploration {
+        val application = requireNotNull(activity.application as? MeshCoreApplication)
+        val container = runBlocking { application.container.await() }
+        val onboarding = requireNotNull(container.onboarding)
+        val originalFlag = onboarding.flags.getBoolean(OnboardingState.KEY_HAS_COMPLETED)
+        val sizes = shell("wm size")
+        assertTrue("The public window manager must report the real physical display",
+            Regex("(?m)^Physical size: \\d+x\\d+$").containsMatchIn(sizes))
+        val override = Regex("(?m)^Override size: (\\d+x\\d+)$").find(sizes)?.groupValues?.get(1)
+        try {
+            compose.runOnUiThread { onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, true) }
+            compose.waitUntil { compose.onAllNodesWithTag("tab:CHATS").fetchSemanticsNodes().size == 1 }
+            assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
+            assertEquals(AppTab.CHATS, container.navigation.state.value.selectedTab)
+            val stacks = container.navigation.state.value.stacks
+            resizeWindow("900x900", "navigation-rail")
+            compose.onNodeWithTag("list-detail").assertIsDisplayed()
+            for (tab in AppTab.entries.filter { it != AppTab.CHATS } + AppTab.CHATS) {
+                val before = nativeTab(root(), tab)
+                assertTrue(before.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+                assertTrue(before.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                compose.onNodeWithTag("tab:${tab.name}").assertIsSelected()
+                val window = root()
+                val after = nativeTab(window, tab)
+                assertTrue(after.isSelected && after.isAccessibilityFocused)
+                assertNativeTargetContained(after, window)
+                assertEquals(tab, container.navigation.state.value.selectedTab)
+                assertEquals(stacks, container.navigation.state.value.stacks)
+                assertEquals(1, AppTab.entries.count { nativeTab(window, it).isSelected })
+                assertFont200Unclipped(compose.onNodeWithTag("navigation-heading", useUnmergedTree = true))
+                println("WP503_NATIVE_RAIL|sdk=${android.os.Build.VERSION.SDK_INT}|tab=$tab" +
+                    "|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false")
+            }
+            assertTrue(nativeTab(root(), AppTab.SETTINGS).performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            val language = activity.getString(AppSettingsStrings.languageTitle)
+            val languageText = compose.onNodeWithText(language, useUnmergedTree = true).performScrollTo()
+            assertFont200Unclipped(languageText)
+            val action = namedAction(root(), language)
+            assertNativeTargetContained(action, root())
+            assertTrue(action.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            compose.waitForIdle()
+            assertEquals(SettingsDetail.LANGUAGE, container.navigation.state.value.selectedSetting)
+            val detailStacks = container.navigation.state.value.stacks
+            val detail = container.navigation.state.value.activeStack.last()
+            resizeWindow("360x900", "navigation-hidden")
+            assertEquals(detailStacks, container.navigation.state.value.stacks)
+            assertEquals(detail, container.navigation.state.value.activeStack.last())
+            assertEquals(SettingsDetail.LANGUAGE, container.navigation.state.value.selectedSetting)
+            assertEquals(AppTab.SETTINGS, container.navigation.state.value.selectedTab)
+            assertFont200Unclipped(compose.onNodeWithTag("navigation-heading", useUnmergedTree = true))
+            val window = root()
+            val back = namedAction(window, activity.getString(R.string.scaffold_back))
+            assertNativeTargetContained(back, window)
+            val retainedFocus = back.isAccessibilityFocused
+            assertTrue(back.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS))
+            assertTrue(back.refresh())
+            assertTrue(back.isAccessibilityFocused)
+            assertTrue(back.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            compose.onNodeWithTag("bottom-navigation").assertIsDisplayed()
+            assertEquals(null, container.navigation.state.value.selectedSetting)
+            assertEquals(stacks, container.navigation.state.value.stacks)
+            assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
+            println("WP503_NATIVE_WINDOW_DETAIL|sdk=${android.os.Build.VERSION.SDK_INT}|expanded=900x900" +
+                "|compact=360x900|retainedEntry=${detail.id}|nativeBack=true|focusReacquired=true" +
+                "|automaticBackFocusRetained=$retainedFocus|realGraph=true|physicalTalkBack=false")
+        } finally {
+            shell("wm size ${override ?: "reset"}")
+            compose.runOnUiThread {
+                if (container.navigation.state.value.selectedSetting == SettingsDetail.LANGUAGE) container.navigation.back()
+                container.navigation.selectTab(AppTab.CHATS)
+                onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, originalFlag)
+            }
+        }
+    }
+
     @Test fun frameworkControlCanAcquireRealNativeAccessibilityFocus() = withTouchExploration {
         var calls = 0
         val label = "Native focus control"
@@ -79,11 +161,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 assertTrue("Recomposition must retain native accessibility focus on the selected tab", after.isAccessibilityFocused)
                 val tabs = AppTab.entries.map { nativeTab(window, it) }
                 assertEquals("Exactly one actual native tab must be selected", 1, tabs.count { it.isSelected })
-                val bounds = Rect().also(after::getBoundsInScreen)
-                val viewport = Rect().also(window::getBoundsInScreen)
-                val density = activity.resources.displayMetrics.density
-                assertTrue("The native tab target must be fully contained", viewport.contains(bounds))
-                assertTrue("The real native tab target must be48dp", bounds.width() / density >= 48f && bounds.height() / density >= 48f)
+                val bounds = assertNativeTargetContained(after, window)
                 val label = tabLabel(tab)
                 assertTrue("The native selected tab must retain its spoken name",
                     descendants(after).any { it.text?.toString() == label || it.contentDescription?.toString() == label })
@@ -109,6 +187,37 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
     }
 
     private fun automation() = InstrumentationRegistry.getInstrumentation().uiAutomation
+
+    private fun shell(command: String): String =
+        ParcelFileDescriptor.AutoCloseInputStream(automation().executeShellCommand(command)).use {
+            it.readBytes().toString(Charsets.UTF_8).trim().also { response ->
+                println("WP503_NATIVE_WINDOW_COMMAND|command=$command|response=$response")
+            }
+        }
+
+    private fun resizeWindow(size: String, tag: String) {
+        val previous = activity
+        shell("wm size $size")
+        compose.waitUntil { compose.onAllNodesWithTag(tag).fetchSemanticsNodes().size == 1 }
+        compose.runOnUiThread { activity.window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL }
+        compose.waitForIdle()
+        assertEquals(2f, activity.resources.configuration.fontScale, 0f)
+        val bounds = Rect().also(root()::getBoundsInScreen)
+        val width = bounds.width() / activity.resources.displayMetrics.density
+        assertEquals("The actual window must reach the requested width", size.substringBefore('x').toFloat(), width, 0f)
+        println("WP503_NATIVE_WINDOW|sdk=${android.os.Build.VERSION.SDK_INT}|size=$size|bounds=$bounds" +
+            "|activityRecreated=${activity !== previous}|shell=$tag|fontScale=2.0|physicalTalkBack=false")
+    }
+
+    private fun assertNativeTargetContained(node: AccessibilityNodeInfo, window: AccessibilityNodeInfo): Rect {
+        val bounds = Rect().also(node::getBoundsInScreen)
+        val viewport = Rect().also(window::getBoundsInScreen)
+        val density = activity.resources.displayMetrics.density
+        assertTrue("The actual native target must be fully contained", viewport.contains(bounds))
+        assertTrue("The actual native target must be48dp",
+            bounds.width() / density >= 48f && bounds.height() / density >= 48f)
+        return bounds
+    }
 
     private fun withTouchExploration(block: () -> Unit) {
         val manager = activity.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
