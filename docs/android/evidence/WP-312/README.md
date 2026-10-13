@@ -93,3 +93,31 @@ This is static packaging evidence, not execution on a 16 KiB device.
 | `WP-312-source-test-parity` | Shared map algebra and snapshot/offline parameter families are covered by 20 nonzero JVM cases; feature-specific downstream map builders remain consumers of these WP-312 seams in their owning WPs. |
 
 PR #140 may leave draft only after its exact-head hosted checks pass.
+
+## Issue #224: compact RTL system-font200 controls
+
+Follow-up base: `d8181418614a5acaa46f4acde54b741b492ac4b0`.
+Owner remains WP-312 / `nodes-map-ui-engineer`; production changes are confined
+to `MapControls` in the map feature.
+
+The fixed Refresh/Offline Maps/List row exhausted its width before measuring
+List on actual API31 and API37. Actions now wrap using the available width,
+and every map-control chip reserves at least 48dp in both dimensions rather
+than relying on a touch region expanded outside its measured bounds. Existing
+copy, theme, filter state, map renderer and callbacks are unchanged.
+
+The regression is the unchanged WP-503 fixture at
+`8eb2d610b7a954dedfefcba6a973c497c41ce8f1`:
+`NativeMapRuntimeAccessibilityTest#populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200`.
+Acceptance requires its actual API31/37 visibility, unclipped-font, contained
+48dp target, selection, coordinate and favorite-filter assertions. Local
+compile/lint/domain results alone do not establish that acceptance.
+Exact-candidate native re-execution is pending with the existing WP-503 owner.
+
+Local environment readiness passed with the pinned JDK 21/platform37.2 tools.
+The declared launcher command
+`.\android\scaffold\invoke-gradle.ps1 -ConstrainedMemory -BuildHeap 1536m -BuildMetaspace 768m -GradleArguments ':feature:map:compileDebugKotlin',':feature:map:lintDebug',':core:maps:testDebugUnitTest'`
+passed: Kotlin compilation and map-feature lint succeeded; core-map JUnit XML
+reported 3 suites, 23 discovered/run/passed tests, 0 failures/errors/skips.
+`git diff --check` also passed. No iOS, native-device or screenshot acceptance
+is inferred from these local checks.
