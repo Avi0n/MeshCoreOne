@@ -120,6 +120,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             val selected = container.navigation.state.value.chatsSelectedRoute
             val entry = container.navigation.state.value.activeStack.last()
             val stacks = container.navigation.state.value.stacks
+            assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
             println("WP503_NATIVE_CHAT_WINDOW_BEFORE|sdk=${android.os.Build.VERSION.SDK_INT}|message=${target.id}" +
                 "|textBounds=${text.fetchSemanticsNode().boundsInRoot}|entry=${entry.id}|draftSaved=true" +
                 "|realStore=true|realGraph=true|physicalTalkBack=false")
@@ -133,6 +134,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 assertEquals(draft, currentEdit.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
                 assertFont200Unclipped(currentEdit)
                 assertNativeTargetContained(descendants(root()).filter { it.isEditable }.toList().single(), root())
+                assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
                 compose.waitUntil {
                     compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex),
                         useUnmergedTree = true).fetchSemanticsNodes().size == 1
@@ -143,7 +145,6 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                     "|entry=${entry.id}|draftSaved=true|timelineLoaded=true|realStore=true|realGraph=true|physicalTalkBack=false")
                 retained.assertIsDisplayed()
                 assertFont200Unclipped(retained)
-                assertEquals(DeviceConnectionState.DISCONNECTED, container.connectionManager.connectionState)
             }
         } finally {
             shell("wm size ${override ?: "reset"}")
