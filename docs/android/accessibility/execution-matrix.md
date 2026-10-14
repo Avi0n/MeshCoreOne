@@ -1,6 +1,26 @@
 # WP-503 native execution matrix
 
-**Unchanged9425f287: one separately measured four-CPU API37 pair2/2PASS44.011s. Established requested-CPU2 profile remains31 2/2PASS17.935s,37 0PASS/2FAIL26.459s before bodies;410 restoration failures retained. Hosted754/run38582765761 SUCCESS/all6 only754, historical46df/run38577688498 FAILURE/App800/1 retained. Producer/native/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+**Unchanged9425f287 remaining seven:31 7PASS32.457s; four-CPU37 3PASS/4FAIL30.215s before bodies at original activation953. Earlier four-CPU window2PASS44.011s remains separate, not a broad readiness repair. All original/historical negatives retained. Hosted754/run38582765761 SUCCESS/all6 only754,46df FAILURE/App800/1 retained. Producer/native/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+
+## Seven disjoint native launcher methods
+
+Two fresh sequential devices; same9425 source/APKs/original fixtures/deadlines.
+
+| Remaining existing selection | API31 actual2CPUs | API37 actual4CPUs |
+|---|---|---|
+| Seven unique starts/matching outcomes |7PASS32.457s|3PASS/4FAIL30.215s|
+| All ten unlocked themes/three persisted schemes |30PASS observations, original native font200/48dp/focus/effective-scheme checks|Unobserved: activation953|
+| Disconnected all-five tab native focus |5PASS|Unobserved: activation953|
+| Default/reduced motion tabs/detail Back |10 tab/2 Back observations|Unobserved: activation953|
+| Actual cached composer/IME/Back/share-cancel |PASS; three48dp targets above389px IME, draft/stacks/entry/send-disabled retained|Unobserved: activation953|
+| Independent motion provider/queued-effects/focus controls |All3PASS|All3PASS; focus manager becomesfalse during control, not sustained touch exploration|
+| Touch requested/activated/finally/restored |5/5/5/5|5/1/5/5|
+
+API37 false manager at65/75/78 checks through992/989/999ms proves four CPUs alone
+do not meet broad on-time readiness. Native window pair2 remains an independently
+bound positive, not a new full9 invocation or negative clearance. Existing#218
+region pair/fullremote already pass both APIs at491d02b, not repeated.
+[Inputs/commands/raw outcomes/state qualifications](../evidence/WP-503/README.md#seven-disjoint-native-launcher-methods).
 
 ## Single four-CPU native comparison
 

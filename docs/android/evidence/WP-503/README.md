@@ -1,11 +1,82 @@
 # WP-503 attempt evidence
 
-**One separately measured four-CPU API37 comparison, same9425 source/APKs: existing pair2/2PASS44.011s. Original requested-CPU2 attempt remains31 2/2PASS17.935s,37 0PASS/2FAIL26.459s at activation before bodies; earlier410 restoration failures and all historical negatives retained. Exact754/run38582765761 SUCCESS/all6 only754; historical46df/run38577688498 FAILURE/App800/1 retained. Producer/native/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
+**Remaining seven unchanged9425 launcher methods:31 7PASS32.457s, four-CPU37 3PASS/4FAIL30.215s at original activation953 before bodies. Earlier four-CPU window pair2PASS44.011s remains separate, not broad readiness repair. All established-profile/historical negatives retained. Exact754/run38582765761 SUCCESS/all6 only754;46df FAILURE/App800/1 retained. Producer/native/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Seven disjoint native launcher methods
+
+[Integration](device-launcherrest-integration.json) and
+[unchanged APK inputs](device-launcherrest-inputs.json) bind the same executed
+**9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2**/tree
+**a97c8c665c1f13bc283f06078c99d2b6bb32626d** as published781 at execution.
+Canonical166/actualCLId298/revision3 and four combined producer bindings unchanged;
+not standalone producer-head acceptance. No Android/source/APK/body/helper/
+predicate/deadline/golden change. Only the session selector chooses the seven
+existing methods disjoint from the earlier two window methods.
+
+Actual command/identities in [API31 runner](device-launcherrest-flows-runner-api31.txt)
+and [API37 runner](device-launcherrest-flows-runner-api37.txt), unchanged App
+AndroidJUnitRunner/expectedApi31or37. Original1000ms waits/300s boot/600s outer
+guard; seven unique positive starts/seven matching terminal outcomes, no errors/
+skips/zero-test success:
+
+| Original remaining fixture | API31 actual2CPUs | API37 actual4CPUs |
+|---|---|---|
+| Disconnected all-five native tabs/focus |PASS,5 native observations|FAIL original activation953 before body|
+| Appearance unlocked themes/schemes |PASS,30 persisted native observations|FAIL original activation953 before body|
+| Default/reduced motion tabs/detail Back |PASS,10 tab/2 Back observations|FAIL original activation953 before body|
+| Cached composer/IME/Back/share-cancel |PASS, actual native input/keyboard/actions|FAIL original activation953 before body|
+| Framework native focus control |PASS, actual callback1|PASS original assertions; manager not sustainedtrue|
+| Frame/native effect scheduling control |PASS, inline true/audited false at both phases|PASS same actual counterexample|
+| Actual theme/system-motion provider |PASS0/1/0 -> durations0/300/0, no override|PASS same native observations|
+| Complete seven-method outcome |**7PASS32.457s**|**3PASS/4FAIL30.215s**|
+| Touch requested/activated/finally/restored |5/5/5/5|5/1/5/5|
+
+31 observes ten unlocked themes times three schemes, including Ember's forced
+dark preference and actual persisted effective scheme. Native selected labels/
+duplicate-disabled/focus/font200/48dp checks pass; initial theme/scheme/onboarding
+are restored. This is not native all-role contrast or approved-golden evidence.
+Actual IME bottom389px, visible Rect(0,0-360,511); editor Rect(69,387-291,503),
+send Rect(12,454-61,503), share Rect(299,454-348,503): each wholly visible/48dp.
+Native Back keeps entry8/draft/stacks and disconnected send disabled. Contact
+menu Rect(149,546-348,594), cached contact Rect(54,352-305,406), cancel
+Rect(54,430-158,484) pass target/font checks; cancellation preserves state,
+keyboard hidden and automatic native share-focustrue.
+
+37's four failures retain actual managerfalse at timeout. Tabs:1 check27ms,
+timeout1103ms; appearance:65 checks through992ms, timeout1005ms; motion:75
+checks through989ms, timeout1000ms; IME:78 checks through999ms, timeout1011ms.
+**Four CPUs alone do not repair broad readiness**, and these four actual feature
+bodies remain unobserved. The framework focus control initially samples
+managertrue/ready15ms, then false callback399ms/finalfalse467ms with actual
+serviceflags65558. It passes its original native focus/callback assertions,
+not sustained touch exploration or physical TalkBack.
+
+Raw [31 instrumentation](device-launcherrest-flows-api31.txt)/
+[37 instrumentation](device-launcherrest-flows-api37.txt),
+[31 native metrics](device-launcherrest-flows-metrics-api31.txt)/
+[37 native metrics](device-launcherrest-flows-metrics-api37.txt) and
+[31 profile](device-launcherrest-profile-api31.txt)/
+[37 profile](device-launcherrest-profile-api37.txt) retained. CPU counts2/4
+independently read, unchanged original2048/4096MiB enforced RAM, same installed
+AOSP31/PlayStore37.2 images and360x900/mdpi/font2/RTL/motion0/hardwareIME1.
+Fresh sequential isolated devices, one invocation each; both exit0 before exact
+four image/qcow paths removed, final adb empty. No installs/new workers/shared
+AVD edit, retry-until-green, causal/source/primary-profile repair or gate closure.
+
+Earlier window pair2 and these disjoint seven cover nine distinct method
+identities in separate invocations, **not a new single9-case/full79 run or
+retroactive reclassification**. All earlier complete/partial negatives retained.
+Existing#218 is not newly blocked:491d02b already records region pair2PASS and
+fullremote15PASS on both actual APIs for WP313d2ff; current native region fixture
+blobae4b983df456be8a73d894d06fdc06dba0bc5d69 equals491d02b. No duplicate audit.
+Producer236/237/238 repairs, broad native readiness, physical TalkBack, remaining
+matrix, WP502-approved goldens, WP-specific acceptance admission and independent
+review remain. Hosted results/logs retain their exact heads; no duplicate bundle.
 
 ## Single four-CPU native comparison
 

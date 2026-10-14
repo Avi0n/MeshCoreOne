@@ -1,0 +1,27 @@
+WP503_EXECUTED_INPUT|9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#frameworkControlCanAcquireRealNativeAccessibilityFocus,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2", "scenario": "launcher-remaining", "discovered": 7, "statuses": {"-2": 4, "0": 3}, "time": ["Time: 30.215"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest', 'realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest', 'realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest', 'realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest', 'realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft')|-2
+e.android.accessibility.NativeLauncherFocusAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable(NativeLauncherFocusAccessibilityTest.kt:462)
+4) realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft(NativeLauncherFocusAccessibilityTest.kt:150)
+
+FAILURES!!!
+Tests run: 7,  Failures: 4
+
+
+INSTRUMENTATION_CODE: -1

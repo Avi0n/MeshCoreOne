@@ -1,9 +1,30 @@
 # WP-503 accessibility audit
 
-**Status: one separately measured four-CPU API37 comparison at unchanged9425f287: existing pair2/2PASS44.011s. Established two-requested-CPU attempt remains31 2/2PASS17.935s,37 0PASS/2FAIL26.459s at original activation before bodies. Earlier410 restoration failures and all other negatives remain. Hosted7542612d/run38582765761 SUCCESS/all6, bound only754; historical46df/run38577688498 FAILURE/App800/1 retained. CLI236/QR237/language238, native prerequisites/historical negatives, physical TalkBack, matrix/goldens/admission/review remain gates. PR205 draft, WP incomplete.**
+**Status: unchanged9425f287 remaining seven launcher methods: API31 7PASS32.457s; measured four-CPU API37 3PASS/4FAIL30.215s, all four original activation953 failures before bodies. Earlier four-CPU window pair2PASS44.011s remains separate; four CPUs do not repair broad readiness. Established-profile/historical negatives retained. Hosted754/run38582765761 SUCCESS/all6 only754; historical46df FAILURE/App800/1 retained. Producer236/237/238, native/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Seven disjoint native launcher methods
+
+Same9425 source/tree/APKs, unchanged methods/helpers/predicates/deadlines. Fresh
+sequential API31(actual2CPUs) and API37(actual4CPUs): **7/7PASS32.457s** versus
+**3PASS/4FAIL30.215s**, positive seven starts/matching outcomes on each.
+
+API31 verifies thirty persisted selections across all ten unlocked themes/three
+schemes with effective-scheme/font200/48dp/native-focus checks, actual default/
+reduced motion tab/detail Back flows and cached composer/IME/share-cancel states.
+All three composer targets fit above the actual389px IME; draft/stacks/entry and
+disabled disconnected send survive native Back and cancellation.
+
+API37 tab, appearance, motion-flow and cached-IME methods fail original1000ms
+activation953 before bodies. Manager remainsfalse across65/75/78 checks through
+992/989/999ms; no body credit. Three independent controls pass, but framework
+focus's initiallytrue manager later becomesfalse with serviceflags65558 unchanged.
+**Four CPUs alone are not a readiness repair.** Separate from earlier window2
+and historical full/failed cohorts; not a single9-case run or whole-WP acceptance.
+Existing#218 pair2/fullremote15 already pass both APIs at491d02b; not duplicated.
+[Exact native records and qualifications](../evidence/WP-503/README.md#seven-disjoint-native-launcher-methods).
 
 ## Single four-CPU native comparison
 
