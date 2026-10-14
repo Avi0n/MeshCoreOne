@@ -18,6 +18,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -78,7 +79,7 @@ class NativeSettingsNoticesAccessibilityTest : DeviceAccessibilityHarness() {
         action(licenses).performClick()
         val paths = bundledNotices("licenses").sorted()
         assertTrue(paths.containsAll(listOf("licenses/GPL-3.0.txt", "licenses/MeshCore-MIT.txt")))
-        paths.forEach { path -> action(noticeLabel(path)) }
+        paths.forEach { path -> noticeAction(path) }
         action(done).performClick()
         action(about)
         println("WP503_NOTICES_CATALOG|actualPackagedRows=${paths.size}|externalIntents=4|returnedToSettings=true|legalApproval=false")
@@ -88,7 +89,7 @@ class NativeSettingsNoticesAccessibilityTest : DeviceAccessibilityHarness() {
         openAbout()
         action(licenses).performClick()
         for ((path, useBack) in listOf("licenses/GPL-3.0.txt" to true, "licenses/MeshCore-MIT.txt" to false)) {
-            action(noticeLabel(path)).performClick()
+            noticeAction(path).performClick()
             val text = activity.assets.open(path).bufferedReader(Charsets.UTF_8).use { it.readText() }
             assertTrue(text.isNotBlank())
             val matcher = hasText(text) and SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult)
@@ -97,7 +98,7 @@ class NativeSettingsNoticesAccessibilityTest : DeviceAccessibilityHarness() {
             action(done)
             if (useBack) InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
             else action(done).performClick()
-            action(noticeLabel(path))
+            noticeAction(path)
             println("WP503_NOTICES_RETURN|path=$path|nativeBack=$useBack|returnedToCatalog=true")
         }
         action(done).performClick()
@@ -137,6 +138,13 @@ class NativeSettingsNoticesAccessibilityTest : DeviceAccessibilityHarness() {
     }
 
     private fun noticeLabel(path: String) = path.removePrefix("licenses/").removeSuffix(".txt")
+
+    private fun noticeAction(path: String): SemanticsNodeInteraction {
+        val list = SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)
+        compose.waitUntil { compose.onAllNodes(list).fetchSemanticsNodes().size == 1 }
+        compose.onNode(list).performScrollToNode(hasText(noticeLabel(path)) and hasClickAction())
+        return action(noticeLabel(path))
+    }
 
     private fun scrollParent(node: SemanticsNode) = generateSequence(node.parent) { it.parent }.firstOrNull {
         it.config.contains(SemanticsActions.ScrollBy) && it.config.contains(SemanticsProperties.VerticalScrollAxisRange)

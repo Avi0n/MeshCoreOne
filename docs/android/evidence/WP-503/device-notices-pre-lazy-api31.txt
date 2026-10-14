@@ -1,0 +1,104 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest:
+INSTRUMENTATION_STATUS: test=actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Assert failed: The component with (Text + InputText + EditableText contains 'GPL-3.0' (ignoreCase: false)) && (OnClick is defined) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.action(NativeSettingsNoticesAccessibilityTest.kt:167)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200$lambda$0(NativeSettingsNoticesAccessibilityTest.kt:81)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.withSettings(NativeSettingsNoticesAccessibilityTest.kt:118)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200(NativeSettingsNoticesAccessibilityTest.kt:65)
+
+INSTRUMENTATION_STATUS: stream=
+Error in actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200(com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest):
+java.lang.AssertionError: Assert failed: The component with (Text + InputText + EditableText contains 'GPL-3.0' (ignoreCase: false)) && (OnClick is defined) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.action(NativeSettingsNoticesAccessibilityTest.kt:167)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200$lambda$0(NativeSettingsNoticesAccessibilityTest.kt:81)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.withSettings(NativeSettingsNoticesAccessibilityTest.kt:118)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200(NativeSettingsNoticesAccessibilityTest.kt:65)
+
+INSTRUMENTATION_STATUS: test=actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: ((Text + InputText + EditableText contains 'GPL-3.0' (ignoreCase: false)) && (OnClick is defined))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode$default(SemanticsNodeInteraction.kt:83)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.action(NativeSettingsNoticesAccessibilityTest.kt:158)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions$lambda$0(NativeSettingsNoticesAccessibilityTest.kt:91)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest$$ExternalSyntheticLambda8.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.withSettings(NativeSettingsNoticesAccessibilityTest.kt:118)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions(NativeSettingsNoticesAccessibilityTest.kt:87)
+
+INSTRUMENTATION_STATUS: stream=
+Error in actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions(com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest):
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: ((Text + InputText + EditableText contains 'GPL-3.0' (ignoreCase: false)) && (OnClick is defined))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode$default(SemanticsNodeInteraction.kt:83)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.action(NativeSettingsNoticesAccessibilityTest.kt:158)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions$lambda$0(NativeSettingsNoticesAccessibilityTest.kt:91)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest$$ExternalSyntheticLambda8.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.withSettings(NativeSettingsNoticesAccessibilityTest.kt:118)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions(NativeSettingsNoticesAccessibilityTest.kt:87)
+
+INSTRUMENTATION_STATUS: test=actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 8.6
+There were 2 failures:
+1) actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200(com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest)
+java.lang.AssertionError: Assert failed: The component with (Text + InputText + EditableText contains 'GPL-3.0' (ignoreCase: false)) && (OnClick is defined) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.action(NativeSettingsNoticesAccessibilityTest.kt:167)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200$lambda$0(NativeSettingsNoticesAccessibilityTest.kt:81)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.withSettings(NativeSettingsNoticesAccessibilityTest.kt:118)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200(NativeSettingsNoticesAccessibilityTest.kt:65)
+2) actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions(com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest)
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: ((Text + InputText + EditableText contains 'GPL-3.0' (ignoreCase: false)) && (OnClick is defined))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode$default(SemanticsNodeInteraction.kt:83)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.action(NativeSettingsNoticesAccessibilityTest.kt:158)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions$lambda$0(NativeSettingsNoticesAccessibilityTest.kt:91)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest$$ExternalSyntheticLambda8.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.withSettings(NativeSettingsNoticesAccessibilityTest.kt:118)
+	at com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest.actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions(NativeSettingsNoticesAccessibilityTest.kt:87)
+
+FAILURES!!!
+Tests run: 2,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1
