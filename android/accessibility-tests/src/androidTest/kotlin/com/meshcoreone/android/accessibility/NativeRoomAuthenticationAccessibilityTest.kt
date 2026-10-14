@@ -2,6 +2,8 @@
 package com.meshcoreone.android.accessibility
 
 import android.view.WindowInsets
+import android.view.WindowInsetsAnimation
+import android.view.WindowManager
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.material3.Text
@@ -30,6 +32,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.printToString
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isRoot as isViewRoot
@@ -43,6 +46,8 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.feature.chats.rooms.RoomAuthenticationSheet
 import com.meshcoreone.android.feature.chats.rooms.RoomConversationState
 import java.util.UUID
+import java.io.File
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -67,6 +72,16 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
     private val submissions = mutableListOf<Pair<String, Boolean>>()
     private var cancellations = 0
     private lateinit var sheetHost: View
+    private val activeImeAnimations = mutableSetOf<WindowInsetsAnimation>()
+    private val imeObserver = object : WindowInsetsAnimation.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+        override fun onPrepare(animation: WindowInsetsAnimation) {
+            if (animation.typeMask and WindowInsets.Type.ime() != 0) activeImeAnimations += animation
+        }
+        override fun onProgress(insets: WindowInsets, animations: MutableList<WindowInsetsAnimation>): WindowInsets = insets
+        override fun onEnd(animation: WindowInsetsAnimation) {
+            activeImeAnimations -= animation
+        }
+    }
     private val passwordLabel get() = activity.getString(R.string.l10n_app_remotenodes_remotenodes_auth_password)
     private val rememberLabel get() = activity.getString(R.string.l10n_app_remotenodes_remotenodes_auth_rememberpassword)
     private val joinLabel get() = activity.getString(R.string.l10n_app_remotenodes_remotenodes_auth_joinroom)
@@ -84,7 +99,23 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
             }
             println("WP503_ROOM_AUTH_FAILURE_TREE|" +
                 compose.onAllNodes(isRoot(), useUnmergedTree = true).printToString(maxDepth = Int.MAX_VALUE))
+            val screenshot = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+            if (screenshot == null) {
+                println("WP503_ROOM_AUTH_SCREENSHOT_UNAVAILABLE|case=${description.methodName}")
+            } else {
+                try {
+                    val file = File(activity.cacheDir, "wp503-room-auth-${description.methodName}.png")
+                    file.outputStream().use { check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)) }
+                    println("WP503_ROOM_AUTH_SCREENSHOT|path=${file.name}|approvedGolden=false")
+                } finally {
+                    screenshot.recycle()
+                }
+            }
         }
+    }
+
+    @After fun removeOwnedImeObserver() {
+        if (::sheetHost.isInitialized) compose.runOnUiThread { sheetHost.setWindowInsetsAnimationCallback(null) }
     }
 
     @Test fun knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200() {
@@ -170,6 +201,7 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
         onView(isViewRoot()).inRoot(isDialog()).check { view, missing ->
             if (missing != null) throw missing
             sheetHost = requireNotNull(view)
+            sheetHost.setWindowInsetsAnimationCallback(imeObserver)
         }
     }
 
@@ -215,13 +247,23 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
         val frame = android.graphics.Rect()
         val screen = IntArray(2)
         val window = IntArray(2)
+        var insetFrame = Rect.Zero
         compose.runOnUiThread {
             sheetHost.getWindowVisibleDisplayFrame(frame)
             sheetHost.getLocationOnScreen(screen)
             sheetHost.getLocationInWindow(window)
+            val metrics = requireNotNull(sheetHost.context.getSystemService(WindowManager::class.java)).currentWindowMetrics
+            val safe = requireNotNull(sheetHost.rootWindowInsets)
+                .getInsets(WindowInsets.Type.ime() or WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            val bounds = metrics.bounds
+            insetFrame = Rect(
+                (bounds.left + safe.left).toFloat(), (bounds.top + safe.top).toFloat(),
+                (bounds.right - safe.right).toFloat(), (bounds.bottom - safe.bottom).toFloat(),
+            )
+            println("WP503_ROOM_AUTH_VIEWPORT|window=$bounds|safe=$safe|visibleFrame=$frame|activeImeAnimations=${activeImeAnimations.size}")
         }
         val native = Rect(frame.left.toFloat(), frame.top.toFloat(), frame.right.toFloat(), frame.bottom.toFloat())
-            .translate((window[0] - screen[0]).toFloat(), (window[1] - screen[1]).toFloat())
+            .intersect(insetFrame).translate((window[0] - screen[0]).toFloat(), (window[1] - screen[1]).toFloat())
         return generateSequence(node) { it.parent }.last().boundsInWindow.intersect(native)
     }
 
@@ -230,7 +272,7 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
         compose.waitUntil {
             var ready = false
             compose.runOnUiThread {
-                ready = input.isAcceptingText && requireNotNull(sheetHost.rootWindowInsets)
+                ready = input.isAcceptingText && activeImeAnimations.isEmpty() && requireNotNull(sheetHost.rootWindowInsets)
                     .isVisible(WindowInsets.Type.ime())
             }
             ready
