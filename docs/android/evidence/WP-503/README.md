@@ -1,11 +1,87 @@
 # WP-503 attempt evidence
 
-**Expanded56a0ecf native79: API31 76PASS/3FAIL; API37 live-record repeat73PASS/6FAIL. App-language scopes each2/1PASS/1FAIL with12 naming assertions in one case; actual Chinese/System lifecycle passes. New App/WP407 language238 joins unresolved CLI236 and API31 QR237; four additional unchanged API37 focus/motion failures remain unclassified. Original targeted JVM74/74PASS. All earlier negatives stay retained. PR205/WP503 remain incomplete: producer repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Latest0ff9a71: API31 launcher9/9PASS, full79 INCOMPLETE600s with21 starts/20 outcomes (18PASS/2FAIL); API37 launcher3PASS/6FAIL, full79 77PASS/2FAIL. Full37 does not clear scoped or earlier negatives. Product236/237/238, incomplete native observations, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates. JVM74/74PASS. PR205 stays draft; WP503 is incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native touch-exploration restoration and retained negatives
+
+Executed **0ff9a71218c18ae075bdbd300243bc5e6ff470d5**, Android tree
+**60fc47a9779b0fb464fe6b5266b28fcf02949dc4**. Sole Android delta since
+51c93e90bf87c0578a41f2cd8554c0b23e3f6ea8 is the owned
+NativeLauncherFocusAccessibilityTest.withTouchExploration teardown. It restores
+original UiAutomation flags, requires actual restored AccessibilityManager state
+with the original1000ms wait, and removes its listener in a nested finally.
+All79 original test bodies and all other helpers/producer/build/dependency bytes,
+floors, goldens and WP501/WP504 bindings remain unchanged. Existing combined
+WP3181b2cd/WP311c870/WP3072396/WP313d2ff remains, not standalone producer acceptance.
+[Integration](device-activation-integration.json), [APKs](device-activation-inputs.json).
+App109723777/e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff
+is unchanged; test3393915/4c8699aa9939c9d086c4e6796640d412ddff6c80611f1ef5f8a329d23fcb9c3b.
+
+Installed ext4 snapshot/preflight executes the same declared
+`:app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest`
+command and six original filters/options listed in the language section below:
+**PASS74/74**, original names/both SDK variants, zero failures/errors/skips;
+both APK tasks PASS. Controller validation and portmap1749 PASS. No reproducible
+JVM/hosted result bundle or APK binary is retained.
+
+Actual full command:
+`adb -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Scoped command replaces package selection with
+`-e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest`.
+
+| Exact0ff9 selection | Actual API31 | Actual API37 |
+|---|---|---|
+|Original launcher9|9PASS41.865s|3PASS/6FAIL90.248s|
+|Full package expected79|INCOMPLETE600s:21 unique starts/20 outcomes,18PASS/2FAIL|79 unique starts/79 outcomes,77PASS/2FAIL294.083s|
+|Scope requested/activated/finally/restored counts|7/7/7/7|7/3/7/6|
+|Full requested/activated/finally/restored counts|6/6/5/5 before stall|7/7/7/7|
+
+Full31 ends without a JUnit result/duration. The unfinished identity is
+`NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200`;
+its last observed return size is360x900. The original600s runner guard fails and
+retains partial stdout/live metrics. It does not discover/execute79 cases.
+Language238 and CLI236 are its two failed identities before the stall; QR and
+later cases are not reached. An empty filtered AndroidRuntime:E/System.err:W
+capture establishes neither absence of a crash nor a cause. No producer regression
+or causal teardown effect is established; previous cached-chat stalls remain.
+
+Scope37's failed identities are
+`realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable`,
+`realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions`,
+`realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable`,
+`frameworkControlCanAcquireRealNativeAccessibilityFocus`,
+`realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable`,
+`actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride`.
+Four fail original activation1000ms at853; the default/reduced-motion case fails
+new strict restoration1000ms at865; independent final motion0 fails at444.
+There is no verified full scoped restoration: only6/7 successful restoration logs.
+Later same-device/APK full37 passes launcher9/9/seven restorations, but fails
+language238/CLI236. Its13 JUnit assertion failures are **two failed identities**.
+The complete invocation does not clear scoped negatives or prove a causal fix.
+ElapsedMs logs measure total time since helper entry, not cleanup duration;
+instantaneous matching state does not prove queued system callbacks are drained.
+
+`device-activation-{launcher,full}[-metrics]-api{31,37}.txt` retain all four commands;
+`device-activation-runner-api31.txt` retains the explicit timeout marker.
+Profiles bind actual SDK/AVD and installed hashes to0ff9.
+`device-activation-pre-ready-api37.txt` preserves first setup's transport-offline
+failure after boot reports1 at156s; no tests ran then. One later full readiness
+invocation succeeds on the same owned device before scope37. No failing test
+case was retried until green, and full37 is labelled separately, not substituted.
+
+Sequential actual AOSP31/x86_64/4KiB/noGMS and PlayStore37.2/x86_64/16KiB/GMS,
+360x900/mdpi160/font2/decorRTL/animation0; original300s boot/600s instrumentation
+guards. Both owned emulator processes exit0. Exactly four named phase image/qcow
+files are removed after exit; final adb list is empty, no shared restart/wipe.
+Record-integrity validation explicitly checks the partial31 outcome and six failed
+scope37 identities; it is **not** mandatory native acceptance. Product236/237/238,
+physical TalkBack, remaining matrix/WP502 goldens, WP-specific admission and
+independent exact-head review remain gates. PR205 stays draft.
 
 ## Native app-language selection and lifecycle
 

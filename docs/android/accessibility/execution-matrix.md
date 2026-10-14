@@ -1,6 +1,30 @@
 # WP-503 native execution matrix
 
-**Latest56a0ecf native79: API31 76PASS/3FAIL; API37 live-record repeat73PASS/6FAIL. App-language scopes each2/1PASS/1FAIL, with12 naming assertions in one case; real Chinese/System lifecycle passes. JVM74/74PASS. New App/WP407 language238, CLI236 and API31 QR237 remain product blockers; four additional unchanged API37 focus/motion failures remain unclassified. All earlier negatives remain retained. WP503 is incomplete: producer repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Latest0ff9a71: API31 original launcher9/9PASS, full79 INCOMPLETE600s with21 starts/20 outcomes (18PASS/2FAIL); API37 launcher3PASS/6FAIL, full79 77PASS/2FAIL. Later full37 does not clear its scoped negatives or earlier failures. JVM74/74PASS. Product236/237/238, incomplete native observations, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+
+## Native touch-exploration restoration and retained negatives
+
+Exact0ff9a71218c18ae075bdbd300243bc5e6ff470d5/Android tree
+60fc47a9779b0fb464fe6b5266b28fcf02949dc4 preserves all79 test bodies.
+Only the owned helper requires actual original service flags/restored manager state
+before return; original1000ms waits and producer/build/dependency bytes are unchanged.
+
+| Current exact selection | Actual API31 | Actual API37 |
+|---|---|---|
+|Original launcher9|9PASS41.865s|3PASS/6FAIL90.248s|
+|Full package, expected79|INCOMPLETE600s:21 starts/20 outcomes,18PASS/2FAIL|79 starts/79 outcomes,77PASS/2FAIL294.083s|
+|Requested/activated/restored touch states, scope|7/7/7|7/3/6|
+|Requested/activated/restored touch states, full|6/6/5 before cached-chat stall|7/7/7|
+
+Current31 never finishes cached-chat recreation; no final JUnit duration/result.
+Later QR/other cases are not credited from earlier APKs. Current37 scope fails
+four activation1000ms waits, strict restoration1000ms in the default/reduced-motion
+case and independent final motion0 observation. Its later full run passes all
+launcher9 but cannot erase scoped negatives or prove a cause. Language238/CLI236
+are the two failing identities in each full invocation; only37 is complete.
+Initial37 pre-test setup goes offline and is retained; one later readiness succeeds
+before tests. No retries of failing cases, floor/deadline changes or product edits.
+[Inputs/native records and qualifications](../evidence/WP-503/README.md#native-touch-exploration-restoration-and-retained-negatives).
 
 ## Native app-language selection and lifecycle
 

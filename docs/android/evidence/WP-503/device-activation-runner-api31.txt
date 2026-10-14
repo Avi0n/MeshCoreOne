@@ -1,0 +1,3 @@
+WP503_EXECUTED_INPUT|0ff9a71218c18ae075bdbd300243bc5e6ff470d5
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_TIMEOUT|outerSeconds=600|partialStdoutPersisted=true|result=INCOMPLETE_NOT_PASS

@@ -1,9 +1,31 @@
 # WP-503 accessibility audit
 
-**Status: expanded56a0ecf native79: API31 76PASS/3FAIL; API37 live-record repeat73PASS/6FAIL. App-language scopes each discover2/pass1/fail1: twelve missing named-selection assertions in one case. New WP407 App-language238 joins unresolved WP316 CLI236 and WP311 API31 QR237; four additional unchanged API37 focus/motion cases fail and remain unclassified. Original targeted JVM74/74PASS. Earlier negatives remain retained. PR205 stays draft: producer repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Status: exact0ff9a71 restoration audit: API31 launcher9/9PASS, full79 INCOMPLETE600s (21 starts/20 outcomes:18PASS/2FAIL); API37 launcher3PASS/6FAIL, full79 77PASS/2FAIL. Full37 does not clear its scoped activation/restoration/motion negatives or predecessor failures. CLI236, QR237 and language238 remain product gates. JVM74/74PASS. PR205 stays draft; producer repairs, incomplete native observations, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native touch-exploration restoration and retained negatives
+
+Executed0ff9a71218c18ae075bdbd300243bc5e6ff470d5/Android tree
+60fc47a9779b0fb464fe6b5266b28fcf02949dc4 changes only the owned
+withTouchExploration teardown: restore original service flags and require the
+actual AccessibilityManager state before returning, with listener removal even
+on failure. All79 test bodies, producer bytes, floors and original1000ms waits
+remain unchanged. Matching instantaneous state does not prove queued callbacks
+are drained or establish the cause of earlier focus failures.
+
+Actual31 original launcher **9/9PASS41.865s**, seven strict restorations.
+Full31 is **INCOMPLETE at600s** during unchanged cached-chat recreation:
+21 starts/20 outcomes,18PASS/2FAIL, one unfinished identity; not79 executed.
+Actual37 original launcher **3PASS/6FAIL90.248s**: four activation timeouts,
+one strict teardown timeout and the independent final motion0 timeout. Six of
+seven requested restorations are observed. Later same-APK full37 completes
+**79/77PASS/2FAIL294.083s**, including launcher9/9 and seven restorations, but
+does not clear the scoped negatives. Language238 and CLI236 fail both full
+commands before31 stalls; QR237 remains an earlier31 gate, not a new31 result.
+No product repair or causal resolution is claimed.
+[Exact commands, partial-record accounting and source/APKs](../evidence/WP-503/README.md#native-touch-exploration-restoration-and-retained-negatives).
 
 ## Native app-language selection and lifecycle
 
