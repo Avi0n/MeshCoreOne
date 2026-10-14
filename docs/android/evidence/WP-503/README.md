@@ -65,8 +65,9 @@ Raw [31 instrumentation](device-launcherrest-flows-api31.txt)/
 independently read, unchanged original2048/4096MiB enforced RAM, same installed
 AOSP31/PlayStore37.2 images and360x900/mdpi/font2/RTL/motion0/hardwareIME1.
 Fresh sequential isolated devices, one invocation each; both exit0 before exact
-four image/qcow paths removed, final adb empty. No installs/new workers/shared
-AVD edit, retry-until-green, causal/source/primary-profile repair or gate closure.
+four image/qcow paths removed, final adb empty. Only the existing source-bound
+app/test APKs installed; no SDK/image/dependency installs, new workers/shared AVD
+edit, retry-until-green, causal/source/primary-profile repair or gate closure.
 
 Earlier window pair2 and these disjoint seven cover nine distinct method
 identities in separate invocations, **not a new single9-case/full79 run or
