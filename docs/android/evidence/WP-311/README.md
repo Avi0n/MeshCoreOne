@@ -170,4 +170,8 @@ Command (from `android/`):
 
 Result: command exited 0; strict scaffold dependency resolution and all selected node tests completed
 successfully. JUnit XML records 47 tests, 47 passed, 0 failed, 0 errors, 0 skipped. This is local
-evidence only; a new exact-head hosted run is required to verify the lock repair.
+evidence only. Exact-head hosted run `38509337209` for
+`86d1692f71f703a62a316d43e904afce981b3547` then passed the Linux Android build (including strict
+scaffold dependency resolution), candidate classification, controller/workflow policy, required
+checklist and `android-ci`; both hosted Swift oracle jobs also passed. GitHub's exact-head result and
+log are authoritative; no duplicate CI bundle is retained.
