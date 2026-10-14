@@ -14,7 +14,6 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -164,11 +163,11 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
                     )
                 }
             }
-            compose.waitForIdle()
-            onView(isViewRoot()).inRoot(isDialog()).check { view, missing ->
-                if (missing != null) throw missing
-                sheetHost = requireNotNull(view)
-            }
+        }
+        compose.waitForIdle()
+        onView(isViewRoot()).inRoot(isDialog()).check { view, missing ->
+            if (missing != null) throw missing
+            sheetHost = requireNotNull(view)
         }
     }
 
