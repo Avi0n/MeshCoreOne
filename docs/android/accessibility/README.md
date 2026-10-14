@@ -1,9 +1,32 @@
 # WP-503 accessibility audit
 
-**Status: expanded9bac native69: API31 67PASS/2FAIL; API37 clean-data run68PASS/1FAIL. Original targeted JVM74/74PASS. WP316 CLI defect236 and WP311 API31 QR defect237 remain unresolved. A same-head API37 timeout and contaminated retry are retained, not superseded by the completing run. PR205 stays draft: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Status: expanded1c867 native72: API31 70PASS/2FAIL; API37 71PASS/1FAIL. New room authentication3/3PASS on both actual APIs; original targeted JVM74/74PASS. WP316 CLI236 and WP311 API31 QR237 remain unresolved. Earlier negatives remain retained. PR205 stays draft: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native room authentication and modal reachability
+
+Executed1c867710ccb0cc7c62a7b584568be958b380640f, Android tree
+277a3db87ad543786192d5f6caa5cf0689832f0b, adds three actual production
+RoomAuthenticationSheet flows; the previous69 native fixtures/oracles and all
+producer/build/dependency files are unchanged. Known-room password masking,
+Remember on/off, exact Join UI callback, loading-to-not-found recovery, disabled
+pending Join/no duplicate submission and named Cancel UI dismissal are asserted.
+These are deterministic UI ports, not real room login, state-holder cancellation
+or WP501 password/parity accounting.
+
+Actual scoped31 **3/3PASS8.675s**,37 **3/3PASS16.865s**; complete31
+**72/70PASS/2FAIL150.399s**,37 **72/71PASS/1FAIL195.588s**, zero error/skip
+statuses. Only existing CLI236/both APIs and QR237/31 fail. Actual dialog metrics,
+safe IME/system-bar/cutout insets and visible frame bound every measured label/target.
+At font2/RTL, native keyboard remains visible while Remember328x49, Join328x54 and
+Cancel104x54dp are fully contained. On31 the actual named **Expand bottom sheet**
+action exposes the controls above the389px IME;37 needs no expansion above its299px
+IME. The first31 clipped states did not establish a product defect before trying
+this existing non-gesture recovery. All initial observer negatives/screenshots stay
+bound to their own inputs; no new product defect or causal IME fix is claimed.
+[Exact native records and qualifications](../evidence/WP-503/README.md#native-room-authentication-and-modal-reachability).
 
 ## Native backup, Nodes and font controls
 

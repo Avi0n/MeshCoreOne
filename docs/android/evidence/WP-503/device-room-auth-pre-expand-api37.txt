@@ -1,0 +1,75 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest:
+INSTRUMENTATION_STATUS: test=unresolvedRoomLookupBecomesReadableNotFoundAndCancelDismissesWithoutJoining
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=unresolvedRoomLookupBecomesReadableNotFoundAndCancelDismissesWithoutJoining
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stack=androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.awaitActualIme(NativeRoomAuthenticationAccessibilityTest.kt:272)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(NativeRoomAuthenticationAccessibilityTest.kt:133)
+
+INSTRUMENTATION_STATUS: stream=
+Error in knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.awaitActualIme(NativeRoomAuthenticationAccessibilityTest.kt:272)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(NativeRoomAuthenticationAccessibilityTest.kt:133)
+
+INSTRUMENTATION_STATUS: test=knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 42.655
+There was 1 failure:
+1) knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.awaitActualIme(NativeRoomAuthenticationAccessibilityTest.kt:272)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(NativeRoomAuthenticationAccessibilityTest.kt:133)
+
+FAILURES!!!
+Tests run: 3,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

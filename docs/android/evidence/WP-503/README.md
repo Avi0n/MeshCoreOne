@@ -1,11 +1,93 @@
 # WP-503 attempt evidence
 
-**Expanded9bac native69: API31 67PASS/2FAIL; clean-data API37 68PASS/1FAIL. Original targeted JVM74/74PASS. CLI236 and API31 QR237 remain unresolved. Same-head37 timeout/unclean retry remain negative evidence. PR205/WP503 stay incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Expanded1c867 native72: API31 70PASS/2FAIL; API37 71PASS/1FAIL. New room authentication3/3PASS on both actual APIs; original targeted JVM74/74PASS. CLI236 and API31 QR237 remain unresolved. All earlier negatives stay retained. PR205/WP503 remain incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native room authentication and modal reachability
+
+Executed **1c867710ccb0cc7c62a7b584568be958b380640f**, Android tree
+**277a3db87ad543786192d5f6caa5cf0689832f0b**. The sole Android change sincef36
+is the new three-case NativeRoomAuthenticationAccessibilityTest; all previous69
+native fixtures, shared oracles, producer code and build/dependency files are
+byte-identical. Existing combined WP3181b2cd/WP311c870/WP3072396/WP313d2ff remains,
+not standalone producer-head native acceptance.
+[Integration and all historical qualifications](device-room-auth-integration.json),
+[exact APK binding](device-room-auth-inputs.json).
+App109723777/e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff;
+test3318035/64bf7cb004f7f7731355c4782bcde9bfd326dd8dff79d7ee8c2a4dd798fe41e2.
+
+Actual production RoomAuthenticationSheet mounts with deterministic immutable UI
+state/callbacks. Known contact: heading, native masked password, Remember on-to-off,
+real keyboard, exact fixture/remember=false Join callback and named Cancel dismissal.
+Unresolved contact: one initial progress indicator, transition to localized not-found
+title/description, zero remaining indicators/submissions and one named Cancel.
+Pending: disabled named Join does not submit; Remember and Cancel remain reachable.
+Each dismissal restores the actual host. These are not real room authentication,
+state-holder cancellation, password/saved-password/flood/countdown parity or WP501
+bindings. Frozen RoomAuthenticationSheet/NodeAuthenticationSheet remain read-only.
+
+The existing strict Gradle command listed in the next section passes **74/74**,
+zero failures/errors/skips, preserving all six original families/names/both SDK
+variants. Both APK tasks pass. New cases are native-only. An initial7fe compile
+fails on an invalid member-function import;11b removes it and moves platform
+observation outside composition. No native credit to the compile failure.
+No reproducible JVM/hosted-result bundle is retained.
+
+Actual command:
+`adb -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Scoped selection replaces package selection with
+`-e class com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest`.
+
+| Native selection | Actual API31 | Actual API37 |
+|---|---|---|
+|Entire package|72/70PASS/2FAIL150.399s|72/71PASS/1FAIL195.588s|
+|Room authentication|3/3PASS8.675s|3/3PASS16.865s|
+
+All completed commands positively match unique starts and terminal identities;
+zero error/skip statuses. Both full commands fail: CLI236/both APIs, QR237/31.
+Actual stdout/metrics are `device-room-auth-{room,full}[-metrics]-api{31,37}.txt`.
+The profile requires real SDK/font2/RTL/animation0 on sequential360x900/mdpi
+AOSP31/x86_64/4KiB/noGMS and PlayStore37.2/x86_64/16KiB/GMS. The37 provisioning
+transcript explicitly belongs to4b41; its successor exact1c test APK is installed
+with Success before both1c commands. Runtime SDK/font guards run in every case.
+
+### Keyboard, native expansion and retained observer negatives
+
+The observer uses the actual dialog root, not the background Activity. It observes
+public editor focus/accepting-text/visible IME/completed animation before replacement,
+under unchanged1000ms. Callback continues child dispatch/returns insets unchanged and
+is removed. Safe viewport intersects semantic window bounds, legacy visible display
+frame and actual WindowMetrics minus IME/system-bar/cutout insets.
+
+On31 the real389px IME leaves **0,63,360,511**. Actual named **Expand bottom sheet**
+is invoked in known/pending cases, without hiding the keyboard. Remember328x49dp
+at16,314,344,363; Join328x54 at16,375,344,429; Cancel104x54 at16,441,120,495 are
+fully contained. Pending Join stays disabled, callback0; named Cancel dismisses once.
+On37 no Expand is exposed/needed: real299px IME leaves **0,52,360,601**.
+Remember328x49 at16,404,344,453; Join328x54 at16,465,344,519; Cancel104x54
+at16,531,120,585 are fully contained. Exact text layouts retain font2/RTL and zero
+line clipping; no root-size proxy, threshold relaxation or keyboard dismissal.
+
+Five initial cohorts retain their own stdout/metrics/APK bindings:
+11b31 passes3 but full-root containment cannot establish keyboard/bar visibility;
+c7db31 passes2/fails1 with pending Join below the bar while legacy display frame
+still includes the keyboard.4b41 correctly observes two initial31 visibility
+failures (scoped3/1PASS/2FAIL7.051s; full72/68PASS/4FAIL144.855s including CLI/QR),
+but does not yet exercise the exposed native Expand recovery.4b4137 passes2/fails1
+with a1000ms IME prerequisite timeout/IME false. The final setup establishes readiness
+before replacement; it does not prove that earlier timeout's cause.
+
+Three `device-room-auth-pre-expand-*.png` screenshots preserve actual initial
+clipping/readiness states, not approved goldens. API31 Expand recovery means those
+initial clipped states do **not** establish an unreachability product defect; none
+is filed. Existing236/237 remain unchanged assigned producer prerequisites.
+All three owned emulator executions exit0; exactly four owned phase image/qcow files
+are removed and final adb list is empty. No physical TalkBack, full remaining matrix,
+approved golden, WP-specific admission, independent review, merge or WP completion.
 
 ## Native backup Nodes font and IME observation
 

@@ -1,0 +1,83 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_combined_binding": "device-native69-integration.json",
+  "executed_combined_head": "1c867710ccb0cc7c62a7b584568be958b380640f",
+  "executed_android_tree": "277a3db87ad543786192d5f6caa5cf0689832f0b",
+  "apk_binding": "device-room-auth-inputs.json",
+  "only_android_change_since_previous_publication": "accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeRoomAuthenticationAccessibilityTest.kt",
+  "previous_69_native_fixtures_and_shared_oracles_byte_identical": true,
+  "producer_code_build_dependency_fixture_data_floors_deadlines_or_goldens_changed": false,
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "new_native_cases": [
+    "knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200",
+    "unresolvedRoomLookupBecomesReadableNotFoundAndCancelDismissesWithoutJoining",
+    "pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission"
+  ],
+  "native_observation": {
+    "surface": "Actual production RoomAuthenticationSheet with deterministic immutable UI state and callback ports",
+    "window": "Actual native dialog root; intersect semantic window bounds, visible display frame and current WindowMetrics minus actual IME/system-bar/cutout insets",
+    "ime": "Actual public focus, accepting-text, visible IME and no active animation before text replacement; unchanged1000ms wait",
+    "callback": "Continue child dispatch, return unchanged insets, remove owned observer",
+    "recovery": "Invoke the actual named non-gesture Expand action when exposed; no keyboard hiding, injected inset or assertion bypass",
+    "api31": "Expand bottom sheet invoked in known/pending states; actual IME389px; viewport0,63,360,511",
+    "api37": "No Expand exposed/needed; actual IME299px; viewport0,52,360,601",
+    "after_keyboard_targets_dp": {"remember": [328, 49], "join": [328, 54], "cancel": [104, 54]},
+    "known_submission": "Exactly fixture/remember=false; one UI dismissal",
+    "not_found_and_pending": "Zero submissions; one named Cancel UI dismissal each"
+  },
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "both_original_sdk_variants_and_names_preserved": true,
+    "app_and_instrumentation_assembly": "PASS"
+  },
+  "native_api31": {
+    "room": {"discovered": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0, "seconds": 8.675},
+    "full": {"discovered": 72, "passed": 70, "failed": 2, "errors": 0, "skipped": 0, "seconds": 150.399},
+    "failed_identities": ["NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal", "NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"],
+    "profile": "device-room-auth-profile-api31.txt"
+  },
+  "native_api37": {
+    "room": {"discovered": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0, "seconds": 16.865},
+    "full": {"discovered": 72, "passed": 71, "failed": 1, "errors": 0, "skipped": 0, "seconds": 195.588},
+    "failed_identity": "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+    "initial_provision_record": "device-room-auth-provision-api37.txt",
+    "initial_provision_head": "4b41bc1998decf1912065d4e3bc08f4201ae674c",
+    "successor_test_apk_install": "adb -s emulator-5714 install -r SESSION_FILES\\wp503-device-test.apk -> Success before both exact1c executions",
+    "each_execution_independently_requires_actual_sdk_and_runtime_font2": true
+  },
+  "historical_cohorts": [
+    {"binding": "device-room-auth-pre-viewport-inputs.json", "record": "device-room-auth-pre-viewport-api31.txt", "discovered": 3, "passed": 3, "failed": 0, "seconds": 8.695, "qualification": "Full semantic-root containment alone did not prove keyboard/system-bar visibility; not final reachability acceptance"},
+    {"binding": "device-room-auth-pre-insets-inputs.json", "record": "device-room-auth-pre-insets-api31.txt", "discovered": 3, "passed": 2, "failed": 1, "seconds": 6.991, "qualification": "Legacy visible display frame excludes bars but can include the keyboard; pending Join clips; native Expand not yet exercised"},
+    {"binding": "device-room-auth-pre-expand-inputs.json", "record": "device-room-auth-pre-expand-api31.txt", "discovered": 3, "passed": 1, "failed": 2, "seconds": 7.051, "qualification": "Actual safe frame rejects keyboard-covered Remember and bar-covered pending Join before exposed native Expand recovery"},
+    {"binding": "device-room-auth-pre-expand-inputs.json", "record": "device-room-auth-pre-expand-full-api31.txt", "discovered": 72, "passed": 68, "failed": 4, "seconds": 144.855, "qualification": "Same two initial room visibility assertions plus existing CLI236/QR237; not product unreachability proof before trying native Expand"},
+    {"binding": "device-room-auth-pre-expand-inputs.json", "record": "device-room-auth-pre-expand-api37.txt", "discovered": 3, "passed": 2, "failed": 1, "seconds": 42.655, "qualification": "Known room1000ms IME prerequisite timeout; actual dialog IME false; earlier cause not proven"}
+  ],
+  "historical_screenshots": {
+    "device-room-auth-pre-expand-known-api31.png": "4b41 room keyboard obscures lower controls before native Expand",
+    "device-room-auth-pre-expand-pending-api31.png": "4b41 pending sheet lower controls overlap navigation bars before native Expand",
+    "device-room-auth-pre-expand-known-api37.png": "4b41 IME readiness failure, not native product-unreachability proof",
+    "approved_goldens": false
+  },
+  "product_blockers": [{"issue": 236, "owner": "WP-316"}, {"issue": 237, "owner": "WP-311", "api": 31}],
+  "new_room_product_defect_claimed": false,
+  "real_room_login_holder_cancellation_password_parity_or_radio_acceptance": false,
+  "standalone_producer_head_native_execution": false,
+  "physical_talkback_approved_goldens_full_matrix_acceptance_or_independent_review": false,
+  "all_three_owned_emulator_executions_exited_zero": true,
+  "exact_four_owned_phase_images_removed": true,
+  "final_adb_device_list_empty": true,
+  "merge_self_approval_or_wp_completion": false
+}

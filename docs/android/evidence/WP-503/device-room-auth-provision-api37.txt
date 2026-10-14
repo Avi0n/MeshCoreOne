@@ -1,0 +1,45 @@
+WP503_ROOM_BOOT|api=37|elapsed=0|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=5|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=10|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=15|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=20|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=25|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=30|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=35|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=40|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=45|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=51|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=56|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=61|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=66|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=71|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=76|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=81|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=86|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=91|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=96|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=101|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=106|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=111|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=116|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=121|exit=1|stdout=|stderr=adb.exe: device offline
+WP503_ROOM_BOOT|api=37|elapsed=126|exit=0|stdout=1|stderr=
+WP503_ROOM_PROFILE|command=('shell', 'getprop', 'ro.build.version.sdk')|stdout=37
+WP503_ROOM_PROFILE|command=('shell', 'wm', 'size', '360x900')|stdout=
+WP503_ROOM_PROFILE|command=('shell', 'wm', 'density', '160')|stdout=
+WP503_ROOM_PROFILE|command=('shell', 'settings', 'put', 'system', 'font_scale', '2.0')|stdout=
+WP503_ROOM_PROFILE|command=('shell', 'settings', 'put', 'global', 'window_animation_scale', '0')|stdout=
+WP503_ROOM_PROFILE|command=('shell', 'settings', 'put', 'global', 'transition_animation_scale', '0')|stdout=
+WP503_ROOM_PROFILE|command=('shell', 'settings', 'put', 'global', 'animator_duration_scale', '0')|stdout=
+WP503_ROOM_PROFILE|command=('shell', 'settings', 'put', 'secure', 'show_ime_with_hard_keyboard', '1')|stdout=
+WP503_ROOM_PROFILE|command=('shell', 'input', 'keyevent', '82')|stdout=
+WP503_ROOM_PROFILE|command=('shell', 'settings', 'get', 'system', 'font_scale')|stdout=2.0
+WP503_ROOM_PROFILE|command=('shell', 'wm', 'size')|stdout=Physical size: 1344x2992
+Override size: 360x900
+WP503_ROOM_PROFILE|command=('shell', 'wm', 'density')|stdout=Physical density: 480
+Override density: 160
+WP503_ROOM_PROFILE|command=('install', '-r', 'C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-device-app.apk')|stdout=Performing Streamed Install
+Success
+WP503_ROOM_PROFILE|command=('install', '-r', 'C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-device-test.apk')|stdout=Performing Streamed Install
+Success
+WP503_ROOM_READY|api=37|input=4b41bc1998decf1912065d4e3bc08f4201ae674c

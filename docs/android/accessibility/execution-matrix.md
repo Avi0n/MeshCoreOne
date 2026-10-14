@@ -1,6 +1,28 @@
 # WP-503 native execution matrix
 
-**Latest9bac native69: API31 67PASS/2FAIL; clean-data API37 68PASS/1FAIL. JVM74/74PASS. CLI236 and API31 QR237 remain product blockers. Same-head37 timeout/contaminated retry remain negative evidence. WP503 is incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Latest1c867 native72: API31 70PASS/2FAIL; API37 71PASS/1FAIL. Room authentication3/3PASS on both actual APIs; JVM74/74PASS. CLI236 and API31 QR237 remain product blockers. All earlier negatives remain retained. WP503 is incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+
+## Native room authentication
+
+Exact1c867710ccb0cc7c62a7b584568be958b380640f/Android tree
+277a3db87ad543786192d5f6caa5cf0689832f0b retains all original69 fixtures,
+shared oracles and exact combined producers unchanged.
+
+| Native selection | API31 | API37 |
+|---|---|---|
+|Full72|70PASS/2FAIL150.399s|71PASS/1FAIL195.588s|
+|New room authentication3|3PASS8.675s|3PASS16.865s|
+
+Zero error/skip statuses; positive unique starts/matching terminal identities.
+Only CLI236/both APIs and QR237/31 fail. Real modal windows, font2/RTL, actual
+stable IME, native safe bounds and contained48dp actions are observed. Known-room
+password/Remember/Join/Cancel, loading-to-not-found and pending/no-duplicate/Cancel
+use immutable UI state/callback ports, not radio login, holder cancellation or
+password parity.31 invokes its exposed named native Expand action before final
+strict reachability;37 already exposes the controls without expansion. No keyboard
+hiding, changed insets, timeout increase, floor relaxation or new product defect.
+Five earlier cohorts and three diagnostic screenshots retain their own bindings.
+[Exact native records](../evidence/WP-503/README.md#native-room-authentication-and-modal-reachability).
 
 ## Expanded69 native execution
 
@@ -532,7 +554,7 @@ reduce those contrast pairs or the required 200%-font flow states.
 | Shell: Chats, Nodes, Map, Tools, Settings; unread zero/overflow; compact/rail/list-detail | Tab role/selection/label, unread value once, heading, effective targets; resize retains stacks/detail/draft; reduced-motion transitions and native Back | Logical tab-to-content traversal, selected tab announcement, focus restoration on Back/resize, hidden badge not announced twice |
 | Onboarding: scan/pairing, BLE/LAN permission denial, WiFi failure, setup sheets | Meaningful status/recovery labels, non-color failure text, 48dp actions; 200% labels and sheet controls remain reachable; denial does not disable cached navigation | Permission-dialog return focus, retry/cancel focus, keyboard Next/Done/Back and sheet dismissal |
 | Direct/channel chat: cached/offline/empty, unread/day grouping, pending/delivered/failed retry, pagination | Per-message label/status, headings, named link actions, actual retry/send callbacks; all emitted spans versus painted surfaces; composer targets and 200% CJK/RTL/IME layout | Individual-message order, no whole-chat announcement on arrival, link/retry access, composer focus and menu/sheet return |
-| Rooms: cluster-start/follow-up, sending/sent/failed, guest/read-only/disconnected, authentication | Author on each incoming row, outgoing status once, failed-only retry, open-link actions, labelled remember switch; sheet/body at 200% | Sender context when entering mid-cluster, authentication focus and switch purpose/state, non-gesture retry/link action |
+| Rooms: cluster-start/follow-up, sending/sent/failed, guest/read-only/disconnected, authentication | Author on each incoming row, outgoing status once, failed-only retry, open-link actions, labelled remember switch; known/pending/not-found UI states, native keyboard/Expand recovery, exact Join/Cancel UI callbacks and sheet/body at 200% | Sender context when entering mid-cluster, authentication focus and switch purpose/state, non-gesture retry/link action |
 | Nodes: list/search/filter/sort, discovery, detail, edit/share/delete | Filter selection, row/action labels, destructive confirmation, status text; effective row/menu targets; long/CJK names at 200% | Detail/Back focus, non-swipe action access, dialog cancellation and selection order |
 | Map: populated/filter/list/selected marker, empty/offline/download/error | Non-gesture marker-list selection with coordinates, filter selection, progress/error text; control rows/list/callout at 200% | Map-to-list traversal, marker access without dragging, callout and offline panel entry/return focus |
 | Tools: CLI, Rx log, noise-floor empty/running/stopped/error; LoS clear/blocked/relay | Labels and enabled/selected state, data-bound graph summaries/numeric alternatives, keyboard/non-gesture controls; semantic status versus color; 200% long metrics | Access to meaningful readings/clearance, no unreadable chart-only state, result/terminal focus and keyboard operation |
@@ -567,7 +589,8 @@ counts from the admitted runner; missing, malformed or zero-test output must fai
 ## Device evidence record
 
 Actual automated Android31/37 emulator records are retained under WP503 evidence,
-including the current negative Map List cases. No physical TalkBack record exists.
+including historical negative Map List cases and their later exact repaired-flow
+observations. No physical TalkBack record exists.
 When available, retain only necessary
 non-reproducible evidence: exact APK commit, API/device class, TalkBack version, font/locale/
 window/animation settings, tested state/action, expected/observed result, sanitized screenshot
