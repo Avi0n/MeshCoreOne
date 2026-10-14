@@ -65,6 +65,20 @@ The exact-head candidate then found the merged `platform-widgets` lock lacked re
 memberships. Canonical lock generation produced the same support-file bytes already present on open
 WP-314 PR #157; this repair carries only that shared lock state and none of WP-314's product changes.
 
+### Native screen-level follow-up regressions
+
+Command (from `android/` in PowerShell):
+`.\gradlew.bat resolveScaffoldDependencies :feature:nodes:testDebugUnitTest --tests '*DiscoveryNativeTest' --tests '*DiscoveryViewModelTest' --tests '*ContactDetailNativeTest' --tests '*PathManagementNativeTest' --tests '*ContactPathActionsApi31ComposeTest' --tests '*ContactPathActionsApi37ComposeTest' --tests '*DiscoveryUiApi31ComposeTest' --tests '*DiscoveryUiApi37ComposeTest' --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"`
+
+Result: exit 0; strict dependency resolution passed; JUnit XML contains **49 discovered, 49
+passed, 0 failures, 0 errors, 0 skipped**. The 4 native Compose screen tests ran under Robolectric
+native graphics at API31/API37, `w360dp-h900dp-mdpi`, RTL and 200% font scale. The disconnected
+Discovery screen test seeds the known radio's offline store, verifies the cached node is visible
+and no progress indicator or contact/radio action remains, and checks Add/Remove are visible with
+at least 48dp targets. The Contact Detail test scrolls to Discover/Edit/Reset Path and verifies
+visible bounds and enabled 48dp targets at both APIs. The other 45 tests cover discovery holder,
+contact detail and path management behavior. `git diff --check` passed.
+
 The Gradle tasks also ran the repository localization/theme/notice checks. Their observed
 sub-suites were 74 localization converter tests, 22 theme converter tests and 4 theme-notice
 tests, all passing. These are supporting checks, not additional WP-311 acceptance counts.
@@ -147,14 +161,14 @@ Result: BUILD SUCCESSFUL; 2 discovered, 2 passed, 0 failed, 0 errors, 0 skipped 
 
 The supplied WP-503 Compose selectors, including
 `offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner` and its Reset Path
-`assertIsDisplayed` test, were not present in this worktree and are not claimed as rerun. An
-exploratory screen-level discovery test using this local Robolectric harness timed out at both APIs
-with its loading indicator still present; that harness result is not a pass and does not supersede
-the 45 state-holder/native tests above. Therefore #226 lacks verified screen-level acceptance
-evidence and remains blocked pending a stable, exact UI regression. The manifest still declares no
-WP-311 verification command or trusted check identity; local Gradle results are not represented as
-controller/CI gate evidence. No emulator/device, hardware, iOS, signing or release evidence is
-claimed.
+`assertIsDisplayed` test, were not present in this worktree and are not claimed as rerun. The
+candidate adds its own native screen-level regressions at the required APIs and viewport; those
+assert equivalent #226/#228 outcomes without claiming the absent selector identities. An earlier
+exploratory version using virtual-looper-only waiting timed out at both APIs; the final harness
+uses bounded polling and drains the main looper before/after each activity, and the final tests
+pass. See the final combined result above. The manifest still declares no WP-311 verification
+command or trusted check identity; local Gradle results are not represented as controller/CI gate
+evidence. No emulator/device, hardware, iOS, signing or release evidence is claimed.
 
 ### Exact-head dependency-lock repair
 

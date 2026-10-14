@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.l10n.generated.AppContactsStrings as C
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.ContactType
@@ -51,11 +52,22 @@ class ContactPathActionsApi31ComposeTest : NodesScreensComposeTestBase.ContactPa
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ContactPathActionsApi37ComposeTest : NodesScreensComposeTestBase.ContactPathActionsComposeTestBase()
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [31], qualifiers = "w360dp-h900dp-mdpi")
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+class DiscoveryUiApi31ComposeTest : NodesScreensComposeTestBase.DiscoveryScreenComposeTestBase()
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [37], qualifiers = "w360dp-h900dp-mdpi")
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+class DiscoveryUiApi37ComposeTest : NodesScreensComposeTestBase.DiscoveryScreenComposeTestBase()
+
 abstract class NodesScreensComposeTestBase {
     protected lateinit var controller: ActivityController<ComponentActivity>
 
     @Before
     fun attachHost() {
+        idleMainLooper()
         controller = Robolectric.buildActivity(ComponentActivity::class.java).setup().visible()
         controller.get().actionBar?.hide()
         controller.windowFocusChanged(true)
@@ -65,6 +77,7 @@ abstract class NodesScreensComposeTestBase {
     fun disposeHost() {
         controller.windowFocusChanged(false)
         controller.pause().stop().destroy()
+        idleMainLooper()
     }
 
     protected fun mount(content: @Composable () -> Unit) {
@@ -108,6 +121,30 @@ abstract class NodesScreensComposeTestBase {
                 "target=${lastNode?.boundsInRoot}, scrollResult=$lastScrollResult, " +
                 "scrollState=$scrollState, " +
                 "nodes=${allSemanticsNodes().joinToString { "${nodeText(it)}@${it.boundsInRoot}" }}",
+        )
+    }
+
+    protected fun awaitText(text: String): SemanticsNode {
+        repeat(100) {
+            Thread.sleep(10)
+            advanceFrames()
+            allSemanticsNodes().firstOrNull { nodeText(it).contains(text) }?.let { return it }
+        }
+        error(
+            "Timed out waiting for '$text': " +
+                allSemanticsNodes().joinToString { "${nodeText(it)}@${it.boundsInRoot}" },
+        )
+    }
+
+    protected fun awaitAction(label: String): SemanticsNode {
+        repeat(100) {
+            Thread.sleep(10)
+            advanceFrames()
+            actionNode(label)?.let { return it }
+        }
+        error(
+            "Timed out waiting for action '$label': " +
+                allSemanticsNodes().joinToString { "${nodeText(it)}@${it.boundsInRoot}" },
         )
     }
 
@@ -158,7 +195,11 @@ abstract class NodesScreensComposeTestBase {
 
     private fun advanceFrames() {
         controller.get().runOnUiThread { Snapshot.sendApplyNotifications() }
-        repeat(3) {
+        idleMainLooper()
+    }
+
+    private fun idleMainLooper() {
+        repeat(6) {
             Shadows.shadowOf(Looper.getMainLooper()).idle()
             Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(16))
         }
@@ -189,6 +230,34 @@ abstract class NodesScreensComposeTestBase {
                     assertTrue(action.boundsInRoot.height / currentDensity() >= 48f, "$label must retain a 48dp target")
                     assertFalse(action.config.contains(SemanticsProperties.Disabled), "$label must remain enabled")
                 }
+        }
+    }
+
+    abstract class DiscoveryScreenComposeTestBase : NodesScreensComposeTestBase() {
+        @Test
+        fun disconnectedDiscoveryShowsCachedOfflineResultInsteadOfProgress() {
+            val harness = Harness().connect()
+            val radio = checkNotNull(harness.session.radioId)
+            harness.store.discovered += Fixtures.node(radioId = radio, name = "Cached offline node")
+            harness.session.state = DeviceConnectionState.DISCONNECTED
+            harness.session.device = null
+
+            mount { DiscoveryScreen(harness.dependencies) }
+
+            assertTrue(isDisplayed(awaitText("Cached offline node")))
+            assertFalse(
+                allSemanticsNodes().any { it.config.contains(SemanticsProperties.ProgressBarRangeInfo) },
+            )
+            assertTrue(harness.contactService.calls.isEmpty())
+            assertTrue(harness.adverts.syncingFlags.isEmpty())
+            assertTrue(harness.trace.sent.isEmpty())
+
+            val context = controller.get()
+            listOf(C.contactsDiscoveryAdd, C.contactsDiscoveryRemove).map(context::getString).forEach { label ->
+                val action = awaitAction(label)
+                assertTrue(isDisplayed(action), "$label must remain visible at 200% font scale")
+                assertTrue(action.boundsInRoot.height / currentDensity() >= 48f, "$label must retain a 48dp target")
+            }
         }
     }
 }
