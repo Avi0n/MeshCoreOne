@@ -1,11 +1,84 @@
 # WP-503 attempt evidence
 
-**Expanded34c222 native75: API31 73PASS/2FAIL; API37 74PASS/1FAIL. New offline-map3/3PASS on both actual APIs; original targeted JVM74/74PASS. CLI236 and API31 QR237 remain unresolved. All earlier negatives stay retained. PR205/WP503 remain incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Expanded0229e4e native77: API31 75PASS/2FAIL; API37 76PASS/1FAIL. New process-backed Settings notices2/2PASS on both actual APIs; original targeted JVM74/74PASS. CLI236 and API31 QR237 remain unresolved. All earlier negatives stay retained. PR205/WP503 remain incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native process-backed About and packaged notices
+
+Executed **0229e4eaad402dab44af06d0c4b0c5347831e5e0**, Android tree
+**d7f7f4352e7a2898e2d0f55912e464390e289c8b**. The sole Android change since
+published e2e9b95261cd6f1a6d6eb5685c756df80d5ec976 is the new two-case
+NativeSettingsNoticesAccessibilityTest. All previous75 native fixtures/shared
+oracles and producer/build/dependency files are byte-identical; no App wiring,
+golden, threshold, deadline, source pin or WP501 binding changes. Existing combined
+WP3181b2cd/WP311c870/WP3072396/WP313d2ff remains, not standalone-head acceptance.
+[Exact integration](device-notices-integration.json), [APK binding](device-notices-inputs.json).
+App109723777/e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff
+is byte-identical to the previous75;
+test3367679/94f5cab9ba3795565305705abdc45b22c84685399554d0f32550334f0cbafd38.
+
+The actual MainActivity and MeshCoreApplication process graph are used without
+replacing content or dependencies. Public Settings/About/Licenses actions expose
+all18 actual packaged rows. All four external links produce their exact native
+ACTION_VIEW URI intent; an owned Instrumentation ActivityMonitor intercepts it
+without opening a browser, consumes every captured intent and is removed. Support
+and Feedback rows are measured, not credited as new navigated feature coverage.
+
+The complete native Text must match each actual GPL/MeshCore asset. Existing strict
+font/layout oracles enforce actual system font2, RTL, nonempty/unellipsized/unclipped
+lines. A batch of fully visible lines is checked against the real native safe-window
+and lazy viewport; the actual public ScrollBy action advances to the next unread
+line. Every2359 GPL and78 MeshCore line is covered in consecutive observed windows,
+not just the first and last line. GPL uses295 windows on31/236 on37; MeshCore uses
+10/8. Native Back returns GPL to catalog, named Done returns MeshCore to catalog and
+then Settings; disconnected process state and independent tab stacks are unchanged.
+Each scope/full command measures **39/39 contained48dp targets**. Examples on31:
+About360x54dp, links328x48, long DataStore notice328x92. This is not legal approval,
+external browser behavior, physical TalkBack or the full theme/window matrix.
+
+Declared strict command:
+`:app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeBackupAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeNodesAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeFontAuditRegressionTest.* --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
+Installed serialized ext4 snapshot/preflight passes; both APK tasks pass and
+original targeted JVM **74/74PASS**, zero failures/errors/skips, original names/both
+SDK variants. New cases are native-only. Trusted
+`python tools\android-port\controller\validate.py` and
+`python tools\android-port\portmap.py` pass with unchanged manifest/1748 mappings.
+Exact source/APK/tree, previous75 byte-preservation, positive native discovery,
+consecutive line-window and actual target bounds guards pass. Traceability/scaffold
+runners do not self-admit WP acceptance. No reproducible hosted/JVM bundle retained.
+
+Actual command:
+`adb -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Scoped selection replaces package selection with
+`-e class com.meshcoreone.android.accessibility.NativeSettingsNoticesAccessibilityTest`.
+
+| Native selection | Actual API31 | Actual API37 |
+|---|---|---|
+|Entire package|77/75PASS/2FAIL180.357s|77/76PASS/1FAIL314.749s|
+|New process-backed Settings notices|2/2PASS34.318s|2/2PASS70.342s|
+
+Unique positive starts/matching terminal identities, zero error/skip statuses.
+Only existing CLI236/both APIs and QR237/31 fail; both full commands fail. All new
+notices, original room/offline and existing repaired native cases pass inside both
+full commands. Actual stdout/metrics:
+`device-notices-{scope,full}[-metrics]-api{31,37}.txt`; profile/install records:
+`device-notices-profile-api{31,37}.txt`. Sequential owned AOSP31/x86_64/4KiB/noGMS
+and PlayStore37.2/x86_64/16KiB/GMS, 360x900/mdpi/font2/decorRTL/animation0.37 first
+reports adb offline, then becomes boot-ready within the unchanged300s guard
+(146s observed); no shared adb restart, wipe or substituted API.
+
+Initial c9a3b5e64cd0bfccebf555ef1220a178e6cba7cd native31
+**2/0PASS/2FAIL8.6s** remains in `device-notices-pre-lazy[-metrics]-api31.txt`
+with its own `device-notices-pre-lazy-inputs.json`. GPL row is not displayed/absent
+before explicit public lazy traversal. Final code uses ScrollToNode before the
+unchanged strict measurement. No product-unreachability defect is established,
+and no font/target/visibility assertion is relaxed. Earlier75 and older negatives
+remain immutable. Both owned emulators exit0, the exact four phase image/qcow files
+are removed and final adb list is empty. No independent review, merge or WP completion.
 
 ## Native offline-map state and recovery
 

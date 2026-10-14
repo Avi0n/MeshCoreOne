@@ -1,6 +1,30 @@
 # WP-503 native execution matrix
 
-**Latest34c222 native75: API31 73PASS/2FAIL; API37 74PASS/1FAIL. Offline-map3/3PASS on both actual APIs; JVM74/74PASS. CLI236 and API31 QR237 remain product blockers. All earlier negatives remain retained. WP503 is incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Latest0229e4e native77: API31 75PASS/2FAIL; API37 76PASS/1FAIL. Process-backed Settings notices2/2PASS on both actual APIs; JVM74/74PASS. CLI236 and API31 QR237 remain product blockers. All earlier negatives remain retained. WP503 is incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+
+## Native process-backed About and packaged notices
+
+Exact0229e4eaad402dab44af06d0c4b0c5347831e5e0/Android tree
+d7f7f4352e7a2898e2d0f55912e464390e289c8b adds only the new two-case audit
+file under Android; all prior75 fixtures/oracles and producer bytes are unchanged.
+
+| Native selection | API31 | API37 |
+|---|---|---|
+|Full77|75PASS/2FAIL180.357s|76PASS/1FAIL314.749s|
+|New process-backed Settings notices2|2PASS34.318s|2PASS70.342s|
+|GPL2359 lines: consecutive contained reading windows|295|236|
+|MeshCore78 lines: consecutive contained reading windows|10|8|
+
+Positive unique starts/matching terminal identities, zero error/skip statuses.
+Only existing CLI236/both and QR237/31 fail. Actual MainActivity/process graph,
+public About/Licenses actions, all18 packaged rows, four captured actual external
+URI intents, native Back/Done and unchanged tab stacks are observed at font2/RTL.
+Every notice line is read through real non-gesture scrolling, not a first/last-line
+proxy; each scope/full command measures39/39 contained48dp targets. No external
+browser, legal approval, physical TalkBack or whole theme/window matrix claim.
+Initial31 2/2 pre-lazy negatives remain; explicit public ScrollToNode traverses
+off-screen rows before the unchanged strict measurement.
+[Exact native records](../evidence/WP-503/README.md#native-process-backed-about-and-packaged-notices).
 
 ## Native offline-map states
 

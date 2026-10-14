@@ -1,0 +1,81 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_publication": "e2e9b95261cd6f1a6d6eb5685c756df80d5ec976",
+  "previous_combined_binding": "device-offline-map-integration.json",
+  "executed_combined_head": "0229e4eaad402dab44af06d0c4b0c5347831e5e0",
+  "executed_android_tree": "d7f7f4352e7a2898e2d0f55912e464390e289c8b",
+  "apk_binding": "device-notices-inputs.json",
+  "new_native_cases": [
+    "actualAboutLinksAndEveryPackagedNoticeKeepNamedContained48dpActionsAtFont200",
+    "actualGplAndMeshCoreNoticesExposeEveryLineToNativeNonGestureScrollAndReturnActions"
+  ],
+  "source_guards": {
+    "sole_android_change": "accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeSettingsNoticesAccessibilityTest.kt",
+    "all_prior_75_native_fixtures_and_shared_oracles_byte_identical": true,
+    "production_apk_byte_identical_to_previous_75": true,
+    "producer_code_build_dependencies_floors_deadlines_goldens_or_wp501_bindings_changed": false
+  },
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "native_surface_and_observations": {
+    "entry": "Actual MainActivity, MeshCoreApplication process graph and public Settings/About/Licenses actions; no replacement renderer or dependency graph",
+    "catalog": "All18 actual packaged notice rows have fully contained named48dp actions at actual system font2/RTL",
+    "external": "Four exact actual ACTION_VIEW URI payloads captured by an owned Instrumentation ActivityMonitor; browser launch blocked and every captured Intent consumed",
+    "notice_text": "Actual packaged GPL-3.0 and MeshCore-MIT contents must match the complete native Text; original strict unellipsized/unclipped line geometry retained",
+    "reading": "Every2359 GPL and78 MeshCore line is fully contained in consecutive observed native lazy/safe-window viewports reached through the actual non-gesture ScrollBy action",
+    "return": "Native Back returns GPL to catalog; named Done returns MeshCore to catalog, then Settings; disconnected state and independent tab stacks unchanged",
+    "target_measurements_per_scope_or_full_command": 39,
+    "legal_review_approval_physical_talkback_external_browser_or_all_theme_matrix": false
+  },
+  "initial_native_observation": {
+    "head": "c9a3b5e64cd0bfccebf555ef1220a178e6cba7cd",
+    "apk_binding": "device-notices-pre-lazy-inputs.json",
+    "api": 31,
+    "discovered": 2,
+    "passed": 0,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 8.6,
+    "qualification": "GPL row not displayed/absent before explicit public lazy ScrollToNode traversal; retained negative, not a product-unreachability defect or changed visibility/font/target floor"
+  },
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "both_original_sdk_variants_and_names_preserved": true,
+    "app_and_instrumentation_assembly": "PASS"
+  },
+  "native_api31": {
+    "scope": {"discovered": 2, "passed": 2, "failed": 0, "errors": 0, "skipped": 0, "seconds": 34.318},
+    "full": {"discovered": 77, "passed": 75, "failed": 2, "errors": 0, "skipped": 0, "seconds": 180.357},
+    "gpl_windows": 295,
+    "meshcore_windows": 10,
+    "failed_identities": ["NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal", "NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"]
+  },
+  "native_api37": {
+    "scope": {"discovered": 2, "passed": 2, "failed": 0, "errors": 0, "skipped": 0, "seconds": 70.342},
+    "full": {"discovered": 77, "passed": 76, "failed": 1, "errors": 0, "skipped": 0, "seconds": 314.749},
+    "gpl_windows": 236,
+    "meshcore_windows": 8,
+    "failed_identities": ["NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal"]
+  },
+  "new_native_cases_pass_in_both_full_commands": true,
+  "product_blockers": [{"issue": 236, "owner": "WP-316"}, {"issue": 237, "owner": "WP-311", "api": 31}],
+  "new_product_defect_or_standalone_producer_head_acceptance_claimed": false,
+  "physical_talkback_approved_goldens_full_matrix_acceptance_admission_or_independent_review": false,
+  "both_owned_emulators_exited_zero": true,
+  "exact_four_owned_phase_images_removed": true,
+  "final_adb_device_list_empty": true,
+  "merge_self_approval_or_wp_completion": false
+}

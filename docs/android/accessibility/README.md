@@ -1,9 +1,30 @@
 # WP-503 accessibility audit
 
-**Status: expanded34c222 native75: API31 73PASS/2FAIL; API37 74PASS/1FAIL. New offline-map3/3PASS on both actual APIs; original targeted JVM74/74PASS. WP316 CLI236 and WP311 API31 QR237 remain unresolved. Earlier negatives remain retained. PR205 stays draft: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Status: expanded0229e4e native77: API31 75PASS/2FAIL; API37 76PASS/1FAIL. New process-backed Settings notices2/2PASS on both actual APIs; original targeted JVM74/74PASS. WP316 CLI236 and WP311 API31 QR237 remain unresolved. Earlier negatives remain retained. PR205 stays draft: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native process-backed About and packaged notices
+
+Executed0229e4eaad402dab44af06d0c4b0c5347831e5e0/Android tree
+d7f7f4352e7a2898e2d0f55912e464390e289c8b adds two actual MainActivity
+Settings/About/Licenses flows. All prior75 fixtures/oracles and producer files are
+byte-identical; the production APK is unchanged. These are public routes on the real
+process graph, not standalone widget previews or replacement dependencies.
+
+Scoped31 **2/2PASS34.318s**,37 **2/2PASS70.342s**; complete31
+**77/75PASS/2FAIL180.357s**,37 **77/76PASS/1FAIL314.749s**, zero error/skip
+statuses. Only existing CLI236/both and QR237/31 fail. Each invocation records
+**39/39 contained48dp target measurements**, all18 packaged notice rows and four
+exact actual ACTION_VIEW payloads intercepted without launching a browser. Every
+**2359 GPL and78 MeshCore text line** is unellipsized and fully exposed through
+actual non-gesture scrolling, bounded by the real lazy/safe-window viewport at
+system font2/RTL. Native Back/named Done return to catalog/Settings with disconnected
+state and tab stacks intact. Initial pre-lazy31 2/2 negatives stay recorded; public
+ScrollToNode recovery does not relax geometry or establish a product defect.
+This is not legal approval, physical TalkBack or the full theme/window matrix.
+[Exact source/APKs/native records](../evidence/WP-503/README.md#native-process-backed-about-and-packaged-notices).
 
 ## Native offline-map state and recovery
 
