@@ -857,9 +857,19 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         } finally {
             println("WP503_NATIVE_TOUCH_FINAL|enabled=${manager.isTouchExplorationEnabled}|actualFlags=${automation().serviceInfo.flags}" +
                 "|elapsedMs=${android.os.SystemClock.elapsedRealtime() - start}")
-            manager.removeTouchExplorationStateChangeListener(listener)
-            info.flags = original
-            automation().serviceInfo = info
+            try {
+                info.flags = original
+                automation().serviceInfo = info
+                val restoredTouch = original and AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE != 0
+                // Service-info writes acknowledge before the system dispatches the corresponding state change.
+                compose.waitUntil {
+                    automation().serviceInfo.flags == original && manager.isTouchExplorationEnabled == restoredTouch
+                }
+                println("WP503_NATIVE_TOUCH_RESTORED|flags=$original|enabled=${manager.isTouchExplorationEnabled}" +
+                    "|elapsedMs=${android.os.SystemClock.elapsedRealtime() - start}|beforeNextFixture=true")
+            } finally {
+                manager.removeTouchExplorationStateChangeListener(listener)
+            }
         }
     }
 
