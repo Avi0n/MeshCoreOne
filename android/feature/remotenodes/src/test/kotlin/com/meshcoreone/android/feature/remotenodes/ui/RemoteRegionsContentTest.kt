@@ -32,10 +32,13 @@ import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.core.l10n.generated.AppRemoteNodesStrings as L
 import com.meshcoreone.android.feature.remotenodes.settings.CommandRecorder
 import com.meshcoreone.android.feature.remotenodes.settings.RepeaterRegionEntry
+import com.meshcoreone.android.feature.remotenodes.settings.RepeaterRegionsStateHolder
 import com.meshcoreone.android.feature.remotenodes.settings.region
 import com.meshcoreone.android.feature.remotenodes.settings.regionHolder
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -47,7 +50,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [31], qualifiers = "w360dp-h800dp")
+@Config(sdk = [31, 37], qualifiers = "w360dp-h800dp")
 class RemoteRegionsContentTest {
     @get:Rule
     val compose = createEmptyComposeRule()
@@ -59,6 +62,7 @@ class RemoteRegionsContentTest {
     private val context: Context get() = ApplicationProvider.getApplicationContext()
     private val recorder = CommandRecorder()
     private val confirmed = mutableListOf<Int>()
+    private var confirmedAction: (suspend () -> Unit)? = null
 
     private val regions = listOf(
         region("*", null, 0),
@@ -69,14 +73,20 @@ class RemoteRegionsContentTest {
         region("north", "east", 5),
     )
 
-    private fun mount(fontScale: Float, enabled: Boolean = true) {
-        val holder = regionHolder(recorder).regions
+    private fun mount(
+        fontScale: Float,
+        enabled: Boolean = true,
+        holder: RepeaterRegionsStateHolder = regionHolder(recorder).regions,
+    ) {
         holder.setRegions(regions)
         holder.setRegionsExpanded(true)
         controller.get().setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, fontScale)) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    RemoteRegionsContent(holder, enabled) { caption, _ -> confirmed += caption }
+                    RemoteRegionsContent(holder, enabled) { caption, action ->
+                        confirmed += caption
+                        confirmedAction = action
+                    }
                 }
             }
         }
@@ -145,11 +155,21 @@ class RemoteRegionsContentTest {
     }
 
     @Test
-    fun `switch confirms the same region action once and never contacts the radio`() {
-        mount(1f)
+    fun `switch confirms and runs the same region action only after confirmation`() {
+        recorder.repliesByCommand["region"] = regions.joinToString(separator = "\n", postfix = "\n") { region ->
+            "${" ".repeat(region.depth)}${region.name} F"
+        }
+        val holder = regionHolder(recorder).regions
+        runBlocking { holder.fetchRegions() }
+        recorder.resetCommands()
+        mount(1f, holder = holder)
         switchWithLabel(labelFor(regions[2])).performClick()
         assertEquals(listOf(L.remoteNodesSettingsRegionsFloodToggleCaption), confirmed)
-        assertTrue(recorder.commands.isEmpty(), "No CLI command may be sent by the UI test")
+        assertTrue(recorder.commands.isEmpty(), "The action must wait for explicit confirmation")
+        runBlocking { checkNotNull(confirmedAction).invoke() }
+        assertEquals(listOf("region denyf gta"), recorder.commands)
+        assertFalse(holder.state.value.regions.single { it.name == "gta" }.floodAllowed)
+        assertTrue(holder.state.value.regions.filter { it.name != "gta" }.all { it.floodAllowed })
     }
 
     @Test
