@@ -223,6 +223,8 @@ internal class OnboardingAccessibilityAudit(
         scrollWholeAllocationIntoView(node)
         node.assertIsDisplayed()
         assertFont200Unclipped(node)
+        // Reading native text can advance pending IME layout before the geometry proof.
+        scrollWholeAllocationIntoView(node)
         val measured = node.fetchSemanticsNode()
         val root = compose.onNodeWithTag("audit-root").fetchSemanticsNode().boundsInRoot
         val bounds = measured.boundsInRoot
