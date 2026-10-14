@@ -1,6 +1,50 @@
 # WP-503 native execution matrix
 
-**Latest combined WP313 region scoped2/2 and full remote15/15 pass per actual API31/37. Earlier fbd onboarding full36/34PASS/2FAIL each API remains negative. Earlier combined226/228/230/231 results remain separately bound. WP503 remains incomplete: native negatives, physical/matrix/review/admission gates.**
+**Latest ff424 expanded native54/53PASS/1FAIL per actual API31/37: WP316 defect236 blocks CLI construction. Original targeted JVM40/40PASS. Previous39 and new room/direct10 pass on both APIs; historical negatives remain separate. WP503 remains incomplete: producer repair, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+
+Exact ff42476614d07588eb17f1df58b4f9e0e479b3ff/Android tree
+fc92f7c8f81229fcd0045a3d4eee25213dc13d79: full31 **54/53PASS/1FAIL120.885s**,
+full37 **54/53PASS/1FAIL222.855s**,0 error/skip statuses. All original11 messaging
+and five diagnostics bodies/measurement helper are shared unchanged; wrappers retain
+all JVM names/SDK variants/600dp qualifier. Ten new room/direct/live-region and five
+diagnostics native methods do not duplicate existing native contrast.
+Only CLI fails before its disconnected UI: actual Android ICU rejects FULL_DECOMPOSITION
+in main-identical production LocalizedCompare.kt:16, `Bad mode: 2`.
+[Assigned WP316 defect236](https://github.com/cbattlegear/MeshCoreOne-Android/issues/236)
+requires producer repair, not a WP503 change or skipped assertion. JVM40/40 is not
+Android constructor compatibility.
+
+Each API passes all previous39/room-direct10 and four diagnostics; the real600dp
+OS viewport is applied before Activity and900 restored after teardown. Original
+numeric full-allocation/movement/font/48dp requirements remain. Room source custom
+and contained86x54dp pointer Retry both select the exact message; Remember and all six
+room distinctions pass. Scoped31 room/direct10/10 8.073s; both scoped diagnostics
+5/4PASS/1FAIL9.076s/11.670s. Earlier d8b37 scoped10/10/full49/49 is separately bound,
+not standalone31 or exactff424 scoped37 credit.
+[Exact native inputs/outcomes](../evidence/WP-503/README.md#native-roomdirect-and-diagnostics-registration).
+
+Earlier exact f7474bb1bd06c6df93a71c8664e9dacade7c8749/Android tree
+b15759b5f554ec33cfa8107fc28751beb37e1d9d passes full31 **39/39 101.897s** and
+full37 **39/39 130.372s**,0 failures/errors/skips. Original onboarding scopes4/4 and
+new actual-native-IME/counterexample1/1 pass on each API using the same exact APKs.
+All nine original launcher and13 original remote bodies remain unchanged; regions2
+and both original resize directions pass within these full commands.
+
+The native control requires actual input focus/accepting-text/visible keyboard and
+rejects a deliberately exactly2px-clipped pending action before restoring full328x58
+by exact public+2px scroll on37. Shared onboarding traversal now aligns the measured
+whole allocation before unchanged strict assertions; the pending method explicitly
+scrolls to Connect after inspecting the preceding error. Three original bodies remain
+identical; no thresholds/tolerances/deadlines/product code change. Historical7d10
+38/39 pending clipping and004 cold/warm activation failures remain. Callback diagnostics
+do not prove earlier activation/600s-stall causes. This39-case inventory does not cover
+every required cell below or imply approved goldens/physical TalkBack/real radio.
+[Exact source/APKs/records](../evidence/WP-503/README.md#complete-native-cohort-and-real-ime-allocation-control).
+
+## Historical candidate records
+
+The following chronology describes only its named candidates. Candidate-local
+words such as current/awaited/blocked do not replace the live status above.
 
 Executed491d02b98ae9faef868996210c92c086f6b107df consumes exact PR234d2ff
 over the preceding combined producers; all six imported blobs match and original13
@@ -29,13 +73,13 @@ Earlier native activation prerequisite passes here, without proving its earlier 
 No assertion/floor/deadline or product edit produced these results.
 [Exact records](../evidence/WP-503/README.md#native-onboarding-registration).
 
-Current exact41bdbfac45b4d3690f29a5363da02047642e2716 integrates audit65d with
+Earlier exact41bdbfac45b4d3690f29a5363da02047642e2716 integrates audit65d with
 WP3181b2cd/WP311c870/WP3072396, then shares original Nodes assertion bodies for native
 registration. Producer source blobs match the published heads; no product edits.
 Original launcher fixture source equals65d. Initial b39 combined used unchanged
 original test APK and passes31 scoped2/2/full30/30.
 
-Current **API31 full32/32PASS112.149s**, Nodes scoped2/2PASS5.390s.
+At that candidate **API31 full32/32PASS112.149s**, Nodes scoped2/2PASS5.390s.
 **API37 affected scoped4/4PASS83.982s**, full32/31PASS/1FAIL195.578s.
 All affected methods pass in both full commands; zero error/skip statuses.
 Full37 fails existing1000ms touch-exploration activation before launcher body.

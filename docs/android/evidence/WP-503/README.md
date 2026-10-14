@@ -1,13 +1,137 @@
 # WP-503 attempt evidence
 
-**New combined WP313 region audit passes2/2 and complete remote class15/15 on each actual API31/37. Earlier onboarding full36/34PASS/2FAIL per API remains negative, not superseded by these scopes. PR205/WP503 remain incomplete: native negatives and physical/matrix/review/admission gates.**
+**Expanded ff424 native54/53PASS/1FAIL per actual API31/37: new WP316 defect236 prevents CLI construction. Original targeted JVM40/40PASS; all previous39 and ten room/direct additions pass on both APIs. PR205/WP503 remain incomplete: producer repair, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Native room/direct and diagnostics registration
+
+Executed **ff42476614d07588eb17f1df58b4f9e0e479b3ff**, Android tree
+**fc92f7c8f81229fcd0045a3d4eee25213dc13d79**, retains the prior exact combined
+producers, including WP313d2ff, and adds fifteen actual native registrations.
+[Integration](device-diagnostics-integration.json), [APKs](device-diagnostics-inputs.json).
+Production remains109723777/e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff;
+test3143475/61549d69eb0b128bcbac2e9fe4cb59e0e1833e050767e571bb0a7a6050a79522.
+No standalone producer-head native credit or producer edits.
+
+All11 original messaging bodies, all five diagnostics bodies and their populated
+measurement helper are byte-identical to f747. Thin JVM wrappers retain every name,
+both SDK variants and the original600dp qualifier. Ten new Android messaging methods
+do not duplicate the already registered native contrast case. Diagnostics' outer
+JUnit rule sets/verifies public OS360x600 before Activity only for the short-window
+case, then restores900 after Activity teardown. Original numeric count/values/full
+allocation/scroll-movement/font/48dp assertions remain, not an artificial preview size.
+
+Existing strict command, with common options
+`--console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`:
+`:app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest.*`
+**passes40/40**:8 onboarding,22 messaging,10 diagnostics;0 failures/errors/skips.
+No reproducible JVM/hosted result bundle retained.
+
+Actual Android command:
+`adb -s SERIAL shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+**31:54/53PASS/1FAIL120.885s;37:54/53PASS/1FAIL222.855s**;0 error/skip statuses.
+Each positively matches54 unique starts and54 terminal identities; no complete pass.
+Class selection `-e class com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest`:
+**31:5/4PASS/1FAIL9.076s;37:5/4PASS/1FAIL11.670s**.
+At the same ff424, class `NativeMessagingFlowAccessibilityTest` separately passes
+**31:10/10 8.073s**;37's same ten methods pass in the full54 invocation.
+Earlier messaging-only d8b0caa42efb357c974cb02666910ed4c639ccf7/Android tree
+ff8a2d4c39db79060432ac9314e0ed1c872814ce passes37 scoped10/10 49.205s and then
+complete49/49 208.975s, bound to distinct [inputs](device-messaging-inputs.json).
+No31 execution of standalone d8b is claimed.
+
+Only failed identity on both APIs/scopes/full commands:
+`NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal`.
+Actual root exception is **java.lang.IllegalArgumentException: Bad mode: 2** in
+`java.text.Collator.setDecomposition`, then production LocalizedCompare.kt:16,
+CliToolStateHolder.kt:55 and ToolsDiagnosticsScreen.kt:152. The helper uses
+FULL_DECOMPOSITION and equals main blob800b7ed7eb09dd6f174ee16f215aca6374840ddf.
+This occurs before the disconnected UI; it is not historical220 copy, measurement
+scheduling or a font tolerance. New assigned [WP316 defect236](https://github.com/cbattlegear/MeshCoreOne-Android/issues/236)
+requires producer repair preserving frozen Foundation comparison and existing seven
+equal/three unequal vectors. No new worker, exception catch, substituted Collator,
+ignored case, fixture relaxation or production edit. Assignment is coordination
+ownership, not verified active repair. Passing JVM construction is not native proof.
+
+All previous39 and ten room/direct methods pass on both APIs, including unchanged
+region2/remote13, launcher9/both resize directions and actual IME counterexample.
+All six room distinctions/Remember/direct/live-region controls pass. Actual failed
+room Retry is86x54dp, wholly inside its row; source custom and native pointer actions
+both route the exact message. All four other diagnostic cases pass, including actual
+600dp numeric scroll movement/full42px allocations and restored900dp.
+`device-diagnostics-*` and `device-messaging-*` retain actual device evidence and
+source/APK identities only.31 is4KiB/AOSP/no-GMS;37 is16KiB/PlayStore/GMS; both
+font2/mdpi/RTL/animation0, final360x900. Public31 COLD3313ms and37 UNKNOWN
+WaitTime3308ms are readiness only. Physical TalkBack, full remaining matrix,
+approved goldens, acceptance admission and independent review remain unverified.
+
+## Complete native cohort and real IME allocation control
+
+Executed **f7474bb1bd06c6df93a71c8664e9dacade7c8749**, Android tree
+**b15759b5f554ec33cfa8107fc28751beb37e1d9d**. This is the prior combined producer
+integration, including unchanged WP313d2ff, with owned observer/traversal changes,
+not standalone producer-head execution.
+[Integration](device-lifecycle-integration.json), [exact APKs](device-lifecycle-inputs.json).
+Production109723777 bytes/SHA256
+e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff;
+test3035559/8bb64f2b759b2a1634b2efb5f395d19d5660ca83aa55fc617a7869f3c3573514.
+
+Strict existing command
+`:app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest.* --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`
+**passes8/8**, each original name in both JVM SDK variants, zero failures/errors/skips.
+No reproducible JVM report bundle is retained.
+
+Actual command
+`adb -s SERIAL shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`
+passes **31:39/39 101.897s;37:39/39 130.372s**, zero failures/errors/skips.
+Each invocation matches39 unique starts and39 terminal identities/status0.
+The same APKs, replacing package selection with `-e class SELECTOR`, also pass:
+
+| SELECTOR in com.meshcoreone.android.accessibility | Actual API31 | Actual API37 |
+|---|---|---|
+|NativeOnboardingFlowAccessibilityTest|4/4PASS12.225s|4/4PASS15.495s|
+|NativeOnboardingImeAccessibilityTest|1/1PASS4.673s|1/1PASS5.814s|
+
+The new control requires actual field focus, public
+`InputMethodManager.isAcceptingText` and visible native IME, not merely dispatch of a
+Compose IME callback. It deliberately clips exactly2px of the real pending action
+with public ScrollBy, requires the existing strict full-allocation assertion to reject
+that counterexample, then restores full328x58 by exact public+2px scroll on37.
+The preceding7d10 full command actually fails38/39 at the same natural545..601
+visible bounds versus58px allocation. Its39/38PASS/1FAIL127.166s and the71108
+calibration1/1PASS6.199s remain bound records, not invented product-defect evidence.
+
+The shared readability helper now makes one measured non-gesture vertical correction
+against actual scroll/root containment before running the original strict assertions.
+After inspecting the preceding error, the pending method explicitly scrolls to the
+following Connect action; error-only traversal can leave that action offscreen.
+Three original bodies remain byte-identical; the pending body's only change is that
+target scroll. All nine original launcher and13 original remote bodies are unchanged.
+No producer code, threshold, tolerance or deadline changes.
+
+Public accessibility-manager listener/requested+retained flags/callback state are now
+observed inside the unchanged1000ms prerequisite. Original resize passes in both
+complete39 commands, including both real recreations and final Back/state checks.
+004 cold1/1FAIL17.285s and warm1/1FAIL19.778s fail that prerequisite before the body;
+the earlier491d600s incomplete resize remains historical. Their causes are **unproven**.
+Later passes and callback observations do not retrospectively diagnose those failures.
+Temporary thread diagnostics never fired in completing flows and are removed.
+
+`device-lifecycle-*` contains only actual device transcripts, WP503 metrics,
+APK/source identities, initial negatives/calibration and final OS/readiness profiles.
+APIs are isolated/sequential360x900/mdpi/font2/RTL/animation0;31 AOSP/4KiB/no-GMS,
+37.2 PlayStore/16KiB/GMS. Public COLD2944ms/6830ms are readiness, not performance
+acceptance. Both owned emulators exited; exactly four owned lifecycle image files
+were removed. No physical TalkBack, real radio, approved golden, full matrix,
+independent review or WP-specific acceptance admission is claimed.
+
 ## Native WP313 region repair integration
+
+Historical scoped candidate; the expanded current inventory is recorded above.
 
 Executed **491d02b98ae9faef868996210c92c086f6b107df**, Android tree
 1f850657bd38df07f0677a42da4c2f316b13aef1, integrates exact WP313 PR234

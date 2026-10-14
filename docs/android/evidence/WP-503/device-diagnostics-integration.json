@@ -1,0 +1,70 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "previous_combined_binding": "device-lifecycle-integration.json",
+  "executed_combined_head": "ff42476614d07588eb17f1df58b4f9e0e479b3ff",
+  "executed_android_tree": "fc92f7c8f81229fcd0045a3d4eee25213dc13d79",
+  "apk_binding": "device-diagnostics-inputs.json",
+  "new_native_registration": {
+    "room_direct_and_live_region_cases": 10,
+    "diagnostics_cases": 5,
+    "existing_native_message_contrast_duplicated": false,
+    "all_11_original_messaging_bodies_byte_identical_to_f747": true,
+    "all_5_original_diagnostics_bodies_and_measurement_helper_byte_identical_to_f747": true,
+    "original_jvm_names_sdk_variants_and_600dp_qualifier_preserved": true,
+    "native_shorter_window": "Outer JUnit rule sets actual public OS wm size360x600 before Activity, verifies override, restores360x900 after teardown; original real-scroll-movement assertion is unchanged",
+    "production_code_or_assertion_floor_changes": false
+  },
+  "original_jvm_summary_not_retained_result_bundle": {
+    "onboarding": {"discovered": 8, "passed": 8, "failed": 0, "errors": 0, "skipped": 0},
+    "messaging": {"discovered": 22, "passed": 22, "failed": 0, "errors": 0, "skipped": 0},
+    "diagnostics": {"discovered": 10, "passed": 10, "failed": 0, "errors": 0, "skipped": 0}
+  },
+  "native_api31": {
+    "room_direct_scoped": {"discovered": 10, "passed": 10, "failed": 0, "errors": 0, "skipped": 0, "seconds": 8.073},
+    "diagnostics_scoped": {"discovered": 5, "passed": 4, "failed": 1, "errors": 0, "skipped": 0, "seconds": 9.076},
+    "complete_inventory": {"discovered": 54, "passed": 53, "failed": 1, "errors": 0, "skipped": 0, "seconds": 120.885},
+    "profile": "device-diagnostics-profile-api31.txt",
+    "public_cold_launcher_readiness_ms_not_performance_acceptance": 3313
+  },
+  "native_api37": {
+    "diagnostics_scoped": {"discovered": 5, "passed": 4, "failed": 1, "errors": 0, "skipped": 0, "seconds": 11.670},
+    "complete_inventory": {"discovered": 54, "passed": 53, "failed": 1, "errors": 0, "skipped": 0, "seconds": 222.855},
+    "all_10_room_direct_cases_pass_within_complete_inventory": true,
+    "profile": "device-diagnostics-profile-api37.txt",
+    "earlier_messaging_only_registration": {
+      "head": "d8b0caa42efb357c974cb02666910ed4c639ccf7",
+      "android_tree": "ff8a2d4c39db79060432ac9314e0ed1c872814ce",
+      "apk_binding": "device-messaging-inputs.json",
+      "room_direct_scoped": {"discovered": 10, "passed": 10, "failed": 0, "errors": 0, "skipped": 0, "seconds": 49.205},
+      "complete_then_inventory": {"discovered": 49, "passed": 49, "failed": 0, "errors": 0, "skipped": 0, "seconds": 208.975},
+      "public_launcher_readiness": "Status ok/LaunchState UNKNOWN/WaitTime3308ms; no cold-start or performance claim"
+    }
+  },
+  "only_current_native_failed_identity": "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+  "product_defect": {
+    "issue": 236,
+    "owner": "WP-316/tools-ui-engineer",
+    "assigned_github_coordination_owner": "cbattlegear",
+    "active_repair_worker_or_new_dispatch_claimed": false,
+    "exception": "java.lang.IllegalArgumentException: Bad mode: 2",
+    "observed_call_chain": ["java.text.Collator.setDecomposition", "LocalizedCompare.kt:16", "CliToolStateHolder.kt:55", "ToolsDiagnosticsScreen.kt:152"],
+    "failing_production_helper_blob_equals_main": "800b7ed7eb09dd6f174ee16f215aca6374840ddf",
+    "cause": "Actual Android ICU bridge rejects FULL_DECOMPOSITION during CLI holder construction before disconnected UI",
+    "historical_220_copy_defect_reopened": false,
+    "native_regression_preserved": true
+  },
+  "all_previous_39_and_new_10_messaging_cases_pass_on_both_apis": true,
+  "standalone_producer_head_device_execution": false,
+  "earlier_activation_or_600s_timeout_cause_proven": false,
+  "historical_negatives_erased": false,
+  "physical_talkback_observed": false,
+  "approved_goldens_or_full_matrix_acceptance": false,
+  "merge_or_independent_approval": false
+}

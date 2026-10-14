@@ -1,0 +1,62 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "previous_combined_binding": "device-regions-integration.json",
+  "executed_combined_head": "f7474bb1bd06c6df93a71c8664e9dacade7c8749",
+  "executed_android_tree": "b15759b5f554ec33cfa8107fc28751beb37e1d9d",
+  "apk_binding": "device-lifecycle-inputs.json",
+  "native_api31": {
+    "original_onboarding": {"discovered": 4, "passed": 4, "failed": 0, "errors": 0, "skipped": 0, "seconds": 12.225},
+    "real_ime_and_clipping_control": {"discovered": 1, "passed": 1, "failed": 0, "errors": 0, "skipped": 0, "seconds": 4.673},
+    "complete_inventory": {"discovered": 39, "passed": 39, "failed": 0, "errors": 0, "skipped": 0, "seconds": 101.897},
+    "profile": "device-lifecycle-profile-api31.txt",
+    "public_cold_launcher_readiness_ms_not_performance_acceptance": 2944
+  },
+  "native_api37": {
+    "original_onboarding": {"discovered": 4, "passed": 4, "failed": 0, "errors": 0, "skipped": 0, "seconds": 15.495},
+    "real_ime_and_clipping_control": {"discovered": 1, "passed": 1, "failed": 0, "errors": 0, "skipped": 0, "seconds": 5.814},
+    "complete_inventory": {"discovered": 39, "passed": 39, "failed": 0, "errors": 0, "skipped": 0, "seconds": 130.372},
+    "profile": "device-lifecycle-profile-api37.txt",
+    "public_cold_launcher_readiness_ms_not_performance_acceptance": 6830
+  },
+  "original_jvm_onboarding_summary_not_retained_result_bundle": {"discovered": 8, "passed": 8, "failed": 0, "errors": 0, "skipped": 0},
+  "original_assertion_preservation": {
+    "original_launcher_method_bodies_byte_identical": 9,
+    "original_remote_method_bodies_byte_identical": 13,
+    "original_onboarding_method_bodies_byte_identical": 3,
+    "fourth_onboarding_method_only_body_change": "Explicitly performScrollTo on the following Connect action after inspecting the preceding error",
+    "shared_readability_helper_change": "One exact measured public vertical ScrollBy correction when original full-allocation/root containment is not satisfied; original strict assertions run afterward",
+    "threshold_tolerance_deadline_or_producer_code_changes": false
+  },
+  "real_ime_control": {
+    "actual_input_focus_required": true,
+    "public_InputMethodManager_isAcceptingText_required": true,
+    "actual_visible_native_ime_required": true,
+    "intentional_counterexample": "Public ScrollBy clips exactly 2px of the actual pending action; original full-allocation assertion must reject it",
+    "measured_restoration": "Exact public ScrollBy +2 restores y543..601 and full328x58 allocation on API37",
+    "error_only_scroll": "Following Connect can remain entirely offscreen; explicit next-action traversal precedes its original strict assertions",
+    "real_radio_connection": false
+  },
+  "retained_api37_diagnostics_and_calibration": [
+    {"binding": "device-lifecycle-diagnostic-inputs.json", "head": "00470da3198a5b7aa3278ab9621c57faf6c77e4e", "scenario": "cold-resize", "discovered": 1, "passed": 0, "failed": 1, "seconds": 17.285, "outcome": "Original1000ms touch-exploration prerequisite fails before test body"},
+    {"binding": "device-lifecycle-diagnostic-inputs.json", "head": "00470da3198a5b7aa3278ab9621c57faf6c77e4e", "scenario": "warm-resize", "discovered": 1, "passed": 0, "failed": 1, "seconds": 19.778, "outcome": "Same unchanged prerequisite fails before body"},
+    {"binding": "device-lifecycle-state-inputs.json", "head": "7d10eae10de8009237df5e3cf9a9a7d0e0ef7dff", "scenario": "state-resize", "discovered": 1, "passed": 1, "failed": 0, "seconds": 12.743},
+    {"binding": "device-lifecycle-state-inputs.json", "head": "7d10eae10de8009237df5e3cf9a9a7d0e0ef7dff", "scenario": "initial-ime", "discovered": 1, "passed": 1, "failed": 0, "seconds": 9.193},
+    {"binding": "device-lifecycle-state-inputs.json", "head": "7d10eae10de8009237df5e3cf9a9a7d0e0ef7dff", "scenario": "initial-full", "discovered": 39, "passed": 38, "failed": 1, "seconds": 127.166, "outcome": "Original pending WiFi action328x58 has visible545..601: exactly2px clipped"},
+    {"binding": "device-lifecycle-counterexample-inputs.json", "head": "71108c23a14b43d50eb9f384627b208047d353e7", "scenario": "counterexample", "discovered": 1, "passed": 1, "failed": 0, "seconds": 6.199, "outcome": "Intentional exact2px clipping is rejected before exact2px public-scroll restoration"}
+  ],
+  "public_accessibility_callback_observations": "Actual listener/requested and retained service flags/callback state are logged within the unchanged1000ms prerequisite",
+  "temporary_resize_thread_watcher_removed": true,
+  "earlier_activation_or_600s_timeout_cause_proven": false,
+  "historical_negatives_erased": false,
+  "standalone_producer_head_device_execution": false,
+  "physical_talkback_observed": false,
+  "approved_goldens_or_full_matrix_acceptance": false,
+  "merge_or_independent_approval": false
+}

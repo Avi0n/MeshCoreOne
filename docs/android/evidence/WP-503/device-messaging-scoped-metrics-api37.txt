@@ -1,0 +1,18 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_ROOM_RETRY_TARGET|bounds=Rect.fromLTRB(16.0, 248.0, 102.0, 302.0)|size=86 x 54|row=Rect.fromLTRB(16.0, 167.0, 344.0, 302.0)
+WP503_FONT|text=failed body|size=138 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=138.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=failed body|line=0|left=0.0|right=138.0|top=0.0|bottom=33.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_TARGET|width=110.0|height=54.0|role=Button
+WP503_FONT|text=中文消息 שלום 中文消息 שלום 中文消息 שלום 中文消息 שלום |size=312 x 124|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x124.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=中文消息 שלום 中文消息 שלום 中文消息 שלום 中文消息 שלום |line=0|left=0.0|right=299.71875|top=0.0|bottom=41.0
+WP503_FONT_LINE|text=中文消息 שלום 中文消息 שלום 中文消息 שלום 中文消息 שלום |line=1|left=0.0|right=284.4375|top=41.0|bottom=83.0
+WP503_FONT_LINE|text=中文消息 שלום 中文消息 שלום 中文消息 שלום 中文消息 שלום |line=2|left=0.0|right=159.71875|top=83.0|bottom=124.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0

@@ -1,0 +1,2 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false

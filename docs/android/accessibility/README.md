@@ -1,11 +1,64 @@
 # WP-503 accessibility audit
 
-**Status: combined WP313 region audit passes2/2 and full remote class15/15 per actual API31/37. Earlier onboarding full36 fails2/API and is not superseded; no whole-inventory or WP acceptance. PR205 remains draft; native negatives and physical/matrix/review/admission gates remain.**
+**Status: expanded ff424 native54/53PASS/1FAIL on each actual API31/37; new WP316 defect236 blocks CLI construction. Original JVM40/40PASS. All previous39 and ten newly registered room/direct cases pass on both APIs. PR205 remains draft: product repair, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review are unverified.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Native WP313 region repair re-audit
+## Native room/direct and diagnostics registration
+
+Exact ff42476614d07588eb17f1df58b4f9e0e479b3ff, Android tree
+fc92f7c8f81229fcd0045a3d4eee25213dc13d79, adds ten room/direct/live-region and
+five diagnostics native methods without changing their original shared assertions.
+All11 messaging bodies and five diagnostics bodies/measurement helper are identical
+to f747; original JVM names, both SDK variants and600dp qualifier remain.
+Original targeted JVM messaging22/diagnostics10/onboarding8 pass40/40.
+
+Actual complete native **31:54/53PASS/1FAIL120.885s;37:54/53PASS/1FAIL222.855s**,
+zero error/skip statuses. Only CLI fails with `IllegalArgumentException: Bad mode: 2`:
+Android ICU rejects `Collator.FULL_DECOMPOSITION` in actual production
+LocalizedCompare.kt:16 -> CliToolStateHolder.kt:55 -> ToolsDiagnosticsScreen.kt:152.
+The helper equals main's blob. This is distinct WP316 [defect236](https://github.com/cbattlegear/MeshCoreOne-Android/issues/236),
+assigned for coordination, not a verified active repair worker or a WP503 product edit.
+Original disconnected explanation assertions remain enabled; passing JVM construction
+is not Android compatibility. No exception suppression or comparison-parity relaxation.
+
+Both native commands pass all previous39, all six room distinctions, Remember,
+mixed CJK/RTL direct retry, live-region controls and existing contrast. Failed-room
+custom and actual pointer actions route the exact message; Retry is contained86x54dp.
+Four diagnostics cases pass: data-bound NoiseFloor, real600dp scroll, offline
+NoiseFloor and Rx/filter recovery. An outer rule sets actual OS360x600 before Activity
+and restores900 after teardown; original full numeric allocation/movement checks remain.
+No synthetic clipped layout substitutes for the actual shorter native window.
+[Exact outcomes/inputs/commands](../evidence/WP-503/README.md#native-roomdirect-and-diagnostics-registration).
+
+## Complete native cohort and actual IME allocation control
+
+Exact f7474bb1bd06c6df93a71c8664e9dacade7c8749, Android tree
+b15759b5f554ec33cfa8107fc28751beb37e1d9d, passes **39/39 on API31
+101.897s and API37 130.372s**, zero failures/errors/skips. This combined integration
+includes the unchanged WP313d2ff repair, original remote13 and region2 cases,
+original onboarding4, all nine unchanged launcher bodies and the new real-IME control.
+Separate original onboarding4/4 and real-IME control1/1 also pass on both APIs.
+
+The control requires actual input focus, public accepting-text state and a visible
+native IME under original1000ms waits. An intentional public scroll clips exactly2px
+of the pending action, which the unchanged full-allocation assertion must reject.
+An exact2px public ScrollBy restores full328x58 allocation on API37. Shared onboarding
+readability now performs that bounded measured whole-allocation traversal before all
+original strict visibility/font/48dp assertions. After inspecting an error, explicitly
+scroll to the following Connect action; error-only traversal can leave it offscreen.
+Three original onboarding bodies remain byte-identical; the fourth only adds that
+target scroll. No producer code, floor, tolerance or deadline is changed.
+
+Real service listener/request/retained-flag/callback observations retain the original
+1000ms prerequisite. The earlier cold/warm failures and600s resize stall remain
+historical negatives with unproven causes; later passes do not establish their cause.
+No physical TalkBack, OS permission-dialog, real radio, approved golden or full
+feature/state matrix claim follows from39 passing methods.
+[Exact source, native records and calibration](../evidence/WP-503/README.md#complete-native-cohort-and-real-ime-allocation-control).
+
+## Native WP313 region repair re-audit (historical scoped candidate)
 
 Executed491d02b98ae9faef868996210c92c086f6b107df imports exact PR234
 d2ff006f764bcad25eb65def7a8fc17f68c32caa over the prior combined producers.
@@ -22,7 +75,7 @@ deadline. Three earlier observer negatives remain distinct bound records.
 No physical TalkBack, real radio, full38 or erased onboarding-negative claim.
 [Exact source/APKs/commands/outcomes](../evidence/WP-503/README.md#native-wp313-region-repair-integration).
 
-## Native onboarding registration and retained full-cohort negatives
+## Native onboarding registration and retained historical full-cohort negatives
 
 Exact fbd949e3663332bb0f6859083e6512b26ce09438 registers the four original
 permission/WiFi methods on actual Android. Their bodies and three lifecycle/mount/
@@ -42,7 +95,7 @@ Scoped success does not erase either full failure. Original1000ms activation pas
 in this37 full command; it does not establish the earlier activation failure's cause.
 [Exact bindings and failures](../evidence/WP-503/README.md#native-onboarding-registration).
 
-## Current combined producer repair re-audit
+## Earlier combined producer repair re-audit
 
 Audit base65d plus WP318 PR2321b2cd0476b5f70bbbd9ccaf71590e4613898eca1,
 WP311 PR233c8708313310b76df40be9e75a763fe90dac876e8 and
