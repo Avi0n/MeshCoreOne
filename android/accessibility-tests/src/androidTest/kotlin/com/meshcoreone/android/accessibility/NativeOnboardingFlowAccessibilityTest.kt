@@ -55,14 +55,25 @@ class NativeOnboardingFlowAccessibilityTest : DeviceAccessibilityHarness() {
 
     private fun awaitActualWifiIme() {
         check(!Looper.getMainLooper().isCurrentThread) { "Native IME observation must run outside composition on the instrumentation thread" }
+        compose.waitForIdle()
         val input = requireNotNull(activity.getSystemService(InputMethodManager::class.java))
-        compose.waitUntil {
-            var ready = false
+        var ready = false
+        try {
+            compose.waitUntil {
+                compose.runOnUiThread {
+                    val insets = requireNotNull(imeHost.rootWindowInsets)
+                    ready = input.isAcceptingText && insets.isVisible(WindowInsets.Type.ime()) && imeAnimations.isEmpty()
+                }
+                ready
+            }
+        } finally {
             compose.runOnUiThread {
                 val insets = requireNotNull(imeHost.rootWindowInsets)
-                ready = input.isAcceptingText && insets.isVisible(WindowInsets.Type.ime()) && imeAnimations.isEmpty()
+                println("WP503_WIFI_IME_OBSERVATION|ready=$ready|acceptingText=${input.isAcceptingText}" +
+                    "|imeVisible=${insets.isVisible(WindowInsets.Type.ime())}|activeAnimations=${imeAnimations.size}" +
+                    "|imeBottom=${insets.getInsets(WindowInsets.Type.ime()).bottom}|prepares=$imePrepares|ends=$imeEnds" +
+                    "|windowFocus=${imeHost.hasWindowFocus()}|focusedView=${activity.currentFocus}")
             }
-            ready
         }
         compose.runOnUiThread {
             val insets = requireNotNull(imeHost.rootWindowInsets)
