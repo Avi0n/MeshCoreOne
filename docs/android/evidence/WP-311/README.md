@@ -118,8 +118,10 @@ under [`oracle/`](oracle/).
 
 ## Follow-up #226/#228
 
-Base: `d8181418614a5acaa46f4acde54b741b492ac4b0`; candidate:
-`fe67497f4de3b7223aa94860d582fc7b5261394d`. Frozen source:
+Base: `d8181418614a5acaa46f4acde54b741b492ac4b0`; initial implementation candidate:
+`fe67497f4de3b7223aa94860d582fc7b5261394d`. Earlier hosted-check head:
+`c8708313310b76df40be9e75a763fe90dac876e8`. The API31/37 viewport regression and its test
+configuration were added at `d6aa3a63c` and verified locally as recorded below. Frozen source:
 `db14559b39d32322b06477c6ae676112f583db50`. The controller-rendered WP-311
 manifest SHA-256 is `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`;
 policy revision is `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
