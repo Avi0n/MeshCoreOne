@@ -249,7 +249,21 @@ internal class NodesAccessibilityAudit(
             first.fetchSemanticsNode().boundsInRoot.top < second.fetchSemanticsNode().boundsInRoot.top)
         assertFont200Unclipped(first)
         assertFont200Unclipped(second)
+        val target = hasText(favorite.name)
+        val before = compose.onAllNodes(target).fetchSemanticsNodes().size
+        val list = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex))
+        list.performScrollToNode(target)
         assertFont200Unclipped(compose.onNodeWithText(favorite.name).performScrollTo())
+        val measured = compose.onNodeWithText(favorite.name).fetchSemanticsNode()
+        val bounds = measured.boundsInRoot
+        val viewport = list.fetchSemanticsNode().boundsInRoot
+        assertEquals(measured.size.height.toFloat(), bounds.height, 0f)
+        assertEquals(measured.size.width.toFloat(), bounds.width, 0f)
+        assertTrue("The complete scaled name must fit the actual native lazy viewport after public scroll",
+            bounds.left >= viewport.left && bounds.right <= viewport.right &&
+                bounds.top >= viewport.top && bounds.bottom <= viewport.bottom)
+        println("WP503_NODES_LAZY_TRAVERSAL|sdk=${android.os.Build.VERSION.SDK_INT}|beforeComposed=$before" +
+            "|afterComposed=1|bounds=$bounds|allocation=${measured.size}|viewport=$viewport")
         search.performTextReplacement("")
         rooms.performScrollTo().assertIsSelected()
         assertFont200Unclipped(compose.onNodeWithText(room.name))

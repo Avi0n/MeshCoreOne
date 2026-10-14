@@ -31,7 +31,7 @@ class NativeNodesFlowAccessibilityTest : DeviceAccessibilityHarness() {
                     "|imeVisible=${insets.isVisible(WindowInsetsCompat.Type.ime())}" +
                     "|imeBottom=${insets.getInsets(WindowInsetsCompat.Type.ime()).bottom}")
             }
-            println("WP503_NODES_FAILURE_TREE|${compose.onAllNodes(isRoot(), useUnmergedTree = true).printToString()}")
+            println("WP503_NODES_FAILURE_TREE|${compose.onAllNodes(isRoot(), useUnmergedTree = true).printToString(maxDepth = Int.MAX_VALUE)}")
         }
     }
 
