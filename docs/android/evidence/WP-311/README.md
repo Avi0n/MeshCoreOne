@@ -155,3 +155,19 @@ evidence and remains blocked pending a stable, exact UI regression. The manifest
 WP-311 verification command or trusted check identity; local Gradle results are not represented as
 controller/CI gate evidence. No emulator/device, hardware, iOS, signing or release evidence is
 claimed.
+
+### Exact-head dependency-lock repair
+
+Hosted run `38506813183` for head `c612bc3fa9fbb52f830107b9aee48f32c6d7a466` failed its Linux Android
+build at `:resolveScaffoldDependencies`: the feature-nodes lock recorded `androidx.compose.ui:ui-test`
+on `debugUnitTestLintChecksClasspath`, although the current native semantics test does not resolve
+that dependency. Related stale, lint-only test artifacts were also present. Those unused lock
+memberships were removed without weakening strict dependency verification; API31/API37 Robolectric
+SDK and actual test runtime lock entries remain.
+
+Command (from `android/`):
+`./gradlew resolveScaffoldDependencies :feature:nodes:testDebugUnitTest --tests '*DiscoveryNativeTest' --tests '*DiscoveryViewModelTest' --tests '*ContactDetailNativeTest' --tests '*PathManagementNativeTest' --tests '*ContactPathActionsApi31ComposeTest' --tests '*ContactPathActionsApi37ComposeTest' --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"`
+
+Result: command exited 0; strict scaffold dependency resolution and all selected node tests completed
+successfully. JUnit XML records 47 tests, 47 passed, 0 failed, 0 errors, 0 skipped. This is local
+evidence only; a new exact-head hosted run is required to verify the lock repair.
