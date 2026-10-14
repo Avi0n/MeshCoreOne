@@ -3,13 +3,10 @@ package com.meshcoreone.android.accessibility
 
 import android.view.WindowInsets
 import android.view.WindowInsetsAnimation
-import android.view.WindowManager
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
@@ -245,7 +242,7 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
         text.assertIsDisplayed()
         assertFont200Unclipped(text)
         val node = text.fetchSemanticsNode()
-        val viewport = visibleSheetViewport(node)
+        val viewport = nativeWindowViewport(compose, sheetHost, node)
         val bounds = node.boundsInWindow
         println("WP503_ROOM_AUTH_TEXT|label=$label|bounds=$bounds|size=${node.size}|viewport=$viewport")
         assertTrue("The complete room authentication label must be visible in its actual sheet",
@@ -256,37 +253,13 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
 
     private fun assertTarget(interaction: SemanticsNodeInteraction) {
         val node = interaction.assertIsDisplayed().fetchSemanticsNode()
-        val viewport = visibleSheetViewport(node)
+        val viewport = nativeWindowViewport(compose, sheetHost, node)
         val target = node.touchBoundsInRoot.translate(node.boundsInWindow.topLeft - node.boundsInRoot.topLeft)
         val density = activity.resources.displayMetrics.density
         println("WP503_ROOM_AUTH_TARGET|bounds=$target|viewport=$viewport|size=${node.size}")
         assertTrue("Room authentication actions must be fully contained and at least48dp",
             target.left >= viewport.left && target.top >= viewport.top && target.right <= viewport.right &&
                 target.bottom <= viewport.bottom && target.width / density >= 48f && target.height / density >= 48f)
-    }
-
-    private fun visibleSheetViewport(node: SemanticsNode): Rect {
-        val frame = android.graphics.Rect()
-        val screen = IntArray(2)
-        val window = IntArray(2)
-        var insetFrame = Rect.Zero
-        compose.runOnUiThread {
-            sheetHost.getWindowVisibleDisplayFrame(frame)
-            sheetHost.getLocationOnScreen(screen)
-            sheetHost.getLocationInWindow(window)
-            val metrics = requireNotNull(sheetHost.context.getSystemService(WindowManager::class.java)).currentWindowMetrics
-            val safe = requireNotNull(sheetHost.rootWindowInsets)
-                .getInsets(WindowInsets.Type.ime() or WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
-            val bounds = metrics.bounds
-            insetFrame = Rect(
-                (bounds.left + safe.left).toFloat(), (bounds.top + safe.top).toFloat(),
-                (bounds.right - safe.right).toFloat(), (bounds.bottom - safe.bottom).toFloat(),
-            )
-            println("WP503_ROOM_AUTH_VIEWPORT|window=$bounds|safe=$safe|visibleFrame=$frame|activeImeAnimations=${activeImeAnimations.size}")
-        }
-        val native = Rect(frame.left.toFloat(), frame.top.toFloat(), frame.right.toFloat(), frame.bottom.toFloat())
-            .intersect(insetFrame).translate((window[0] - screen[0]).toFloat(), (window[1] - screen[1]).toFloat())
-        return generateSequence(node) { it.parent }.last().boundsInWindow.intersect(native)
     }
 
     private fun awaitActualIme() {
