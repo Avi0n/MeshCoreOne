@@ -1,6 +1,41 @@
 # WP-503 native execution matrix
 
-**Latest ff424 expanded native54/53PASS/1FAIL per actual API31/37: WP316 defect236 blocks CLI construction. Original targeted JVM40/40PASS. Previous39 and new room/direct10 pass on both APIs; historical negatives remain separate. WP503 remains incomplete: producer repair, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Latest9bac native69: API31 67PASS/2FAIL; clean-data API37 68PASS/1FAIL. JVM74/74PASS. CLI236 and API31 QR237 remain product blockers. Same-head37 timeout/contaminated retry remain negative evidence. WP503 is incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+
+## Expanded69 native execution
+
+Exact9bac864ac59c4d3211bfb4b512c3fb121b49b16f/Android tree
+39b2f2702684bb08ab757115ae2b05438132acee retains all exact combined producers and
+adds backup4/Nodes7/font4 without lowering original assertions.
+
+| Native selection | API31 | API37 |
+|---|---|---|
+|Full69|67PASS/2FAIL138.528s|Clean-data68PASS/1FAIL186.654s|
+|Original onboarding4|4PASS16.412s|4PASS16.957s|
+|Original real-IME control1|1PASS5.396s|1PASS6.331s|
+|Newly registered Nodes7|6PASS/1FAIL14.445s|7PASS21.892s|
+
+All completed commands positively match unique starts/outcomes, zero error/skip
+statuses. CLI236 fails both APIs; QR237 fails31 with Copy60x0px/38px line despite
+IME false. Remaining new backup/font/search/detail/path/cancellation flows pass
+inside both full commands. Backup dialog/engine/document and intercepted native
+chooser evidence is not real SAF, backup interoperability, radio or external UI.
+
+Onboarding uses actual public editor activation followed by unchanged1000ms
+IME readiness; autofocus remains independently asserted. Strict measured correction
+after native font observation and on restored Connect preserves full allocation.
+Earlier2b37 initial readiness saw acceptingText=true/imeVisible=false/no animation;
+public pointer setup reuses the existing independent native control, not a timeout
+increase or a product autofocus fix.
+
+Same9bac37 first full:600s incomplete at cached-chat return resize,19 starts/18
+terminal outcomes. Unclean retry:69/66PASS/3FAIL186.297s, including stale owned
+synthetic row caught by the original no-overwrite guard and chat-IME1000ms failure.
+Only exclusive emulator test App data was then reset; original tests stayed unchanged.
+Completion does not erase either negative or prove either underlying cause.
+[Native binding/history](../evidence/WP-503/README.md#native-backup-nodes-font-and-ime-observation).
+
+## Earlier54 registration
 
 Exact ff42476614d07588eb17f1df58b4f9e0e479b3ff/Android tree
 fc92f7c8f81229fcd0045a3d4eee25213dc13d79: full31 **54/53PASS/1FAIL120.885s**,

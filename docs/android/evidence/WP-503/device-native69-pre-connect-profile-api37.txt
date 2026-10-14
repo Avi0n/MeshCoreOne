@@ -1,0 +1,13 @@
+WP503 executed combined headf6ea760ecf5e07b18b88ca97ee2dd1c44dba7cad; emulator profile not physical TalkBack
+37
+16384
+Physical size: 1344x2992
+Override size: 360x900
+Physical density: 480
+Override density: 160
+2.0
+0.0
+0.0
+0.0
+package:com.google.android.gms.supervision
+package:com.google.android.gms

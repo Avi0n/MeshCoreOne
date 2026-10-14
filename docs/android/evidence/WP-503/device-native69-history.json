@@ -1,0 +1,587 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "kind": "Historical native records, not hosted/JVM result bundles or current-head acceptance",
+  "generated_by": "Session-native-history index using original retained AndroidJUnit stdout and APK bindings",
+  "later_success_does_not_erase_scoped_failures_or_prove_causes": true,
+  "cohorts": [
+    {
+      "head": "fc9188ab1dc1549be8788cbc3c180c895d5d5def",
+      "apk_binding": "device-backup-nodes-initial-inputs.json",
+      "record": "device-backup-nodes-initial-backup-api37.txt",
+      "discovered": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 33.149,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "fc9188ab1dc1549be8788cbc3c180c895d5d5def",
+      "apk_binding": "device-backup-nodes-initial-inputs.json",
+      "record": "device-backup-nodes-initial-nodes-api37.txt",
+      "discovered": 7,
+      "passed": 6,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 42.9,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "422649116a86e5f95daf446a083dad3e975409a7",
+      "apk_binding": "device-font-initial-inputs.json",
+      "record": "device-font-initial-api37.txt",
+      "discovered": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 8.433,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "410e66f9a12b27b34cfdf2fb717576e2101d0797",
+      "apk_binding": "device-nodes-diagnostic-inputs.json",
+      "record": "device-nodes-diagnostic-api37.txt",
+      "discovered": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 21.204,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "410e66f9a12b27b34cfdf2fb717576e2101d0797",
+      "apk_binding": "device-nodes-diagnostic-inputs.json",
+      "record": "device-nodes-diagnostic-backup-api31.txt",
+      "discovered": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 9.076,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "410e66f9a12b27b34cfdf2fb717576e2101d0797",
+      "apk_binding": "device-nodes-diagnostic-inputs.json",
+      "record": "device-nodes-diagnostic-font-api31.txt",
+      "discovered": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 3.64,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "410e66f9a12b27b34cfdf2fb717576e2101d0797",
+      "apk_binding": "device-nodes-diagnostic-inputs.json",
+      "record": "device-nodes-diagnostic-full-api31.txt",
+      "discovered": 69,
+      "passed": 67,
+      "failed": 2,
+      "skipped": 0,
+      "seconds": 132.996,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 3
+    },
+    {
+      "head": "410e66f9a12b27b34cfdf2fb717576e2101d0797",
+      "apk_binding": "device-nodes-diagnostic-inputs.json",
+      "record": "device-nodes-diagnostic-full-api37.txt",
+      "discovered": 69,
+      "passed": 68,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 178.686,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "410e66f9a12b27b34cfdf2fb717576e2101d0797",
+      "apk_binding": "device-nodes-diagnostic-inputs.json",
+      "record": "device-nodes-diagnostic-nodes-api31.txt",
+      "discovered": 7,
+      "passed": 6,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 13.732,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 2
+    },
+    {
+      "head": "70d22f51b764247e1c94fbd1f7a67251b60a4101",
+      "apk_binding": "device-native69-pre-traversal-inputs.json",
+      "record": "device-native69-pre-traversal-backup-api37.txt",
+      "discovered": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 25.074,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "70d22f51b764247e1c94fbd1f7a67251b60a4101",
+      "apk_binding": "device-native69-pre-traversal-inputs.json",
+      "record": "device-native69-pre-traversal-font-api37.txt",
+      "discovered": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 8.245,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "70d22f51b764247e1c94fbd1f7a67251b60a4101",
+      "apk_binding": "device-native69-pre-traversal-inputs.json",
+      "record": "device-native69-pre-traversal-full-api31.txt",
+      "discovered": 69,
+      "passed": 67,
+      "failed": 2,
+      "skipped": 0,
+      "seconds": 128.511,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 2
+    },
+    {
+      "head": "70d22f51b764247e1c94fbd1f7a67251b60a4101",
+      "apk_binding": "device-native69-pre-traversal-inputs.json",
+      "record": "device-native69-pre-traversal-full-api37.txt",
+      "discovered": 69,
+      "passed": 68,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 218.944,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "70d22f51b764247e1c94fbd1f7a67251b60a4101",
+      "apk_binding": "device-native69-pre-traversal-inputs.json",
+      "record": "device-native69-pre-traversal-nodes-api31.txt",
+      "discovered": 7,
+      "passed": 6,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 13.257,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "70d22f51b764247e1c94fbd1f7a67251b60a4101",
+      "apk_binding": "device-native69-pre-traversal-inputs.json",
+      "record": "device-native69-pre-traversal-nodes-api37.txt",
+      "discovered": 7,
+      "passed": 6,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 39.447,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "9101b45f3939bdb82af5c93cc77149c47bf34996",
+      "apk_binding": "device-native69-pre-remeasure-inputs.json",
+      "record": "device-native69-pre-remeasure-full-api37.txt",
+      "discovered": 69,
+      "passed": 67,
+      "failed": 2,
+      "skipped": 0,
+      "seconds": 259.365,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel"
+      ],
+      "reported_junit_failure_entries": 2
+    },
+    {
+      "head": "9101b45f3939bdb82af5c93cc77149c47bf34996",
+      "apk_binding": "device-native69-pre-remeasure-inputs.json",
+      "record": "device-native69-pre-remeasure-nodes-api37.txt",
+      "discovered": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 22.921,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "f6ea760ecf5e07b18b88ca97ee2dd1c44dba7cad",
+      "apk_binding": "device-native69-pre-connect-inputs.json",
+      "record": "device-native69-pre-connect-full-api31.txt",
+      "discovered": 69,
+      "passed": 67,
+      "failed": 2,
+      "skipped": 0,
+      "seconds": 144.004,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 2
+    },
+    {
+      "head": "f6ea760ecf5e07b18b88ca97ee2dd1c44dba7cad",
+      "apk_binding": "device-native69-pre-connect-inputs.json",
+      "record": "device-native69-pre-connect-full-api37.txt",
+      "discovered": 69,
+      "passed": 68,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 199.193,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "f6ea760ecf5e07b18b88ca97ee2dd1c44dba7cad",
+      "apk_binding": "device-native69-pre-connect-inputs.json",
+      "record": "device-native69-pre-connect-nodes-api31.txt",
+      "discovered": 7,
+      "passed": 6,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 14.663,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "f6ea760ecf5e07b18b88ca97ee2dd1c44dba7cad",
+      "apk_binding": "device-native69-pre-connect-inputs.json",
+      "record": "device-native69-pre-connect-nodes-api37.txt",
+      "discovered": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 25.527,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "f6ea760ecf5e07b18b88ca97ee2dd1c44dba7cad",
+      "apk_binding": "device-native69-pre-connect-inputs.json",
+      "record": "device-native69-pre-connect-onboarding-api31.txt",
+      "discovered": 4,
+      "passed": 3,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 14.114,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "f6ea760ecf5e07b18b88ca97ee2dd1c44dba7cad",
+      "apk_binding": "device-native69-pre-connect-inputs.json",
+      "record": "device-native69-pre-connect-onboarding-api37.txt",
+      "discovered": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 17.506,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "f6ea760ecf5e07b18b88ca97ee2dd1c44dba7cad",
+      "apk_binding": "device-native69-pre-connect-inputs.json",
+      "record": "device-native69-pre-connect-onboarding-ime-api31.txt",
+      "discovered": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 5.491,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "f6ea760ecf5e07b18b88ca97ee2dd1c44dba7cad",
+      "apk_binding": "device-native69-pre-connect-inputs.json",
+      "record": "device-native69-pre-connect-onboarding-ime-api37.txt",
+      "discovered": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 6.75,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "e02266ac9b735896c0500228daffe7495e6ee41c",
+      "apk_binding": "device-native69-pre-ime-ready-inputs.json",
+      "record": "device-native69-pre-ime-ready-full-api31.txt",
+      "discovered": 69,
+      "passed": 67,
+      "failed": 2,
+      "skipped": 0,
+      "seconds": 139.05,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 2
+    },
+    {
+      "head": "e02266ac9b735896c0500228daffe7495e6ee41c",
+      "apk_binding": "device-native69-pre-ime-ready-inputs.json",
+      "record": "device-native69-pre-ime-ready-nodes-api31.txt",
+      "discovered": 7,
+      "passed": 6,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 14.65,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "e02266ac9b735896c0500228daffe7495e6ee41c",
+      "apk_binding": "device-native69-pre-ime-ready-inputs.json",
+      "record": "device-native69-pre-ime-ready-onboarding-api31.txt",
+      "discovered": 4,
+      "passed": 3,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 11.879,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "e02266ac9b735896c0500228daffe7495e6ee41c",
+      "apk_binding": "device-native69-pre-ime-ready-inputs.json",
+      "record": "device-native69-pre-ime-ready-onboarding-ime-api31.txt",
+      "discovered": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 5.158,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "0bd15a9706b33790a2240de9695a7d76a047bd33",
+      "apk_binding": "device-native69-pre-ime-placement-inputs.json",
+      "record": "device-native69-pre-ime-placement-full-api31.txt",
+      "discovered": 69,
+      "passed": 65,
+      "failed": 4,
+      "skipped": 0,
+      "seconds": 317.174,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable",
+        "com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel",
+        "com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiNativeNextDoneAndFailedRetryPreserveAddressAndExposeLocalError"
+      ],
+      "reported_junit_failure_entries": 4
+    },
+    {
+      "head": "0bd15a9706b33790a2240de9695a7d76a047bd33",
+      "apk_binding": "device-native69-pre-ime-placement-inputs.json",
+      "record": "device-native69-pre-ime-placement-nodes-api31.txt",
+      "discovered": 7,
+      "passed": 6,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 33.151,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "0bd15a9706b33790a2240de9695a7d76a047bd33",
+      "apk_binding": "device-native69-pre-ime-placement-inputs.json",
+      "record": "device-native69-pre-ime-placement-onboarding-api31.txt",
+      "discovered": 4,
+      "passed": 2,
+      "failed": 2,
+      "skipped": 0,
+      "seconds": 22.964,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel",
+        "com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiNativeNextDoneAndFailedRetryPreserveAddressAndExposeLocalError"
+      ],
+      "reported_junit_failure_entries": 2
+    },
+    {
+      "head": "0bd15a9706b33790a2240de9695a7d76a047bd33",
+      "apk_binding": "device-native69-pre-ime-placement-inputs.json",
+      "record": "device-native69-pre-ime-placement-onboarding-ime-api31.txt",
+      "discovered": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 13.352,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "4a154df3e91da5be1fec14b43e2763d7d100db5d",
+      "apk_binding": "device-native69-pre-ime-idle-inputs.json",
+      "record": "device-native69-pre-ime-idle-onboarding-api31.txt",
+      "discovered": 4,
+      "passed": 3,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 25.775,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "2b82071000cb3e03ccf3542937f746719320610f",
+      "apk_binding": "device-native69-pre-ime-pointer-inputs.json",
+      "record": "device-native69-pre-ime-pointer-full-api31.txt",
+      "discovered": 69,
+      "passed": 67,
+      "failed": 2,
+      "skipped": 0,
+      "seconds": 358.189,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 2
+    },
+    {
+      "head": "2b82071000cb3e03ccf3542937f746719320610f",
+      "apk_binding": "device-native69-pre-ime-pointer-inputs.json",
+      "record": "device-native69-pre-ime-pointer-full-api37.txt",
+      "discovered": 69,
+      "passed": 68,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 237.087,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "2b82071000cb3e03ccf3542937f746719320610f",
+      "apk_binding": "device-native69-pre-ime-pointer-inputs.json",
+      "record": "device-native69-pre-ime-pointer-nodes-api31.txt",
+      "discovered": 7,
+      "passed": 6,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 39.489,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "2b82071000cb3e03ccf3542937f746719320610f",
+      "apk_binding": "device-native69-pre-ime-pointer-inputs.json",
+      "record": "device-native69-pre-ime-pointer-nodes-api37.txt",
+      "discovered": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 36.885,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "2b82071000cb3e03ccf3542937f746719320610f",
+      "apk_binding": "device-native69-pre-ime-pointer-inputs.json",
+      "record": "device-native69-pre-ime-pointer-onboarding-api31.txt",
+      "discovered": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 27.2,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "2b82071000cb3e03ccf3542937f746719320610f",
+      "apk_binding": "device-native69-pre-ime-pointer-inputs.json",
+      "record": "device-native69-pre-ime-pointer-onboarding-api37.txt",
+      "discovered": 4,
+      "passed": 3,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 55.512,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel"
+      ],
+      "reported_junit_failure_entries": 1
+    },
+    {
+      "head": "2b82071000cb3e03ccf3542937f746719320610f",
+      "apk_binding": "device-native69-pre-ime-pointer-inputs.json",
+      "record": "device-native69-pre-ime-pointer-onboarding-ime-api31.txt",
+      "discovered": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 14.329,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "2b82071000cb3e03ccf3542937f746719320610f",
+      "apk_binding": "device-native69-pre-ime-pointer-inputs.json",
+      "record": "device-native69-pre-ime-pointer-onboarding-ime-api37.txt",
+      "discovered": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 20.125,
+      "failed_identities": [],
+      "reported_junit_failure_entries": 0
+    },
+    {
+      "head": "9bac864ac59c4d3211bfb4b512c3fb121b49b16f",
+      "apk_binding": "device-native69-post-timeout-inputs.json",
+      "record": "device-native69-post-timeout-full-api37.txt",
+      "discovered": 69,
+      "passed": 66,
+      "failed": 3,
+      "skipped": 0,
+      "seconds": 186.297,
+      "failed_identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200",
+        "com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft"
+      ],
+      "reported_junit_failure_entries": 3
+    }
+  ]
+}

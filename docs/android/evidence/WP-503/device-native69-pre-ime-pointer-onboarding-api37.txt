@@ -1,0 +1,104 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest:
+INSTRUMENTATION_STATUS: test=wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.awaitActualWifiIme(NativeOnboardingFlowAccessibilityTest.kt:62)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.access$awaitActualWifiIme(NativeOnboardingFlowAccessibilityTest.kt:17)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest$audit$2$9.invoke(NativeOnboardingFlowAccessibilityTest.kt:92)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest$audit$2$9.invoke(NativeOnboardingFlowAccessibilityTest.kt:92)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.mountWifi(OnboardingAccessibilityAudit.kt:222)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(OnboardingAccessibilityAudit.kt:196)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(NativeOnboardingFlowAccessibilityTest.kt:108)
+
+INSTRUMENTATION_STATUS: stream=
+Error in wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.awaitActualWifiIme(NativeOnboardingFlowAccessibilityTest.kt:62)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.access$awaitActualWifiIme(NativeOnboardingFlowAccessibilityTest.kt:17)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest$audit$2$9.invoke(NativeOnboardingFlowAccessibilityTest.kt:92)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest$audit$2$9.invoke(NativeOnboardingFlowAccessibilityTest.kt:92)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.mountWifi(OnboardingAccessibilityAudit.kt:222)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(OnboardingAccessibilityAudit.kt:196)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(NativeOnboardingFlowAccessibilityTest.kt:108)
+
+INSTRUMENTATION_STATUS: test=wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=deniedAndUndeterminedPermissionsKeepRecoveryAndContinueReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=deniedAndUndeterminedPermissionsKeepRecoveryAndContinueReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=wifiInitialAddressAutofocusMatchesTheNativeFrameworkControl
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=wifiInitialAddressAutofocusMatchesTheNativeFrameworkControl
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=wifiNativeNextDoneAndFailedRetryPreserveAddressAndExposeLocalError
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=wifiNativeNextDoneAndFailedRetryPreserveAddressAndExposeLocalError
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 55.512
+There was 1 failure:
+1) wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.awaitActualWifiIme(NativeOnboardingFlowAccessibilityTest.kt:62)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.access$awaitActualWifiIme(NativeOnboardingFlowAccessibilityTest.kt:17)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest$audit$2$9.invoke(NativeOnboardingFlowAccessibilityTest.kt:92)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest$audit$2$9.invoke(NativeOnboardingFlowAccessibilityTest.kt:92)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.mountWifi(OnboardingAccessibilityAudit.kt:222)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(OnboardingAccessibilityAudit.kt:196)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(NativeOnboardingFlowAccessibilityTest.kt:108)
+
+FAILURES!!!
+Tests run: 4,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

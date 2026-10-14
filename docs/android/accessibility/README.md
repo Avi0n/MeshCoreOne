@@ -1,9 +1,45 @@
 # WP-503 accessibility audit
 
-**Status: expanded ff424 native54/53PASS/1FAIL on each actual API31/37; new WP316 defect236 blocks CLI construction. Original JVM40/40PASS. All previous39 and ten newly registered room/direct cases pass on both APIs. PR205 remains draft: product repair, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review are unverified.**
+**Status: expanded9bac native69: API31 67PASS/2FAIL; API37 clean-data run68PASS/1FAIL. Original targeted JVM74/74PASS. WP316 CLI defect236 and WP311 API31 QR defect237 remain unresolved. A same-head API37 timeout and contaminated retry are retained, not superseded by the completing run. PR205 stays draft: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native backup, Nodes and font controls
+
+Executed9bac864ac59c4d3211bfb4b512c3fb121b49b16f, Android tree
+39b2f2702684bb08ab757115ae2b05438132acee, adds backup4, remaining Nodes7 and
+original font-oracle4 to the previous54. Original backup/font bodies are unchanged;
+five newly shared Nodes bodies are unchanged, QR only substitutes the actual native
+intent observer, and search retains every original line with public lazy-list
+traversal plus strict full-allocation/viewport containment. No fixture data, product
+source, floor, tolerance, deadline, golden or producer binding changes.
+
+Actual full31 **69/67PASS/2FAIL138.528s**; clean-data full37
+**69/68PASS/1FAIL186.654s**, zero error/skip statuses. Both fail CLI236.
+API31 additionally fails [WP311 QR Copy defect237](https://github.com/cbattlegear/MeshCoreOne-Android/issues/237):
+actual text60x0px for a38px line, no visible IME. API37 passes QR/clipboard/Copied
+feedback/exact intercepted chooser payload. Assignment is coordination ownership,
+not verified active repair; original strict QR regression remains enabled.
+
+Native onboarding now prepares the actual address editor with the existing control's
+public pointer/focus actions, then requires accepting text/visible IME/no active
+animation within the original1000ms. The observer runs outside composition, continues
+child inset dispatch, returns insets unchanged and removes its owned callback.
+Autofocus remains a separate unchanged case. Readability remeasures whole allocation
+after native font observation and also checks the restored Connect action. Scoped
+original4/4 and unchanged real-IME2px rejection/restoration1/1 pass on both APIs.
+
+Backup uses the actual dialog window with real state holder/deterministic engine and
+document ports, not real SAF or codec/restore acceptance. Font4 pass on both native
+APIs, including actual clipping rejection; JVM8 originals remain. Nodes search uses
+public lazy traversal without hiding IME; the earlier missing-name cause is unproven
+and9101 actually observed beforeComposed1, not an uncomposed counterexample.
+The first9bac37 full run times out600s during cached-chat return resize (19 starts,
+18 outcomes). An unclean retry then catches its retained synthetic row and an
+original chat-IME prerequisite failure. Both are retained; fresh owned test App data
+permits completion but proves neither earlier stall nor chat-IME cause.
+[Exact commands, source/APKs, all43 historical cohorts and qualifications](../evidence/WP-503/README.md#native-backup-nodes-font-and-ime-observation).
 
 ## Native room/direct and diagnostics registration
 

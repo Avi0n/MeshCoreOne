@@ -1,0 +1,128 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_WIFI_IME_OBSERVATION|ready=false|acceptingText=true|imeVisible=false|activeAnimations=0|imeBottom=0|prepares=0|ends=0|windowFocus=true|focusedView=androidx.compose.ui.platform.AndroidComposeView{e2785c2 VFED..... .F...... 0,0-360,900 aid=1073741824}
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=A couple of permissions|size=328 x 100|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 784)|paragraph=328.0x100.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=A couple of permissions|line=0|left=65.0|right=263.0|top=0.0|bottom=50.0
+WP503_FONT_LINE|text=A couple of permissions|line=1|left=58.0|right=270.0|top=50.0|bottom=100.0
+WP503_ONBOARDING_TEXT|text=A couple of permissions|bounds=Rect.fromLTRB(16.0, 92.0, 344.0, 192.0)|size=328 x 100|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Continue|size=117 x 42|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = 527)|paragraph=280.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Continue|line=0|left=0.0|right=115.80001|top=0.0|bottom=42.0
+WP503_ONBOARDING_TEXT|text=Continue|bounds=Rect.fromLTRB(16.0, 802.0, 344.0, 860.0)|size=328 x 58|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Continue|size=104 x 38|constraints=Constraints(minWidth = 0, maxWidth = 184, minHeight = 0, maxHeight = Infinity)|paragraph=184.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Continue|line=0|left=0.0|right=104.0|top=0.0|bottom=38.0
+WP503_ONBOARDING_TEXT|text=Continue|bounds=Rect.fromLTRB(32.0, 748.0, 184.0, 802.0)|size=152 x 54|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_TARGET|width=152.0|height=54.0|role=Button
+WP503_TARGET|width=328.0|height=58.0|role=Button
+WP503_FONT|text=Settings|size=97 x 38|constraints=Constraints(minWidth = 0, maxWidth = 184, minHeight = 0, maxHeight = Infinity)|paragraph=184.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=97.0|top=0.0|bottom=38.0
+WP503_ONBOARDING_TEXT|text=Settings|bounds=Rect.fromLTRB(32.0, 748.0, 177.0, 802.0)|size=145 x 54|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_TARGET|width=145.0|height=54.0|role=Button
+WP503_TARGET|width=328.0|height=58.0|role=Button
+WP503_FONT|text=Notifications|size=64 x 126|constraints=Constraints(minWidth = 0, maxWidth = 64, minHeight = 0, maxHeight = Infinity)|paragraph=64.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=Notifications|line=0|left=0.0|right=53.2|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Notifications|line=1|left=0.0|right=63.6|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Notifications|line=2|left=0.0|right=46.8|top=84.0|bottom=126.0
+WP503_SCROLL_LINE|text=Notifications|line=0|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Notifications|line=1|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Notifications|line=2|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_FONT|text=Get alerts for new messages and low battery, even when the app is closed.|size=64 x 638|constraints=Constraints(minWidth = 0, maxWidth = 64, minHeight = 0, maxHeight = Infinity)|paragraph=64.0x638.0|widthOverflow=false|heightOverflow=false|lines=17
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=0|left=0.0|right=41.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=1|left=0.0|right=52.63672|top=32.0|bottom=70.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=2|left=0.0|right=52.0|top=70.0|bottom=108.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=3|left=0.0|right=48.0|top=108.0|bottom=146.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=4|left=0.0|right=63.0|top=146.0|bottom=184.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=5|left=0.0|right=56.0|top=184.0|bottom=222.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=6|left=0.0|right=43.0|top=222.0|bottom=260.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=7|left=0.0|right=41.0|top=260.0|bottom=298.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=8|left=0.0|right=61.0|top=298.0|bottom=336.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=9|left=0.0|right=24.871094|top=336.0|bottom=374.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=10|left=0.0|right=54.671875|top=374.0|bottom=412.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=11|left=0.0|right=62.0|top=412.0|bottom=450.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=12|left=0.0|right=37.0|top=450.0|bottom=488.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=13|left=0.0|right=44.0|top=488.0|bottom=526.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=14|left=0.0|right=19.0|top=526.0|bottom=564.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=15|left=0.0|right=62.0|top=564.0|bottom=602.0
+WP503_FONT_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=16|left=0.0|right=22.0|top=602.0|bottom=638.0
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=0|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=1|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=2|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=3|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=4|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=5|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=6|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=7|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=8|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=9|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=10|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=11|position=Offset(200.0, 317.0)->Offset(200.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=12|position=Offset(200.0, 317.0)->Offset(200.0, 314.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=13|position=Offset(200.0, 314.0)->Offset(200.0, 276.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=14|position=Offset(200.0, 276.0)->Offset(200.0, 238.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=15|position=Offset(200.0, 238.0)->Offset(200.0, 200.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Get alerts for new messages and low battery, even when the app is closed.|line=16|position=Offset(200.0, 200.0)->Offset(200.0, 164.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_FONT|text=Location|size=71 x 84|constraints=Constraints(minWidth = 0, maxWidth = 71, minHeight = 0, maxHeight = Infinity)|paragraph=71.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Location|line=0|left=0.0|right=62.2|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Location|line=1|left=0.0|right=49.2|top=42.0|bottom=84.0
+WP503_SCROLL_LINE|text=Location|line=0|position=Offset(193.0, 718.0)->Offset(193.0, 718.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Location|line=1|position=Offset(193.0, 718.0)->Offset(193.0, 718.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_FONT|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|size=71 x 676|constraints=Constraints(minWidth = 0, maxWidth = 71, minHeight = 0, maxHeight = Infinity)|paragraph=71.0x676.0|widthOverflow=false|heightOverflow=false|lines=18
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=0|left=0.0|right=59.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=1|left=0.0|right=36.0|top=32.0|bottom=70.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=2|left=0.0|right=55.0|top=70.0|bottom=108.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=3|left=0.0|right=58.492188|top=108.0|bottom=146.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=4|left=0.0|right=64.75781|top=146.0|bottom=184.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=5|left=0.0|right=27.0|top=184.0|bottom=222.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=6|left=0.0|right=62.0|top=222.0|bottom=260.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=7|left=0.0|right=49.808594|top=260.0|bottom=298.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=8|left=0.0|right=64.0|top=298.0|bottom=336.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=9|left=0.0|right=64.0|top=336.0|bottom=374.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=10|left=0.0|right=37.0|top=374.0|bottom=412.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=11|left=0.0|right=57.0|top=412.0|bottom=450.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=12|left=0.0|right=43.0|top=450.0|bottom=488.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=13|left=0.0|right=46.63672|top=488.0|bottom=526.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=14|left=0.0|right=66.0|top=526.0|bottom=564.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=15|left=0.0|right=68.859375|top=564.0|bottom=602.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=16|left=0.0|right=71.0|top=602.0|bottom=640.0
+WP503_FONT_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=17|left=0.0|right=35.0|top=640.0|bottom=676.0
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=0|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=1|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=2|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=3|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=4|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=5|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=6|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=7|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=8|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=9|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=10|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=11|position=Offset(193.0, 317.0)->Offset(193.0, 317.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=12|position=Offset(193.0, 317.0)->Offset(193.0, 314.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=13|position=Offset(193.0, 314.0)->Offset(193.0, 276.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=14|position=Offset(193.0, 276.0)->Offset(193.0, 238.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=15|position=Offset(193.0, 238.0)->Offset(193.0, 200.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=16|position=Offset(193.0, 200.0)->Offset(193.0, 162.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_SCROLL_LINE|text=Suggest local radio presets, show your position on the map, and sort contacts by distance.|line=17|position=Offset(193.0, 162.0)->Offset(193.0, 126.0)|viewport=Rect.fromLTRB(16.0, 317.0, 344.0, 802.0)
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_AUTOFOCUS_CONTROL|focused=true
+WP503_AUTOFOCUS_WIFI|focused=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_WIFI_IME_OBSERVATION|ready=true|acceptingText=true|imeVisible=true|activeAnimations=0|imeBottom=299|prepares=1|ends=1|windowFocus=true|focusedView=androidx.compose.ui.platform.AndroidComposeView{39e0596 VFED..... .F...... 0,0-360,900 aid=1073741824}
+WP503_WIFI_IME_READY|acceptingText=true|imeVisible=true|activeAnimations=0|imeBottom=299|prepares=1|ends=1
+WP503_FONT|text=Connect via WiFi|size=260 x 45|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x45.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Connect via WiFi|line=0|left=0.0|right=260.0|top=0.0|bottom=45.0
+WP503_ONBOARDING_TEXT|text=Connect via WiFi|bounds=Rect.fromLTRB(84.0, 122.0, 344.0, 167.0)|size=260 x 45|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)
+WP503_FONT|text=Connection refused 中 שלום|size=328 x 84|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Connection refused 中 שלום|line=0|left=0.0|right=276.7422|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Connection refused 中 שלום|line=1|left=0.0|right=61.71875|top=42.0|bottom=84.0
+WP503_ONBOARDING_TEXT|text=Connection refused 中 שלום|bounds=Rect.fromLTRB(16.0, 517.0, 344.0, 601.0)|size=328 x 84|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)
+WP503_FONT|text=Connect|size=109 x 42|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Connect|line=0|left=0.0|right=107.40001|top=0.0|bottom=42.0
+WP503_ONBOARDING_TEXT|text=Connect|bounds=Rect.fromLTRB(16.0, 543.0, 344.0, 601.0)|size=328 x 58|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)
+WP503_TARGET|width=328.0|height=88.0|role=null
+WP503_TARGET|width=49.0|height=49.0|role=Button
+WP503_TARGET|width=328.0|height=88.0|role=null
+WP503_TARGET|width=49.0|height=49.0|role=Button
+WP503_TARGET|width=328.0|height=58.0|role=Button
+WP503_FONT|text=Cancel|size=80 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=80.0|top=0.0|bottom=38.0
+WP503_ONBOARDING_TEXT|text=Cancel|bounds=Rect.fromLTRB(240.0, 52.0, 344.0, 106.0)|size=104 x 54|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)

@@ -1,0 +1,4 @@
+Executed only on the exclusive WP503 phase emulator, not physical/user data.
+After retained600s timeout and aborted-finally fixture-row guard failure; original tests/assertions unchanged.
+adb -s emulator-5714 shell pm clear com.meshcoreone.android.debug
+Success

@@ -1,0 +1,98 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_combined_binding": "device-diagnostics-integration.json",
+  "executed_combined_head": "9bac864ac59c4d3211bfb4b512c3fb121b49b16f",
+  "executed_android_tree": "39b2f2702684bb08ab757115ae2b05438132acee",
+  "apk_binding": "device-native69-inputs.json",
+  "historical_completed_native_records": "device-native69-history.json",
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "new_native_cases": {"backup": 4, "remaining_nodes": 7, "original_font_oracle_controls": 4},
+  "original_case_guards": {
+    "backup_4_and_font_4_bodies_byte_identical": true,
+    "remaining_nodes_5_bodies_byte_identical": true,
+    "qr_only_original_body_substitution": "Actual captured/blocked native started-intent supplier instead of JVM shadow",
+    "search_all_original_lines_preserved_in_order": true,
+    "search_added_checks": "Public lazy ScrollToNode and exact full allocation within actual lazy viewport",
+    "onboarding_3_bodies_byte_identical": true,
+    "pending_final_connect": "Stronger shared whole-allocation/font readability replaces bare display assertion",
+    "native_launcher_remote_map_los_and_ime_control_files_equal_12f7": true,
+    "all_six_wp313_imported_blobs_equal_exact_producer": true,
+    "product_code_original_fixture_data_threshold_tolerance_deadline_or_golden_changes": false
+  },
+  "native_onboarding_adapter": {
+    "setup": "Existing independent native control public address scroll/pointer/focus before original shared cases",
+    "autofocus_case_unchanged_and_independent": true,
+    "observation": "Accepting text, visible IME, no active animation; original1000ms wait outside composition",
+    "insets": "Continue child dispatch; return unchanged insets; remove owned observer",
+    "readability": "Measured public whole-allocation correction repeated after native font observation",
+    "earlier_click_or_missing_name_causes_proven": false
+  },
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "families": {"onboarding": 8, "messaging": 22, "diagnostics": 10, "backup": 8, "nodes": 18, "font": 8},
+    "both_original_sdk_variants_and_names_preserved": true,
+    "app_and_instrumentation_assembly": "PASS"
+  },
+  "native_api31": {
+    "complete_inventory": {"discovered": 69, "passed": 67, "failed": 2, "errors": 0, "skipped": 0, "seconds": 138.528},
+    "onboarding": {"discovered": 4, "passed": 4, "seconds": 16.412},
+    "ime_control": {"discovered": 1, "passed": 1, "seconds": 5.396},
+    "nodes": {"discovered": 7, "passed": 6, "failed": 1, "seconds": 14.445},
+    "failed_identities": [
+      "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+      "NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+    ],
+    "profile": "device-native69-profile-api31.txt"
+  },
+  "native_api37": {
+    "complete_inventory_clean_test_data": {"discovered": 69, "passed": 68, "failed": 1, "errors": 0, "skipped": 0, "seconds": 186.654},
+    "onboarding": {"discovered": 4, "passed": 4, "seconds": 16.957},
+    "ime_control": {"discovered": 1, "passed": 1, "seconds": 6.331},
+    "nodes": {"discovered": 7, "passed": 7, "failed": 0, "seconds": 21.892},
+    "failed_identity": "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+    "same_head_initial_full": {
+      "result": "INCOMPLETE_TIMEOUT_NOT_PASS", "outer_seconds": 600, "started": 19, "terminal_outcomes": 18,
+      "record": "device-native69-initial-full-api37.txt",
+      "phase": "Original cached-chat resize after returning900-to360; cause unproven",
+      "owned_app_sigquit_requested": true,
+      "usable_thread_trace_obtained": false
+    },
+    "same_head_post_timeout_unclean_retry": {
+      "discovered": 69, "passed": 66, "failed": 3, "seconds": 186.297,
+      "record": "device-native69-post-timeout-full-api37.txt",
+      "failures": ["CLI236", "Original no-overwrite guard catches timeout's retained synthetic row", "Original chat-IME1000ms prerequisite"],
+      "cause_of_stall_or_chat_ime_failure_proven": false
+    },
+    "explicit_owned_test_app_data_reset": "device-native69-reset-api37.txt",
+    "clean_completion_erases_earlier_failures": false,
+    "profile": "device-native69-profile-api37.txt"
+  },
+  "product_blockers": [
+    {"issue": 236, "owner": "WP-316", "failure": "Android ICU Bad mode2 before CLI construction; helper blob equals main"},
+    {"issue": 237, "owner": "WP-311", "failure": "API31 Copy60x0px/maxHeight0 versus38px line; IME false"}
+  ],
+  "assigned_github_coordination_owner": "cbattlegear",
+  "active_repair_workers_or_new_dispatch_claimed": false,
+  "standalone_producer_head_device_execution": false,
+  "real_saf_codec_restore_radio_or_external_chooser_acceptance": false,
+  "physical_talkback_observed": false,
+  "approved_goldens_or_full_matrix_acceptance": false,
+  "both_final_owned_emulators_exited_zero": true,
+  "exact_four_owned_phase_images_removed": true,
+  "only_stale_owned_tcp_endpoint_disconnected": true,
+  "final_adb_device_list_empty": true,
+  "merge_independent_approval_or_wp_completion": false
+}

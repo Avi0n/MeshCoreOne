@@ -1,11 +1,121 @@
 # WP-503 attempt evidence
 
-**Expanded ff424 native54/53PASS/1FAIL per actual API31/37: new WP316 defect236 prevents CLI construction. Original targeted JVM40/40PASS; all previous39 and ten room/direct additions pass on both APIs. PR205/WP503 remain incomplete: producer repair, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Expanded9bac native69: API31 67PASS/2FAIL; clean-data API37 68PASS/1FAIL. Original targeted JVM74/74PASS. CLI236 and API31 QR237 remain unresolved. Same-head37 timeout/unclean retry remain negative evidence. PR205/WP503 stay incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native backup Nodes font and IME observation
+
+Executed **9bac864ac59c4d3211bfb4b512c3fb121b49b16f**, Android tree
+**39b2f2702684bb08ab757115ae2b05438132acee**. This is the existing combined
+WP3181b2cd/WP311c870/WP3072396/WP313d2ff integration, not native execution of
+standalone producer heads. All six WP313 imported blobs still match.
+[Integration](device-native69-integration.json), [exact APKs](device-native69-inputs.json),
+[43 historical completed cohorts and their original bindings](device-native69-history.json).
+Production109723777/e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff;
+test3288515/b42f9531bd8b61d4191481043c707b8a5141a91fab1ec10cd1e68bbaa709a763.
+
+Original backup4 and font4 bodies are byte-identical, with thin original JVM/new
+Android wrappers. Seven remaining Nodes cases add to existing2: five bodies are
+identical; QR's only adaptation is the platform started-intent supplier; search
+retains every old line in order, adding public lazy ScrollToNode and exact full
+allocation/viewport containment. Original launcher/remote/map/LoS/real-IME-control
+files remain identical to12f7. No producer/build/dependency/release/R8 changes.
+
+Existing strict command, executed through installed serialized ext4 snapshot/preflight:
+`:app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeBackupAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeNodesAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeFontAuditRegressionTest.* --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`
+**passes74/74**, onboarding8/messaging22/diagnostics10/backup8/Nodes18/font8, every
+original name in both SDK variants, zero failures/errors/skips. Both APK tasks pass.
+No reproducible JVM or hosted-result bundle is retained.
+
+Actual command:
+`adb -s SERIAL shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Class selections replace package selection with `-e class SELECTOR`.
+
+| SELECTOR in com.meshcoreone.android.accessibility | Actual API31 | Actual API37 |
+|---|---|---|
+|Entire package|69/67PASS/2FAIL138.528s|Clean-data69/68PASS/1FAIL186.654s|
+|NativeOnboardingFlowAccessibilityTest|4/4PASS16.412s|4/4PASS16.957s|
+|NativeOnboardingImeAccessibilityTest|1/1PASS5.396s|1/1PASS6.331s|
+|NativeNodesFlowAccessibilityTest|7/6PASS/1FAIL14.445s|7/7PASS21.892s|
+
+Each completed command matches positive unique starts and matching terminal identities;
+zero error/skip statuses. `device-native69-{full,onboarding,onboarding-ime,nodes}*-api{31,37}.txt`
+are actual stdout/metrics, not inferred output or current-head hosted success.
+Both full commands fail. CLI236 remains the same actual Android ICU constructor error.
+API31 additionally fails QR237: **Copy60x0px/maxHeight0 versus38px line**, IME false/
+bottom0, actual Activity360x900 and separate dialog320x711.37 Copy is fully allocated;
+clipboard/key/temporary disabled Copied/clock reset/exact actual intercepted chooser
+payload and dismissal pass. The platform monitor prevents external chooser launch:
+this is not external chooser UI or radio acceptance.237 is assignedcbattlegear for
+coordination, not a verified active producer worker.
+
+Backup4 pass on each full run using real state holder/actual dialog root and
+deterministic engine/document ports: connected gate, picker cancellation/retry, typed
+parse error/dismissal, preview/mixed counts/completion and pending cancellation.
+No real SAF selection, backup codec/restore or bidirectional interoperability claim.
+All four original font controls pass on both actual APIs, including real clipping
+rejection. Shared oracle code/floors/tolerances are unchanged.
+
+Native onboarding prepares the actual editor through the independent control's
+existing public scroll/pointer/focus actions before observing accepting-text/visible
+IME/no running animation within the **original1000ms**. The callback continues child
+insets, returns them unchanged and removes its owned listener. Observation runs on
+the instrumentation thread, outside composition. Autocomplete or hidden keyboard is
+not substituted; the original separate autofocus case remains unchanged.
+Readability performs the same strict measured whole-allocation correction after font
+observation, then proves final geometry; restored Connect uses that same helper.
+Three original bodies are identical; the pending case's final display assertion is
+strengthened, not removed. Both full commands pass these cases and the independent
+exact2px clipping-rejection/public-restoration control.
+
+### Retained negatives, not causal or retrospective passes
+
+The history index binds each completed record to its own original source/APKs:
+fc918 first37 backup4/4 but Nodes search6/7;410e31 QR clipping plus old watcher
+extra JUnit failure entry;70d31 QR and37 scoped missing-name;9101 real pending2px
+clipping;f6ea31 final Connect offscreen;e02231 pending text missing after pointer;
+0bd31 two composition-thread readiness timeouts;4a31 initial IME timeout;2b37
+initial IME timeout despite full completion. Scoped negatives are not erased by
+later full passes.410e had2 failed identities but3 reported JUnit failure entries:
+the old watcher wrongly expected one root despite legitimate Activity+dialog roots.
+The corrected watcher records all roots/deep descendants without changing QR assertions.
+
+0bd incorrectly called the observer inside composition;4a moves it outside and
+adds a main-thread guard.2b synchronizes composition but37 still reports accepting
+text=true/visible IME=false/zero prepares or active animations.9bac explicitly
+activates the native editor using existing control prior art rather than increasing
+the deadline or retrying Connect. No claim that this diagnoses every earlier click,
+font-layout or cold-start failure.9101 actually observed beforeComposed1; public
+lazy traversal adds reachability proof but does not establish the earlier missing
+name's cause or independently demonstrate uncomposed-to-composed traversal.
+
+At **the same9bac**, [initial37 full](device-native69-initial-full-api37.txt) times
+out at unchanged600s with19 starts/18 terminal outcomes after the cached-chat
+900-to360 return command; [metrics](device-native69-initial-full-metrics-api37.txt)
+show the original message/draft retained at900, not completed return/Back acceptance.
+A SIGQUIT diagnostic request to only the owned test App produced no usable thread
+trace here; no cause is claimed. After force-stopping that hung App, an
+[unclean retry](device-native69-post-timeout-full-api37.txt) completes69/66PASS/3FAIL
+186.297s: CLI236, original no-overwrite guard catches the timeout's retained synthetic
+device row, and original chat-IME1000ms prerequisite fails. No guard was removed.
+Then only the exclusive emulator's test App data was explicitly
+[reset](device-native69-reset-api37.txt). The final clean-data run above completes;
+all nine original launcher cases/both resize directions pass. This does not erase
+the timeout/IME negative or prove their underlying cause. It is not production
+database recreation or deletion of physical/user data.
+
+Device profiles are retained for actual sequential API31 AOSP/x86_64/4KiB/noGMS and
+API37.2 PlayStore/x86_64/16KiB/GMS, font2/mdpi/decorRTL/animation0/360x900. Diagnostics'
+actual600dp window restores900. An earlier31 adb transport loss was recovered only
+through its owned TCP endpoint; failed pre-instrumentation setup is not native test
+evidence. Both final owned emulators exit0; exactly four named phase image files are
+removed and only the stale owned TCP endpoint disconnected; final adb list is empty.
+Physical TalkBack, remaining matrix, approved goldens, independent review and
+WP-specific admission remain unavailable/unaccepted; no completion/merge/closure.
 
 ## Native room/direct and diagnostics registration
 
