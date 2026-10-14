@@ -4,7 +4,8 @@ package com.meshcoreone.android.accessibility
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
-import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.onAllNodes
 import androidx.compose.ui.test.printToString
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -31,7 +32,7 @@ class NativeNodesFlowAccessibilityTest : DeviceAccessibilityHarness() {
                     "|imeVisible=${insets.isVisible(WindowInsetsCompat.Type.ime())}" +
                     "|imeBottom=${insets.getInsets(WindowInsetsCompat.Type.ime()).bottom}")
             }
-            println("WP503_NODES_FAILURE_TREE|${compose.onRoot(useUnmergedTree = true).printToString()}")
+            println("WP503_NODES_FAILURE_TREE|${compose.onAllNodes(isRoot(), useUnmergedTree = true).printToString()}")
         }
     }
 
