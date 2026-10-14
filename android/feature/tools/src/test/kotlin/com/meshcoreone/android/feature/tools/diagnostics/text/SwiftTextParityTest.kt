@@ -96,7 +96,20 @@ class SwiftTextParityTest {
             "abc" to "ABC", "straße" to "STRASSE", "é" to "é", "Ａ" to "A", "node 1" to "NODE 1",
             "ǆ" to "Ǆ", "ﬁ" to "FI",
         )
-        pairs.forEach { (a, b) -> assertTrue(compare.equal(a, b), "$a|$b") }
-        listOf("é" to "e", "ı" to "I", "İ" to "i").forEach { (a, b) -> assertFalse(compare.equal(a, b), "$a|$b") }
+        pairs.forEach { (a, b) ->
+            assertTrue(compare.equal(a, b), "$a|$b")
+            assertTrue(compare.equal(b, a), "$b|$a")
+            assertEquals(0, compare.comparator.compare(a, b), "$a|$b ordering")
+            assertEquals(0, compare.comparator.compare(b, a), "$b|$a ordering")
+        }
+        listOf("é" to "e", "ı" to "I", "İ" to "i").forEach { (a, b) ->
+            assertFalse(compare.equal(a, b), "$a|$b")
+            assertFalse(compare.equal(b, a), "$b|$a")
+            assertTrue(compare.comparator.compare(a, b) != 0, "$a|$b ordering")
+            assertTrue(compare.comparator.compare(b, a) != 0, "$b|$a ordering")
+        }
+        assertEquals(pairs.flatMap { (a, b) -> listOf(a, b) }, pairs.flatMap { (a, b) ->
+            listOf(a, b).sortedWith(compare.comparator)
+        })
     }
 }
