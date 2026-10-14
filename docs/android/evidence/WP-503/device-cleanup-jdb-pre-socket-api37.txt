@@ -1,0 +1,16 @@
+POST_ORIGINAL600S_RESULT|true
+COMMAND|['C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.12.101-hotspot\\bin\\jdb.EXE', '-attach', 'localhost:54137']
+EXIT|0
+java.io.IOException: shmemBase_attach failed: The system cannot find the file specified
+
+	at jdk.jdi/com.sun.tools.jdi.SharedMemoryTransportService.attach0(Native Method)
+	at jdk.jdi/com.sun.tools.jdi.SharedMemoryTransportService.attach(SharedMemoryTransportService.java:108)
+	at jdk.jdi/com.sun.tools.jdi.GenericAttachingConnector.attach(GenericAttachingConnector.java:119)
+	at jdk.jdi/com.sun.tools.jdi.SharedMemoryAttachingConnector.attach(SharedMemoryAttachingConnector.java:63)
+	at jdk.jdi/com.sun.tools.example.debug.tty.VMConnection.attachTarget(VMConnection.java:563)
+	at jdk.jdi/com.sun.tools.example.debug.tty.VMConnection.open(VMConnection.java:369)
+	at jdk.jdi/com.sun.tools.example.debug.tty.Env.init(Env.java:63)
+	at jdk.jdi/com.sun.tools.example.debug.tty.TTY.main(TTY.java:1176)
+
+Fatal error:
+Unable to attach to target VM.

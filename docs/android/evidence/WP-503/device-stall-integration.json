@@ -1,0 +1,54 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "previous_observation_binding": "device-activation-integration.json",
+  "executed_combined_head": "0ff9a71218c18ae075bdbd300243bc5e6ff470d5",
+  "executed_android_tree": "60fc47a9779b0fb464fe6b5266b28fcf02949dc4",
+  "apk_binding": "device-stall-inputs.json",
+  "successor_cleanup_code_executed_in_this_attempt": false,
+  "purpose": "One explicit fresh-owned-device reproduction: original launcher9 then full79, same APKs/profile/selectors/deadlines as the incomplete31 sequence; capture target-process diagnostics without changing fixtures",
+  "native_api31": {
+    "launcher": {
+      "expected_total": 9, "started": 9, "terminal": 9, "passed": 9, "failed": 0,
+      "seconds": 47.369, "errors": 0, "skipped": 0,
+      "failed_identities": [], "touch_restored": 7
+    },
+    "full": {
+      "expected_total": 79, "started": 79, "terminal": 79, "passed": 76, "failed": 3,
+      "seconds": 191.454, "errors": 0, "skipped": 0,
+      "junit_assertion_failures": 14,
+      "failed_identities": [
+        "NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "launcher_passed": 9, "touch_restored": 7,
+      "cached_chat_observed_native_window_sizes": ["900x900", "360x900"],
+      "cached_chat_observed_retained_message_sizes": ["900x900", "360x900"]
+    }
+  },
+  "diagnostic_observations": {
+    "target_process_log_stream_started_after_current_first_test_start": true,
+    "target_pid": 2642,
+    "activity_window_accessibility_gfxinfo_and_thread_commands_exit": 0,
+    "post_result_java_thread_command": "adb -s emulator-5714 shell run-as com.meshcoreone.android.debug debuggerd -j 2642",
+    "post_result_java_thread_command_exit": 1,
+    "post_result_java_thread_command_error": "debuggerd: root is required",
+    "root_or_shared_adb_restart_requested": false,
+    "no_matching_crash_or_performMeasureAndLayout_entry_in_this_target_process_log": true,
+    "qualification": "This attempt completes rather than reproduces the stall; post-result diagnostic permissions provide no Java stack or cause. No claim of no historical crash, fixed lifecycle, or cleared earlier600s negative. Full target log and dumps remain session diagnostics, not additional CI bundles"
+  },
+  "native_operation_cleanup": {
+    "owned_emulator_exit_code": 0,
+    "exact_two_phase_owned_image_and_qcow_files_removed_after_exit": true,
+    "final_adb_device_list_empty": true
+  },
+  "product_blockers": [236, 237, 238],
+  "previous_incomplete31_and_scoped37_negatives_cleared": false,
+  "physical_talkback_full_matrix_goldens_admission_review_or_wp_completion": false
+}

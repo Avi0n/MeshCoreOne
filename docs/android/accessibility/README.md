@@ -1,9 +1,37 @@
 # WP-503 accessibility audit
 
-**Status: exact0ff9a71 restoration audit: API31 launcher9/9PASS, full79 INCOMPLETE600s (21 starts/20 outcomes:18PASS/2FAIL); API37 launcher3PASS/6FAIL, full79 77PASS/2FAIL. Full37 does not clear its scoped activation/restoration/motion negatives or predecessor failures. CLI236, QR237 and language238 remain product gates. JVM74/74PASS. PR205 stays draft; producer repairs, incomplete native observations, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Status: executedafea923 observer candidate: API31 launcher9/9PASS, full79 76PASS/3FAIL; API37 launcher INCOMPLETE600s (6 starts/5 outcomes:0PASS/5FAIL), separately isolated full INCOMPLETE600s (21 starts/20 outcomes:14PASS/6FAIL). No earlier negatives cleared. CLI236, QR237 and language238 remain product gates. JVM74/74PASS. PR205 stays draft; native prerequisites/cleanup, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native resize observer and distinct teardown wait
+
+Executedafea92392a31347ff210d1c87183c94ee4cd26f8/Android tree
+20ee74556580969f6f2596318ec7573e5506466d preserves all79 test bodies and
+producer bytes. Two owned helpers change: standard Closeable.use retains a
+primary error if restoration also fails; resize readiness observes actual
+resumed MainActivity/decor/WindowMetrics before querying synchronized Compose
+roots. Original1000ms waits, exact semantic count1, geometry and state assertions
+remain; display is additionally required. No measured simultaneous primary/
+cleanup exception or verified causal repair is claimed.
+
+Actual31 launcher9/9PASS47.36s; package79/76PASS/3FAIL187.471s, language238,
+CLI236 and QR237. Twelve language assertions are one failed identity, not twelve
+tests. Both commands observe four native ready windows/seven restorations.
+Actual37 scope hits original600s with six starts/five activation-prerequisite
+failures and cached-chat unfinished. After stopping that device, a fresh isolated
+package attempt also hits600s:21 starts/20 outcomes,14PASS/6FAIL. Four original
+activation prerequisites plus language/CLI fail; settings resize passes its two
+native windows. Cached-chat again remains unfinished, later QR/cases unobserved.
+
+Only after each original timeout, rootless JDWP shows the instrumentation thread
+in unchanged runBlocking/deleteDeviceAndData teardown427 while main Looper polls.
+This differs from predecessor0b206's synchronized semantics-predicate wait;
+neither a persistence defect nor the underlying lifecycle cause is established.
+No producer repair, floor/deadline change, contaminated-device reuse, or clearing
+of old activation/focus/motion/resize negatives.
+[Exact current/historical bindings and native observations](../evidence/WP-503/README.md#native-resize-observer-investigation).
 
 ## Native touch-exploration restoration and retained negatives
 
@@ -18,6 +46,9 @@ are drained or establish the cause of earlier focus failures.
 Actual31 original launcher **9/9PASS41.865s**, seven strict restorations.
 Full31 is **INCOMPLETE at600s** during unchanged cached-chat recreation:
 21 starts/20 outcomes,18PASS/2FAIL, one unfinished identity; not79 executed.
+Last observed window is900x900 with retained message; the360x900 request returns,
+but no matching native360 window observation follows. Earlier restored360 prose
+mistook shell acknowledgment for observed completion; raw records are unchanged.
 Actual37 original launcher **3PASS/6FAIL90.248s**: four activation timeouts,
 one strict teardown timeout and the independent final motion0 timeout. Six of
 seven requested restorations are observed. Later same-APK full37 completes

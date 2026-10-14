@@ -1,6 +1,33 @@
 # WP-503 native execution matrix
 
-**Latest0ff9a71: API31 original launcher9/9PASS, full79 INCOMPLETE600s with21 starts/20 outcomes (18PASS/2FAIL); API37 launcher3PASS/6FAIL, full79 77PASS/2FAIL. Later full37 does not clear its scoped negatives or earlier failures. JVM74/74PASS. Product236/237/238, incomplete native observations, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Latestafea923: API31 launcher9/9PASS/full79 76PASS/3FAIL; API37 scope INCOMPLETE600s (6 starts/5 outcomes:0PASS/5FAIL), isolated full INCOMPLETE600s (21 starts/20 outcomes:14PASS/6FAIL). Prior negatives remain. JVM74/74PASS. Product236/237/238, native prerequisites/cleanup, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+
+## Native resize observer and distinct teardown wait
+
+Exactafea92392a31347ff210d1c87183c94ee4cd26f8, Android tree
+20ee74556580969f6f2596318ec7573e5506466d. Original79 test bodies, all producer
+bytes,1000ms waits and floors remain; two owned observer/error-preserving helpers
+change. No standalone producer acceptance or causal repair is claimed.
+
+| Exact selection | Actual API31 | Actual API37 |
+|---|---|---|
+|Original launcher9|9PASS47.36s|INCOMPLETE600s:6 starts/5 outcomes,0PASS/5FAIL|
+|Full package expected79|79 starts/outcomes,76PASS/3FAIL187.471s|Separate fresh device: INCOMPLETE600s,21 starts/20 outcomes,14PASS/6FAIL|
+|Native ready windows, scope/full|4/4|0/2|
+|Requested/activated/finally/restored, scope|7/7/7/7|6/1/5/5|
+|Requested/activated/finally/restored, full|7/7/7/7|6/2/5/5|
+
+Both37 commands end in cached-chat teardown without a final JUnit result, not9
+or79 completed cases. Scope's first five and full's first four launcher cases
+fail original1000ms activation prerequisites; full additionally fails language238
+and CLI236. Settings resize alone completes its two native windows in full37.
+After each original timeout, actual Java threads show runBlocking/persistence
+cleanup427 with main Looper polling. Underlying cause remains unproved, distinct
+from predecessor0b206's Espresso/Choreographer semantics-predicate snapshot.
+API31's14 collected assertions are three failed identities: language/CLI/QR.
+Scope37 device is stopped before fresh full37 starts; all original negatives
+remain bound, no hidden retries, assertion relaxation or native37 QR credit.
+[Exact commands/source/APKs/partial outcomes](../evidence/WP-503/README.md#native-resize-observer-investigation).
 
 ## Native touch-exploration restoration and retained negatives
 
@@ -17,6 +44,9 @@ before return; original1000ms waits and producer/build/dependency bytes are unch
 |Requested/activated/restored touch states, full|6/6/5 before cached-chat stall|7/7/7|
 
 Current31 never finishes cached-chat recreation; no final JUnit duration/result.
+The900x900 window/message is observed; the subsequent360x900 shell request is
+acknowledged, not observed as a completed native window. Earlier restored360
+wording is corrected against unchanged raw metrics.
 Later QR/other cases are not credited from earlier APKs. Current37 scope fails
 four activation1000ms waits, strict restoration1000ms in the default/reduced-motion
 case and independent final motion0 observation. Its later full run passes all

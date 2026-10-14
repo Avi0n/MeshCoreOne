@@ -1,0 +1,119 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stack=androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:870)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions(NativeLauncherFocusAccessibilityTest.kt:598)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:870)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions(NativeLauncherFocusAccessibilityTest.kt:598)
+
+INSTRUMENTATION_STATUS: test=realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:474)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda16.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:873)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable(NativeLauncherFocusAccessibilityTest.kt:454)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:474)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda16.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:873)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable(NativeLauncherFocusAccessibilityTest.kt:454)
+
+INSTRUMENTATION_STATUS: test=realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stack=androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration$lambda$1(NativeLauncherFocusAccessibilityTest.kt:856)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda9.close(D8$$SyntheticClass:0)
+	at kotlin.io.CloseableKt.closeFinally(Closeable.kt:47)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:865)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.frameworkControlCanAcquireRealNativeAccessibilityFocus(NativeLauncherFocusAccessibilityTest.kt:726)
+
+INSTRUMENTATION_STATUS: stream=
+Error in frameworkControlCanAcquireRealNativeAccessibilityFocus(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration$lambda$1(NativeLauncherFocusAccessibilityTest.kt:856)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda9.close(D8$$SyntheticClass:0)
+	at kotlin.io.CloseableKt.closeFinally(Closeable.kt:47)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:865)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.frameworkControlCanAcquireRealNativeAccessibilityFocus(NativeLauncherFocusAccessibilityTest.kt:726)
+
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable
+INSTRUMENTATION_STATUS_CODE: 1

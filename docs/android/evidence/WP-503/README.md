@@ -1,11 +1,74 @@
 # WP-503 attempt evidence
 
-**Latest0ff9a71: API31 launcher9/9PASS, full79 INCOMPLETE600s with21 starts/20 outcomes (18PASS/2FAIL); API37 launcher3PASS/6FAIL, full79 77PASS/2FAIL. Full37 does not clear scoped or earlier negatives. Product236/237/238, incomplete native observations, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates. JVM74/74PASS. PR205 stays draft; WP503 is incomplete.**
+**Latestafea923: API31 launcher9/9PASS/full79 76PASS/3FAIL; API37 launcher INCOMPLETE600s (6 starts/5 outcomes:0PASS/5FAIL), separately isolated full INCOMPLETE600s (21 starts/20 outcomes:14PASS/6FAIL). No historical negatives cleared. Product236/237/238, native prerequisites/cleanup, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates. JVM74/74PASS. PR205 stays draft; WP503 is incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native resize observer investigation
+
+Each cohort retains its own executed source/APK binding, not standalone producer
+acceptance. [Cleanup integration](device-cleanup-integration.json) binds executed0b206bd
+to its exact APKs: API31 launcher9/9PASS42.103s; API37 original600s guard expires
+with five starts/four outcomes, one pass/three failed identities and the resize
+identity unfinished. No full79 run occurred at that source. Its error-preserving
+Closeable.use keeps a primary fixture exception if restoration also throws;
+an actual simultaneous primary/cleanup failure was not observed.
+
+Only after that original timeout, an exact-owned rootless JDWP SocketAttach
+captures the instrumentation thread waiting in Espresso/Choreographer idle
+through a synchronized semantics query inside resizeWindow's nominal1000ms
+predicate. The actual Activity is resumed and its900x900 surface drawn.
+This locates the blocked observer, not a product deadlock or a verified cause.
+The initial Windows shared-memory attach failed despite exit0; its negative
+trace and the selected successful thread excerpts are retained separately.
+
+[Window integration](device-window-integration.json) binds executedafea923 and
+Android tree20ee745 to [its APKs](device-window-inputs.json). The owned predicate
+now observes the actual resumed MainActivity, native decor and WindowMetrics
+before querying Compose roots; the original1000ms wait and exact semantic count1
+remain, with an additional displayed assertion. All79 test bodies and producer
+bytes are unchanged. Actual API31 launcher9/9PASS47.36s; full79 has79 unique
+starts/outcomes,76PASS/3 failed identities187.471s. The twelve language assertions
+are one failed identity, alongside CLI236 and QR237: JUnit's14 collected failures
+are not14 distinct tests. Both invocations observe all four native ready windows
+and seven service restorations.
+
+Actual37 original scope **INCOMPLETE600s**: six unique starts/five terminal
+failures, zero passes, cached-chat unfinished. Five original1000ms activation
+prerequisites fail; no ready window is observed. After stopping that device,
+a separate fresh owned image runs the full package at identical source/APKs:
+**INCOMPLETE600s**,21 starts/20 outcomes,14PASS/6FAIL, cached-chat unfinished
+again. Four original activation prerequisites and language238/CLI236 fail;
+settings resize passes both native windows. No current37 QR/downstream credit.
+Neither command has a final JUnit result/duration; not9/79 completed cases.
+
+Only after each original600s failure, explicit rootless JDWP captures actual
+instrumentation in unchanged runBlocking/deleteDeviceAndData cleanup427,
+main Looper polling. [Scope selected threads](device-window-thread-excerpts-api37.txt)
+and [isolated full selected threads](device-window-full-thread-excerpts-api37.txt)
+retain observed suspend/resume and exact-forward removal. This is different
+from predecessor0b206's semantics-predicate snapshot, not proof of a storage
+defect, fixed lifecycle or verified causal observer repair. Full unrelated
+system/process dumps remain session-only.
+
+Commands are the same existing selectors below, actual expectedApi31/37; guards
+remain300s readiness/600s instrumentation. Scope37 boot1 occurs156s, isolated
+full37 at161s, both within300s. No shared restart/wipe or contaminated scope-state
+reuse. All three owned devices exit0 and their six exact images/qcow are removed
+after exit. JVM74/74, both APK tasks/installed preflight pass; no predecessor CI
+is credited to executedafea. All earlier native failures, physical/matrix/golden/
+admission/review gates remain. This is not WP completion.
+
+[Unchanged-source31 reproduction](device-stall-integration.json) separately binds
+old0ff9/APKs: launcher9/9PASS47.369s, full79/76PASS/3FAIL191.454s. Both native
+900/360 windows and retained messages are actually observed in that invocation,
+unlike the initial partial31. It does not reproduce or clear the old600s failure.
+Its run-as debuggerd exits1/root-required, not a positive Java dump. Raw historical
+records are unchanged; corrected endpoint prose distinguishes shell acknowledgment
+from native completion.
 
 ## Native touch-exploration restoration and retained negatives
 
@@ -43,7 +106,11 @@ Scoped command replaces package selection with
 
 Full31 ends without a JUnit result/duration. The unfinished identity is
 `NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200`;
-its last observed return size is360x900. The original600s runner guard fails and
+its last completed window/message observation is900x900. The subsequent
+`wm size360x900` shell request returns, but no native360 window observation
+follows. Earlier prose mistakenly called that request acknowledgment an observed
+restoration; this interpretation is corrected without changing raw records.
+The original600s runner guard fails and
 retains partial stdout/live metrics. It does not discover/execute79 cases.
 Language238 and CLI236 are its two failed identities before the stall; QR and
 later cases are not reached. An empty filtered AndroidRuntime:E/System.err:W

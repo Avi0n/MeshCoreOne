@@ -53,7 +53,8 @@
       ],
       "touch_requested": 6, "touch_activated": 6, "touch_finally": 5, "touch_restored": 5,
       "motion_observations": [],
-      "qualification": "INCOMPLETE_NOT_PASS: no final JUnit result or duration; not79 executed cases. QR and later cases were not reached. Last cached-chat observation is restored360x900 after recreation; no cause or producer regression established"
+      "qualification": "INCOMPLETE_NOT_PASS: no final JUnit result or duration; not79 executed cases. QR and later cases were not reached. Last completed window observation is900x900 with retained message; wm size360x900 returns but no matching native360 window observation follows. No cause or producer regression established",
+      "endpoint_interpretation_correction": "Earlier prose claimed restored360x900 was observed; the raw record only acknowledges that shell request. Corrected by inspecting the complete metrics; raw native records remain unchanged"
     }
   },
   "native_api37": {

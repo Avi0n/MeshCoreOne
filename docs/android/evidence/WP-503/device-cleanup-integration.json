@@ -1,0 +1,67 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_publication": "02f27320202378aacabbd8e1732fa034d4e62e35",
+  "executed_combined_head": "0b206bd64c036e3efd0b5f060aeaf6e8a947e929",
+  "executed_android_tree": "4cd311f0af2d103fc68b0c05b1ab940cc8a55638",
+  "apk_binding": "device-cleanup-inputs.json",
+  "previous_combined_binding": "device-activation-integration.json",
+  "source_change": "Only withTouchExploration uses standard Closeable.use so a cleanup exception cannot replace a primary fixture exception; identical activation and restoration bodies/deadlines, all79 test bodies/producer files unchanged",
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "both_apk_tasks_and_installed_preflight": "PASS"
+  },
+  "native_api31": {
+    "launcher": {
+      "expected_total": 9, "started": 9, "terminal": 9, "passed": 9, "failed": 0,
+      "completed": true, "seconds": 42.103, "failed_identities": [],
+      "touch_requested": 7, "touch_activated": 7, "touch_finally": 7, "touch_restored": 7
+    }
+  },
+  "native_api37": {
+    "launcher": {
+      "expected_total": 9, "started": 5, "terminal": 4, "passed": 1, "failed": 3,
+      "completed": false, "outer_timeout_seconds": 600,
+      "failed_identities": [
+        "NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+        "NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+        "NativeLauncherFocusAccessibilityTest.frameworkControlCanAcquireRealNativeAccessibilityFocus"
+      ],
+      "unfinished_identities": [
+        "NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable"
+      ],
+      "touch_requested": 5, "touch_activated": 4, "touch_finally": 4, "touch_restored": 3,
+      "qualification": "INCOMPLETE_NOT_PASS: five starts/four outcomes, not9 executed cases. Appearance activation1000ms, default/reduced-motion native focus assertion474, and framework-control cleanup1000ms fail. The next resize never returns after acknowledged900x900 request"
+    }
+  },
+  "post_original_timeout_diagnostics": {
+    "owned_target_pid": 3141,
+    "root_requested": false,
+    "initial_windows_jdb_default_transport": "Exit0 with shared-memory attach error and no Java frames; explicitly rejected as unverified, not a successful dump",
+    "successful_transport": "Explicit com.sun.jdi.SocketAttach through an ephemeral exact-owned adb jdwp forward",
+    "positive_thread_discovery_suspend_resume_and_forward_removal": true,
+    "timing": "Only after original600s test guard has failed; no debugger suspension during required acceptance interval",
+    "selected_threads": "device-cleanup-thread-excerpts-api37.txt",
+    "instrumentation_stack": "FutureTask.get -> Espresso.onIdle -> waitForNextChoreographerFrame -> getRoots -> fetchSemanticsNodes -> resizeWindow waitUntil predicate814",
+    "main_thread_snapshot": "FutureTask.set/finishCompletion/unpark on Android Handler, not proof of a deadlocked UI thread",
+    "actual_app_activity_window": "MainActivity resumed, not stopped/changing configuration; actual900x900 configuration, visible drawn surface",
+    "qualification": "Locates an unbounded synchronized semantics query within the nominal1000ms predicate. Does not establish a product lifecycle defect, historical crash cause, or verified causal repair"
+  },
+  "native_operation_cleanup": {
+    "owned_emulator_exit_codes": [0, 0],
+    "exact_four_phase_owned_image_and_qcow_files_removed_after_exit": true,
+    "exact_debugger_forward_removed": true,
+    "final_adb_device_list_empty": true,
+    "shared_adb_restart_or_wipe": false
+  },
+  "current_source_full_package_native_acceptance": "NOT_RERUN_NOT_CREDITED",
+  "product_blockers": [236, 237, 238],
+  "previous_native_negatives_physical_matrix_goldens_admission_review_or_wp_completion_cleared": false
+}

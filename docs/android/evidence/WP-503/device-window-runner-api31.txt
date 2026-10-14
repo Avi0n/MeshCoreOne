@@ -1,0 +1,33 @@
+WP503_EXECUTED_INPUT|afea92392a31347ff210d1c87183c94ee4cd26f8
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 31, "head": "afea92392a31347ff210d1c87183c94ee4cd26f8", "scenario": "full", "discovered": 79, "statuses": {"0": 76, "-2": 3}, "time": ["Time: 187.471"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest', 'actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest', 'disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest', 'offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable')|-2
+0)
+	at androidx.test.espresso.base.UiControllerImpl.loopMainThreadUntilIdle(UiControllerImpl.java:407)
+	at androidx.test.espresso.Espresso.lambda$onIdle$2(Espresso.java:340)
+	at androidx.test.espresso.Espresso$$ExternalSyntheticLambda1.call(D8$$SyntheticClass:0)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at android.os.Handler.handleCallback(Handler.java:938)
+	at android.os.Handler.dispatchMessage(Handler.java:99)
+	at android.os.Looper.loopOnce(Looper.java:201)
+	at android.os.Looper.loop(Looper.java:288)
+	at android.app.ActivityThread.main(ActivityThread.java:7839)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1003)
+14) offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable(com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest)
+java.lang.AssertionError: Native line 0 clips vertically: Copy
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertUnclippedContent(NativeAccessibilityAssertions.kt:129)
+	at com.meshcoreone.android.accessibility.NativeAccessibilityAssertions.assertFont200Unclipped(NativeAccessibilityAssertions.kt:72)
+	at com.meshcoreone.android.accessibility.NodesAccessibilityAudit.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable(NodesAccessibilityAudit.kt:171)
+	at com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable(NativeNodesFlowAccessibilityTest.kt:65)
+
+FAILURES!!!
+Tests run: 79,  Failures: 14
+
+
+INSTRUMENTATION_CODE: -1
