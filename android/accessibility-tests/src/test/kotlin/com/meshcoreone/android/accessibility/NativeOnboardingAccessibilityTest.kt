@@ -19,7 +19,7 @@ class NativeOnboardingAccessibilityTest : NativeAccessibilityHarness() {
             ::assertFont200Unclipped, ::assertScrollableFont200Unclipped,
             ::scrollWholeAllocationIntoView,
             { assertVisibleClickTargetsAtLeast48Dp() }, ::narrative,
-            awaitWifiIme = {}, // JVM windows do not provide native IME animation observations.
+            prepareWifiIme = {}, // JVM windows do not provide native IME animation observations.
         )
     }
 

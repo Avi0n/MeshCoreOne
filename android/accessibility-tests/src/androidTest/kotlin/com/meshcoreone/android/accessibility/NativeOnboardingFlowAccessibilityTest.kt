@@ -6,7 +6,13 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsAnimation
 import android.view.inputmethod.InputMethodManager
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.meshcoreone.android.core.l10n.generated.AppOnboardingStrings as O
 import java.util.function.Supplier
 import org.junit.After
 import org.junit.Before
@@ -53,9 +59,10 @@ class NativeOnboardingFlowAccessibilityTest : DeviceAccessibilityHarness() {
         if (::imeHost.isInitialized) compose.runOnUiThread { imeHost.setWindowInsetsAnimationCallback(null) }
     }
 
-    private fun awaitActualWifiIme() {
+    private fun prepareActualWifiIme() {
         check(!Looper.getMainLooper().isCurrentThread) { "Native IME observation must run outside composition on the instrumentation thread" }
-        compose.waitForIdle()
+        compose.onNode(hasSetTextAction() and hasText(activity.getString(O.wifiConnectionIpAddressPlaceholder)))
+            .performScrollTo().performClick().assertIsFocused()
         val input = requireNotNull(activity.getSystemService(InputMethodManager::class.java))
         var ready = false
         try {
@@ -89,7 +96,7 @@ class NativeOnboardingFlowAccessibilityTest : DeviceAccessibilityHarness() {
             ::assertFont200Unclipped, ::assertScrollableFont200Unclipped,
             ::scrollWholeAllocationIntoView,
             { assertVisibleClickTargetsAtLeast48Dp() }, ::narrative,
-            ::awaitActualWifiIme,
+            ::prepareActualWifiIme,
         )
     }
 
