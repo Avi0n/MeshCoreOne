@@ -1,6 +1,8 @@
 // AndroidOnly: WP-503 Public remote-node catalog/history/authentication/status flows with deterministic ports and actual native scroll, controls and cancellation.
 package com.meshcoreone.android.accessibility
 
+import android.graphics.Rect
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +30,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -38,6 +41,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
@@ -57,6 +61,7 @@ import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
 import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
+import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.core.l10n.generated.AppRemoteNodesStrings as L
 import com.meshcoreone.android.core.l10n.generated.AppMapStrings as M
 import com.meshcoreone.android.core.model.ContactDTO
@@ -90,6 +95,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
@@ -102,6 +108,117 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
     private val contact = ContactDTO(id = UUID(0, 102), radioId = radio,
         publicKey = Bytes(ByteArray(32) { 0x33 }), name = "\u4e2d\u6587 remote",
         typeRawValue = ContactType.REPEATER.rawValue, lastHeardTimestamp = null)
+
+    @Test fun nativeRegionsKeepNamedSwitchesAndCappedRtlGuttersAtFont200() {
+        val rig = Rig().apply { regionAdmin = true; ready() }
+        openRegions(rig)
+        val labels = regionLabels()
+        assertEquals(6, labels.toSet().size)
+        assertEquals(6, compose.onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
+            .fetchSemanticsNodes().size)
+        val expectedGutters = listOf(0f, 24f, 48f, 48f, 48f, 48f)
+        var rootRight = 0f
+        for ((index, label) in labels.withIndex()) {
+            val action = regionSwitch(label).performScrollTo().assertIsDisplayed().assertIsEnabled().assertIsOn()
+            val node = action.fetchSemanticsNode()
+            if (index == 0) rootRight = node.touchBoundsInRoot.right
+            val gutter = (rootRight - node.touchBoundsInRoot.right) / activity.resources.displayMetrics.density
+            assertEquals("Source-derived font200 RTL gutter for $label", expectedGutters[index], gutter, 0.5f)
+            val hint = activity.getString(L.remoteNodesSettingsRegionsFloodToggleHint)
+            assertEquals(hint, node.config[SemanticsActions.OnClick].label)
+            val caption = compose.onNode(
+                hasText(activity.getString(L.remoteNodesSettingsRegionsFloodToggleCaption)) and
+                    hasAnyAncestor(hasContentDescription(label)), useUnmergedTree = true,
+            )
+            assertFont200Unclipped(caption.assertIsDisplayed())
+            val native = nativeRegionSwitch(label)
+            assertTrue(native.isEnabled && native.isChecked)
+            assertEquals("android.widget.Switch", native.className.toString())
+            assertEquals(hint, native.actionList.single { it.id == AccessibilityNodeInfo.ACTION_CLICK }.label?.toString())
+            val bounds = Rect().also(native::getBoundsInScreen)
+            val root = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.rootInActiveWindow)
+            val viewport = Rect().also(root::getBoundsInScreen)
+            val density = activity.resources.displayMetrics.density
+            assertTrue("Each actual native region switch must be wholly contained and48dp",
+                viewport.contains(bounds) && bounds.width() / density >= 48f && bounds.height() / density >= 48f)
+            println("WP503_NATIVE_REGION|sdk=${android.os.Build.VERSION.SDK_INT}|label=$label|gutter=$gutter" +
+                "|expectedGutter=${expectedGutters[index]}|bounds=$bounds|viewport=$viewport|checked=true" +
+                "|hint=$hint|fontScale=2.0|physicalTalkBack=false|realRadio=false")
+        }
+        assertEquals(listOf("region"), rig.regionCommands)
+        assertEquals(1, rig.ownerInfoReads)
+    }
+
+    @Test fun nativeRegionFloodRequiresConfirmationAndChangesOnlyTheNamedRegion() {
+        val rig = Rig().apply { regionAdmin = true; ready() }
+        openRegions(rig)
+        val labels = regionLabels()
+        val target = regionSwitch(labels[2]).performScrollTo().assertIsOn()
+        target.performClick()
+        assertEquals(listOf("region"), rig.regionCommands)
+        val cancel = compose.onNode(hasText(activity.getString(L.remoteNodesCancel)) and
+            hasClickAction() and hasAnyAncestor(isDialog()))
+        assertModalTarget(cancel)
+        cancel.performClick()
+        regionSwitch(labels[2]).assertIsOn().performClick()
+        val confirm = compose.onNodeWithTag("confirm-remote-action")
+        assertModalTarget(confirm)
+        assertFont200Unclipped(compose.onNode(
+            hasText(activity.getString(L.remoteNodesSettingsOk)) and hasAnyAncestor(isDialog()),
+            useUnmergedTree = true,
+        ))
+        assertEquals(listOf("region"), rig.regionCommands)
+        confirm.performClick()
+        compose.waitUntil { rig.regionCommands.size == 2 }
+        assertEquals(listOf("region", "region denyf gta"), rig.regionCommands)
+        for ((index, label) in labels.withIndex()) {
+            val switch = regionSwitch(label).performScrollTo().assertIsDisplayed().assertIsEnabled()
+            if (index == 2) switch.assertIsOff() else switch.assertIsOn()
+        }
+        println("WP503_NATIVE_REGION_CONFIRM|sdk=${android.os.Build.VERSION.SDK_INT}" +
+            "|cancelWrites=0|confirmedCommand=region denyf gta|otherRegionsUnchanged=5|realRadio=false")
+    }
+
+    private fun regionLabels(): List<String> {
+        val root = activity.getString(L.remoteNodesSettingsRegionsAllTraffic)
+        return listOf(root,
+            activity.getString(R.string.l10n_app_remotenodes_remotenodes_settings_regions_childof, "on", root),
+            activity.getString(R.string.l10n_app_remotenodes_remotenodes_settings_regions_childof, "gta", "on"),
+            activity.getString(R.string.l10n_app_remotenodes_remotenodes_settings_regions_childof, "downtown", "gta"),
+            activity.getString(R.string.l10n_app_remotenodes_remotenodes_settings_regions_childof, "east", "downtown"),
+            activity.getString(R.string.l10n_app_remotenodes_remotenodes_settings_regions_childof, "north", "east"))
+    }
+
+    private fun regionSwitch(label: String) = compose.onNode(hasContentDescription(label) and
+        SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
+
+    private fun openRegions(rig: Rig) {
+        mount(rig)
+        compose.onNodeWithTag("open-node:${contact.id}").performScrollTo().assertIsEnabled().performClick()
+        compose.onNodeWithTag("remote-tab:SETTINGS").assertIsSelected()
+        compose.onNode(hasText(activity.getString(L.remoteNodesSettingsRegions)) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).performScrollTo().performClick()
+        compose.waitUntil { rig.regionCommands == listOf("region") }
+        regionSwitch(regionLabels().first()).assertExists()
+    }
+
+    private fun nativeRegionSwitch(label: String): AccessibilityNodeInfo {
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        var matches = emptyList<AccessibilityNodeInfo>()
+        fun descendants(node: AccessibilityNodeInfo): Sequence<AccessibilityNodeInfo> = sequence {
+            assertTrue("Refresh actual region bridge data", node.refresh())
+            yield(node)
+            for (index in 0 until node.childCount) yieldAll(descendants(requireNotNull(node.getChild(index))))
+        }
+        compose.waitUntil {
+            val root = automation.rootInActiveWindow
+            if (root?.packageName?.toString() != activity.packageName) return@waitUntil false
+            matches = descendants(root).filter { it.contentDescription?.toString() == label && it.isCheckable }.toList()
+            matches.size == 1
+        }
+        assertEquals("Exactly one native named region switch", 1, matches.size)
+        return matches.single()
+    }
 
     @Test fun guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200() {
         val rig = Rig().apply { savedGuest = true; ready() }
@@ -576,6 +693,9 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
     }
 
     private inner class Rig : RemoteNodesUiDependencies {
+        var regionAdmin = false
+        val regionCommands = mutableListOf<String>()
+        var ownerInfoReads = 0
         var catalogFailure = false
         var empty = false
         var catalogReads = 0
@@ -603,7 +723,11 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         override suspend fun catalog(): RemoteNodesCatalog {
             catalogReads++
             if (catalogFailure) throw IOException("Deterministic catalog read failure")
-            return RemoteNodesCatalog(listOf(contact), emptyList(), if (savedGuest) listOf(guestSession) else emptyList())
+            return RemoteNodesCatalog(listOf(contact), emptyList(), when {
+                regionAdmin -> listOf(guestSession.copy(permissionLevel = RoomPermissionLevel.ADMIN))
+                savedGuest -> listOf(guestSession)
+                else -> emptyList()
+            })
         }
         private val guestSession = RemoteNodeSessionDTO(
             id = UUID(0, 105), radioId = radio, publicKey = contact.publicKey, name = contact.displayName,
@@ -641,16 +765,33 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
             override fun setNeighboursHandler(handler: suspend (NeighboursResponse) -> Unit) { handlerRegistrations++ }
             override fun clearStatusHandlers() { statusTeardowns++ }
             override fun clearHandlers() = error("Status teardown must not clear the shared CLI handler")
-            override fun setCLIHandler(handler: suspend (ContactMessage, ContactDTO) -> Unit) =
-                error("Guest status must not register a CLI handler")
+            override fun setCLIHandler(handler: suspend (ContactMessage, ContactDTO) -> Unit) {
+                assertTrue("Only the explicit region admin fixture may register CLI", regionAdmin)
+            }
             override suspend fun sendCommand(session: EntityKey, command: String, timeout: Duration): String =
-                error("Guest status must not issue device-changing commands")
+                regionCommand(session, command)
             override suspend fun sendRawCommand(session: EntityKey, command: String, timeout: Duration): String =
-                error("Guest status must not send raw CLI commands")
-            override suspend fun requestOwnerInfo(session: EntityKey, timeout: Duration?): OwnerInfoResponse =
-                error("No owner-information request made")
+                regionCommand(session, command)
+            override suspend fun requestOwnerInfo(session: EntityKey, timeout: Duration?): OwnerInfoResponse {
+                assertTrue("Only the explicit region admin fixture requests owner information", regionAdmin)
+                assertEquals(EntityKey(radio, guestSession.id), session)
+                ownerInfoReads++
+                return OwnerInfoResponse("v1.14.0", contact.name, "Synthetic region fixture")
+            }
             override suspend fun fetchAllNeighbors(session: EntityKey, timeout: Duration?): NeighboursResponse =
                 error("No neighbors request made")
+        }
+        private fun regionCommand(session: EntityKey, command: String): String {
+            assertTrue("Guest fixtures must never issue CLI commands", regionAdmin)
+            assertEquals(EntityKey(radio, guestSession.id), session)
+            regionCommands += command
+            return when (command) {
+                "region" -> listOf("*", "on", "gta", "downtown", "east", "north").mapIndexed { depth, name ->
+                    "${" ".repeat(depth)}$name F"
+                }.joinToString("\n", postfix = "\n")
+                "region denyf gta" -> "OK"
+                else -> error("Unexpected deterministic region command: $command")
+            }
         }
         private val store = object : RemoteNodeHistoryStore {
             override suspend fun fetchNodeStatusSnapshots(nodePublicKey: Bytes, since: Instant?) =
@@ -698,7 +839,7 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
                 }
                 override fun isBinarySessionTimeout(error: Throwable): Boolean = error("Unexpected service fault")
             }
-            override fun repeaterAdmin(): RepeaterAdminPort? = if (savedGuest) statusPort else null
+            override fun repeaterAdmin(): RepeaterAdminPort? = if (savedGuest || regionAdmin) statusPort else null
             override fun roomAdmin(): RoomAdminPort? = null
             override fun binaryTelemetry(): BinaryTelemetryPort? = null
             override fun nodeSnapshots(): NodeSnapshotPort? = null
