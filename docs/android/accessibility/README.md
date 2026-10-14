@@ -1,9 +1,24 @@
 # WP-503 accessibility audit
 
-**Status: native-state observer40cb94e8, full original launcher9: API31 9PASS41.171s; API37 8PASS/1FAIL114.016s on actual two-CPU devices. API37 disconnected-tabs still fails original1000ms activation before body. Independent c282 control1PASS per API does not clear initial c6 failure. Exact9ac/run38595416582 SUCCESS/all6 only9ac; prior failures/cancellations retained. Producer/native/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Status: full native80 at unchanged40cb94e8: API31 77PASS/3FAIL192.963s; API37 78PASS/2FAIL321.272s,80 unique starts/matching outcomes each. Existing CLI236/language238 fail both; QR237 fails31/passes37. Launcher9/control1 pass within full80 but do not clear the earlier isolated37 activation failure. Exact9ac/run38595416582 SUCCESS/all6 only9ac; historical negatives/cancellations retained. Product/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Full current native inventory
+
+One full80 invocation per fresh actual two-CPU API31/37, same40cb tree/APKs and
+unchanged fixtures/deadlines: **77PASS/3FAIL192.963s** and
+**78PASS/2FAIL321.272s**, no error/skip statuses. Expanded JUnit14/13 exceptions
+belong to three/two methods, not fourteen/thirteen independently failed cases.
+
+Both APIs retain12 language name/selected-state mismatches and CLI construction's
+unsupported Collator decomposition crash; API31 additionally clips QR Copy at
+font200. API37 QR passes unchanged, not a repair or API31 clearance.
+Full-suite launcher9/control1 genuinely pass both APIs; isolated37's preceding
+false87-check activation failure remains separately bound. No stable runtime
+cause, producer repair, physical TalkBack or whole-WP acceptance claimed.
+[Exact full80 evidence](../evidence/WP-503/README.md#full-current-native-inventory).
 
 ## Native service observation and full launcher re-audit
 
@@ -16,8 +31,8 @@ One full nine-method invocation per fresh API: **31 9PASS;37 8PASS/1FAIL**.
 credit there. Thirty persisted theme/scheme states, motion/Back,900/360 cached
 message/draft and actual IME/48dp/share-cancel assertions pass on both APIs.
 
-A new independent diagnostic makes the declared native inventory80, not a full
-80-case run. Its initial c6/API37 failure persists:92 false checks at1000ms,
+A new independent diagnostic made the declared native inventory80; that phase
+had not yet run full80. Its initial c6/API37 failure persists:92 false checks at1000ms,
 primary AssertionError plus two suppressed unavailable-snapshot errors. Corrected
 public shell transport at c282 yields1PASS each API and matching actual server/
 client enabled/restored snapshots. The transport runs after activation: fresh

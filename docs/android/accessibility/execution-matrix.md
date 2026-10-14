@@ -1,6 +1,22 @@
 # WP-503 native execution matrix
 
-**Current40cb94e8 launcher9:31 9PASS41.171s;37 8PASS/1FAIL114.016s, actual two CPUs each; original1000ms disconnected-tabs activation still fails. Native inventory80 including independent diagnostic, no full80 invocation. Exact9ac/run38595416582 SUCCESS/all6 only9ac; all historical negatives/cancellations retained. Producer/native/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+**Current40cb94e8 full80:31 77PASS/3FAIL192.963s;37 78PASS/2FAIL321.272s, actual two CPUs and80 starts/matching outcomes each. Existing CLI/language fail both, QR Copy clips31/passes37. Full-suite launcher9/control1 pass, earlier isolated37 activation failure retained. Exact9ac/run38595416582 SUCCESS/all6 only9ac; all historical negatives/cancellations retained. Product/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+
+## Full current native inventory
+
+| Same40cb source/APKs, one full80 invocation | Actual API31/twoCPUs | Actual API37/twoCPUs |
+|---|---|---|
+| Unique starts/matching terminal outcomes |80/80;77PASS/3FAIL192.963s|80/80;78PASS/2FAIL321.272s|
+| Expanded JUnit exceptions, not distinct cases |14|13|
+| Language name/selected-state method, existing238 |FAIL,12 expected1/actual0 mismatches|FAIL,same12 mismatches|
+| CLI construction, existing236 |FAIL,unsupported Collator mode2|FAIL,same native exception|
+| QR original Copy/font200 fixture, existing237 |FAIL,vertical clipping|PASS unchanged|
+| Launcher9 / independent service-control1 |9PASS/1PASS|9PASS/1PASS|
+| Actual manager activation/restoration / snapshots |Within original1000ms / actual exit0|Within original1000ms / actual exit0|
+
+No source/assertion/deadline/profile change, errors/skips, retry-until-green or
+negative reclassification. Isolated37 launcher8PASS/1FAIL remains separate and
+cannot be cleared by this larger invocation. [Raw evidence/bindings](../evidence/WP-503/README.md#full-current-native-inventory).
 
 ## Native service observation and full launcher re-audit
 

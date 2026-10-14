@@ -1,11 +1,75 @@
 # WP-503 attempt evidence
 
-**Current40cb94e8 original launcher9 on actual two-CPU devices:31 9PASS41.171s;37 8PASS/1FAIL114.016s. Original1000ms activation still fails before disconnected-tabs body. Separately bound native control positives do not clear initial/historical negatives. Exact9ac/run38595416582 SUCCESS/all6 only9ac; previous failures/cancellations retained. Native inventory80, no full80 run. Producer/native/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
+**Current unchanged40cb94e8 full80:31 77PASS/3FAIL192.963s;37 78PASS/2FAIL321.272s, actual two CPUs/80 unique starts/matching outcomes each. Existing CLI236/language238 fail both; QR237 Copy clips31/passes37. Full-suite launcher9/control1 pass but do not clear preceding isolated37 activation or historical negatives. Exact9ac/run38595416582 SUCCESS/all6 only9ac; prior failures/cancellations retained. Product/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Full current native inventory
+
+[Integration](device-currentfull-integration.json) and
+[unchanged inputs](device-currentfull-inputs.json) bind executed
+**40cb94e846a9f99de0afaa3f99b61c668386e7e4**/tree
+**f9e05b54d0dc5bf544c30bca8085b94a0e2afcb5**, identical to published
+**8a4673585811c3c63f48373123ccfe0e82c9158f** at execution. Same app/test APKs,
+all80 bodies/helpers/assertions and original1000ms/300s/600s guards.
+First full80 invocation at this source on each fresh actual two-CPU API;
+not same-source failing-case retries until green.
+
+Exact native command:
+`adb -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`;
+actualAPI independently31/37.
+
+| Full current native package | Actual API31/twoCPUs | Actual API37/twoCPUs |
+|---|---|---|
+| Unique starts/matching terminal outcomes |80/80; **77PASS/3FAIL192.963s**|80/80; **78PASS/2FAIL321.272s**|
+| Expanded JUnit exception entries |14, not14 failed methods|13, not13 failed methods|
+| Language own-name/selected state, existing238 |One failed method,12 expected1/actual0 mismatches|Same one failed method/12 mismatches|
+| Native CLI constructor, existing236 |One failed method, unsupported Collator decomposition2|Same production exception|
+| Original QR Copy/font200, existing237 |One failed method, line0 vertical clipping|Original strict fixture PASS|
+| Launcher9 / independent service-control1 |9PASS/1PASS|9PASS/1PASS|
+| Touch requested/activated/finally/restored |7/7/7/7|7/7/7/7|
+| Native ready windows/theme-scheme observations/IME targets |4/30/3|4/30/3|
+| Native motion tab/detailBack observations |10/2|10/2|
+
+No native error/skip statuses. Language12 failures are en,de,es,fr,it,ko,nl,pl,
+pt-PT,ru,uk,zh-Hans within one collected-failure method. CLI actual trace remains
+`java.text.Collator.decompositionMode_Java_ICU`/`setDecomposition` ->
+`LocalizedCompare.kt:16` -> `CliToolStateHolder.kt:55` ->
+`ToolsDiagnosticsScreen.kt:152`, `IllegalArgumentException: Bad mode: 2`,
+before disconnected explanation. These are existing assigned236/237/238 defects,
+not a new workstream or producer repair. QR37 passing unchanged does not clear31.
+
+Within this larger invocation original launcher9 and independent control1
+complete on both APIs. Actual launcher activation2/13/14/13/1/11/1ms and
+12/107/12/47/24/28/12ms; restorations11/13/13/13/19/12/1ms and
+16/17/25/31/92/22/15ms. Native control activation/restoration12/12ms and11/10ms;
+actual system/client enabled/restored snapshots agree with exits0, durations
+41/31ms and58/41ms. The preceding same-source isolated37 launcher8PASS/1FAIL
+remains failed, actualfalse87 checks1001ms before its disconnected-tabs body.
+Larger invocation-context positives do not erase that observation, initial c6
+92-check failure, older restoration/incomplete negatives or prove stable cause.
+
+Raw [31 instrumentation](device-currentfull-full-api31.txt)/
+[37 instrumentation](device-currentfull-full-api37.txt),
+[31 metrics](device-currentfull-full-metrics-api31.txt)/
+[37 metrics](device-currentfull-full-metrics-api37.txt),
+[31 runner](device-currentfull-full-runner-api31.txt)/
+[37 runner](device-currentfull-full-runner-api37.txt),
+[31 profile](device-currentfull-profile-api31.txt)/
+[37 profile](device-currentfull-profile-api37.txt). API/CPU count2/APKs independently
+verified; same360x900/mdpi/font2/nativeRTL/motion0/hardwareIME1 and existing
+AOSP31/noGMS/4KiB/2048MiB and PlayStore37.2/GMS/16KiB/4096MiB profiles.
+Both owned devices exit0 before exact four image/qcow paths removed; adb empty.
+No source change/rebuild, SDK/dependency installation, new worker, producer edit,
+merged repair, physical TalkBack, approved goldens, human review or whole-WP pass.
+Canonical166/actualCLId298/revision3 and combined four-producer binding unchanged.
+Hosted result/log remain the only reproducible CI authority; no second bundle.
+Full80 source/APK/positive-discovery/state-record integrity **PASS**, not native
+acceptance. Authored staged Markdown/JSON/Kotlin whitespace **PASS**; full staged
+check exits2 only for two original API37 dumpsys trailing spaces retained verbatim.
 
 ## Native service observation and full launcher re-audit
 
@@ -28,7 +92,8 @@ matches client managertrue/false, actual flags65558/65554, exit0. Snapshot durat
 67/49ms and182/189ms. It inherits the existing Compose rule/dispatcher; only the
 polling is native-clock independent. The snapshot fix executes after activation,
 so these fresh positives do not causally explain or clear the initial failure.
-Added one diagnostic makes native inventory80; no full80 invocation occurred.
+Added one diagnostic made native inventory80; no full80 invocation had occurred
+at that phase. The subsequent same-source full80 results are recorded above.
 
 Control records: [initial inputs](device-servicecontrolinitial-inputs.json),
 [initial37 instrumentation](device-servicecontrolinitial-flows-api37.txt),
