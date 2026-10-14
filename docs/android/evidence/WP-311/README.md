@@ -70,14 +70,15 @@ WP-314 PR #157; this repair carries only that shared lock state and none of WP-3
 Command (from `android/` in PowerShell):
 `.\gradlew.bat resolveScaffoldDependencies :feature:nodes:testDebugUnitTest --tests '*DiscoveryNativeTest' --tests '*DiscoveryViewModelTest' --tests '*ContactDetailNativeTest' --tests '*PathManagementNativeTest' --tests '*ContactPathActionsApi31ComposeTest' --tests '*ContactPathActionsApi37ComposeTest' --tests '*DiscoveryUiApi31ComposeTest' --tests '*DiscoveryUiApi37ComposeTest' --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"`
 
-Result: exit 0; strict dependency resolution passed; JUnit XML contains **49 discovered, 49
-passed, 0 failures, 0 errors, 0 skipped**. The 4 native Compose screen tests ran under Robolectric
+Result: exit 0; strict dependency resolution passed; JUnit XML contains **51 discovered, 51
+passed, 0 failures, 0 errors, 0 skipped**. The 6 native Compose screen tests ran under Robolectric
 native graphics at API31/API37, `w360dp-h900dp-mdpi`, RTL and 200% font scale. The disconnected
 Discovery screen test seeds the known radio's offline store, verifies the cached node is visible
 and no progress indicator or contact/radio action remains, and checks Add/Remove are visible with
-at least 48dp targets. The Contact Detail test scrolls to Discover/Edit/Reset Path and verifies
-visible bounds and enabled 48dp targets at both APIs. The other 45 tests cover discovery holder,
-contact detail and path management behavior. `git diff --check` passed.
+at least 48dp targets. The Contact Detail tests scroll to Discover/Edit/Reset Path and verify
+visible bounds and enabled 48dp targets while ready; while disconnected, all three actions remain
+visible with >=48dp targets and are disabled. The other 45 tests cover discovery holder, contact
+detail and path management behavior. `git diff --check` passed.
 
 The Gradle tasks also ran the repository localization/theme/notice checks. Their observed
 sub-suites were 74 localization converter tests, 22 theme converter tests and 4 theme-notice
@@ -149,15 +150,15 @@ Result: BUILD SUCCESSFUL; 45 discovered, 45 passed, 0 failed, 0 errors, 0 skippe
 PathManagementNativeTest 13). The new discovery cases assert cached-radio offline reads,
 settled empty state with explicit localized errors when data is unavailable, and no radio action.
 
-The Contact Detail reflow also has a local Compose semantics viewport regression using Robolectric
-native graphics at API 31 and API 37, `w360dp-h900dp-mdpi`, RTL and 200% font scale. It scrolls the
-real Contact Detail list, then asserts Discover, Edit and Reset Path have visible bounds, remain
-enabled, and each has at least a 48dp target:
+The Contact Detail reflow also has local Compose semantics viewport regressions using Robolectric
+native graphics at API 31 and API 37, `w360dp-h900dp-mdpi`, RTL and 200% font scale. They scroll
+the real Contact Detail list and assert Discover, Edit and Reset Path have visible bounds and
+48dp targets in both states: enabled while ready, disabled while disconnected.
 
 Command:
 `./gradlew :feature:nodes:testDebugUnitTest --tests '*ContactPathActionsApi31ComposeTest' --tests '*ContactPathActionsApi37ComposeTest'`
 
-Result: BUILD SUCCESSFUL; 2 discovered, 2 passed, 0 failed, 0 errors, 0 skipped (one per API).
+Result: BUILD SUCCESSFUL; 4 discovered, 4 passed, 0 failed, 0 errors, 0 skipped (two per API).
 
 The supplied WP-503 Compose selectors, including
 `offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner` and its Reset Path

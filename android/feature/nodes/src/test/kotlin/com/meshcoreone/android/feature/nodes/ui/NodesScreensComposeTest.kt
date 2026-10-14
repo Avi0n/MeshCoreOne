@@ -231,6 +231,39 @@ abstract class NodesScreensComposeTestBase {
                     assertFalse(action.config.contains(SemanticsProperties.Disabled), "$label must remain enabled")
                 }
         }
+
+        @Test
+        fun disconnectedPathActionsRemainVisibleAndDisabled() {
+            val harness = Harness().connect()
+            val radio = checkNotNull(harness.session.radioId)
+            val contact = Fixtures.contact(
+                radioId = radio,
+                type = ContactType.REPEATER,
+                name = "Offline path target",
+                outPathLength = 1u,
+                outPath = Bytes(byteArrayOf(0x01)),
+            )
+            harness.store.contacts += contact
+            harness.session.state = DeviceConnectionState.DISCONNECTED
+            harness.session.device = null
+            harness.session.contacts = null
+            harness.session.adverts = null
+            harness.session.trace = null
+
+            mount { ContactDetailScreen(contact, harness.dependencies, NodesNavigation.NONE) }
+
+            val context = controller.get()
+            listOf(C.contactsDetailDiscoverPath, C.contactsDetailEditPath, C.contactsDetailResetPath)
+                .map(context::getString)
+                .forEach { label ->
+                    val action = scrollToAction(label)
+                    assertTrue(isDisplayed(action), "$label must remain visible while disconnected")
+                    assertTrue(action.config.contains(SemanticsProperties.Disabled), "$label must be disabled offline")
+                    assertTrue(action.boundsInRoot.height / currentDensity() >= 48f, "$label must retain a 48dp target")
+                }
+            assertTrue(harness.contactService.calls.isEmpty())
+            assertTrue(harness.adverts.syncingFlags.isEmpty())
+        }
     }
 
     abstract class DiscoveryScreenComposeTestBase : NodesScreensComposeTestBase() {
