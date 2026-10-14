@@ -37,6 +37,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -81,6 +82,12 @@ class NativeOnboardingImeAccessibilityTest : DeviceAccessibilityHarness() {
             val progress = compose.onNodeWithText(activity.getString(O.wifiConnectionConnecting))
                 .performScrollTo().assertIsNotEnabled()
             recordAllocation(progress, "pending-first-scroll")
+            scrollActionBy(progress, -2f)
+            val clipped = progress.fetchSemanticsNode()
+            assertEquals("Calibrate the retained original two-pixel clipped-allocation signature",
+                2f, clipped.size.height - clipped.boundsInRoot.height, 0f)
+            assertThrows(AssertionError::class.java) { assertWholeAction(progress) }
+            recordAllocation(progress, "deliberate-two-pixel-counterexample")
             scrollWholeAction(progress)
             assertWholeAction(progress)
             compose.onNodeWithText(activity.getString(L.commonCancel)).performScrollTo().assertIsNotEnabled()
@@ -128,11 +135,16 @@ class NativeOnboardingImeAccessibilityTest : DeviceAccessibilityHarness() {
         val top = node.positionInRoot.y
         val bottom = top + node.size.height
         val delta = if (bottom > viewport.bottom) bottom - viewport.bottom else if (top < viewport.top) top - viewport.top else 0f
-        if (delta != 0f) {
-            compose.onNode(SemanticsMatcher("Actual action scroll viewport") { it.id == scroll.id }, useUnmergedTree = true)
-                .performSemanticsAction(SemanticsActions.ScrollBy) { assertTrue(it(0f, delta)) }
-        }
+        if (delta != 0f) scrollActionBy(action, delta)
         println("WP503_WIFI_IME_SCROLL|delta=$delta")
+    }
+
+    private fun scrollActionBy(action: SemanticsNodeInteraction, delta: Float) {
+        val scroll = generateSequence(action.fetchSemanticsNode().parent) { it.parent }.first {
+            it.config.contains(SemanticsActions.ScrollBy) && it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
+        }
+        compose.onNode(SemanticsMatcher("Actual action scroll viewport") { it.id == scroll.id }, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.ScrollBy) { assertTrue(it(0f, delta)) }
     }
 
     private fun assertWholeAction(action: SemanticsNodeInteraction) {
