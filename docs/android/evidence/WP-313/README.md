@@ -225,6 +225,42 @@ region parser edge cases (`settings_regions`), abbreviated duration formatting (
 location report formatting and calendar arithmetic (`history_location`), road-usage distance text
 (`map_road_usage`) and stable SHA-256 pin ids (`map_badge_ids`).
 
+## Region gutters and flood-switch semantics follow-up (issue #218)
+
+`RemoteRegionsContent` mounts `RegionFloodToggleRowLayout.visibleDepth` with the body-scaled indent
+(`12.sp` at the current font scale) instead of a hardcoded 12dp, and the flood switch exposes the
+`RegionFloodToggleRowLayout.accessibilityLabel(region)` text as its content description plus the
+localized `floodToggleHint` as its click label. `RemoteRegionsContentTest` (mounted Robolectric API31
+and API37, no radio) asserts: gutter offsets 0/1/2/3/4/4 x 12dp at 1x and 0/1/2/2/2/2 x 24dp at 2x
+(root, child of Unscoped, named parent, deep child, depth-5 cap), six unique region/parent switch
+labels, the localized hint, switch role/on state/enabled/>=48dp height, one confirmation with the flood
+caption, and no CLI command. It discovers 10 mounted testcases (5 on Robolectric API31 and 5 on API37),
+0 failed/errors/skipped. The feature compiles with SDK 37.2 / build tools 37.0.0. These are local JVM
+Compose/Robolectric results, not TalkBack, physical-device, Android instrumentation, hardware or
+hosted-Linux results.
+
+For this follow-up, current main base is `d8181418614a5acaa46f4acde54b741b492ac4b0`; Swift source
+remains pinned to `db14559b39d32322b06477c6ae676112f583db50`. The final trusted-launcher checks
+(isolated per-session Gradle and Android user caches) were:
+
+```text
+:feature:remotenodes:testDebugUnitTest --tests *RemoteRegionsContentTest --dependency-verification strict
+  10 discovered (5 API31, 5 API37), 0 failed/errors/skipped
+:feature:remotenodes:testDebugUnitTest validateModuleGraph resolveScaffoldDependencies --dependency-verification strict
+  BUILD SUCCESSFUL; 341 tests in 39 suites, 0 failed/errors/skipped; 30-module graph verified
+```
+
+The first exact-head hosted Android check failed in `resolveScaffoldDependencies`, because the newly
+selected `sqlite4java` artifact was not locked for `debugUnitTestLintChecksClasspath`. The accepted
+lock refresh adds that resolved configuration and the already pinned Robolectric SDK37 artifact.
+Running the trusted `resolveScaffoldDependencies --write-locks --dependency-verification strict`
+launcher exposed the remaining feature test-configuration lock state; after resolving it, the
+no-generation strict `resolveScaffoldDependencies` and `validateModuleGraph` checks pass. To run the
+same mounted cases on API37, the module stages the existing pinned instrumented SDK37 artifact,
+exports the JVM access Robolectric needs, and aligns Espresso with the existing app test pin
+`3.7.0`. The `dependency-resolution-metadata` capability admits the module Gradle file and owned
+dependency lock. The follow-up candidate must still pass its exact-head hosted Android check.
+
 ## Not claimed
 
 Original-case counts are source-case parity for the logic layer only. They do not establish UI
