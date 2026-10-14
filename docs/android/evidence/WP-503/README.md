@@ -1,11 +1,120 @@
 # WP-503 attempt evidence
 
-**Expanded0229e4e native77: API31 75PASS/2FAIL; API37 76PASS/1FAIL. New process-backed Settings notices2/2PASS on both actual APIs; original targeted JVM74/74PASS. CLI236 and API31 QR237 remain unresolved. All earlier negatives stay retained. PR205/WP503 remain incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Expanded56a0ecf native79: API31 76PASS/3FAIL; API37 live-record repeat73PASS/6FAIL. App-language scopes each2/1PASS/1FAIL with12 naming assertions in one case; actual Chinese/System lifecycle passes. New App/WP407 language238 joins unresolved CLI236 and API31 QR237; four additional unchanged API37 focus/motion failures remain unclassified. Original targeted JVM74/74PASS. All earlier negatives stay retained. PR205/WP503 remain incomplete: producer repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native app-language selection and lifecycle
+
+Executed **56a0ecf77e0db819ed72eabc09f7f586a11d6b7d**, Android tree
+**f8ba74630977504f29f5ff4e80fbbd8b1002d311**. Sole Android delta since published
+ef9dddd32f77b01ce619cd64f14020a509971a07 is the new native-only
+NativeAppLanguageAccessibilityTest. Previous77 fixtures/shared oracles and all
+producer/build/dependency bytes are identical; no App support edit, golden, floor,
+deadline, WP501/WP504 binding or source-pin change. Existing combined
+WP3181b2cd/WP311c870/WP3072396/WP313d2ff remains, not standalone native acceptance.
+[Integration](device-language-integration.json), [inputs](device-language-inputs.json).
+Production APK109723777/e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff
+is byte-identical to published native77;
+test3392435/75f8b0a3ef0ccab46d5998e0338188e5ebba310a0e3c39e1ccf26acaffc1544c.
+
+Actual MainActivity/MeshCoreApplication process graph and public Settings/Language
+are used, without a substituted renderer, dependency graph or LocaleManager.
+Each of12 supported autonyms and its raw selected control is measured, plus System
+and lifecycle return actions: each scope observes31 contained48dp targets at
+system font2/native RTL. All12 selection controls have an empty accessible name;
+each separately named TextButton lacks Selected. Every supported tag returns
+expected1/actual0 named selected controls. ErrorCollector preserves all12 naming
+assertions while measuring the remaining choices: **one failed test identity**,
+not twelve cases. [Actual producer defect238](https://github.com/cbattlegear/MeshCoreOne-Android/issues/238)
+is OPEN/assignedcbattlegear. AppSettingsContent production blob
+a0171a4315d6fecaafac1a65c48dad92ebd462a3 is AndroidOnly WP407, not WP318
+feature/settings ownership. Assignment is coordination, not verified repair dispatch.
+
+The separate lifecycle case invokes public Chinese/System buttons and observes
+real new resumed Activities, zh/en resources, zh-Hans/empty per-app tags and
+selected-control counts1/0. It requires retained Language detail/tab stacks and
+native Back, without ActivityScenario.recreate or a fake locale provider. It
+restores the actual RTL decor after native recreation and asserts real font2.
+Own app locale/onboarding flags are cleaned up; system locale is not changed.
+These are app-localization controls, not the removed message-translation feature.
+
+Declared strict command:
+`:app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeBackupAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeNodesAccessibilityTest.* --tests com.meshcoreone.android.accessibility.NativeFontAuditRegressionTest.* --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
+Installed serialized ext4 snapshot/preflight and both APK tasks **PASS**; original
+JVM **74/74PASS**, zero failures/errors/skips, original names/both SDK variants.
+New language cases are native-only. Trusted
+`python tools\android-port\controller\validate.py` and
+`python tools\android-port\portmap.py` **PASS** with unchanged manifest/1749 mappings.
+An initial nonexistent `tools\android-port\env\doctor.py --help` probe exited2 and
+provides no readiness evidence; the installed runner's actual ci.preflight is used.
+No reproducible JVM/hosted result bundle is retained.
+
+Actual full command:
+`adb -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Scope replaces package selection with
+`-e class com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest`.
+
+| Exact56a0 selection | Actual API31 | Actual API37 |
+|---|---|---|
+|Language scope2|1PASS/1FAIL9.662s|1PASS/1FAIL40.846s|
+|Entire native79, complete live metrics|76PASS/3FAIL188.26s|73PASS/6FAIL475.869s|
+|Unchanged original launcher9 diagnostic|Not rerun separately|9/9PASS55.08s, same APKs/device/profile|
+
+Positive unique starts/matching terminal identities, zero error/skip statuses.
+Naming238/CLI236 fail both, plus QR237/31. Full37 also fails four original launcher
+identities: `realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable`,
+`realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions`,
+`realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable`,
+`actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride`.
+Activation waits1000ms, native focus actions and the final motion0 observation fail;
+actual callbacks include touch-exploration false after prior activation despite
+requested flags. These are unresolved native observations, not proven new product
+defects or cleared by the earlier same-APK first full37.
+The12 naming assertions produce JUnit totals12(scope),14(full31),17(full37),
+not failed-case counts. Both full commands fail. The previous77 cases retain their
+original identities; notices/room/offline/repaired cases still pass.
+Current native records: `device-language-{scope,full}[-metrics]-api{31,37}.txt`;
+profiles: `device-language-profile-api{31,37}.txt`.
+Additional command replaces package selection with
+`-e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest`:
+**9/9PASS55.08s**, zero errors/skips, including the unchanged native framework and
+motion controls. `device-language-launcher[-metrics]-api37.txt` records the same
+APKs/device/profile; that scoped pass does not clear the four full-suite negatives,
+prove a causal explanation or establish whole-WP acceptance.
+
+Historical language cohorts remain separately bound:
+
+| Source / records | Actual outcome and qualification |
+|---|---|
+|4c33fcde1bedcd828b1390f16c1e80b326b2496f; `device-language-pre-radio[-metrics]-api31.txt`, own inputs/profile|2/1PASS/1FAIL10.596s;12 naming assertions before additional raw-radio target measurements.|
+|15f3bb8d1330b58a89853c399978ac91e2f8b3f5; `device-language-pre-system-{scope,full}[-metrics]-api{31,37}.txt`, own inputs/profiles|Scoped31 2/1PASS/1FAIL9.844s,37 2/1PASS/1FAIL42.341s. Full31 79/76PASS/3FAIL188.331s; full37 79/76PASS/3FAIL302.559s. Full37 adds a1000ms System-reset observer timeout, not a proven product lifecycle defect. Naming/CLI/QR failures remain.|
+|56a0ecf; `device-language-pre-live-full[-metrics]-api37.txt`, own profile/current APK binding|79/77PASS/2FAIL327.87s, naming/CLI only. Final logcat dump evicts early language metrics; do not fabricate missing full-run measurements. Exact unchanged APKs are rerun with live capture.|
+
+The initial reset oracle sampled Resources.getSystem after clicking System.
+Successor37 scope records `expectedLanguage=en|systemSnapshot=zh|observedLanguage=en`
+with empty stored tag/newActivity=true. Reset now compares with the original
+system language captured before changing app locale, retaining the original1000ms
+deadline and all other assertions. This repairs an owned racing expectation,
+not producer behavior or a retrospective pass of the earlier negative.
+
+The bounded session adapter now streams
+`adb -s emulator-5714 logcat -v raw -s System.out:I *:S` during instrumentation,
+instead of relying on a final rotating-buffer dump. Same filter, original600s guard,
+owned child cleanup and strict positive discovery; no buffer/fixture/product change.
+Sequential actual AOSP31/x86_64/4KiB/noGMS and PlayStore37.2/x86_64/16KiB/GMS,
+360x900/mdpi160/font2/decorRTL/animation0. Initial37 boot156s and live-repeat37
+boot161s, both within unchanged300s guard. Not physical TalkBack, full
+theme/window/permission acceptance, goldens, legal approval or independent review.
+WP503 remains blocked on producer236/237/238 repairs/native re-audits and the
+remaining physical/matrix/golden/admission/review gates.
+All three current-phase owned emulator processes exit0; exactly their six named
+userdata/qcow files are inspected/removed after exit. The previous15f3 phase's
+four named files were already removed after its two exit0 processes. Final adb
+device list is empty; no shared adb restart/wipe or lingering helper is claimed.
 
 ## Native process-backed About and packaged notices
 

@@ -1,9 +1,42 @@
 # WP-503 accessibility audit
 
-**Status: expanded0229e4e native77: API31 75PASS/2FAIL; API37 76PASS/1FAIL. New process-backed Settings notices2/2PASS on both actual APIs; original targeted JVM74/74PASS. WP316 CLI236 and WP311 API31 QR237 remain unresolved. Earlier negatives remain retained. PR205 stays draft: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Status: expanded56a0ecf native79: API31 76PASS/3FAIL; API37 live-record repeat73PASS/6FAIL. App-language scopes each discover2/pass1/fail1: twelve missing named-selection assertions in one case. New WP407 App-language238 joins unresolved WP316 CLI236 and WP311 API31 QR237; four additional unchanged API37 focus/motion cases fail and remain unclassified. Original targeted JVM74/74PASS. Earlier negatives remain retained. PR205 stays draft: producer repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native app-language selection and lifecycle
+
+Executed56a0ecf77e0db819ed72eabc09f7f586a11d6b7d/Android tree
+f8ba74630977504f29f5ff4e80fbbd8b1002d311 adds two actual MainActivity/process
+graph Settings/Language cases. All previous77 fixtures/shared oracles, producer
+bytes and the production APK remain identical. This audits app localization,
+not the removed message-translation feature.
+
+Actual scoped31 **2/1PASS/1FAIL9.662s**,37 **2/1PASS/1FAIL40.846s**.
+All12 supported autonym actions and their raw selection controls are measured;
+each scope records **31/31 contained48dp targets** at real font2/RTL. Every
+selected control has an empty name, while each separately named TextButton lacks
+Selected semantics: expected1/actual0 named selected controls for every language.
+The twelve collected assertions are **one failed test identity**, not twelve cases.
+[Producer-owned App/WP407 defect238](https://github.com/cbattlegear/MeshCoreOne-Android/issues/238)
+is assigned for coordination, not claimed as a verified active repair worker.
+
+Public Chinese/System actions pass the separate real Activity-recreation case:
+zh/en resources, zh-Hans/empty stored tags, selected-control counts1/0, retained
+detail/tab stacks and native Back. Reset compares against the original system
+language captured before selecting Chinese; actual37 can report a stale zh
+Resources.getSystem snapshot while the restored host is already en. The original
+1000ms wait and all semantics/font/target assertions remain. The earlier full37
+reset timeout and partial-buffer metrics remain separately bound, not retroactive
+passes or a product-lifecycle repair. Physical TalkBack remains unobserved.
+The live-record full37 additionally fails four original launcher focus/appearance/
+motion cases: touch-exploration activation/retention, native focus actions and
+motion0 observation. Those failures are not erased by the earlier77PASS/2FAIL
+run and are not yet classified as new product defects. The unchanged original
+launcher class then passes9/9 on the same APKs/API37/profile; that scoped diagnostic
+does not clear the full-suite failures or establish their cause.
+[Exact native counts, inputs and retained negatives](../evidence/WP-503/README.md#native-app-language-selection-and-lifecycle).
 
 ## Native process-backed About and packaged notices
 

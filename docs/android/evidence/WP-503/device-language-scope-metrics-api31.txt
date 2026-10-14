@@ -1,0 +1,144 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=Language|bounds=Rect.fromLTRB(28.0, 511.0, 332.0, 560.0)|viewport=Rect.fromLTRB(0.0, 236.0, 360.0, 560.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=中文 (简体中文)|size=180 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文 (简体中文)|line=0|left=0.0|right=180.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=中文 (简体中文)|bounds=Rect.fromLTRB(140.0, 720.0, 344.0, 774.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_LOCALE_WAIT|tag=zh-Hans|expectedLanguage=zh|systemSnapshot=en|observedLanguage=zh|observedTag=zh-Hans|newActivity=true
+WP503_FONT|text=设置|size=248 x 51|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 837)|paragraph=248.0x51.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=设置|line=0|left=0.0|right=70.0|top=0.0|bottom=51.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=中文 (简体中文)|size=180 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文 (简体中文)|line=0|left=0.0|right=180.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=中文 (简体中文)|bounds=Rect.fromLTRB(140.0, 720.0, 344.0, 774.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_LOCALE|tag=zh-Hans|resourcesLanguage=zh|newActivity=true|selectedControls=1|detailRetained=true
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=System language|size=201 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System language|line=0|left=0.0|right=201.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=System language|bounds=Rect.fromLTRB(119.0, 191.0, 344.0, 245.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_LOCALE_WAIT|tag=|expectedLanguage=en|systemSnapshot=en|observedLanguage=en|observedTag=|newActivity=true
+WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 837)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=English|size=85 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=English|line=0|left=0.0|right=85.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=English|bounds=Rect.fromLTRB(235.0, 299.0, 344.0, 353.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_LOCALE|tag=system|resourcesLanguage=en|newActivity=true|selectedControls=0|detailRetained=true
+WP503_LANGUAGE_RETURN|nativeBack=true|stacksUnchanged=true|realProcessGraph=true|physicalTalkBack=false
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=Language|bounds=Rect.fromLTRB(28.0, 511.0, 332.0, 560.0)|viewport=Rect.fromLTRB(0.0, 236.0, 360.0, 560.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=System language|size=201 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System language|line=0|left=0.0|right=201.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=System language|bounds=Rect.fromLTRB(119.0, 291.0, 344.0, 345.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION_INVENTORY|count=12|names=[, , , , , , , , , , , ]|selected=[false, false, false, false, false, false, false, false, false, false, false, false]
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=English|size=85 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=English|line=0|left=0.0|right=85.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=English|bounds=Rect.fromLTRB(235.0, 345.0, 344.0, 399.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=en:selected-control|bounds=Rect.fromLTRB(16.0, 345.0, 64.0, 393.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=en|label=English|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Deutsch|size=95 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Deutsch|line=0|left=0.0|right=95.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=Deutsch|bounds=Rect.fromLTRB(225.0, 399.0, 344.0, 453.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=de:selected-control|bounds=Rect.fromLTRB(16.0, 399.0, 64.0, 447.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=de|label=Deutsch|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=español|size=92 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=español|line=0|left=0.0|right=92.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=español|bounds=Rect.fromLTRB(228.0, 453.0, 344.0, 507.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=es:selected-control|bounds=Rect.fromLTRB(16.0, 453.0, 64.0, 501.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=es|label=español|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=français|size=94 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=français|line=0|left=0.0|right=93.53906|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=français|bounds=Rect.fromLTRB(226.0, 507.0, 344.0, 561.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=fr:selected-control|bounds=Rect.fromLTRB(16.0, 507.0, 64.0, 555.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=fr|label=français|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=italiano|size=87 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=italiano|line=0|left=0.0|right=87.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=italiano|bounds=Rect.fromLTRB(233.0, 561.0, 344.0, 615.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=it:selected-control|bounds=Rect.fromLTRB(16.0, 561.0, 64.0, 609.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=it|label=italiano|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=한국어|size=72 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=한국어|line=0|left=0.0|right=72.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=한국어|bounds=Rect.fromLTRB(248.0, 615.0, 344.0, 669.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=ko:selected-control|bounds=Rect.fromLTRB(16.0, 615.0, 64.0, 663.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=ko|label=한국어|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Nederlands|size=133 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Nederlands|line=0|left=0.0|right=133.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=Nederlands|bounds=Rect.fromLTRB(187.0, 669.0, 344.0, 723.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=nl:selected-control|bounds=Rect.fromLTRB(16.0, 669.0, 64.0, 717.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=nl|label=Nederlands|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=polski|size=71 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=polski|line=0|left=0.0|right=71.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=polski|bounds=Rect.fromLTRB(249.0, 720.0, 344.0, 774.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=pl:selected-control|bounds=Rect.fromLTRB(16.0, 720.0, 64.0, 768.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=pl|label=polski|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=português (Portugal)|size=244 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=português (Portugal)|line=0|left=0.0|right=243.09766|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=português (Portugal)|bounds=Rect.fromLTRB(76.0, 720.0, 344.0, 774.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=pt-PT:selected-control|bounds=Rect.fromLTRB(16.0, 720.0, 64.0, 768.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=pt-PT|label=português (Portugal)|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=русский|size=100 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=русский|line=0|left=0.0|right=99.69141|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=русский|bounds=Rect.fromLTRB(220.0, 720.0, 344.0, 774.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=ru:selected-control|bounds=Rect.fromLTRB(16.0, 720.0, 64.0, 768.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=ru|label=русский|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=українська|size=134 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=українська|line=0|left=0.0|right=134.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=українська|bounds=Rect.fromLTRB(186.0, 720.0, 344.0, 774.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=uk:selected-control|bounds=Rect.fromLTRB(16.0, 720.0, 64.0, 768.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=uk|label=українська|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=中文 (简体中文)|size=180 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文 (简体中文)|line=0|left=0.0|right=180.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=中文 (简体中文)|bounds=Rect.fromLTRB(140.0, 720.0, 344.0, 774.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_LANGUAGE_TARGET|label=zh-Hans:selected-control|bounds=Rect.fromLTRB(16.0, 720.0, 64.0, 768.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 774.0)
+WP503_LANGUAGE_SELECTION|tag=zh-Hans|label=中文 (简体中文)|namedSelectedControls=0|expectedSelected=false
+WP503_LANGUAGE_RETURN|nativeBack=true|stacksUnchanged=true|realProcessGraph=true|physicalTalkBack=false

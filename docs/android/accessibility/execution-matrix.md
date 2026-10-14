@@ -1,6 +1,37 @@
 # WP-503 native execution matrix
 
-**Latest0229e4e native77: API31 75PASS/2FAIL; API37 76PASS/1FAIL. Process-backed Settings notices2/2PASS on both actual APIs; JVM74/74PASS. CLI236 and API31 QR237 remain product blockers. All earlier negatives remain retained. WP503 is incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Latest56a0ecf native79: API31 76PASS/3FAIL; API37 live-record repeat73PASS/6FAIL. App-language scopes each2/1PASS/1FAIL, with12 naming assertions in one case; real Chinese/System lifecycle passes. JVM74/74PASS. New App/WP407 language238, CLI236 and API31 QR237 remain product blockers; four additional unchanged API37 focus/motion failures remain unclassified. All earlier negatives remain retained. WP503 is incomplete: producer repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+
+## Native app-language selection and lifecycle
+
+Exact56a0ecf77e0db819ed72eabc09f7f586a11d6b7d/Android tree
+f8ba74630977504f29f5ff4e80fbbd8b1002d311 adds only
+NativeAppLanguageAccessibilityTest under Android since published ef9dddd;
+all prior77 fixtures/oracles and producer bytes remain identical.
+
+| Native selection | Actual API31 | Actual API37 |
+|---|---|---|
+|App-language2|1PASS/1FAIL9.662s|1PASS/1FAIL40.846s|
+|Entire native79|76PASS/3FAIL188.26s|Live-record73PASS/6FAIL475.869s; first77PASS/2FAIL327.87s retained separately|
+|Each language scope: contained48dp target measurements|31/31|31/31|
+|Named selected controls per supported language: expected1|Actual0, all12|Actual0, all12|
+|Public Chinese/System locale recreation and native Back|PASS|PASS|
+|Unchanged original launcher class diagnostic|Not rerun separately|9/9PASS55.08s; does not clear four full-suite failures|
+
+Positive unique starts/matching terminal identities, zero error/skip statuses.
+Language naming238 and CLI236 fail both; QR237 additionally fails31. Live37 also
+fails four original launcher focus/appearance/motion cases: activation/retention,
+native focus actions and motion0 observation; not yet new product classifications.
+They are not cleared by the earlier same-APK77PASS/2FAIL result. Twelve
+collected language assertions are one failed identity, not twelve cases.
+Actual MainActivity/process graph, system font2/native RTL and original1000ms
+readiness remain. Chinese/System selects zh-Hans/empty, restores zh/en resources,
+retains detail/stacks and exposes selected-control counts1/0. Reset uses the
+pre-change original system language, not a racing Resources.getSystem snapshot.
+The earlier full37 timeout and the first56a0 full37 partial-buffer metrics remain
+retained; exact-APK live capture is an observer change, not changed assertions.
+These are app-localization semantics, not message translation or actual TalkBack.
+[Source/APKs/current and historical native records](../evidence/WP-503/README.md#native-app-language-selection-and-lifecycle).
 
 ## Native process-backed About and packaged notices
 
@@ -604,7 +635,7 @@ reduce those contrast pairs or the required 200%-font flow states.
 | Map: populated/filter/list/selected marker, empty/offline/download/error | Non-gesture marker-list selection with coordinates, filter selection, localized offline errors/retry, data-bound pack progress and pause/resume/delete confirmation; control rows/list/callout at 200% | Map-to-list traversal, marker access without dragging, callout and offline panel entry/return focus |
 | Tools: CLI, Rx log, noise-floor empty/running/stopped/error; LoS clear/blocked/relay | Labels and enabled/selected state, data-bound graph summaries/numeric alternatives, keyboard/non-gesture controls; semantic status versus color; 200% long metrics | Access to meaningful readings/clearance, no unreadable chart-only state, result/terminal focus and keyboard operation |
 | Remote nodes: authentication, status/telemetry/history, unavailable sensor/location, map | Labelled settings controls; units/time/value/status text; data-bound history/graph alternatives; 200% columns and dialogs | Auth/status/map focus; each sensor and change understandable without color |
-| Settings: appearance/effective schemes, backup valid/invalid/restore results, language/permissions/licenses | Theme/scheme selection, all unlocked options, error/result counts, headings and control labels; 200% cards/forms/dialogs | Selected theme announcement, language/permission return focus, restore confirmation/result focus |
+| Settings: appearance/effective schemes, backup valid/invalid/restore results, language/permissions/licenses | Theme/scheme selection, all unlocked options, error/result counts, headings and control labels; named language choice plus selected state, real locale/reset recreation and retained detail; 200% cards/forms/dialogs | Selected theme/language announcement, language/permission return focus, restore confirmation/result focus |
 
 Use deterministic fake-service data, clocks, local media/map inputs and meaningful native
 screens. WP-502 owns its existing screenshot/flow surfaces. Reuse its admitted evidence
