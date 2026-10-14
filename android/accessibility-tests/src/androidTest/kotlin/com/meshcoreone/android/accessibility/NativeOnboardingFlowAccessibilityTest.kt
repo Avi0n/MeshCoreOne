@@ -1,6 +1,7 @@
 // AndroidOnly: WP-503 Execute original permission/WiFi feature assertions on the actual selected Android API.
 package com.meshcoreone.android.accessibility
 
+import android.os.Looper
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsAnimation
@@ -53,6 +54,7 @@ class NativeOnboardingFlowAccessibilityTest : DeviceAccessibilityHarness() {
     }
 
     private fun awaitActualWifiIme() {
+        check(!Looper.getMainLooper().isCurrentThread) { "Native IME observation must run outside composition on the instrumentation thread" }
         val input = requireNotNull(activity.getSystemService(InputMethodManager::class.java))
         compose.waitUntil {
             var ready = false

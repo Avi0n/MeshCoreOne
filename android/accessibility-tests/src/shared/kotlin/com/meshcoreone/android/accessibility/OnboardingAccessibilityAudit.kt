@@ -217,9 +217,9 @@ internal class OnboardingAccessibilityAudit(
                     WiFiConnectionSheetContent(state, coordinator::setAddress, coordinator::setPort,
                         coordinator::connect, onCancel)
                 }
-                awaitWifiIme()
             }
         }
+        awaitWifiIme()
     }
 
     private fun assertReadable(node: SemanticsNodeInteraction) {
