@@ -193,6 +193,7 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
 
     private fun openRegions(rig: Rig) {
+        InstrumentationRegistry.getInstrumentation().uiAutomation
         mount(rig)
         compose.onNodeWithTag("open-node:${contact.id}").performScrollTo().assertIsEnabled().performClick()
         compose.onNodeWithTag("remote-tab:SETTINGS").assertIsSelected()
@@ -205,16 +206,26 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
     private fun nativeRegionSwitch(label: String): AccessibilityNodeInfo {
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         var matches = emptyList<AccessibilityNodeInfo>()
+        var observed = emptyList<AccessibilityNodeInfo>()
         fun descendants(node: AccessibilityNodeInfo): Sequence<AccessibilityNodeInfo> = sequence {
             assertTrue("Refresh actual region bridge data", node.refresh())
             yield(node)
             for (index in 0 until node.childCount) yieldAll(descendants(requireNotNull(node.getChild(index))))
         }
-        compose.waitUntil {
-            val root = automation.rootInActiveWindow
-            if (root?.packageName?.toString() != activity.packageName) return@waitUntil false
-            matches = descendants(root).filter { it.contentDescription?.toString() == label && it.isCheckable }.toList()
-            matches.size == 1
+        try {
+            compose.waitUntil {
+                val root = automation.rootInActiveWindow
+                if (root?.packageName?.toString() != activity.packageName) return@waitUntil false
+                observed = descendants(root).toList()
+                matches = observed.filter { it.contentDescription?.toString() == label && it.isCheckable }
+                matches.size == 1
+            }
+        } finally {
+            if (matches.size != 1) observed.forEach {
+                println("WP503_NATIVE_REGION_TREE|expected=$label|class=${it.className}|text=${it.text}" +
+                    "|description=${it.contentDescription}|checkable=${it.isCheckable}|checked=${it.isChecked}" +
+                    "|actions=${it.actionList}")
+            }
         }
         assertEquals("Exactly one native named region switch", 1, matches.size)
         return matches.single()
