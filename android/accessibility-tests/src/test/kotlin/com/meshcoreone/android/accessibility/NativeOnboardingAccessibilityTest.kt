@@ -17,6 +17,7 @@ class NativeOnboardingAccessibilityTest : NativeAccessibilityHarness() {
         OnboardingAccessibilityAudit(
             compose, Supplier { activity }, ::content, { AuditSurface(it) },
             ::assertFont200Unclipped, ::assertScrollableFont200Unclipped,
+            ::scrollWholeAllocationIntoView,
             { assertVisibleClickTargetsAtLeast48Dp() }, ::narrative,
         )
     }

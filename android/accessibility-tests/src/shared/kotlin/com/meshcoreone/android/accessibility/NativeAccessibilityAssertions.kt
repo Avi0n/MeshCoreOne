@@ -72,6 +72,27 @@ abstract class NativeAccessibilityAssertions {
         assertUnclippedContent(font200Layout(node))
     }
 
+    protected fun scrollWholeAllocationIntoView(node: SemanticsNodeInteraction) {
+        val measured = node.fetchSemanticsNode()
+        val root = compose.onNodeWithTag("audit-root").fetchSemanticsNode().boundsInRoot
+        val bounds = measured.boundsInRoot
+        if (bounds.left >= root.left && bounds.top >= root.top && bounds.right <= root.right && bounds.bottom <= root.bottom &&
+            bounds.width == measured.size.width.toFloat() && bounds.height == measured.size.height.toFloat()) return
+        val scroll = requireNotNull(generateSequence(measured.parent) { it.parent }.firstOrNull {
+            it.config.contains(SemanticsActions.ScrollBy) && it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
+        }) { "A clipped allocation must have an actual non-gesture scroll action" }
+        val top = measured.positionInRoot.y
+        val bottom = top + measured.size.height
+        val viewportTop = maxOf(root.top, scroll.boundsInRoot.top)
+        val viewportBottom = minOf(root.bottom, scroll.boundsInRoot.bottom)
+        val delta = if (bottom > viewportBottom) bottom - viewportBottom else if (top < viewportTop) top - viewportTop else 0f
+        if (delta != 0f) {
+            compose.onNode(SemanticsMatcher("Actual whole-allocation scroll viewport") { it.id == scroll.id }, useUnmergedTree = true)
+                .performSemanticsAction(SemanticsActions.ScrollBy) { assertTrue(it(0f, delta)) }
+        }
+        println("WP503_WHOLE_ALLOCATION_SCROLL|delta=$delta|before=$bounds|after=${node.fetchSemanticsNode().boundsInRoot}|viewport=$root")
+    }
+
     protected fun assertScrollableFont200Unclipped(node: SemanticsNodeInteraction) {
         node.performScrollTo()
         val layout = font200Layout(node)

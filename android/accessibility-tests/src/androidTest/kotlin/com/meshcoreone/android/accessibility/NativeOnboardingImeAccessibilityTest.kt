@@ -88,7 +88,7 @@ class NativeOnboardingImeAccessibilityTest : DeviceAccessibilityHarness() {
                 2f, clipped.size.height - clipped.boundsInRoot.height, 0f)
             assertThrows(AssertionError::class.java) { assertWholeAction(progress) }
             recordAllocation(progress, "deliberate-two-pixel-counterexample")
-            scrollWholeAction(progress)
+            scrollWholeAllocationIntoView(progress)
             assertWholeAction(progress)
             compose.onNodeWithText(activity.getString(L.commonCancel)).performScrollTo().assertIsNotEnabled()
             assertEquals(1, attempts)
@@ -99,7 +99,7 @@ class NativeOnboardingImeAccessibilityTest : DeviceAccessibilityHarness() {
             val connect = compose.onNodeWithText(activity.getString(O.wifiConnectionConnect))
             recordAllocation(connect, "after-error-scroll")
             connect.performScrollTo().assertIsEnabled()
-            scrollWholeAction(connect)
+            scrollWholeAllocationIntoView(connect)
             assertWholeAction(connect)
             assertEquals(1, attempts)
             println("WP503_WIFI_IME_CONTROL|complete=true|attempts=1|cancelled=0|realRadio=false|physicalTalkBack=false")
@@ -124,19 +124,6 @@ class NativeOnboardingImeAccessibilityTest : DeviceAccessibilityHarness() {
         val root = compose.onNodeWithTag("audit-root").fetchSemanticsNode().boundsInRoot
         println("WP503_WIFI_IME_ALLOCATION|phase=$phase|position=${node.positionInRoot}|bounds=${node.boundsInRoot}" +
             "|size=${node.size}|viewport=$root|imeVisible=${imeVisible()}")
-    }
-
-    private fun scrollWholeAction(action: SemanticsNodeInteraction) {
-        val node = action.fetchSemanticsNode()
-        val scroll = generateSequence(node.parent) { it.parent }.first {
-            it.config.contains(SemanticsActions.ScrollBy) && it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
-        }
-        val viewport = scroll.boundsInRoot
-        val top = node.positionInRoot.y
-        val bottom = top + node.size.height
-        val delta = if (bottom > viewport.bottom) bottom - viewport.bottom else if (top < viewport.top) top - viewport.top else 0f
-        if (delta != 0f) scrollActionBy(action, delta)
-        println("WP503_WIFI_IME_SCROLL|delta=$delta")
     }
 
     private fun scrollActionBy(action: SemanticsNodeInteraction, delta: Float) {

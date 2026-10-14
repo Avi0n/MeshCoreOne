@@ -65,6 +65,7 @@ internal class OnboardingAccessibilityAudit(
     private val AuditSurface: @Composable (@Composable () -> Unit) -> Unit,
     private val assertFont200Unclipped: (SemanticsNodeInteraction) -> Unit,
     private val assertScrollableFont200Unclipped: (SemanticsNodeInteraction) -> Unit,
+    private val scrollWholeAllocationIntoView: (SemanticsNodeInteraction) -> Unit,
     private val assertVisibleClickTargetsAtLeast48Dp: () -> Unit,
     private val narrative: (SemanticsNode) -> String,
 ) {
@@ -202,7 +203,7 @@ internal class OnboardingAccessibilityAudit(
         outcome.complete(OnboardingConnectOutcome.Failed(UiText.Verbatim("Radio unavailable")))
         val error = compose.onNodeWithText("Radio unavailable").performScrollTo()
         assertReadable(error)
-        compose.onNodeWithText(host.get().getString(O.wifiConnectionConnect)).assertIsDisplayed()
+        compose.onNodeWithText(host.get().getString(O.wifiConnectionConnect)).performScrollTo().assertIsDisplayed()
         assertEquals(1, attempts)
     }
 
@@ -219,6 +220,7 @@ internal class OnboardingAccessibilityAudit(
     }
 
     private fun assertReadable(node: SemanticsNodeInteraction) {
+        scrollWholeAllocationIntoView(node)
         node.assertIsDisplayed()
         assertFont200Unclipped(node)
         val measured = node.fetchSemanticsNode()
