@@ -1,11 +1,84 @@
 # WP-503 attempt evidence
 
-**New fbd onboarding scoped4/API pass, but full36/34PASS/2FAIL per API is not green. Earlier combined repair results remain bound below, not standalone producer acceptance. PR205/WP503 remain incomplete: retained native negatives and physical/matrix/review/admission gates.**
+**New combined WP313 region audit passes2/2 and complete remote class15/15 on each actual API31/37. Earlier onboarding full36/34PASS/2FAIL per API remains negative, not superseded by these scopes. PR205/WP503 remain incomplete: native negatives and physical/matrix/review/admission gates.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native WP313 region repair integration
+
+Executed **491d02b98ae9faef868996210c92c086f6b107df**, Android tree
+1f850657bd38df07f0677a42da4c2f316b13aef1, integrates exact WP313 PR234
+**d2ff006f764bcad25eb65def7a8fc17f68c32caa** over the earlier combined
+WP318/WP311/WP307 audit and new onboarding registration. All six imported producer
+production/test/build/lock/evidence Git blobs equal that producer head; no producer
+code edits or standalone-head native credit. Previous41b/04d results exclude PR234;
+they are not retrospective evidence for #218. Existing #218 had no WP503 native
+region fixture, so these are two new strict methods, not unchanged historical cases.
+[Exact integration](device-regions-integration.json) and [APK binding](device-regions-inputs.json).
+
+Declared strict assembly passes:
+`:app:assembleDebug :app:assembleDebugAndroidTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
+Production109723777 bytes/SHA256
+e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff;
+test3007967/e3ca23860c004b7b1b5a5a76d0e174cd43cdbf4ab016163c0b4f6a988c0b642c.
+The original13 remote method bodies remain byte-identical to fbd.
+Trusted `python tools\android-port\controller\validate.py` and
+`python tools\android-port\portmap.py` pass. Working scaffold commands do not
+self-configure WP503 acceptance admission.
+
+Actual Android command:
+`adb -s SERIAL shell am instrument -w -r -e class SELECTOR -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+The two-method selector comma-joins
+`com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest#nativeRegionsKeepNamedSwitchesAndCappedRtlGuttersAtFont200`
+and the same class's `#nativeRegionFloodRequiresConfirmationAndChangesOnlyTheNamedRegion`.
+API31 **2/2PASS7.550s**, API37 **2/2PASS44.974s**.
+Complete class selector `com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest`:
+API31 **15/15PASS27.048s**, API37 **15/15PASS68.466s**, including the original13.
+Each invocation positively matches unique starts/terminal identities and has zero
+failure/error/skip statuses; neither adb exit0 nor INSTRUMENTATION_CODE:-1 is sufficient.
+The `device-regions-scoped-api31/37*` and `device-regions-remote-api31/37*`
+transcripts/metrics retain actual outcomes, not a hosted/JVM bundle.
+
+The public RemoteNodesEntry uses an explicit synthetic cached ADMIN session and
+deterministic region-only CLI ports. All six localized labels/parent contexts,
+Switch role, enabled/On state, source hint, complete font200 captions and RTL gutters
+**[0,24,48,48,48,48]dp** pass. Real native action allocations are304x126dp for
+Unscoped,280x168dp for its child and256x168dp for deeper capped rows; all wholly
+inside360x900. API31 bottom758 versus API37 bottom860 is measured, not assumed
+identical available space. Cancel writes0; confirming executes exactly
+`region denyf gta`, changes only gta Off and leaves five other Compose switch states
+On. Actual native bridge checks observe all initial checked states, exact hints,
+named action ancestry and Switch role; confirmation input uses Compose semantics
+on the actual widgets. No real radio configuration, physical TalkBack or OS-dialog claim.
+
+The new observer's earlier API31 negatives remain in the initial/observer/ancestry
+records: e23 and8a each2/1PASS/1FAIL at a same-node label+checkable lookup;
+de232 each2/1PASS/1FAIL at expected native action-root Switch metadata/actual null.
+Actual bridge data puts the region name on a descendant, the checkable click action
+on its ancestor, and native Switch role metadata on another descendant of that same
+action. The corrected observer follows the established launcher hierarchy pattern:
+unique named checkable ancestor and exact Switch metadata inside its own subtree.
+No unrelated region can supply that role. Compose Switch role remains independently
+required for all six rows. This calibrates new observer assumptions, not a producer
+repair, relaxed label/role/state/hint/48dp/font/gutter floor or increased1000ms deadline.
+Early UiAutomation initialization alone did not fix the original lookup.
+
+The separate original resize method passes API31 **1/1PASS9.778s** with the owned
+zero-root-during-poll correction. API37 announces/starts1 test but has no terminal
+outcome before the unchanged outer600s runner TimeoutExpired. Actual900x900 rail
+recreation and all five named/selected/focused tabs complete; return360 shell command
+precedes the stall. Cause is unproven. The device stays adb-responsive and final OS
+profile is360x900/mdpi/font2/animation0. Original timeout handling did not persist
+partial instrumentation stdout; separately captured real TestRunner/System.out
+diagnostics and a labelled transcribed timeout record retain the negative, not an
+invented transcript or1/1PASS. No full38 or green full-cohort claim.
+API37 initial adb-offline clears only after bounded actual boot readiness; public
+cold launcher4929ms is readiness, not performance acceptance. Owned APIs run
+sequentially; after records only the timed-out owned App/emulators are stopped.
+The fbd onboarding negatives and earlier activation-cause qualification below remain.
 
 ## Native onboarding registration
 
@@ -54,9 +127,10 @@ clips2px at real IME viewport bottom601. Full37's original touch-exploration1000
 prerequisite passes; this does not prove the prior activation failure's cause.
 No negative is erased, called flaky or converted into a product diagnosis.
 
-The next owned observer change permits root absence only during the existing
+The later owned observer change permits root absence only during the existing
 resize poll, still requiring exactly one requested tag before all original final
-checks. It is not part of the fbd results or a verified fix yet.
+checks. It is not part of the fbd results; the separate491d scoped31 pass above
+does not erase this historical negative or establish complete API37 acceptance.
 Both actual post-profiles remain360x900/mdpi/font2/animation0,4KiB versus16KiB
 (`device-onboarding-profile-api31/37.txt`).37 initially reports adb offline, so setup/
 install fails explicitly; actual bounded boot completion precedes successful profile
@@ -71,7 +145,7 @@ d818/frozen sourcedb145/canonical1666502a/actualCLI d298 alias/revision3, plus:
 WP318 PR232 **1b2cd0476b5f70bbbd9ccaf71590e4613898eca1**;
 WP311 PR233 **c8708313310b76df40be9e75a763fe90dac876e8**;
 WP307 PR235 **2396ac64f9d3bcee7fa3a7e4f33e87956508d31d**.
-All producer source Git blobs equal the published candidates. No PR234 integration,
+All producer source Git blobs equal the published candidates. No PR234 integration in this earlier candidate,
 PR merge, independent approval, producer-code edit, nested worker or identity rewrite.
 These are **combined integration results**, never standalone producer-head execution.
 

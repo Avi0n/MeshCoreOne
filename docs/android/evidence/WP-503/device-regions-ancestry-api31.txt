@@ -1,0 +1,61 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest:
+INSTRUMENTATION_STATUS: test=nativeRegionsKeepNamedSwitchesAndCappedRtlGuttersAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<Switch> but was:<null>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.nativeRegionsKeepNamedSwitchesAndCappedRtlGuttersAtFont200(NativeRemoteNodesAccessibilityTest.kt:137)
+
+INSTRUMENTATION_STATUS: stream=
+Error in nativeRegionsKeepNamedSwitchesAndCappedRtlGuttersAtFont200(com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest):
+java.lang.AssertionError: expected:<Switch> but was:<null>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.nativeRegionsKeepNamedSwitchesAndCappedRtlGuttersAtFont200(NativeRemoteNodesAccessibilityTest.kt:137)
+
+INSTRUMENTATION_STATUS: test=nativeRegionsKeepNamedSwitchesAndCappedRtlGuttersAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=nativeRegionFloodRequiresConfirmationAndChangesOnlyTheNamedRegion
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=nativeRegionFloodRequiresConfirmationAndChangesOnlyTheNamedRegion
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 7.296
+There was 1 failure:
+1) nativeRegionsKeepNamedSwitchesAndCappedRtlGuttersAtFont200(com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest)
+java.lang.AssertionError: expected:<Switch> but was:<null>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.nativeRegionsKeepNamedSwitchesAndCappedRtlGuttersAtFont200(NativeRemoteNodesAccessibilityTest.kt:137)
+
+FAILURES!!!
+Tests run: 2,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

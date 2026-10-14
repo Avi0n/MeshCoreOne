@@ -1,0 +1,8 @@
+{
+  "android/feature/remotenodes/build.gradle.kts": "8e1f06a89d494fcddfaa1ee597442b5b7b01f7cf",
+  "android/feature/remotenodes/src/main/kotlin/com/meshcoreone/android/feature/remotenodes/ui/RemoteNodesComponents.kt": "f7b1ae62fc472420810d7dcf5b56a7d59275cffb",
+  "android/feature/remotenodes/src/main/kotlin/com/meshcoreone/android/feature/remotenodes/ui/RemoteRegionsContent.kt": "80bf0e47b9d4600ced969b30797371744ba8ae50",
+  "android/feature/remotenodes/src/test/kotlin/com/meshcoreone/android/feature/remotenodes/ui/RemoteRegionsContentTest.kt": "1238a33d723f767bf126221f3dd84785c9d5cbe7",
+  "android/gradle/dependency-locks/feature-remotenodes.lockfile": "eda47a36f0af793e3a6c6cd875240e611263663d",
+  "docs/android/evidence/WP-313/README.md": "99fb015cdcbb64ca7c45033a4243db1395a54af6"
+}

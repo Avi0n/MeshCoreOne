@@ -1,6 +1,22 @@
 # WP-503 native execution matrix
 
-**Latest fbd onboarding scoped4/API pass, but full36/34PASS/2FAIL each API is not green. Earlier combined226/228/230/231 results below remain bound to their exact commands. WP503 remains incomplete: retained native negatives, physical/matrix/review/admission gates.**
+**Latest combined WP313 region scoped2/2 and full remote15/15 pass per actual API31/37. Earlier fbd onboarding full36/34PASS/2FAIL each API remains negative. Earlier combined226/228/230/231 results remain separately bound. WP503 remains incomplete: native negatives, physical/matrix/review/admission gates.**
+
+Executed491d02b98ae9faef868996210c92c086f6b107df consumes exact PR234d2ff
+over the preceding combined producers; all six imported blobs match and original13
+remote test bodies are byte-identical. No prior native region fixture existed.
+New two-method scopes:31 2/2PASS7.550s;37 2/2PASS44.974s.
+Complete remote class:31 15/15PASS27.048s;37 15/15PASS68.466s;0 failures/errors/skips.
+Six native named/checkable actions, Switch role descendants, source hints, complete
+font200 captions, contained304x126/280x168/256x168dp allocations and source-capped
+RTL gutters[0,24,48,48,48,48] pass. Cancel writes0; only gta changes Off after the
+exact confirmed `region denyf gta` command. Synthetic ADMIN/CLI ports, not real radio.
+New observer calibration retains all three initial API31 negatives and unchanged
+role/label/state/geometry/deadline requirements. Original resize separately passes31
+1/1 9.778s;37 starts1 but times out at the unchanged600s outer bound with no
+terminal outcome after returning from900x900. Native rail observations complete,
+cause unproven; no pass or full38 success inferred.
+[Exact native records](../evidence/WP-503/README.md#native-wp313-region-repair-integration).
 
 At fbd949e3663332bb0f6859083e6512b26ce09438, four original onboarding bodies and
 three helpers are shared unchanged between original JVM variants and a new Android
@@ -35,7 +51,7 @@ unchanged floors/minimum4.517812074094317:1. Original full Nodes JVM class18/18P
 zero failures/errors/skips, not a new complete80-case JVM result.
 Nodes shared native cases use the original deterministic feature dependencies,
 not a real radio/process-store graph claim. Other launcher cases use real App graph.
-No PR234 integration, standalone-head native credit, merge, new worker or self-approval.
+No PR234 integration in this earlier41b candidate, standalone-head native credit, merge, new worker or self-approval.
 [Exact integration/negative/commands](../evidence/WP-503/README.md#combined-published-producer-repairs).
 
 Prior exact48a6a9d3fd3e7641902ddeaf6874886a3401199b complete native inventory

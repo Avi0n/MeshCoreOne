@@ -1,0 +1,78 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "previous_combined_binding": "device-repairs-integration.json",
+  "previous_onboarding_binding": "device-onboarding-integration.json",
+  "additional_producer": {
+    "wp": "WP-313",
+    "pr": 234,
+    "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa",
+    "issue": 218,
+    "all_six_imported_blobs_equal_exact_producer": true,
+    "blob_binding": "device-regions-producer-blobs.json"
+  },
+  "executed_combined_head": "491d02b98ae9faef868996210c92c086f6b107df",
+  "executed_android_tree": "1f850657bd38df07f0677a42da4c2f316b13aef1",
+  "apk_binding": "device-regions-inputs.json",
+  "original_13_remote_method_bodies_byte_identical_to_fbd949e": true,
+  "historical_wp503_native_region_fixture_existed": false,
+  "new_region_methods": 2,
+  "native_api31": {
+    "regions": {"discovered": 2, "passed": 2, "failed": 0, "errors": 0, "skipped": 0, "seconds": 7.550},
+    "complete_remote_class": {"discovered": 15, "passed": 15, "failed": 0, "errors": 0, "skipped": 0, "seconds": 27.048},
+    "separate_original_resize": {"discovered": 1, "passed": 1, "failed": 0, "errors": 0, "skipped": 0, "seconds": 9.778},
+    "observed_os_profile_transcribed_from_actual_tool_capture": {
+      "api": 31, "page_bytes": 4096, "viewport": "360x900", "density_dpi": 160,
+      "font_scale": 2.0, "three_animation_scales": [0, 0, 0], "google_play_services_packages": []
+    }
+  },
+  "native_api37": {
+    "regions": {"discovered": 2, "passed": 2, "failed": 0, "errors": 0, "skipped": 0, "seconds": 44.974},
+    "complete_remote_class": {"discovered": 15, "passed": 15, "failed": 0, "errors": 0, "skipped": 0, "seconds": 68.466},
+    "separate_original_resize": {
+      "result": "INCOMPLETE_TIMEOUT_NOT_PASS",
+      "test_runner_announced": 1,
+      "test_runner_started": 1,
+      "terminal_outcomes": 0,
+      "outer_runner_timeout_seconds": 600,
+      "cause": "Unproven; actual 900x900 rail observations complete, then return360 shell command precedes missing terminal outcome",
+      "diagnostics": "device-regions-resize-metrics-api37.txt",
+      "original_runner_limitation": "TimeoutExpired propagated before raw instrumentation stdout was persisted; retained actual TestRunner/System.out diagnostics instead"
+    },
+    "boot_readiness": "Initial adb offline; bounded actual sys.boot_completed readiness succeeded before setup/install",
+    "public_cold_launcher_ms_readiness_only": 4929,
+    "os_profile": "device-regions-profile-api37.txt",
+    "post_timeout_os_profile": "device-regions-final-profile-api37.txt"
+  },
+  "regions": {
+    "unique_labels": 6,
+    "font_scale": 2.0,
+    "direction": "RTL",
+    "source_expected_and_measured_gutters_dp": [0, 24, 48, 48, 48, 48],
+    "native_initial_checked_and_enabled_actions": 6,
+    "native_role": "Switch metadata within each exact named checkable action subtree",
+    "native_wholly_contained_allocations_dp": ["304x126", "280x168", "256x168"],
+    "cancel_writes": 0,
+    "only_confirmed_write": "region denyf gta",
+    "compose_after_confirmation": {"gta": "Off", "five_other_regions": "On"},
+    "real_radio_configuration": false
+  },
+  "retained_api31_observer_negatives": [
+    {"binding": "device-regions-initial-inputs.json", "discovered": 2, "passed": 1, "failed": 1, "seconds": 7.101, "cause": "Incorrect same-node label plus checkability selector"},
+    {"binding": "device-regions-observer-inputs.json", "discovered": 2, "passed": 1, "failed": 1, "seconds": 6.773, "cause": "Same selector; early bridge initialization alone did not resolve it"},
+    {"binding": "device-regions-ancestry-inputs.json", "discovered": 2, "passed": 1, "failed": 1, "seconds": 7.296, "cause": "Incorrect action-root-only native role expectation; exact Switch role is a descendant"}
+  ],
+  "full_38_inventory_executed": false,
+  "earlier_onboarding_full_failures_erased": false,
+  "earlier_activation_failure_cause_proven": false,
+  "standalone_producer_head_device_execution": false,
+  "physical_talkback_observed": false,
+  "approved_goldens_or_full_matrix_acceptance": false,
+  "merge_or_independent_approval": false
+}

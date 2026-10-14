@@ -1,0 +1,29 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1080x2400
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 900x900|response=
+WP503_NATIVE_WINDOW|sdk=31|size=900x900|bounds=Rect(0, 0 - 900, 900)|activityRecreated=true|shell=navigation-rail|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Nodes|size=530 x 45|constraints=Constraints(minWidth = 0, maxWidth = 530, minHeight = 0, maxHeight = 837)|paragraph=530.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Nodes|line=0|left=0.0|right=102.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=NODES|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Map|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 837)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=0.0|right=70.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=MAP|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Tools|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 837)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=0.0|right=86.30469|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=TOOLS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Settings|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 837)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=SETTINGS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Chats|size=756 x 45|constraints=Constraints(minWidth = 0, maxWidth = 756, minHeight = 0, maxHeight = 837)|paragraph=756.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=0.0|right=90.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=CHATS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Language|size=324 x 33|constraints=Constraints(minWidth = 0, maxWidth = 324, minHeight = 0, maxHeight = Infinity)|paragraph=324.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+WP503_NATIVE_WINDOW|sdk=31|size=360x900|bounds=Rect(0, 0 - 360, 900)|activityRecreated=true|shell=navigation-hidden|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 837)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_WINDOW_DETAIL|sdk=31|expanded=900x900|compact=360x900|retainedEntry=5|nativeBack=true|focusReacquired=true|automaticBackFocusRetained=false|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=

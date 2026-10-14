@@ -1,9 +1,26 @@
 # WP-503 accessibility audit
 
-**Status: latest onboarding addition passes scoped4/API but full36 fails2/API; no whole-command or WP acceptance. Earlier combined repair assertions remain bound to their exact executions below. PR205 remains draft; native negatives and physical/matrix/review/admission gates remain.**
+**Status: combined WP313 region audit passes2/2 and full remote class15/15 per actual API31/37. Earlier onboarding full36 fails2/API and is not superseded; no whole-inventory or WP acceptance. PR205 remains draft; native negatives and physical/matrix/review/admission gates remain.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native WP313 region repair re-audit
+
+Executed491d02b98ae9faef868996210c92c086f6b107df imports exact PR234
+d2ff006f764bcad25eb65def7a8fc17f68c32caa over the prior combined producers.
+All six producer blobs match, original13 remote method bodies are unchanged.
+These are **combined**, not standalone producer-head results. There was no historical
+WP503 native region fixture; two new strict actual public-entry methods now cover it.
+Both APIs pass scoped2/2 and complete remote15/15, zero failures/errors/skips.
+Six localized named Switch actions retain native role/state/hint, contained48dp,
+unclipped200% captions and capped RTL gutters0/24/48/48/48/48dp. Cancel writes0;
+confirmation writes only `region denyf gta`, only gta changes Off.
+Native name/action/role live on different nodes in one action subtree; calibrated
+observation follows existing launcher prior art, preserving all floors and the1000ms
+deadline. Three earlier observer negatives remain distinct bound records.
+No physical TalkBack, real radio, full38 or erased onboarding-negative claim.
+[Exact source/APKs/commands/outcomes](../evidence/WP-503/README.md#native-wp313-region-repair-integration).
 
 ## Native onboarding registration and retained full-cohort negatives
 
@@ -32,7 +49,7 @@ WP311 PR233c8708313310b76df40be9e75a763fe90dac876e8 and
 WP307 PR2352396ac64f9d3bcee7fa3a7e4f33e87956508d31d form initial combined
 b39d78c9fe881160e1511343b185b291cefe3b53. Exact launcher/test APK remains unchanged.
 API31 affected2/2 and full30/30 pass. This is not native execution of any standalone
-producer head. PR234 is not included.
+producer head. PR234 is not included in that earlier integration; the later region integration above includes it.
 
 The old inventory had no Android registration for the two failing JVM Nodes methods.
 Exact41bdbfac45b4d3690f29a5363da02047642e2716 shares their original assertion
