@@ -203,7 +203,8 @@ internal class OnboardingAccessibilityAudit(
         outcome.complete(OnboardingConnectOutcome.Failed(UiText.Verbatim("Radio unavailable")))
         val error = compose.onNodeWithText("Radio unavailable").performScrollTo()
         assertReadable(error)
-        compose.onNodeWithText(host.get().getString(O.wifiConnectionConnect)).performScrollTo().assertIsDisplayed()
+        val connect = compose.onNodeWithText(host.get().getString(O.wifiConnectionConnect)).performScrollTo()
+        assertReadable(connect)
         assertEquals(1, attempts)
     }
 
