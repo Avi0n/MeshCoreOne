@@ -61,8 +61,26 @@ class DiscoveryStateHolder(
     internal fun seed(transform: (DiscoveryState) -> DiscoveryState) = mutableState.update(transform)
 
     suspend fun loadDiscoveredNodes() {
-        val dataStore = session.offlineDataStore() ?: return
-        val radioId = session.connectedDevice()?.radioId ?: return
+        val dataStore = session.offlineDataStore()
+        val radioId = knownRadioId()
+        if (dataStore == null || radioId == null) {
+            val unavailable = if (radioId == null) {
+                R.string.l10n_app_contacts_contacts_add_error_notconnected
+            } else {
+                R.string.l10n_app_contacts_contacts_detail_error_servicesunavailable
+            }
+            mutableState.update {
+                it.copy(
+                    discoveredNodes = emptyList(),
+                    addedPublicKeys = emptySet(),
+                    hasLoadedOnce = true,
+                    isLoading = false,
+                    errorMessage = NodesMessage.res(unavailable),
+                )
+            }
+            applyFilter()
+            return
+        }
         mutableState.update { it.copy(isLoading = true, errorMessage = null) }
         try {
             val nodes = dataStore.fetchDiscoveredNodes(radioId)
@@ -88,6 +106,9 @@ class DiscoveryStateHolder(
         }
     }
 
+    /** Connected radio, else the cached known radio so the offline store stays readable while disconnected. */
+    private fun knownRadioId() = session.connectedDevice()?.radioId ?: session.currentRadioId()
+
     fun isAdded(node: DiscoveredNodeDTO): Boolean = node.publicKey in state.value.addedPublicKeys
 
     suspend fun deleteDiscoveredNode(node: DiscoveredNodeDTO) {
@@ -100,7 +121,7 @@ class DiscoveryStateHolder(
     /** Clears every discovered node; returns true on success so the UI can announce it. */
     suspend fun clearAllDiscoveredNodes(): Boolean {
         val dataStore = session.offlineDataStore() ?: return false
-        val radioId = session.connectedDevice()?.radioId ?: return false
+        val radioId = knownRadioId() ?: return false
         return reportingFailure {
             dataStore.clearDiscoveredNodes(radioId)
             mutableState.update { it.copy(discoveredNodes = emptyList()) }

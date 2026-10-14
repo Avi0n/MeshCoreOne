@@ -115,3 +115,28 @@ sorting, delete masking/guarding, unresolvable hops, late discovery responses, g
 matching, hop de-duplication, scan claim ordering and ambiguous repeater resolution were each
 demonstrated to fail at least one owned test when mutated. Frozen Foundation string oracles remain
 under [`oracle/`](oracle/).
+
+## Follow-up #226/#228
+
+Base: `d8181418614a5acaa46f4acde54b741b492ac4b0`; candidate:
+`fe67497f4de3b7223aa94860d582fc7b5261394d`. Frozen source:
+`db14559b39d32322b06477c6ae676112f583db50`. The controller-rendered WP-311
+manifest SHA-256 is `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`;
+policy revision is `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
+The merged prerequisite PRs are WP-312 #140 and WP-311 #153.
+
+Command:
+`./gradlew :feature:nodes:testDebugUnitTest --tests '*DiscoveryNativeTest' --tests '*DiscoveryViewModelTest' --tests '*ContactDetailNativeTest' --tests '*PathManagementNativeTest'`
+
+Result: BUILD SUCCESSFUL; 45 discovered, 45 passed, 0 failed, 0 errors, 0 skipped
+(DiscoveryNativeTest 9; DiscoveryViewModelTest 10; ContactDetailNativeTest 13;
+PathManagementNativeTest 13). The new discovery cases assert cached-radio offline reads,
+settled empty state with explicit localized errors when data is unavailable, and no radio action.
+
+The WP-503 draft UI selectors for API 31/37 (including
+`offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner` and the Reset Path
+`assertIsDisplayed` case at 360x900/font200/RTL) were not present in this candidate tree and were
+not run. Thus the Contact Detail reflow has host-unit compilation/logic coverage but no UI-level
+viewport assertion here. The manifest still declares no WP-311 verification command or trusted
+check identity; local Gradle results are not represented as controller/CI gate evidence. No
+emulator/device, hardware, iOS, signing or release evidence is claimed.
