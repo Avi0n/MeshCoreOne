@@ -907,8 +907,32 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 automation().serviceInfo = info
                 val restoredTouch = original and AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE != 0
                 // Service-info writes acknowledge before the system dispatches the corresponding state change.
-                compose.waitUntil {
-                    automation().serviceInfo.flags == original && manager.isTouchExplorationEnabled == restoredTouch
+                val restorationStart = android.os.SystemClock.elapsedRealtime()
+                var checks = 0
+                var lastState: Pair<Int, Boolean>? = null
+                var lastCheckElapsedMs = 0L
+                try {
+                    compose.waitUntil {
+                        val flags = automation().serviceInfo.flags
+                        val enabled = manager.isTouchExplorationEnabled
+                        checks++
+                        lastCheckElapsedMs = android.os.SystemClock.elapsedRealtime() - restorationStart
+                        val state = flags to enabled
+                        if (state != lastState) {
+                            println("WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=${android.os.Build.VERSION.SDK_INT}" +
+                                "|actualFlags=$flags|enabled=$enabled|expectedFlags=$original|expectedEnabled=$restoredTouch" +
+                                "|checks=$checks|waitElapsedMs=$lastCheckElapsedMs|physicalTalkBack=false")
+                            lastState = state
+                        }
+                        flags == original && enabled == restoredTouch
+                    }
+                } catch (failure: ComposeTimeoutException) {
+                    println("WP503_NATIVE_TOUCH_RESTORE_TIMEOUT|sdk=${android.os.Build.VERSION.SDK_INT}" +
+                        "|lastObserved=$lastState|expectedFlags=$original|expectedEnabled=$restoredTouch" +
+                        "|checks=$checks|lastCheckElapsedMs=$lastCheckElapsedMs" +
+                        "|waitElapsedMs=${android.os.SystemClock.elapsedRealtime() - restorationStart}" +
+                        "|originalDeadlineMs=1000|physicalTalkBack=false")
+                    throw failure
                 }
                 println("WP503_NATIVE_TOUCH_RESTORED|flags=$original|enabled=${manager.isTouchExplorationEnabled}" +
                     "|elapsedMs=${android.os.SystemClock.elapsedRealtime() - start}|beforeNextFixture=true")
