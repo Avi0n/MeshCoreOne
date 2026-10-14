@@ -36,6 +36,9 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
+import com.meshcoreone.android.MainActivity
 import com.meshcoreone.android.app.MeshCoreApplication
 import com.meshcoreone.android.core.contracts.AppTab
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
@@ -810,8 +813,27 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
 
     private fun resizeWindow(size: String, tag: String) {
         val previous = activity
+        val (widthPixels, heightPixels) = size.split('x').map(String::toInt)
         shell("wm size $size")
-        compose.waitUntil { compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).size == 1 }
+        var resumed: MainActivity? = null
+        compose.waitUntil {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                resumed = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                    .filterIsInstance<MainActivity>().singleOrNull { host ->
+                        val decor = host.window.decorView
+                        val window = host.windowManager.currentWindowMetrics.bounds
+                        decor.isAttachedToWindow && decor.isLaidOut && decor.hasWindowFocus() &&
+                            decor.width == widthPixels && decor.height > 0 &&
+                            window.width() == widthPixels && window.height() == heightPixels
+                    }
+            }
+            resumed != null
+        }
+        assertTrue("The Compose rule must refer to the actual resumed resized Activity", activity === resumed)
+        assertEquals(1, compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).size)
+        compose.onNodeWithTag(tag).assertIsDisplayed()
+        println("WP503_NATIVE_WINDOW_READY|sdk=${android.os.Build.VERSION.SDK_INT}|size=$size" +
+            "|resumed=true|laidOut=true|windowFocus=true|semanticCount=1|semanticDisplayed=true|physicalTalkBack=false")
         compose.runOnUiThread { activity.window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL }
         compose.waitForIdle()
         assertEquals(2f, activity.resources.configuration.fontScale, 0f)
