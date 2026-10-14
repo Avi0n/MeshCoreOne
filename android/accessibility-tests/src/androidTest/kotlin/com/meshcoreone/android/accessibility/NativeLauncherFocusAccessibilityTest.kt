@@ -921,7 +921,32 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             automation().serviceInfo = info
             println("WP503_NATIVE_TOUCH_REQUEST|requestedFlags=${info.flags}|actualFlags=${automation().serviceInfo.flags}" +
                 "|elapsedMs=${android.os.SystemClock.elapsedRealtime() - start}")
-            compose.waitUntil { manager.isTouchExplorationEnabled }
+            val activationStart = android.os.SystemClock.elapsedRealtime()
+            var checks = 0
+            var lastEnabled: Boolean? = null
+            var lastCheckElapsedMs = 0L
+            try {
+                compose.waitUntil {
+                    val enabled = manager.isTouchExplorationEnabled
+                    checks++
+                    lastCheckElapsedMs = android.os.SystemClock.elapsedRealtime() - activationStart
+                    if (enabled != lastEnabled) {
+                        println("WP503_NATIVE_TOUCH_OBSERVATION|sdk=${android.os.Build.VERSION.SDK_INT}|enabled=$enabled" +
+                            "|checks=$checks|waitElapsedMs=$lastCheckElapsedMs" +
+                            "|helperElapsedMs=${android.os.SystemClock.elapsedRealtime() - start}|physicalTalkBack=false")
+                        lastEnabled = enabled
+                    }
+                    enabled
+                }
+            } catch (failure: ComposeTimeoutException) {
+                println("WP503_NATIVE_TOUCH_TIMEOUT|sdk=${android.os.Build.VERSION.SDK_INT}|lastObserved=$lastEnabled" +
+                    "|currentEnabled=${manager.isTouchExplorationEnabled}|checks=$checks|lastCheckElapsedMs=$lastCheckElapsedMs" +
+                    "|waitElapsedMs=${android.os.SystemClock.elapsedRealtime() - activationStart}" +
+                    "|originalDeadlineMs=1000|physicalTalkBack=false")
+                throw failure
+            }
+            println("WP503_NATIVE_TOUCH_READY|sdk=${android.os.Build.VERSION.SDK_INT}|checks=$checks" +
+                "|waitElapsedMs=${android.os.SystemClock.elapsedRealtime() - activationStart}|physicalTalkBack=false")
             println("WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=${android.os.Build.VERSION.SDK_INT}" +
                 "|touchExploration=${manager.isTouchExplorationEnabled}|physicalTalkBack=false")
             block()
