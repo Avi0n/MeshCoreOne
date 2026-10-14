@@ -1,11 +1,82 @@
 # WP-503 attempt evidence
 
-**Current unchanged40cb94e8 full80:31 77PASS/3FAIL192.963s;37 78PASS/2FAIL321.272s, actual two CPUs/80 unique starts/matching outcomes each. Existing CLI236/language238 fail both; QR237 Copy clips31/passes37. Full-suite launcher9/control1 pass but do not clear preceding isolated37 activation or historical negatives. Exact9ac/run38595416582 SUCCESS/all6 only9ac; prior failures/cancellations retained. Product/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
+**Latest bounded re-audit: exact WP-316 repair3bcb254a plus audit55f7c666, combined e680a2b0 diagnostics5 PASS on API31/37,10.327s/42.043s. CLI236 regression passes only in this combined integration. Historical40cb full80 remains31 77PASS/3FAIL and37 78PASS/2FAIL, not rerun at successor. Language238, QR237/API31 and historical activation/restoration negatives remain. Product/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Published WP-316 CLI repair re-audit
+
+[Integration](device-cli-integration.json) and [APK inputs](device-cli-inputs.json)
+bind exact producer **3bcb254a31e3c4d51b81b74d19f043199a824905** (PR239/issue236),
+audit **55f7c666d4e36b9725c308f806e2b8f02deb33da**, combined execution
+**e680a2b0c329c13557e9d66e453d3ff1280271c9**, Android tree
+**3db54097a0c7ff80af5bb218c563d7d57664983d**. All three producer blobs equal
+the published producer; the entire accessibility-tests subtree equals the audit.
+
+| Rebuilt input | Bytes | SHA-256 |
+|---|---|---|
+| App debug APK |109723777|`4ef5e2637bc6e825c0e9a9425d47076a2395b14afc874f63c415d4c1857cfd81`|
+| Test debug APK |3414459|`e79d2c14eee8748df732083cc4d8c85ad19ea05b1e3e7520a01162a52a97f79a`|
+
+Both APKs were assembled at the combined commit through the existing isolated
+ext4 entry `python <session-files>\wp503-messaging-check.py`. Existing preflight
+and original six App JVM families pass74/74 with zero errors/skips; no separate
+producer feature parity-suite result is claimed or hosted result bundle duplicated.
+The rebuilt test APK remains byte-identical to the unchanged audit test input.
+
+Exact commands, once each on a separate fresh API device:
+
+```powershell
+python "$F\wp503-prepare-native.py" --api 31 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 31 --serial emulator-5714 --scenario diagnostics
+python "$F\wp503-prepare-native.py" --api 37 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 37 --serial emulator-5714 --scenario diagnostics
+```
+
+`$F` is the existing d298 session `files` directory. Each runner issues:
+`C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`,
+with actual independently verifiedAPI31 or37.
+
+| Unchanged method | API31 | API37 |
+|---|---|---|
+| `noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200` |PASS|PASS|
+| `shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200` |PASS|PASS|
+| `disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph` |PASS|PASS|
+| `disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal` |PASS|PASS|
+| `disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection` |PASS|PASS|
+| Unique starts / matching outcomes / time |5/5/10.327s|5/5/42.043s|
+| Failures/errors/skips |0/0/0|0/0/0|
+
+Actual five configuration observations each requireSDK/font2/mdpi. Original
+600dp short-window scroll reveals all numeric alternatives, restores900dp,
+and records six graph reachability observations per API. CLI explanation renders
+two complete lines, zero editable inputs; original target/font assertions pass.
+Unchanged300s boot/600s instrumentation guards, two actual guest CPUs, existing
+AOSP31 and PlayStore37.2 profiles; no assertion/fixture/deadline edits or retries.
+
+Raw [31 instrumentation](device-cli-diagnostics-api31.txt)/
+[37 instrumentation](device-cli-diagnostics-api37.txt),
+[31 metrics](device-cli-diagnostics-metrics-api31.txt)/
+[37 metrics](device-cli-diagnostics-metrics-api37.txt),
+[31 runner](device-cli-diagnostics-runner-api31.txt)/
+[37 runner](device-cli-diagnostics-runner-api37.txt),
+[31 profile](device-cli-profile-api31.txt)/
+[37 profile](device-cli-profile-api37.txt) preserve all identities/outcomes.
+Both emulator wrappers exit0 before exact four scratch paths are removed. The
+orchestrator's immediate final adb-empty assertion fails; subsequent independent
+adb observation is empty. This cleanup-observation diagnostic does not erase the
+five matching native outcomes and was not resolved by rerunning instrumentation.
+
+`python tools\android-port\bootstrap.py` reports generated `port-manifest.json`
+inventory drift; no refresh, pin advancement or success claim. The prior55f
+hosted run38607358392 is SUCCESS/all6 only at55f, not this successor's CI.
+All earlier full80/CLI/activation/restoration negatives remain at their exact
+sources. Combined integration is **not standalone producer acceptance**,
+native comparator parity, connected-radio testing, physical TalkBack, a successor
+full80 run, approved goldens, independent review, admitted or whole-WP acceptance.
 
 ## Full current native inventory
 

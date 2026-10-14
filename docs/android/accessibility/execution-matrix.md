@@ -1,6 +1,23 @@
 # WP-503 native execution matrix
 
-**Current40cb94e8 full80:31 77PASS/3FAIL192.963s;37 78PASS/2FAIL321.272s, actual two CPUs and80 starts/matching outcomes each. Existing CLI/language fail both, QR Copy clips31/passes37. Full-suite launcher9/control1 pass, earlier isolated37 activation failure retained. Exact9ac/run38595416582 SUCCESS/all6 only9ac; all historical negatives/cancellations retained. Product/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+**Latest bounded re-audit: exact WP-316 repair3bcb254a plus audit55f7c666, combined e680a2b0 diagnostics5 PASS on API31/37. Earlier40cb full80 remains31 77PASS/3FAIL and37 78PASS/2FAIL, not rerun at this successor. Language238, QR237/API31 and historical activation/restoration negatives remain. Product/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+
+## Published WP-316 CLI repair re-audit
+
+| Same combined e680a2b0 APK pair, original diagnostics5 | Actual API31/twoCPUs | Actual API37/twoCPUs |
+|---|---|---|
+| Unique starts/matching terminal outcomes |5/5;5PASS10.327s|5/5;5PASS42.043s|
+| Failures/errors/skips |0/0/0|0/0/0|
+| Original CLI236 method |PASS,complete two-line explanation;0 editable inputs|PASS,same|
+| Actual600dp window / restored900dp |PASS/PASS|PASS/PASS|
+| Numeric alternatives reached by actual scroll |6 observations|6 observations|
+| All five actual configuration observations |SDK31/font2/mdpi|SDK37/font2/mdpi|
+
+Exact producer3bcb254a, audit55f7c666 and rebuilt APK hashes are separately bound
+in [native evidence](../evidence/WP-503/README.md#published-wp-316-cli-repair-re-audit).
+One invocation per fresh API, no assertion/deadline changes or retries.
+Combined integration only; no standalone producer, successor full80, native
+comparator parity, connected-radio or physical TalkBack acceptance.
 
 ## Full current native inventory
 

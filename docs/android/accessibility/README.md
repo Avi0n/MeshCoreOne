@@ -1,9 +1,23 @@
 # WP-503 accessibility audit
 
-**Status: full native80 at unchanged40cb94e8: API31 77PASS/3FAIL192.963s; API37 78PASS/2FAIL321.272s,80 unique starts/matching outcomes each. Existing CLI236/language238 fail both; QR237 fails31/passes37. Launcher9/control1 pass within full80 but do not clear the earlier isolated37 activation failure. Exact9ac/run38595416582 SUCCESS/all6 only9ac; historical negatives/cancellations retained. Product/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Status: exact WP-316 repair3bcb254a plus audit55f7c666, combined e680a2b0: unchanged diagnostics5 PASS on API31/37,10.327s/42.043s. CLI236 regression passes in this combined integration only. Earlier full80 at40cb remains31 77PASS/3FAIL and37 78PASS/2FAIL; language238, QR237/API31, activation/restoration and all historical negatives remain. No successor full80, physical/matrix/golden/admission/review acceptance. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Published WP-316 CLI repair re-audit
+
+Exact producer `3bcb254a31e3c4d51b81b74d19f043199a824905` is imported without
+changing its three blobs into audit `55f7c666d4e36b9725c308f806e2b8f02deb33da`.
+Combined `e680a2b0c329c13557e9d66e453d3ff1280271c9`, Android tree
+`3db54097a0c7ff80af5bb218c563d7d57664983d`, rebuilds both APKs.
+One unchanged diagnostics5 invocation on each fresh actual two-CPU device yields
+**API31 5PASS10.327s; API37 5PASS42.043s**, five unique starts/matching outcomes
+each, no failures/errors/skips. CLI now renders its complete two-line disconnected
+explanation with zero editable terminal inputs; original graph/font200/48dp and
+actual600dp scroll/restored900dp assertions also pass. No fixture/deadline edits
+or native retries. This is combined integration, not standalone producer acceptance
+or physical TalkBack. [Source/APK/raw evidence](../evidence/WP-503/README.md#published-wp-316-cli-repair-re-audit).
 
 ## Full current native inventory
 
