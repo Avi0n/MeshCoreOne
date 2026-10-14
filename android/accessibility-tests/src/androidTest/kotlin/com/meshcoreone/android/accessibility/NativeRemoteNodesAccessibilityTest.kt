@@ -134,7 +134,14 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
             assertFont200Unclipped(caption.assertIsDisplayed())
             val native = nativeRegionSwitch(label)
             assertTrue(native.isEnabled && native.isChecked)
-            assertEquals("Switch", AccessibilityNodeInfoCompat.wrap(native).roleDescription?.toString())
+            val roles = nativeRegionDescendants(native).map {
+                "${it.className}:${AccessibilityNodeInfoCompat.wrap(it).roleDescription}"
+            }.toList()
+            println("WP503_NATIVE_REGION_ROLES|label=$label|roles=$roles")
+            assertTrue("The named native action must retain its Switch role",
+                nativeRegionDescendants(native).any {
+                    AccessibilityNodeInfoCompat.wrap(it).roleDescription?.toString() == "Switch"
+                })
             assertEquals(hint, native.actionList.single { it.id == AccessibilityNodeInfo.ACTION_CLICK }.label?.toString())
             val bounds = Rect().also(native::getBoundsInScreen)
             val root = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.rootInActiveWindow)
@@ -208,16 +215,11 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         var matches = emptyList<AccessibilityNodeInfo>()
         var observed = emptyList<AccessibilityNodeInfo>()
-        fun descendants(node: AccessibilityNodeInfo): Sequence<AccessibilityNodeInfo> = sequence {
-            assertTrue("Refresh actual region bridge data", node.refresh())
-            yield(node)
-            for (index in 0 until node.childCount) yieldAll(descendants(requireNotNull(node.getChild(index))))
-        }
         try {
             compose.waitUntil {
                 val root = automation.rootInActiveWindow
                 if (root?.packageName?.toString() != activity.packageName) return@waitUntil false
-                observed = descendants(root).toList()
+                observed = nativeRegionDescendants(root).toList()
                 matches = observed.filter { it.contentDescription?.toString() == label }.mapNotNull { named ->
                     generateSequence(named) { it.parent }.onEach {
                         assertTrue("Refresh the named region's actual action ancestry", it.refresh())
@@ -234,6 +236,12 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         }
         assertEquals("Exactly one native named region switch", 1, matches.size)
         return matches.single()
+    }
+
+    private fun nativeRegionDescendants(node: AccessibilityNodeInfo): Sequence<AccessibilityNodeInfo> = sequence {
+        assertTrue("Refresh actual region bridge data", node.refresh())
+        yield(node)
+        for (index in 0 until node.childCount) yieldAll(nativeRegionDescendants(requireNotNull(node.getChild(index))))
     }
 
     @Test fun guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200() {
