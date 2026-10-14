@@ -1,11 +1,68 @@
 # WP-503 attempt evidence
 
-**Affected226/228/230/231 cases pass in the combined native producer candidate below, not standalone heads or merged resolutions. PR205/WP503 remain incomplete: full37 touch-exploration prerequisite failure and physical/matrix/review/admission gates.**
+**New fbd onboarding scoped4/API pass, but full36/34PASS/2FAIL per API is not green. Earlier combined repair results remain bound below, not standalone producer acceptance. PR205/WP503 remain incomplete: retained native negatives and physical/matrix/review/admission gates.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native onboarding registration
+
+Executed **fbd949e3663332bb0f6859083e6512b26ce09438**, Android tree
+47d88ae0c83012e0e62c632609a2e645cf86931a, adds a thin Android wrapper around
+the four existing permission/WiFi assertion bodies. All four bodies and three
+lifecycle/mount/readability helpers are byte-identical to04d; original names/SDK31/37
+JVM variants remain. Producer and original launcher source are unchanged in this
+executed candidate. [Integration/outcomes](device-onboarding-integration.json).
+
+Declared serialized snapshot/preflight executes
+`:app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeOnboardingAccessibilityTest.* --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
+Build passes, original complete JVM class8/8PASS,0 failures/errors/skips, each of
+four original names discovered in both SDK variants. No reproducible JVM report bundle.
+[Exact native APK binding](device-onboarding-inputs.json): production107361125/
+a32314422ad140cd7e093abfe47f1c4a1cc1f210a57378db6a3cab568c7433a2 unchanged;
+test2989355/e4233bfd1fc87934acf6658066460f059d6bdd7204ecfe575929dac3dc89fc1a.
+
+Actual runner:
+`adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Actual31 scoped4/4PASS11.707s;37 scoped4/4PASS49.816s.
+Full selector replaces `-e class ...` with
+`-e package com.meshcoreone.android.accessibility`:
+31 discovers36/passes34/fails2 in95.209s;37 discovers36/passes34/fails2 in179.05s.
+All commands have0 error/skip statuses; unique starts and all matching outcome identities
+are checked. Full failures remain failures regardless of adb exit or scoped success.
+`device-onboarding-scoped-api31/37.txt`, `device-onboarding-full-api31/37.txt` and
+their corresponding `*-metrics-api31/37.txt` retain exact transcripts/System.out.
+
+Actual real feature/coordinator state assertions: permission heading/optional-denial
+Continue remains usable; request/settings callbacks; unclipped200% CJK/RTL error,
+address+6500 preserved through Next/Done callback and retry; initial field focus matches
+native framework control; pending textual progress disables duplicate Connect/Cancel.
+Measured scopes include Continue328x58dp, request152x54/Settings145x54dp and
+WiFi Connect328x58/Cancel104x54dp. These are original deterministic callback/service
+ports, not radio connection, OS permission dialog, physical TalkBack or actual native
+keyboard-action evidence. No product edit or claim of complete onboarding acceptance.
+
+Full31: Appearance reaches12 unique selections, then misses native selected Fern
+action while its native description remains owned; cause not established. Pending
+WiFi reaches Radio unavailable but Connect is not displayed at actual IME viewport
+bottom511 rather than scoped bottom774. Full37: resize polling throws
+`No compose hierarchies found` because its default fetch requires a root during
+Activity recreation; pending Connecting text bounds545..601 versus allocation58px
+clips2px at real IME viewport bottom601. Full37's original touch-exploration1000ms
+prerequisite passes; this does not prove the prior activation failure's cause.
+No negative is erased, called flaky or converted into a product diagnosis.
+
+The next owned observer change permits root absence only during the existing
+resize poll, still requiring exactly one requested tag before all original final
+checks. It is not part of the fbd results or a verified fix yet.
+Both actual post-profiles remain360x900/mdpi/font2/animation0,4KiB versus16KiB
+(`device-onboarding-profile-api31/37.txt`).37 initially reports adb offline, so setup/
+install fails explicitly; actual bounded boot completion precedes successful profile
+application/install and public MainActivity Statusok/COLD5252ms. Readiness is not a
+startup budget/activation repair. Owned emulators are stopped, their four named fresh
+data/qcow2 images are cleaned. Physical/matrix/golden/review/admission gates remain.
 
 ## Combined published producer repairs
 

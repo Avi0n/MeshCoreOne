@@ -1,0 +1,36 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "executed_head": "fbd949e3663332bb0f6859083e6512b26ce09438",
+  "android_tree": "47d88ae0c83012e0e62c632609a2e645cf86931a",
+  "preceding_combined_candidate": "04d7d46e2fd3df4d8e508e25b5ffeba93a23f260",
+  "original_onboarding_method_bodies_and_three_helpers_byte_identical": true,
+  "producer_source_and_original_launcher_source_unchanged_in_executed_candidate": true,
+  "jvm_original_onboarding": {"discovered": 8, "passed": 8, "failures": 0, "errors": 0, "skipped": 0},
+  "native_api31": {
+    "scoped": {"discovered": 4, "passed": 4, "seconds": 11.707, "errors": 0, "skipped": 0},
+    "full": {"discovered": 36, "passed": 34, "failed": 2, "seconds": 95.209, "errors": 0, "skipped": 0},
+    "failed_methods": [
+      {"name": "NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions", "failure": "Native selected Fern action missing after Compose/service selected state; emitted native description remains owned. Cause not established."},
+      {"name": "NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel", "failure": "Connect not displayed after reaching Radio unavailable; actual IME-reduced viewport bottom511 versus bottom774 in scoped pass."}
+    ]
+  },
+  "native_api37": {
+    "scoped": {"discovered": 4, "passed": 4, "seconds": 49.816, "errors": 0, "skipped": 0},
+    "full": {"discovered": 36, "passed": 34, "failed": 2, "seconds": 179.05, "errors": 0, "skipped": 0},
+    "failed_methods": [
+      {"name": "NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable", "failure": "Polling fetchSemanticsNodes requires a root and throws while Activity recreation temporarily has none."},
+      {"name": "NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel", "failure": "Connecting text partially visible: bounds545..601 versus allocation58px at actual IME viewport bottom601."}
+    ],
+    "original_activation_prerequisite_passed_in_this_full_command": true,
+    "historical_activation_failure_cause_established": false
+  },
+  "production_repair_or_floor_or_deadline_change": false,
+  "physical_permission_dialog_or_talkback_or_radio_or_native_ime_action_observation": false,
+  "merge_or_independent_approval": false,
+  "pr234_included": false
+}

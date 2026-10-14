@@ -1,0 +1,594 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: No compose hierarchies found in the app. Possible reasons include: (1) the Activity that calls setContent did not launch; (2) setContent was not called; (3) setContent was called before the ComposeTestRule ran. If setContent is called by the Activity, make sure the Activity is launched after the ComposeTestRule runs
+	at androidx.compose.ui.test.TestOwnerKt.getAllSemanticsNodes(TestOwner.kt:106)
+	at androidx.compose.ui.test.TestOwnerKt.getAllSemanticsNodes$default(TestOwner.kt:98)
+	at androidx.compose.ui.test.SemanticsNodeInteractionCollection.fetchSemanticsNodes(SemanticsNodeInteraction.kt:249)
+	at androidx.compose.ui.test.SemanticsNodeInteractionCollection.fetchSemanticsNodes$default(SemanticsNodeInteraction.kt:245)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.resizeWindow$lambda$0(NativeLauncherFocusAccessibilityTest.kt:814)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda50.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:801)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.resizeWindow(NativeLauncherFocusAccessibilityTest.kt:814)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:567)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda17.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:849)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(NativeLauncherFocusAccessibilityTest.kt:523)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+java.lang.IllegalStateException: No compose hierarchies found in the app. Possible reasons include: (1) the Activity that calls setContent did not launch; (2) setContent was not called; (3) setContent was called before the ComposeTestRule ran. If setContent is called by the Activity, make sure the Activity is launched after the ComposeTestRule runs
+	at androidx.compose.ui.test.TestOwnerKt.getAllSemanticsNodes(TestOwner.kt:106)
+	at androidx.compose.ui.test.TestOwnerKt.getAllSemanticsNodes$default(TestOwner.kt:98)
+	at androidx.compose.ui.test.SemanticsNodeInteractionCollection.fetchSemanticsNodes(SemanticsNodeInteraction.kt:249)
+	at androidx.compose.ui.test.SemanticsNodeInteractionCollection.fetchSemanticsNodes$default(SemanticsNodeInteraction.kt:245)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.resizeWindow$lambda$0(NativeLauncherFocusAccessibilityTest.kt:814)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda50.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:801)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.resizeWindow(NativeLauncherFocusAccessibilityTest.kt:814)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:567)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda17.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:849)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(NativeLauncherFocusAccessibilityTest.kt:523)
+
+INSTRUMENTATION_STATUS: test=realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest:
+INSTRUMENTATION_STATUS: test=frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest:
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest:
+INSTRUMENTATION_STATUS: test=selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest:
+INSTRUMENTATION_STATUS: test=actualNativeLosEntryKeepsEmptyPointsTextualWithoutFabricatedTerrainOrAnalysis
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualNativeLosEntryKeepsEmptyPointsTextualWithoutFabricatedTerrainOrAnalysis
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=actualNativeMapEntryExposesReachableRefreshAndConsumesPendingFocus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualNativeMapEntryExposesReachableRefreshAndConsumesPendingFocus
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMessagingContrastAccessibilityTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeMessagingContrastAccessibilityTest:
+INSTRUMENTATION_STATUS: test=renderedDirectAndChannelSpansClearTheirPaintedBubblesInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMessagingContrastAccessibilityTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=renderedDirectAndChannelSpansClearTheirPaintedBubblesInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOfflineNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeOfflineNodesAccessibilityTest:
+INSTRUMENTATION_STATUS: test=offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOfflineNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOfflineNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=offlinePathAndTransportActionsKeepDisabledStateAndFullLabelsAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOfflineNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=offlinePathAndTransportActionsKeepDisabledStateAndFullLabelsAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest:
+INSTRUMENTATION_STATUS: test=wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Full text must be visible in the actual native viewport
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.assertReadable(OnboardingAccessibilityAudit.kt:228)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(OnboardingAccessibilityAudit.kt:198)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(NativeOnboardingFlowAccessibilityTest.kt:32)
+
+INSTRUMENTATION_STATUS: stream=
+Error in wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest):
+java.lang.AssertionError: Full text must be visible in the actual native viewport
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.assertReadable(OnboardingAccessibilityAudit.kt:228)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(OnboardingAccessibilityAudit.kt:198)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(NativeOnboardingFlowAccessibilityTest.kt:32)
+
+INSTRUMENTATION_STATUS: test=wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=deniedAndUndeterminedPermissionsKeepRecoveryAndContinueReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=deniedAndUndeterminedPermissionsKeepRecoveryAndContinueReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=wifiInitialAddressAutofocusMatchesTheNativeFrameworkControl
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=wifiInitialAddressAutofocusMatchesTheNativeFrameworkControl
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=wifiNativeNextDoneAndFailedRetryPreserveAddressAndExposeLocalError
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=wifiNativeNextDoneAndFailedRetryPreserveAddressAndExposeLocalError
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest:
+INSTRUMENTATION_STATUS: test=authenticationPrefillsProtectedPasswordAndExposesLabelledRememberAndFloodState
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=authenticationPrefillsProtectedPasswordAndExposesLabelledRememberAndFloodState
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=emptyOfflineHistoryExplainsTheAbsenceOfSnapshotsWithoutDrawingAFakeChart
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=emptyOfflineHistoryExplainsTheAbsenceOfSnapshotsWithoutDrawingAFakeChart
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkNeutralRtlParagraphRetainsAllNativeInkAndRejectsActualAncestorClipping
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkNeutralRtlParagraphRetainsAllNativeInkAndRejectsActualAncestorClipping
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=28
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkLinearProgressCalibratesExpandedSemanticsVersusActualNativeAllocation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=28
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkLinearProgressCalibratesExpandedSemanticsVersusActualNativeAllocation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=29
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkSliderCalibratesNativeSemanticsVersusPointerTargetExpansion
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=29
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkSliderCalibratesNativeSemanticsVersusPointerTargetExpansion
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=30
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkSecureDialogPrefillIsMaskedAndIdleAtSystemFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=30
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkSecureDialogPrefillIsMaskedAndIdleAtSystemFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=31
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=31
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=32
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=pendingGuestTelemetryDisablesDuplicateReadsAndCancelsOnActualDoneAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=32
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=pendingGuestTelemetryDisablesDuplicateReadsAndCancelsOnActualDoneAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=33
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=33
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=34
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=pendingAuthenticationHasTextualCountdownDisabledDuplicatesAndRealCancellation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=34
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=pendingAuthenticationHasTextualCountdownDisabledDuplicatesAndRealCancellation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=35
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=authenticationLongPasswordWarningAndTypedFailureRemainReachableAndEditingRecovers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=35
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=authenticationLongPasswordWarningAndTypedFailureRemainReachableAndEditingRecovers
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=36
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=offlineSavedHistoryExposesActualVoltageAndNonGestureSampleSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=36
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=36
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=offlineSavedHistoryExposesActualVoltageAndNonGestureSampleSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 179.05
+There were 2 failures:
+1) realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+java.lang.IllegalStateException: No compose hierarchies found in the app. Possible reasons include: (1) the Activity that calls setContent did not launch; (2) setContent was not called; (3) setContent was called before the ComposeTestRule ran. If setContent is called by the Activity, make sure the Activity is launched after the ComposeTestRule runs
+	at androidx.compose.ui.test.TestOwnerKt.getAllSemanticsNodes(TestOwner.kt:106)
+	at androidx.compose.ui.test.TestOwnerKt.getAllSemanticsNodes$default(TestOwner.kt:98)
+	at androidx.compose.ui.test.SemanticsNodeInteractionCollection.fetchSemanticsNodes(SemanticsNodeInteraction.kt:249)
+	at androidx.compose.ui.test.SemanticsNodeInteractionCollection.fetchSemanticsNodes$default(SemanticsNodeInteraction.kt:245)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.resizeWindow$lambda$0(NativeLauncherFocusAccessibilityTest.kt:814)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda50.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:801)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.resizeWindow(NativeLauncherFocusAccessibilityTest.kt:814)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable$lambda$0(NativeLauncherFocusAccessibilityTest.kt:567)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda17.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:849)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(NativeLauncherFocusAccessibilityTest.kt:523)
+2) wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest)
+java.lang.AssertionError: Full text must be visible in the actual native viewport
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.assertReadable(OnboardingAccessibilityAudit.kt:228)
+	at com.meshcoreone.android.accessibility.OnboardingAccessibilityAudit.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(OnboardingAccessibilityAudit.kt:198)
+	at com.meshcoreone.android.accessibility.NativeOnboardingFlowAccessibilityTest.wifiConnectingHasTextualProgressAndDisablesDuplicateConnectAndCancel(NativeOnboardingFlowAccessibilityTest.kt:32)
+
+FAILURES!!!
+Tests run: 36,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1

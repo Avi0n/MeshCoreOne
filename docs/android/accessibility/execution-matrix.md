@@ -1,6 +1,18 @@
 # WP-503 native execution matrix
 
-**Affected226/228/230/231 cases pass on both native APIs in a combined producer candidate, not standalone heads or merged resolutions. WP503 remains incomplete: full37 touch-exploration prerequisite failure, physical/matrix/review/admission gates.**
+**Latest fbd onboarding scoped4/API pass, but full36/34PASS/2FAIL each API is not green. Earlier combined226/228/230/231 results below remain bound to their exact commands. WP503 remains incomplete: retained native negatives, physical/matrix/review/admission gates.**
+
+At fbd949e3663332bb0f6859083e6512b26ce09438, four original onboarding bodies and
+three helpers are shared unchanged between original JVM variants and a new Android
+wrapper. JVM8/8PASS,0 failures/errors/skips; actual31 scoped4/4PASS11.707s and37
+4/4PASS49.816s. Full31 36/34PASS/2FAIL95.209s: missing selected Fern native action
+and pending WiFi Connect not displayed after the error. Full37 36/34PASS/2FAIL179.05s:
+resize polling throws while the recreated Activity temporarily has no Compose root,
+and pending WiFi text clips2px at the actual IME viewport.0 error/skip statuses.
+Earlier native activation prerequisite passes here, without proving its earlier cause.
+No assertion/floor/deadline or product edit produced these results.
+[Exact records](../evidence/WP-503/README.md#native-onboarding-registration).
+
 Current exact41bdbfac45b4d3690f29a5363da02047642e2716 integrates audit65d with
 WP3181b2cd/WP311c870/WP3072396, then shares original Nodes assertion bodies for native
 registration. Producer source blobs match the published heads; no product edits.

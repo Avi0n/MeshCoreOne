@@ -811,7 +811,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
     private fun resizeWindow(size: String, tag: String) {
         val previous = activity
         shell("wm size $size")
-        compose.waitUntil { compose.onAllNodesWithTag(tag).fetchSemanticsNodes().size == 1 }
+        compose.waitUntil { compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).size == 1 }
         compose.runOnUiThread { activity.window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL }
         compose.waitForIdle()
         assertEquals(2f, activity.resources.configuration.fontScale, 0f)

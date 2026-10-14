@@ -1,9 +1,29 @@
 # WP-503 accessibility audit
 
-**Status: producer repairs226/228/230/231 pass the affected native assertions on both APIs in the explicitly combined candidate below, not standalone heads or merged resolutions. PR205 remains draft; API37 full-run touch-exploration prerequisite failure and physical/matrix/review/admission gates remain.**
+**Status: latest onboarding addition passes scoped4/API but full36 fails2/API; no whole-command or WP acceptance. Earlier combined repair assertions remain bound to their exact executions below. PR205 remains draft; native negatives and physical/matrix/review/admission gates remain.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native onboarding registration and retained full-cohort negatives
+
+Exact fbd949e3663332bb0f6859083e6512b26ce09438 registers the four original
+permission/WiFi methods on actual Android. Their bodies and three lifecycle/mount/
+readability helpers are byte-identical to04d; both original JVM variants remain,
+8/8PASS. Actual selected APIs each pass scoped4/4,31 in11.707s/37 in49.816s.
+These are real feature screens/coordinator with original deterministic WiFi/permission
+callbacks, not real radio connections, OS permission-dialog or physical IME/TalkBack
+observations. Complete font200/RTL text, permission headings/optional-denial Continue,
+input autofocus/Next/Done callbacks, retry/address preservation and pending duplicate/
+Cancel disabling are asserted.
+
+Full inventory36 discovers/passes34/fails2 on each API:31 in95.209s,37 in179.05s,
+zero error/skip statuses.31 fails native Fern selected-action availability and WiFi
+Connect visibility after the error;37 fails transient no-Compose-root during resize
+polling and a partially visible pending WiFi label with the IME-reduced viewport.
+Scoped success does not erase either full failure. Original1000ms activation passes
+in this37 full command; it does not establish the earlier activation failure's cause.
+[Exact bindings and failures](../evidence/WP-503/README.md#native-onboarding-registration).
 
 ## Current combined producer repair re-audit
 
