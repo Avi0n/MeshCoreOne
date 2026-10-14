@@ -1,11 +1,89 @@
 # WP-503 attempt evidence
 
-**Latestafea923: API31 launcher9/9PASS/full79 76PASS/3FAIL; API37 launcher INCOMPLETE600s (6 starts/5 outcomes:0PASS/5FAIL), separately isolated full INCOMPLETE600s (21 starts/20 outcomes:14PASS/6FAIL). No historical negatives cleared. Product236/237/238, native prerequisites/cleanup, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates. JVM74/74PASS. PR205 stays draft; WP503 is incomplete.**
+**Latesta8e433a: actual existing resize pair API31 2/2PASS16.698s; API37 1PASS/1FAIL55.701s, original activation prerequisite. Cached message/draft/state passes both APIs across actual900/360 recreation after correcting an added observer constraint. Earlier launcher/full complete/partial negatives remain separately bound, not cleared. Product236/237/238, native activation/historical negatives, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates. JVM74/74PASS. PR205 stays draft; WP503 is incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Correcting the added input-window-focus prerequisite
+
+[Diagnostic integration](device-windowtrace-integration.json) binds
+**2499a542ba0c7ae464ae9d8882135b7e0bda956f**, Android tree
+**e60b234fa9a2b2415ce3a83133e1440baccca289**, to
+[its inputs](device-windowtrace-inputs.json). Actual31 one-case command:
+**INCOMPLETE600s**, one positive start/no terminal identity, not zero-test success
+or a completed failed test. [Raw instrumentation](device-windowtrace-cached-api31.txt),
+[metrics](device-windowtrace-cached-metrics-api31.txt) and
+[original runner guard](device-windowtrace-cached-runner-api31.txt) show resumed/
+attached/laid-out900x900 decor and exact900x900 WindowMetrics, but input-window
+focus false, sole false additional readiness condition. Original1000ms
+ComposeTimeoutException is logged/rethrown; beforeDelete is recorded, not
+afterDelete. [Selected actual post-timeout threads](device-windowtrace-thread-excerpts-api31.txt)
+show existing runBlocking deletion430/main Looper polling only after600s,
+with positive suspend/resume and exact-forward removal. No storage cause proved.
+No37 execution is claimed for this diagnostic source.
+
+[Correction integration](device-windowfix-integration.json) binds
+**a8e433a009fa1ae1911a9f73566f12d10f743513**, Android tree
+**3d011a674f1c89c65f4e5249b57c3c1979f2d0d1**, to
+[its inputs](device-windowfix-inputs.json). It removes only the input-window
+focus condition added by WP503's layout observer, not a calling fixture's native
+focus assertion. Actual focus remains sampled/logged false, never hardcoded true.
+Resumed/attached/laid-out/exact geometry, original1000ms waits, semantic count1/
+display, native focus actions, font/48dp/state assertions remain. Other78 bodies
+and producer bytes are unchanged; cached body adds four diagnostic lines only.
+
+| Existing affected methods, exacta8e | Actual API31 | Actual API37 |
+|---|---|---|
+|Two unique starts/matching outcomes|2PASS16.698s|1PASS/1FAIL55.701s|
+|Settings resize/rail/native Back|PASS; focus reacquired, automatic retention false|Original1000ms activation924 fails before body|
+|Cached middle-message/draft/entry/stacks|PASS900/360|PASS900/360|
+|Native ready windows/input-window focus|4/all false|2/both false|
+|Touch requested/activated/finally/restored|2/2/2/2|2/1/2/2|
+|Cached cleanup before/after; actual deletion elapsed|1/1;285ms|1/1;96ms|
+
+[31 instrumentation](device-windowfix-flows-api31.txt),
+[31 metrics](device-windowfix-flows-metrics-api31.txt),
+[31 runner](device-windowfix-flows-runner-api31.txt);
+[37 instrumentation](device-windowfix-flows-api37.txt),
+[37 metrics](device-windowfix-flows-metrics-api37.txt),
+[37 runner](device-windowfix-flows-runner-api37.txt).
+Both cached runs actually recreate into900x900/360x900 native bounds, retain one
+visible original message index15/id00000000-0000-0000-0000-00000007ad4b,
+unchanged CJK/Arabic draft/entry/selected detail/tab stacks and disconnected state.
+Message text286x40 has no overflow at both windows on both APIs; persisted/editable
+draft equality, native editor focus and contained48dp assertions pass.
+Deletion completes, but no production persistence fix or earlier-wait cause is
+proved. API37 settings body is unobserved here, not a resize/focus/Back pass.
+Its total helper-time true state1651ms/callback1729ms follows the failed original
+1000ms wait; late activation/restoration cannot retrospectively pass it.
+
+Exact native command (API is independently verified31 or37):
+`adb -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200 -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Diagnostic2499 uses only the second existing method and expectedApi31.
+Original300s preparation/600s instrumentation guards remain. Separate fresh
+owned31/37 images reach boot1 at30s/146s; profiles retain actual SDK/font2/mdpi/
+motion0, installed APK verification and exact executed head. Both devices exit0;
+only their four named images/qcow are removed after exit. Diagnostic31 likewise
+exits0 before correction31 starts; no contaminated-state reuse/shared restart/wipe.
+
+Production app109723777/e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff
+is unchanged. Diagnostic test3400695/7511379efb9b8a465128e1be8f07648a6c71d39b558fbc331700c3c0afc6d003;
+correction test3401035/d7a795a4ae03de5c94c44ab31c856f3c01312ed81c424c90ae3770252109f639.
+The same installed ext4 tasks/six original filters/options documented below pass
+**74/74** at both sources, zero failures/errors/skips; both APK tasks/preflight pass.
+Declared controller/portmap1749 and explicit complete/incomplete record-integrity
+checks pass, not native acceptance. No APK, JVM or hosted CI bundle retained.
+Previous05ecd run38569230854 SUCCESS/all six applies only05ecd, not these sources.
+
+Combined WP3181b2cd/WP311c870/WP3072396/WP313d2ff bindings and canonical1666502a/
+actualCLI d298/revision3 remain. These are not exact standalone producer results.
+No current launcher9/full79 run, hidden retry, producer edit, floor/golden change,
+physical TalkBack or gate closure. Next owned work can diagnose the remaining
+API37 activation timing without increasing its1000ms deadline or erasing earlier
+failures; product236/237/238 repairs remain producer-owned. WP503 remains incomplete.
 
 ## Native resize observer investigation
 

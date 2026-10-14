@@ -1,0 +1,31 @@
+OWNED_PID|2273
+AFTER_ORIGINAL_TIMEOUT|600s
+EXIT|0
+Explicit com.sun.jdi.SocketAttach; selected observed threads only.
+> All threads suspended.
+> main:
+  [1] android.os.MessageQueue.nativePollOnce (native method)
+  [2] android.os.MessageQueue.next (MessageQueue.java:335)
+  [3] android.os.Looper.loopOnce (Looper.java:161)
+  [4] android.os.Looper.loop (Looper.java:288)
+  [5] android.app.ActivityThread.main (ActivityThread.java:7,839)
+Instr: androidx.test.runner.AndroidJUnitRunner:
+  [1] sun.misc.Unsafe.park (native method)
+  [2] java.util.concurrent.locks.LockSupport.parkNanos (LockSupport.java:230)
+  [3] kotlinx.coroutines.BlockingCoroutine.joinBlocking (Builders.kt:97)
+  [4] kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking (Builders.kt:70)
+  [5] kotlinx.coroutines.BuildersKt.runBlocking (unknown)
+  [6] kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default (Builders.kt:48)
+  [7] kotlinx.coroutines.BuildersKt.runBlocking$default (unknown)
+  [8] com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200$lambda$0 (NativeLauncherFocusAccessibilityTest.kt:430)
+  [9] com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda4.invoke (D8$$SyntheticClass:0)
+  [10] com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration (NativeLauncherFocusAccessibilityTest.kt:923)
+  [11] com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200 (NativeLauncherFocusAccessibilityTest.kt:329)
+> All threads resumed.
+EXACT_OWNED_FORWARD_REMOVED
+Qualification: original one-case runner is INCOMPLETE, not a terminal failed/passed JUnit case.
+Before timeout the added layout observer reports resumed/attached/laid-out900x900,
+exact900x900 WindowMetrics, but input-window focus false; its extra focus criterion
+times out at the original1000ms deadline. Cleanup logs beforeDelete, not afterDelete.
+After600s the captured instrumentation frame430 is the existing database deletion
+inside fixture teardown, with main Looper polling. No underlying storage cause proved.

@@ -1,0 +1,93 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_publication": "05ecd4db09fb629463f3260df9fb9e0e9c0be28b",
+  "executed_combined_head": "a8e433a009fa1ae1911a9f73566f12d10f743513",
+  "executed_android_tree": "3d011a674f1c89c65f4e5249b57c3c1979f2d0d1",
+  "apk_binding": "device-windowfix-inputs.json",
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "source_change": "Correct the sole false additional layout-readiness condition measured at2499: input-window focus is no longer required by the owned resize observer. Actual focus is still sampled/reported. Resumed/attached/laid-out/exact native geometry, original1000ms waits, exact semantic count1/display, native focus actions, font/48dp/state assertions remain. Cached body adds only four diagnostic lines;78 other bodies and all producer bytes remain unchanged",
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "both_apk_tasks_and_installed_preflight": "PASS"
+  },
+  "native_api31": {
+    "flows": {
+      "expected_total": 2, "started": 2, "terminal": 2, "passed": 2, "failed": 0,
+      "completed": true, "seconds": 16.698,
+      "failed_identities": [],
+      "touch_requested": 2, "touch_activated": 2, "touch_finally": 2, "touch_restored": 2,
+      "native_window_ready_observations": 4,
+      "fixture_cleanup_before_delete": 1, "fixture_cleanup_after_delete": 1,
+      "cached_resize_assertions_completed": true,
+      "qualification": "Both existing settings and cached-chat resize fixtures pass; not the entire launcher9 or package79 at this source"
+    }
+  },
+  "native_api37": {
+    "flows": {
+      "expected_total": 2, "started": 2, "terminal": 2, "passed": 1, "failed": 1,
+      "completed": true, "seconds": 55.701,
+      "failed_identities": [
+        "NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable"
+      ],
+      "touch_requested": 2, "touch_activated": 1, "touch_finally": 2, "touch_restored": 2,
+      "native_window_ready_observations": 2,
+      "fixture_cleanup_before_delete": 1, "fixture_cleanup_after_delete": 1,
+      "cached_resize_assertions_completed": true,
+      "qualification": "Cached-chat passes; settings case fails unchanged original1000ms touch-exploration activation at924 before entering its body. That body/window/focus/Back is unobserved here. One complete failed suite, not acceptance or a two-case pass"
+    }
+  },
+  "measured_native_state": {
+    "requested_and_observed_bounds": ["Rect(0, 0 - 900, 900)", "Rect(0, 0 - 360, 900)"],
+    "input_window_focus_at_all_ready_markers": false,
+    "semantic_count": 1,
+    "semantic_displayed": true,
+    "font_scale": 2.0,
+    "cached_message_id": "00000000-0000-0000-0000-00000007ad4b",
+    "cached_message_index": 15,
+    "cached_message_visible_matches_each_window": 1,
+    "cached_text_geometry": "286x40 with no width/height overflow on both APIs at both observed windows",
+    "draft_before_and_after_each_recreation": "Draft with original CJK/Arabic text unchanged; actual editable text and persisted draft assertions pass",
+    "entry_selected_detail_and_tab_stacks": "Exact equality assertions pass across both actual recreations on both APIs",
+    "connection_state": "DISCONNECTED throughout",
+    "native_editor_focus_and_contained48dp_assertions": "PASS both APIs; original native actions/assertions preserved",
+    "api31_settings_native_rail_focus_and_back": "PASS; all five rail tabs selected/native-focus actions succeed; native Back focus reacquired, automatic Back focus retention false",
+    "api37_settings_native_rail_focus_and_back": "Not observed: original activation prerequisite failed",
+    "cached_fixture_delete_elapsed_ms": {"31": 285, "37": 96},
+    "qualification": "Correcting the added observer focus criterion permits measured layout/state assertions. This is not a production persistence repair, proof of the earlier teardown cause, physical TalkBack or standalone producer-head acceptance"
+  },
+  "api37_retained_activation_negative": {
+    "original_deadline_ms": 1000,
+    "failure_line": 924,
+    "touch_final_enabled_true_elapsed_ms": 1651,
+    "enabled_callback_elapsed_ms": 1729,
+    "disabled_callback_elapsed_ms": 1781,
+    "restored_elapsed_ms": 1792,
+    "qualification": "Elapsed values are total helper time. Later true state/callback is not a pass within the original1000ms wait or proof of the scheduling cause"
+  },
+  "native_operation_cleanup": {
+    "boot_ready_elapsed_seconds": {"31": 30, "37": 146},
+    "original_boot_guard_seconds": 300,
+    "original_instrumentation_guard_seconds": 600,
+    "separate_fresh_owned_images_for_each_api": true,
+    "owned_emulator_exit_codes": [0, 0],
+    "exact_four_phase_image_and_qcow_files_removed_after_confirmed_exit": true,
+    "shared_adb_restart_or_wipe": false
+  },
+  "hosted_ci_for_executed_source": "Previous05ecd run38569230854 SUCCESS/all six is bound only to05ecd; no predecessor CI transferred to this source or later publication",
+  "production_persistence_repair_or_earlier_teardown_cause_verified": false,
+  "product_blockers": [236, 237, 238],
+  "previous_native_negatives_physical_matrix_goldens_admission_review_or_wp_completion_cleared": false
+}

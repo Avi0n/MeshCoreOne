@@ -1,0 +1,68 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_publication": "05ecd4db09fb629463f3260df9fb9e0e9c0be28b",
+  "executed_combined_head": "2499a542ba0c7ae464ae9d8882135b7e0bda956f",
+  "executed_android_tree": "e60b234fa9a2b2415ce3a83133e1440baccca289",
+  "apk_binding": "device-windowtrace-inputs.json",
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "source_change": "Owned diagnostic logging samples actual resized host/decor/WindowMetrics and logs/rethrows the same original1000ms ComposeTimeoutException. Cached test body adds only four before/after-delete logging lines; all original assertions/actions/data and other78 bodies remain unchanged. No production edit",
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "both_apk_tasks_and_installed_preflight": "PASS"
+  },
+  "native_api31": {
+    "cached": {
+      "expected_total": 1, "started": 1, "terminal": 0, "passed": 0, "failed": 0,
+      "completed": false, "outer_timeout_seconds": 600,
+      "unfinished_identities": [
+        "NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200"
+      ],
+      "touch_requested": 1, "touch_activated": 1, "touch_finally": 0, "touch_restored": 0,
+      "native_window_ready_observations": 0,
+      "qualification": "INCOMPLETE_NOT_PASS. One positive start, no terminal identity/final JUnit result; observed helper timeout is not a completed failed test. This is not zero-test success"
+    }
+  },
+  "native_api37": null,
+  "api37_qualification": "Not executed at this diagnostic source",
+  "measured_added_observer_constraint": {
+    "requested_size": "900x900",
+    "resumed_main_activity_count": 1,
+    "attached": true, "laid_out": true, "decor_width": 900, "decor_height": 900,
+    "window_metrics_bounds": "[0,0][900,900]",
+    "input_window_focus": false,
+    "ready_under_added_focus_predicate": false,
+    "original_observer_timeout_ms": 1000,
+    "fixture_cleanup_before_delete": 1,
+    "fixture_cleanup_after_delete": 0,
+    "qualification": "Window input focus is the sole false additional readiness condition observed here. It was introduced by the WP503 observer, not an original fixture assertion. Native accessibility/editor focus actions remain separate assertions"
+  },
+  "post_original_timeout_diagnostics": {
+    "owned_pid": 2273,
+    "selected_threads": "device-windowtrace-thread-excerpts-api31.txt",
+    "instrumentation_wait": "BlockingCoroutine.joinBlocking/runBlocking -> cached-chat lambda430 -> processStore.deleteDeviceAndData fixture teardown",
+    "main_thread_snapshot": "MessageQueue.nativePollOnce/Looper",
+    "explicit_socket_attach_positive_suspend_resume_and_exact_forward_removal": true,
+    "underlying_storage_cause_proved": false
+  },
+  "native_operation_cleanup": {
+    "owned_emulator_exit_codes": [0],
+    "exact_phase_image_and_qcow_removed_after_confirmed_exit": true,
+    "shared_adb_restart_or_wipe": false
+  },
+  "hosted_ci_for_executed_source": "No hosted result transferred from the previous05ecd publication or later source",
+  "product_blockers": [236, 237, 238],
+  "previous_native_negatives_physical_matrix_goldens_admission_review_or_wp_completion_cleared": false
+}

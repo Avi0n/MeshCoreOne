@@ -1,6 +1,32 @@
 # WP-503 native execution matrix
 
-**Latestafea923: API31 launcher9/9PASS/full79 76PASS/3FAIL; API37 scope INCOMPLETE600s (6 starts/5 outcomes:0PASS/5FAIL), isolated full INCOMPLETE600s (21 starts/20 outcomes:14PASS/6FAIL). Prior negatives remain. JVM74/74PASS. Product236/237/238, native prerequisites/cleanup, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Latesta8e433a: existing resize pair API31 2/2PASS16.698s, API37 1PASS/1FAIL55.701s. Cached-chat actual900/360 message/draft/state passes both; API37 original activation prerequisite fails before settings body. Prior complete/partial launcher/full negatives remain separate, not cleared. JVM74/74PASS. Product236/237/238, native activation/historical negatives, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+
+## Correcting the added input-window-focus prerequisite
+
+Exacta8e433a009fa1ae1911a9f73566f12d10f743513, Android tree
+3d011a674f1c89c65f4e5249b57c3c1979f2d0d1. Diagnostic2499 API31 observed
+ready native900x900 layout except false input-window focus: original1000ms
+observer timeout, one start/no outcomes at600s, existing deletion430 wait.
+Correction removes that additional observer constraint only; actual focus remains
+logged, original focus/geometry/font/48dp/state assertions and deadlines preserved.
+Four diagnostic lines added to cached body, other78 bodies/producer bytes unchanged.
+
+| Exact existing-method pair | Actual API31 | Actual API37 |
+|---|---|---|
+|Positive starts/matching terminal outcomes|2/2,2PASS16.698s|2/2,1PASS/1FAIL55.701s|
+|Settings resize/rail/native Back|PASS; focus reacquired, automatic retention false|Original1000ms activation924 fails before body|
+|Cached middle-message/draft/entry/stacks on900/360 recreation|PASS; visible matches1 at each window|PASS; visible matches1 at each window|
+|Actual ready windows/input-window focus|4/false at all4|2/false at both|
+|Touch requested/activated/finally/restored|2/2/2/2|2/1/2/2|
+|Cached deletion before/after; elapsed|1/1;285ms|1/1;96ms|
+
+Both APIs actually observe Rect(0,0-900,900) and Rect(0,0-360,900),
+semantic count1/display and font2. No producer persistence repair/earlier-wait
+cause established. Separate fresh images, original300/600 guards, no retries
+of failed cases. Not launcher9/full79 at this source, physical TalkBack or
+standalone producer acceptance. All earlier negatives remain.
+[Exact source/APKs/native records](../evidence/WP-503/README.md#correcting-the-added-input-window-focus-prerequisite).
 
 ## Native resize observer and distinct teardown wait
 

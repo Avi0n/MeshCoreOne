@@ -1,9 +1,37 @@
 # WP-503 accessibility audit
 
-**Status: executedafea923 observer candidate: API31 launcher9/9PASS, full79 76PASS/3FAIL; API37 launcher INCOMPLETE600s (6 starts/5 outcomes:0PASS/5FAIL), separately isolated full INCOMPLETE600s (21 starts/20 outcomes:14PASS/6FAIL). No earlier negatives cleared. CLI236, QR237 and language238 remain product gates. JVM74/74PASS. PR205 stays draft; native prerequisites/cleanup, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Status: executeda8e433a corrects an added layout-observer focus constraint. Existing resize pair: actual API31 2/2PASS16.698s; API37 1PASS/1FAIL55.701s, original1000ms activation prerequisite. Cached middle-message/draft/state passes both APIs across actual900/360 recreation. Earlier full79/launcher failures remain separately bound, not cleared. CLI236, QR237 and language238 remain product gates. JVM74/74PASS. PR205 stays draft; native activation/historical negatives, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Correcting the added input-window-focus prerequisite
+
+Diagnostic2499a542ba0c7ae464ae9d8882135b7e0bda956f samples an actual
+resumed/attached/laid-out900x900 host and exact900x900 WindowMetrics on31,
+but input-window focus is false. That sole false additional observer condition
+times out at the unchanged1000ms deadline. The one-case command is
+INCOMPLETE600s: one start/no terminal result, with beforeDelete/no afterDelete.
+Post-timeout rootless threads locate existing runBlocking deletion430; no
+underlying storage cause is proved.
+
+Executeda8e433a009fa1ae1911a9f73566f12d10f743513, Android tree
+3d011a674f1c89c65f4e5249b57c3c1979f2d0d1, removes only that added input-window
+focus requirement from layout readiness. Actual focus is still reported false,
+not fabricated true. Original native focus actions/assertions,1000ms waits,
+exact semantic count1/display,48dp/font/state assertions remain. Cached body
+adds four diagnostic lines; other78 bodies and all producer bytes are unchanged.
+
+The two existing affected methods execute on separate fresh31/37 devices:
+31 **2/2PASS16.698s**,37 **1PASS/1FAIL55.701s**. Cached-chat passes both:
+actual900/360 windows, one visible original middle message, unchanged draft,
+entry/detail/stacks, font2/RTL and contained native editor. Deletion completes
+285ms/96ms; this is not a persistence repair or proof of the earlier wait's cause.
+API31 rail/native Back actions pass with focus reacquired, not automatically
+retained. API37 settings fails original activation924 before its body; later
+true callback is not an on-time pass. No current launcher9/full79 acceptance,
+historical failure clearance or standalone producer-head credit.
+[Exact source/APKs/commands and native state](../evidence/WP-503/README.md#correcting-the-added-input-window-focus-prerequisite).
 
 ## Native resize observer and distinct teardown wait
 
