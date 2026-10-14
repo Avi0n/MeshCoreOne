@@ -1,20 +1,82 @@
 // AndroidOnly: WP-503 Execute original permission/WiFi feature assertions on the actual selected Android API.
 package com.meshcoreone.android.accessibility
 
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsAnimation
+import android.view.inputmethod.InputMethodManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.util.function.Supplier
 import org.junit.After
+import org.junit.Before
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NativeOnboardingFlowAccessibilityTest : DeviceAccessibilityHarness() {
+    private lateinit var imeHost: View
+    private val imeAnimations = mutableSetOf<WindowInsetsAnimation>()
+    private var imePrepares = 0
+    private var imeEnds = 0
+
+    @Before fun observeActualImeAnimationsWithoutInterceptingChildInsets() {
+        compose.runOnUiThread {
+            imeHost = requireNotNull(activity.findViewById(android.R.id.content))
+            imeHost.setWindowInsetsAnimationCallback(object :
+                WindowInsetsAnimation.Callback(WindowInsetsAnimation.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+                override fun onPrepare(animation: WindowInsetsAnimation) {
+                    if (animation.typeMask and WindowInsets.Type.ime() != 0) {
+                        imeAnimations.add(animation)
+                        imePrepares++
+                    }
+                }
+
+                override fun onProgress(insets: WindowInsets, runningAnimations: MutableList<WindowInsetsAnimation>): WindowInsets {
+                    imeAnimations.clear()
+                    imeAnimations.addAll(runningAnimations.filter { it.typeMask and WindowInsets.Type.ime() != 0 })
+                    return insets
+                }
+
+                override fun onEnd(animation: WindowInsetsAnimation) {
+                    if (animation.typeMask and WindowInsets.Type.ime() != 0) {
+                        imeAnimations.remove(animation)
+                        imeEnds++
+                    }
+                }
+            })
+        }
+    }
+
+    @After fun removeOwnedImeObserver() {
+        if (::imeHost.isInitialized) compose.runOnUiThread { imeHost.setWindowInsetsAnimationCallback(null) }
+    }
+
+    private fun awaitActualWifiIme() {
+        val input = requireNotNull(activity.getSystemService(InputMethodManager::class.java))
+        compose.waitUntil {
+            var ready = false
+            compose.runOnUiThread {
+                val insets = requireNotNull(imeHost.rootWindowInsets)
+                ready = input.isAcceptingText && insets.isVisible(WindowInsets.Type.ime()) && imeAnimations.isEmpty()
+            }
+            ready
+        }
+        compose.runOnUiThread {
+            val insets = requireNotNull(imeHost.rootWindowInsets)
+            assertTrue(input.isAcceptingText && insets.isVisible(WindowInsets.Type.ime()) && imeAnimations.isEmpty())
+            println("WP503_WIFI_IME_READY|acceptingText=true|imeVisible=true|activeAnimations=0" +
+                "|imeBottom=${insets.getInsets(WindowInsets.Type.ime()).bottom}|prepares=$imePrepares|ends=$imeEnds")
+        }
+    }
+
     private val audit by lazy {
         OnboardingAccessibilityAudit(
             compose, Supplier { activity }, ::content, { AuditSurface(it) },
             ::assertFont200Unclipped, ::assertScrollableFont200Unclipped,
             ::scrollWholeAllocationIntoView,
             { assertVisibleClickTargetsAtLeast48Dp() }, ::narrative,
+            ::awaitActualWifiIme,
         )
     }
 

@@ -68,6 +68,7 @@ internal class OnboardingAccessibilityAudit(
     private val scrollWholeAllocationIntoView: (SemanticsNodeInteraction) -> Unit,
     private val assertVisibleClickTargetsAtLeast48Dp: () -> Unit,
     private val narrative: (SemanticsNode) -> String,
+    private val awaitWifiIme: () -> Unit,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
 
@@ -216,6 +217,7 @@ internal class OnboardingAccessibilityAudit(
                     WiFiConnectionSheetContent(state, coordinator::setAddress, coordinator::setPort,
                         coordinator::connect, onCancel)
                 }
+                awaitWifiIme()
             }
         }
     }
