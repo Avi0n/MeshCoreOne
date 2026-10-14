@@ -1,0 +1,78 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "published_head_before_comparison": "7542612d548699ef83229fd2e4e5a486666e314c",
+  "executed_combined_head": "9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2",
+  "executed_android_tree": "a97c8c665c1f13bc283f06078c99d2b6bb32626d",
+  "apk_binding": "device-corecomparison-inputs.json",
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "source_change": "None: exact same9425 Android tree, APKs, test bodies, helper predicates, original1000ms/300s/600s deadlines and font/layout/focus/48dp/state assertions",
+  "profile_change": {
+    "only_intentionally_varied_launch_parameter": "virtual CPU count: previous-cores2, comparison-cores4",
+    "actual_guest_online_cpu_count": 4,
+    "actual_guest_cpu_verification_command": "adb -s emulator-5714 shell getconf _NPROCESSORS_ONLN",
+    "previous_guest_online_cpu_count_independently_measured": false,
+    "profile": "Fresh isolated Pixel_10_Pro_XL, actualAPI37/android37.2 PlayStore/x86_64/16KiB/GMS,360x900/mdpi160/font2/nativeRTL/motion0/hardwareIME1",
+    "emulator_version": "37.2.12.0/build16428233",
+    "emulator_enforced_memory_mib": 4096,
+    "launch_command": "emulator -avd Pixel_10_Pro_XL -port 5714 -data <session-files>\\wp503-corecomparison37-userdata.img -read-only -no-snapshot-load -no-snapshot-save -no-window -no-audio -no-metrics -gpu swiftshader_indirect -memory 1536 -cores 4",
+    "launch_path_placeholder": "Only the exact session-files root is abbreviated; actual owned image basename retained. Port/memory/cores were passed as separate command arguments",
+    "native_command": "adb -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200 -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+    "boot_ready_elapsed_seconds": 56,
+    "additional_workers_concurrent_emulators_downloads_shared_avd_edits": false
+  },
+  "native_api37": {
+    "flows": {
+      "expected_total": 2, "started": 2, "terminal": 2, "passed": 2, "failed": 0,
+      "completed": true, "seconds": 44.011, "failed_identities": [],
+      "touch_requested": 2, "touch_activated": 2, "touch_finally": 2, "touch_restored": 2,
+      "native_window_ready_observations": 4,
+      "fixture_cleanup_before_delete": 1, "fixture_cleanup_after_delete": 1,
+      "cached_resize_assertions_completed": true,
+      "activation_ready_elapsed_ms": [869, 5],
+      "activation_ready_checks": [3, 1],
+      "restoration_ready_elapsed_ms": [10, 119],
+      "restoration_ready_checks": [1, 2],
+      "native_window_sizes": ["900x900", "360x900", "900x900", "360x900"],
+      "input_window_focus": [false, false, false, false],
+      "retained_middle_message_id": "00000000-0000-0000-0000-00000007ad4b",
+      "cached_middle_message_visible_matches": [1, 1],
+      "cached_entry_id": 6,
+      "draft_saved_at_both_recreated_windows": true,
+      "all_five_rail_native_focus_actions_pass": true,
+      "settings_native_back": true,
+      "settings_native_back_focus_reacquired": true,
+      "settings_automatic_back_focus_retained": false,
+      "fixture_deletion_elapsed_ms": 337,
+      "qualification": "Two actual completed passing methods at this separately measured four-CPU profile. Same source/APKs as earlier two requested-CPU0PASS/2FAIL; no cause, performance improvement, primary-profile repair, whole-matrix or standalone producer-head acceptance claimed"
+    }
+  },
+  "native_operation_cleanup": {
+    "single_comparison_invocation": true,
+    "original_boot_guard_seconds": 300,
+    "original_instrumentation_guard_seconds": 600,
+    "owned_emulator_exit_code": 0,
+    "exact_owned_image_and_qcow_removed_after_confirmed_exit": true,
+    "shared_adb_restart_or_wipe": false,
+    "physical_talkback": false
+  },
+  "previous_hosted_candidates": [
+    "7542612d548699ef83229fd2e4e5a486666e314c/run38582765761 COMPLETED/SUCCESS, all six jobs; only this exact published head, candidate CI not native acceptance",
+    "46df73e818f5b78b86f80ff7848f32e391e21760/run38577688498 COMPLETED/FAILURE, App800/1 incoming-reaction failure retained; not a current754 CI failure or evidence of a producer repair"
+  ],
+  "product_blockers": [236, 237, 238],
+  "producer_or_framework_cause_or_behavior_repair_verified": false,
+  "previous_native_negatives_physical_matrix_goldens_admission_review_or_wp_completion_cleared": false
+}

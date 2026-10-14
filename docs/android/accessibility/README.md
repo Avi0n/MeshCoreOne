@@ -1,12 +1,30 @@
 # WP-503 accessibility audit
 
-**Status: executed9425f287 diagnostic-only sampling: existing pair API31 2/2PASS17.935s, API37 0PASS/2FAIL26.459s at original1000ms activation, before bodies. Predecessor41039097:31 2/2PASS17.027s,37 0PASS/2FAIL66.293s at restoration despite completed bodies. Earlier a8e/launcher/full observations remain separately bound, not cleared. Hosted46df/run38577688498 FAILED, App800/1 in unchanged WP216 incoming-reaction test. CLI236/QR237/language238, native prerequisites/historical negatives, physical TalkBack, matrix/goldens/admission/review remain gates. JVM74/74PASS; PR205 draft, WP incomplete.**
+**Status: one separately measured four-CPU API37 comparison at unchanged9425f287: existing pair2/2PASS44.011s. Established two-requested-CPU attempt remains31 2/2PASS17.935s,37 0PASS/2FAIL26.459s at original activation before bodies. Earlier410 restoration failures and all other negatives remain. Hosted7542612d/run38582765761 SUCCESS/all6, bound only754; historical46df/run38577688498 FAILURE/App800/1 retained. CLI236/QR237/language238, native prerequisites/historical negatives, physical TalkBack, matrix/goldens/admission/review remain gates. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
+## Single four-CPU native comparison
+
+The same9425 source/tree/APKs and unchanged two existing window fixtures run once
+on a fresh instance of the existing37.2 image, varying only requested virtual
+CPUs2to4. Actual guest online CPU count4 is independently read. Both JUnit
+identities **PASS44.011s**; original1000ms activation869/5ms and restoration10/119ms
+finish. Actual900/360 recreation preserves the original middle message, mixed
+CJK/RTL draft and entry/stacks; all-five rail focus/native Back/font200/48dp/state
+assertions pass. Actual input-window focus remainsfalse, and Back focus is
+reacquired rather than automatically retained.
+
+This is a separately bound resource-profile observation, **not a source repair,
+causal/performance claim, clearance of two-requested-CPU failures or full9/79
+acceptance**. No deadline, predicate, APK, image version, golden or product edit.
+Fresh device exits0; exact image/qcow removed. No retries until green or physical
+TalkBack. [Exact commands/profile/results](../evidence/WP-503/README.md#single-four-cpu-native-comparison).
+
 ## Measured native activation and restoration timing
 
+The following original timing attempts used the established requested-CPU2 profile.
 Owned diagnostic-only410390978165d552faacf4f18629cd45d3e39395 and
 9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2 preserve all79 bodies as at46df,
 the actual manager/flags predicates and original1000ms deadlines. Only first/
@@ -28,6 +46,8 @@ IncomingReactionSyncTest.meshCoreOpenV3UsesTheStoredChannelTargetWithoutSavingAn
 empty store.fetchReactions(message).single() at100. App tree is identical to05ecd.
 This is WP216 producer/test ownership, not region issue218 despite the log marker.
 Authoritative hosted log remains the result; no duplicate bundle or producer edit.
+Later exact754/run38582765761 passes all six jobs. The old46df failure remains
+historical, not a current candidate failure or demonstrated producer repair.
 [Exact diagnostic bindings/records and ownership gate](../evidence/WP-503/README.md#measured-native-activation-and-restoration-timing).
 
 ## Correcting the added input-window-focus prerequisite

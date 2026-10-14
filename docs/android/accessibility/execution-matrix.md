@@ -1,9 +1,30 @@
 # WP-503 native execution matrix
 
-**Latest9425f287: existing pair API31 2/2PASS17.935s; API37 0PASS/2FAIL26.459s, original activation before bodies.41039097:31 2/2PASS17.027s,37 0PASS/2FAIL66.293s at restoration after completed bodies. All prior negatives remain separate. Hosted46df/run38577688498 FAILED, unchanged WP216 App test800/1. JVM74/74PASS. Producer repairs, native prerequisites, physical/matrix/golden/admission/review gates remain; WP incomplete.**
+**Unchanged9425f287: one separately measured four-CPU API37 pair2/2PASS44.011s. Established requested-CPU2 profile remains31 2/2PASS17.935s,37 0PASS/2FAIL26.459s before bodies;410 restoration failures retained. Hosted754/run38582765761 SUCCESS/all6 only754, historical46df/run38577688498 FAILURE/App800/1 retained. Producer/native/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+
+## Single four-CPU native comparison
+
+Same9425/treea97c8c66/APKs/image/fixtures/deadlines; only requested virtual CPU
+count2to4 intentionally varied. Actual guest count4 independently measured.
+
+| Unchanged existing pair on fresh API37 | Four-CPU comparison |
+|---|---|
+| Unique starts/matching terminal outcomes |2/2, **2PASS44.011s**|
+| Activation under original1000ms |869/5ms, checks3/1|
+| Restoration under original1000ms |10/119ms, checks1/2, original65554/false|
+| Native900/360 ready windows |4; actual input focusfalse at all4|
+| Settings all-five rail focus/native Back |PASS; focus reacquired, automatic retentionfalse|
+| Cached middle message/draft/entry/stacks |PASS; original message visible matches1 at both recreated windows|
+| Cached deletion |before/after1/1,337ms|
+
+Separate diagnostic profile, not a source/causal/performance repair, primary-profile
+negative clearance, full9/79 or physical acceptance. No body/predicate/deadline/
+font/48dp/APK/golden/product changes. Single fresh device exits0, exact two scratch
+files removed. [Source/profile/commands/raw results](../evidence/WP-503/README.md#single-four-cpu-native-comparison).
 
 ## Measured native activation and restoration timing
 
+These prior attempts use the established requested-CPU2 profile.
 Diagnostic-only sources preserve all79 bodies as at46df, producer bytes, actual
 manager/flags predicates, original1000ms waits and300/600 guards.
 
@@ -24,6 +45,8 @@ Separate fresh devices, no same-source retry until green. Complete failing cases
 remain failed even where body observations succeed. Physical TalkBack unavailable.
 Exact46df hosted App800/1 incoming-reaction failure is a separate unchanged WP216
 ownership gate; authoritative run/log only, no duplicate CI bundle.
+Later754/run38582765761 passes all six jobs; no current candidate-failure or
+producer-repair credit is inferred from the retained old46df result.
 [Exact metadata/commands/native records](../evidence/WP-503/README.md#measured-native-activation-and-restoration-timing).
 
 ## Correcting the added input-window-focus prerequisite

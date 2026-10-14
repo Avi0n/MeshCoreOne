@@ -1,14 +1,68 @@
 # WP-503 attempt evidence
 
-**Latest9425f287: existing pair API31 2/2PASS17.935s, API37 0PASS/2FAIL26.459s at original activation before bodies. Earlier410 pair37 0PASS/2FAIL66.293s at restoration despite completed bodies. All historical negatives remain. Hosted46df/run38577688498 FAILED App800/1 in unchanged WP216 incoming-reaction test. JVM74/74PASS. Producer/native prerequisite/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
+**One separately measured four-CPU API37 comparison, same9425 source/APKs: existing pair2/2PASS44.011s. Original requested-CPU2 attempt remains31 2/2PASS17.935s,37 0PASS/2FAIL26.459s at activation before bodies; earlier410 restoration failures and all historical negatives retained. Exact754/run38582765761 SUCCESS/all6 only754; historical46df/run38577688498 FAILURE/App800/1 retained. Producer/native/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Single four-CPU native comparison
+
+[Integration](device-corecomparison-integration.json) binds executed combined
+**9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2**, Android tree
+**a97c8c665c1f13bc283f06078c99d2b6bb32626d**, identical to published754 at execution.
+[Unchanged APK inputs](device-corecomparison-inputs.json): app109723777/
+`e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff`,
+test3404351/`fdf6dc9f6231036029eed2fd878d988287a17b68223c76607555c9758a3de7a9`.
+Four producer bindings/canonical166/actualCLId298/revision3 remain; **combined
+integration, not standalone producer-head acceptance**.
+
+Single fresh existingPixel10/API37.2 PlayStore/x86_64/16KiB/GMS image, same
+360x900/mdpi160/font2/nativeRTL/motion0/hardwareIME1 profile and emulator37.2.12.0.
+Launch uses`-cores4` rather than original`-cores2`; independently executed
+`adb -s emulator-5714 shell getconf _NPROCESSORS_ONLN` returns **4**.
+Emulator enforces4096MiB as before despite requested-memory1536. No shared AVD
+edit, new image/dependency installation, parallel emulator or worker.
+Prior guest CPU count was not independently read; prior launch requested2.
+
+The exact unchanged App AndroidJUnitRunner command is in integration and
+[runner record](device-corecomparison-flows-runner-api37.txt). Positive discovery
+**2 unique starts/2 matching outcomes,2PASS44.011s**:
+
+| Existing actual-app fixture | Observed strict result |
+|---|---|
+| Settings rail/resize/detail/native Back |PASS; all-five rail/native focus,900/360 recreation, retained detail entry and Back, focus reacquired; automatic focus retentionfalse|
+| Cached chat/draft/middle-message resize |PASS; original message00000000-0000-0000-0000-00000007ad4b visiblematches1 at both900/360 windows, mixed CJK/RTL draft/entry6/stacks/disconnected state retained|
+| Activation under original1000ms |869/5ms, checks3/1; actual managertrue|
+| Restoration under original1000ms |10/119ms, checks1/2; originalflags65554/managerfalse|
+| Native ready windows/actual input focus |4/false at all4; original feature focus actions/assertions remain|
+| Cached fixture deletion |before/after1/1,337ms; no persistence repair proved|
+
+[Raw instrumentation](device-corecomparison-flows-api37.txt),
+[actual native metrics](device-corecomparison-flows-metrics-api37.txt) and
+[independent profile/CPU/APK installation record](device-corecomparison-profile-api37.txt)
+are retained. Original300s boot/600s outer guards,1000ms Compose waits, all79 bodies
+and native focus/layout/font/48dp/state assertions unchanged. Single invocation,
+not retry-until-green. Owned emulator exits0 before exact image/qcow deletion;
+adb is empty afterward. Physical TalkBackfalse.
+
+**Scope of inference:** actual completed passes at this measured four-CPU
+profile. Not a source/causal/performance repair, accepted primary-profile
+replacement, full9/79/matrix or physical acceptance. The same9425 original
+requested-CPU2 run's0PASS/2FAIL and410 cleanup negatives below remain distinct,
+as do every earlier failed/incomplete attempt. Remaining236/237/238 repairs,
+physical TalkBack, matrix, WP502-approved goldens, WP-specific acceptance admission
+and independent review remain gates.
+
+Exact hosted **7542612d/run38582765761 COMPLETED/SUCCESS, all six jobs** applies
+only754. Earlier **46df73e8/run38577688498 FAILURE/App800/1** remains historical,
+not a current754 CI failure or proof of an incoming-reaction producer repair.
+Hosted run/log only; no duplicate result bundle or native/whole-WP credit.
+
 ## Measured native activation and restoration timing
 
+These earlier timing attempts use the established requested-CPU2 profile.
 [Integration](device-touchtiming-integration.json) binds two diagnostic-only
 sources independently, both existing selected methods on fresh actual31/37:
 **410390978165d552faacf4f18629cd45d3e39395**/tree
