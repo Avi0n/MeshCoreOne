@@ -1,9 +1,28 @@
 # WP-503 accessibility audit
 
-**Status: unchanged9425f287 remaining seven launcher methods: API31 7PASS32.457s; measured four-CPU API37 3PASS/4FAIL30.215s, all four original activation953 failures before bodies. Earlier four-CPU window pair2PASS44.011s remains separate; four CPUs do not repair broad readiness. Established-profile/historical negatives retained. Hosted754/run38582765761 SUCCESS/all6 only754; historical46df FAILURE/App800/1 retained. Producer236/237/238, native/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Status: native-state observer40cb94e8, full original launcher9: API31 9PASS41.171s; API37 8PASS/1FAIL114.016s on actual two-CPU devices. API37 disconnected-tabs still fails original1000ms activation before body. Independent c282 control1PASS per API does not clear initial c6 failure. Exact9ac/run38595416582 SUCCESS/all6 only9ac; prior failures/cancellations retained. Producer/native/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native service observation and full launcher re-audit
+
+The owned observer now samples platform state on its real elapsed clock instead
+of advancing Compose frames for a non-Compose service callback. Actual manager/
+flags predicates, original1000ms windows, typed failures and cleanup are preserved;
+late true observations fail. No dispatcher override, fixture-body or product edit.
+One full nine-method invocation per fresh API: **31 9PASS;37 8PASS/1FAIL**.
+37 manager remainsfalse across87 checks at1001ms in disconnected-tabs; no body
+credit there. Thirty persisted theme/scheme states, motion/Back,900/360 cached
+message/draft and actual IME/48dp/share-cancel assertions pass on both APIs.
+
+A new independent diagnostic makes the declared native inventory80, not a full
+80-case run. Its initial c6/API37 failure persists:92 false checks at1000ms,
+primary AssertionError plus two suppressed unavailable-snapshot errors. Corrected
+public shell transport at c282 yields1PASS each API and matching actual server/
+client enabled/restored snapshots. The transport runs after activation: fresh
+positive variation is not a causal activation fix or historical-negative clearance.
+[Exact source-bound results](../evidence/WP-503/README.md#native-service-observation-and-full-launcher-re-audit).
 
 ## Seven disjoint native launcher methods
 

@@ -1,0 +1,8 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_SERVICE_CONTROL|sdk=37|originalFlags=65554|originalEnabled=false|expectedRestored=false|composePolling=false|physicalTalkBack=false
+WP503_NATIVE_SERVICE_OBSERVATION|phase=activation|enabled=false|expected=true|checks=1|elapsedMs=0|composePolling=false
+WP503_NATIVE_SERVICE_TIMEOUT|phase=activation|enabled=false|expected=true|checks=92|elapsedMs=1000|originalDeadlineMs=1000
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=activation-timeout|afterOriginalDeadline=true|managerEnabled=false|flags=65558
+WP503_NATIVE_SERVICE_OBSERVATION|phase=restoration|enabled=false|expected=false|checks=1|elapsedMs=0|composePolling=false
+WP503_NATIVE_SERVICE_READY|phase=restoration|enabled=false|expected=false|checks=1|elapsedMs=0|originalDeadlineMs=1000
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=restored|afterOriginalDeadline=false|managerEnabled=false|flags=65554

@@ -1,0 +1,88 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "published_head_before_execution": "9ac70ef64e7bb8a6f1462b77335d3aae50470aa8",
+  "same_producer_binding": "device-corecomparison-integration.json",
+  "selected_method": "NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling",
+  "control_scope": "Actual AccessibilityManager state sampled on native elapsedRealtime with original1000ms activation/restoration guards. Inherits the existing Compose rule/dispatcher; no Compose polling, not removal of the Compose harness or actual TalkBack.",
+  "attempts": [
+    {
+      "phase": "servicecontrolinitial",
+      "executed_combined_head": "c6bc0b0ba568e5c8a3460bf6a3318f13a98fb1d1",
+      "executed_android_tree": "214f97ea7f74c9f4227e433395a7287266ecc90b",
+      "apk_binding": "device-servicecontrolinitial-inputs.json",
+      "native_api31": null,
+      "native_api37": {
+        "actual_guest_online_cpu_count": 2,
+        "flows": {
+          "expected_total": 1, "started": 1, "terminal": 1, "passed": 0, "failed": 1,
+          "completed": true, "seconds": 31.987,
+          "failed_identities": ["NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling"],
+          "touch_requested": 0, "touch_activated": 0, "touch_finally": 0, "touch_restored": 0,
+          "native_window_ready_observations": 0
+        },
+        "activation": {"enabled": false, "checks": 92, "elapsed_ms": 1000, "result": "FAIL"},
+        "restoration": {"enabled": false, "checks": 1, "elapsed_ms": 0, "result": "READY"},
+        "system_snapshots_available": false,
+        "primary_error": "AssertionError: Native activation state false did not reach true within1000ms",
+        "suppressed_errors": "Two NoSuchElementException errors: compound executeShellCommand did not return the required actual shell exit marker. Both raw errors retained; no master-state credit."
+      }
+    },
+    {
+      "phase": "servicecontrol",
+      "executed_combined_head": "c2823e5aa294c49fce1834c595c2b5a9be5e47e1",
+      "executed_android_tree": "8a0a2b18ce7f9f4cf446766ee63d1b2b284121c8",
+      "apk_binding": "device-servicecontrol-inputs.json",
+      "native_api31": {
+        "actual_guest_online_cpu_count": 2,
+        "flows": {
+          "expected_total": 1, "started": 1, "terminal": 1, "passed": 1, "failed": 0,
+          "completed": true, "seconds": 3.143, "failed_identities": [],
+          "touch_requested": 0, "touch_activated": 0, "touch_finally": 0, "touch_restored": 0,
+          "native_window_ready_observations": 0
+        },
+        "activation": {"enabled": true, "checks": 2, "elapsed_ms": 12, "result": "READY"},
+        "restoration": {"enabled": false, "checks": 2, "elapsed_ms": 13, "result": "READY"},
+        "system_snapshots": [
+          {"phase": "activated", "actual_exit": 0, "manager_enabled": true, "server_touch_exploration_enabled": true, "actual_flags": 65558, "duration_ms": 67},
+          {"phase": "restored", "actual_exit": 0, "manager_enabled": false, "server_touch_exploration_enabled": false, "actual_flags": 65554, "duration_ms": 49}
+        ]
+      },
+      "native_api37": {
+        "actual_guest_online_cpu_count": 2,
+        "flows": {
+          "expected_total": 1, "started": 1, "terminal": 1, "passed": 1, "failed": 0,
+          "completed": true, "seconds": 13.153, "failed_identities": [],
+          "touch_requested": 0, "touch_activated": 0, "touch_finally": 0, "touch_restored": 0,
+          "native_window_ready_observations": 0
+        },
+        "activation": {"enabled": true, "checks": 6, "elapsed_ms": 77, "result": "READY"},
+        "restoration": {"enabled": false, "checks": 5, "elapsed_ms": 48, "result": "READY"},
+        "system_snapshots": [
+          {"phase": "activated", "actual_exit": 0, "manager_enabled": true, "server_touch_exploration_enabled": true, "actual_flags": 65558, "duration_ms": 182},
+          {"phase": "restored", "actual_exit": 0, "manager_enabled": false, "server_touch_exploration_enabled": false, "actual_flags": 65554, "duration_ms": 189}
+        ]
+      }
+    }
+  ],
+  "snapshot_transport_fix": "Use public API31 executeShellCommandRw(sh), write the script to stdin and read stdout; close both descriptors and require exactly one actual dumpsys exit marker with exit0. Raw output emitted before validation; standard Closeable.use retains primary timeout and suppressed diagnostic/cleanup failures.",
+  "original_79_bodies_helpers_and_producer_bytes_unchanged_at_both_control_sources": true,
+  "native_inventory_with_added_diagnostic": 80,
+  "full_80_invocation_executed": false,
+  "native_operation_cleanup": {
+    "separate_fresh_images_single_invocation_per_attempt_api": true,
+    "owned_emulator_exit_codes": [0, 0, 0],
+    "exact_six_image_and_qcow_paths_removed_after_confirmed_exit": true,
+    "final_adb_device_list_empty": true
+  },
+  "causal_qualification": "c282 changes only snapshot transport after the activation observation. Its fresh positive cannot explain or erase c6's92-check native failure, establish Compose-only causation, or clear original launcher negatives.",
+  "producer_or_framework_cause_or_behavior_repair_verified": false,
+  "previous_native_negatives_physical_matrix_goldens_admission_review_or_wp_completion_cleared": false
+}

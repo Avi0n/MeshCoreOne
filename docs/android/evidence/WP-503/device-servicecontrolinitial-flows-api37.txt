@@ -1,0 +1,83 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest:
+INSTRUMENTATION_STATUS: test=actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Native activation state false did not reach true within1000ms
+	at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.waitForNativeState(NativeServiceStateDiagnosticTest.kt:71)
+	at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:43)
+	Suppressed: java.util.NoSuchElementException: List is empty.
+		at kotlin.collections.CollectionsKt___CollectionsKt.single(_Collections.kt:619)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.snapshot(NativeServiceStateDiagnosticTest.kt:88)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.waitForNativeState$lambda$0(NativeServiceStateDiagnosticTest.kt:69)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest$$ExternalSyntheticLambda0.close(D8$$SyntheticClass:0)
+		at kotlin.io.CloseableKt.closeFinally(Closeable.kt:50)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.waitForNativeState(NativeServiceStateDiagnosticTest.kt:71)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:43)
+	Suppressed: java.util.NoSuchElementException: List is empty.
+		at kotlin.collections.CollectionsKt___CollectionsKt.single(_Collections.kt:619)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.snapshot(NativeServiceStateDiagnosticTest.kt:88)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling$lambda$0(NativeServiceStateDiagnosticTest.kt:37)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest$$ExternalSyntheticLambda1.close(D8$$SyntheticClass:0)
+		at kotlin.io.CloseableKt.closeFinally(Closeable.kt:50)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:39)
+
+INSTRUMENTATION_STATUS: stream=
+Error in actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest):
+java.lang.AssertionError: Native activation state false did not reach true within1000ms
+	at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.waitForNativeState(NativeServiceStateDiagnosticTest.kt:71)
+	at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:43)
+	Suppressed: java.util.NoSuchElementException: List is empty.
+		at kotlin.collections.CollectionsKt___CollectionsKt.single(_Collections.kt:619)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.snapshot(NativeServiceStateDiagnosticTest.kt:88)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.waitForNativeState$lambda$0(NativeServiceStateDiagnosticTest.kt:69)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest$$ExternalSyntheticLambda0.close(D8$$SyntheticClass:0)
+		at kotlin.io.CloseableKt.closeFinally(Closeable.kt:50)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.waitForNativeState(NativeServiceStateDiagnosticTest.kt:71)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:43)
+	Suppressed: java.util.NoSuchElementException: List is empty.
+		at kotlin.collections.CollectionsKt___CollectionsKt.single(_Collections.kt:619)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.snapshot(NativeServiceStateDiagnosticTest.kt:88)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling$lambda$0(NativeServiceStateDiagnosticTest.kt:37)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest$$ExternalSyntheticLambda1.close(D8$$SyntheticClass:0)
+		at kotlin.io.CloseableKt.closeFinally(Closeable.kt:50)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:39)
+
+INSTRUMENTATION_STATUS: test=actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 31.987
+There was 1 failure:
+1) actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest)
+java.lang.AssertionError: Native activation state false did not reach true within1000ms
+	at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.waitForNativeState(NativeServiceStateDiagnosticTest.kt:71)
+	at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:43)
+	Suppressed: java.util.NoSuchElementException: List is empty.
+		at kotlin.collections.CollectionsKt___CollectionsKt.single(_Collections.kt:619)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.snapshot(NativeServiceStateDiagnosticTest.kt:88)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.waitForNativeState$lambda$0(NativeServiceStateDiagnosticTest.kt:69)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest$$ExternalSyntheticLambda0.close(D8$$SyntheticClass:0)
+		at kotlin.io.CloseableKt.closeFinally(Closeable.kt:50)
+		... 69 more
+	Suppressed: java.util.NoSuchElementException: List is empty.
+		at kotlin.collections.CollectionsKt___CollectionsKt.single(_Collections.kt:619)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.snapshot(NativeServiceStateDiagnosticTest.kt:88)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling$lambda$0(NativeServiceStateDiagnosticTest.kt:37)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest$$ExternalSyntheticLambda1.close(D8$$SyntheticClass:0)
+		at kotlin.io.CloseableKt.closeFinally(Closeable.kt:50)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:39)
+		... 67 more
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

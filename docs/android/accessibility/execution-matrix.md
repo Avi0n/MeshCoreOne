@@ -1,6 +1,24 @@
 # WP-503 native execution matrix
 
-**Unchanged9425f287 remaining seven:31 7PASS32.457s; four-CPU37 3PASS/4FAIL30.215s before bodies at original activation953. Earlier four-CPU window2PASS44.011s remains separate, not a broad readiness repair. All original/historical negatives retained. Hosted754/run38582765761 SUCCESS/all6 only754,46df FAILURE/App800/1 retained. Producer/native/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+**Current40cb94e8 launcher9:31 9PASS41.171s;37 8PASS/1FAIL114.016s, actual two CPUs each; original1000ms disconnected-tabs activation still fails. Native inventory80 including independent diagnostic, no full80 invocation. Exact9ac/run38595416582 SUCCESS/all6 only9ac; all historical negatives/cancellations retained. Producer/native/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+
+## Native service observation and full launcher re-audit
+
+| Exact source/selection | Actual API31/twoCPUs | Actual API37/twoCPUs |
+|---|---|---|
+| c6 independent native-state control1 |Not run|0PASS/1FAIL31.987s; false92 checks1000ms|
+| c282 corrected snapshot transport, control1 |1PASS3.143s; activation12/restoration13ms|1PASS13.153s; activation77/restoration48ms|
+| c282 actual server/client snapshots |true/false agree; exits0;67/49ms|true/false agree; exits0;182/189ms|
+| 40cb native-clock observer, full launcher9 |9PASS41.171s|8PASS/1FAIL114.016s|
+| 40cb disconnected-tabs body |PASS,5 tab/focus observations|Unobserved; actualfalse87 checks1001ms, original1000ms fails|
+| 40cb appearance/motion/900-360/IME/cancel |All original assertions PASS|All original assertions PASS|
+| 40cb touch requested/activated/finally/restored |7/7/7/7|7/6/7/7|
+
+Original79 bodies/other helpers remain; only owned service-state observation changes
+clock domain, keeping actual predicates/original1000ms and rejecting late true.
+No dispatcher override, producer repair, full80, approved goldens or physical
+TalkBack. c282's post-activation transport correction cannot explain fresh readiness
+variation or clear c6/earlier negatives. [Bindings/raw records](../evidence/WP-503/README.md#native-service-observation-and-full-launcher-re-audit).
 
 ## Seven disjoint native launcher methods
 

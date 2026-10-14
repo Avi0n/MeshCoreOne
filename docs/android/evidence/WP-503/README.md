@@ -1,11 +1,119 @@
 # WP-503 attempt evidence
 
-**Remaining seven unchanged9425 launcher methods:31 7PASS32.457s, four-CPU37 3PASS/4FAIL30.215s at original activation953 before bodies. Earlier four-CPU window pair2PASS44.011s remains separate, not broad readiness repair. All established-profile/historical negatives retained. Exact754/run38582765761 SUCCESS/all6 only754;46df FAILURE/App800/1 retained. Producer/native/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
+**Current40cb94e8 original launcher9 on actual two-CPU devices:31 9PASS41.171s;37 8PASS/1FAIL114.016s. Original1000ms activation still fails before disconnected-tabs body. Separately bound native control positives do not clear initial/historical negatives. Exact9ac/run38595416582 SUCCESS/all6 only9ac; previous failures/cancellations retained. Native inventory80, no full80 run. Producer/native/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native service observation and full launcher re-audit
+
+[Control integration](device-servicecontrol-integration.json) preserves both the
+initial failed diagnostic and corrected shell transport. Sources:
+`c6bc0b0ba568e5c8a3460bf6a3318f13a98fb1d1`/tree
+`214f97ea7f74c9f4227e433395a7287266ecc90b` and
+`c2823e5aa294c49fce1834c595c2b5a9be5e47e1`/tree
+`8a0a2b18ce7f9f4cf446766ee63d1b2b284121c8`.
+Actual API37 at c6: **0PASS/1FAIL31.987s**,92 managerfalse checks1000ms.
+The primary activation AssertionError retains two suppressed NoSuchElementException
+snapshot errors; no system/master-state result is available for that attempt.
+Corrected public `executeShellCommandRw("sh")` writes the script through stdin,
+reads stdout, closes both descriptors and requires one actual dump exit marker0.
+Raw output is emitted before validation; no fabricated exit or broad error catch.
+
+At c282 one control **PASS3.143s/API31** and **PASS13.153s/API37**. Activation/
+restoration12/13ms and77/48ms; actual dumpsys server touch-explorationtrue/false
+matches client managertrue/false, actual flags65558/65554, exit0. Snapshot durations
+67/49ms and182/189ms. It inherits the existing Compose rule/dispatcher; only the
+polling is native-clock independent. The snapshot fix executes after activation,
+so these fresh positives do not causally explain or clear the initial failure.
+Added one diagnostic makes native inventory80; no full80 invocation occurred.
+
+Control records: [initial inputs](device-servicecontrolinitial-inputs.json),
+[initial37 instrumentation](device-servicecontrolinitial-flows-api37.txt),
+[initial37 metrics](device-servicecontrolinitial-flows-metrics-api37.txt),
+[initial37 runner](device-servicecontrolinitial-flows-runner-api37.txt),
+[initial37 profile](device-servicecontrolinitial-profile-api37.txt);
+[corrected inputs](device-servicecontrol-inputs.json),
+[31 instrumentation](device-servicecontrol-flows-api31.txt)/
+[37 instrumentation](device-servicecontrol-flows-api37.txt),
+[31 metrics](device-servicecontrol-flows-metrics-api31.txt)/
+[37 metrics](device-servicecontrol-flows-metrics-api37.txt),
+[31 runner](device-servicecontrol-flows-runner-api31.txt)/
+[37 runner](device-servicecontrol-flows-runner-api37.txt),
+[31 profile](device-servicecontrol-profile-api31.txt)/
+[37 profile](device-servicecontrol-profile-api37.txt).
+
+[Native-clock integration](device-nativeclock-integration.json) binds subsequent
+owned observer correction **40cb94e846a9f99de0afaa3f99b61c668386e7e4**/Android tree
+**f9e05b54d0dc5bf544c30bca8085b94a0e2afcb5**.
+Non-Compose service state now uses elapsedRealtime/bounded sleep instead of
+advancing Compose frames. Actual manager/flags predicates, original1000ms windows,
+typed ComposeTimeoutException and cleanup remain; late true observations fail.
+All79 original bodies/other helpers, dispatcher/test clock and production bytes
+remain unchanged. No golden, font/48dp/visibility/focus/state floor relaxed.
+
+Exact App native invocation:
+`adb -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`,
+actual API independently31/37. One full nine-method invocation per fresh device:
+
+| Current40cb original launcher methods | Actual API31/twoCPUs | Actual API37/twoCPUs |
+|---|---|---|
+| Unique starts/matching terminal outcomes |9/9, **9PASS41.171s**|9/9, **8PASS/1FAIL114.016s**|
+| Disconnected all-five tabs/native focus |PASS,5 observations|FAIL activation before body; false87 checks1001ms|
+| Ten themes/three persisted schemes |30 original observations PASS|30 original observations PASS|
+| Motion tabs/detail Back |10 tab/2 Back observations PASS|10 tab/2 Back observations PASS|
+|900/360 rail/Back and cached middle-message/draft/entry/stacks|PASS,4 actual ready windows|PASS,4 actual ready windows|
+| Native IME/Back/48dp/share cancellation |PASS,3 contained targets|PASS,3 contained targets|
+| Three independent effect/motion/focus controls |3PASS|3PASS|
+| Touch requested/activated/finally/restored |7/7/7/7|7/6/7/7|
+
+37 activation-ready0/23/68/124/530/11ms, restorations1/29/28/14/47/118/28ms.
+The failed disconnected-tabs predicate remains actualfalse at original1000ms
+deadline; later1001ms sample/timeout is a failure, never a late positive.
+Both900/360 cached windows retain original message
+`00000000-0000-0000-0000-00000007ad4b`, entry9, draft and stacks.
+Actual IME bottom299px, visible Rect(0,0-360,601); editor(69,477-291,593),
+send(12,544-61,593), share(299,544-348,593): all contained/at least48dp.
+Native Back/share cancellation retains entry10/draft/stacks/disabled disconnected
+send; automatic share focus returns. This new8PASS does not retroactively relabel
+earlier failed/incomplete cases or prove stable broad readiness/runtime causation.
+
+[Inputs](device-nativeclock-inputs.json): unchanged app109723777/
+`e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff`;
+test3414459/`e79d2c14eee8748df732083cc4d8c85ad19ea05b1e3e7520a01162a52a97f79a`.
+[31 instrumentation](device-nativeclock-flows-api31.txt)/
+[37 instrumentation](device-nativeclock-flows-api37.txt),
+[31 metrics](device-nativeclock-flows-metrics-api31.txt)/
+[37 metrics](device-nativeclock-flows-metrics-api37.txt),
+[31 runner](device-nativeclock-flows-runner-api31.txt)/
+[37 runner](device-nativeclock-flows-runner-api37.txt),
+[31 profile](device-nativeclock-profile-api31.txt)/
+[37 profile](device-nativeclock-profile-api37.txt).
+Original300s boot/600s outer guards and primary profile360x900/mdpi/font2/RTL/
+motion0/hardwareIME1, guest CPU count2 independently checked. All five phase
+devices exit0 before their exact ten image/qcow paths are removed; adb empty.
+Only existing source-bound APKs installed, no SDK/image/dependency installation,
+shared device edit, worker, producer edit, merge or self-approval.
+
+Declared ext4 preflight/both APK tasks and six original JVM selections **74/74PASS**
+at c6, c282 and40cb, zero failures/errors/skips. Controller/portmap1749 and native
+source/APK/discovery-record integrity checked independently; not acceptance.
+`git diff --cached --check -- '*.md' '*.json' '*.kt'` **PASS** for authored
+changes. Full staged whitespace check exits2 solely for two original trailing
+spaces in API37 dumpsys MagnificationConfig output; raw metrics are preserved,
+not normalized to manufacture a clean check.
+Exact9ac hosted [38595416582](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38595416582)
+**COMPLETED/SUCCESS, all six jobs**, including SwiftData restore/export/android-ci,
+only `9ac70ef64e7bb8a6f1462b77335d3aae50470aa8`, not this successor.
+Retained781/run38590932461 and751/run38594402986 **CANCELLED/not passed**;
+754 success and46df App800/1 failure stay exact-head bound below.
+Hosted run/log are the sole reproducible CI authority; no second CI/JVM/APK bundle.
+Canonical166/actualCLId298/revision3 and four combined producer bindings unchanged;
+not standalone producer acceptance. Native37 readiness, producer236/237/238,
+physical TalkBack, remaining matrix, WP502-approved goldens, WP-specific admission
+and independent exact-head review remain; keep PR205 draft/136 open.
 
 ## Seven disjoint native launcher methods
 
