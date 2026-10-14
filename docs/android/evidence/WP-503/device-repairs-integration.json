@@ -1,0 +1,41 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "audit_base": "65d0737ca86123810bb44b408eabff9f1b268eee",
+  "producer_candidates": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1", "issues": [231]},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8", "issues": [226, 228]},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d", "issues": [230]}
+  ],
+  "initial_combined_integration": {
+    "head": "b39d78c9fe881160e1511343b185b291cefe3b53",
+    "android_tree": "11ada1f6bccdb3a8957a5eb2a62a31b3afb490f6",
+    "original_launcher_test_apk_unchanged_from_audit_base": true,
+    "native_api31": {"scoped": {"discovered": 2, "passed": 2}, "full": {"discovered": 30, "passed": 30}}
+  },
+  "shared_nodes_registration_integration": {
+    "head": "41bdbfac45b4d3690f29a5363da02047642e2716",
+    "android_tree": "6095dafdf9c59a43d202ff15e70d1c63ac21cf94",
+    "production_unchanged_from_initial_combined_integration": true,
+    "original_nodes_assertion_bodies_preserved": true,
+    "launcher_source_unchanged_from_audit_base": true,
+    "native_api31": {"scoped_nodes": {"discovered": 2, "passed": 2}, "full": {"discovered": 32, "passed": 32}},
+    "native_api37": {
+      "scoped_affected": {"discovered": 4, "passed": 4},
+      "full": {"discovered": 32, "passed": 31, "failed": 1, "errors": 0, "skipped": 0},
+      "full_failed_method": "NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable",
+      "full_failure": "Existing 1000ms touch-exploration activation prerequisite before method body; exact cause unproven",
+      "separate_unchanged_focus_controls": {"discovered": 2, "passed": 2}
+    },
+    "jvm_nodes_class": {"discovered": 18, "passed": 18, "failures": 0, "errors": 0, "skipped": 0}
+  },
+  "standalone_producer_head_device_result": false,
+  "pr234_included": false,
+  "physical_talkback_observed": false,
+  "merge_or_independent_approval": false
+}

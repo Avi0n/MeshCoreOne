@@ -1,0 +1,41 @@
+--------- beginning of main
+10-13 21:32:34.694  3107  3123 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-13 21:32:35.490  3107  3123 I System.out: WP503_OFFLINE_DISCOVERY|sdk=31|indeterminate=0|discoveredReads=1|cachedRadio=true|storeAvailable=true|connectedDevice=false|realRadio=false
+10-13 21:32:35.533  3107  3123 I System.out: WP503_FONT|text=No Discovered Nodes|size=312 x 96|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = 411)|paragraph=312.0x96.0|widthOverflow=false|heightOverflow=false|lines=2
+10-13 21:32:35.533  3107  3123 I System.out: WP503_FONT_LINE|text=No Discovered Nodes|line=0|left=0.0|right=234.16797|top=0.0|bottom=48.0
+10-13 21:32:35.534  3107  3123 I System.out: WP503_FONT_LINE|text=No Discovered Nodes|line=1|left=0.0|right=105.0|top=48.0|bottom=96.0
+10-13 21:32:35.569  3107  3123 I System.out: WP503_FONT|text=Nodes will appear here as their advertisements are discovered.|size=312 x 126|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = 307)|paragraph=312.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+10-13 21:32:35.570  3107  3123 I System.out: WP503_FONT_LINE|text=Nodes will appear here as their advertisements are discovered.|line=0|left=0.0|right=283.73828|top=0.0|bottom=42.0
+10-13 21:32:35.570  3107  3123 I System.out: WP503_FONT_LINE|text=Nodes will appear here as their advertisements are discovered.|line=1|left=0.0|right=290.5039|top=42.0|bottom=84.0
+10-13 21:32:35.570  3107  3123 I System.out: WP503_FONT_LINE|text=Nodes will appear here as their advertisements are discovered.|line=2|left=0.0|right=189.08984|top=84.0|bottom=126.0
+10-13 21:32:35.607  3107  3123 I System.out: WP503_TARGET|width=230.0|height=130.0|role=null
+10-13 21:32:35.608  3107  3123 I System.out: WP503_TARGET|width=98.0|height=54.0|role=Button
+10-13 21:32:35.608  3107  3123 I System.out: WP503_TARGET|width=81.0|height=48.0|role=Checkbox
+10-13 21:32:35.609  3107  3123 I System.out: WP503_TARGET|width=81.0|height=106.0|role=Checkbox
+10-13 21:32:35.609  3107  3123 I System.out: WP503_TARGET|width=82.0|height=106.0|role=Checkbox
+10-13 21:32:35.610  3107  3123 I System.out: WP503_TARGET|width=82.0|height=68.0|role=Checkbox
+10-13 21:32:36.248  3107  3123 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-13 21:32:36.823  3107  3123 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=31|label=Discover Path|bounds=Rect.fromLTRB(118.0, 720.0, 328.0, 774.0)|size=210 x 54|position=Offset(118.0, 720.0)|touchBounds=Rect.fromLTRB(118.0, 720.0, 328.0, 774.0)|root=Rect.fromLTRB(0.0, 63.0, 360.0, 774.0)|realRadio=false
+10-13 21:32:36.876  3107  3123 I System.out: WP503_FONT|text=Discover Path|size=162 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:32:36.876  3107  3123 I System.out: WP503_FONT_LINE|text=Discover Path|line=0|left=0.0|right=161.5|top=0.0|bottom=38.0
+10-13 21:32:37.005  3107  3123 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=31|label=Edit Path|bounds=Rect.fromLTRB(174.0, 720.0, 328.0, 774.0)|size=154 x 54|position=Offset(174.0, 720.0)|touchBounds=Rect.fromLTRB(174.0, 720.0, 328.0, 774.0)|root=Rect.fromLTRB(0.0, 63.0, 360.0, 774.0)|realRadio=false
+10-13 21:32:37.058  3107  3123 I System.out: WP503_FONT|text=Edit Path|size=106 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:32:37.058  3107  3123 I System.out: WP503_FONT_LINE|text=Edit Path|line=0|left=0.0|right=105.61719|top=0.0|bottom=38.0
+10-13 21:32:37.189  3107  3123 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=31|label=Reset Path|bounds=Rect.fromLTRB(178.0, 720.0, 328.0, 774.0)|size=150 x 54|position=Offset(178.0, 720.0)|touchBounds=Rect.fromLTRB(178.0, 720.0, 328.0, 774.0)|root=Rect.fromLTRB(0.0, 63.0, 360.0, 774.0)|realRadio=false
+10-13 21:32:37.241  3107  3123 I System.out: WP503_FONT|text=Reset Path|size=126 x 38|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:32:37.241  3107  3123 I System.out: WP503_FONT_LINE|text=Reset Path|line=0|left=0.0|right=125.859375|top=0.0|bottom=38.0
+10-13 21:32:37.488  3107  3123 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=31|label=Send Message|bounds=Rect.fromLTRB(32.0, 427.0, 328.0, 481.0)|size=296 x 54|position=Offset(32.0, 427.0)|touchBounds=Rect.fromLTRB(32.0, 427.0, 328.0, 481.0)|root=Rect.fromLTRB(0.0, 63.0, 360.0, 774.0)|realRadio=false
+10-13 21:32:37.541  3107  3123 I System.out: WP503_FONT|text=Send Message|size=171 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:32:37.541  3107  3123 I System.out: WP503_FONT_LINE|text=Send Message|line=0|left=0.0|right=171.0|top=0.0|bottom=38.0
+10-13 21:32:37.606  3107  3123 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=31|label=Telemetry|bounds=Rect.fromLTRB(32.0, 489.0, 328.0, 543.0)|size=296 x 54|position=Offset(32.0, 489.0)|touchBounds=Rect.fromLTRB(32.0, 489.0, 328.0, 543.0)|root=Rect.fromLTRB(0.0, 63.0, 360.0, 774.0)|realRadio=false
+10-13 21:32:37.657  3107  3123 I System.out: WP503_FONT|text=Telemetry|size=119 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:32:37.657  3107  3123 I System.out: WP503_FONT_LINE|text=Telemetry|line=0|left=0.0|right=118.015625|top=0.0|bottom=38.0
+10-13 21:32:37.723  3107  3123 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=31|label=Share Contact via Advert|bounds=Rect.fromLTRB(32.0, 675.0, 328.0, 767.0)|size=296 x 92|position=Offset(32.0, 675.0)|touchBounds=Rect.fromLTRB(32.0, 675.0, 328.0, 767.0)|root=Rect.fromLTRB(0.0, 63.0, 360.0, 774.0)|realRadio=false
+10-13 21:32:37.775  3107  3123 I System.out: WP503_FONT|text=Share Contact via Advert|size=248 x 76|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+10-13 21:32:37.775  3107  3123 I System.out: WP503_FONT_LINE|text=Share Contact via Advert|line=0|left=0.0|right=204.75781|top=0.0|bottom=38.0
+10-13 21:32:37.775  3107  3123 I System.out: WP503_FONT_LINE|text=Share Contact via Advert|line=1|left=0.0|right=77.46484|top=38.0|bottom=76.0
+10-13 21:32:37.858  3107  3123 I System.out: WP503_FONT|text=Telemetry History|size=208 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:32:37.858  3107  3123 I System.out: WP503_FONT_LINE|text=Telemetry History|line=0|left=0.0|right=207.9414|top=0.0|bottom=38.0
+10-13 21:32:37.891  3107  3123 I System.out: WP503_TARGET|width=296.0|height=54.0|role=Button
+10-13 21:32:37.892  3107  3123 I System.out: WP503_TARGET|width=296.0|height=54.0|role=Button
+10-13 21:32:37.893  3107  3123 I System.out: WP503_TARGET|width=234.0|height=54.0|role=Button

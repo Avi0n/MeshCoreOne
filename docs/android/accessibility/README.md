@@ -1,11 +1,52 @@
 # WP-503 accessibility audit
 
-**Status: offline discovery226, Reset Path228, cached-chat resize230 and Appearance radio targets231 block acceptance. PR205 remains draft; remaining physical/matrix/review gates are unverified.**
+**Status: producer repairs226/228/230/231 pass the affected native assertions on both APIs in the explicitly combined candidate below, not standalone heads or merged resolutions. PR205 remains draft; API37 full-run touch-exploration prerequisite failure and physical/matrix/review/admission gates remain.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
-## Current real App Appearance selection on actual Android
+## Current combined producer repair re-audit
+
+Audit base65d plus WP318 PR2321b2cd0476b5f70bbbd9ccaf71590e4613898eca1,
+WP311 PR233c8708313310b76df40be9e75a763fe90dac876e8 and
+WP307 PR2352396ac64f9d3bcee7fa3a7e4f33e87956508d31d form initial combined
+b39d78c9fe881160e1511343b185b291cefe3b53. Exact launcher/test APK remains unchanged.
+API31 affected2/2 and full30/30 pass. This is not native execution of any standalone
+producer head. PR234 is not included.
+
+The old inventory had no Android registration for the two failing JVM Nodes methods.
+Exact41bdbfac45b4d3690f29a5363da02047642e2716 shares their original assertion
+bodies/dependency fixture with the JVM class and adds a thin Android wrapper. No
+assertion/scenario/floor changes; both original bodies are byte-identical. Producer
+source blobs equal their exact published heads; launcher source equals65d.
+These Nodes cases render actual NodesEntry in the native App Activity with original
+deterministic ports, not process-store/radio actions or retrospective device evidence.
+
+**API31 full32/32PASS112.149s**; scoped new Nodes2/2PASS5.390s.
+**API37 scoped affected4/4PASS83.982s**; full32/31PASS/1FAIL195.578s.
+All four affected cases pass in both full invocations, zero error/skip statuses.
+The full37 failure is the existing1000ms touch-exploration activation prerequisite
+before `realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable`'s
+body. Later unchanged failed-launcher/framework-focus controls pass2/2 11.358s;
+the original full failure remains, cause unproven, not a green complete command.
+
+System/Light/Dark radio bounds are now328x48dp in12 samples/API. Each API reaches30
+unique actual persisted theme/preference states with unclipped font200 names,
+contained48dp cards/native focus and asserted restoration. Discovery is textual,
+indeterminate0/discoveredReads1. Reset Path is visible/disabled150x54dp with complete
+label, within native root after real scroll; Discover210x54/Edit154x54dp.
+Cached message15 remains visible after BOTH360->900 and900->360 recreations while
+entry/stacks/selection/CJK/RTL draft survive. Original strict chat fixture is unchanged.
+All380 unique message-paint rows/API still clear unchanged4.5/7 floors, minimum
+4.517812074094317:1. Original complete Nodes JVM class18/18PASS,0 failures/errors/skips.
+
+[Combined bindings, actual commands and retained negative](../evidence/WP-503/README.md#combined-published-producer-repairs).
+API37 initially could not launch because host commit capacity was insufficient;
+only owned31 was stopped, then the same37 arguments succeeded sequentially.
+No timeout, AVD/profile, assertion or product edits by WP503. Repair PRs/issues stay
+producer-owned/unmerged; physical TalkBack/full matrix/goldens/review remain unverified.
+
+## Prior real App Appearance selection on actual Android
 
 Exact48a6a9d3fd3e7641902ddeaf6874886a3401199b adds real disconnected
 launcher -> Settings -> Appearance traversal, not a fake controller or standalone

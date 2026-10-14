@@ -1,0 +1,25 @@
+WP-503 actual native repair re-audit; isolated API37 emulator launch negative.
+Requested: Pixel_10_Pro_XL, read-only fresh per-session data, no snapshots/window/audio,
+SwiftShader, requested memory1536MiB/cores2. The installed AVD enforces4096MiB.
+The concurrent API31/API37 launch did not reach API37 device readiness or test discovery.
+
+Exact relevant launcher diagnostic:
+unable to map backing store for guest RAM: Invalid argument
+falling back to regular RAM allocation.
+ERROR: Insufficient RAM free for launching emulator.
+Currently committed:70939.191406MB
+Commit limit:71452.640625MB
+Remaining:513.449219MB
+Needed:4096.000000MB
+
+Only owned API31 was stopped after its completed passing native invocations.
+Same API37 launch arguments/data were retried sequentially; no AVD/configuration,
+UI deadline, assertion or device profile change and no unrelated process termination.
+The retry booted actual API37 and public MainActivity returned Statusok/COLD,
+TotalTime6198ms/WaitTime6267ms. That is readiness, not a startup budget or memory repair.
+Native affected4/4 then passed. Complete native32 discovered/31passed/1failed at an
+existing1000ms touch-exploration activation prerequisite, before the launcher body.
+All four affected methods passed in that full command. Later unchanged failed-launcher
+plus framework-focus control passed2/2. The initial failure is retained; exact cause
+of the activation deadline failure is unproven and the complete API37 command is not green.
+No raw emulator public-key/network/host identifiers are retained.

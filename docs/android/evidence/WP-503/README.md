@@ -1,11 +1,97 @@
 # WP-503 attempt evidence
 
-**Offline discovery226, Reset Path228, cached-chat resize230 and Appearance radio targets231 block acceptance; PR205/WP503 remain incomplete with remaining physical/matrix/review gates.**
+**Affected226/228/230/231 cases pass in the combined native producer candidate below, not standalone heads or merged resolutions. PR205/WP503 remain incomplete: full37 touch-exploration prerequisite failure and physical/matrix/review/admission gates.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Combined published producer repairs
+
+[Integration binding](device-repairs-integration.json) records exact audit65d/base
+d818/frozen sourcedb145/canonical1666502a/actualCLI d298 alias/revision3, plus:
+WP318 PR232 **1b2cd0476b5f70bbbd9ccaf71590e4613898eca1**;
+WP311 PR233 **c8708313310b76df40be9e75a763fe90dac876e8**;
+WP307 PR235 **2396ac64f9d3bcee7fa3a7e4f33e87956508d31d**.
+All producer source Git blobs equal the published candidates. No PR234 integration,
+PR merge, independent approval, producer-code edit, nested worker or identity rewrite.
+These are **combined integration results**, never standalone producer-head execution.
+
+Initial combined **b39d78c9fe881160e1511343b185b291cefe3b53**, Android tree
+11ada1f6bccdb3a8957a5eb2a62a31b3afb490f6, uses the original test APK unchanged.
+[Initial APK binding](device-repairs-initial-inputs.json): production107361125/
+a32314422ad140cd7e093abfe47f1c4a1cc1f210a57378db6a3cab568c7433a2;
+test2904731/be721f66547221bdc4607b7a107308825a2e752565c3e946a658f785b887240b.
+API31 affected launcher2/2PASS27.216s, complete30/30PASS108.106s;
+`device-repairs-initial-scoped-api31*`/`device-repairs-initial-full-api31*`.
+
+Existing discovery/path tests were registered only in JVM, not the old native inventory.
+Exact **41bdbfac45b4d3690f29a5363da02047642e2716**, Android tree
+6095dafdf9c59a43d202ff15e70d1c63ac21cf94, moves their original bodies/dependency
+implementation into `OfflineNodesAudit`, preserves both original JVM method names,
+and adds a thin `NativeOfflineNodesAccessibilityTest` Android wrapper. Original bodies
+are byte-identical; no assertion/family/floor/expected-count changes. Launcher source
+is byte-identical to65d, producer source unchanged from b39. The native Nodes cases
+render actual NodesEntry in MainActivity with original deterministic dependency ports;
+they do not claim process-store/radio hardware execution. Actual launcher Appearance/
+chat tests use their original real process graph/store.
+[Current APK binding](device-repairs-inputs.json): same production APK;
+test2941051/ddcbf878ce3b8f744877c9aa6a84f46b0dd60d96e57dcb59cef1bd6d946cacc4.
+
+Both exact integration builds pass declared:
+`:app:assembleDebug :app:assembleDebugAndroidTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
+Current declared original JVM class:
+`:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeNodesAccessibilityTest.*`
+with the same strict options **18/18PASS**,0 failures/errors/skips. All9 methods each
+positively discovered twice, including both original defect methods. Not a new full80-case
+JVM result; reproducible JVM reports/hosted CI bundles are not committed.
+
+Declared device runner:
+`adb -s SERIAL shell am instrument -w -r SELECTOR -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+At b39, SELECTOR is
+`-e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200`
+for scoped31, or `-e package com.meshcoreone.android.accessibility` for full31.
+At41b, scoped31 uses
+`-e class com.meshcoreone.android.accessibility.NativeOfflineNodesAccessibilityTest`:
+**2/2PASS5.390s**, `device-repairs-nodes-api31*`.
+Scoped37 joins the two launcher methods above plus that Nodes class in the same
+comma-separated `-e class`: **4/4PASS83.982s**, `device-repairs-scoped-api37*`.
+Current full package selector: **31:32/32PASS112.149s**;
+**37:32/31PASS/1FAIL195.578s**, `device-repairs-full-api31/37*`.
+Strict status parsing verifies unique starts and all outcomes;0 error/skip statuses.
+All4 affected methods pass in both full invocations. No complete37 success inferred.
+
+Actual native repaired outcomes, both APIs:
+System/Light/Dark12 total samples/API each328x48dp, checked state exclusive and
+unselected clickable.30 unique persisted theme/preference states, forced-dark Ember,
+full font200 names, contained48dp native theme cards/focus and asserted original
+preference/onboarding restore. Original discovery asserts indeterminate0/readCount1
+and complete textual empty/recovery layouts. Reset Path visible/disabled150x54dp,
+Discover210x54/Edit154x54, fully contained after native scroll with zero font200
+clipping.31 Reset bounds(178,720)-(328,774), actual root(0,63)-(360,774);
+37 Reset(178,822)-(328,876), actual root(0,52)-(360,876).
+Original chat fixture asserts message15 visibility after BOTH360->900 and900->360
+Activity recreations, selected entry/stacks/conversation/CJK+RTL draft retained,
+actual editor48dp/full text. No rescue scrolling after recreation.
+380 unique actual painted message spans/API still clear unchanged4.5/7 floors,
+minimum4.517812074094317:1. No physical TalkBack observation implied.
+
+Full37 fails `realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable`
+at existing1000ms native touch-exploration activation, before its body. Same APK,
+unchanged failed-launcher plus `frameworkControlCanAcquireRealNativeAccessibilityFocus`
+then pass **2/2 11.358s**, `device-repairs-focus-api37*`. Initial failure is retained,
+not flaky, cause unproven, no raised deadline or claim that control replay repairs it.
+[Resource negative](device-repairs-resource-negative.txt): first37 emulator cannot
+allocate4096MiB under host commit pressure, before test discovery. Only owned31
+is stopped after its runs; same37 arguments then boot and public launcher responds
+Statusok/COLD6198ms. AVD forces4096 despite requested1536; no AVD/configuration edit
+or unrelated process termination. This readiness is not memory/startup acceptance.
+Both post-profiles verify360x900/mdpi/font2/all animation scales0/4KiB versus16KiB.
+Owned emulator helpers stop; exactly four named data/qcow2 images are removed.
+All20 `device-repairs-*` files are actual device input/output/binding records.
+Remaining physical/matrix/golden/review/admission gates and full37 prerequisite
+negative remain; defects/repair PRs are not merged/closed or independently approved.
 
 ## Actual App Appearance selection
 

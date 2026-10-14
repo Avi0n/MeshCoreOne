@@ -1,7 +1,32 @@
 # WP-503 native execution matrix
 
-**Offline discovery226, Reset Path228, cached-chat resize230 and Appearance radio targets231 block acceptance; WP503 remains incomplete with physical/matrix/review gates unverified.**
-Current exact48a6a9d3fd3e7641902ddeaf6874886a3401199b complete native inventory
+**Affected226/228/230/231 cases pass on both native APIs in a combined producer candidate, not standalone heads or merged resolutions. WP503 remains incomplete: full37 touch-exploration prerequisite failure, physical/matrix/review/admission gates.**
+Current exact41bdbfac45b4d3690f29a5363da02047642e2716 integrates audit65d with
+WP3181b2cd/WP311c870/WP3072396, then shares original Nodes assertion bodies for native
+registration. Producer source blobs match the published heads; no product edits.
+Original launcher fixture source equals65d. Initial b39 combined used unchanged
+original test APK and passes31 scoped2/2/full30/30.
+
+Current **API31 full32/32PASS112.149s**, Nodes scoped2/2PASS5.390s.
+**API37 affected scoped4/4PASS83.982s**, full32/31PASS/1FAIL195.578s.
+All affected methods pass in both full commands; zero error/skip statuses.
+Full37 fails existing1000ms touch-exploration activation before launcher body.
+Unchanged failed-launcher/framework-focus controls later pass2/2 11.358s; initial
+negative is retained, cause unproven, no complete37 pass or flaky label.
+
+Actual each-API outcomes:12 radio samples328x48dp/30 persisted theme-preference
+states with full font200 names/focus/restoration; discovery spinner0/cached reads1;
+Reset Path150x54/Discover210x54/Edit154x54dp fully visible/disabled after scroll;
+original loaded message retained after BOTH360->900->360 recreations with entry,
+stacks,selection/CJK/RTL draft.380 unique painted message spans/API still clear
+unchanged floors/minimum4.517812074094317:1. Original full Nodes JVM class18/18PASS,
+zero failures/errors/skips, not a new complete80-case JVM result.
+Nodes shared native cases use the original deterministic feature dependencies,
+not a real radio/process-store graph claim. Other launcher cases use real App graph.
+No PR234 integration, standalone-head native credit, merge, new worker or self-approval.
+[Exact integration/negative/commands](../evidence/WP-503/README.md#combined-published-producer-repairs).
+
+Prior exact48a6a9d3fd3e7641902ddeaf6874886a3401199b complete native inventory
 **30/28PASS/2 failed identities per actual31/37**,0 error/skip statuses90.721s/
 112.957s. All prior28 passing methods pass. Unchanged230 loses the loaded message;
 new real App Appearance case reports8 strict48dp failures for System/Light328x42dp
