@@ -912,7 +912,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 var lastState: Pair<Int, Boolean>? = null
                 var lastCheckElapsedMs = 0L
                 try {
-                    compose.waitUntil {
+                    waitForNativeAccessibilityState(restorationStart) {
                         val flags = automation().serviceInfo.flags
                         val enabled = manager.isTouchExplorationEnabled
                         checks++
@@ -950,7 +950,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             var lastEnabled: Boolean? = null
             var lastCheckElapsedMs = 0L
             try {
-                compose.waitUntil {
+                waitForNativeAccessibilityState(activationStart) {
                     val enabled = manager.isTouchExplorationEnabled
                     checks++
                     lastCheckElapsedMs = android.os.SystemClock.elapsedRealtime() - activationStart
@@ -974,6 +974,18 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             println("WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=${android.os.Build.VERSION.SDK_INT}" +
                 "|touchExploration=${manager.isTouchExplorationEnabled}|physicalTalkBack=false")
             block()
+        }
+    }
+
+    private fun waitForNativeAccessibilityState(start: Long, condition: () -> Boolean) {
+        while (true) {
+            val ready = condition()
+            val elapsed = android.os.SystemClock.elapsedRealtime() - start
+            if (ready && elapsed <= 1000L) return
+            if (elapsed >= 1000L) {
+                throw ComposeTimeoutException("Native accessibility state did not become ready within1000ms")
+            }
+            Thread.sleep(minOf(10L, 1000L - elapsed))
         }
     }
 
