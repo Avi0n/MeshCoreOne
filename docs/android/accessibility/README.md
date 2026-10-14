@@ -1,9 +1,28 @@
 # WP-503 accessibility audit
 
-**Status: expanded1c867 native72: API31 70PASS/2FAIL; API37 71PASS/1FAIL. New room authentication3/3PASS on both actual APIs; original targeted JVM74/74PASS. WP316 CLI236 and WP311 API31 QR237 remain unresolved. Earlier negatives remain retained. PR205 stays draft: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Status: expanded34c222 native75: API31 73PASS/2FAIL; API37 74PASS/1FAIL. New offline-map3/3PASS on both actual APIs; original targeted JVM74/74PASS. WP316 CLI236 and WP311 API31 QR237 remain unresolved. Earlier negatives remain retained. PR205 stays draft: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Native offline-map state and recovery
+
+Executed34c222d3b40e920843c98fe2fdbec0c6fa2f57f2/Android tree
+3e658b8cebef479eebfeba38ce674e3ec8c8deeb adds three actual MapEntry offline
+flows with the native MapLibre surface and real OfflineMapController. Deterministic
+offline backend/disk/network ports exercise localized failures/zero backend calls,
+retry of one trimmed named region, data-bound progress0/25/100%, pause/resume,
+cancelled versus confirmed deletion and completed-pack/Done behavior.
+
+Scoped31 **3/3PASS13.761s**,37 **3/3PASS44.2s**; complete31
+**75/73PASS/2FAIL156.587s**,37 **75/74PASS/1FAIL291.196s**, zero error/skip statuses.
+Only CLI236/both and QR237/31 fail. All prior72 test bodies are unchanged; the room
+native viewport calculation is extracted unchanged for shared dialog/activity use.
+Room authentication passes within both full commands. Actual font2/RTL, full labels,
+native safe/lazy viewports and contained48dp actions are measured without changing
+producer code, floors or deadlines. These ports do not prove real tile download,
+physical disk/network failure, persisted pack deletion, TalkBack or all-theme matrix.
+[Exact source/APKs/native records](../evidence/WP-503/README.md#native-offline-map-state-and-recovery).
 
 ## Native room authentication and modal reachability
 

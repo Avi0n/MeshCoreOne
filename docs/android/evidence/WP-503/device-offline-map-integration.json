@@ -1,0 +1,66 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_combined_binding": "device-room-auth-integration.json",
+  "executed_combined_head": "34c222d3b40e920843c98fe2fdbec0c6fa2f57f2",
+  "executed_android_tree": "3e658b8cebef479eebfeba38ce674e3ec8c8deeb",
+  "apk_binding": "device-offline-map-inputs.json",
+  "new_native_cases": [
+    "emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion",
+    "downloadingPackHasTextAndMeasuredProgressWithPauseResumeAndConfirmedDeleteCancellation",
+    "completedPackKeepsItsTextAndFullProgressWithoutPauseOrResumeAndDoneDoesNotDelete"
+  ],
+  "source_guards": {
+    "all_prior_72_test_bodies_unchanged": true,
+    "all_prior_69_native_fixture_and_shared_oracle_files_byte_identical": true,
+    "room_helper_change": "Extract unchanged native viewport calculation into NativeWindowViewport; retain actual window/insets/frame semantics",
+    "only_changed_existing_android_file": "accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeRoomAuthenticationAccessibilityTest.kt",
+    "producer_code_build_dependencies_floors_deadlines_goldens_or_wp501_bindings_changed": false
+  },
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "native_surface_and_ports": {
+    "entry": "Actual production MapEntry and native MapLibreMapSurface; real architecture/JNI guard, no renderer replacement",
+    "offline": "Real OfflineMapController and actual panel/dialog consumers; deterministic backend StateFlow, disk/network predicates, clock and identity",
+    "disk_network_rejection": "Localized errors, zero backend requests, reachable Done dismissal; retry starts exactly one trimmed named BASE request",
+    "progress": "Actual native ProgressBarRangeInfo at0.0,0.25,1.0 and localized Downloading/Paused/Complete text",
+    "lifecycle": "Exactly one pause/resume per named pack; cancelled delete0; confirmed delete1; completed pack has no pause/resume; Done deletes0",
+    "geometry": "Actual system font2/RTL, strict complete text and native safe-window/actual lazy-viewport containment with48dp targets",
+    "sample_targets_dp": {"open": [179, 48], "region_editor": [268, 88], "download": [268, 54], "pause": [96, 54], "resume": [118, 54], "delete": [99, 54], "confirm_cancel": [104, 54], "panel_done": [84, 54]},
+    "physical_download_disk_network_deletion_or_radio_acceptance": false
+  },
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "both_original_sdk_variants_and_names_preserved": true,
+    "app_and_instrumentation_assembly": "PASS"
+  },
+  "native_api31": {
+    "scope": {"discovered": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0, "seconds": 13.761},
+    "full": {"discovered": 75, "passed": 73, "failed": 2, "errors": 0, "skipped": 0, "seconds": 156.587},
+    "failed_identities": ["NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal", "NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"]
+  },
+  "native_api37": {
+    "scope": {"discovered": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0, "seconds": 44.2},
+    "full": {"discovered": 75, "passed": 74, "failed": 1, "errors": 0, "skipped": 0, "seconds": 291.196},
+    "failed_identities": ["NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal"]
+  },
+  "new_room_and_offline_map_methods_pass_within_both_full_commands": true,
+  "product_blockers": [{"issue": 236, "owner": "WP-316"}, {"issue": 237, "owner": "WP-311", "api": 31}],
+  "new_product_defect_or_standalone_producer_head_acceptance_claimed": false,
+  "physical_talkback_approved_goldens_full_matrix_or_independent_review": false,
+  "both_owned_emulators_exited_zero": true,
+  "exact_four_owned_phase_images_removed": true,
+  "final_adb_device_list_empty": true,
+  "merge_self_approval_or_wp_completion": false
+}

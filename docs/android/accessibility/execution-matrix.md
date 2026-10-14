@@ -1,6 +1,27 @@
 # WP-503 native execution matrix
 
-**Latest1c867 native72: API31 70PASS/2FAIL; API37 71PASS/1FAIL. Room authentication3/3PASS on both actual APIs; JVM74/74PASS. CLI236 and API31 QR237 remain product blockers. All earlier negatives remain retained. WP503 is incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Latest34c222 native75: API31 73PASS/2FAIL; API37 74PASS/1FAIL. Offline-map3/3PASS on both actual APIs; JVM74/74PASS. CLI236 and API31 QR237 remain product blockers. All earlier negatives remain retained. WP503 is incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+
+## Native offline-map states
+
+Exact34c222d3b40e920843c98fe2fdbec0c6fa2f57f2/Android tree
+3e658b8cebef479eebfeba38ce674e3ec8c8deeb preserves all prior72 test bodies,
+producer bytes and exact combined source bindings.
+
+| Native selection | API31 | API37 |
+|---|---|---|
+|Full75|73PASS/2FAIL156.587s|74PASS/1FAIL291.196s|
+|Offline-map state/recovery3|3PASS13.761s|3PASS44.2s|
+
+Positive unique discovery/matching terminal identities; zero error/skip statuses.
+Only existing CLI236/both and QR237/31 fail. Real MapEntry/MapLibre/controller with
+deterministic offline ports exercises disk/network error dismissal and retry,
+empty/downloading/paused/complete text, progress0/25/100%, exact pause/resume and
+cancel0/confirmed-delete1. Native font2/RTL/full labels/contained48dp actions and
+actual lazy/window viewports pass. Shared window observer extraction also passes
+all original room cases within both full commands. Not real offline download,
+physical disk/network/deletion, full theme/window matrix or TalkBack acceptance.
+[Exact native records](../evidence/WP-503/README.md#native-offline-map-state-and-recovery).
 
 ## Native room authentication
 
@@ -556,7 +577,7 @@ reduce those contrast pairs or the required 200%-font flow states.
 | Direct/channel chat: cached/offline/empty, unread/day grouping, pending/delivered/failed retry, pagination | Per-message label/status, headings, named link actions, actual retry/send callbacks; all emitted spans versus painted surfaces; composer targets and 200% CJK/RTL/IME layout | Individual-message order, no whole-chat announcement on arrival, link/retry access, composer focus and menu/sheet return |
 | Rooms: cluster-start/follow-up, sending/sent/failed, guest/read-only/disconnected, authentication | Author on each incoming row, outgoing status once, failed-only retry, open-link actions, labelled remember switch; known/pending/not-found UI states, native keyboard/Expand recovery, exact Join/Cancel UI callbacks and sheet/body at 200% | Sender context when entering mid-cluster, authentication focus and switch purpose/state, non-gesture retry/link action |
 | Nodes: list/search/filter/sort, discovery, detail, edit/share/delete | Filter selection, row/action labels, destructive confirmation, status text; effective row/menu targets; long/CJK names at 200% | Detail/Back focus, non-swipe action access, dialog cancellation and selection order |
-| Map: populated/filter/list/selected marker, empty/offline/download/error | Non-gesture marker-list selection with coordinates, filter selection, progress/error text; control rows/list/callout at 200% | Map-to-list traversal, marker access without dragging, callout and offline panel entry/return focus |
+| Map: populated/filter/list/selected marker, empty/offline/download/error | Non-gesture marker-list selection with coordinates, filter selection, localized offline errors/retry, data-bound pack progress and pause/resume/delete confirmation; control rows/list/callout at 200% | Map-to-list traversal, marker access without dragging, callout and offline panel entry/return focus |
 | Tools: CLI, Rx log, noise-floor empty/running/stopped/error; LoS clear/blocked/relay | Labels and enabled/selected state, data-bound graph summaries/numeric alternatives, keyboard/non-gesture controls; semantic status versus color; 200% long metrics | Access to meaningful readings/clearance, no unreadable chart-only state, result/terminal focus and keyboard operation |
 | Remote nodes: authentication, status/telemetry/history, unavailable sensor/location, map | Labelled settings controls; units/time/value/status text; data-bound history/graph alternatives; 200% columns and dialogs | Auth/status/map focus; each sensor and change understandable without color |
 | Settings: appearance/effective schemes, backup valid/invalid/restore results, language/permissions/licenses | Theme/scheme selection, all unlocked options, error/result counts, headings and control labels; 200% cards/forms/dialogs | Selected theme announcement, language/permission return focus, restore confirmation/result focus |

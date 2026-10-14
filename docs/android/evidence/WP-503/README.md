@@ -1,11 +1,70 @@
 # WP-503 attempt evidence
 
-**Expanded1c867 native72: API31 70PASS/2FAIL; API37 71PASS/1FAIL. New room authentication3/3PASS on both actual APIs; original targeted JVM74/74PASS. CLI236 and API31 QR237 remain unresolved. All earlier negatives stay retained. PR205/WP503 remain incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
+**Expanded34c222 native75: API31 73PASS/2FAIL; API37 74PASS/1FAIL. New offline-map3/3PASS on both actual APIs; original targeted JVM74/74PASS. CLI236 and API31 QR237 remain unresolved. All earlier negatives stay retained. PR205/WP503 remain incomplete: product repairs, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Native offline-map state and recovery
+
+Executed **34c222d3b40e920843c98fe2fdbec0c6fa2f57f2**, Android tree
+**3e658b8cebef479eebfeba38ce674e3ec8c8deeb**. Existing combined producer binding
+WP3181b2cd/WP311c870/WP3072396/WP313d2ff is unchanged, not standalone-head native
+execution. [Exact integration](device-offline-map-integration.json),
+[APK binding](device-offline-map-inputs.json). App109723777/
+e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff;
+test3346139/1ab2b5fd51cda8ab56e2a84a18552127abddfe976fe434b7b9a78ae6d50d9c43.
+
+New native-only fixtures mount actual MapEntry/MapLibreMapSurface and real
+OfflineMapController. The renderer and architecture/JNI checks are not substituted.
+Deterministic offline backend StateFlow, disk/network predicates, clock/ID exercise:
+empty description/disabled blank-name action; typed localized disk/network failures
+with zero backend calls and named dialog dismissal; retry starts exactly one trimmed
+named BASE request; actual progress semantics0/25/100% and Downloading/Paused/Complete
+text; exact pause/resume, cancelled delete0/confirmed delete1, and completed-pack
+absence of pause/resume with Done deleting0. Real native dialogs/panel scrolling,
+font2/RTL/full labels and contained48dp targets are asserted.
+
+The existing strict six-family Gradle command in the native69 section passes
+**74/74**, zero failures/errors/skips, original names/both SDK variants; both APK
+tasks pass. New offline cases are native-only. All prior72 test bodies remain
+byte-identical; only the room private native-window observer is extracted into
+NativeWindowViewport for reuse, preserving its geometry/inset math. Original room
+cases pass within both full commands. No producer/build/dependency, original oracle,
+fixture-data, deadline, floor, golden or WP501 binding change.
+
+Actual command:
+`adb -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Scoped selection replaces package selection with
+`-e class com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest`.
+
+| Native selection | Actual API31 | Actual API37 |
+|---|---|---|
+|Entire package|75/73PASS/2FAIL156.587s|75/74PASS/1FAIL291.196s|
+|Offline-map state/recovery|3/3PASS13.761s|3/3PASS44.2s|
+
+Every completed command positively matches unique starts and terminal identities;
+zero error/skip statuses. Only existing CLI236/both APIs and QR237/31 fail; both
+full commands fail. Actual stdout/metrics are
+`device-offline-map-{scope,full}[-metrics]-api{31,37}.txt`. Each profile record binds
+the actual API, emulator AVD, font2/mdpi/360x900/animation0 and exact installed APKs.
+Native labels also require real RTL layout. Actual renderer runs on sequential
+AOSP31/x86_64/4KiB/noGMS and PlayStore37.2/x86_64/16KiB/GMS.
+
+Measured examples on31: Open179x48dp, editor268x88, Download268x54, Pause96x54,
+Resume118x54, Delete99x54, confirmation Cancel104x54 and panel Done84x54. Bounds
+must be wholly inside the actual native safe window and closest lazy viewport,
+not only the full semantic root. The extracted window observer continues to include
+actual IME/system-bar/cutout insets where present; no keyboard hiding or fake padding.
+The backend preserves exact requested pack identity/name/layer/bounds/time/zoom.
+
+No real offline pack download/deletion, physical disk/network-failure, radio, all-theme
+matrix, physical TalkBack or approved golden claim. No new product defect is found.
+Both owned emulator executions exit0; exactly four named phase image/qcow files are
+removed and final adb list is empty. Previous72/native69 negatives remain immutable.
+No reproducible JVM/hosted-result bundle, independent review, merge or WP completion.
 
 ## Native room authentication and modal reachability
 
