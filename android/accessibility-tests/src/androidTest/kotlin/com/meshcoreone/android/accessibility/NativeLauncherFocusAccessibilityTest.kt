@@ -821,6 +821,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         val (widthPixels, heightPixels) = size.split('x').map(String::toInt)
         shell("wm size $size")
         var resumed: MainActivity? = null
+        var resumedWindowFocus: Boolean? = null
         var observation = "hostCount=notSampled"
         var previousObservation: String? = null
         try {
@@ -837,8 +838,10 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                         val focused = decor.hasWindowFocus()
                         val width = decor.width
                         val height = decor.height
-                        val ready = attached && laidOut && focused && width == widthPixels && height > 0 &&
+                        // The calling fixtures assert native focus; this barrier only observes resized layout readiness.
+                        val ready = attached && laidOut && width == widthPixels && height > 0 &&
                             window.width() == widthPixels && window.height() == heightPixels
+                        if (ready) resumedWindowFocus = focused
                         states += "attached:$attached,laidOut:$laidOut,focused:$focused,decor:${width}x$height" +
                             ",metrics:${window.toShortString()},ready:$ready"
                         ready
@@ -861,7 +864,8 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         assertEquals(1, compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).size)
         compose.onNodeWithTag(tag).assertIsDisplayed()
         println("WP503_NATIVE_WINDOW_READY|sdk=${android.os.Build.VERSION.SDK_INT}|size=$size" +
-            "|resumed=true|laidOut=true|windowFocus=true|semanticCount=1|semanticDisplayed=true|physicalTalkBack=false")
+            "|resumed=true|laidOut=true|windowFocus=${requireNotNull(resumedWindowFocus)}" +
+            "|semanticCount=1|semanticDisplayed=true|physicalTalkBack=false")
         compose.runOnUiThread { activity.window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL }
         compose.waitForIdle()
         assertEquals(2f, activity.resources.configuration.fontScale, 0f)
