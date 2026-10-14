@@ -20,6 +20,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsDisplayed
@@ -424,7 +425,11 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                 drafts.set(conversation, originalDraft)
                 onboarding.flags.setBoolean(OnboardingState.KEY_HAS_COMPLETED, originalFlag)
             }
+            println("WP503_NATIVE_FIXTURE_CLEANUP|sdk=${android.os.Build.VERSION.SDK_INT}|fixture=cached-resize" +
+                "|phase=beforeDelete|seeded=$seeded|elapsedMs=${android.os.SystemClock.elapsedRealtime()}")
             if (seeded) runBlocking { container.processStore.deleteDeviceAndData(device.id) }
+            println("WP503_NATIVE_FIXTURE_CLEANUP|sdk=${android.os.Build.VERSION.SDK_INT}|fixture=cached-resize" +
+                "|phase=afterDelete|seeded=$seeded|elapsedMs=${android.os.SystemClock.elapsedRealtime()}")
         }
     }
 
@@ -816,18 +821,41 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         val (widthPixels, heightPixels) = size.split('x').map(String::toInt)
         shell("wm size $size")
         var resumed: MainActivity? = null
-        compose.waitUntil {
-            InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                resumed = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
-                    .filterIsInstance<MainActivity>().singleOrNull { host ->
+        var observation = "hostCount=notSampled"
+        var previousObservation: String? = null
+        try {
+            compose.waitUntil {
+                InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                    val hosts = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                        .filterIsInstance<MainActivity>()
+                    val states = mutableListOf<String>()
+                    resumed = hosts.singleOrNull { host ->
                         val decor = host.window.decorView
                         val window = host.windowManager.currentWindowMetrics.bounds
-                        decor.isAttachedToWindow && decor.isLaidOut && decor.hasWindowFocus() &&
-                            decor.width == widthPixels && decor.height > 0 &&
+                        val attached = decor.isAttachedToWindow
+                        val laidOut = decor.isLaidOut
+                        val focused = decor.hasWindowFocus()
+                        val width = decor.width
+                        val height = decor.height
+                        val ready = attached && laidOut && focused && width == widthPixels && height > 0 &&
                             window.width() == widthPixels && window.height() == heightPixels
+                        states += "attached:$attached,laidOut:$laidOut,focused:$focused,decor:${width}x$height" +
+                            ",metrics:${window.toShortString()},ready:$ready"
+                        ready
                     }
+                    observation = "hostCount=${hosts.size}|hosts=${states.joinToString(";")}"
+                }
+                if (observation != previousObservation) {
+                    println("WP503_NATIVE_WINDOW_OBSERVATION|sdk=${android.os.Build.VERSION.SDK_INT}|size=$size" +
+                        "|$observation|ready=${resumed != null}|physicalTalkBack=false")
+                    previousObservation = observation
+                }
+                resumed != null
             }
-            resumed != null
+        } catch (failure: ComposeTimeoutException) {
+            println("WP503_NATIVE_WINDOW_TIMEOUT|sdk=${android.os.Build.VERSION.SDK_INT}|size=$size" +
+                "|$observation|originalDeadlineMs=1000|physicalTalkBack=false")
+            throw failure
         }
         assertTrue("The Compose rule must refer to the actual resumed resized Activity", activity === resumed)
         assertEquals(1, compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).size)
