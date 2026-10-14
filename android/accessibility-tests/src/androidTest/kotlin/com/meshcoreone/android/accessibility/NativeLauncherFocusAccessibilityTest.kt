@@ -845,16 +845,7 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             println("WP503_NATIVE_TOUCH_CALLBACK|enabled=$enabled|elapsedMs=${android.os.SystemClock.elapsedRealtime() - start}")
         }
         println("WP503_NATIVE_TOUCH_LISTENER|registered=${manager.addTouchExplorationStateChangeListener(listener)}")
-        try {
-            info.flags = original or AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE
-            automation().serviceInfo = info
-            println("WP503_NATIVE_TOUCH_REQUEST|requestedFlags=${info.flags}|actualFlags=${automation().serviceInfo.flags}" +
-                "|elapsedMs=${android.os.SystemClock.elapsedRealtime() - start}")
-            compose.waitUntil { manager.isTouchExplorationEnabled }
-            println("WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=${android.os.Build.VERSION.SDK_INT}" +
-                "|touchExploration=${manager.isTouchExplorationEnabled}|physicalTalkBack=false")
-            block()
-        } finally {
+        val restoration = java.io.Closeable {
             println("WP503_NATIVE_TOUCH_FINAL|enabled=${manager.isTouchExplorationEnabled}|actualFlags=${automation().serviceInfo.flags}" +
                 "|elapsedMs=${android.os.SystemClock.elapsedRealtime() - start}")
             try {
@@ -870,6 +861,16 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             } finally {
                 manager.removeTouchExplorationStateChangeListener(listener)
             }
+        }
+        restoration.use {
+            info.flags = original or AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE
+            automation().serviceInfo = info
+            println("WP503_NATIVE_TOUCH_REQUEST|requestedFlags=${info.flags}|actualFlags=${automation().serviceInfo.flags}" +
+                "|elapsedMs=${android.os.SystemClock.elapsedRealtime() - start}")
+            compose.waitUntil { manager.isTouchExplorationEnabled }
+            println("WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=${android.os.Build.VERSION.SDK_INT}" +
+                "|touchExploration=${manager.isTouchExplorationEnabled}|physicalTalkBack=false")
+            block()
         }
     }
 
