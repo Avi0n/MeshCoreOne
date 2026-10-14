@@ -56,9 +56,15 @@ class NativeAppLanguageAccessibilityTest : DeviceAccessibilityHarness() {
         val controls = compose.onAllNodes(selection).fetchSemanticsNodes()
         println("WP503_LANGUAGE_SELECTION_INVENTORY|count=${controls.size}|names=${controls.map(::narrative)}" +
             "|selected=${controls.map { it.config[SemanticsProperties.Selected] }}")
-        for (tag in AppLanguages.supported) {
+        assertEquals(AppLanguages.supported.size, controls.size)
+        for ((index, tag) in AppLanguages.supported.withIndex()) {
             val label = autonym(tag)
             action(label)
+            selectionErrors.checkSucceeds {
+                val control = compose.onAllNodes(selection)[index]
+                assertEquals(current == tag, control.fetchSemanticsNode().config[SemanticsProperties.Selected])
+                assertTarget(control, "$tag:selected-control")
+            }
             val named = compose.onAllNodes(hasText(label) and selection).fetchSemanticsNodes()
             println("WP503_LANGUAGE_SELECTION|tag=$tag|label=$label|namedSelectedControls=${named.size}|expectedSelected=${current == tag}")
             selectionErrors.checkSucceeds {
@@ -187,6 +193,11 @@ class NativeAppLanguageAccessibilityTest : DeviceAccessibilityHarness() {
         assertFont200Unclipped(compose.onNode(
             hasText(label) and SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult), useUnmergedTree = true,
         ))
+        assertTarget(interaction, label)
+        return interaction
+    }
+
+    private fun assertTarget(interaction: SemanticsNodeInteraction, label: String) {
         val node = interaction.fetchSemanticsNode()
         val actual = viewport(node)
         val target = node.touchBoundsInRoot.translate(node.boundsInWindow.topLeft - node.boundsInRoot.topLeft)
@@ -195,6 +206,5 @@ class NativeAppLanguageAccessibilityTest : DeviceAccessibilityHarness() {
         assertTrue("Native language actions must be wholly contained and at least48dp",
             target.left >= actual.left && target.top >= actual.top && target.right <= actual.right && target.bottom <= actual.bottom &&
                 target.width / density >= 48f && target.height / density >= 48f)
-        return interaction
     }
 }
