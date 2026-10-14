@@ -91,7 +91,7 @@ class NativeAppLanguageAccessibilityTest : DeviceAccessibilityHarness() {
             println("WP503_LANGUAGE_LOCALE|tag=zh-Hans|resourcesLanguage=zh|newActivity=true|selectedControls=1|detailRetained=true")
 
             action(activity.getString(com.meshcoreone.android.R.string.platform_system_language)).performClick()
-            val system = awaitLocale(chinese, "", Resources.getSystem().configuration.locales[0].language)
+            val system = awaitLocale(chinese, "", originalLanguage)
             assertSame(system, activity)
             assertEquals(stacks, container.navigation.state.value.stacks)
             assertEquals(SettingsDetail.LANGUAGE, container.navigation.state.value.selectedSetting)
@@ -148,12 +148,19 @@ class NativeAppLanguageAccessibilityTest : DeviceAccessibilityHarness() {
 
     private fun awaitLocale(previous: MainActivity, tag: String, language: String): MainActivity {
         var observed: MainActivity? = null
-        compose.waitUntil {
-            observed = resumedActivity()
-            observed?.let { host ->
-                host !== previous && AppLanguages.selected(host) == tag &&
-                    host.resources.configuration.locales[0].language == language
-            } == true
+        val systemSnapshot = Resources.getSystem().configuration.locales[0].language
+        try {
+            compose.waitUntil {
+                observed = resumedActivity()
+                observed?.let { host ->
+                    host !== previous && AppLanguages.selected(host) == tag &&
+                        host.resources.configuration.locales[0].language == language
+                } == true
+            }
+        } finally {
+            println("WP503_LANGUAGE_LOCALE_WAIT|tag=$tag|expectedLanguage=$language|systemSnapshot=$systemSnapshot" +
+                "|observedLanguage=${observed?.resources?.configuration?.locales?.get(0)?.language}" +
+                "|observedTag=${observed?.let(AppLanguages::selected)}|newActivity=${observed != null && observed !== previous}")
         }
         val host = requireNotNull(observed)
         assertNotSame(previous, host)
