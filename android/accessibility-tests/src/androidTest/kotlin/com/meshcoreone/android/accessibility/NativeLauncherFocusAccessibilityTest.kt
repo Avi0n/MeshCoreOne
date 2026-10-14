@@ -76,8 +76,11 @@ import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.time.Instant
 import java.util.UUID
+import kotlin.concurrent.thread
 
 @RunWith(AndroidJUnit4::class)
 class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
@@ -811,15 +814,34 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
     private fun resizeWindow(size: String, tag: String) {
         val previous = activity
         shell("wm size $size")
-        compose.waitUntil { compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).size == 1 }
-        compose.runOnUiThread { activity.window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL }
-        compose.waitForIdle()
-        assertEquals(2f, activity.resources.configuration.fontScale, 0f)
-        val bounds = Rect().also(root()::getBoundsInScreen)
-        val width = bounds.width() / activity.resources.displayMetrics.density
-        assertEquals("The actual window must reach the requested width", size.substringBefore('x').toFloat(), width, 0f)
-        println("WP503_NATIVE_WINDOW|sdk=${android.os.Build.VERSION.SDK_INT}|size=$size|bounds=$bounds" +
-            "|activityRecreated=${activity !== previous}|shell=$tag|fontScale=2.0|physicalTalkBack=false")
+        val finished = CountDownLatch(1)
+        val phase = AtomicReference("semantics-root")
+        val observer = thread(isDaemon = true, name = "WP503-resize-observer") {
+            if (!finished.await(5, TimeUnit.SECONDS)) {
+                println("WP503_RESIZE_OBSERVER|size=$size|phase=${phase.get()}")
+                for ((owner, frames) in Thread.getAllStackTraces().entries.sortedBy { it.key.name }) {
+                    println("WP503_RESIZE_THREAD|name=${owner.name}|state=${owner.state}")
+                    frames.forEach { println("WP503_RESIZE_FRAME|$it") }
+                }
+            }
+        }
+        try {
+            compose.waitUntil { compose.onAllNodesWithTag(tag).fetchSemanticsNodes(atLeastOneRootRequired = false).size == 1 }
+            phase.set("decor-direction")
+            compose.runOnUiThread { activity.window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL }
+            phase.set("compose-idle")
+            compose.waitForIdle()
+            assertEquals(2f, activity.resources.configuration.fontScale, 0f)
+            phase.set("native-root")
+            val bounds = Rect().also(root()::getBoundsInScreen)
+            val width = bounds.width() / activity.resources.displayMetrics.density
+            assertEquals("The actual window must reach the requested width", size.substringBefore('x').toFloat(), width, 0f)
+            println("WP503_NATIVE_WINDOW|sdk=${android.os.Build.VERSION.SDK_INT}|size=$size|bounds=$bounds" +
+                "|activityRecreated=${activity !== previous}|shell=$tag|fontScale=2.0|physicalTalkBack=false")
+        } finally {
+            finished.countDown()
+            observer.join()
+        }
     }
 
     private fun assertNativeTargetContained(node: AccessibilityNodeInfo, window: AccessibilityNodeInfo): Rect {
