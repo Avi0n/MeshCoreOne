@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
 import com.meshcoreone.android.core.contracts.domain.EntityKey
@@ -133,7 +134,7 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
             assertFont200Unclipped(caption.assertIsDisplayed())
             val native = nativeRegionSwitch(label)
             assertTrue(native.isEnabled && native.isChecked)
-            assertEquals("android.widget.Switch", native.className.toString())
+            assertEquals("Switch", AccessibilityNodeInfoCompat.wrap(native).roleDescription?.toString())
             assertEquals(hint, native.actionList.single { it.id == AccessibilityNodeInfo.ACTION_CLICK }.label?.toString())
             val bounds = Rect().also(native::getBoundsInScreen)
             val root = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.rootInActiveWindow)
@@ -217,14 +218,18 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
                 val root = automation.rootInActiveWindow
                 if (root?.packageName?.toString() != activity.packageName) return@waitUntil false
                 observed = descendants(root).toList()
-                matches = observed.filter { it.contentDescription?.toString() == label && it.isCheckable }
+                matches = observed.filter { it.contentDescription?.toString() == label }.mapNotNull { named ->
+                    generateSequence(named) { it.parent }.onEach {
+                        assertTrue("Refresh the named region's actual action ancestry", it.refresh())
+                    }.firstOrNull { it.isCheckable }
+                }.distinct()
                 matches.size == 1
             }
         } finally {
             if (matches.size != 1) observed.forEach {
                 println("WP503_NATIVE_REGION_TREE|expected=$label|class=${it.className}|text=${it.text}" +
                     "|description=${it.contentDescription}|checkable=${it.isCheckable}|checked=${it.isChecked}" +
-                    "|actions=${it.actionList}")
+                    "|role=${AccessibilityNodeInfoCompat.wrap(it).roleDescription}|actions=${it.actionList}")
             }
         }
         assertEquals("Exactly one native named region switch", 1, matches.size)
