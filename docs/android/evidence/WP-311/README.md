@@ -133,10 +133,23 @@ Result: BUILD SUCCESSFUL; 45 discovered, 45 passed, 0 failed, 0 errors, 0 skippe
 PathManagementNativeTest 13). The new discovery cases assert cached-radio offline reads,
 settled empty state with explicit localized errors when data is unavailable, and no radio action.
 
-The WP-503 draft UI selectors for API 31/37 (including
-`offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner` and the Reset Path
-`assertIsDisplayed` case at 360x900/font200/RTL) were not present in this candidate tree and were
-not run. Thus the Contact Detail reflow has host-unit compilation/logic coverage but no UI-level
-viewport assertion here. The manifest still declares no WP-311 verification command or trusted
-check identity; local Gradle results are not represented as controller/CI gate evidence. No
-emulator/device, hardware, iOS, signing or release evidence is claimed.
+The Contact Detail reflow also has a local Compose semantics viewport regression using Robolectric
+native graphics at API 31 and API 37, `w360dp-h900dp-mdpi`, RTL and 200% font scale. It scrolls the
+real Contact Detail list, then asserts Discover, Edit and Reset Path have visible bounds, remain
+enabled, and each has at least a 48dp target:
+
+Command:
+`./gradlew :feature:nodes:testDebugUnitTest --tests '*ContactPathActionsApi31ComposeTest' --tests '*ContactPathActionsApi37ComposeTest'`
+
+Result: BUILD SUCCESSFUL; 2 discovered, 2 passed, 0 failed, 0 errors, 0 skipped (one per API).
+
+The supplied WP-503 Compose selectors, including
+`offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner` and its Reset Path
+`assertIsDisplayed` test, were not present in this worktree and are not claimed as rerun. An
+exploratory screen-level discovery test using this local Robolectric harness timed out at both APIs
+with its loading indicator still present; that harness result is not a pass and does not supersede
+the 45 state-holder/native tests above. Therefore #226 lacks verified screen-level acceptance
+evidence and remains blocked pending a stable, exact UI regression. The manifest still declares no
+WP-311 verification command or trusted check identity; local Gradle results are not represented as
+controller/CI gate evidence. No emulator/device, hardware, iOS, signing or release evidence is
+claimed.
