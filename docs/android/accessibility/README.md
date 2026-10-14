@@ -1,9 +1,34 @@
 # WP-503 accessibility audit
 
-**Status: executeda8e433a corrects an added layout-observer focus constraint. Existing resize pair: actual API31 2/2PASS16.698s; API37 1PASS/1FAIL55.701s, original1000ms activation prerequisite. Cached middle-message/draft/state passes both APIs across actual900/360 recreation. Earlier full79/launcher failures remain separately bound, not cleared. CLI236, QR237 and language238 remain product gates. JVM74/74PASS. PR205 stays draft; native activation/historical negatives, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Status: executed9425f287 diagnostic-only sampling: existing pair API31 2/2PASS17.935s, API37 0PASS/2FAIL26.459s at original1000ms activation, before bodies. Predecessor41039097:31 2/2PASS17.027s,37 0PASS/2FAIL66.293s at restoration despite completed bodies. Earlier a8e/launcher/full observations remain separately bound, not cleared. Hosted46df/run38577688498 FAILED, App800/1 in unchanged WP216 incoming-reaction test. CLI236/QR237/language238, native prerequisites/historical negatives, physical TalkBack, matrix/goldens/admission/review remain gates. JVM74/74PASS; PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Measured native activation and restoration timing
+
+Owned diagnostic-only410390978165d552faacf4f18629cd45d3e39395 and
+9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2 preserve all79 bodies as at46df,
+the actual manager/flags predicates and original1000ms deadlines. Only first/
+changed state, count/elapsed and narrow original-exception logging/rethrow added.
+No producer behavior or assertion change.
+
+Actual9425 API37 settings samples false once at21ms, then remains false at its
+1293ms timeout observation. Its late true callback1346ms arrives during requested-
+false restoration; flags65554/managertrue then false are observed at39/264ms.
+Cached case samples actualfalse53 times through996ms, still false at1009ms:
+not solely a missed second check/long-frame hypothesis. Both identities fail
+before bodies; both restorations finish. No native37 layout/message credit here.
+At earlier410 both37 bodies finish900/360/focus/Back/message/draft assertions,
+but both complete JUnit identities fail original restoration910. Body observations
+are not passes. No underlying scheduling/system cause or safe causal fix proved.
+
+Separately, exact46df/run38577688498 fails App800/1:
+IncomingReactionSyncTest.meshCoreOpenV3UsesTheStoredChannelTargetWithoutSavingAnOrdinaryMessage,
+empty store.fetchReactions(message).single() at100. App tree is identical to05ecd.
+This is WP216 producer/test ownership, not region issue218 despite the log marker.
+Authoritative hosted log remains the result; no duplicate bundle or producer edit.
+[Exact diagnostic bindings/records and ownership gate](../evidence/WP-503/README.md#measured-native-activation-and-restoration-timing).
 
 ## Correcting the added input-window-focus prerequisite
 

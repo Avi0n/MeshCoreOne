@@ -1,11 +1,106 @@
 # WP-503 attempt evidence
 
-**Latesta8e433a: actual existing resize pair API31 2/2PASS16.698s; API37 1PASS/1FAIL55.701s, original activation prerequisite. Cached message/draft/state passes both APIs across actual900/360 recreation after correcting an added observer constraint. Earlier launcher/full complete/partial negatives remain separately bound, not cleared. Product236/237/238, native activation/historical negatives, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates. JVM74/74PASS. PR205 stays draft; WP503 is incomplete.**
+**Latest9425f287: existing pair API31 2/2PASS17.935s, API37 0PASS/2FAIL26.459s at original activation before bodies. Earlier410 pair37 0PASS/2FAIL66.293s at restoration despite completed bodies. All historical negatives remain. Hosted46df/run38577688498 FAILED App800/1 in unchanged WP216 incoming-reaction test. JVM74/74PASS. Producer/native prerequisite/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Measured native activation and restoration timing
+
+[Integration](device-touchtiming-integration.json) binds two diagnostic-only
+sources independently, both existing selected methods on fresh actual31/37:
+**410390978165d552faacf4f18629cd45d3e39395**/tree
+**33c19a06b6112ac0ec69ccd435cecbf45a56a064** and
+**9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2**/tree
+**a97c8c665c1f13bc283f06078c99d2b6bb32626d**.
+All79 bodies as at46df and producer bytes remain unchanged; only first/changed
+actual native state, count/elapsed and narrow original-exception logging/rethrow.
+Activation still requires actual AccessibilityManager enabled, restoration
+original service flags and actual expected manager state, under original1000ms
+waits. No threshold/feature assertion change or native state substitution.
+
+| Exact source/pair | API31 | API37 |
+|---|---|---|
+|41039097:2 unique starts/matching outcomes|2PASS17.027s|0PASS/2FAIL66.293s, original restoration910|
+|9425f287:2 unique starts/matching outcomes|2PASS17.935s|0PASS/2FAIL26.459s, original activation953 before bodies|
+|410 ready elapsed|16/75ms|40/882ms; bodies finish but JUnit identities fail|
+|9425 ready elapsed|406/4ms|None; actual false at both timeout observations|
+|9425 requested/activated/finally/restored|2/2/2/2|2/0/2/2|
+|9425 native ready windows|4|0, bodies unobserved|
+
+Actual9425 settings samples managerfalse once at21ms, still false at1293ms
+timeout observation. The true callback arrives helper1346ms, during requested-
+false restoration: actualflags65554/enabledtrue at39ms, false at264ms/check15.
+Cached samples managerfalse53 times through996ms, still false at1009ms timeout;
+restoration samples original65554/false19ms/check1. This is not solely a missed
+second check/long Compose-frame explanation. No causal system/scheduling repair
+or safe on-time activation is proved; no native37 body credit at this source.
+
+Earlier410 actually finishes both37 bodies: four ready900/360 windows, all-five
+rail/native focus/Back, cached original message/draft/entry/stacks and font/target
+assertions. But both complete identities fail original1000ms restoration910,
+with zero restoration markers. These are observed body states, **not passing
+tests**. Late/earlier successes cannot erase any original prerequisite/cleanup
+negative. One invocation per changed source/API, not retry-until-green.
+
+Native command is the unchanged existing-method pair documented in the next
+section, expectedApi independently verified31/37. Every complete command
+positively discovers two unique starts and two matching terminal outcomes,
+zero error/skip statuses. Original300s boot/600s instrumentation guards remain.
+410 preparations observe boot-ready at0/156s;31 was already booted after its
+launch overlapped building, **not zero-time cold boot**.9425 observes40/131s.
+All four owned devices exit0; eight exact image/qcow paths removed only after
+exit. No contaminated-state reuse, shared restart/wipe or physical TalkBack.
+
+[410 inputs](device-touchtrace-inputs.json),
+[31 instrumentation](device-touchtrace-flows-api31.txt),
+[31 metrics](device-touchtrace-flows-metrics-api31.txt),
+[31 runner](device-touchtrace-flows-runner-api31.txt),
+[31 profile](device-touchtrace-profile-api31.txt);
+[37 instrumentation](device-touchtrace-flows-api37.txt),
+[37 metrics](device-touchtrace-flows-metrics-api37.txt),
+[37 runner](device-touchtrace-flows-runner-api37.txt),
+[37 profile](device-touchtrace-profile-api37.txt).
+[9425 inputs](device-touchrestore-inputs.json),
+[31 instrumentation](device-touchrestore-flows-api31.txt),
+[31 metrics](device-touchrestore-flows-metrics-api31.txt),
+[31 runner](device-touchrestore-flows-runner-api31.txt),
+[31 profile](device-touchrestore-profile-api31.txt);
+[37 instrumentation](device-touchrestore-flows-api37.txt),
+[37 metrics](device-touchrestore-flows-metrics-api37.txt),
+[37 runner](device-touchrestore-flows-runner-api37.txt),
+[37 profile](device-touchrestore-profile-api37.txt).
+App109723777/e0de9cfe2598b7e44f1587621aa64eb02a8b026065069983158c6c7216bbcfff
+unchanged.410 test3403043/40d51487d2f334916e93b31f28b7c23870310a1d659bc089039dc060562d013c;
+9425 test3404351/fdf6dc9f6231036029eed2fd878d988287a17b68223c76607555c9758a3de7a9.
+Same installed declared ext4 tasks/six families/options below pass74/74 at
+each source, zero failures/errors/skips; both APK tasks/preflight pass. Source/
+APK/native record integrity distinguishes complete failed cases from body
+observations and validates historical records without current-source/APK credit.
+No APK/JVM/hosted result bundle retained.
+
+**Authoritative prior candidate CI, not these sources:** exact
+[46df73e818f5b78b86f80ff7848f32e391e21760/run38577688498](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38577688498)
+is **COMPLETED/FAILURE**. Hosted`:app:testDebugUnitTest`800 tests/1 failure:
+IncomingReactionSyncTest.meshCoreOpenV3UsesTheStoredChannelTargetWithoutSavingAnOrdinaryMessage,
+NoSuchElementException/List is empty at assertMountedReaction100
+(store.fetchReactions(message).single(); test36). Classification/controller/
+Swift codec pass; Linux build/final guard fail, SwiftData skipped. App tree
+3e2132617e34a0dcfc25eb1e88d25dfe52523ded is identical at05ecd and46df.
+The actual header declares WP216, not region issue218 despite the WP218 log
+marker. Preserve this failure and unchanged assertion; coordinator/current
+producer must assess that App-test/behavior surface outside audit capabilities.
+No rerun result or predecessor05ecd success credited to46df; authoritative
+hosted log remains the sole CI evidence, not copied into a second bundle.
+
+Current owned diagnosis rules out a solely missed-poll explanation but establishes
+no safe native readiness repair. Product236/237/238 repair/re-audit, API37
+prerequisites and historical negatives, physical TalkBack, remaining matrix,
+WP502-approved goldens, acceptance admission and independent review remain gates.
+Same canonical1666502a/actualCLI d298/revision3 and four combined producer
+bindings; not standalone producer acceptance. WP503 is not complete.
 
 ## Correcting the added input-window-focus prerequisite
 

@@ -1,0 +1,134 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_publication": "46df73e818f5b78b86f80ff7848f32e391e21760",
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "source_change": "Diagnostic-only first/changed actual manager state and flags, check counts/elapsed samples, narrow original ComposeTimeoutException logging/rethrow. Activation still requires actual manager enabled; restoration still requires original service flags and actual expected manager state. Original1000ms waits, all79 bodies as at46df, native focus/layout/48dp/font/state assertions and producer bytes unchanged",
+  "attempts": [
+    {
+      "phase": "touchtrace",
+      "executed_combined_head": "410390978165d552faacf4f18629cd45d3e39395",
+      "executed_android_tree": "33c19a06b6112ac0ec69ccd435cecbf45a56a064",
+      "apk_binding": "device-touchtrace-inputs.json",
+      "jvm_summary_not_retained_result_bundle": {
+        "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+        "both_apk_tasks_and_installed_preflight": "PASS"
+      },
+      "native_api31": {
+        "flows": {
+          "expected_total": 2, "started": 2, "terminal": 2, "passed": 2, "failed": 0,
+          "completed": true, "seconds": 17.027, "failed_identities": [],
+          "touch_requested": 2, "touch_activated": 2, "touch_finally": 2, "touch_restored": 2,
+          "native_window_ready_observations": 4,
+          "fixture_cleanup_before_delete": 1, "fixture_cleanup_after_delete": 1,
+          "cached_resize_assertions_completed": true,
+          "activation_ready_elapsed_ms": [16, 75],
+          "qualification": "Both existing methods pass; no full9/79 run at this source"
+        }
+      },
+      "native_api37": {
+        "flows": {
+          "expected_total": 2, "started": 2, "terminal": 2, "passed": 0, "failed": 2,
+          "completed": true, "seconds": 66.293,
+          "failed_identities": [
+            "NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable",
+            "NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200"
+          ],
+          "touch_requested": 2, "touch_activated": 2, "touch_finally": 2, "touch_restored": 0,
+          "native_window_ready_observations": 4,
+          "fixture_cleanup_before_delete": 1, "fixture_cleanup_after_delete": 1,
+          "cached_resize_assertions_completed": true,
+          "activation_ready_elapsed_ms": [40, 882],
+          "qualification": "Both bodies finish actual900/360 layout/focus/Back and cached message/draft/state assertions, but both JUnit identities FAIL original1000ms restoration910. Body observations are not completed passing tests. No underlying cause or activation repair proved"
+        }
+      },
+      "boot_ready_elapsed_seconds": {"31": 0, "37": 156},
+      "qualification": "Boot0 is readiness at preparation start after emulator launched during build, not zero-time cold boot"
+    },
+    {
+      "phase": "touchrestore",
+      "executed_combined_head": "9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2",
+      "executed_android_tree": "a97c8c665c1f13bc283f06078c99d2b6bb32626d",
+      "apk_binding": "device-touchrestore-inputs.json",
+      "jvm_summary_not_retained_result_bundle": {
+        "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+        "both_apk_tasks_and_installed_preflight": "PASS"
+      },
+      "native_api31": {
+        "flows": {
+          "expected_total": 2, "started": 2, "terminal": 2, "passed": 2, "failed": 0,
+          "completed": true, "seconds": 17.935, "failed_identities": [],
+          "touch_requested": 2, "touch_activated": 2, "touch_finally": 2, "touch_restored": 2,
+          "native_window_ready_observations": 4,
+          "fixture_cleanup_before_delete": 1, "fixture_cleanup_after_delete": 1,
+          "cached_resize_assertions_completed": true,
+          "activation_ready_elapsed_ms": [406, 4],
+          "qualification": "Both methods pass; actual restoration original65554/false sampled at9/8ms; no full9/79 run"
+        }
+      },
+      "native_api37": {
+        "flows": {
+          "expected_total": 2, "started": 2, "terminal": 2, "passed": 0, "failed": 2,
+          "completed": true, "seconds": 26.459,
+          "failed_identities": [
+            "NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable",
+            "NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200"
+          ],
+          "touch_requested": 2, "touch_activated": 0, "touch_finally": 2, "touch_restored": 2,
+          "native_window_ready_observations": 0,
+          "fixture_cleanup_before_delete": 0, "fixture_cleanup_after_delete": 0,
+          "cached_resize_assertions_completed": false,
+          "activation_ready_elapsed_ms": [],
+          "qualification": "Both identities FAIL original1000ms activation953 before bodies; no current37 resize/message/Back credit. Both restorations finish; neither prerequisite nor earlier negatives cleared"
+        }
+      },
+      "boot_ready_elapsed_seconds": {"31": 40, "37": 131}
+    }
+  ],
+  "latest_api37_measured_activation": [
+    {
+      "fixture": "settings-resize",
+      "checks": 1, "last_check_elapsed_ms": 21, "timeout_observed_elapsed_ms": 1293,
+      "last_observed_enabled": false, "current_enabled_at_timeout": false,
+      "late_enabled_callback_helper_elapsed_ms": 1346,
+      "restoration_original_flags": 65554,
+      "restoration_enabled_sequence": [true, false],
+      "restoration_check_sequence": [1, 15],
+      "restoration_elapsed_ms_sequence": [39, 264],
+      "qualification": "One initial false check followed by a long unsampled interval; timeout snapshot still false. Late queued true callback arrives during requested-false restoration, not on-time activation"
+    },
+    {
+      "fixture": "cached-resize",
+      "checks": 53, "last_check_elapsed_ms": 996, "timeout_observed_elapsed_ms": 1009,
+      "last_observed_enabled": false, "current_enabled_at_timeout": false,
+      "restoration_original_flags": 65554,
+      "restoration_enabled_sequence": [false],
+      "restoration_check_sequence": [1],
+      "restoration_elapsed_ms_sequence": [19],
+      "qualification": "Manager remains actually false across53 checks through996ms and at1009ms; not solely a missed second check/long Compose-frame hypothesis. No safe on-time success or causal fix is established"
+    }
+  ],
+  "native_operation_cleanup": {
+    "separate_fresh_images_for_all_four_attempts": true,
+    "original_boot_guard_seconds": 300, "original_instrumentation_guard_seconds": 600,
+    "owned_emulator_exit_codes": [0, 0, 0, 0],
+    "exact_eight_phase_image_and_qcow_files_removed_after_confirmed_exit": true,
+    "shared_adb_restart_or_wipe": false
+  },
+  "previous_hosted_candidate": "46df73e818f5b78b86f80ff7848f32e391e21760/run38577688498 FAILURE; authoritative hosted log remains the sole CI result, not transferred to either diagnostic source",
+  "product_blockers": [236, 237, 238],
+  "producer_or_framework_cause_or_behavior_repair_verified": false,
+  "previous_native_negatives_physical_matrix_goldens_admission_review_or_wp_completion_cleared": false
+}

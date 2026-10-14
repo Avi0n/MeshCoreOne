@@ -1,0 +1,40 @@
+WP503_EXECUTED_INPUT|9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable,com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200 -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 31, "head": "9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2", "scenario": "window-flows", "discovered": 2, "statuses": {"0": 2}, "time": ["Time: 17.935"]}
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 17.935
+
+OK (2 tests)
+
+
+INSTRUMENTATION_CODE: -1

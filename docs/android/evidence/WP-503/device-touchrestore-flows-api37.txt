@@ -1,0 +1,83 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(NativeLauncherFocusAccessibilityTest.kt:531)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(NativeLauncherFocusAccessibilityTest.kt:531)
+
+INSTRUMENTATION_STATUS: test=realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(NativeLauncherFocusAccessibilityTest.kt:329)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(NativeLauncherFocusAccessibilityTest.kt:329)
+
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 26.459
+There were 2 failures:
+1) realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(NativeLauncherFocusAccessibilityTest.kt:531)
+2) realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:809)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:378)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:138)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(NativeLauncherFocusAccessibilityTest.kt:329)
+
+FAILURES!!!
+Tests run: 2,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1

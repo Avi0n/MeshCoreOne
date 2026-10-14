@@ -1,6 +1,30 @@
 # WP-503 native execution matrix
 
-**Latesta8e433a: existing resize pair API31 2/2PASS16.698s, API37 1PASS/1FAIL55.701s. Cached-chat actual900/360 message/draft/state passes both; API37 original activation prerequisite fails before settings body. Prior complete/partial launcher/full negatives remain separate, not cleared. JVM74/74PASS. Product236/237/238, native activation/historical negatives, physical TalkBack, remaining matrix, approved goldens, acceptance admission and independent review remain gates.**
+**Latest9425f287: existing pair API31 2/2PASS17.935s; API37 0PASS/2FAIL26.459s, original activation before bodies.41039097:31 2/2PASS17.027s,37 0PASS/2FAIL66.293s at restoration after completed bodies. All prior negatives remain separate. Hosted46df/run38577688498 FAILED, unchanged WP216 App test800/1. JVM74/74PASS. Producer repairs, native prerequisites, physical/matrix/golden/admission/review gates remain; WP incomplete.**
+
+## Measured native activation and restoration timing
+
+Diagnostic-only sources preserve all79 bodies as at46df, producer bytes, actual
+manager/flags predicates, original1000ms waits and300/600 guards.
+
+| Exact existing pair | Actual API31 | Actual API37 |
+|---|---|---|
+|41039097/tree33c19a06|2/2PASS17.027s|0PASS/2FAIL66.293s; both original restoration910|
+|9425f287/treea97c8c66|2/2PASS17.935s|0PASS/2FAIL26.459s; both original activation953 before bodies|
+|410 activation-ready elapsed|16/75ms|40/882ms; bodies finish, not completed passing tests|
+|9425 activation observation|Ready406/4ms|Settings:false1 check21ms, timeout1293ms; cached:false53 checks through996ms, timeout1009ms|
+|9425 requested/activated/finally/restored|2/2/2/2|2/0/2/2|
+|9425 native ready windows|4|0; current bodies unobserved|
+
+9425 settings late true callback1346ms arrives during requested-false restoration;
+original65554 flags/managertrue then false sampled39/264ms. Cached restoration
+samples65554/false19ms. Actualfalse at timeout and53 checks disprove a solely
+missed-second-poll explanation. No safe on-time activation/causal repair claimed.
+Separate fresh devices, no same-source retry until green. Complete failing cases
+remain failed even where body observations succeed. Physical TalkBack unavailable.
+Exact46df hosted App800/1 incoming-reaction failure is a separate unchanged WP216
+ownership gate; authoritative run/log only, no duplicate CI bundle.
+[Exact metadata/commands/native records](../evidence/WP-503/README.md#measured-native-activation-and-restoration-timing).
 
 ## Correcting the added input-window-focus prerequisite
 
