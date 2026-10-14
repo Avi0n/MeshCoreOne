@@ -20,6 +20,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -29,6 +30,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.printToString
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -77,7 +79,11 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
         override fun onPrepare(animation: WindowInsetsAnimation) {
             if (animation.typeMask and WindowInsets.Type.ime() != 0) activeImeAnimations += animation
         }
-        override fun onProgress(insets: WindowInsets, animations: MutableList<WindowInsetsAnimation>): WindowInsets = insets
+        override fun onProgress(insets: WindowInsets, animations: MutableList<WindowInsetsAnimation>): WindowInsets {
+            activeImeAnimations.clear()
+            activeImeAnimations.addAll(animations.filter { it.typeMask and WindowInsets.Type.ime() != 0 })
+            return insets
+        }
         override fun onEnd(animation: WindowInsetsAnimation) {
             activeImeAnimations -= animation
         }
@@ -129,7 +135,10 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
         assertTarget(password)
         assertLabel(passwordLabel)
-        password.performClick().performTextReplacement("fixture")
+        password.performClick().assertIsFocused()
+        awaitActualIme()
+        password.performTextReplacement("fixture")
+        expandThroughNativeActionIfAvailable()
         awaitActualIme()
         assertLabel(rememberLabel)
         assertTarget(remember)
@@ -169,6 +178,7 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
             session, isAuthenticating = true, authenticationContact = contact, authenticationLookupComplete = true,
         ))
         title()
+        expandThroughNativeActionIfAvailable()
         val join = action(joinLabel).assertIsNotEnabled()
         assertLabel(joinLabel)
         assertTarget(join)
@@ -212,6 +222,18 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
     }
 
     private fun action(label: String) = compose.onNode(hasText(label) and hasClickAction())
+
+    private fun expandThroughNativeActionIfAvailable() {
+        val matcher = SemanticsMatcher.keyIsDefined(SemanticsActions.Expand)
+        val nodes = compose.onAllNodes(matcher).fetchSemanticsNodes()
+        assertTrue("The room sheet must not expose ambiguous expansion actions", nodes.size <= 1)
+        println("WP503_ROOM_AUTH_EXPAND|available=${nodes.isNotEmpty()}")
+        if (nodes.isNotEmpty()) {
+            compose.onNode(matcher).performSemanticsAction(SemanticsActions.Expand) { assertTrue(it()) }
+            compose.waitForIdle()
+            println("WP503_ROOM_AUTH_EXPAND|invoked=true|nonGesture=true|label=${nodes.single().config[SemanticsActions.Expand].label}")
+        }
+    }
 
     private fun rememberAction() = compose.onNode(SemanticsMatcher("Named native Remember switch") {
         it.config.contains(SemanticsProperties.ToggleableState) && narrative(it).contains(rememberLabel)
@@ -269,13 +291,22 @@ class NativeRoomAuthenticationAccessibilityTest : DeviceAccessibilityHarness() {
 
     private fun awaitActualIme() {
         val input = requireNotNull(activity.getSystemService(InputMethodManager::class.java))
-        compose.waitUntil {
-            var ready = false
-            compose.runOnUiThread {
-                ready = input.isAcceptingText && activeImeAnimations.isEmpty() && requireNotNull(sheetHost.rootWindowInsets)
-                    .isVisible(WindowInsets.Type.ime())
+        var ready = false
+        try {
+            compose.waitUntil {
+                compose.runOnUiThread {
+                    ready = input.isAcceptingText && activeImeAnimations.isEmpty() && requireNotNull(sheetHost.rootWindowInsets)
+                        .isVisible(WindowInsets.Type.ime())
+                }
+                ready
             }
-            ready
+        } finally {
+            compose.runOnUiThread {
+                val insets = requireNotNull(sheetHost.rootWindowInsets)
+                println("WP503_ROOM_AUTH_IME_OBSERVATION|ready=$ready|acceptingText=${input.isAcceptingText}" +
+                    "|imeVisible=${insets.isVisible(WindowInsets.Type.ime())}|imeBottom=${insets.getInsets(WindowInsets.Type.ime()).bottom}" +
+                    "|activeAnimations=${activeImeAnimations.size}|windowFocus=${sheetHost.hasWindowFocus()}")
+            }
         }
         compose.runOnUiThread {
             println("WP503_ROOM_AUTH_IME|acceptingText=true|imeVisible=true" +
