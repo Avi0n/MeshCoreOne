@@ -51,32 +51,63 @@ python tools\android-port\controller\validate.py
 **PASS:** manifest and ownership validator; 1,866 frozen reference files,
 64 work packages, 178 dependency edges; manifest SHA-256 as above.
 
-## Native regression limitation
+## Native regression: combined producer integration
 
-The native regression described in the issue was observed by WP-503 on the real
-App AndroidJUnitRunner at API31 and API37 (26 discovered / 25 passed / 1 failed
-per API; the retained middle-message assertion failed). That exact fixture is
-at `android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLauncherFocusAccessibilityTest.kt`
-in candidate `5a8ee1990250e8bed32010b50fcda86174ab1097`, but that path is absent
-from this base and outside WP-307's manifest `write_paths`. The trusted
-capability validator rejects `test` and `add-regression-fixture-or-test` for
-that path. It was not copied, edited or run here; no API31/API37 device result
-is claimed for this fix.
+WP-503 ran the unchanged `NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200`
+on the real App AndroidJUnitRunner. This is a **combined integration result**,
+not standalone execution of PR #235: the product tree combined WP-307 PR #235
+head `2396ac64f9d3bcee7fa3a7e4f33e87956508d31d`, WP-318 PR #232 head
+`1b2cd0476b5f70bbbd9ccaf71590e4613898eca1`, and WP-311 PR #233 head
+`c8708313310b76df40be9e75a763fe90dac876e8`. WP-503's
+[`device-repairs-integration.json`](https://github.com/cbattlegear/MeshCoreOne-Android/blob/04d7d46e2fd3df4d8e508e25b5ffeba93a23f260/docs/android/evidence/WP-503/device-repairs-integration.json)
+binds those source blobs to integration head `41bdbfac45b4d3690f29a5363da02047642e2716`
+and Android tree `6095dafdf9c59a43d202ff15e70d1c63ac21cf94`; it explicitly
+records `standalone_producer_head_device_result: false`. Production was
+unchanged from the initial combined integration. The recorded APK binding is
+[`device-repairs-inputs.json`](https://github.com/cbattlegear/MeshCoreOne-Android/blob/04d7d46e2fd3df4d8e508e25b5ffeba93a23f260/docs/android/evidence/WP-503/device-repairs-inputs.json).
+
+The unchanged chat test passes on both APIs, exercising both 360dp-to-900dp
+and 900dp-to-360dp Activity recreations and retaining the middle cached
+message, route/stacks/selection, and CJK+RTL draft. In the full package
+invocations API31 discovered and passed 32/32 tests. API37 discovered 32,
+passed 31 and failed 1 with zero errors/skips; the failure is the existing
+`realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable`
+touch-exploration activation prerequisite before its method body, not the chat
+test. Its cause remains unproven. The complete transcripts, metrics and inputs
+are retained by WP-503 at
+[`device-repairs-full-api31.txt`](https://github.com/cbattlegear/MeshCoreOne-Android/blob/04d7d46e2fd3df4d8e508e25b5ffeba93a23f260/docs/android/evidence/WP-503/device-repairs-full-api31.txt),
+[`device-repairs-full-api37.txt`](https://github.com/cbattlegear/MeshCoreOne-Android/blob/04d7d46e2fd3df4d8e508e25b5ffeba93a23f260/docs/android/evidence/WP-503/device-repairs-full-api37.txt),
+and the WP-503 [combined producer evidence section](https://github.com/cbattlegear/MeshCoreOne-Android/blob/04d7d46e2fd3df4d8e508e25b5ffeba93a23f260/docs/android/evidence/WP-503/README.md#combined-published-producer-repairs).
+These are linked in place; no reproducible hosted-CI bundle is copied.
+
+The original standalone baseline at
+`5a8ee1990250e8bed32010b50fcda86174ab1097` remains the historical
+26-discovered / 25-passed / 1-failed per-API failure, not a fix result. The
+native fixture remains owned by WP-503 and was not copied or modified in this
+WP-307 worktree. WP-307's manifest verification remains `configured: false`
+with no commands; its local scaffold preflight is blocked because the shared
+SDK lacks `build-tools/37.0.0/package.xml`. Therefore this evidence establishes
+the unchanged regression passing in the named combined product/test
+integration, **not standalone #235 device acceptance**.
 
 The declared WP-307 verification configuration is still `configured: false`
 with no commands. The scaffold preflight also rejects the shared SDK because
 `build-tools/37.0.0/package.xml` is missing. Running the focused module Gradle
-task directly does not change that preflight result or constitute the required
-native acceptance.
+task directly does not change that preflight result or establish standalone
+#235 device acceptance.
 
-The existing WP-307 reservation remains bound to coordinator session
-`bcb17a74-5fa6-47d0-a4be-b6b595e20559`, branch
-`cbattlegear-android-port-planning`, and a different historical base. This
-follow-up worktree is session `4b86bbbd-bd7d-44ce-8ef9-ffa67316ba0d` at the
-base above. Trusted admission confirms the changed implementation, unit-test,
-deviation, and evidence paths are WP-owned, but there is no persisted reservation
-identity handoff to this session. The native regression test path remains the
-exact missing path/operation rule described above.
+The current WP-307 reservation is still leased at revision 9 to coordinator
+session `bcb17a74-5fa6-47d0-a4be-b6b595e20559`, branch
+`cbattlegear-android-port-planning`, historical base
+`a19d6138038577d7e76c63e85b58c7ba6976092a`, and no PR number. It already
+contains the timeline implementation/test paths and `test` operation, but the
+trusted helper has no persistent same-owner identity/base/PR handoff operation.
+The latest claim attempt for session `4b86bbbd-bd7d-44ce-8ef9-ffa67316ba0d`
+and base `d8181418614a5acaa46f4acde54b741b492ac4b0` fails:
+`Existing WP lease is bound to different source/base/manifest/backend`.
+No manual ledger edit, release/recreate, or session impersonation was done.
+WP-503's manifest owns `android/accessibility-tests/`; WP-307 does not, so
+native test ownership stayed with WP-503.
 
 No raw logs, device identifiers, candidate CI bundles, or reproducible CI
 result bundles are retained here.
