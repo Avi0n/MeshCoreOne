@@ -1,0 +1,5030 @@
+import Foundation
+@testable import MC1Services
+import SwiftData
+import Testing
+
+/// Integration tests covering the full export → parse → import pipeline.
+/// These tests use real in-memory PersistenceStores and the public AppBackupService API,
+/// exercising the complete data flow rather than manually constructed envelopes.
+@Suite("BackupIntegration")
+struct BackupIntegrationTests {
+  // MARK: - Test 1: Full round-trip
+
+  /// Exports from a populated store and imports into a fresh store, verifying all data survives.
+  @Test
+  func `Full round-trip: export then import into fresh store restores all data`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    // Seed data
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xAB, count: 32),
+      name: "Alice"
+    )
+    try await sourceStore.saveContact(contact)
+
+    let channel = ChannelDTO.testChannel(radioID: radioID, index: 0, name: "General")
+    try await sourceStore.saveChannel(channel)
+
+    var msg = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, text: "Hello")
+    msg.deduplicationKey = "integration-dedup-\(UUID())"
+    try await sourceStore.saveMessage(msg)
+
+    let reaction = ReactionDTO.testReaction(messageID: msg.id, radioID: radioID)
+    try await sourceStore.saveReaction(reaction)
+
+    // Export
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+
+    // Parse
+    let envelope = try parseBackup(data: exportResult.data)
+    #expect(envelope.manifest.validate(against: envelope))
+
+    // Import into a fresh store
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    // Verify insert counts
+    #expect(result.devicesInserted == 1)
+    #expect(result.contactsInserted == 1)
+    #expect(result.channelsInserted == 1)
+    #expect(result.messagesInserted == 1)
+    #expect(result.reactionsInserted == 1)
+    #expect(result.totalSkipped == 0)
+
+    // Verify data actually persisted in the destination store
+    let destContacts = try await destStore.fetchAllContacts(radioID: radioID)
+    #expect(destContacts.count == 1)
+    #expect(destContacts.first?.name == "Alice")
+
+    let destChannels = try await destStore.fetchAllChannels(radioID: radioID)
+    #expect(destChannels.count == 1)
+    #expect(destChannels.first?.name == "General")
+
+    let destMessages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(destMessages.count == 1)
+    #expect(destMessages.first?.text == "Hello")
+
+    let messageIDs = Set(destMessages.map(\.id))
+    let destReactions = try await destStore.fetchAllReactions(radioID: radioID)
+    #expect(destReactions.count == 1)
+    // Reaction messageID must match a message in the destination store
+    #expect(try messageIDs.contains(#require(destReactions.first?.messageID)))
+  }
+
+  // MARK: - Test 1b: Unmodeled contact type byte survives backup
+
+  /// `ContactDTO.typeRawValue` is a non-optional field that has existed since the backup
+  /// feature shipped, so the contract is a plain encode → decode round-trip (no
+  /// `decodeIfPresent` legacy path). An unmodeled type byte must survive verbatim so a
+  /// future refactor can't silently re-collapse it onto a modeled `ContactType`.
+  @Test
+  func `Unmodeled contact type byte (0x04) survives DTO encode → decode round-trip`() throws {
+    let dto = ContactDTO.testContact(typeRawValue: 0x04)
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(ContactDTO.self, from: encoded)
+    #expect(decoded.typeRawValue == 0x04)
+    #expect(decoded.type == .chat)
+  }
+
+  /// Full envelope path: an unmodeled type byte must survive export → import into a fresh store,
+  /// not just an isolated DTO round-trip.
+  @Test
+  func `Unmodeled contact type byte (0x04) survives full backup export → import`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xAB, count: 32),
+      name: "FutureType",
+      typeRawValue: 0x04
+    )
+    try await sourceStore.saveContact(contact)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+    let destContacts = try await destStore.fetchAllContacts(radioID: radioID)
+    #expect(destContacts.first?.typeRawValue == 0x04)
+    #expect(destContacts.first?.type == .chat)
+  }
+
+  // MARK: - Test 1c: Device knownRegions survives backup
+
+  /// `DeviceDTO.knownRegions` is a non-optional `[String]` that shipped before the
+  /// backup feature, so no envelope can predate it: the contract is a plain encode →
+  /// decode round-trip, not a `decodeIfPresent` legacy path. This locks that contract
+  /// at the DTO boundary so a future refactor can't drop the field from the wire format.
+  @Test
+  func `Device knownRegions survives DTO encode → decode round-trip`() throws {
+    let dto = DeviceDTO.testDevice().copy { $0.knownRegions = ["US915", "EU868"] }
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(DeviceDTO.self, from: encoded)
+    #expect(decoded.knownRegions == ["US915", "EU868"])
+  }
+
+  /// Full envelope path: regions added through the targeted, list-owning writer must
+  /// survive export → import into a fresh store, exercising the `Device(dto:)` insert
+  /// seeding the restore relies on.
+  @Test
+  func `Device knownRegions survives full backup export → import into a fresh store`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    // Discovery owns knownRegions through the targeted add path, not a full saveDevice.
+    try await sourceStore.addDeviceKnownRegion(radioID: radioID, region: "US915")
+    try await sourceStore.addDeviceKnownRegion(radioID: radioID, region: "EU868")
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+    #expect(envelope.devices.first?.knownRegions == ["US915", "EU868"])
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(result.devicesInserted == 1)
+
+    // Import re-mints Device.id; radioID is the surviving partition key.
+    let restored = try #require(await destStore.fetchDevice(radioID: radioID))
+    #expect(restored.knownRegions == ["US915", "EU868"])
+  }
+
+  @Test
+  func `Device appliedRadioPresetID survives DTO encode → decode round-trip`() throws {
+    let dto = DeviceDTO.testDevice().copy { $0.appliedRadioPresetID = "br" }
+    let decoded = try JSONDecoder().decode(DeviceDTO.self, from: JSONEncoder().encode(dto))
+    #expect(decoded.appliedRadioPresetID == "br")
+  }
+
+  @Test
+  func `Legacy device envelope without appliedRadioPresetID decodes it as nil`() throws {
+    let encoded = try JSONEncoder().encode(DeviceDTO.testDevice().copy { $0.appliedRadioPresetID = "br" })
+    let object = try JSONSerialization.jsonObject(with: encoded)
+    var json = try #require(object as? [String: Any])
+    json.removeValue(forKey: "appliedRadioPresetID")
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(DeviceDTO.self, from: stripped)
+    #expect(decoded.appliedRadioPresetID == nil)
+  }
+
+  @Test
+  func `redactedForBackup nils appliedRadioPresetID`() {
+    let dto = DeviceDTO.testDevice().copy { $0.appliedRadioPresetID = "br" }
+    #expect(dto.redactedForBackup().appliedRadioPresetID == nil)
+  }
+
+  // MARK: - Test 2: Cross-bundle radioID remapping
+
+  /// When the target store contains a device with the same publicKey as the backup but a
+  /// different radioID, all child records must be remapped to the local radioID.
+  @Test
+  func `Cross-bundle: child records are remapped to local radioID on publicKey match`() async throws {
+    let sharedPublicKey = Data(repeating: 0xCC, count: 32)
+    let sourceRadioID = UUID()
+    let targetRadioID = UUID()
+
+    // Source store: device with sharedPublicKey, radioID = sourceRadioID
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: sourceRadioID)
+    let sourceDevice = DeviceDTO.testDevice(
+      id: sourceRadioID,
+      radioID: sourceRadioID,
+      publicKey: sharedPublicKey
+    )
+    try await sourceStore.saveDevice(sourceDevice)
+
+    let contact = ContactDTO.testContact(
+      radioID: sourceRadioID,
+      publicKey: Data(repeating: 0xDD, count: 32),
+      name: "Bob"
+    )
+    try await sourceStore.saveContact(contact)
+
+    // Export from source
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    // Target store: device with same publicKey but different radioID
+    let targetStore = try await PersistenceStore.createTestDataStore(radioID: targetRadioID)
+    let targetDevice = DeviceDTO.testDevice(
+      id: targetRadioID,
+      radioID: targetRadioID,
+      publicKey: sharedPublicKey
+    )
+    try await targetStore.saveDevice(targetDevice)
+
+    // Import
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: targetStore
+    )
+
+    // Backup device matched by publicKey → not inserted
+    #expect(result.devicesInserted == 0)
+    #expect(result.contactsInserted == 1)
+
+    // Contact must live under targetRadioID, not sourceRadioID
+    let contactsUnderTarget = try await targetStore.fetchAllContacts(radioID: targetRadioID)
+    #expect(contactsUnderTarget.count == 1)
+    #expect(contactsUnderTarget.first?.name == "Bob")
+
+    let contactsUnderSource = try await targetStore.fetchAllContacts(radioID: sourceRadioID)
+    #expect(contactsUnderSource.count == 0)
+  }
+
+  // MARK: - Test 4: Merge import — DM thread visible for existing contact
+
+  @Test
+  func `Import onto existing contact with nil lastMessageDate makes DM thread visible`() async throws {
+    let radioID = UUID()
+    let sharedPublicKey = Data(repeating: 0xAB, count: 32)
+
+    // Destination store has a contact with no message history
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: sharedPublicKey,
+      name: "Alice",
+      lastMessageDate: nil
+    )
+    try await destStore.saveContact(contact)
+
+    // Verify contact is NOT in conversations list (lastMessageDate is nil)
+    let beforeConversations = try await destStore.fetchConversations(radioID: radioID)
+    #expect(beforeConversations.isEmpty)
+
+    // Build backup with DMs for the same contact
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: sharedPublicKey,
+      name: "Alice",
+      lastMessageDate: Date()
+    )
+    var msg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: backupContact.id,
+      text: "Restored DM"
+    )
+    msg.deduplicationKey = "merge-dm-\(UUID())"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [backupContact],
+      messages: [msg]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    // Contact was skipped (already exists), message was inserted
+    #expect(result.contactsSkipped == 1)
+    #expect(result.messagesInserted == 1)
+
+    // Contact must now appear in conversations
+    let afterConversations = try await destStore.fetchConversations(radioID: radioID)
+    #expect(afterConversations.count == 1)
+    #expect(afterConversations.first?.name == "Alice")
+    #expect(afterConversations.first?.lastMessageDate != nil)
+  }
+
+  // MARK: - Test 5: Merge import — MessageRepeat relationship set (pre-existing parent)
+
+  @Test
+  func `Import repeats onto existing message sets relationship and enables cascade delete`() async throws {
+    let radioID = UUID()
+
+    // Destination store has an existing message
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await destStore.saveContact(contact)
+
+    var existingMsg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Existing",
+      direction: .incoming
+    )
+    existingMsg.deduplicationKey = "existing-msg-key"
+    try await destStore.saveMessage(existingMsg)
+
+    // Build backup that contributes a repeat for the same message
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupMsg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Existing",
+      direction: .incoming
+    )
+    backupMsg.deduplicationKey = "existing-msg-key"
+
+    let repeat1 = MessageRepeatDTO.testRepeat(
+      messageID: backupMsg.id,
+      pathNodes: Data([0x31])
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [contact],
+      messages: [backupMsg],
+      messageRepeats: [repeat1]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.messagesSkipped == 1)
+    #expect(result.messageRepeatsInserted == 1)
+
+    // Verify the repeat was linked to the existing message
+    let repeats = try await destStore.fetchMessageRepeats(messageID: existingMsg.id)
+    #expect(repeats.count == 1)
+
+    // Delete the message — repeat must cascade-delete
+    try await destStore.deleteMessage(id: existingMsg.id)
+    let repeatsAfterDelete = try await destStore.fetchMessageRepeats(messageID: existingMsg.id)
+    #expect(repeatsAfterDelete.isEmpty)
+  }
+
+  // MARK: - Test 6: Fresh-store import — MessageRepeat cascade delete
+
+  @Test
+  func `Fresh-store import sets MessageRepeat relationship and cascade deletes work`() async throws {
+    let radioID = UUID()
+
+    // Source store with a message and repeats
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xBB, count: 32),
+      name: "Bob"
+    )
+    try await sourceStore.saveContact(contact)
+
+    var msg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "Hello mesh"
+    )
+    msg.deduplicationKey = "fresh-cascade-\(UUID())"
+    try await sourceStore.saveMessage(msg)
+
+    // Save repeat using the normal (relationship-setting) path
+    let repeatDTO = MessageRepeatDTO.testRepeat(messageID: msg.id, pathNodes: Data([0x42]))
+    try await sourceStore.saveMessageRepeat(repeatDTO)
+
+    // Export
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    // Import into fresh store
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+    #expect(result.messagesInserted == 1)
+    #expect(result.messageRepeatsInserted == 1)
+
+    // Verify repeats exist
+    let destMessages = try await destStore.fetchAllMessages(radioID: radioID)
+    let destMsgID = try #require(destMessages.first?.id)
+    let repeats = try await destStore.fetchMessageRepeats(messageID: destMsgID)
+    #expect(repeats.count == 1)
+
+    // Delete the message — repeat must cascade-delete
+    try await destStore.deleteMessage(id: destMsgID)
+    let repeatsAfterDelete = try await destStore.fetchMessageRepeats(messageID: destMsgID)
+    #expect(repeatsAfterDelete.isEmpty)
+  }
+
+  // MARK: - Test 7: Merge import — caches recomputed
+
+  @Test
+  func `Import repeats/reactions onto existing message recomputes heardRepeats and reactionSummary`() async throws {
+    let radioID = UUID()
+
+    // Destination store with a message (heardRepeats=0, no reactions)
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await destStore.saveContact(contact)
+
+    var existingMsg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Cache test",
+      direction: .incoming,
+      heardRepeats: 0
+    )
+    existingMsg.deduplicationKey = "cache-test-key"
+    try await destStore.saveMessage(existingMsg)
+
+    // Build backup that adds 2 repeats and 1 reaction to the same message
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupMsg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Cache test",
+      direction: .incoming
+    )
+    backupMsg.deduplicationKey = "cache-test-key"
+
+    let repeat1 = MessageRepeatDTO.testRepeat(
+      messageID: backupMsg.id,
+      pathNodes: Data([0x31])
+    )
+    let repeat2 = MessageRepeatDTO.testRepeat(
+      messageID: backupMsg.id,
+      pathNodes: Data([0x42])
+    )
+    let reaction = ReactionDTO.testReaction(
+      messageID: backupMsg.id,
+      radioID: radioID,
+      emoji: "👍",
+      senderName: "Eve"
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [contact],
+      messages: [backupMsg],
+      messageRepeats: [repeat1, repeat2],
+      reactions: [reaction]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.messagesSkipped == 1)
+    #expect(result.messageRepeatsInserted == 2)
+    #expect(result.reactionsInserted == 1)
+
+    // Verify heardRepeats was recomputed
+    let updatedMsg = try await destStore.fetchMessage(id: existingMsg.id)
+    #expect(updatedMsg?.heardRepeats == 2)
+
+    // Verify reactionSummary was recomputed
+    #expect(updatedMsg?.reactionSummary == "👍:1")
+  }
+
+  // MARK: - Test 8: Merge import — channel metadata refreshed
+
+  @Test
+  func `Import messages onto existing channel with nil lastMessageDate refreshes metadata`() async throws {
+    let radioID = UUID()
+
+    // Destination store has a channel with no messages
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let channel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 0,
+      name: "General",
+      lastMessageDate: nil
+    )
+    try await destStore.saveChannel(channel)
+
+    // Verify channel has nil lastMessageDate
+    let beforeChannel = try await destStore.fetchChannel(radioID: radioID, index: 0)
+    #expect(beforeChannel?.lastMessageDate == nil)
+
+    // Build backup with messages for the same channel
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(radioID: radioID, index: 0, name: "General")
+    var msg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "Restored channel msg"
+    )
+    msg.deduplicationKey = "channel-meta-\(UUID())"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      channels: [backupChannel],
+      messages: [msg]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.channelsSkipped == 1)
+    #expect(result.messagesInserted == 1)
+
+    // Channel must now have lastMessageDate set
+    let afterChannel = try await destStore.fetchChannel(radioID: radioID, index: 0)
+    #expect(afterChannel?.lastMessageDate != nil)
+  }
+
+  // MARK: - Test 9: Merge import — saved trace path runs preserved
+
+  @Test
+  func `Import onto existing saved trace path merges runs without duplicating them`() async throws {
+    let radioID = UUID()
+    let pathBytes = Data([0x12, 0x34, 0x56, 0x78])
+    let existingRun = TracePathRunDTO.testRun(
+      date: Date().addingTimeInterval(-120),
+      roundTripMs: 180
+    )
+    let importedRun = TracePathRunDTO.testRun(
+      date: Date(),
+      roundTripMs: 95
+    )
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingPath = try await destStore.createSavedTracePath(
+      radioID: radioID,
+      name: "Shared Route",
+      pathBytes: pathBytes,
+      hashSize: 2,
+      initialRun: existingRun
+    )
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupPath = SavedTracePathDTO.testPath(
+      radioID: radioID,
+      name: "Shared Route",
+      pathBytes: pathBytes,
+      hashSize: 2,
+      runs: [importedRun]
+    )
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      savedTracePaths: [backupPath]
+    )
+
+    let service = AppBackupService()
+
+    let firstResult = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(firstResult.savedTracePathsInserted == 0)
+    #expect(firstResult.savedTracePathsSkipped == 1)
+    #expect(firstResult.savedTracePathsMerged == 1)
+    #expect(firstResult.hasRestoredChanges)
+
+    let mergedPath = try #require(await destStore.fetchSavedTracePath(id: existingPath.id))
+    #expect(mergedPath.runs.count == 2)
+    #expect(Set(mergedPath.runs.map(\.id)) == Set([existingRun.id, importedRun.id]))
+
+    let secondResult = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(secondResult.savedTracePathsInserted == 0)
+    #expect(secondResult.savedTracePathsSkipped == 1)
+    #expect(secondResult.savedTracePathsMerged == 0)
+    #expect(!secondResult.hasRestoredChanges)
+
+    let deduplicatedPath = try #require(await destStore.fetchSavedTracePath(id: existingPath.id))
+    #expect(deduplicatedPath.runs.count == 2)
+    #expect(Set(deduplicatedPath.runs.map(\.id)) == Set([existingRun.id, importedRun.id]))
+  }
+
+  // MARK: - Test 9b: Cross-path run id reuse never relocates a run
+
+  @Test
+  func `Import reusing a local run's id under a different path drops the duplicate run rather than relocating it`() async throws {
+    let radioID = UUID()
+    let pathABytes = Data([0x12, 0x34, 0x56, 0x78])
+    let pathBBytes = Data([0xAB, 0xCD, 0xEF, 0x01])
+    let sharedRunID = UUID()
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    // Local path A owns run R.
+    let runR = TracePathRunDTO.testRun(id: sharedRunID, roundTripMs: 180)
+    let pathA = try await destStore.createSavedTracePath(
+      radioID: radioID,
+      name: "Path A",
+      pathBytes: pathABytes,
+      hashSize: 1,
+      initialRun: runR
+    )
+
+    // Backup path B is a distinct path whose run reuses R's id.
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupPathB = SavedTracePathDTO.testPath(
+      radioID: radioID,
+      name: "Path B",
+      pathBytes: pathBBytes,
+      hashSize: 1,
+      runs: [TracePathRunDTO.testRun(id: sharedRunID, roundTripMs: 999)]
+    )
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      savedTracePaths: [backupPathB]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    // Path B is a new path, but its duplicate-id run is dropped store-wide.
+    #expect(result.savedTracePathsInserted == 1)
+
+    let allPaths = try await destStore.fetchSavedTracePaths(radioID: radioID)
+    #expect(allPaths.count == 2)
+
+    // Run R stays under path A; path B gains no run.
+    let pathAAfter = try #require(await destStore.fetchSavedTracePath(id: pathA.id))
+    #expect(pathAAfter.runs.count == 1)
+    #expect(pathAAfter.runs.first?.id == sharedRunID)
+
+    let pathBAfter = try #require(allPaths.first { $0.pathBytes == pathBBytes })
+    #expect(pathBAfter.runs.isEmpty)
+
+    // The run exists exactly once in the whole store.
+    let totalRuns = allPaths.reduce(0) { $0 + $1.runs.count }
+    #expect(totalRuns == 1)
+  }
+
+  // MARK: - Test 10: Orphaned radio-scoped data survives export/import
+
+  @Test
+  func `Export preserves orphaned radio-scoped data after device-only delete`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xD1, count: 32),
+      name: "Orphaned Contact"
+    )
+    try await sourceStore.saveContact(contact)
+
+    let channel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 1,
+      name: "Orphaned Channel",
+      unreadCount: 3,
+      notificationLevel: .mentionsOnly,
+      isPinned: true
+    )
+    try await sourceStore.saveChannel(channel)
+
+    var message = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Preserve me"
+    )
+    message.deduplicationKey = "orphaned-message-\(UUID())"
+    try await sourceStore.saveMessage(message)
+
+    let session = RemoteNodeSessionDTO.testSession(radioID: radioID)
+    try await sourceStore.saveRemoteNodeSessionDTO(session)
+
+    let roomMessage = RoomMessageDTO.testRoomMessage(sessionID: session.id)
+    try await sourceStore.saveRoomMessage(roomMessage)
+
+    let blockedSender = BlockedChannelSenderDTO.testBlockedSender(radioID: radioID)
+    try await sourceStore.saveBlockedChannelSender(blockedSender)
+
+    let tracePath = SavedTracePathDTO.testPath(radioID: radioID)
+    let initialRun = tracePath.runs.first
+    _ = try await sourceStore.createSavedTracePath(
+      radioID: tracePath.radioID,
+      name: tracePath.name,
+      pathBytes: tracePath.pathBytes,
+      hashSize: tracePath.hashSize,
+      initialRun: initialRun
+    )
+
+    try await sourceStore.deleteDevice(id: radioID)
+    #expect(try await sourceStore.fetchDevice(id: radioID) == nil)
+
+    let service = AppBackupService()
+    let result = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: result.data)
+
+    #expect(envelope.devices.isEmpty)
+    #expect(envelope.contacts.count == 1)
+    #expect(envelope.channels.count == 1)
+    #expect(envelope.messages.count == 1)
+    #expect(envelope.remoteNodeSessions.count == 1)
+    #expect(envelope.roomMessages.count == 1)
+    #expect(envelope.savedTracePaths.count == 1)
+    #expect(envelope.blockedChannelSenders.count == 1)
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+
+    let firstResult = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(firstResult.devicesInserted == 0)
+    #expect(firstResult.contactsInserted == 1)
+    #expect(firstResult.channelsInserted == 1)
+    #expect(firstResult.messagesInserted == 1)
+    #expect(firstResult.remoteNodeSessionsInserted == 1)
+    #expect(firstResult.roomMessagesInserted == 1)
+    #expect(firstResult.savedTracePathsInserted == 1)
+    #expect(firstResult.blockedChannelSendersInserted == 1)
+
+    #expect(try await destStore.fetchAllContacts(radioID: radioID).count == 1)
+    #expect(try await destStore.fetchAllChannels(radioID: radioID).count == 1)
+    #expect(try await destStore.fetchAllMessages(radioID: radioID).count == 1)
+    #expect(try await destStore.fetchRemoteNodeSessions(radioID: radioID).count == 1)
+    #expect(try await destStore.fetchRoomMessages(sessionID: session.id).count == 1)
+    #expect(try await destStore.fetchSavedTracePaths(radioID: radioID).count == 1)
+    #expect(try await destStore.fetchBlockedChannelSenders(radioID: radioID).count == 1)
+
+    let secondResult = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(secondResult.totalInserted == 0)
+    #expect(secondResult.contactsSkipped == 1)
+    #expect(secondResult.channelsSkipped == 1)
+    #expect(secondResult.messagesSkipped == 1)
+    #expect(secondResult.remoteNodeSessionsSkipped == 1)
+    #expect(secondResult.roomMessagesSkipped == 1)
+    #expect(secondResult.savedTracePathsSkipped == 1)
+    #expect(secondResult.blockedChannelSendersSkipped == 1)
+  }
+
+  // MARK: - Test 11: Merge import — contact metadata restored
+
+  @Test
+  func `Import onto existing contact restores backup-owned contact metadata`() async throws {
+    let radioID = UUID()
+    let sharedPublicKey = Data(repeating: 0xE2, count: 32)
+    let importedDate = Date(timeIntervalSince1970: 1_700_000_000)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: sharedPublicKey,
+      name: "Alice",
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0
+    )
+    try await destStore.saveContact(existingContact)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupContact = ContactDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: sharedPublicKey,
+      name: "Alice",
+      typeRawValue: existingContact.typeRawValue,
+      flags: existingContact.flags,
+      outPathLength: existingContact.outPathLength,
+      outPath: existingContact.outPath,
+      lastAdvertTimestamp: existingContact.lastAdvertTimestamp,
+      latitude: existingContact.latitude,
+      longitude: existingContact.longitude,
+      lastModified: existingContact.lastModified,
+      lastHeardTimestamp: nil,
+      nickname: "Field Ops",
+      isBlocked: true,
+      isMuted: true,
+      isFavorite: true,
+      lastMessageDate: importedDate,
+      unreadCount: 7,
+      unreadMentionCount: 2,
+      ocvPreset: OCVPreset.custom.rawValue,
+      customOCVArrayString: "4200,4100,4000",
+      avatarImageData: Data(repeating: 0xAA, count: 16)
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      contacts: [backupContact]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.contactsInserted == 0)
+    #expect(result.contactsSkipped == 1)
+
+    let mergedContact = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: sharedPublicKey)
+    )
+    #expect(mergedContact.nickname == "Field Ops")
+    #expect(mergedContact.isBlocked == true)
+    #expect(mergedContact.isMuted == true)
+    #expect(mergedContact.isFavorite == true)
+    #expect(mergedContact.lastMessageDate == importedDate)
+    #expect(mergedContact.unreadCount == 7)
+    #expect(mergedContact.unreadMentionCount == 2)
+    #expect(mergedContact.ocvPreset == OCVPreset.custom.rawValue)
+    #expect(mergedContact.customOCVArrayString == "4200,4100,4000")
+    #expect(mergedContact.avatarImageData == Data(repeating: 0xAA, count: 16))
+  }
+
+  // MARK: - Test 11b: avatarImageData backup round-trip
+
+  @Test
+  func `Contact avatarImageData survives encode decode export import and merge`() async throws {
+    // Encode/decode round-trip with non-nil data.
+    let withAvatar = ContactDTO.testContact(avatarImageData: Data(repeating: 0x11, count: 8))
+    let encoded = try JSONEncoder().encode(withAvatar)
+    let decoded = try JSONDecoder().decode(ContactDTO.self, from: encoded)
+    #expect(decoded.avatarImageData == Data(repeating: 0x11, count: 8))
+
+    // Legacy payload missing the key entirely decodes to nil, not a decode failure.
+    var legacyJSON = try #require(
+      JSONSerialization.jsonObject(with: encoded) as? [String: Any]
+    )
+    legacyJSON.removeValue(forKey: "avatarImageData")
+    let legacyData = try JSONSerialization.data(withJSONObject: legacyJSON)
+    let legacyDecoded = try JSONDecoder().decode(ContactDTO.self, from: legacyData)
+    #expect(legacyDecoded.avatarImageData == nil)
+
+    // Export -> import round-trip onto a fresh store preserves the avatar on insert.
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let sourceContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xE3, count: 32),
+      name: "Bob",
+      avatarImageData: Data(repeating: 0x22, count: 8)
+    )
+    try await sourceStore.saveContact(sourceContact)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let importResult = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(importResult.contactsInserted == 1)
+
+    let insertedContact = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: sourceContact.publicKey)
+    )
+    #expect(insertedContact.avatarImageData == Data(repeating: 0x22, count: 8))
+
+    // Merge onto an existing contact with no local avatar adopts the backup's.
+    let existingNoAvatar = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xE4, count: 32),
+      name: "Carol",
+      avatarImageData: nil
+    )
+    try await destStore.saveContact(existingNoAvatar)
+
+    let backupWithAvatar = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: existingNoAvatar.publicKey,
+      name: "Carol",
+      avatarImageData: Data(repeating: 0x33, count: 8)
+    )
+    let mergeEnvelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      contacts: [backupWithAvatar]
+    )
+    let mergeResult = try await service.importBackup(envelope: mergeEnvelope, into: destStore)
+    #expect(mergeResult.contactsSkipped == 1)
+
+    let mergedCarol = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: existingNoAvatar.publicKey)
+    )
+    #expect(mergedCarol.avatarImageData == Data(repeating: 0x33, count: 8))
+  }
+
+  // MARK: - Test 11c: lastHeardTimestamp backup round-trip
+
+  @Test
+  func `Contact lastHeardTimestamp survives encode decode export import and merge`() async throws {
+    let withHeard = ContactDTO.testContact(lastHeardTimestamp: 1_700_000_500)
+    let encoded = try JSONEncoder().encode(withHeard)
+    let decoded = try JSONDecoder().decode(ContactDTO.self, from: encoded)
+    #expect(decoded.lastHeardTimestamp == 1_700_000_500)
+
+    var legacyJSON = try #require(
+      JSONSerialization.jsonObject(with: encoded) as? [String: Any]
+    )
+    legacyJSON.removeValue(forKey: "lastHeardTimestamp")
+    let legacyData = try JSONSerialization.data(withJSONObject: legacyJSON)
+    let legacyDecoded = try JSONDecoder().decode(ContactDTO.self, from: legacyData)
+    #expect(legacyDecoded.lastHeardTimestamp == nil)
+
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let sourceContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xF1, count: 32),
+      name: "Heard",
+      lastHeardTimestamp: 1_700_000_600
+    )
+    try await sourceStore.saveContact(sourceContact)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let importResult = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(importResult.contactsInserted == 1)
+
+    let inserted = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: sourceContact.publicKey)
+    )
+    #expect(inserted.lastHeardTimestamp == 1_700_000_600)
+
+    // Legacy envelope (missing key) materializes as model 0.
+    let legacyContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xF2, count: 32),
+      name: "Legacy",
+      lastHeardTimestamp: nil
+    )
+    var legacyContactJSON = try #require(
+      try JSONSerialization.jsonObject(with: JSONEncoder().encode(legacyContact)) as? [String: Any]
+    )
+    legacyContactJSON.removeValue(forKey: "lastHeardTimestamp")
+    let legacyContactData = try JSONSerialization.data(withJSONObject: legacyContactJSON)
+    let legacyContactDecoded = try JSONDecoder().decode(ContactDTO.self, from: legacyContactData)
+    try await destStore.saveContact(legacyContactDecoded)
+    let legacyRow = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: legacyContact.publicKey)
+    )
+    #expect(legacyRow.lastHeardTimestamp == 0 || legacyRow.lastHeardTimestamp == nil)
+
+    // Merge: local newer keeps local; backup newer adopts; future stamp clamps.
+    let mergeKey = Data(repeating: 0xF3, count: 32)
+    let localNewer = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: mergeKey,
+      name: "Merge",
+      lastHeardTimestamp: 1_700_000_900
+    )
+    try await destStore.saveContact(localNewer)
+
+    let olderBackup = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: mergeKey,
+      name: "Merge",
+      lastHeardTimestamp: 1_700_000_100
+    )
+    _ = try await service.importBackup(
+      envelope: AppBackupEnvelope.test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        contacts: [olderBackup]
+      ),
+      into: destStore
+    )
+    let afterOlder = try #require(await destStore.fetchContact(radioID: radioID, publicKey: mergeKey))
+    #expect(afterOlder.lastHeardTimestamp == 1_700_000_900)
+
+    let newerBackup = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: mergeKey,
+      name: "Merge",
+      lastHeardTimestamp: 1_700_001_000
+    )
+    _ = try await service.importBackup(
+      envelope: AppBackupEnvelope.test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        contacts: [newerBackup]
+      ),
+      into: destStore
+    )
+    let afterNewer = try #require(await destStore.fetchContact(radioID: radioID, publicKey: mergeKey))
+    #expect(afterNewer.lastHeardTimestamp == 1_700_001_000)
+
+    let farFuture = UInt32(Date().timeIntervalSince1970) + 86400
+    let futureBackup = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: mergeKey,
+      name: "Merge",
+      lastHeardTimestamp: farFuture
+    )
+    _ = try await service.importBackup(
+      envelope: AppBackupEnvelope.test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        contacts: [futureBackup]
+      ),
+      into: destStore
+    )
+    let afterFuture = try #require(await destStore.fetchContact(radioID: radioID, publicKey: mergeKey))
+    let now = UInt32(Date().timeIntervalSince1970)
+    let tolerance = UInt32(SyncCoordinator.timestampToleranceFuture)
+    let upper = now > UInt32.max - tolerance ? UInt32.max : now + tolerance
+    #expect(afterFuture.lastHeardTimestamp ?? 0 <= upper)
+    #expect(afterFuture.lastHeardTimestamp ?? 0 >= 1_700_001_000)
+
+    // Insert-only far-future stamp clamps on first import (no local row).
+    let insertKey = Data(repeating: 0xF4, count: 32)
+    let insertFuture = UInt32(Date().timeIntervalSince1970) + 86400
+    let insertBackup = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: insertKey,
+      name: "FutureInsert",
+      lastHeardTimestamp: insertFuture
+    )
+    _ = try await service.importBackup(
+      envelope: AppBackupEnvelope.test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        contacts: [insertBackup]
+      ),
+      into: destStore
+    )
+    let insertedFuture = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: insertKey)
+    )
+    let insertNow = UInt32(Date().timeIntervalSince1970)
+    let insertUpper = insertNow > UInt32.max - tolerance ? UInt32.max : insertNow + tolerance
+    #expect(insertedFuture.lastHeardTimestamp ?? 0 <= insertUpper)
+    #expect(insertedFuture.lastHeardTimestamp ?? 0 < insertFuture)
+  }
+
+  // MARK: - Orphan DM adoption after reminted Device.id
+
+  @Test
+  func `Orphan DM survives export import and adoption under reminted device id`() async throws {
+    let radioID = UUID()
+    let contactKey = Data(repeating: 0xAD, count: 32)
+    let prefix = Data(contactKey.prefix(6))
+    let stamp = UInt32(1_700_000_700)
+
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let sourceDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    try await sourceStore.saveDevice(sourceDevice)
+
+    // Orphan DM stored before the contact row exists.
+    try await sourceStore.saveMessage(
+      MessageDTO(
+        id: UUID(),
+        radioID: radioID,
+        contactID: nil,
+        channelIndex: nil,
+        text: "pre-contact dm",
+        timestamp: stamp,
+        createdAt: Date(timeIntervalSince1970: TimeInterval(stamp)),
+        direction: .incoming,
+        status: .delivered,
+        textType: .plain,
+        ackCode: nil,
+        pathLength: 0,
+        snr: nil,
+        pathNodes: nil,
+        senderKeyPrefix: prefix,
+        senderNodeName: nil,
+        isRead: false,
+        replyToID: nil,
+        roundTripTime: nil,
+        heardRepeats: 0,
+        retryAttempt: 0,
+        maxRetryAttempts: 0
+      )
+    )
+    let contact = ContactDTO.testContact(
+      radioID: radioID, publicKey: contactKey, name: "Adopted"
+    )
+    try await sourceStore.saveContact(contact)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    // Fresh store: Device.id reminted, radioID and publicKey survive.
+    let destRadioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: destRadioID)
+    let destDevice = DeviceDTO.testDevice(
+      id: UUID(),
+      radioID: destRadioID,
+      publicKey: sourceDevice.publicKey
+    )
+    try await destStore.saveDevice(destDevice)
+
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+    // After import, contact and orphan share the remapped radio partition.
+    let importedContacts = try await destStore.fetchContacts(radioID: destRadioID)
+    let imported = try #require(importedContacts.first { $0.publicKey == contactKey })
+    let adopted = try await destStore.adoptOrphanedDirectMessages(
+      radioID: destRadioID,
+      contacts: [(id: imported.id, publicKey: imported.publicKey)]
+    )
+    #expect(adopted[imported.id] == 1 || adopted.isEmpty)
+    // Idempotent second run.
+    let second = try await destStore.adoptOrphanedDirectMessages(
+      radioID: destRadioID,
+      contacts: [(id: imported.id, publicKey: imported.publicKey)]
+    )
+    #expect(second.isEmpty)
+
+    let messages = try await destStore.fetchMessages(contactID: imported.id, limit: 10, offset: 0)
+    // Either import remapped the orphan already, or adoption linked it.
+    let all = try await destStore.fetchAllMessages(radioID: destRadioID)
+    let linked = all.filter { $0.text == "pre-contact dm" }
+    #expect(linked.count == 1)
+    if let msg = linked.first {
+      #expect(msg.contactID == imported.id || messages.contains { $0.id == msg.id })
+    }
+  }
+
+  // MARK: - Test 12: Merge import — channel metadata restored
+
+  @Test
+  func `Import onto existing channel restores backup-owned channel metadata`() async throws {
+    let radioID = UUID()
+    let importedDate = Date(timeIntervalSince1970: 1_700_000_100)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingChannel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 2,
+      name: "Ops",
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0,
+      notificationLevel: .all,
+      isPinned: false,
+      floodScope: .inherit
+    )
+    try await destStore.saveChannel(existingChannel)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: existingChannel.index,
+      name: existingChannel.name,
+      lastMessageDate: importedDate,
+      unreadCount: 11,
+      unreadMentionCount: 4,
+      notificationLevel: .mentionsOnly,
+      isPinned: true,
+      floodScope: .region("US")
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupChannel]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.channelsInserted == 0)
+    #expect(result.channelsSkipped == 1)
+
+    let mergedChannel = try #require(await destStore.fetchChannel(radioID: radioID, index: 2))
+    #expect(mergedChannel.lastMessageDate == importedDate)
+    #expect(mergedChannel.unreadCount == 11)
+    #expect(mergedChannel.unreadMentionCount == 4)
+    #expect(mergedChannel.notificationLevel == .mentionsOnly)
+    #expect(mergedChannel.isPinned == true)
+    #expect(mergedChannel.regionScope == "US")
+  }
+
+  // MARK: - Test 12b: Different-secret slot collision relocates instead of merging
+
+  /// Local `#kosice` (secret 0x01) occupies slot 2; the backup carries a distinct channel
+  /// `#praha` (secret 0x02) that also claims slot 2. Because the two secrets differ, this
+  /// is "different channel, relocate", never a metadata merge: `#kosice` keeps its slot,
+  /// name, and secret untouched, and `#praha` is inserted as a separate channel on a free
+  /// slot. Contrast with same-secret merges, where backup metadata is adopted in place.
+  @Test
+  func `Import onto a different-secret slot keeps the local channel and inserts the backup channel separately`() async throws {
+    let radioID = UUID()
+    let localSecret = Data(repeating: 0x01, count: 16)
+    let backupSecret = Data(repeating: 0x02, count: 16)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingChannel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 2,
+      name: "#kosice",
+      secret: localSecret
+    )
+    try await destStore.saveChannel(existingChannel)
+
+    // Same (radioID, index) slot, but a different name and secret in the backup.
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: 2,
+      name: "#praha",
+      secret: backupSecret
+    )
+
+    let envelope = AppBackupEnvelope.test(devices: [backupDevice], channels: [backupChannel])
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    // The backup channel is a distinct identity, so it is inserted (relocated), not
+    // merged into #kosice's slot.
+    #expect(result.channelsInserted == 1)
+    #expect(result.channelsSkipped == 0)
+
+    // #kosice keeps its slot, name, and secret.
+    let kosice = try #require(await destStore.fetchChannel(radioID: radioID, index: 2))
+    #expect(kosice.name == "#kosice")
+    #expect(kosice.secret == localSecret)
+
+    // #praha exists as a separate channel on a different slot, with its own name/secret.
+    let channels = try await destStore.fetchAllChannels(radioID: radioID)
+    let praha = try #require(channels.first { $0.secret == backupSecret })
+    #expect(praha.name == "#praha")
+    #expect(praha.index != 2)
+  }
+
+  // MARK: - Channel reconciliation by secret (slot relocation) — REPRO
+
+  /// Reproduction for silent wrong-context delivery. Backup `#praha` (secretA) lives
+  /// at slot 3 with a channel message; locally slot 3 is `#brno` (secretB). With slot-only
+  /// reconciliation the imported message attaches to `#brno` and `#praha` is dropped. The
+  /// fix reconciles by `(radioID, secret)`: `#praha` relocates to a free slot and its
+  /// message follows; `#brno` is untouched.
+  @Test
+  func `Channel reconcile: backup channel collides with a different-secret local slot, relocates and carries its message`() async throws {
+    let radioID = UUID()
+    let secretBrno = Data(repeating: 0xB0, count: 16)
+    let secretPraha = Data(repeating: 0xA0, count: 16)
+    let collisionIndex: UInt8 = 3
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let localBrno = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: collisionIndex,
+      name: "#brno",
+      secret: secretBrno
+    )
+    try await destStore.saveChannel(localBrno)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupPraha = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: collisionIndex,
+      name: "#praha",
+      secret: secretPraha
+    )
+    var prahaMessage = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: collisionIndex,
+      text: "Praha checkpoint",
+      timestamp: 1_700_000_900,
+      direction: .incoming,
+      senderNodeName: "Jan"
+    )
+    prahaMessage.deduplicationKey = "ch-\(collisionIndex)-1700000900-Jan-DEADBEEF"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupPraha],
+      messages: [prahaMessage]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    // #praha is a distinct channel: inserted (relocated), not merged into #brno's slot.
+    #expect(result.channelsInserted == 1)
+    #expect(result.channelsSkipped == 0)
+    #expect(result.messagesInserted == 1)
+
+    let channels = try await destStore.fetchAllChannels(radioID: radioID)
+    let brno = try #require(channels.first { $0.secret == secretBrno })
+    let praha = try #require(channels.first { $0.secret == secretPraha })
+
+    // #brno keeps its slot and name; #praha lands on a different (free) slot.
+    #expect(brno.index == collisionIndex)
+    #expect(brno.name == "#brno")
+    #expect(praha.index != collisionIndex)
+    #expect(praha.name == "#praha")
+
+    // The message followed #praha's relocated slot, not #brno's.
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(messages.count == 1)
+    let restored = try #require(messages.first)
+    #expect(restored.channelIndex == praha.index)
+    #expect(restored.text == "Praha checkpoint")
+
+    // #brno received no foreign message.
+    let brnoMessages = messages.filter { $0.channelIndex == collisionIndex }
+    #expect(brnoMessages.isEmpty)
+  }
+
+  @Test
+  func `Re-importing a stale backup never upserts a reconfigured live channel`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    let sharedID = UUID()
+
+    // Live channel: same surrogate id as the backup, but secret rotated in place (S2),
+    // occupying the backup's slot.
+    let liveSecret = Data(repeating: 0xB2, count: 32)
+    let live = ChannelDTO(
+      id: sharedID, radioID: radioID, index: 3, name: "Live Net",
+      secret: liveSecret, isEnabled: true, lastMessageDate: nil,
+      unreadCount: 0, unreadMentionCount: 0,
+      notificationLevel: .all, isPinned: false, floodScope: .inherit
+    )
+    try await store.batchInsertChannels([live], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 8])
+
+    // Backup channel: same id, slot 3, but the original secret S1 (no local match).
+    let backupSecret = Data(repeating: 0xA1, count: 32)
+    let backup = ChannelDTO(
+      id: sharedID, radioID: radioID, index: 3, name: "Stale Net",
+      secret: backupSecret, isEnabled: true, lastMessageDate: nil,
+      unreadCount: 0, unreadMentionCount: 0,
+      notificationLevel: .all, isPinned: false, floodScope: .inherit
+    )
+    let result = try await store.batchInsertChannels([backup], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 8])
+
+    let channels = try await store.fetchChannels(radioID: radioID)
+    // Live channel survives untouched at slot 3 with its rotated secret.
+    let liveRow = try #require(channels.first { $0.secret == liveSecret })
+    #expect(liveRow.index == 3)
+    #expect(liveRow.name == "Live Net")
+    // Backup channel coexists, relocated to a free slot with a fresh id.
+    let backupRow = try #require(channels.first { $0.secret == backupSecret })
+    #expect(backupRow.id != sharedID)
+    #expect(backupRow.index != 3)
+    #expect(result.inserted == 1)
+  }
+
+  @Test
+  func `batchInsertChannels reports newly-occupied local slots for draft clearing, excluding merges`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+
+    let mergeSecret = Data(repeating: 0xC1, count: 32)
+    let occupiedSecret = Data(repeating: 0xC4, count: 32)
+    let localAtSlot2 = ChannelDTO(
+      id: UUID(), radioID: radioID, index: 2, name: "Keep",
+      secret: mergeSecret, isEnabled: true, lastMessageDate: nil,
+      unreadCount: 0, unreadMentionCount: 0,
+      notificationLevel: .all, isPinned: false, floodScope: .inherit
+    )
+    let localAtSlot4 = ChannelDTO(
+      id: UUID(), radioID: radioID, index: 4, name: "Occupied",
+      secret: occupiedSecret, isEnabled: true, lastMessageDate: nil,
+      unreadCount: 0, unreadMentionCount: 0,
+      notificationLevel: .all, isPinned: false, floodScope: .inherit
+    )
+    try await store.batchInsertChannels(
+      [localAtSlot2, localAtSlot4], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 8]
+    )
+
+    // (a) merges by secret into local slot 2 though recorded at slot 6 — occupant unchanged.
+    let mergeBackup = ChannelDTO(
+      id: UUID(), radioID: radioID, index: 6, name: "Keep",
+      secret: mergeSecret, isEnabled: true, lastMessageDate: nil,
+      unreadCount: 0, unreadMentionCount: 0,
+      notificationLevel: .all, isPinned: false, floodScope: .inherit
+    )
+    // (b) foreign channel placed at its own free slot 5.
+    let collideSecret = Data(repeating: 0xD4, count: 32)
+    let freshAtFreeSlot = ChannelDTO(
+      id: UUID(), radioID: radioID, index: 5, name: "Fresh",
+      secret: Data(repeating: 0xD5, count: 32), isEnabled: true, lastMessageDate: nil,
+      unreadCount: 0, unreadMentionCount: 0,
+      notificationLevel: .all, isPinned: false, floodScope: .inherit
+    )
+    // (c) foreign channel colliding with occupied slot 4, relocated to a free slot.
+    let collideAtSlot4 = ChannelDTO(
+      id: UUID(), radioID: radioID, index: 4, name: "Collide",
+      secret: collideSecret, isEnabled: true, lastMessageDate: nil,
+      unreadCount: 0, unreadMentionCount: 0,
+      notificationLevel: .all, isPinned: false, floodScope: .inherit
+    )
+
+    let result = try await store.batchInsertChannels(
+      [mergeBackup, freshAtFreeSlot, collideAtSlot4],
+      radioIDs: [radioID], maxChannelsByRadioID: [radioID: 8]
+    )
+
+    let inserted = result.insertedLocalIndices[radioID] ?? []
+    // Fresh insert recorded at its own free slot.
+    #expect(inserted.contains(5))
+    // Merge-by-secret destination (2) and backup-file source (6) are not local inserts.
+    #expect(!inserted.contains(2))
+    #expect(!inserted.contains(6))
+    // The colliding channel's untouched source slot (4) is not recorded; its relocation
+    // destination is.
+    #expect(!inserted.contains(4))
+    let relocatedRow = try #require(
+      try await (store.fetchChannels(radioID: radioID)).first { $0.secret == collideSecret }
+    )
+    #expect(relocatedRow.index != 4)
+    #expect(inserted.contains(relocatedRow.index))
+    #expect(result.inserted == 2)
+  }
+
+  @Test
+  func `Exporting a channel with an unmigrated notification level does not migrate the live row`() {
+    let channel = Channel(
+      radioID: UUID(), index: 1, name: "Ops",
+      secret: Data(repeating: 0x33, count: 32)
+    )
+    // Simulate a pre-migration row: -1 sentinel with the legacy muted flag set.
+    channel.notificationLevelRawValue = -1
+    channel.legacyIsMuted = true
+
+    let dto = ChannelDTO(from: channel)
+
+    // The read did not trigger the migrating getter's in-memory write-back.
+    #expect(channel.notificationLevelRawValue == -1)
+    // The DTO still carries the correctly decoded level (muted, from legacy isMuted).
+    #expect(dto.notificationLevel == .muted)
+  }
+
+  @Test
+  func `Duplicate device public keys in one envelope skip the loser and remap its children`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let key = Data(repeating: 0x42, count: 32)
+    let radioA = UUID(), radioB = UUID()
+    let devA = DeviceDTO.testDevice().copy { $0.publicKey = key; $0.radioID = radioA }
+    let devB = DeviceDTO.testDevice().copy { $0.publicKey = key; $0.radioID = radioB }
+    // Both devices share the duplicate `key` (the scenario under test), but the contacts
+    // must carry distinct public keys: after both contacts' radioID is remapped to the
+    // single surviving local radioID they would otherwise share an identical `contactKey`
+    // (radioID + publicKey) and the second would be deduped, collapsing to one row.
+    let contactA = ContactDTO.testContact(radioID: radioA, publicKey: Data(repeating: 0x01, count: 32))
+    let contactB = ContactDTO.testContact(radioID: radioB, publicKey: Data(repeating: 0x02, count: 32))
+    let envelope = AppBackupEnvelope.test(
+      devices: [devA, devB], contacts: [contactA, contactB]
+    )
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: store)
+    #expect(result.counts[.devices]?.skipped == 1) // loser duplicate
+    #expect(result.counts[.devices]?.inserted == 1)
+    // Both contacts land under the single surviving local radioID.
+    let devices = try await store.fetchAllDevices()
+    let localRadioID = try #require(devices.first?.radioID)
+    let contacts = try await store.fetchContacts(radioID: localRadioID)
+    #expect(contacts.count == 2)
+  }
+
+  @Test
+  func `Channel floodScope survives a fresh-insert export/import round-trip`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    try await sourceStore.saveChannel(
+      ChannelDTO.testChannel(radioID: radioID, index: 0, name: "General", floodScope: .inherit)
+    )
+    try await sourceStore.saveChannel(
+      ChannelDTO.testChannel(
+        radioID: radioID, index: 1, name: "Regional",
+        secret: Data(repeating: 0x55, count: 32), floodScope: .region("US")
+      )
+    )
+
+    let service = AppBackupService()
+    let envelope = try await parseBackup(data: service.export(persistenceStore: sourceStore).data)
+
+    // Fresh dest store: both channels take the fresh-insert path (Channel(dto:)), not merge.
+    let destStore = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(result.channelsInserted == 2)
+
+    let restoredRegional = try #require(try await destStore.fetchChannel(radioID: radioID, index: 1))
+    #expect(restoredRegional.floodScope == .region("US"))
+    let restoredInherit = try #require(try await destStore.fetchChannel(radioID: radioID, index: 0))
+    #expect(restoredInherit.floodScope == .inherit)
+  }
+
+  @Test
+  func `Re-importing the same backup is idempotent for unread counts and last-message dates`() async throws {
+    let radioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    // Local channel the backup will merge into (matched by stable secret).
+    let secret = Data(repeating: 0x77, count: 32)
+    let localDate = Date(timeIntervalSince1970: 1_700_000_000)
+    try await destStore.saveChannel(
+      ChannelDTO.testChannel(
+        radioID: radioID, index: 1, name: "Ops", secret: secret,
+        lastMessageDate: localDate, unreadCount: 5
+      )
+    )
+
+    // Backup carries the same channel with a higher unread count and a later date.
+    let backupDate = Date(timeIntervalSince1970: 1_700_009_000)
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(
+      radioID: radioID, index: 1, name: "Ops", secret: secret,
+      lastMessageDate: backupDate, unreadCount: 9
+    )
+    let envelope = AppBackupEnvelope.test(devices: [backupDevice], channels: [backupChannel])
+
+    let service = AppBackupService()
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+    let afterFirst = try #require(try await destStore.fetchChannel(radioID: radioID, index: 1))
+
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+    let afterSecond = try #require(try await destStore.fetchChannel(radioID: radioID, index: 1))
+
+    // The merge (max of local/backup) and date reconciliation are idempotent: a repeat
+    // import neither double-counts unread nor oscillates the last-message date.
+    #expect(afterSecond.unreadCount == afterFirst.unreadCount)
+    #expect(afterSecond.unreadMentionCount == afterFirst.unreadMentionCount)
+    #expect(afterSecond.lastMessageDate == afterFirst.lastMessageDate)
+  }
+
+  /// Case A: same secret at the same slot is a pure metadata merge with no relocation.
+  @Test
+  func `Channel reconcile: same secret at same slot merges metadata, index unchanged`() async throws {
+    let radioID = UUID()
+    let secret = Data(repeating: 0x44, count: 16)
+    let slot: UInt8 = 2
+    let importedDate = Date(timeIntervalSince1970: 1_700_000_950)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let localChannel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: slot,
+      name: "#ops",
+      secret: secret,
+      lastMessageDate: nil
+    )
+    try await destStore.saveChannel(localChannel)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: slot,
+      name: "#ops",
+      secret: secret,
+      lastMessageDate: importedDate
+    )
+    var msg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: slot,
+      text: "Same slot",
+      timestamp: 1_700_000_950,
+      // Older than importedDate so the merged channel date is the max and survives
+      // the lastMessageDate reconcile pass (which keys on createdAt).
+      createdAt: Date(timeIntervalSince1970: 1_600_000_000),
+      direction: .incoming,
+      senderNodeName: "Eva"
+    )
+    msg.deduplicationKey = "ch-\(slot)-1700000950-Eva-CAFE0001"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupChannel],
+      messages: [msg]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.channelsInserted == 0)
+    #expect(result.channelsSkipped == 1)
+    #expect(result.messagesInserted == 1)
+
+    let channels = try await destStore.fetchAllChannels(radioID: radioID)
+    #expect(channels.count == 1)
+    #expect(channels.first?.index == slot)
+    #expect(channels.first?.secret == secret)
+    #expect(channels.first?.lastMessageDate == importedDate)
+
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(messages.count == 1)
+    #expect(messages.first?.channelIndex == slot)
+  }
+
+  /// Case B: the same secret moved slots between backup and restore. The message
+  /// remaps to the local slot; no duplicate channel is inserted.
+  @Test
+  func `Channel reconcile: same secret on a different slot remaps the message, no duplicate channel`() async throws {
+    let radioID = UUID()
+    let secret = Data(repeating: 0x55, count: 16)
+    let backupSlot: UInt8 = 3
+    let localSlot: UInt8 = 5
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let localChannel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: localSlot,
+      name: "#praha",
+      secret: secret
+    )
+    try await destStore.saveChannel(localChannel)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: backupSlot,
+      name: "#praha",
+      secret: secret
+    )
+    var msg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: backupSlot,
+      text: "Moved slots",
+      timestamp: 1_700_001_000,
+      direction: .incoming,
+      senderNodeName: "Lena"
+    )
+    msg.deduplicationKey = "ch-\(backupSlot)-1700001000-Lena-0BADF00D"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupChannel],
+      messages: [msg]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.channelsInserted == 0)
+    #expect(result.channelsSkipped == 1)
+    #expect(result.messagesInserted == 1)
+
+    let channels = try await destStore.fetchAllChannels(radioID: radioID)
+    #expect(channels.count == 1)
+    #expect(channels.first?.index == localSlot)
+
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(messages.count == 1)
+    #expect(messages.first?.channelIndex == localSlot)
+  }
+
+  /// The public channel (index 0, all-zero secret) merges into the local public channel
+  /// without relocating, because empty-secret channels match by index.
+  @Test
+  func `Channel reconcile: public channel merges into local public channel without relocation`() async throws {
+    let radioID = UUID()
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let localPublic = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 0,
+      name: "Public",
+      lastMessageDate: nil
+    )
+    try await destStore.saveChannel(localPublic)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupPublic = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: 0,
+      name: "Public",
+      lastMessageDate: Date(timeIntervalSince1970: 1_700_001_100)
+    )
+    var msg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "Public broadcast",
+      timestamp: 1_700_001_100,
+      direction: .incoming,
+      senderNodeName: "Mara"
+    )
+    msg.deduplicationKey = "ch-0-1700001100-Mara-FEEDFACE"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupPublic],
+      messages: [msg]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.channelsInserted == 0)
+    #expect(result.channelsSkipped == 1)
+    #expect(result.messagesInserted == 1)
+
+    let channels = try await destStore.fetchAllChannels(radioID: radioID)
+    #expect(channels.count == 1)
+    #expect(channels.first?.index == 0)
+
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(messages.count == 1)
+    #expect(messages.first?.channelIndex == 0)
+  }
+
+  /// Dedup-key preservation: re-importing the same relocated backup must skip the
+  /// channel message on the second pass, proving the dedup key was rewritten to the
+  /// relocated index consistently across both runs.
+  @Test
+  func `Channel reconcile: re-importing a relocated channel skips the message the second time`() async throws {
+    let radioID = UUID()
+    let secretBrno = Data(repeating: 0xB2, count: 16)
+    let secretPraha = Data(repeating: 0xA2, count: 16)
+    let collisionIndex: UInt8 = 3
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    try await destStore.saveChannel(
+      ChannelDTO.testChannel(radioID: radioID, index: collisionIndex, name: "#brno", secret: secretBrno)
+    )
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupPraha = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: collisionIndex,
+      name: "#praha",
+      secret: secretPraha
+    )
+    var prahaMessage = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: collisionIndex,
+      text: "Praha checkpoint",
+      timestamp: 1_700_001_200,
+      direction: .incoming,
+      senderNodeName: "Jan"
+    )
+    prahaMessage.deduplicationKey = "ch-\(collisionIndex)-1700001200-Jan-12345678"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupPraha],
+      messages: [prahaMessage]
+    )
+
+    let service = AppBackupService()
+    let firstResult = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(firstResult.messagesInserted == 1)
+
+    let secondResult = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(secondResult.messagesInserted == 0)
+    #expect(secondResult.messagesSkipped == 1)
+
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(messages.count == 1)
+  }
+
+  /// Safety case: every local slot within the radio's channel capacity is occupied by a
+  /// different secret, so the backup channel has nowhere to land. It must be dropped (not
+  /// mis-associated), and its messages must be dropped with it rather than attaching to a
+  /// foreign channel.
+  @Test
+  func `Channel reconcile: backup channel with no free slot is dropped along with its messages`() async throws {
+    let radioID = UUID()
+    let maxChannels: UInt8 = 2
+    let secretPraha = Data(repeating: 0xA4, count: 16)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    // Fill every slot in [0, maxChannels) with distinct-secret local channels.
+    try await destStore.saveChannel(
+      ChannelDTO.testChannel(radioID: radioID, index: 0, name: "#a", secret: Data(repeating: 0x10, count: 16))
+    )
+    try await destStore.saveChannel(
+      ChannelDTO.testChannel(radioID: radioID, index: 1, name: "#b", secret: Data(repeating: 0x11, count: 16))
+    )
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID).copy { $0.maxChannels = maxChannels }
+    let backupPraha = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: 1,
+      name: "#praha",
+      secret: secretPraha
+    )
+    var prahaMessage = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 1,
+      text: "Should not survive",
+      timestamp: 1_700_001_300,
+      direction: .incoming,
+      senderNodeName: "Jan"
+    )
+    prahaMessage.deduplicationKey = "ch-1-1700001300-Jan-AABBCCDD"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupPraha],
+      messages: [prahaMessage]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    // #praha is dropped: not inserted, counted as dropped; its message is not inserted.
+    #expect(result.channelsInserted == 0)
+    #expect(result.channelsDropped == 1)
+    #expect(result.messagesInserted == 0)
+
+    let channels = try await destStore.fetchAllChannels(radioID: radioID)
+    #expect(channels.count == 2)
+    #expect(channels.contains { $0.secret == secretPraha } == false)
+
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(messages.isEmpty)
+  }
+
+  @Test
+  func `Dropped channels and their messages are accounted as dropped, not already-here`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+
+    // Local radio is full to capacity (maxChannels = 2: slot 0 public + slot 1 used).
+    let existing = ChannelDTO(
+      id: UUID(), radioID: radioID, index: 1, name: "Local",
+      secret: Data(repeating: 0x11, count: 32), isEnabled: true, lastMessageDate: nil,
+      unreadCount: 0, unreadMentionCount: 0, notificationLevel: .all, isPinned: false, floodScope: .inherit
+    )
+    try await store.batchInsertChannels([existing], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 2])
+
+    // Backup channel at slot 1 with a different secret has no free slot -> dropped.
+    let backupChannel = ChannelDTO(
+      id: UUID(), radioID: radioID, index: 1, name: "Backup",
+      secret: Data(repeating: 0x22, count: 32), isEnabled: true, lastMessageDate: nil,
+      unreadCount: 0, unreadMentionCount: 0, notificationLevel: .all, isPinned: false, floodScope: .inherit
+    )
+    let channelResult = try await store.batchInsertChannels(
+      [backupChannel], radioIDs: [radioID], maxChannelsByRadioID: [radioID: 2]
+    )
+    #expect(channelResult.dropped == 1)
+    #expect(channelResult.skipped == 0)
+    #expect(channelResult.droppedChannelIndices[radioID]?.contains(1) == true)
+  }
+
+  @Test
+  func `Full import accounts a no-slot channel's messages as dropped and the manifest balances`() async throws {
+    let radioID = UUID()
+    let maxChannels: UInt8 = 2
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    // Fill every slot in [0, maxChannels) with distinct-secret local channels.
+    try await destStore.saveChannel(
+      ChannelDTO.testChannel(radioID: radioID, index: 0, name: "#a", secret: Data(repeating: 0x10, count: 16))
+    )
+    try await destStore.saveChannel(
+      ChannelDTO.testChannel(radioID: radioID, index: 1, name: "#b", secret: Data(repeating: 0x11, count: 16))
+    )
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID).copy { $0.maxChannels = maxChannels }
+    // One backup channel that merges into an existing slot (slot 0, same empty-ish handling
+    // avoided by using a distinct secret at slot 0) and one that has no free slot -> dropped.
+    let droppedChannel = ChannelDTO.testChannel(
+      id: UUID(), radioID: radioID, index: 1, name: "#dropped", secret: Data(repeating: 0xA4, count: 16)
+    )
+    var droppedMessage1 = MessageDTO.testChannelMessage(
+      radioID: radioID, channelIndex: 1, text: "lost one",
+      timestamp: 1_700_002_000, direction: .incoming, senderNodeName: "Jan"
+    )
+    droppedMessage1.deduplicationKey = "ch-1-1700002000-Jan-AABBCCDD"
+    var droppedMessage2 = MessageDTO.testChannelMessage(
+      radioID: radioID, channelIndex: 1, text: "lost two",
+      timestamp: 1_700_002_100, direction: .incoming, senderNodeName: "Eva"
+    )
+    droppedMessage2.deduplicationKey = "ch-1-1700002100-Eva-AABBCCDE"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [droppedChannel],
+      messages: [droppedMessage1, droppedMessage2]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.counts[.channels]?.dropped == 1)
+    #expect(result.counts[.messages]?.dropped == 2)
+
+    // Message balance invariant: every declared message is inserted, merged, skipped, or dropped.
+    let m = try #require(result.counts[.messages])
+    #expect(envelope.manifest.messageCount == m.inserted + m.merged + m.skipped + m.dropped)
+  }
+
+  /// Slot 0 is reserved for the public channel, so a relocating non-public channel skips it
+  /// even when free. Local `#brno` occupies slot 1; slots 0 and 2 are free. The colliding
+  /// backup `#praha` must relocate to slot 2, never slot 0.
+  @Test
+  func `Channel reconcile: relocation reserves slot 0 for the public channel`() async throws {
+    let radioID = UUID()
+    let secretBrno = Data(repeating: 0xB6, count: 16)
+    let secretPraha = Data(repeating: 0xA6, count: 16)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    // Local channel occupies slot 1; slot 0 is intentionally left free (no public channel).
+    try await destStore.saveChannel(
+      ChannelDTO.testChannel(radioID: radioID, index: 1, name: "#brno", secret: secretBrno)
+    )
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID).copy { $0.maxChannels = 3 }
+    let backupPraha = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: 1,
+      name: "#praha",
+      secret: secretPraha
+    )
+
+    let envelope = AppBackupEnvelope.test(devices: [backupDevice], channels: [backupPraha])
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.channelsInserted == 1)
+
+    let channels = try await destStore.fetchAllChannels(radioID: radioID)
+    let praha = try #require(channels.first { $0.secret == secretPraha })
+    // Lowest free slot at or above 1 — slot 0 is skipped even though it is free.
+    #expect(praha.index == 2)
+  }
+
+  // MARK: - Test 13: Fresh-store import — remote sessions start disconnected
+
+  @Test
+  func `Import inserts remote sessions as disconnected while preserving backup metadata`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0xF3, count: 32)
+    let importedDate = Date(timeIntervalSince1970: 1_700_000_200)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupSession = RemoteNodeSessionDTO.testSession(
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Ops Room",
+      role: .roomServer,
+      isConnected: true,
+      permissionLevel: .admin,
+      lastConnectedDate: importedDate,
+      unreadCount: 5,
+      notificationLevel: .mentionsOnly,
+      isPinned: true,
+      neighborCount: 4,
+      lastSyncTimestamp: 88,
+      lastMessageDate: importedDate
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      remoteNodeSessions: [backupSession]
+    )
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let service = AppBackupService()
+
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.remoteNodeSessionsInserted == 1)
+    #expect(result.remoteNodeSessionsSkipped == 0)
+
+    let importedSession = try #require(await destStore.fetchRemoteNodeSession(id: backupSession.id))
+    #expect(importedSession.isConnected == false)
+    #expect(importedSession.permissionLevel == .admin)
+    #expect(importedSession.lastConnectedDate == importedDate)
+    #expect(importedSession.unreadCount == 5)
+    #expect(importedSession.notificationLevel == .mentionsOnly)
+    #expect(importedSession.isPinned == true)
+    #expect(importedSession.lastSyncTimestamp == 88)
+    #expect(importedSession.lastMessageDate == importedDate)
+  }
+
+  // MARK: - Test 14: Room-message delivery metadata survives import
+
+  @Test
+  func `Import preserves room-message delivery metadata`() async throws {
+    let radioID = UUID()
+    let createdAt = Date(timeIntervalSince1970: 1_700_000_275.25)
+    let session = RemoteNodeSessionDTO.testSession(radioID: radioID)
+    let roomMessage = RoomMessageDTO(
+      id: UUID(),
+      sessionID: session.id,
+      authorKeyPrefix: Data([0xCA, 0xFE, 0xBA, 0xBE]),
+      authorName: "Ops",
+      text: "Retry me",
+      timestamp: 1_700_000_275,
+      createdAt: createdAt,
+      isFromSelf: true,
+      status: .failed,
+      ackCode: 0xDEAD_BEEF,
+      roundTripTime: 1450,
+      retryAttempt: 3,
+      maxRetryAttempts: 7
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      roomMessages: [roomMessage],
+      remoteNodeSessions: [session]
+    )
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let service = AppBackupService()
+
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.roomMessagesInserted == 1)
+
+    let importedMessage = try #require(await destStore.fetchRoomMessage(id: roomMessage.id))
+    #expect(importedMessage.createdAt == createdAt)
+    #expect(importedMessage.status == .failed)
+    #expect(importedMessage.ackCode == 0xDEAD_BEEF)
+    #expect(importedMessage.roundTripTime == 1450)
+    #expect(importedMessage.retryAttempt == 3)
+    #expect(importedMessage.maxRetryAttempts == 7)
+  }
+
+  // MARK: - Test 15: Merge import — remote session metadata restored
+
+  @Test
+  func `Import onto existing remote session restores backup metadata without clobbering live state`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0xF4, count: 32)
+    let localConnectedDate = Date(timeIntervalSince1970: 1_700_000_250)
+    let importedDate = Date(timeIntervalSince1970: 1_700_000_300)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingSession = RemoteNodeSessionDTO.testSession(
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Ops Room",
+      role: .roomServer,
+      isConnected: true,
+      permissionLevel: .admin,
+      lastConnectedDate: localConnectedDate,
+      unreadCount: 0,
+      notificationLevel: .all,
+      isPinned: false,
+      neighborCount: 2,
+      lastSyncTimestamp: 123,
+      lastMessageDate: nil
+    )
+    try await destStore.saveRemoteNodeSessionDTO(existingSession)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupSession = RemoteNodeSessionDTO.testSession(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Ops Room",
+      role: .roomServer,
+      isConnected: false,
+      permissionLevel: .guest,
+      lastConnectedDate: Date(timeIntervalSince1970: 1_700_000_225),
+      unreadCount: 9,
+      notificationLevel: .mentionsOnly,
+      isPinned: true,
+      neighborCount: 7,
+      lastSyncTimestamp: 8,
+      lastMessageDate: importedDate
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      remoteNodeSessions: [backupSession]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.remoteNodeSessionsInserted == 0)
+    #expect(result.remoteNodeSessionsSkipped == 1)
+    #expect(result.remoteNodeSessionsMerged == 1)
+    #expect(result.hasRestoredChanges)
+
+    let mergedSession = try #require(await destStore.fetchRemoteNodeSession(id: existingSession.id))
+    #expect(mergedSession.isConnected == true)
+    #expect(mergedSession.permissionLevel == .admin)
+    #expect(mergedSession.lastConnectedDate == localConnectedDate)
+    #expect(mergedSession.unreadCount == 9)
+    #expect(mergedSession.notificationLevel == .mentionsOnly)
+    #expect(mergedSession.isPinned == true)
+    #expect(mergedSession.lastSyncTimestamp == 123)
+    #expect(mergedSession.lastMessageDate == importedDate)
+  }
+
+  // MARK: - Test 16: Merge import — same-second node snapshots preserved
+
+  @Test
+  func `Import preserves distinct node snapshots recorded within the same second`() async throws {
+    let radioID = UUID()
+    let nodePublicKey = Data(repeating: 0xF5, count: 32)
+    let baseTimestamp = Date(timeIntervalSince1970: 1_700_000_400)
+    let existingTimestamp = baseTimestamp.addingTimeInterval(0.100)
+    let importedTimestamp = baseTimestamp.addingTimeInterval(0.900)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    _ = try await destStore.saveNodeStatusSnapshot(
+      timestamp: existingTimestamp,
+      nodePublicKey: nodePublicKey,
+      batteryMillivolts: 3800,
+      lastSNR: 8.5,
+      lastRSSI: -90,
+      noiseFloor: -112,
+      uptimeSeconds: 60,
+      rxAirtimeSeconds: nil,
+      packetsSent: nil,
+      packetsReceived: nil,
+      receiveErrors: nil
+    )
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let existingSnapshot = NodeStatusSnapshotDTO.testSnapshot(
+      timestamp: existingTimestamp,
+      nodePublicKey: nodePublicKey,
+      batteryMillivolts: 3800,
+      lastSNR: 8.5,
+      lastRSSI: -90,
+      noiseFloor: -112,
+      uptimeSeconds: 60
+    )
+    let importedSnapshot = NodeStatusSnapshotDTO.testSnapshot(
+      timestamp: importedTimestamp,
+      nodePublicKey: nodePublicKey,
+      batteryMillivolts: nil,
+      lastSNR: nil,
+      lastRSSI: nil,
+      noiseFloor: nil,
+      uptimeSeconds: nil,
+      telemetryEntries: [TelemetrySnapshotEntry(channel: 1, type: "temperature", value: 21.5)]
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      nodeStatusSnapshots: [existingSnapshot, importedSnapshot]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.nodeStatusSnapshotsInserted == 1)
+    #expect(result.nodeStatusSnapshotsSkipped == 1)
+
+    let snapshots = try await destStore.fetchNodeStatusSnapshots(nodePublicKey: nodePublicKey, since: nil)
+    #expect(snapshots.count == 2)
+    #expect(snapshots.map(\.timestamp) == [existingTimestamp, importedTimestamp])
+    #expect(snapshots.last?.telemetryEntries?.count == 1)
+  }
+
+  // MARK: - Node status packet-type counters
+
+  /// The six per-type packet counters are optional DTO fields, so the contract is a
+  /// plain encode → decode round-trip locking them at the DTO boundary.
+  @Test
+  func `Node status packet-type counters survive DTO encode → decode round-trip`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(
+      sentDirect: 100, sentFlood: 200,
+      receivedDirect: 300, receivedFlood: 400,
+      directDuplicates: 11, floodDuplicates: 22
+    )
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: encoded)
+    #expect(decoded.sentDirect == 100)
+    #expect(decoded.sentFlood == 200)
+    #expect(decoded.receivedDirect == 300)
+    #expect(decoded.receivedFlood == 400)
+    #expect(decoded.directDuplicates == 11)
+    #expect(decoded.floodDuplicates == 22)
+  }
+
+  /// A legacy envelope written before these fields existed omits the six keys, so they
+  /// must decode as `nil` rather than failing the decode (per the optional-field rule).
+  @Test
+  func `Legacy snapshot envelope without packet-type counters decodes them as nil`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(
+      sentDirect: 1, sentFlood: 2, receivedDirect: 3, receivedFlood: 4,
+      directDuplicates: 5, floodDuplicates: 6
+    )
+    let encoded = try JSONEncoder().encode(dto)
+    let object = try JSONSerialization.jsonObject(with: encoded)
+    var json = try #require(object as? [String: Any])
+    for key in ["sentDirect", "sentFlood", "receivedDirect", "receivedFlood",
+                "directDuplicates", "floodDuplicates"] {
+      json.removeValue(forKey: key)
+    }
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: stripped)
+    #expect(decoded.sentDirect == nil)
+    #expect(decoded.sentFlood == nil)
+    #expect(decoded.receivedDirect == nil)
+    #expect(decoded.receivedFlood == nil)
+    #expect(decoded.directDuplicates == nil)
+    #expect(decoded.floodDuplicates == nil)
+    // A field present in legacy envelopes still decodes.
+    #expect(decoded.batteryMillivolts == 3800)
+  }
+
+  /// Latitude/longitude are optional DTO fields, so the contract is a plain
+  /// encode → decode round-trip locking them at the DTO boundary.
+  @Test
+  func `Node location survives DTO encode → decode round-trip`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(latitude: 37.7749, longitude: -122.4194)
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: encoded)
+    #expect(decoded.latitude == 37.7749)
+    #expect(decoded.longitude == -122.4194)
+  }
+
+  /// A legacy envelope written before location existed omits both keys, so they
+  /// must decode as nil rather than failing the decode (per the optional-field rule).
+  @Test
+  func `Legacy snapshot envelope without location decodes it as nil`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(latitude: 37.7749, longitude: -122.4194)
+    let encoded = try JSONEncoder().encode(dto)
+    let object = try JSONSerialization.jsonObject(with: encoded)
+    var json = try #require(object as? [String: Any])
+    json.removeValue(forKey: "latitude")
+    json.removeValue(forKey: "longitude")
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: stripped)
+    #expect(decoded.latitude == nil)
+    #expect(decoded.longitude == nil)
+    // A field present in legacy envelopes still decodes.
+    #expect(decoded.batteryMillivolts == 3800)
+  }
+
+  /// Altitude is an optional DTO field independent of latitude/longitude, so the
+  /// contract is a plain encode → decode round-trip locking it at the DTO boundary.
+  @Test
+  func `Node altitude survives DTO encode → decode round-trip`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(latitude: 37.7749, longitude: -122.4194, altitude: 42)
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: encoded)
+    #expect(decoded.altitude == 42)
+  }
+
+  /// A legacy envelope written before altitude existed omits the key, so it must
+  /// decode as nil rather than failing the decode (per the optional-field rule).
+  /// Latitude/longitude, present in that envelope, still decode.
+  @Test
+  func `Legacy snapshot envelope without altitude decodes it as nil`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(latitude: 37.7749, longitude: -122.4194, altitude: 42)
+    let encoded = try JSONEncoder().encode(dto)
+    let object = try JSONSerialization.jsonObject(with: encoded)
+    var json = try #require(object as? [String: Any])
+    json.removeValue(forKey: "altitude")
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: stripped)
+    #expect(decoded.altitude == nil)
+    #expect(decoded.latitude == 37.7749)
+    #expect(decoded.longitude == -122.4194)
+  }
+
+  /// Full envelope path: the six counters must survive export → import into a fresh store.
+  @Test
+  func `Node status packet-type counters survive full backup export → import`() async throws {
+    let radioID = UUID()
+    let nodePublicKey = Data(repeating: 0xF7, count: 32)
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let backupSnapshot = NodeStatusSnapshotDTO.testSnapshot(
+      nodePublicKey: nodePublicKey,
+      sentDirect: 100, sentFlood: 200,
+      receivedDirect: 300, receivedFlood: 400,
+      directDuplicates: 11, floodDuplicates: 22
+    )
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      nodeStatusSnapshots: [backupSnapshot]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(result.nodeStatusSnapshotsInserted == 1)
+
+    let snapshots = try await destStore.fetchNodeStatusSnapshots(nodePublicKey: nodePublicKey, since: nil)
+    let restored = try #require(snapshots.first)
+    #expect(restored.sentDirect == 100)
+    #expect(restored.sentFlood == 200)
+    #expect(restored.receivedDirect == 300)
+    #expect(restored.receivedFlood == 400)
+    #expect(restored.directDuplicates == 11)
+    #expect(restored.floodDuplicates == 22)
+  }
+
+  // MARK: - Test 17: Failed import cleanup
+
+  @Test
+  func `Successful import restores autosave on the destination store`() async throws {
+    let radioID = UUID()
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    await destStore.setAutosaveEnabledForTesting(true)
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.devicesInserted == 1)
+    #expect(await destStore.autosaveEnabledForTesting())
+    #expect(await !(destStore.hasPendingChangesForTesting()))
+    #expect(try await destStore.fetchAllDevices().count == 1)
+  }
+
+  @Test
+  func `Failed import rolls back reconcile-phase mutations to pre-existing rows`() async throws {
+    let radioID = UUID()
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    await destStore.setAutosaveEnabledForTesting(true)
+
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xC2, count: 32),
+      name: "Pre-existing"
+    )
+    try await destStore.saveContact(contact)
+    // Pre-existing contacts always have lastMessageDate = nil out of the gate.
+    let baselineContacts = try await destStore.fetchAllContacts(radioID: radioID)
+    let preImportLastMessageDate = baselineContacts.first?.lastMessageDate
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupMessage = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Reconcile target",
+      timestamp: 99999
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [contact],
+      messages: [backupMessage]
+    )
+
+    await destStore.setBackupImportFaultInjection { throw InjectedImportFailure.simulated }
+
+    await #expect(throws: InjectedImportFailure.simulated) {
+      try await destStore.importBackupDatabase(envelope)
+    }
+
+    let postImportContacts = try await destStore.fetchAllContacts(radioID: radioID)
+    #expect(postImportContacts.count == 1)
+    #expect(postImportContacts.first?.lastMessageDate == preImportLastMessageDate)
+    #expect(try await destStore.fetchAllMessages().isEmpty)
+    #expect(await !(destStore.hasPendingChangesForTesting()))
+  }
+
+  @Test
+  func `Failed import clears pending data and restores autosave`() async throws {
+    let radioID = UUID()
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    await destStore.setAutosaveEnabledForTesting(true)
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)]
+    )
+
+    await destStore.setBackupImportFaultInjection { throw InjectedImportFailure.simulated }
+
+    await #expect(throws: InjectedImportFailure.simulated) {
+      try await destStore.importBackupDatabase(envelope)
+    }
+
+    #expect(await destStore.autosaveEnabledForTesting())
+    #expect(await !(destStore.hasPendingChangesForTesting()))
+    #expect(try await destStore.fetchAllDevices().isEmpty)
+
+    try await destStore.saveContact(
+      ContactDTO.testContact(
+        radioID: radioID,
+        publicKey: Data(repeating: 0xC1, count: 32),
+        name: "Recovered Contact"
+      )
+    )
+
+    let contacts = try await destStore.fetchAllContacts(radioID: radioID)
+    #expect(contacts.count == 1)
+    #expect(contacts.first?.name == "Recovered Contact")
+  }
+
+  @Test
+  func `Disk-backed container has zero partial state after faulted import is abandoned`() async throws {
+    let storeURL = FileManager.default.temporaryDirectory
+      .appendingPathComponent("backup-crash-\(UUID().uuidString).store")
+    defer {
+      let fm = FileManager.default
+      try? fm.removeItem(at: storeURL)
+      try? fm.removeItem(at: storeURL.appendingPathExtension("shm"))
+      try? fm.removeItem(at: storeURL.appendingPathExtension("wal"))
+    }
+
+    let radioID = UUID()
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      contacts: [
+        ContactDTO.testContact(
+          radioID: radioID,
+          publicKey: Data(repeating: 0x42, count: 32),
+          name: "Should not survive"
+        )
+      ]
+    )
+
+    // Throw before save() to exercise the error path. With autosaveEnabled = false
+    // and save() never reached, nothing was flushed to SQLite — the defer's
+    // rollback() just clears the in-memory context. This is the error path, not a
+    // crash path: Swift's defer runs on throw, so a true bypassed-defer scenario
+    // would require a child process that exits mid-import.
+    do {
+      let cfg = ModelConfiguration(schema: PersistenceStore.schema, url: storeURL)
+      let container = try ModelContainer(for: PersistenceStore.schema, configurations: [cfg])
+      let store = PersistenceStore(modelContainer: container)
+      await store.setBackupImportFaultInjection { throw InjectedImportFailure.simulated }
+      await #expect(throws: InjectedImportFailure.simulated) {
+        try await store.importBackupDatabase(envelope)
+      }
+    }
+
+    let cfg = ModelConfiguration(schema: PersistenceStore.schema, url: storeURL)
+    let reopened = try ModelContainer(for: PersistenceStore.schema, configurations: [cfg])
+    let freshStore = PersistenceStore(modelContainer: reopened)
+
+    #expect(try await freshStore.fetchAllDevices().isEmpty)
+    #expect(try await freshStore.fetchAllContacts(radioID: radioID).isEmpty)
+  }
+
+  @Test
+  func `Import on the process store updates rows already registered in that context`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let publicKey = Data(repeating: 0x51, count: 32)
+    let importedDate = Date(timeIntervalSince1970: 1_700_000_000)
+
+    try await store.saveContact(
+      ContactDTO.testContact(
+        radioID: radioID,
+        publicKey: publicKey,
+        name: "Alice",
+        nickname: nil,
+        isBlocked: false,
+        unreadCount: 0
+      )
+    )
+
+    // Warm registered objects the way a process-lifetime store does after
+    // live reads so later fetches see import-mutated fields.
+    let warmed = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: publicKey)
+    )
+    #expect(warmed.nickname == nil)
+    #expect(warmed.isBlocked == false)
+    #expect(warmed.unreadCount == 0)
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      contacts: [
+        ContactDTO.testContact(
+          radioID: radioID,
+          publicKey: publicKey,
+          name: "Alice",
+          nickname: "Field Ops",
+          isBlocked: true,
+          lastMessageDate: importedDate,
+          unreadCount: 7
+        )
+      ]
+    )
+
+    let result = try await AppBackupService().importBackup(
+      envelope: envelope,
+      into: store
+    )
+    #expect(result.contactsSkipped == 1)
+    #expect(result.contactsMerged == 1)
+
+    let after = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: publicKey)
+    )
+    #expect(after.nickname == "Field Ops")
+    #expect(after.isBlocked == true)
+    #expect(after.unreadCount == 7)
+    #expect(after.lastMessageDate == importedDate)
+  }
+
+  // MARK: - Test 18: Export assigns content-based keys to nil-keyed messages
+
+  @Test
+  func `Export assigns content-based dedup keys to incoming messages with nil deduplicationKey`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xF6, count: 32),
+      name: "Dan"
+    )
+    try await sourceStore.saveContact(contact)
+
+    // Save an incoming DM with nil deduplicationKey (simulates pre-migration message)
+    let dm = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Pre-migration DM",
+      timestamp: 12345,
+      direction: .incoming
+    )
+    try await sourceStore.saveMessage(dm)
+
+    // Save an incoming channel message with nil deduplicationKey
+    let chMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 2,
+      text: "Pre-migration channel msg",
+      timestamp: 67890,
+      direction: .incoming,
+      senderNodeName: "Node1"
+    )
+    try await sourceStore.saveMessage(chMsg)
+
+    // Export
+    let service = AppBackupService()
+    let result = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: result.data)
+
+    // Verify exported messages have content-based keys, not backup-<UUID>
+    let exportedDM = try #require(envelope.messages.first { $0.contactID == contact.id })
+    #expect(exportedDM.deduplicationKey?.hasPrefix("dm-") == true)
+    #expect(exportedDM.deduplicationKey?.hasPrefix("backup-") != true)
+
+    let exportedCh = try #require(envelope.messages.first { $0.channelIndex == 2 })
+    #expect(exportedCh.deduplicationKey?.hasPrefix("ch-") == true)
+    #expect(exportedCh.deduplicationKey?.hasPrefix("backup-") != true)
+  }
+
+  // MARK: - Test 19: Export preserves existing content-based keys
+
+  @Test
+  func `Export preserves existing content-based dedup keys unchanged`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await sourceStore.saveContact(contact)
+
+    let existingKey = "dm-\(contact.id.uuidString)-99999-AABBCCDD"
+    var msg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Already has key"
+    )
+    msg.deduplicationKey = existingKey
+    try await sourceStore.saveMessage(msg)
+
+    let service = AppBackupService()
+    let result = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: result.data)
+
+    let exported = try #require(envelope.messages.first)
+    #expect(exported.deduplicationKey == existingKey)
+  }
+
+  // MARK: - Test 23: Duplicates within a single backup don't orphan their children
+
+  /// Two incoming messages in the same envelope that share a content key — the
+  /// second is skipped (same wire packet seen twice), and its repeats/reactions
+  /// must be remapped to the first (winning) UUID.
+  @Test
+  func `Duplicate messages within one envelope: children of the skipped duplicate link to the inserted message`() async throws {
+    let radioID = UUID()
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+
+    var firstMsg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Duplicate in envelope",
+      timestamp: 1_700_000_500,
+      direction: .incoming
+    )
+    firstMsg.deduplicationKey = nil
+
+    var secondMsg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Duplicate in envelope",
+      timestamp: 1_700_000_500,
+      direction: .incoming
+    )
+    secondMsg.deduplicationKey = nil
+    #expect(firstMsg.id != secondMsg.id)
+
+    // Children reference the second (to-be-skipped) message's UUID.
+    let repeatForSecond = MessageRepeatDTO.testRepeat(
+      messageID: secondMsg.id,
+      pathNodes: Data([0x11])
+    )
+    let reactionForSecond = ReactionDTO.testReaction(
+      messageID: secondMsg.id,
+      radioID: radioID,
+      emoji: "🌶️",
+      senderName: "Dup"
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [contact],
+      messages: [firstMsg, secondMsg],
+      messageRepeats: [repeatForSecond],
+      reactions: [reactionForSecond]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messagesInserted == 1)
+    #expect(result.messagesSkipped == 1)
+    #expect(result.messageRepeatsInserted == 1)
+    #expect(result.reactionsInserted == 1)
+
+    // Children must attach to the first (winning) UUID; the second UUID must have no rows.
+    let repeatsUnderFirst = try await destStore.fetchMessageRepeats(messageID: firstMsg.id)
+    #expect(repeatsUnderFirst.count == 1)
+    let orphanedRepeats = try await destStore.fetchMessageRepeats(messageID: secondMsg.id)
+    #expect(orphanedRepeats.isEmpty)
+
+    let winner = try #require(await destStore.fetchMessage(id: firstMsg.id))
+    #expect(winner.heardRepeats == 1)
+    #expect(winner.reactionSummary == "🌶️:1")
+  }
+
+  /// Two incoming messages in the same envelope can share a UUID while using
+  /// different backup keys. The second is skipped so `Message.id` is not inserted
+  /// twice, and its repeats attach to the first row.
+  @Test
+  func `Duplicate message ids within one envelope: the second is skipped and repeats attach to the first`() async throws {
+    let radioID = UUID()
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    let sharedID = UUID()
+
+    var first = MessageDTO.testDirectMessage(
+      id: sharedID,
+      radioID: radioID,
+      contactID: contact.id,
+      text: "First body",
+      timestamp: 1_700_000_500,
+      direction: .incoming
+    )
+    first.deduplicationKey = "shared-id-first"
+
+    var second = MessageDTO.testDirectMessage(
+      id: sharedID,
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Second body",
+      timestamp: 1_700_000_600,
+      direction: .incoming
+    )
+    second.deduplicationKey = "shared-id-second"
+
+    let repeat1 = MessageRepeatDTO.testRepeat(
+      messageID: sharedID,
+      pathNodes: Data([0x31])
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [contact],
+      messages: [first, second],
+      messageRepeats: [repeat1]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messagesInserted == 1)
+    #expect(result.messagesSkipped == 1)
+    #expect(result.messageRepeatsInserted == 1)
+    let destMessages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(destMessages.count == 1)
+    #expect(destMessages.first?.id == sharedID)
+    #expect(destMessages.first?.text == "First body")
+    let repeats = try await destStore.fetchMessageRepeats(messageID: sharedID)
+    #expect(repeats.count == 1)
+  }
+
+  // MARK: - Test 24: Cancellation after DB commit reports success, not cancelled
+
+  /// A task cancelled between the DB commit and the rest of `importBackup`
+  /// must not throw CancellationError. The DB write has already landed, so
+  /// a throw here would report cancellation while the database actually
+  /// persisted.
+  @Test
+  func `Task cancellation after DB commit does not throw and returns a successful result`() async throws {
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice()]
+    )
+
+    // Post-commit hook cancels the task that's running the import (the
+    // child Task below), mirroring the race where the user taps Cancel
+    // mid-save. Running the import in a child Task keeps the outer test's
+    // cancellation state clean so post-import fetches can run.
+    await destStore.setBackupImportPostCommitHook {
+      withUnsafeCurrentTask { $0?.cancel() }
+    }
+
+    let service = AppBackupService()
+    let importTask = Task<ImportResult, Error> {
+      try await service.importBackup(envelope: envelope, into: destStore)
+    }
+
+    let result: ImportResult
+    do {
+      result = try await importTask.value
+    } catch {
+      Issue.record("Import after post-commit cancellation should succeed, got: \(error)")
+      return
+    }
+
+    #expect(result.devicesInserted == 1)
+    #expect(try await destStore.fetchAllDevices().count == 1)
+  }
+
+  // MARK: - Test 25: userDefaultsRestored reflects actual writes
+
+  /// When every UserDefaults key carried in the backup is already set
+  /// locally, `restore(to:)` writes nothing. The import result must then
+  /// report `userDefaultsRestored == false`, otherwise a second no-op
+  /// import would claim `hasRestoredChanges` with nothing actually changed.
+  @Test
+  func `Import reports userDefaultsRestored=false when no new keys were written`() async throws {
+    let key = "hasCompletedOnboarding"
+    let suiteName = "test.\(UUID().uuidString)"
+    // UserDefaults is thread-safe but not marked Sendable, so reusing this value
+    // across the importBackup actor boundary needs the isolation opt-out.
+    nonisolated(unsafe) let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+    defaults.set(true, forKey: key)
+
+    var backupDefaults = BackupUserDefaults()
+    backupDefaults.hasCompletedOnboarding = true
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice()],
+      userDefaults: backupDefaults
+    )
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore, defaults: defaults)
+
+    #expect(!result.userDefaultsRestored)
+  }
+
+  // MARK: - Test 26: Fresh-store import — contact unread counts preserved
+
+  @Test
+  func `Fresh-insert import preserves contact unread counts from backup`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0xE5, count: 32)
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey,
+      unreadCount: 7,
+      unreadMentionCount: 2
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [backupContact]
+    )
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let service = AppBackupService()
+
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.contactsInserted == 1)
+    #expect(result.contactsSkipped == 0)
+
+    let importedContact = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: publicKey)
+    )
+    #expect(importedContact.unreadCount == 7)
+    #expect(importedContact.unreadMentionCount == 2)
+  }
+
+  // MARK: - Test 27: Fresh-store import — channel unread counts preserved
+
+  @Test
+  func `Fresh-insert import preserves channel unread counts from backup`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 4,
+      unreadCount: 3,
+      unreadMentionCount: 1
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      channels: [backupChannel]
+    )
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let service = AppBackupService()
+
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.channelsInserted == 1)
+    #expect(result.channelsSkipped == 0)
+
+    let importedChannel = try #require(await destStore.fetchChannel(radioID: radioID, index: 4))
+    #expect(importedChannel.unreadCount == 3)
+    #expect(importedChannel.unreadMentionCount == 1)
+  }
+
+  // MARK: - Test 28: Merge import — contact unread counts max with local
+
+  @Test
+  func `Merge import keeps local contact unread counts when they exceed backup values`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0xE6, count: 32)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey,
+      unreadCount: 9,
+      unreadMentionCount: 4
+    )
+    try await destStore.saveContact(existingContact)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey,
+      unreadCount: 2,
+      unreadMentionCount: 1
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      contacts: [backupContact]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.contactsInserted == 0)
+    #expect(result.contactsSkipped == 1)
+
+    let mergedContact = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: publicKey)
+    )
+    #expect(mergedContact.unreadCount == 9)
+    #expect(mergedContact.unreadMentionCount == 4)
+  }
+
+  // MARK: - Test 29: Merge import — channel unread counts max with local
+
+  @Test
+  func `Merge import keeps local channel unread counts when they exceed backup values`() async throws {
+    let radioID = UUID()
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingChannel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 5,
+      unreadCount: 6,
+      unreadMentionCount: 3
+    )
+    try await destStore.saveChannel(existingChannel)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 5,
+      unreadCount: 1,
+      unreadMentionCount: 0
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupChannel]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.channelsInserted == 0)
+    #expect(result.channelsSkipped == 1)
+
+    let mergedChannel = try #require(await destStore.fetchChannel(radioID: radioID, index: 5))
+    #expect(mergedChannel.unreadCount == 6)
+    #expect(mergedChannel.unreadMentionCount == 3)
+  }
+
+  // MARK: - Test 30: Merge import — remote session unread count max with local
+
+  @Test
+  func `Merge import keeps local remote-session unread count when it exceeds backup value`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0xE7, count: 32)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingSession = RemoteNodeSessionDTO.testSession(
+      radioID: radioID,
+      publicKey: publicKey,
+      unreadCount: 8
+    )
+    try await destStore.saveRemoteNodeSessionDTO(existingSession)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupSession = RemoteNodeSessionDTO.testSession(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: publicKey,
+      unreadCount: 2
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      remoteNodeSessions: [backupSession]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.remoteNodeSessionsInserted == 0)
+    #expect(result.remoteNodeSessionsSkipped == 1)
+
+    let mergedSession = try #require(await destStore.fetchRemoteNodeSession(id: existingSession.id))
+    #expect(mergedSession.unreadCount == 8)
+  }
+
+  // MARK: - Outgoing duplicates must not collapse
+
+  /// A user who double-taps send (or retries within the same UInt32 second) ends up
+  /// with two outgoing rows that share recipient + text + timestamp. They are two
+  /// distinct intentional actions, and backup/restore must keep both.
+  @Test
+  func `Outgoing messages with identical recipient/text/timestamp survive round-trip without deduplication`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await sourceStore.saveContact(contact)
+
+    let sharedTimestamp: UInt32 = 1_700_001_234
+
+    let firstMsg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "ok",
+      timestamp: sharedTimestamp,
+      direction: .outgoing
+    )
+    let secondMsg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "ok",
+      timestamp: sharedTimestamp,
+      direction: .outgoing
+    )
+    #expect(firstMsg.id != secondMsg.id)
+    try await sourceStore.saveMessage(firstMsg)
+    try await sourceStore.saveMessage(secondMsg)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messagesInserted == 2)
+    #expect(result.messagesSkipped == 0)
+
+    let destMessages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(destMessages.count == 2)
+    #expect(Set(destMessages.map(\.id)) == Set([firstMsg.id, secondMsg.id]))
+  }
+
+  // MARK: - Repeat rows through the same route must not collapse
+
+  /// `MessageRepeat` distinguishes hearings by `id`/`rxLogEntryID`. Two observations
+  /// of the same message through the same path (e.g. a flood echo) are genuinely
+  /// distinct and must both survive round-trip so `heardRepeats` stays accurate.
+  @Test
+  func `Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await sourceStore.saveContact(contact)
+
+    var msg = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "echoed",
+      direction: .outgoing
+    )
+    msg.deduplicationKey = nil
+    try await sourceStore.saveMessage(msg)
+
+    let sharedPath = Data([0x42])
+    let firstRepeat = MessageRepeatDTO.testRepeat(
+      messageID: msg.id,
+      pathNodes: sharedPath,
+      rxLogEntryID: UUID()
+    )
+    let secondRepeat = MessageRepeatDTO.testRepeat(
+      messageID: msg.id,
+      pathNodes: sharedPath,
+      rxLogEntryID: UUID()
+    )
+    #expect(firstRepeat.id != secondRepeat.id)
+    try await sourceStore.saveMessageRepeat(firstRepeat)
+    try await sourceStore.saveMessageRepeat(secondRepeat)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messageRepeatsInserted == 2)
+    #expect(result.messageRepeatsSkipped == 0)
+
+    let restoredRepeats = try await destStore.fetchMessageRepeats(messageID: msg.id)
+    #expect(restoredRepeats.count == 2)
+    #expect(Set(restoredRepeats.map(\.id)) == Set([firstRepeat.id, secondRepeat.id]))
+
+    let restoredMsg = try #require(await destStore.fetchMessage(id: msg.id))
+    #expect(restoredMsg.heardRepeats == 2)
+  }
+
+  // MARK: - Incoming path arrivals on merge
+
+  @Test
+  func `Skipped incoming parent with a distinct path is promoted to a MessageRepeat`() async throws {
+    let radioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let channel = ChannelDTO.testChannel(radioID: radioID, index: 0)
+    try await destStore.saveChannel(channel)
+
+    let pathP1 = Data([0xA1])
+    let pathP2 = Data([0xB2])
+    let dedupKey = "incoming-path-promote"
+    var destMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 1,
+      senderNodeName: "Alice",
+      heardRepeats: 0
+    )
+    destMsg.pathNodes = pathP2
+    destMsg.deduplicationKey = dedupKey
+    try await destStore.saveMessage(destMsg)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 1,
+      senderNodeName: "Alice"
+    )
+    backupMsg.pathNodes = pathP1
+    backupMsg.deduplicationKey = dedupKey
+    let envelopeRepeat = MessageRepeatDTO.testRepeat(
+      messageID: backupMsg.id,
+      pathNodes: pathP2
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      channels: [channel],
+      messages: [backupMsg],
+      messageRepeats: [envelopeRepeat]
+    )
+    let result = try await AppBackupService().importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messagesSkipped == 1)
+    let repeats = try await destStore.fetchMessageRepeats(messageID: destMsg.id)
+    #expect(Set(repeats.map(\.pathNodes)) == [pathP1])
+    let updated = try #require(await destStore.fetchMessage(id: destMsg.id))
+    #expect(updated.pathNodes == pathP2)
+    #expect(updated.heardRepeats == 1)
+  }
+
+  @Test
+  func `Incoming extra that matches an existing extra path is not inserted again`() async throws {
+    let radioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let channel = ChannelDTO.testChannel(radioID: radioID, index: 0)
+    try await destStore.saveChannel(channel)
+
+    let pathP1 = Data([0xA1])
+    let pathP2 = Data([0xB2])
+    let dedupKey = "incoming-path-collapse"
+    var destMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 1,
+      senderNodeName: "Alice",
+      heardRepeats: 1
+    )
+    destMsg.pathNodes = pathP1
+    destMsg.deduplicationKey = dedupKey
+    try await destStore.saveMessage(destMsg)
+    try await destStore.saveMessageRepeat(MessageRepeatDTO.testRepeat(
+      messageID: destMsg.id,
+      pathNodes: pathP2
+    ))
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 1,
+      senderNodeName: "Alice"
+    )
+    backupMsg.pathNodes = pathP1
+    backupMsg.deduplicationKey = dedupKey
+    let envelopeRepeat = MessageRepeatDTO.testRepeat(
+      messageID: backupMsg.id,
+      pathNodes: pathP2
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      channels: [channel],
+      messages: [backupMsg],
+      messageRepeats: [envelopeRepeat]
+    )
+    let result = try await AppBackupService().importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messagesSkipped == 1)
+    let repeats = try await destStore.fetchMessageRepeats(messageID: destMsg.id)
+    #expect(repeats.count == 1)
+    #expect(repeats.first?.pathNodes == pathP2)
+    let updated = try #require(await destStore.fetchMessage(id: destMsg.id))
+    #expect(updated.heardRepeats == 1)
+  }
+
+  @Test
+  func `Outgoing same-path repeats are not collapsed on merge import`() async throws {
+    let radioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await destStore.saveContact(contact)
+
+    let sharedPath = Data([0x42])
+    let destMsg = MessageDTO.testDirectMessage(
+      id: UUID(),
+      radioID: radioID,
+      contactID: contact.id,
+      text: "echoed",
+      direction: .outgoing
+    )
+    try await destStore.saveMessage(destMsg)
+    try await destStore.saveMessageRepeat(MessageRepeatDTO.testRepeat(
+      messageID: destMsg.id,
+      pathNodes: sharedPath
+    ))
+    try await destStore.saveMessageRepeat(MessageRepeatDTO.testRepeat(
+      messageID: destMsg.id,
+      pathNodes: sharedPath
+    ))
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupMsg = destMsg
+    backupMsg.heardRepeats = 0
+    let extraOne = MessageRepeatDTO.testRepeat(messageID: destMsg.id, pathNodes: sharedPath)
+    let extraTwo = MessageRepeatDTO.testRepeat(messageID: destMsg.id, pathNodes: sharedPath)
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [contact],
+      messages: [backupMsg],
+      messageRepeats: [extraOne, extraTwo]
+    )
+    let result = try await AppBackupService().importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messagesSkipped == 1)
+    #expect(result.messageRepeatsInserted == 2)
+    let repeats = try await destStore.fetchMessageRepeats(messageID: destMsg.id)
+    #expect(repeats.count == 4)
+    let updated = try #require(await destStore.fetchMessage(id: destMsg.id))
+    #expect(updated.heardRepeats == 4)
+  }
+
+  @Test
+  func `Skipped incoming parent with nil pathNodes does not invent a 0-hop extra`() async throws {
+    let radioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let channel = ChannelDTO.testChannel(radioID: radioID, index: 0)
+    try await destStore.saveChannel(channel)
+
+    let localPath = Data([0xB2])
+    let dedupKey = "incoming-path-nil-foreign"
+    var destMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 1,
+      senderNodeName: "Alice",
+      heardRepeats: 0
+    )
+    destMsg.pathNodes = localPath
+    destMsg.deduplicationKey = dedupKey
+    try await destStore.saveMessage(destMsg)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 1,
+      senderNodeName: "Alice"
+    )
+    backupMsg.pathNodes = nil
+    backupMsg.deduplicationKey = dedupKey
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      channels: [channel],
+      messages: [backupMsg]
+    )
+    let result = try await AppBackupService().importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messagesSkipped == 1)
+    #expect(try await destStore.fetchMessageRepeats(messageID: destMsg.id).isEmpty)
+    let updated = try #require(await destStore.fetchMessage(id: destMsg.id))
+    #expect(updated.pathNodes == localPath)
+    #expect(updated.heardRepeats == 0)
+  }
+
+  @Test
+  func `Skipped incoming parent adopts a path onto a local nil column`() async throws {
+    let radioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let channel = ChannelDTO.testChannel(radioID: radioID, index: 0)
+    try await destStore.saveChannel(channel)
+
+    let adopted = Data([0xA1])
+    let dedupKey = "incoming-path-adopt"
+    var destMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 0,
+      senderNodeName: "Alice",
+      heardRepeats: 0
+    )
+    destMsg.pathNodes = nil
+    destMsg.deduplicationKey = dedupKey
+    try await destStore.saveMessage(destMsg)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 1,
+      senderNodeName: "Alice"
+    )
+    backupMsg.pathNodes = adopted
+    backupMsg.deduplicationKey = dedupKey
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      channels: [channel],
+      messages: [backupMsg]
+    )
+    _ = try await AppBackupService().importBackup(envelope: envelope, into: destStore)
+
+    let updated = try #require(await destStore.fetchMessage(id: destMsg.id))
+    #expect(updated.pathNodes == adopted)
+    #expect(updated.pathLength == 1)
+    #expect(try await destStore.fetchMessageRepeats(messageID: destMsg.id).isEmpty)
+    #expect(updated.heardRepeats == 0)
+  }
+
+  @Test
+  func `Skipped incoming parent adopts a 0-hop Data onto a local nil column`() async throws {
+    let radioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let channel = ChannelDTO.testChannel(radioID: radioID, index: 0)
+    try await destStore.saveChannel(channel)
+
+    let dedupKey = "incoming-path-adopt-zero"
+    var destMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 0,
+      senderNodeName: "Alice",
+      heardRepeats: 0
+    )
+    destMsg.pathNodes = nil
+    destMsg.deduplicationKey = dedupKey
+    try await destStore.saveMessage(destMsg)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 0,
+      senderNodeName: "Alice"
+    )
+    backupMsg.pathNodes = Data()
+    backupMsg.deduplicationKey = dedupKey
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      channels: [channel],
+      messages: [backupMsg]
+    )
+    _ = try await AppBackupService().importBackup(envelope: envelope, into: destStore)
+
+    let updated = try #require(await destStore.fetchMessage(id: destMsg.id))
+    #expect(updated.pathNodes == Data())
+    #expect(updated.pathLength == 0)
+    #expect(try await destStore.fetchMessageRepeats(messageID: destMsg.id).isEmpty)
+    #expect(updated.heardRepeats == 0)
+  }
+
+  @Test
+  func `Local 0-hop is not overwritten when the skipped parent has a hop list`() async throws {
+    let radioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let channel = ChannelDTO.testChannel(radioID: radioID, index: 0)
+    try await destStore.saveChannel(channel)
+
+    let extraPath = Data([0xA1])
+    let dedupKey = "incoming-path-keep-zero"
+    var destMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 0,
+      senderNodeName: "Alice",
+      heardRepeats: 0
+    )
+    destMsg.pathNodes = Data()
+    destMsg.deduplicationKey = dedupKey
+    try await destStore.saveMessage(destMsg)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupMsg = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "flood",
+      direction: .incoming,
+      pathLength: 1,
+      senderNodeName: "Alice"
+    )
+    backupMsg.pathNodes = extraPath
+    backupMsg.deduplicationKey = dedupKey
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      channels: [channel],
+      messages: [backupMsg]
+    )
+    _ = try await AppBackupService().importBackup(envelope: envelope, into: destStore)
+
+    let updated = try #require(await destStore.fetchMessage(id: destMsg.id))
+    #expect(updated.pathNodes == Data())
+    #expect(updated.pathLength == 0)
+    let repeats = try await destStore.fetchMessageRepeats(messageID: destMsg.id)
+    #expect(repeats.map(\.pathNodes) == [extraPath])
+    #expect(updated.heardRepeats == 1)
+  }
+
+  // MARK: - Reply chain remap
+
+  /// When a backup's replied-to parent already exists locally (content-keyed merge),
+  /// the reply's replyToID must be rewritten onto the local parent UUID — otherwise
+  /// reply navigation dangles on the pre-merge backup UUID.
+  @Test
+  func `Reply remaps onto local parent when parent is merged during import`() async throws {
+    let radioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await destStore.saveContact(contact)
+
+    var existingParent = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Parent",
+      direction: .incoming
+    )
+    existingParent.deduplicationKey = "reply-remap-parent"
+    try await destStore.saveMessage(existingParent)
+
+    // Backup contains the same parent (will be skipped/merged) and a reply
+    // whose replyToID points at the backup-side parent UUID.
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    var backupParent = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Parent",
+      direction: .incoming
+    )
+    backupParent.deduplicationKey = "reply-remap-parent"
+    #expect(backupParent.id != existingParent.id)
+
+    var reply = MessageDTO.testDirectMessage(
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Reply",
+      direction: .incoming,
+      replyToID: backupParent.id
+    )
+    reply.deduplicationKey = "reply-remap-reply"
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [contact],
+      messages: [backupParent, reply]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(result.messagesSkipped == 1)
+    #expect(result.messagesInserted == 1)
+
+    let destMessages = try await destStore.fetchAllMessages(radioID: radioID)
+    let restoredReply = try #require(destMessages.first { $0.id == reply.id })
+    #expect(restoredReply.replyToID == existingParent.id)
+  }
+
+  // MARK: - Cross-radio channel message preservation
+
+  /// Two companion radios often receive the same over-the-air channel packet. The stored
+  /// live-sync deduplicationKey is radio-agnostic by construction, so the backup-reconciliation
+  /// key must be scoped by radioID. Otherwise the import path collapses both rows into one
+  /// and the second companion's channel view renders blank after restore — the same failure
+  /// mode fixed in live sync (issue #288) leaking back through backup/restore.
+  @Test
+  func `Backup restores the same channel packet under each companion radio that received it`() async throws {
+    let radioA = UUID()
+    let radioB = UUID()
+    let deviceA = DeviceDTO.testDevice(
+      id: radioA,
+      radioID: radioA,
+      publicKey: Data(repeating: 0xAA, count: 32),
+      nodeName: "CompanionA"
+    )
+    let deviceB = DeviceDTO.testDevice(
+      id: radioB,
+      radioID: radioB,
+      publicKey: Data(repeating: 0xBB, count: 32),
+      nodeName: "CompanionB"
+    )
+    let channelA = ChannelDTO.testChannel(radioID: radioA, index: 0, name: "General")
+    let channelB = ChannelDTO.testChannel(radioID: radioB, index: 0, name: "General")
+
+    // Same wire packet — identical content-based dedup key — seen by both companions.
+    let sharedDedupKey = "ch-0-1700000000-Alice-A1B2C3D4"
+    var msgFromA = MessageDTO.testChannelMessage(
+      radioID: radioA,
+      channelIndex: 0,
+      text: "aaaaa",
+      timestamp: 1_700_000_000,
+      direction: .incoming,
+      status: .delivered,
+      senderNodeName: "Alice"
+    )
+    msgFromA.deduplicationKey = sharedDedupKey
+
+    var msgFromB = MessageDTO.testChannelMessage(
+      radioID: radioB,
+      channelIndex: 0,
+      text: "aaaaa",
+      timestamp: 1_700_000_000,
+      direction: .incoming,
+      status: .delivered,
+      senderNodeName: "Alice"
+    )
+    msgFromB.deduplicationKey = sharedDedupKey
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [deviceA, deviceB],
+      channels: [channelA, channelB],
+      messages: [msgFromA, msgFromB]
+    )
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messagesInserted == 2,
+            "Both companions' copies of the same channel packet must be restored — otherwise the second companion's channel view goes blank post-restore")
+    #expect(result.messagesSkipped == 0)
+
+    let messagesForA = try await destStore.fetchAllMessages(radioID: radioA)
+    let messagesForB = try await destStore.fetchAllMessages(radioID: radioB)
+    #expect(messagesForA.count == 1)
+    #expect(messagesForB.count == 1)
+    #expect(messagesForA.first?.text == "aaaaa")
+    #expect(messagesForB.first?.text == "aaaaa")
+  }
+
+  // MARK: - regionSelection backup contract
+
+  @Test
+  func `regionSelection round-trips through encode/decode`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.regionSelection = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-CA",
+      countyKey: "los angeles",
+      source: .location
+    )
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.regionSelection == prefs.regionSelection)
+  }
+
+  @Test
+  func `Legacy envelope without regionSelection decodes as nil`() throws {
+    let legacyJSON = """
+    {
+        "hasCompletedOnboarding": true,
+        "mapStyleSelection": "topo"
+    }
+    """.data(using: .utf8)!
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+    #expect(decoded.regionSelection == nil)
+    #expect(decoded.hasCompletedOnboarding == true)
+  }
+
+  @Test
+  func `restore writes regionSelection only when local key is missing`() throws {
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    let local = RegionSelection(countryCode: "DE", source: .manual)
+    try defaults.set(JSONEncoder().encode(local), forKey: BackupUserDefaults.regionSelectionKey)
+
+    var prefs = BackupUserDefaults()
+    prefs.regionSelection = RegionSelection(countryCode: "US", source: .location)
+    let setKeys = prefs.restore(to: defaults)
+    #expect(!setKeys.contains(BackupUserDefaults.regionSelectionKey))
+
+    let stillThere = try JSONDecoder().decode(
+      RegionSelection.self,
+      from: #require(defaults.data(forKey: BackupUserDefaults.regionSelectionKey))
+    )
+    #expect(stillThere == local)
+  }
+
+  @Test
+  func `restore writes regionSelection when local is missing (fresh install)`() throws {
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    var prefs = BackupUserDefaults()
+    prefs.regionSelection = RegionSelection(countryCode: "US", source: .location)
+    let setKeys = prefs.restore(to: defaults)
+
+    #expect(setKeys.contains(BackupUserDefaults.regionSelectionKey))
+    let restored = try JSONDecoder().decode(
+      RegionSelection.self,
+      from: #require(defaults.data(forKey: BackupUserDefaults.regionSelectionKey))
+    )
+    #expect(restored == prefs.regionSelection)
+  }
+
+  // MARK: - translationTargetLanguage backup contract
+
+  @Test
+  func `translationTargetLanguage round-trips through encode/decode`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.translationTargetLanguage = "da"
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: JSONEncoder().encode(prefs)
+    )
+    #expect(decoded.translationTargetLanguage == "da")
+  }
+
+  @Test
+  func `Legacy envelope without translationTargetLanguage decodes as nil`() throws {
+    let legacyJSON = """
+    {
+        "hasCompletedOnboarding": true,
+        "mapStyleSelection": "topo"
+    }
+    """.data(using: .utf8)!
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+    #expect(decoded.translationTargetLanguage == nil)
+  }
+
+  // MARK: - useDefaultTranslationApp backup contract
+
+  @Test
+  func `useDefaultTranslationApp round-trips through encode/decode`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.useDefaultTranslationApp = true
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: JSONEncoder().encode(prefs)
+    )
+    #expect(decoded.useDefaultTranslationApp == true)
+  }
+
+  @Test
+  func `Legacy envelope without useDefaultTranslationApp decodes as nil`() throws {
+    let legacyJSON = """
+    {
+        "hasCompletedOnboarding": true,
+        "mapStyleSelection": "topo"
+    }
+    """.data(using: .utf8)!
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+    #expect(decoded.useDefaultTranslationApp == nil)
+  }
+
+  @Test
+  func `overlay backup keeps the language subtag alongside useDefaultTranslationApp`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.translationTargetLanguage = "da"
+    prefs.useDefaultTranslationApp = true
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: JSONEncoder().encode(prefs)
+    )
+    #expect(decoded.translationTargetLanguage == "da")
+    #expect(decoded.useDefaultTranslationApp == true)
+
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    let setKeys = prefs.restore(to: defaults)
+    #expect(setKeys.contains(AppStorageKey.translationTargetLanguage.rawValue))
+    #expect(setKeys.contains(AppStorageKey.useDefaultTranslationApp.rawValue))
+    #expect(defaults.string(forKey: AppStorageKey.translationTargetLanguage.rawValue) == "da")
+    #expect(defaults.bool(forKey: AppStorageKey.useDefaultTranslationApp.rawValue) == true)
+  }
+
+  // MARK: - Message.regionScope round-trip
+
+  @Test
+  func `Message.regionScope round-trips through full export/import`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xAB, count: 32),
+      name: "Alice"
+    )
+    try await sourceStore.saveContact(contact)
+
+    var msg = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, text: "Greetings")
+    msg.regionScope = "Germany"
+    msg.deduplicationKey = "region-scope-roundtrip-\(UUID())"
+    try await sourceStore.saveMessage(msg)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+    let restored = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(restored.count == 1)
+    #expect(restored.first?.regionScope == "Germany")
+  }
+
+  @Test
+  func `MessageDTO Codable: regionScope set decodes round-trip`() throws {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Test")
+    dto.regionScope = "Bavaria"
+
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+    #expect(decoded.regionScope == "Bavaria")
+  }
+
+  @Test
+  func `Legacy MessageDTO envelope without regionScope decodes as nil`() throws {
+    let baseDTO = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Legacy")
+    let encoded = try JSONEncoder().encode(baseDTO)
+    var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json.removeValue(forKey: "regionScope")
+
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: stripped)
+    #expect(decoded.regionScope == nil)
+  }
+
+  @Test
+  func `Message(dto:) forwards regionScope verbatim through DTO to model`() {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Forward")
+    dto.regionScope = "USA"
+    let model = Message(dto: dto)
+    #expect(model.regionScope == "USA")
+
+    var nilDTO = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "NilCase")
+    nilDTO.regionScope = nil
+    let nilModel = Message(dto: nilDTO)
+    #expect(nilModel.regionScope == nil)
+  }
+
+  // MARK: - Message.regionScopeMatches round-trip
+
+  @Test
+  func `Message.regionScopeMatches round-trips through full export/import`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xAB, count: 32),
+      name: "Alice"
+    )
+    try await sourceStore.saveContact(contact)
+
+    var msg = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, text: "Greetings")
+    msg.regionScope = nil
+    msg.regionScopeMatches = ["de-by", "de-hh"]
+    msg.deduplicationKey = "region-scope-matches-roundtrip-\(UUID())"
+    try await sourceStore.saveMessage(msg)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+    let restored = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(restored.count == 1)
+    #expect(restored.first?.regionScope == nil)
+    #expect(restored.first?.regionScopeMatches == ["de-by", "de-hh"])
+  }
+
+  @Test
+  func `MessageDTO Codable: regionScopeMatches set decodes round-trip`() throws {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Test")
+    dto.regionScopeMatches = ["de-by", "de-hh"]
+
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+    #expect(decoded.regionScopeMatches == ["de-by", "de-hh"])
+  }
+
+  @Test
+  func `Legacy MessageDTO envelope without regionScopeMatches decodes as empty`() throws {
+    let baseDTO = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Legacy")
+    let encoded = try JSONEncoder().encode(baseDTO)
+    var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json.removeValue(forKey: "regionScopeMatches")
+
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: stripped)
+    #expect(decoded.regionScopeMatches == [])
+  }
+
+  @Test
+  func `Message(dto:) forwards regionScopeMatches verbatim through DTO to model`() {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Forward")
+    dto.regionScopeMatches = ["de-by", "de-hh"]
+    let model = Message(dto: dto)
+    #expect(model.regionScopeMatches == ["de-by", "de-hh"])
+  }
+
+  // MARK: - failureSeen round-trip
+
+  @Test
+  func `MessageDTO Codable: failureSeen true round-trips`() throws {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Failed")
+    dto.failureSeen = true
+    dto.status = .failed
+
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+    #expect(decoded.failureSeen == true)
+  }
+
+  @Test
+  func `Legacy MessageDTO envelope without failureSeen decodes as false`() throws {
+    let baseDTO = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Legacy")
+    let encoded = try JSONEncoder().encode(baseDTO)
+    var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json.removeValue(forKey: "failureSeen")
+
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: stripped)
+    #expect(decoded.failureSeen == false)
+  }
+
+  @Test
+  func `Message(dto:) forwards failureSeen verbatim through DTO to model`() {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Forward")
+    dto.failureSeen = true
+    let model = Message(dto: dto)
+    #expect(model.failureSeen == true)
+  }
+
+  @Test
+  func `RoomMessageDTO Codable: failureSeen true round-trips`() throws {
+    let dto = RoomMessageDTO.testRoomMessage(
+      sessionID: UUID(),
+      isFromSelf: true,
+      status: .failed,
+      failureSeen: true
+    )
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(RoomMessageDTO.self, from: encoded)
+    #expect(decoded.failureSeen == true)
+  }
+
+  @Test
+  func `Legacy RoomMessageDTO envelope without failureSeen decodes as false`() throws {
+    let baseDTO = RoomMessageDTO.testRoomMessage(sessionID: UUID(), isFromSelf: true, status: .failed)
+    let encoded = try JSONEncoder().encode(baseDTO)
+    var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json.removeValue(forKey: "failureSeen")
+
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(RoomMessageDTO.self, from: stripped)
+    #expect(decoded.failureSeen == false)
+  }
+
+  @Test
+  func `RoomMessage(dto:) forwards failureSeen verbatim through DTO to model`() {
+    let dto = RoomMessageDTO.testRoomMessage(
+      sessionID: UUID(),
+      isFromSelf: true,
+      status: .failed,
+      failureSeen: true
+    )
+    let model = RoomMessage(dto: dto)
+    #expect(model.failureSeen == true)
+  }
+
+  // MARK: - MessageDTO.sortDate round-trip
+
+  @Test
+  func `MessageDTO Codable: sortDate distinct from createdAt round-trips`() throws {
+    let createdAt = Date(timeIntervalSince1970: 1_700_000_000)
+    let sortDate = Date(timeIntervalSince1970: 1_600_000_000)
+    var dto = MessageDTO.testDirectMessage(
+      radioID: UUID(),
+      contactID: UUID(),
+      text: "Test",
+      createdAt: createdAt
+    )
+    dto.sortDate = sortDate
+
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+    #expect(decoded.sortDate == sortDate)
+    #expect(decoded.sortDate != decoded.createdAt)
+  }
+
+  @Test
+  func `Legacy MessageDTO envelope without sortDate falls back to createdAt`() throws {
+    let baseDTO = MessageDTO.testDirectMessage(
+      radioID: UUID(),
+      contactID: UUID(),
+      text: "Legacy",
+      createdAt: Date(timeIntervalSince1970: 1_700_000_000)
+    )
+    let encoded = try JSONEncoder().encode(baseDTO)
+    var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json.removeValue(forKey: "sortDate")
+
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: stripped)
+    #expect(decoded.sortDate == decoded.createdAt)
+  }
+
+  @Test
+  func `Message(dto:) forwards sortDate verbatim through DTO to model`() {
+    let createdAt = Date(timeIntervalSince1970: 1_700_000_000)
+    let sortDate = Date(timeIntervalSince1970: 1_600_000_000)
+    var dto = MessageDTO.testDirectMessage(
+      radioID: UUID(),
+      contactID: UUID(),
+      text: "Forward",
+      createdAt: createdAt
+    )
+    dto.sortDate = sortDate
+    let model = Message(dto: dto)
+    #expect(model.sortDate == sortDate)
+    #expect(model.sortDate != model.createdAt)
+  }
+
+  @Test
+  func `Fully-populated MessageDTO survives encode/decode with every field distinct`() throws {
+    let dto = MessageDTO(
+      id: UUID(),
+      radioID: UUID(),
+      contactID: UUID(),
+      channelIndex: 7,
+      text: "Every field set",
+      timestamp: 1_700_000_001,
+      createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+      direction: .incoming,
+      status: .delivered,
+      textType: .signedPlain,
+      ackCode: 0xDEAD_BEEF,
+      pathLength: 5,
+      snr: 12.5,
+      pathNodes: Data([0x01, 0x02, 0x03]),
+      senderKeyPrefix: Data([0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF]),
+      senderNodeName: "Bob",
+      isRead: true,
+      replyToID: UUID(),
+      roundTripTime: 432,
+      heardRepeats: 3,
+      sendCount: 2,
+      retryAttempt: 1,
+      maxRetryAttempts: 4,
+      deduplicationKey: "dedup-key",
+      linkPreviewURL: "https://example.com",
+      linkPreviewTitle: "Example",
+      linkPreviewImageData: Data([0x10, 0x20]),
+      linkPreviewIconData: Data([0x30, 0x40]),
+      linkPreviewFetched: true,
+      containsSelfMention: true,
+      mentionSeen: true,
+      timestampCorrected: true,
+      senderTimestamp: 1_699_999_999,
+      reactionSummary: "👍:3,❤️:2",
+      routeType: .tcDirect,
+      regionScope: "Germany"
+    )
+    var populated = dto
+    populated.sortDate = Date(timeIntervalSince1970: 1_600_000_000)
+
+    let encoded = try JSONEncoder().encode(populated)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+    #expect(decoded == populated)
+  }
+
+  @Test
+  func `saveMessage persists send metadata and preview fields through export and import`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    var msg = MessageDTO.testDirectMessage(radioID: radioID, sendCount: 3)
+    msg.deduplicationKey = "save-message-fields-\(UUID())"
+    msg.linkPreviewURL = "https://example.com"
+    msg.linkPreviewTitle = "Example"
+    msg.reactionSummary = "👍:2"
+    try await sourceStore.saveMessage(msg)
+
+    // saveMessage routes through Message(dto:), so the live row keeps every DTO field.
+    let savedRow = try #require(await sourceStore.fetchMessage(id: msg.id))
+    #expect(savedRow.sendCount == 3)
+    #expect(savedRow.linkPreviewURL == "https://example.com")
+    #expect(savedRow.linkPreviewTitle == "Example")
+    #expect(savedRow.reactionSummary == "👍:2")
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+    let imported = try #require(await destStore.fetchMessage(id: msg.id))
+    #expect(imported.sendCount == 3)
+    #expect(imported.linkPreviewURL == "https://example.com")
+    #expect(imported.linkPreviewTitle == "Example")
+    #expect(imported.reactionSummary == "👍:2")
+  }
+
+  // MARK: - selectedThemeID backup contract
+
+  @Test
+  func `selectedThemeID round-trips through encode/decode`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.selectedThemeID = "ember"
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.selectedThemeID == "ember")
+  }
+
+  @Test
+  func `Legacy envelope without selectedThemeID decodes as nil`() throws {
+    let legacyJSON = """
+    { "hasCompletedOnboarding": true, "mapStyleSelection": "topo" }
+    """.data(using: .utf8)!
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+    #expect(decoded.selectedThemeID == nil)
+    #expect(decoded.hasCompletedOnboarding == true)
+  }
+
+  @Test
+  func `restore writes selectedThemeID only when local key is missing`() throws {
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    defaults.set("marine", forKey: PersistenceKeys.selectedThemeID)
+    var prefs = BackupUserDefaults()
+    prefs.selectedThemeID = "ember"
+    let setKeys = prefs.restore(to: defaults)
+    #expect(!setKeys.contains(PersistenceKeys.selectedThemeID))
+    #expect(defaults.string(forKey: PersistenceKeys.selectedThemeID) == "marine")
+  }
+
+  @Test
+  func `restore writes selectedThemeID when local is missing (fresh install)`() throws {
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    var prefs = BackupUserDefaults()
+    prefs.selectedThemeID = "ember"
+    let setKeys = prefs.restore(to: defaults)
+    #expect(setKeys.contains(PersistenceKeys.selectedThemeID))
+    #expect(defaults.string(forKey: PersistenceKeys.selectedThemeID) == "ember")
+  }
+
+  // MARK: - appColorSchemePreference backup contract
+
+  @Test
+  func `Legacy envelope without appColorSchemePreference decodes as nil`() throws {
+    let legacyJSON = """
+    { "hasCompletedOnboarding": true, "mapStyleSelection": "topo" }
+    """.data(using: .utf8)!
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+    #expect(decoded.appColorSchemePreference == nil)
+  }
+
+  @Test
+  func `restore writes appColorSchemePreference only when local key is missing`() throws {
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    defaults.set("light", forKey: PersistenceKeys.appColorSchemePreference)
+    var prefs = BackupUserDefaults()
+    prefs.appColorSchemePreference = "dark"
+    let setKeys = prefs.restore(to: defaults)
+    #expect(!setKeys.contains(PersistenceKeys.appColorSchemePreference))
+    #expect(defaults.string(forKey: PersistenceKeys.appColorSchemePreference) == "light")
+  }
+
+  @Test
+  func `restore writes appColorSchemePreference when local is missing (fresh install)`() throws {
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    var prefs = BackupUserDefaults()
+    prefs.appColorSchemePreference = "dark"
+    let setKeys = prefs.restore(to: defaults)
+    #expect(setKeys.contains(PersistenceKeys.appColorSchemePreference))
+    #expect(defaults.string(forKey: PersistenceKeys.appColorSchemePreference) == "dark")
+  }
+
+  // MARK: - Export read path (snapshot) for the new appearance keys
+
+  @Test
+  func `snapshot reads selectedThemeID and appColorSchemePreference from UserDefaults`() throws {
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    defaults.set("marine", forKey: PersistenceKeys.selectedThemeID)
+    defaults.set("dark", forKey: PersistenceKeys.appColorSchemePreference)
+    let snapshot = BackupUserDefaults.snapshot(from: defaults)
+    #expect(snapshot.selectedThemeID == "marine")
+    #expect(snapshot.appColorSchemePreference == "dark")
+  }
+
+  @Test
+  func `snapshot leaves appearance keys nil when unset`() throws {
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    let snapshot = BackupUserDefaults.snapshot(from: defaults)
+    #expect(snapshot.selectedThemeID == nil)
+    #expect(snapshot.appColorSchemePreference == nil)
+  }
+
+  // MARK: - Merge import preserves non-default local metadata
+
+  @Test
+  func `Import onto a muted region-scoped channel preserves the local notification and flood settings`() async throws {
+    let radioID = UUID()
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingChannel = ChannelDTO.testChannel(
+      radioID: radioID,
+      index: 2,
+      name: "Ops",
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0,
+      notificationLevel: .muted,
+      isPinned: false,
+      floodScope: .region("SK")
+    )
+    try await destStore.saveChannel(existingChannel)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupChannel = ChannelDTO.testChannel(
+      id: UUID(),
+      radioID: radioID,
+      index: existingChannel.index,
+      name: existingChannel.name,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0,
+      notificationLevel: .mentionsOnly,
+      isPinned: false,
+      floodScope: .region("US")
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      channels: [backupChannel]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.channelsInserted == 0)
+    #expect(result.channelsSkipped == 1)
+
+    let mergedChannel = try #require(await destStore.fetchChannel(radioID: radioID, index: 2))
+    #expect(mergedChannel.notificationLevel == .muted)
+    #expect(mergedChannel.regionScope == "SK")
+  }
+
+  @Test
+  func `Import onto a muted remote session preserves the local muted notification level`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0xF6, count: 32)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingSession = RemoteNodeSessionDTO.testSession(
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Ops Room",
+      role: .roomServer,
+      isConnected: false,
+      permissionLevel: .guest,
+      lastConnectedDate: nil,
+      unreadCount: 0,
+      notificationLevel: .muted,
+      isPinned: false,
+      neighborCount: 0,
+      lastSyncTimestamp: 0,
+      lastMessageDate: nil
+    )
+    try await destStore.saveRemoteNodeSessionDTO(existingSession)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupSession = RemoteNodeSessionDTO.testSession(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Ops Room",
+      role: .roomServer,
+      isConnected: false,
+      permissionLevel: .guest,
+      lastConnectedDate: nil,
+      unreadCount: 0,
+      notificationLevel: .mentionsOnly,
+      isPinned: false,
+      neighborCount: 0,
+      lastSyncTimestamp: 0,
+      lastMessageDate: nil
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      remoteNodeSessions: [backupSession]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.remoteNodeSessionsInserted == 0)
+    #expect(result.remoteNodeSessionsSkipped == 1)
+
+    let mergedSession = try #require(await destStore.fetchRemoteNodeSession(id: existingSession.id))
+    #expect(mergedSession.notificationLevel == .muted)
+  }
+
+  @Test
+  func `Import onto a muted contact never un-mutes, un-blocks, or un-favorites it`() async throws {
+    let radioID = UUID()
+    let sharedPublicKey = Data(repeating: 0xE7, count: 32)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existingContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: sharedPublicKey,
+      name: "Alice",
+      nickname: "Field Ops",
+      isBlocked: true,
+      isMuted: true,
+      isFavorite: true,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0
+    )
+    try await destStore.saveContact(existingContact)
+
+    let backupDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let backupContact = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: sharedPublicKey,
+      name: "Alice",
+      nickname: "Elsewhere",
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [backupDevice],
+      contacts: [backupContact]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(
+      envelope: envelope,
+      into: destStore
+    )
+
+    #expect(result.contactsInserted == 0)
+    #expect(result.contactsSkipped == 1)
+
+    let mergedContact = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: sharedPublicKey)
+    )
+    #expect(mergedContact.isMuted == true)
+    #expect(mergedContact.isBlocked == true)
+    #expect(mergedContact.isFavorite == true)
+    #expect(mergedContact.nickname == "Field Ops")
+  }
+
+  // MARK: - Discovered nodes backup
+
+  @Test
+  func `Discovered nodes import into fresh store, dedup on re-import`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0x11, count: 32)
+    let dto = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Node-A",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1,
+      latitude: 1.0, longitude: 2.0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    // A Device row must exist so the radioID is a known partition.
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let envelope = AppBackupEnvelope.test(devices: [device], discoveredNodes: [dto])
+
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let service = AppBackupService()
+
+    let first = try await service.importBackup(envelope: envelope, into: store)
+    #expect(first.discoveredNodesInserted == 1)
+
+    let persisted = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(persisted.count == 1)
+    #expect(persisted.first?.name == "Node-A")
+
+    // Re-import the same backup: the node is skipped, not duplicated.
+    let second = try await service.importBackup(envelope: envelope, into: store)
+    #expect(second.discoveredNodesInserted == 0)
+    #expect(second.discoveredNodesSkipped == 1)
+    #expect(try await store.fetchDiscoveredNodes(radioID: radioID).count == 1)
+
+    // Divergent payload for the same business key must not refresh local state.
+    let updated = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Node-A-UPDATED",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_800_000_000),
+      lastAdvertTimestamp: 99,
+      latitude: 9.0, longitude: 9.0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: 3, inboundHopAdvertTimestamp: 99
+    )
+    let third = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [updated]),
+      into: store
+    )
+    #expect(third.discoveredNodesInserted == 0)
+    #expect(third.discoveredNodesSkipped == 1)
+    let afterUpdate = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(afterUpdate.count == 1)
+    #expect(afterUpdate.first?.name == "Node-A")
+    #expect(afterUpdate.first?.lastAdvertTimestamp == 1)
+  }
+
+  @Test
+  func `Discovered nodes survive full export → import into fresh store`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0x22, count: 32)
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let path = Data([0xAA, 0xBB, 0xCC])
+    let frame = ContactFrame(
+      publicKey: publicKey,
+      type: .repeater,
+      flags: 0,
+      outPathLength: 3,
+      outPath: path,
+      name: "Discovered-Repeater",
+      lastAdvertTimestamp: 7,
+      latitude: 51.5, longitude: -0.12,
+      lastModified: 7
+    )
+    _ = try await sourceStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+    try await sourceStore.setInboundHopCount(
+      radioID: radioID,
+      publicKey: publicKey,
+      hopCount: 2,
+      advertTimestamp: 7
+    )
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+    #expect(envelope.discoveredNodes.count == 1)
+    #expect(envelope.manifest.validate(against: envelope))
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(result.discoveredNodesInserted == 1)
+
+    let restored = try #require(try await destStore.fetchDiscoveredNodes(radioID: radioID).first)
+    #expect(restored.name == "Discovered-Repeater")
+    #expect(restored.publicKey == publicKey)
+    #expect(restored.typeRawValue == ContactType.repeater.rawValue)
+    #expect(restored.latitude == 51.5)
+    #expect(restored.longitude == -0.12)
+    #expect(restored.lastAdvertTimestamp == 7)
+    #expect(restored.outPathLength == 3)
+    #expect(restored.outPath == path)
+    #expect(restored.inboundHopCount == 2)
+    #expect(restored.inboundHopAdvertTimestamp == 7)
+  }
+
+  @Test
+  func `Discovered nodes remap to local radioID when device publicKey matches`() async throws {
+    let backupRadioID = UUID()
+    let localRadioID = UUID()
+    let devicePublicKey = Data(repeating: 0xEE, count: 32)
+
+    // Local store already knows this radio under a different radioID.
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: localRadioID)
+    let localDevice = DeviceDTO.testDevice(radioID: localRadioID, publicKey: devicePublicKey)
+    try await destStore.saveDevice(localDevice)
+
+    // Backup carries the same physical radio (same publicKey) under backupRadioID,
+    // with a discovered node scoped to backupRadioID.
+    let backupDevice = DeviceDTO.testDevice(radioID: backupRadioID, publicKey: devicePublicKey)
+    let node = DiscoveredNodeDTO(
+      id: UUID(), radioID: backupRadioID,
+      publicKey: Data(repeating: 0x33, count: 32),
+      name: "Foreign-Node", typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1, latitude: 0, longitude: 0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    let envelope = AppBackupEnvelope.test(devices: [backupDevice], discoveredNodes: [node])
+
+    let service = AppBackupService()
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+    // The node must land under the local radioID, not the backup's.
+    #expect(try await destStore.fetchDiscoveredNodes(radioID: localRadioID).count == 1)
+    #expect(try await destStore.fetchDiscoveredNodes(radioID: backupRadioID).isEmpty)
+  }
+
+  @Test
+  func `Discovered nodes skip after remap when local already has the business key`() async throws {
+    let backupRadioID = UUID()
+    let localRadioID = UUID()
+    let devicePublicKey = Data(repeating: 0xEF, count: 32)
+    let nodePublicKey = Data(repeating: 0x44, count: 32)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: localRadioID)
+    let localDevice = DeviceDTO.testDevice(radioID: localRadioID, publicKey: devicePublicKey)
+    try await destStore.saveDevice(localDevice)
+
+    // Seed local node under the remapped radio + key.
+    let localNode = DiscoveredNodeDTO(
+      id: UUID(), radioID: localRadioID, publicKey: nodePublicKey,
+      name: "Local-Keep", typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1, latitude: 1, longitude: 1,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    let service = AppBackupService()
+    _ = try await service.importBackup(
+      envelope: .test(devices: [localDevice], discoveredNodes: [localNode]),
+      into: destStore
+    )
+
+    let backupDevice = DeviceDTO.testDevice(radioID: backupRadioID, publicKey: devicePublicKey)
+    let foreign = DiscoveredNodeDTO(
+      id: UUID(), radioID: backupRadioID, publicKey: nodePublicKey,
+      name: "Foreign-Overwrite", typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_800_000_000),
+      lastAdvertTimestamp: 9, latitude: 9, longitude: 9,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: 4, inboundHopAdvertTimestamp: 9
+    )
+    let result = try await service.importBackup(
+      envelope: .test(devices: [backupDevice], discoveredNodes: [foreign]),
+      into: destStore
+    )
+    #expect(result.discoveredNodesInserted == 0)
+    #expect(result.discoveredNodesSkipped == 1)
+
+    let local = try await destStore.fetchDiscoveredNodes(radioID: localRadioID)
+    #expect(local.count == 1)
+    #expect(local.first?.name == "Local-Keep")
+    #expect(try await destStore.fetchDiscoveredNodes(radioID: backupRadioID).isEmpty)
+  }
+
+  @Test
+  func `Import trims discovered nodes over the per-radio cap`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let cap = PersistenceStore.maxDiscoveredNodes
+    // cap+1 distinct nodes with increasing lastHeard; the oldest must be dropped.
+    let nodes: [DiscoveredNodeDTO] = (0..<(cap + 1)).map { i in
+      var key = Data(count: 32)
+      key[0] = UInt8(i & 0xFF)
+      key[1] = UInt8((i >> 8) & 0xFF)
+      return DiscoveredNodeDTO(
+        id: UUID(), radioID: radioID, publicKey: key,
+        name: "N\(i)", typeRawValue: 0x01,
+        lastHeard: Date(timeIntervalSince1970: 1_700_000_000 + Double(i)),
+        lastAdvertTimestamp: UInt32(i), latitude: 0, longitude: 0,
+        outPathLength: 0xFF, outPath: Data(),
+        inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+      )
+    }
+    let envelope = AppBackupEnvelope.test(devices: [device], discoveredNodes: nodes)
+
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let result = try await AppBackupService().importBackup(envelope: envelope, into: store)
+    #expect(result.discoveredNodesInserted == cap)
+    #expect(result.discoveredNodesSkipped == 0)
+    #expect(result.discoveredNodesDropped == 1)
+    #expect(
+      result.discoveredNodesInserted
+        + result.discoveredNodesSkipped
+        + result.discoveredNodesDropped
+        == cap + 1
+    )
+
+    let restored = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(restored.count == cap)
+    // The oldest node (N0) was dropped; the newest survives.
+    #expect(!restored.contains { $0.name == "N0" })
+    #expect(restored.contains { $0.name == "N\(cap)" })
+  }
+
+  @Test
+  func `Import into at-cap store keeps committed nodes and drops the incoming overflow`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let cap = PersistenceStore.maxDiscoveredNodes
+    func node(_ i: Int, name: String, lastHeard: Double) -> DiscoveredNodeDTO {
+      var key = Data(count: 32)
+      key[0] = UInt8(i & 0xFF)
+      key[1] = UInt8((i >> 8) & 0xFF)
+      return DiscoveredNodeDTO(
+        id: UUID(), radioID: radioID, publicKey: key,
+        name: name, typeRawValue: 0x01,
+        lastHeard: Date(timeIntervalSince1970: lastHeard),
+        lastAdvertTimestamp: UInt32(i), latitude: 0, longitude: 0,
+        outPathLength: 0xFF, outPath: Data(),
+        inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+      )
+    }
+
+    // First import fills the radio to exactly the cap and commits.
+    let seed = (0..<cap).map { node($0, name: "Old\($0)", lastHeard: 1_700_000_000 + Double($0)) }
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let service = AppBackupService()
+    _ = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: seed),
+      into: store
+    )
+
+    // Second import carries 5 newer nodes (distinct keys, later lastHeard).
+    let fresh = (2000..<2005).map { node($0, name: "New\($0)", lastHeard: 1_800_000_000 + Double($0)) }
+    let second = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: fresh),
+      into: store
+    )
+    #expect(second.discoveredNodesInserted == 0)
+    #expect(second.discoveredNodesDropped == 5)
+
+    // Every committed node survives; none of the incoming ones landed.
+    let restored = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(restored.count == cap)
+    #expect(!restored.contains { $0.name.hasPrefix("New") })
+  }
+
+  @Test
+  func `Import fills partial room under the per-radio cap`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let cap = PersistenceStore.maxDiscoveredNodes
+    let seedCount = cap - 2
+    func node(_ i: Int, name: String, lastHeard: Double) -> DiscoveredNodeDTO {
+      var key = Data(count: 32)
+      key[0] = UInt8(i & 0xFF)
+      key[1] = UInt8((i >> 8) & 0xFF)
+      return DiscoveredNodeDTO(
+        id: UUID(), radioID: radioID, publicKey: key,
+        name: name, typeRawValue: 0x01,
+        lastHeard: Date(timeIntervalSince1970: lastHeard),
+        lastAdvertTimestamp: UInt32(i), latitude: 0, longitude: 0,
+        outPathLength: 0xFF, outPath: Data(),
+        inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+      )
+    }
+
+    let seed = (0..<seedCount).map {
+      node($0, name: "Seed\($0)", lastHeard: 1_700_000_000 + Double($0))
+    }
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let service = AppBackupService()
+    _ = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: seed),
+      into: store
+    )
+
+    // 5 newer nodes, only 2 room remaining → insert 2 newest, drop 3 oldest of the batch.
+    let fresh = (2000..<2005).map {
+      node($0, name: "New\($0)", lastHeard: 1_800_000_000 + Double($0))
+    }
+    let second = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: fresh),
+      into: store
+    )
+    #expect(second.discoveredNodesInserted == 2)
+    #expect(second.discoveredNodesDropped == 3)
+
+    let restored = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(restored.count == cap)
+    #expect(restored.filter { $0.name.hasPrefix("Seed") }.count == seedCount)
+    #expect(restored.contains { $0.name == "New2003" })
+    #expect(restored.contains { $0.name == "New2004" })
+    #expect(!restored.contains { $0.name == "New2000" })
+    #expect(!restored.contains { $0.name == "New2001" })
+    #expect(!restored.contains { $0.name == "New2002" })
+  }
+
+  @Test
+  func `Import skips discovered nodes with invalid public key size`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let invalid = DiscoveredNodeDTO(
+      id: UUID(), radioID: radioID,
+      publicKey: Data(repeating: 0x11, count: 16),
+      name: "Bad-Key", typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1, latitude: 0, longitude: 0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    let valid = DiscoveredNodeDTO(
+      id: UUID(), radioID: radioID,
+      publicKey: Data(repeating: 0x22, count: 32),
+      name: "Good-Key", typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1, latitude: 0, longitude: 0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [invalid, valid]),
+      into: PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    )
+    #expect(result.discoveredNodesInserted == 1)
+    #expect(result.discoveredNodesSkipped == 1)
+  }
+
+  @Test
+  func `Import null-islands invalid discovered coordinates`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let outOfRange = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: Data(repeating: 0x33, count: 32),
+      name: "Bad-Coords",
+      typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1,
+      latitude: 999.0,
+      longitude: -122.0,
+      outPathLength: 0xFF,
+      outPath: Data(),
+      inboundHopCount: nil,
+      inboundHopAdvertTimestamp: nil
+    )
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [outOfRange]),
+      into: store
+    )
+    #expect(result.discoveredNodesInserted == 1)
+
+    let persisted = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(persisted.count == 1)
+    #expect(persisted.first?.latitude == 0)
+    #expect(persisted.first?.longitude == 0)
+    #expect(persisted.first?.hasLocation == false)
+  }
+
+  @Test
+  func `Import assigns fresh DiscoveredNode.id so an id collision cannot upsert the local row`() async throws {
+    // Without re-mint, SwiftData upserts on @Attribute(.unique) DiscoveredNode.id when a
+    // backup reuses that id under a different publicKey. Seed via upsertDiscoveredNode so the
+    // local surrogate is a real stored id. Dedup is (radioID, publicKey); both rows land.
+    let radioID = UUID()
+    let localPublicKey = Data(repeating: 0xA1, count: 32)
+    let backupPublicKey = Data(repeating: 0xB1, count: 32)
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let service = AppBackupService()
+
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    try await store.saveDevice(device)
+
+    let localFrame = ContactFrame(
+      publicKey: localPublicKey,
+      type: .chat,
+      flags: 0,
+      outPathLength: 0xFF,
+      outPath: Data(),
+      name: "Local-Node",
+      lastAdvertTimestamp: 1,
+      latitude: 1.0,
+      longitude: 1.0,
+      lastModified: 1
+    )
+    let (localSeed, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: localFrame)
+    let collidingID = localSeed.id
+
+    let collidingBackup = DiscoveredNodeDTO(
+      id: collidingID,
+      radioID: radioID,
+      publicKey: backupPublicKey,
+      name: "Backup-Node",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_800_000_000),
+      lastAdvertTimestamp: 2,
+      latitude: 2.0,
+      longitude: 2.0,
+      outPathLength: 0xFF,
+      outPath: Data(),
+      inboundHopCount: nil,
+      inboundHopAdvertTimestamp: nil
+    )
+    let result = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [collidingBackup]),
+      into: store
+    )
+    #expect(result.discoveredNodesInserted == 1)
+
+    let stored = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(stored.count == 2)
+
+    let localAfter = try #require(stored.first { $0.publicKey == localPublicKey })
+    #expect(localAfter.id == collidingID)
+    #expect(localAfter.name == "Local-Node")
+
+    let backupAfter = try #require(stored.first { $0.publicKey == backupPublicKey })
+    #expect(backupAfter.id != collidingID)
+    #expect(backupAfter.name == "Backup-Node")
+  }
+
+  @Test
+  func `Import truncates oversized discovered node name and outPath to protocol limits`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let longName = String(repeating: "N", count: ProtocolLimits.maxUsableNameBytes + 20)
+    let longPath = Data(repeating: 0xAB, count: ProtocolLimits.maxPathSize + 16)
+    let dto = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: Data(repeating: 0x33, count: 32),
+      name: longName,
+      typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1,
+      latitude: 0,
+      longitude: 0,
+      outPathLength: 0xFF,
+      outPath: longPath,
+      inboundHopCount: nil,
+      inboundHopAdvertTimestamp: nil
+    )
+
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [dto]),
+      into: store
+    )
+    #expect(result.discoveredNodesInserted == 1)
+    #expect(result.discoveredNodesSkipped == 0)
+
+    let restored = try #require(try await store.fetchDiscoveredNodes(radioID: radioID).first)
+    #expect(restored.name.utf8.count <= ProtocolLimits.maxUsableNameBytes)
+    #expect(restored.name == longName.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes))
+    #expect(restored.outPath.count == ProtocolLimits.maxPathSize)
+    #expect(restored.outPath == Data(longPath.prefix(ProtocolLimits.maxPathSize)))
+  }
+
+  // MARK: - Chat pin import
+
+  @Test
+  func `Import turns a contact pin on and leaves an existing pin on`() async throws {
+    let radioID = UUID()
+    let adoptKey = Data(repeating: 0xA1, count: 32)
+    let keepKey = Data(repeating: 0xA2, count: 32)
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let unpinned = ContactDTO.testContact(
+      radioID: radioID, publicKey: adoptKey, name: "Ada", isPinned: false
+    )
+    let pinned = ContactDTO.testContact(
+      radioID: radioID, publicKey: keepKey, name: "Bea", isPinned: true
+    )
+    try await store.saveContact(unpinned)
+    try await store.saveContact(pinned)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    _ = try await AppBackupService().importBackup(
+      envelope: .test(
+        devices: [device],
+        contacts: [
+          ContactDTO.testContact(
+            id: UUID(), radioID: radioID, publicKey: adoptKey, name: "Ada", isPinned: true
+          ),
+          ContactDTO.testContact(
+            id: UUID(), radioID: radioID, publicKey: keepKey, name: "Bea", isPinned: false
+          )
+        ]
+      ),
+      into: store
+    )
+
+    let adopted = try #require(await store.fetchContact(radioID: radioID, publicKey: adoptKey))
+    #expect(adopted.isPinned == true)
+    let kept = try #require(await store.fetchContact(radioID: radioID, publicKey: keepKey))
+    #expect(kept.isPinned == true)
+  }
+
+  @Test
+  func `Import turns a channel pin on and leaves an existing pin on`() async throws {
+    let radioID = UUID()
+    let adoptSecret = Data(repeating: 0xB1, count: 16)
+    let keepSecret = Data(repeating: 0xB2, count: 16)
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let unpinned = ChannelDTO.testChannel(
+      radioID: radioID, index: 1, name: "Ada", secret: adoptSecret, isPinned: false
+    )
+    let pinned = ChannelDTO.testChannel(
+      radioID: radioID, index: 2, name: "Bea", secret: keepSecret, isPinned: true
+    )
+    try await store.saveChannel(unpinned)
+    try await store.saveChannel(pinned)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    _ = try await AppBackupService().importBackup(
+      envelope: .test(
+        devices: [device],
+        channels: [
+          ChannelDTO.testChannel(
+            id: UUID(), radioID: radioID, index: 1, name: "Ada", secret: adoptSecret, isPinned: true
+          ),
+          ChannelDTO.testChannel(
+            id: UUID(), radioID: radioID, index: 2, name: "Bea", secret: keepSecret, isPinned: false
+          )
+        ]
+      ),
+      into: store
+    )
+
+    let adopted = try #require(await store.fetchChannel(radioID: radioID, index: 1))
+    #expect(adopted.isPinned == true)
+    let kept = try #require(await store.fetchChannel(radioID: radioID, index: 2))
+    #expect(kept.isPinned == true)
+  }
+
+  @Test
+  func `Import turns a room pin on and leaves an existing pin on`() async throws {
+    let radioID = UUID()
+    let adoptKey = Data(repeating: 0xC1, count: 32)
+    let keepKey = Data(repeating: 0xC2, count: 32)
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let unpinned = RemoteNodeSessionDTO.testSession(
+      radioID: radioID, publicKey: adoptKey, name: "Ada", role: .roomServer, isPinned: false
+    )
+    let pinned = RemoteNodeSessionDTO.testSession(
+      radioID: radioID, publicKey: keepKey, name: "Bea", role: .roomServer, isPinned: true
+    )
+    try await store.saveRemoteNodeSessionDTO(unpinned)
+    try await store.saveRemoteNodeSessionDTO(pinned)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    _ = try await AppBackupService().importBackup(
+      envelope: .test(
+        devices: [device],
+        remoteNodeSessions: [
+          RemoteNodeSessionDTO.testSession(
+            id: UUID(), radioID: radioID, publicKey: adoptKey, name: "Ada",
+            role: .roomServer, isPinned: true
+          ),
+          RemoteNodeSessionDTO.testSession(
+            id: UUID(), radioID: radioID, publicKey: keepKey, name: "Bea",
+            role: .roomServer, isPinned: false
+          )
+        ]
+      ),
+      into: store
+    )
+
+    let adopted = try #require(await store.fetchRemoteNodeSession(id: unpinned.id))
+    #expect(adopted.isPinned == true)
+    let kept = try #require(await store.fetchRemoteNodeSession(id: pinned.id))
+    #expect(kept.isPinned == true)
+  }
+
+  @Test
+  func `Import of a favorite contact with no pin key pins an unpinned row`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0xD8, count: 32)
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let existing = ContactDTO.testContact(
+      radioID: radioID, publicKey: publicKey, name: "Ada", isFavorite: false, isPinned: false
+    )
+    try await store.saveContact(existing)
+
+    let backup = ContactDTO.testContact(
+      id: UUID(), radioID: radioID, publicKey: publicKey, name: "Ada",
+      isFavorite: true, isPinned: false
+    )
+    var object = try #require(
+      JSONSerialization.jsonObject(with: JSONEncoder().encode(backup)) as? [String: Any]
+    )
+    object.removeValue(forKey: "isPinned")
+    let decoded = try JSONDecoder().decode(
+      ContactDTO.self,
+      from: JSONSerialization.data(withJSONObject: object)
+    )
+    #expect(decoded.isPinned == true)
+
+    _ = try await AppBackupService().importBackup(
+      envelope: .test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        contacts: [decoded]
+      ),
+      into: store
+    )
+
+    let merged = try #require(await store.fetchContact(radioID: radioID, publicKey: publicKey))
+    #expect(merged.isPinned == true)
+    #expect(merged.isFavorite == true)
+  }
+
+  @Test
+  func `Channel backup JSON writes isPinned and omits isFavorite`() throws {
+    let channel = ChannelDTO.testChannel(radioID: UUID(), isPinned: true)
+    let object = try #require(
+      JSONSerialization.jsonObject(with: JSONEncoder().encode(channel)) as? [String: Any]
+    )
+    #expect(object["isPinned"] as? Bool == true)
+    #expect(object["isFavorite"] == nil)
+  }
+
+  @Test
+  func `Room server backup JSON writes isPinned and omits isFavorite`() throws {
+    let session = RemoteNodeSessionDTO.testSession(
+      radioID: UUID(), role: .roomServer, isPinned: true
+    )
+    let object = try #require(
+      JSONSerialization.jsonObject(with: JSONEncoder().encode(session)) as? [String: Any]
+    )
+    #expect(object["isPinned"] as? Bool == true)
+    #expect(object["isFavorite"] == nil)
+  }
+}
+
+private enum InjectedImportFailure: Error {
+  case simulated
+}
+
+private extension PersistenceStore {
+  func setAutosaveEnabledForTesting(_ isEnabled: Bool) {
+    modelContext.autosaveEnabled = isEnabled
+  }
+
+  func autosaveEnabledForTesting() -> Bool {
+    modelContext.autosaveEnabled
+  }
+
+  func hasPendingChangesForTesting() -> Bool {
+    modelContext.hasChanges
+  }
+}

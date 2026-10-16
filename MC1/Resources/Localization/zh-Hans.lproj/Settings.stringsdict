@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Settings.stringsdict
+  PocketMesh
+
+  Chinese (Simplified) pluralization rules for danger zone removal strings.
+  Chinese has no grammatical number; only the "other" category is needed.
+-->
+<plist version="1.0">
+<dict>
+    <key>dangerZone.alert.removeUnfavorited.message</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@nodeCount@</string>
+        <key>nodeCount</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>这将从设备和应用中永久删除 %d 个未标记为收藏的节点及其消息</string>
+        </dict>
+    </dict>
+    <key>dangerZone.alert.removeUnfavorited.partial</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%2$#@totalNodes@</string>
+        <key>totalNodes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>已移除 %1$d 个节点（共 %2$d 个）。连接已中断——请再次点击按钮以移除剩余节点。</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_added</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>已添加 %d 项。</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>已更新 %d 项现有内容。</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>%d 项已在此</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>其中 %d 项已用备份中的较新信息更新。</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>other</key>
+            <string>%d 个项目无法恢复</string>
+        </dict>
+    </dict>
+</dict>
+</plist>

@@ -1,0 +1,160 @@
+import Foundation
+import MC1Services
+
+/// Conversation type discriminator for the unified chat view.
+/// Not `@MainActor` — no mutable state. `@State` on the view provides main-actor isolation.
+enum ChatConversationType {
+  case dm(ContactDTO)
+  case channel(ChannelDTO)
+
+  // MARK: - Computed Properties
+
+  var navigationTitle: String {
+    switch self {
+    case let .dm(contact):
+      contact.displayName
+    case let .channel(channel):
+      channel.displayName
+    }
+  }
+
+  func navigationSubtitle(deviceDefaultFloodScopeName: String?) -> String {
+    switch self {
+    case let .dm(contact):
+      if contact.isFloodRouted {
+        return L10n.Chats.Chats.ConnectionStatus.floodRouting
+      } else {
+        return L10n.Chats.Chats.ConnectionStatus.direct(contact.pathHopCount)
+      }
+    case let .channel(channel):
+      // An empty subtitle hides the header's second line, so an unresolved region shows nothing.
+      guard let region = effectiveRegionName(
+        for: channel,
+        deviceDefaultFloodScopeName: deviceDefaultFloodScopeName
+      ) else {
+        return ""
+      }
+      let regionDisplay = (region == deviceDefaultFloodScopeName)
+        ? L10n.Chats.Chats.ChannelInfo.Region.scopedDefault(region)
+        : region
+      return L10n.Chats.Chats.Channel.headerRegion(regionDisplay)
+    }
+  }
+
+  // MARK: - Private Helpers
+
+  /// Resolves the region name shown as the channel header subtitle. Delegates to
+  /// ``ChannelFloodScopeResolver`` so the header matches the FloodScope actually pushed to the radio.
+  private func effectiveRegionName(
+    for channel: ChannelDTO,
+    deviceDefaultFloodScopeName: String?
+  ) -> String? {
+    let resolved = ChannelFloodScopeResolver.resolve(
+      channelFloodScope: channel.floodScope,
+      deviceDefaultFloodScopeName: deviceDefaultFloodScopeName,
+      supportsUnscopedFloodSend: false
+    )
+    if case let .scope(.region(name)) = resolved { return name }
+    return nil
+  }
+
+  var conversationID: UUID {
+    switch self {
+    case let .dm(contact):
+      contact.id
+    case let .channel(channel):
+      channel.id
+    }
+  }
+
+  var chatRouteKind: ChatRoute.Kind {
+    switch self {
+    case .dm:
+      .direct
+    case .channel:
+      .channel
+    }
+  }
+
+  /// Stable key for the per-radio draft store. The channel case keys on the slot
+  /// `index`, not `conversationID` (a UUID), to align with the slot-based draft
+  /// cleanup on channel delete, sync prune, and backup-import relocation.
+  var draftConversationID: ChatConversationID {
+    switch self {
+    case let .dm(contact):
+      .dm(radioID: contact.radioID, contactID: contact.id)
+    case let .channel(channel):
+      .channel(radioID: channel.radioID, channelIndex: channel.index)
+    }
+  }
+
+  /// Key for the shared `ChatCoordinator` in `ChatCoordinatorRegistry`. Coincides
+  /// with `draftConversationID` today but is named separately so the coordinator
+  /// and draft namespaces can diverge without silently breaking either.
+  var coordinatorID: ChatConversationID {
+    switch self {
+    case let .dm(contact):
+      .dm(radioID: contact.radioID, contactID: contact.id)
+    case let .channel(channel):
+      .channel(radioID: channel.radioID, channelIndex: channel.index)
+    }
+  }
+
+  var radioID: UUID {
+    switch self {
+    case let .dm(contact):
+      contact.radioID
+    case let .channel(channel):
+      channel.radioID
+    }
+  }
+
+  /// Unread count carried by the navigated DTO. Gates the open-at-divider target
+  /// so a fully-read reopen (count 0) never positions to a stale baked divider.
+  var unreadCount: Int {
+    switch self {
+    case let .dm(contact):
+      contact.unreadCount
+    case let .channel(channel):
+      channel.unreadCount
+    }
+  }
+
+  var isPublicStyleChannel: Bool {
+    switch self {
+    case .dm:
+      false
+    case let .channel(channel):
+      !channel.isEncryptedChannel
+    }
+  }
+
+  /// Channels with this name (case-insensitive) suppress the inline map-preview
+  /// thumbnail, so the app doesn't flood the map API
+  private static let mapPreviewSuppressedChannelName = "wardriving"
+
+  /// Whether map preview thumbnails should be hidden for this conversation,
+  /// independent of the global show-map-previews setting. DMs never suppress.
+  /// Matches case-insensitively and tolerates the leading "#" hashtag-channel
+  /// convention, so both "wardriving" and "#wardriving" suppress.
+  var suppressesMapPreviews: Bool {
+    guard case let .channel(channel) = self else { return false }
+    let trimmed = channel.name.trimmingCharacters(in: .whitespacesAndNewlines)
+    let normalized = trimmed.hasPrefix("#") ? String(trimmed.dropFirst()) : trimmed
+    return normalized.caseInsensitiveCompare(Self.mapPreviewSuppressedChannelName) == .orderedSame
+  }
+
+  // MARK: - Transforms
+
+  /// Returns a copy with the contact replaced (DM only). Returns self unchanged for channels.
+  func replacingContact(_ contact: ContactDTO) -> ChatConversationType {
+    guard case .dm = self else { return self }
+    return .dm(contact)
+  }
+
+  /// Returns a copy with the channel replaced (channel only). Returns self unchanged for DMs.
+  func replacingChannel(_ channel: ChannelDTO) -> ChatConversationType {
+    guard case .channel = self else { return self }
+    return .channel(channel)
+  }
+}

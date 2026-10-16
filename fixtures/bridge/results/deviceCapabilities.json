@@ -1,0 +1,1 @@
+{"kind":"deviceCapabilities","payload":{"blePin":123456,"clientRepeat":true,"firmwareBuild":"v1.15.0-abc","firmwareVersion":11,"maxChannels":8,"maxContacts":100,"model":"Heltec V3","pathHashMode":1,"version":"1.15.0"},"v":1}

@@ -1,0 +1,7 @@
+// Defines the SIDELOAD compilation condition for the unsigned sideload IPA built in CI.
+// Passed to xcodebuild via -xcconfig only by the sideload workflow; the App Store /
+// TestFlight build never references it, so its binary is unaffected.
+//
+// $(inherited) is required: an xcconfig override of SWIFT_ACTIVE_COMPILATION_CONDITIONS
+// replaces the value, which would otherwise wipe the Debug config's DEBUG condition.
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) SIDELOAD

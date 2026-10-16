@@ -1,0 +1,1999 @@
+/*
+  Settings.strings
+  MC1
+
+  Strings for Settings feature, including app preferences,
+  account settings, device configuration, and app information.
+ */
+
+// MARK: - Main Settings View
+
+/* Navigation title for main settings screen */
+"title" = "设置";
+
+/* Placeholder shown in split view detail when no setting is selected */
+"selectSetting" = "选择设置";
+
+/* Section header for device-specific settings */
+"myDevice.header" = "我的设备";
+
+/* Section header for app-level settings */
+"appSettings.header" = "应用设置";
+
+/* Footer text for advanced settings row */
+/* Label for advanced settings navigation row */
+"advancedSettings.title" = "高级设置";
+
+/* Version display prefix with version number */
+"version" = "v%@";
+
+/* Build number display with build number */
+"build" = "构建 %@";
+
+// MARK: - Demo Mode Section
+
+/* Section header for demo mode */
+"demoMode.header" = "演示模式";
+
+/* Toggle label to enable demo mode */
+"demoMode.enabled" = "已启用";
+
+/* Footer explaining what demo mode does */
+"demoMode.footer" = "演示模式允许使用模拟数据在没有硬件的情况下进行测试。";
+
+// MARK: - Device Section
+
+/* Section header for device information */
+"device.header" = "设备";
+
+/* Status shown when device is connected */
+"device.connected" = "已连接";
+
+/* Footer shown when no device is connected */
+"device.noDeviceConnected" = "未连接 MeshCore 设备";
+
+/* Button to connect a device */
+"device.connect" = "连接设备";
+
+// MARK: - Device Info View
+
+/* Navigation title for device info screen */
+"deviceInfo.title" = "设备信息";
+
+/* Section header for connection status */
+"deviceInfo.connection.header" = "连接";
+
+/* Label for connection status */
+"deviceInfo.connection.status" = "状态";
+
+/* Section header for power and storage */
+"deviceInfo.powerStorage.header" = "电源和存储";
+
+/* Label for battery level */
+"deviceInfo.battery" = "电池";
+
+/* Label for storage used */
+"deviceInfo.storageUsed" = "已用存储";
+
+/* Combined label for battery and storage when loading */
+"deviceInfo.batteryAndStorage" = "电池和存储";
+
+/* Section header for firmware information */
+"deviceInfo.firmware.header" = "固件";
+
+/* Label for firmware version */
+"deviceInfo.firmwareVersion" = "固件版本";
+
+/* Label for build date */
+"deviceInfo.buildDate" = "编译日期";
+
+/* Label for manufacturer */
+"deviceInfo.manufacturer" = "制造商";
+
+/* Placeholder when a value is unknown */
+"deviceInfo.unknown" = "未知";
+
+/* Section header for device capabilities */
+"deviceInfo.capabilities.header" = "功能";
+
+/* Label for max nodes capability */
+"deviceInfo.maxNodes" = "最大节点数";
+
+/* Label for max channels capability */
+"deviceInfo.maxChannels" = "最大频道数";
+
+/* Label for max TX power capability */
+"deviceInfo.maxTxPower" = "最大发射功率";
+
+/* TX power display format with dBm unit */
+"deviceInfo.txPowerFormat" = "%@ dBm";
+
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Section header for identity information */
+/* Label for public key */
+"deviceInfo.publicKey" = "查看公钥";
+
+/* Button to share contact information */
+"deviceInfo.shareContact" = "我的二维码";
+
+/* Title for ContentUnavailableView when no device is connected */
+"deviceInfo.noDevice.title" = "未连接设备";
+
+/* Description for ContentUnavailableView when no device is connected */
+"deviceInfo.noDevice.description" = "连接到 MeshCore 设备以查看其信息";
+
+/* Fallback manufacturer name */
+"deviceInfo.defaultManufacturer" = "MeshCore 设备";
+
+// MARK: - Public Key View
+
+/* Navigation title for public key screen */
+"publicKey.title" = "公钥";
+
+/* Section header describing key type */
+"publicKey.header" = "32 字节 Ed25519 公钥";
+
+/* Footer explaining public key's purpose */
+"publicKey.footer" = "此密钥在Mesh网络上唯一标识您的设备";
+
+/* Section header for base64 representation */
+"publicKey.base64.header" = "Base64";
+
+/* Button to copy key to clipboard */
+"publicKey.copy" = "复制到剪贴板";
+
+// MARK: - Private Key View
+
+/* Section header describing the key type */
+"privateKey.header" = "64 字节 Ed25519 私钥";
+
+// MARK: - Device Selection Sheet
+
+/* Navigation title for device selection */
+"deviceSelection.title" = "连接设备";
+
+/* Button to connect to selected device */
+/* Section header for previously paired devices */
+"deviceSelection.previouslyPaired" = "之前配对的设备";
+
+/* Footer text prompting user to select a device */
+/* Button to connect via WiFi */
+"deviceSelection.connectViaWifi" = "通过 WiFi 连接";
+
+/* Button to scan for Bluetooth devices */
+"deviceSelection.scanBluetooth" = "扫描蓝牙设备";
+
+/* Trailing control on a previously paired row that still needs iPhone setup */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setup" = "设置";
+
+/* Sheet title when one device needs setup. %@ is the accessory name */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupTitle" = "设置 %@";
+
+/* Sheet title when several devices need setup */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupTitleGeneric" = "设置";
+
+/* Sheet body when one device is paired with iPhone */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupMessage" = "此设备已与 iPhone 配对。您需要先忘记该设备，才能将其添加到 MeshCore One。";
+
+/* Sheet body when several devices are paired with iPhone */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupMessagePlural" = "这些设备已与 iPhone 配对。您需要先忘记这些设备，才能将无线电添加到 MeshCore One。";
+
+/* Reassurance that forgetting the iPhone pairing does not delete conversations */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupConversations" = "这不会删除您的对话。";
+
+/* Destructive confirmation for one device */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.forgetThisDevice" = "忘记此设备";
+
+/* Destructive confirmation for several devices */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.forgetTheseDevices" = "忘记这些设备";
+
+/* Footer under Previously Paired when one needs-setup row is present */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupFooter" = "忘记此设备以将其添加到 MeshCore One。";
+
+/* Footer under Previously Paired when several needs-setup rows are present */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupFooterPlural" = "忘记这些设备以将它们添加到 MeshCore One。";
+
+/* VoiceOver label for a needs-setup row. %@ is the accessory name */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.accessibility.setupLabel" = "%@，已与 iPhone 配对";
+
+/* VoiceOver hint for a needs-setup row */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.accessibility.setupHint" = "双击以设置";
+
+/* Title for empty state when no devices are paired */
+"deviceSelection.noPairedDevices" = "无配对设备";
+
+/* Description for empty state */
+"deviceSelection.noPairedDescription" = "您尚未配对任何设备。";
+
+/* Button to scan for new devices */
+"deviceSelection.scanForDevices" = "扫描设备";
+
+/* Accessibility label for a device connected to another app - %1$@ is device name */
+"deviceSelection.accessibility.connectedElsewhereLabel" = "%1$@，已连接到其他应用";
+
+/* Accessibility label for a device - %1$@ is device name, %2$@ is connection type */
+"deviceSelection.accessibility.deviceLabel" = "%1$@，%2$@";
+
+/* Accessibility hint for a device connected to another app */
+"deviceSelection.accessibility.connectedElsewhereHint" = "此设备正被其他应用使用。连接可能会导致通信问题。";
+
+/* Accessibility hint for selecting a device */
+"deviceSelection.accessibility.selectHint" = "双击以连接";
+
+/* Accessibility hint for a device that is out of Bluetooth range */
+"deviceSelection.accessibility.outOfRangeHint" = "设备不在蓝牙范围内";
+
+/* Label shown when device is connected to another app */
+"deviceSelection.connectedElsewhere" = "已连接到其他位置";
+
+/* Fallback connection type description */
+"deviceSelection.bluetooth" = "蓝牙";
+
+// MARK: - Location Picker View
+
+/* Navigation title for location picker */
+"locationPicker.title" = "设置位置";
+
+/* Marker title for node location on map */
+/* Button to clear selected location */
+"locationPicker.clearLocation" = "清除位置";
+
+/* Button to drop a pin at map center */
+"locationPicker.dropPin" = "在中心放置图钉";
+
+/* Label for latitude display */
+"locationPicker.latitude" = "纬度：";
+
+/* Label for longitude display */
+"locationPicker.longitude" = "经度：";
+
+// MARK: - Trusted Contacts Picker
+
+/* Navigation title for trusted contacts picker */
+"trustedContacts.title" = "信任联系人";
+
+/* Title for empty state when no contacts exist */
+"trustedContacts.noContacts" = "无联系人";
+
+/* Description for empty state */
+"trustedContacts.noContactsDescription" = "添加联系人以选择信任的联系人";
+
+/* Title for empty state when search returns no results */
+"trustedContacts.noResults" = "无结果";
+
+/* Description for empty state when search returns no results */
+"trustedContacts.noResultsDescription" = "没有联系人匹配\"%@\"";
+
+/* Search prompt for trusted contacts list */
+"trustedContacts.searchPrompt" = "搜索联系人";
+
+/* Toggle label for showing only favorite contacts */
+"trustedContacts.favoritesOnly" = "仅收藏";
+
+/* Apply button label */
+"trustedContacts.apply" = "应用";
+
+// MARK: - About Section
+
+/* Section header for about links */
+"about.header" = "关于";
+
+/* Link to MeshCore website */
+"about.website" = "MeshCore 官方网站";
+
+/* Link to MeshCore online map */
+"about.onlineMap" = "MeshCore 节点地图";
+
+/* Link to GitHub repository */
+"about.github" = "GitHub";
+
+/* Link to the privacy policy */
+/* AI-translated - please verify with native speakers. */
+"about.privacyPolicy" = "隐私政策";
+
+// MARK: - Advanced Radio Section
+
+/* Section header for manual radio parameters on Settings → Radio. */
+"advancedRadio.header" = "高级";
+
+/* Label for frequency input */
+"advancedRadio.frequency" = "频率（MHz）";
+
+/* Placeholder for frequency text field */
+"advancedRadio.frequencyPlaceholder" = "MHz";
+
+/* Label for bandwidth picker */
+"advancedRadio.bandwidth" = "带宽（kHz）";
+
+/* Label for spreading factor picker */
+"advancedRadio.spreadingFactor" = "扩频因子";
+
+/* Label for coding rate picker */
+"advancedRadio.codingRate" = "编码率";
+
+/* Label for TX power input */
+"advancedRadio.txPower" = "发射功率（dBm）";
+
+/* Placeholder for TX power text field */
+"advancedRadio.txPowerPlaceholder" = "dBm";
+
+/* Accessibility label for bandwidth picker options - %@ is formatted bandwidth value */
+"advancedRadio.accessibility.bandwidthLabel" = "%@ 千赫兹";
+
+/* Accessibility label for spreading factor picker options - %d is factor value */
+"advancedRadio.accessibility.spreadingFactorLabel" = "扩频因子 %d";
+
+/* Accessibility label for coding rate picker options - %d is rate value */
+"advancedRadio.accessibility.codingRateLabel" = "编码率 %d";
+
+/* Accessibility hint for bandwidth picker */
+"advancedRadio.accessibility.bandwidthHint" = "较低的值会增加范围但降低速度";
+
+/* Accessibility hint for spreading factor picker */
+"advancedRadio.accessibility.spreadingFactorHint" = "较高的值会增加范围但降低速度";
+
+/* Accessibility hint for coding rate picker */
+"advancedRadio.accessibility.codingRateHint" = "较高的值会增加纠错但降低速度";
+
+/* Button to apply radio settings */
+"advancedRadio.apply" = "应用无线电设置";
+
+/* Footer warning about incorrect radio settings */
+"advancedRadio.footer" = "警告：若设置不当，可能会无法与Mesh网络设备进行通信。";
+
+/* Footer when Repeat Mode is on: frequency is owned by Repeat Mode. */
+"advancedRadio.frequencyRepeatModeFooter" = "频率由转发模式设置。";
+
+/* Error message for invalid input */
+"advancedRadio.invalidInput" = "输入值无效或未连接到设备";
+
+// MARK: - Path Hash Mode Section
+
+/* Section header for path hash mode */
+"pathHashMode.header" = "路径哈希大小";
+
+/* Label for path hash mode picker */
+"pathHashMode.label" = "哈希大小";
+
+/* Path hash mode option: 1 byte */
+"pathHashMode.oneByte" = "1 字节";
+
+/* Path hash mode option: 2 bytes */
+"pathHashMode.twoBytes" = "2 字节";
+
+/* Path hash mode option: 3 bytes */
+"pathHashMode.threeBytes" = "3 字节";
+
+/* Footer explaining path hash mode tradeoff */
+"pathHashMode.footer" = "较大的哈希值可减少路由冲突，但会限制每条路径的最大跳数。固件版本低于 1.14.0 的中继器不会转发哈希大小超过 1 字节的消息。";
+
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "默认泛洪范围";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "设置后，设备会将此范围应用于泛洪发送，除非被特定频道的范围覆盖。该范围会保存在设备上，重启后仍然有效。";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "无";
+
+// MARK: - Battery Curve Section
+
+/* Accessibility label for voltage text field - %d is percentage level */
+"batteryCurve.accessibility.voltageLabel" = "%d%% 时的电压";
+
+/* Accessibility value for voltage text field - %d is millivolt value */
+"batteryCurve.accessibility.voltageValue" = "%d mV";
+
+/* Accessibility hint for voltage text field */
+"batteryCurve.accessibility.voltageHint" = "输入此电量水平下的电压";
+
+/* Section header for battery curve */
+"batteryCurve.header" = "电池曲线";
+
+/* Footer explaining battery curve configuration */
+"batteryCurve.footer" = "为您的设备电池配置电压百分比曲线，注意百分比仅在APP上面显示。";
+
+/* Label for preset picker */
+"batteryCurve.preset" = "预设";
+
+/* Option for custom battery curve */
+"batteryCurve.custom" = "自定义";
+
+/* Disclosure group label for editing values */
+"batteryCurve.editValues" = "编辑曲线";
+
+/* Validation error for value out of range - %d is percentage level */
+"batteryCurve.validation.outOfRange" = "%d%% 处的值必须在 1000-99999 mV 范围内";
+
+/* Validation error for non-descending values */
+"batteryCurve.validation.notDescending" = "值必须按降序排列";
+
+/* Unit label for millivolts */
+"batteryCurve.mV" = "mV";
+
+// MARK: - Bluetooth Section
+
+/* Section header for Bluetooth settings */
+"bluetooth.header" = "蓝牙";
+
+/* Label for PIN type picker */
+"bluetooth.pinType" = "蓝牙 PIN 设置";
+
+/* PIN type option for default PIN */
+"bluetooth.pinType.default" = "默认";
+
+/* PIN type option for custom PIN */
+"bluetooth.pinType.custom" = "自定义 PIN";
+
+/* Label showing current PIN */
+"bluetooth.currentPin" = "当前 PIN";
+
+/* Button to change PIN */
+"bluetooth.changePin" = "更改 PIN";
+
+/* Button to change device display name */
+"bluetooth.changeDisplayName" = "更改蓝牙名称";
+
+/* Footer explaining default PIN */
+"bluetooth.defaultPinFooter" = "默认 PIN 为 123456。带有屏幕的设备显示其自己的 PIN。";
+
+/* Alert title for setting custom PIN */
+"bluetooth.alert.setPin.title" = "设置自定义 PIN";
+
+/* Alert title for changing custom PIN */
+"bluetooth.alert.changePin.title" = "更改自定义 PIN";
+
+/* Placeholder for PIN text field */
+"bluetooth.pinPlaceholder" = "6 位 PIN";
+
+/* Button to set PIN */
+"bluetooth.setPin" = "设置 PIN";
+
+/* Alert message for setting PIN */
+"bluetooth.alert.setPin.message" = "输入 6 位 PIN。设备将重启以应用更改。";
+
+/* Alert message for changing PIN */
+"bluetooth.alert.changePin.message" = "输入新的 6 位 PIN。设备将重启以应用更改。";
+
+/* Alert title for confirming PIN type change */
+"bluetooth.alert.changePinType.title" = "更改 PIN 类型？";
+
+/* Button to confirm change */
+"bluetooth.alert.change" = "更改";
+
+/* Alert message for PIN type change */
+"bluetooth.alert.changePinType.message" = "设备将重启以应用更改。";
+
+/* Error for invalid PIN format */
+"bluetooth.error.invalidPin" = "PIN 必须是 100000 到 999999 之间的 6 位数字";
+
+// MARK: - Contacts Settings Section
+
+/* Section header for nodes/contacts settings */
+/* Toggle label for auto-add nodes */
+/* Description for auto-add nodes toggle */
+// MARK: - Nodes Settings Section
+
+/* Section header for nodes settings */
+"nodes.header" = "节点";
+
+/* Label for auto-add mode picker */
+"nodes.autoAddMode" = "节点添加设置";
+
+/* Auto-add mode: manual */
+"nodes.autoAddMode.manual" = "手动添加";
+
+/* Auto-add mode: manual description */
+"nodes.autoAddMode.manualDescription" = "在添加之前在发现中查看所有节点";
+
+/* Auto-add mode: selected types */
+"nodes.autoAddMode.selectedTypes" = "选定类型";
+
+/* Auto-add mode: selected types description */
+"nodes.autoAddMode.selectedTypesDescription" = "仅自动添加以下启用的类型";
+
+/* Auto-add mode: all */
+"nodes.autoAddMode.all" = "自动添加";
+
+/* Auto-add mode: all description */
+"nodes.autoAddMode.allDescription" = "可允许自动添加每个发现的节点";
+
+/* Section header for auto-add types */
+/* Toggle label for auto-add contacts */
+"nodes.autoAddContacts" = "联系人";
+
+/* Toggle label for auto-add repeaters */
+"nodes.autoAddRepeaters" = "转发节点";
+
+/* Toggle label for auto-add room servers */
+"nodes.autoAddRoomServers" = "房间服务器";
+
+/* Section header for storage settings */
+/* Toggle label for overwrite oldest */
+"nodes.overwriteOldest" = "覆盖最旧的";
+
+/* Description for overwrite oldest toggle */
+"nodes.overwriteOldestDescription" = "当存储已满时，替换最旧的非收藏节点";
+
+/* Picker label for max hop distance */
+"nodes.maxHops" = "自动添加最大跳数限制";
+
+/* No limit option */
+"nodes.maxHops.noLimit" = "无限制";
+
+/* Direct only option (0 hops) */
+"nodes.maxHops.directOnly" = "仅直连";
+
+/* Singular 1 hop option */
+"nodes.maxHops.oneHop" = "1 跳";
+
+/* Plural hops format string */
+"nodes.maxHops.hops" = "%d 跳";
+
+/* Footer text when hop limit is active */
+"nodes.maxHops.footerActive" = "超出所选跳数距离的节点将不会被自动添加。";
+
+// MARK: - Auto-Remove Old Nodes Section
+
+/* Toggle label / section header for stale node cleanup */
+"nodes.staleCleanup.header" = "自动移除旧节点";
+
+/* Label for threshold picker */
+"nodes.staleCleanup.threshold" = "移除超过此时间的节点";
+
+/* Picker placeholder when no threshold is selected */
+"nodes.staleCleanup.select" = "选择";
+
+/* Threshold option: number of days (%d = day count) */
+"nodes.staleCleanup.days" = "%d 天";
+
+/* Footer when auto-remove is enabled (%d = day count) */
+"nodes.staleCleanup.footerEnabled" = "超过 %d 天未更新的非收藏节点将在连接时自动移除。";
+
+/* Footer describing the auto-remove feature (shown when toggle is off) */
+"nodes.staleCleanup.footerDisabled" = "自动移除在设定时间内未更新的非收藏节点。收藏节点不会被移除。";
+
+/* Footer when toggle is on but no threshold selected yet */
+"nodes.staleCleanup.footerSelect" = "选择保留节点的时间。收藏节点不会被移除。";
+
+/* Footer when enabled but device is disconnected */
+"nodes.staleCleanup.footerDisconnected" = "将在下次连接时检查旧节点。收藏节点不会被移除。";
+
+/* Last cleanup date row (%@ = relative date) */
+"nodes.staleCleanup.lastRun" = "上次检查 %@";
+
+// MARK: - Device Actions Section
+
+/* Section header for device actions */
+"deviceActions.header" = "设备";
+
+/* Button to reboot the device */
+"deviceActions.rebootDevice" = "重启设备";
+
+/* Text shown while rebooting */
+"deviceActions.rebooting" = "正在重启…";
+
+/* Alert title for reboot confirmation */
+"deviceActions.alert.reboot.title" = "重启设备？";
+
+/* Button to confirm reboot */
+"deviceActions.alert.reboot.confirm" = "重启";
+
+/* Alert message for reboot confirmation */
+"deviceActions.alert.reboot.message" = "设备将重新启动并暂时断开连接。";
+
+// MARK: - Danger Zone Section
+
+/* Section header for danger zone */
+"dangerZone.header" = "谨慎设置";
+
+/* Button to forget/unpair device */
+"dangerZone.forgetDevice" = "忘记设备";
+
+/* Button to factory reset device */
+"dangerZone.factoryReset" = "设备恢复出厂设置";
+
+/* Text shown while resetting */
+"dangerZone.resetting" = "正在重置...";
+
+/* Footer explaining factory reset */
+"dangerZone.footer" = "恢复出厂设置将擦除设备上的所有联系人、消息和设置。";
+
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "忘记设备";
+
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "您的设备将取消配对。您可以选择保留或删除您的消息、联系人和频道。";
+
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "忘记设备";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "忘记设备并删除数据";
+
+/* Alert title for factory reset confirmation */
+"dangerZone.alert.reset.title" = "恢复出厂设置";
+
+/* Button to confirm reset */
+"dangerZone.alert.reset.confirm" = "重置";
+
+/* Alert message for factory reset */
+"dangerZone.alert.reset.message" = "这将擦除设备上的所有数据，包括联系人、消息和设置。出现提示时，请轻点\U201C移除\U201D以取消配对设备。";
+
+/* Error when services are not available */
+"dangerZone.error.servicesUnavailable" = "服务不可用";
+
+/* Button to remove non-favorite nodes */
+"dangerZone.removeUnfavorited" = "移除非收藏节点";
+
+/* Text shown while removing unfavorited nodes */
+"dangerZone.removing" = "正在移除…";
+
+/* Label shown after successful removal */
+"dangerZone.removed" = "节点已移除";
+
+/* Alert title for remove non-favorite confirmation */
+"dangerZone.alert.removeUnfavorited.title" = "移除非收藏节点";
+
+/* Button to confirm removal */
+"dangerZone.alert.removeUnfavorited.confirm" = "移除节点";
+
+/* Alert title for removal result */
+"dangerZone.alert.removeUnfavorited.resultTitle" = "移除结果";
+
+/* Alert message for remove unfavorited (%d = count) */
+"dangerZone.alert.removeUnfavorited.message" = "这将从设备和应用中永久删除 %d 个未标记为收藏的节点及其消息。";
+
+/* Partial success message (%d = removed, %d = total) */
+"dangerZone.alert.removeUnfavorited.partial" = "已移除 %d 个节点（共 %d 个）。连接已中断——请再次点击按钮以移除剩余节点。";
+
+/* Message when no non-favorite nodes to remove */
+"dangerZone.alert.removeUnfavorited.noneFound" = "没有可移除的非收藏节点。";
+
+// MARK: - Diagnostics Section
+
+/* Section header for diagnostics */
+"diagnostics.header" = "诊断";
+
+/* Button to export debug logs */
+"diagnostics.exportLogs" = "导出调试日志";
+
+/* Button to clear debug logs */
+"diagnostics.clearLogs" = "清除调试日志";
+
+/* Footer explaining log export */
+"diagnostics.footer" = "导出包括所有应用会话的调试日志。日志本地存储，并在 7 天后自动删除。";
+
+/* Alert title for clear logs confirmation */
+"diagnostics.alert.clear.title" = "清除调试日志";
+
+/* Button to confirm clear */
+"diagnostics.alert.clear.confirm" = "清除";
+
+/* Alert message for clear logs */
+"diagnostics.alert.clear.message" = "这将删除所有存储的调试日志。导出的日志文件不会受到影响。";
+
+/* Error when export fails */
+"diagnostics.error.exportFailed" = "创建导出文件失败";
+
+// MARK: - Chat Settings
+
+/* Navigation title for chat settings page */
+"chatSettings.title" = "聊天";
+
+// MARK: - Link Preview Settings Section
+
+/* Section header for link content settings */
+"linkPreviews.header" = "链接内容";
+
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "显示链接内容";
+
+/* Toggle label for showing previews in DMs */
+"linkPreviews.showInDMs" = "在私信中显示";
+
+/* Toggle label for showing previews in channels */
+"linkPreviews.showInChannels" = "在频道中显示";
+
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "链接预览和图片通过您手机的互联网连接获取，而非通过 mesh 网络。这可能会向托管内容的服务器泄露您的 IP 地址，并可能消耗蜂窝数据。";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "已开启减弱动态效果，因此 GIF 不会自动播放。";
+
+// MARK: - Node Settings Section
+
+/* Section header for node settings */
+"node.header" = "节点";
+
+/* Label for node name */
+"node.name" = "节点名称";
+
+/* Default node name when unknown */
+/* Button text to copy */
+/* Label for set location button */
+"node.setLocation" = "设置位置";
+
+/* Text shown when location is set */
+"node.locationSet" = "已设置";
+
+/* Text shown when location is not set */
+"node.locationNotSet" = "未设置";
+
+/* Toggle label for share location publicly */
+"node.shareLocationPublicly" = "允许公开位置";
+
+/* Footer explaining node visibility */
+"node.footer" = "您的节点名称在共享时对其他Mesh网络用户可见。";
+
+/* Alert title for editing node name */
+"node.alert.editName.title" = "编辑节点名称";
+
+// MARK: - Location Settings Section
+
+/* Section header for location settings */
+"location.header" = "位置";
+
+/* Footer for location settings section */
+"location.footer" = "当启用公开分享位置时，您的位置将在发送广播时通过Mesh网络广播。启用自动更新位置将在发送广播前自动更新您的设备位置。";
+
+/* Toggle label for auto-update location */
+"location.autoUpdate" = "自动更新位置";
+
+/* Label for GPS source picker */
+"location.gpsSource" = "GPS 源";
+
+/* GPS source option: phone GPS */
+"location.gpsSource.phone" = "手机 GPS";
+
+/* GPS source option: device GPS */
+"location.gpsSource.device" = "设备 GPS";
+
+/* Section header for device GPS controls */
+"location.deviceGps.header" = "设备 GPS";
+
+/* Toggle label for device GPS power */
+"location.deviceGps.toggle" = "启用设备 GPS";
+
+/* Footer for device GPS controls */
+"location.deviceGps.footer" = "打开或关闭无线电的内置 GPS。保存手动地图位置将关闭设备 GPS。";
+
+/* Detail text when location is being shared publicly */
+"location.sharingPublicly" = "公开分享";
+
+/* Detail text when location is not being shared */
+"location.notSharing" = "未分享";
+
+// MARK: - Notification Settings Section
+
+/* Section header for notifications */
+"notifications.header" = "通知";
+
+/* Toggle label for contact messages notifications */
+"notifications.contactMessages" = "联系人消息";
+
+/* Toggle label for channel messages notifications */
+"notifications.channelMessages" = "频道消息";
+
+/* Toggle label for room messages notifications */
+"notifications.roomMessages" = "房间消息";
+
+/* Toggle label for new contact discovered notifications */
+"notifications.newContactDiscovered" = "发现新联系人";
+
+/* Toggle label for companion discovery notifications */
+"notifications.discoveryContact" = "伴侣节点";
+
+/* Toggle label for repeater discovery notifications */
+"notifications.discoveryRepeater" = "中继器";
+
+/* Toggle label for room discovery notifications */
+"notifications.discoveryRoom" = "聊天室";
+
+/* Toggle label for low battery warnings */
+"notifications.lowBattery" = "低电量警告";
+
+/* Toggle label for reaction notifications */
+"notifications.reactions" = "表情反应";
+
+/* Button to enable notifications */
+"notifications.enable" = "启用通知";
+
+/* Label shown when notifications are disabled */
+"notifications.disabled" = "通知已禁用";
+
+/* Button to open system settings */
+"notifications.openSettings" = "打开设置";
+
+/* Message shown when device not connected */
+/* Footer for notifications navigation row */
+// MARK: - Radio Preset Section
+
+/* Section header for radio settings */
+"radio.header" = "无线电";
+
+/* Label for radio preset picker */
+"radio.preset" = "无线电预设";
+
+/* Footer explaining radio presets. Location is geographic filter, not mesh Region. */
+"radio.footer" = "选择与附近电台匹配的预设。MeshCore 设备必须使用相同的无线电设置才能通信。";
+
+/* Radio row and PresetLocationView navigation title. Not Settings → Location (GPS pin). */
+"radio.presetLocation" = "位置";
+
+/* Trailing value when the place is unset: Location row, and empty Country / State rows in RegionPickerRows (Radio and onboarding). */
+"radio.presetLocation.notSet" = "未设置";
+
+/* Footer on the Radio location section and the Location subpage. */
+"radio.presetLocation.footer" = "用于筛选预设列表。不会更改无线电。";
+
+/* errorAlert when Use my location is authorized but resolve() returns nil. */
+"radio.presetLocation.useMyLocation.failure" = "无法根据你的位置确定地点。请选择国家和省/州。";
+
+/* Visible label + VoiceOver value on Use my location while GPS / geocode is in flight. Not onboarding region.resolving. */
+"radio.presetLocation.useMyLocation.locating" = "正在查找你的位置…";
+
+/* Open Settings alert message when Use my location is denied or restricted. */
+"radio.presetLocation.denied" = "之前已拒绝位置权限。请在设置中启用以填写国家和省/州。";
+
+/* Toggle label for repeat mode */
+"radio.repeatMode" = "转发模式";
+
+/* Footer explaining repeat mode */
+"radio.repeatMode.footer" = "在专用频率上创建本地转发器。适用于徒步旅行和偏远地区。";
+
+/* Accessibility hint for repeat mode toggle */
+"radio.repeatMode.accessibilityHint" = "启用此功能将断开与主网状网络的连接";
+
+/* Confirmation dialog title for enabling repeat mode */
+"radio.repeatMode.confirm.title" = "启用转发？";
+
+/* Confirmation dialog message for enabling repeat mode */
+"radio.repeatMode.confirm.message" = "您将断开与主网状网络的连接。只有使用相同转发频率的设备才能通信。";
+
+/* Confirmation dialog enable button */
+"radio.repeatMode.confirm.enable" = "启用";
+
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "正在显示 %@ 的预设。";
+
+/* Location: RadioPresetSection.swift - Footer reminding the operator to comply with local radio laws */
+"radio.regulationsFooter" = "您有责任遵守当地无线电法规。";
+
+// MARK: - Telemetry Settings Section
+
+/* Section header for telemetry settings */
+"telemetry.header" = "遥测数据";
+
+/* Toggle label for allowing telemetry requests */
+"telemetry.allowRequests" = "允许遥测请求";
+
+/* Description for telemetry requests toggle */
+"telemetry.allowRequestsDescription" = "允许其他用户请求的基础信息。如设备的电池电量。";
+
+/* Toggle label for including location in telemetry */
+"telemetry.includeLocation" = "允许位置请求";
+
+/* Description for include location toggle */
+"telemetry.includeLocationDescription" = "在遥测数据中共享 GPS 坐标";
+
+/* Toggle label for including environment sensors */
+"telemetry.includeEnvironment" = "允许传感器数据请求";
+
+/* Description for include environment toggle */
+"telemetry.includeEnvironmentDescription" = "共享温度、湿度等。";
+
+/* Toggle label for trusted contacts only */
+"telemetry.trustedOnly" = "仅与信任联系人共享";
+
+/* Description for trusted contacts toggle */
+"telemetry.trustedOnlyDescription" = "遥测数据将限制给选定的联系人";
+
+/* Link to manage trusted contacts */
+"telemetry.manageTrusted" = "管理信任联系人";
+
+/* Footer explaining telemetry */
+"telemetry.footer" = "启用后，其他节点可以请求您的设备遥测数据。";
+
+// MARK: - WiFi Section
+
+/* Section header for WiFi settings */
+"wifi.header" = "WiFi";
+
+/* Label for IP address */
+"wifi.address" = "地址";
+
+/* Label for port number */
+"wifi.port" = "端口";
+
+/* Button to edit WiFi connection */
+"wifi.editConnection" = "编辑连接";
+
+/* Footer explaining WiFi address */
+"wifi.footer" = "您设备的本地网络地址";
+
+// MARK: - WiFi Edit Sheet
+
+/* Navigation title for WiFi edit sheet */
+"wifiEdit.title" = "编辑 WiFi 连接";
+
+/* Section header for connection details */
+"wifiEdit.connectionDetails" = "连接详情";
+
+/* Placeholder for IP address field */
+/* Placeholder for port field */
+/* Accessibility label for clear IP button */
+/* Accessibility label for clear port button */
+/* Footer explaining reconnection */
+"wifiEdit.footer" = "更改这些值将断开并重新连接到新地址。";
+
+/* Text shown while reconnecting */
+"wifiEdit.reconnecting" = "正在重新连接...";
+
+/* Button to save changes */
+"wifiEdit.saveChanges" = "保存更改";
+
+/* Error for invalid port */
+"wifiEdit.error.invalidPort" = "无效的端口号";
+
+// MARK: - Error Alert
+
+/* Alert title for generic errors */
+"alert.error.title" = "错误";
+
+// MARK: - Retry Alert
+
+/* Alert title when max retries exceeded */
+"alert.retry.unableToSave" = "无法保存设置";
+
+/* Alert title for connection errors */
+"alert.retry.connectionError" = "连接错误";
+
+/* Button to retry operation */
+"alert.retry.retry" = "重试";
+
+/* Alert message when max retries exceeded */
+"alert.retry.ensureConnected" = "请确保您的设备已连接。";
+
+/* Fallback message for retry alerts when error description is unavailable */
+"alert.retry.fallbackMessage" = "请确保设备已连接并重试。";
+
+// MARK: - Battery Curve Chart
+
+/* Chart X axis label */
+"chart.percent" = "百分比";
+
+/* Chart Y axis label */
+"chart.voltage" = "电压（V）";
+
+/* Accessibility label for battery curve chart */
+"chart.accessibility" = "显示每个电量水平的电压的电池放电曲线";
+
+// MARK: - Messages Settings Section
+
+/* Section header for message info settings in chats */
+"messages.header" = "消息信息";
+
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+/* Toggle label for showing routing path on incoming messages */
+"messages.showIncomingPath" = "传入路径";
+
+/* Toggle label for showing hop count on incoming messages */
+"messages.showIncomingHopCount" = "传入跳数";
+
+/* Toggle label for showing the radio region an incoming message was flooded under */
+"messages.showIncomingRegion" = "传入区域";
+
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "传入听到次数";
+
+/* Footer explaining what message display options show */
+"messages.footer" = "在传入消息气泡内显示路由和时间信息。";
+
+// MARK: - Direct Messages Settings Section
+
+/* Section header for direct message settings */
+"directMessages.header" = "私信";
+
+/* Picker label for number of acknowledgments */
+"directMessages.acknowledgments" = "确认回执";
+
+/* Footer explaining the acknowledgments setting */
+"directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
+
+// MARK: - BLE Status Indicator
+
+/* Menu item to send a zero-hop advertisement */
+"bleStatus.sendZeroHopAdvert" = "发送零跳广播";
+
+/* Menu item to send a flood advertisement */
+"bleStatus.sendFloodAdvert" = "发送泛洪广播";
+
+/* Menu item to change the connected device */
+"bleStatus.changeDevice" = "切换设备";
+
+/* Menu item to disconnect from the current device */
+"bleStatus.disconnect" = "断开连接";
+
+/* Status shown when device is disconnected */
+"bleStatus.status.disconnected" = "已断开";
+
+/* Status shown when device is connecting */
+"bleStatus.status.connecting" = "连接中...";
+
+/* Status shown when device is connected but not ready */
+"bleStatus.status.connected" = "已连接";
+
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "同步中";
+
+/* Status shown when device is ready */
+"bleStatus.status.ready" = "就绪";
+
+/* Accessibility label for BLE status indicator */
+"bleStatus.accessibilityLabel" = "蓝牙连接状态";
+
+/* Accessibility hint when disconnected */
+"bleStatus.accessibilityHint.disconnected" = "双击以连接设备";
+
+/* Accessibility hint when connected */
+"bleStatus.accessibilityHint.connected" = "显示设备连接选项";
+
+/* Accessibility hint for zero-hop advert button */
+"bleStatus.sendZeroHopAdvert.hint" = "仅广播到直连邻居";
+
+/* Accessibility hint for flood advert button */
+"bleStatus.sendFloodAdvert.hint" = "在整个网络上泛洪广播";
+
+/* Label shown in BLE status menu when repeat mode is active */
+"bleStatus.repeatModeActive" = "转发已启用";
+
+// MARK: - Config Export/Import
+
+/* Section title for config export/import */
+"configExport.sectionTitle" = "设备配置";
+
+/* Section footer explaining config export/import */
+"configExport.sectionFooter" = "将设备设置、频道和联系人导出或导入为 JSON 文件。";
+
+/* Export navigation row label */
+"configExport.export" = "导出配置";
+
+/* Export screen navigation title */
+"configExport.title" = "导出配置";
+
+/* Export full config button */
+"configExport.exportFull" = "导出完整配置";
+
+/* Export selected sections button */
+"configExport.exportSelected" = "导出所选部分";
+
+/* Customize export disclosure label */
+/* Select all toggle label */
+"configExport.selectAll" = "全选";
+
+/* Toggle labels for export sections */
+"configExport.nodeIdentity" = "节点身份（名称和密钥）";
+"configExport.nodeIdentity.description" = "设备名称、公钥和私钥";
+"configExport.radioSettings" = "无线电设置";
+"configExport.radioSettings.description" = "频率、带宽、扩频因子、编码率、发射功率";
+"configExport.positionSettings" = "位置";
+"configExport.positionSettings.description" = "纬度和经度";
+"configExport.otherSettings" = "其他设置";
+"configExport.otherSettings.description" = "联系人权限、位置共享";
+"configExport.channels" = "频道";
+"configExport.channels.description" = "所有频道及其加密密钥";
+"configExport.contacts" = "联系人";
+"configExport.contacts.description" = "姓名、密钥和最后已知位置";
+
+// MARK: - Config Import
+
+/* Import screen navigation title */
+"configImport.title" = "导入配置";
+
+/* Select file button */
+"configImport.selectFile" = "选择 JSON 文件";
+
+/* Confirmation alert title */
+"configImport.confirmTitle" = "应用配置？";
+
+/* Confirmation alert message (param: device name) */
+"configImport.confirmMessage" = "所选设置将合并到 %@。现有频道和联系人将被更新或添加。";
+
+/* Apply button label */
+"configImport.applyButton" = "应用到设备";
+
+/* Apply button label (additive only — channels/contacts) */
+"configImport.applyButtonAdd" = "添加到设备";
+
+/* Apply button label (overwrite settings) */
+"configImport.applyButtonOverwrite" = "覆盖设置";
+
+/* Confirmation alert title (additive only) */
+"configImport.confirmTitleAdd" = "添加到设备？";
+
+/* Confirmation alert title (overwrite settings) */
+"configImport.confirmTitleOverwrite" = "覆盖设置？";
+
+/* Confirmation alert message (additive only, param: device name) */
+"configImport.confirmMessageAdd" = "频道和联系人将添加到 %@。现有数据不会被删除。";
+
+/* Confirmation alert message (overwrite only, param: device name) */
+"configImport.confirmMessageOverwrite" = "%@ 上的所选设置将被覆盖。当前值将被替换。";
+
+/* Confirmation alert message (mixed, param: device name) */
+"configImport.confirmMessageMixed" = "设置将被覆盖，频道和联系人将添加到 %@。";
+
+/* Proximity warning */
+"configImport.proximityWarning" = "导入期间请保持设备靠近";
+
+/* Import cancelled */
+"configImport.cancelled" = "导入已取消。";
+
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "导入已取消，但部分设置已写入设备。请检查设备的配置。";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ 部分设置可能已写入设备。请检查设备的配置。";
+
+/* Import success */
+"configImport.importSuccess" = "配置导入成功";
+
+/* Private key warning */
+"configImport.privateKeyWarning" = "这将替换节点的加密身份";
+
+"configImport.current" = "当前：%@";
+"configImport.new" = "新值：%@";
+
+/* Channel count (param: integer) */
+"configImport.channelCount" = "将在设备上添加/更新 %d 个频道";
+
+/* Import navigation row label */
+"configImport.importConfig" = "导入配置";
+
+/* Radio settings change warning */
+"configImport.radioWarning" = "更改无线电设置将断开与当前 mesh 网络的连接";
+
+/* Contact count (param: integer) */
+"configImport.contactCount" = "将在设备上添加/更新 %d 个联系人";
+
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "此设备";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "正在设置位置";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "正在设置其他参数";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "正在导入私钥";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "正在设置节点名称";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "正在设置无线电参数";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "正在设置发射功率";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "正在导入频道：%@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "正在导入联系人：%@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "频率";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "带宽";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "扩频因子";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "编码率";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "发射功率";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "纬度";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "经度";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ 超出无线电支持的范围";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ 的坐标无效或超出范围";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "联系人 \"%@\" 的 %@ 坐标无效或超出范围";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "联系人 \"%@\" 的路由路径无效";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "导入需要 %d 个空闲联系人槽位，但设备上仅剩 %d 个";
+
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "频道 %1$lld 的密钥无效（%2$lld 个十六进制字符，应为 32 个）";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "联系人 \"%@\" 的公钥无效";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "联系人 \"%1$@\" 的路径哈希模式 %2$lld 不受支持（应为 0、1 或 2）";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "私钥无效（%1$lld 个十六进制字符，应为 %2$lld 个）";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "没有可用于 \"%@\" 的空闲频道槽位";
+
+/* Toggle label for auto-play GIFs */
+"inlineImages.autoPlayGifs" = "自动播放 GIF";
+
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "地图预览";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "显示地图缩略图";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "显示地图缩略图会从第三方服务器获取该坐标的地图图块，可能会暴露您的IP地址。";
+
+// MARK: - Blocking Section
+
+/* Location: BlockingSection.swift - Purpose: Section header */
+"blocking.header" = "屏蔽";
+
+/* Location: BlockingSection.swift - Purpose: Channel senders row */
+"blocking.channelSenders" = "频道成员";
+
+/* Location: BlockingSection.swift - Purpose: Contacts row */
+"blocking.contacts" = "联系人";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Navigation title */
+"blocking.channelSenders.title" = "已屏蔽的频道成员";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Empty state title */
+"blocking.channelSenders.empty.title" = "没有已屏蔽的用户";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Empty state description */
+"blocking.channelSenders.empty.description" = "您屏蔽的频道成员名称将显示在此处。";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Swipe action to unblock */
+// MARK: - Language
+
+/* Location: SettingsView.swift - Purpose: Language row title */
+"language.title" = "语言";
+
+"language.appLanguage.title" = "应用语言";
+
+"language.appLanguage.footer" = "按钮、菜单和其他文本。";
+
+"language.appLanguage.accessibilityHint" = "打开设置";
+
+"language.translateInto.header" = "翻译成";
+
+"language.translateInto.footer" = "点击翻译时，收到的消息会翻译成此语言。";
+
+"language.translateInto.listFooter" = "此设备可在应用内翻译的语言。其他语言使用您的默认翻译应用。";
+
+"language.matchAppLanguage" = "使用应用语言";
+
+"language.suggested.header" = "建议";
+
+"language.all.header" = "语言";
+
+"language.defaultTranslationApp.title" = "使用默认翻译应用";
+
+"language.defaultTranslationApp.footer" = "使用翻译，或您在设置中选择的其他应用。";
+
+"language.translationOffers.title" = "提供翻译";
+
+"language.translationOffers.offFooter" = "其他语言的收到消息将不显示翻译按钮。";
+
+"language.search.prompt" = "搜索语言";
+
+"language.search.noResults" = "无结果";
+
+"language.search.noResultsDescription" = "没有语言匹配\"%@\"";
+
+"language.search.unavailable" = "%@ 在应用中不可用。使用您的默认翻译应用翻译。";
+
+// MARK: - Region
+
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "加利福尼亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Delaware (US-DE) state name */
+"region.subdivision.US-DE" = "特拉华州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maryland (US-MD) state name */
+"region.subdivision.US-MD" = "马里兰州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Jersey (US-NJ) state name */
+"region.subdivision.US-NJ" = "新泽西州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Pennsylvania (US-PA) state name */
+"region.subdivision.US-PA" = "宾夕法尼亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "昆士兰州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "南澳大利亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "西澳大利亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alabama (US-AL) state name */
+"region.subdivision.US-AL" = "阿拉巴马州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alaska (US-AK) state name */
+"region.subdivision.US-AK" = "阿拉斯加州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arizona (US-AZ) state name */
+"region.subdivision.US-AZ" = "亚利桑那州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arkansas (US-AR) state name */
+"region.subdivision.US-AR" = "阿肯色州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Colorado (US-CO) state name */
+"region.subdivision.US-CO" = "科罗拉多州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Connecticut (US-CT) state name */
+"region.subdivision.US-CT" = "康涅狄格州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - District of Columbia (US-DC) state name */
+"region.subdivision.US-DC" = "哥伦比亚特区";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Florida (US-FL) state name */
+"region.subdivision.US-FL" = "佛罗里达州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Georgia (US-GA) state name */
+"region.subdivision.US-GA" = "佐治亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Hawaii (US-HI) state name */
+"region.subdivision.US-HI" = "夏威夷州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Idaho (US-ID) state name */
+"region.subdivision.US-ID" = "爱达荷州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Illinois (US-IL) state name */
+"region.subdivision.US-IL" = "伊利诺伊州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Indiana (US-IN) state name */
+"region.subdivision.US-IN" = "印第安纳州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Iowa (US-IA) state name */
+"region.subdivision.US-IA" = "艾奥瓦州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kansas (US-KS) state name */
+"region.subdivision.US-KS" = "堪萨斯州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kentucky (US-KY) state name */
+"region.subdivision.US-KY" = "肯塔基州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Louisiana (US-LA) state name */
+"region.subdivision.US-LA" = "路易斯安那州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maine (US-ME) state name */
+"region.subdivision.US-ME" = "缅因州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Massachusetts (US-MA) state name */
+"region.subdivision.US-MA" = "马萨诸塞州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Michigan (US-MI) state name */
+"region.subdivision.US-MI" = "密歇根州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Minnesota (US-MN) state name */
+"region.subdivision.US-MN" = "明尼苏达州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Mississippi (US-MS) state name */
+"region.subdivision.US-MS" = "密西西比州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Missouri (US-MO) state name */
+"region.subdivision.US-MO" = "密苏里州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Montana (US-MT) state name */
+"region.subdivision.US-MT" = "蒙大拿州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nebraska (US-NE) state name */
+"region.subdivision.US-NE" = "内布拉斯加州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nevada (US-NV) state name */
+"region.subdivision.US-NV" = "内华达州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Hampshire (US-NH) state name */
+"region.subdivision.US-NH" = "新罕布什尔州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Mexico (US-NM) state name */
+"region.subdivision.US-NM" = "新墨西哥州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New York (US-NY) state name */
+"region.subdivision.US-NY" = "纽约州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Carolina (US-NC) state name */
+"region.subdivision.US-NC" = "北卡罗来纳州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Dakota (US-ND) state name */
+"region.subdivision.US-ND" = "北达科他州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ohio (US-OH) state name */
+"region.subdivision.US-OH" = "俄亥俄州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oklahoma (US-OK) state name */
+"region.subdivision.US-OK" = "俄克拉荷马州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oregon (US-OR) state name */
+"region.subdivision.US-OR" = "俄勒冈州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Rhode Island (US-RI) state name */
+"region.subdivision.US-RI" = "罗得岛州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Carolina (US-SC) state name */
+"region.subdivision.US-SC" = "南卡罗来纳州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Dakota (US-SD) state name */
+"region.subdivision.US-SD" = "南达科他州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tennessee (US-TN) state name */
+"region.subdivision.US-TN" = "田纳西州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Texas (US-TX) state name */
+"region.subdivision.US-TX" = "得克萨斯州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Utah (US-UT) state name */
+"region.subdivision.US-UT" = "犹他州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Vermont (US-VT) state name */
+"region.subdivision.US-VT" = "佛蒙特州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Virginia (US-VA) state name */
+"region.subdivision.US-VA" = "弗吉尼亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Washington (US-WA) state name */
+"region.subdivision.US-WA" = "华盛顿州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - West Virginia (US-WV) state name */
+"region.subdivision.US-WV" = "西弗吉尼亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wisconsin (US-WI) state name */
+"region.subdivision.US-WI" = "威斯康星州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wyoming (US-WY) state name */
+"region.subdivision.US-WY" = "怀俄明州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Australian Capital Territory (AU-ACT) state name */
+"region.subdivision.AU-ACT" = "澳大利亚首都领地";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New South Wales (AU-NSW) state name */
+"region.subdivision.AU-NSW" = "新南威尔士州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northern Territory (AU-NT) state name */
+"region.subdivision.AU-NT" = "北领地";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tasmania (AU-TAS) state name */
+"region.subdivision.AU-TAS" = "塔斯马尼亚州";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
+"region.subdivision.AU-VIC" = "维多利亚州";
+
+
+// MARK: - Live Activity
+
+/* Label for the Live Status toggle in App Settings */
+"liveActivity.title" = "实时活动";
+
+/* Title for the Live Activity tip shown after first connection */
+"liveActivity.tip.title" = "一目了然的电台状态";
+
+/* Message for the Live Activity tip */
+"liveActivity.tip.message" = "即使不打开应用，您的连接、电池和消息也清晰可见。";
+
+// MARK: - Regenerate Identity
+
+/* Section header for regenerate identity */
+"regenerateIdentity.header" = "身份";
+
+/* Button label to open regenerate identity sheet */
+"regenerateIdentity.title" = "重新生成密钥";
+
+/* Navigation title for the regenerate identity sheet */
+"regenerateIdentity.sheet.title" = "重新生成密钥";
+
+/* Explanation of what regenerating identity does */
+"regenerateIdentity.sheet.explanation" = "生成新的 Ed25519 密钥对以替换设备当前的身份。所有联系人需要重新发现你的设备。";
+
+/* Button to generate a new key */
+"regenerateIdentity.generate" = "生成密钥";
+
+/* Button to generate another key after the first */
+/* Progress label while generating */
+"regenerateIdentity.generating" = "生成中…";
+
+/* Button to apply the generated key to the device */
+"regenerateIdentity.replace" = "使用此密钥";
+
+/* Progress label while importing key to device */
+"regenerateIdentity.importing" = "导入中…";
+
+/* Disclosure group label for vanity prefix */
+"regenerateIdentity.prefix.label" = "自定义前缀";
+
+/* Placeholder for prefix text field */
+"regenerateIdentity.prefix.placeholder" = "例如 2BA1";
+
+/* Footer explaining vanity prefix */
+"regenerateIdentity.prefix.footer" = "可选择指定公钥开头的 1–4 个十六进制字符。前缀越长，生成时间越久。";
+
+/* Error when prefix is not 1–4 hex characters */
+/* Error when prefix is 00 or FF */
+"regenerateIdentity.prefix.error.reserved" = "00 和 FF 为保留值，不可使用";
+
+/* Alert title for replace identity confirmation */
+"regenerateIdentity.alert.replace.title" = "替换身份？";
+
+/* Alert confirm button for replace identity */
+"regenerateIdentity.alert.replace.confirm" = "替换";
+
+/* Alert message for replace identity */
+"regenerateIdentity.alert.replace.message" = "这将永久替换你设备的身份。其他设备会将你视为新联系人。";
+
+/* Error when firmware does not support key import */
+"regenerateIdentity.error.featureDisabled" = "此固件版本不支持密钥导入";
+
+/* Error when device rejects the key */
+"regenerateIdentity.error.deviceRejected" = "设备拒绝了密钥，请重试。";
+
+// MARK: - Import Key
+
+/* Button label to open import key sheet */
+"importKey.title" = "导入密钥";
+
+/* Navigation title for the import key sheet */
+"importKey.sheet.title" = "导入密钥";
+
+/* Explanation of what importing a key does */
+"importKey.sheet.explanation" = "粘贴现有的 Ed25519 私钥（128 个十六进制字符）以替换设备当前的身份。";
+
+/* Label for the private key input field */
+"importKey.keyInput.label" = "私钥";
+
+/* Placeholder for the key input field */
+"importKey.keyInput.placeholder" = "粘贴 128 位十六进制密钥";
+
+/* Button to import the key */
+"importKey.import" = "导入密钥";
+
+/* Progress label while importing */
+"importKey.importing" = "导入中…";
+
+/* Error when hex input is wrong length or invalid */
+"importKey.error.invalidHex" = "密钥必须恰好为 128 个十六进制字符";
+
+/* Error when key fails Ed25519 validation */
+"importKey.error.invalidKey" = "不是有效的 Ed25519 私钥";
+
+// Reply with Quote
+"replyWithQuote.toggle" = "引用回复";
+"replyWithQuote.footer" = "回复时包含原始消息的预览。";
+
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "地图";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "显示";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "地图外观";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "仅控制地图底图。应用颜色仍跟随外观。";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "离线地图";
+
+// MARK: - Offline Maps
+
+/* Navigation title for offline maps settings */
+"offlineMaps.title" = "离线地图";
+
+/* Title for empty state when no offline packs exist */
+"offlineMaps.emptyTitle" = "无离线地图";
+
+/* Description for empty state */
+"offlineMaps.emptyDescription" = "下载地图区域以便在无网络时使用。";
+
+/* Button to download a new offline region */
+"offlineMaps.downloadRegion" = "下载区域";
+
+/* Section header for storage info */
+"offlineMaps.storage" = "存储空间";
+
+/* Label for total storage used */
+"offlineMaps.storageUsed" = "已使用";
+
+/* Fallback name for unknown region */
+"offlineMaps.unknownRegion" = "未知区域";
+
+/* Status when pack download is complete */
+"offlineMaps.complete" = "已下载";
+
+/* Status when pack is downloading */
+"offlineMaps.downloading" = "下载中…";
+
+/* Navigation title for region picker sheet */
+"offlineMaps.pickRegion" = "选择区域";
+
+/* Placeholder for region name text field */
+"offlineMaps.regionName" = "区域名称";
+
+/* Button to start download */
+"offlineMaps.download" = "下载";
+
+/* Cancel button */
+"offlineMaps.cancel" = "取消";
+
+/* Delete confirmation title */
+/* Delete confirmation message */
+/* Delete button */
+/* Error: insufficient disk space */
+"offlineMaps.error.insufficientDiskSpace" = "存储空间不足，至少需要 100 MB。";
+
+/* Error: tile limit reached */
+"offlineMaps.error.tileLimitReached" = "已达到此下载的瓦片数量限制。";
+
+/* Pause download button */
+"offlineMaps.pause" = "暂停";
+
+/* Resume download button */
+"offlineMaps.resume" = "继续";
+
+/* Paused status label */
+"offlineMaps.paused" = "已暂停";
+
+/* Estimated download size */
+"offlineMaps.estimatedSize" = "预计大小：~%@";
+
+/* Large tile download warning */
+"offlineMaps.largeTileWarning" = "下载区域较大，可能需要较长时间并占用大量存储空间。";
+
+/* Hint shown before estimate is available */
+"offlineMaps.downloadHint" = "输入名称并选择要下载的区域。";
+
+/* Download exceeds available storage */
+"offlineMaps.exceedsStorage" = "设备存储空间不足。请放大地图以选择更小的区域。";
+
+/* Layer type labels */
+"offlineMaps.layer.base" = "基础地图";
+"offlineMaps.layer.topo" = "地形";
+
+/* Layers section header */
+"offlineMaps.layers" = "图层";
+
+/* Include layers prompt */
+/* No network available */
+"offlineMaps.noNetwork" = "下载地图需要互联网连接。";
+
+/* Storage section footer */
+"offlineMaps.storageFooter" = "包括地图数据和内部索引。总大小可能超过各项下载的总和。";
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "备份与恢复";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "文件备份";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "导出或恢复消息、联系人、频道、保存的路径和设置。";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "备份仅包含应用数据。请在高级设置中备份无线电配置。";
+
+/* Export row title */
+"settings.backup.export.title" = "导出应用数据";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "保存为 .mc1backup 文件";
+
+/* Import row title */
+"settings.backup.import.title" = "导入应用数据";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "从 .mc1backup 文件恢复";
+
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "导入备份前请先断开无线电连接。";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "安全提示";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史、联系人列表以及 WiFi 节点的本地网络地址和端口。请妥善保管导出的文件。";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "导出";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "取消";
+
+/* Export progress label */
+"settings.backup.export.progress" = "正在准备备份…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "导入预览";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "备份详情";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "导出日期";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "应用版本";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "内容";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "消息";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "联系人";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "频道";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "设备";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "房间消息";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "表情回应";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "保存的路径";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "远程节点会话";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "只添加新数据，不会覆盖已有记录。在创建此备份之后删除的联系人会重新出现，备份中设置的屏蔽、静音或收藏标记会再次应用。若该聊天尚未置顶，备份中的置顶会开启。备份中关闭的置顶不会取消该聊天的置顶。";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "导入数据";
+
+/* Import progress label */
+"settings.backup.import.progress" = "正在导入数据…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "正在读取备份…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "正在取消…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "取消";
+
+/* Import success title */
+"settings.backup.import.success.title" = "导入完成";
+
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "已添加到此设备";
+
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "已在此设备上";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "此设备上的现有数据保持不变；未覆盖任何内容。";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "已添加 %d 项。";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "已更新 %d 项现有内容。";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d 项已在此";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "其中 %d 项已用备份中的较新信息更新。";
+
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "无法恢复";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "%d 个项目无法恢复";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "这些频道在此设备上没有空闲的频道位，因此它们及其消息未被导入。请腾出一个频道位后重新导入以恢复它们。";
+
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "这些发现的节点无法恢复，因为此设备的发现列表已满（%d 个节点）。已保留现有本地节点；Mesh网络将重新通告缺失的节点。";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "部分项目无法恢复：没有空闲频道位的频道，以及超出此设备发现列表容量（%d 个节点）的发现的节点。请腾出一个频道位后重新导入频道；Mesh网络将重新通告缺失的发现的节点。";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "完成";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "导入失败";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "关闭";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "导入已取消";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "未更改任何数据。";
+
+/* File access error */
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "已屏蔽的发送者";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "节点快照";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "发现的节点";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "消息转发次数";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "所有内容均已在此";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "此备份的内容已在此设备上。";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "MC1 备份 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "备份文件无效或无法读取。";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "备份文件过大，无法导入（%1$d MB；上限为 %2$d MB）。";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "备份文件解压后超过安全大小上限（%d MB 未压缩）。";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "此备份是用更新的格式创建的（版本 %1$d）。此应用支持的最高版本为 %2$d。请更新应用后重试。";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "备份文件似乎已损坏。声明的条目数量与实际数据不符。";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "创建备份失败：%@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "导入备份失败：%@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "备份已保存";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "备份包含";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "完成";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "备份已保存为 %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "你尚未拥有此主题。";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "主题已恢复为默认。";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "支持开发";
+"Support.Header.Body" = "如果你喜欢 MC1，这里有几种支持其开发的方式！这里的一切都是可选的，只有一些打赏和一些额外的主题。";
+"Support.Themes.Title" = "主题";
+"Support.Themes.Owned" = "已拥有";
+"Support.Themes.PurchasedFooter" = "在设置 → 外观中应用你的新主题。";
+"Support.Themes.AllUnlocked" = "已解锁所有主题！";
+"Support.Bundle.Title" = "全部主题";
+"Support.Bundle.Subtitle" = "包括日后新增的主题。";
+"Support.Contributions.Title" = "捐助";
+"Support.Contributions.Footer" = "支持 MC1 开发的感谢式打赏。无实物商品，无会员权益。";
+"Support.Contributions.HighValueConfirm" = "发送 %@？";
+"Support.Contributions.ConfirmButton" = "捐助 %@";
+"Support.Restore.Button" = "恢复购买";
+"Support.Restore.Syncing" = "正在恢复…";
+"Support.Refund.Link" = "申请退款";
+"Support.Pending.Banner" = "等待批准——你的购买将在获批后生效。";
+"Support.Pending.Button" = "等待批准";
+"Support.Contact.Link" = "联系支持";
+"Support.ThankYou.Title" = "谢谢你！";
+"Support.ThankYou.Body" = "感谢你的支持，这对我很重要。我会继续努力让 MC1 变得更好！";
+
+/* MARK: Feedback screen */
+/* AI-translated - please verify with native speakers. */
+"Feedback.Title" = "反馈";
+"Feedback.Header.Body" = "更推荐通过 GitHub Issues，也可以发邮件。";
+"Feedback.GitHub.Link" = "打开 GitHub Issue";
+"Feedback.Email.Link" = "给开发者发邮件";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "默认";
+"Support.Theme.Ember" = "余烬";
+"Support.Theme.Fern" = "蕨绿";
+"Support.Theme.Marine" = "海蓝";
+"Support.Theme.Olive" = "橄榄";
+"Support.Theme.Lavender" = "薰衣草";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "无法加载商品。";
+"Support.Error.ProductNotFound" = "未找到商品。";
+"Support.Error.PurchaseFailed" = "购买失败：%@";
+"Support.Error.NetworkUnavailable" = "网络不可用。";
+"Support.Error.VerificationFailed" = "无法验证你的购买。";
+"Support.Error.NotEntitled" = "此设备上的购买已受限。请检查屏幕使用时间的内容限制。";
+"Support.Error.StorefrontUnavailable" = "此商品在你所在的地区不可用。";
+"Support.Error.Unsupported" = "此设备不支持应用内购买。";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "主题 %@，已锁定";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "主题 %@，已拥有";
+"Support.Accessibility.BundleCard.LockedLabel" = "全部主题套装，已锁定，%@";
+"Support.Accessibility.BundleCard.LockedHint" = "购买全部主题套装";
+"Support.Accessibility.BundleCard.LoadingLabel" = "全部主题套装，正在加载价格";
+"Support.Accessibility.ContributionRow.Label" = "%1$@，%2$@";
+"Support.Accessibility.ContributionRow.Hint" = "发送感谢式打赏";
+"Support.Accessibility.TipConfirmAnnouncement" = "感谢你的打赏。";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "外观";
+"Appearance.Scheme.Header" = "浅色/深色模式";
+"Appearance.Scheme.System" = "跟随系统";
+"Appearance.Scheme.Light" = "浅色";
+"Appearance.Scheme.Dark" = "深色";
+"Appearance.Themes.Header" = "选择主题";
+"Appearance.Themes.Selected" = "已选择";
+"Appearance.MoreThemes.Link" = "购买更多主题";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "主题 %@，已拥有";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "应用此主题";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "主题 %@，当前已选择";
+"Appearance.Accessibility.Swatch.DualMode" = "%@，浅色和深色变体";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@，仅深色";

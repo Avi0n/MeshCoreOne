@@ -1,0 +1,200 @@
+import Foundation
+import MeshCore
+import SwiftData
+
+/// An RX observation of a known message: an extra incoming flood path, or an
+/// echo of a message this radio sent. Each row is one distinct hearing.
+@Model
+final class MessageRepeat {
+  #Index<MessageRepeat>(
+    [\.messageID, \.receivedAt],
+    [\.rxLogEntryID]
+  )
+
+  @Attribute(.unique)
+  var id: UUID
+
+  /// The parent message (cascade delete when message is deleted)
+  var message: Message?
+
+  /// The message ID (kept for queries, matches message.id)
+  var messageID: UUID
+
+  /// When this repeat was received by the companion radio
+  var receivedAt: Date
+
+  /// Repeater public key prefixes (1–3 bytes per hop depending on hash mode)
+  var pathNodes: Data
+
+  /// Encoded path length byte (upper 2 bits = hash mode, lower 6 bits = hop count)
+  var pathLength: UInt8 = 0
+
+  /// Signal-to-noise ratio in dB
+  var snr: Double?
+
+  /// Received signal strength indicator in dBm
+  var rssi: Int?
+
+  /// Link to RxLogEntry for raw packet details
+  var rxLogEntryID: UUID?
+
+  init(
+    id: UUID = UUID(),
+    message: Message? = nil,
+    messageID: UUID,
+    receivedAt: Date = Date(),
+    pathNodes: Data,
+    pathLength: UInt8 = 0,
+    snr: Double? = nil,
+    rssi: Int? = nil,
+    rxLogEntryID: UUID? = nil
+  ) {
+    self.id = id
+    self.message = message
+    self.messageID = messageID
+    self.receivedAt = receivedAt
+    self.pathNodes = pathNodes
+    self.pathLength = pathLength
+    self.snr = snr
+    self.rssi = rssi
+    self.rxLogEntryID = rxLogEntryID
+  }
+
+  /// Builds a model instance directly from a DTO. The parent `message`
+  /// relationship is passed separately because the caller looks it up in
+  /// bulk before iterating.
+  convenience init(dto: MessageRepeatDTO, message: Message?) {
+    self.init(
+      id: dto.id,
+      message: message,
+      messageID: dto.messageID,
+      receivedAt: dto.receivedAt,
+      pathNodes: dto.pathNodes,
+      pathLength: dto.pathLength,
+      snr: dto.snr,
+      rssi: dto.rssi,
+      rxLogEntryID: dto.rxLogEntryID
+    )
+  }
+}
+
+// MARK: - DTO
+
+/// Sendable DTO for cross-actor transfer of MessageRepeat data.
+public struct MessageRepeatDTO: Sendable, Identifiable, Equatable, Hashable, Codable {
+  public let id: UUID
+  public var messageID: UUID
+  public let receivedAt: Date
+  public let pathNodes: Data
+  public let pathLength: UInt8
+  public let snr: Double?
+  public let rssi: Int?
+  public let rxLogEntryID: UUID?
+
+  init(from model: MessageRepeat) {
+    id = model.id
+    messageID = model.messageID
+    receivedAt = model.receivedAt
+    pathNodes = model.pathNodes
+    pathLength = model.pathLength
+    snr = model.snr
+    rssi = model.rssi
+    rxLogEntryID = model.rxLogEntryID
+  }
+
+  public init(
+    id: UUID = UUID(),
+    messageID: UUID,
+    receivedAt: Date,
+    pathNodes: Data,
+    pathLength: UInt8 = 0,
+    snr: Double?,
+    rssi: Int?,
+    rxLogEntryID: UUID?
+  ) {
+    self.id = id
+    self.messageID = messageID
+    self.receivedAt = receivedAt
+    self.pathNodes = pathNodes
+    self.pathLength = pathLength
+    self.snr = snr
+    self.rssi = rssi
+    self.rxLogEntryID = rxLogEntryID
+  }
+
+  // MARK: - Computed Properties
+
+  /// Hash size per hop in bytes (1, 2, or 3), derived from pathLength upper 2 bits
+  public var hashSize: Int {
+    decodePathLen(pathLength)?.hashSize ?? 1
+  }
+
+  /// Last repeater's public key prefix bytes (the node we heard from), or nil if direct
+  public var repeaterHash: Data? {
+    guard !pathNodes.isEmpty else { return nil }
+    let size = hashSize
+    guard pathNodes.count >= size else { return pathNodes }
+    return pathNodes.suffix(size)
+  }
+
+  /// Number of hops in the path (1 = direct from repeater, 2+ = multi-hop)
+  public var hopCount: Int {
+    let size = hashSize
+    guard size > 0 else { return pathNodes.count }
+    return pathNodes.count / size
+  }
+
+  /// Repeater hash formatted as hex (e.g., "31" for 1-byte, "31A7" for 2-byte)
+  public var repeaterHashFormatted: String {
+    guard let hash = repeaterHash else { return "00" }
+    return hash.uppercaseHexString()
+  }
+
+  /// Path nodes as hex strings for display, chunked by hash size
+  public var pathNodesHex: [String] {
+    pathNodes.pathHops(hashSize: hashSize).map(\.hex)
+  }
+
+  /// Classified signal quality based on SNR thresholds.
+  public var snrQuality: SNRQuality {
+    SNRQuality(snr: snr)
+  }
+
+  /// SNR mapped to 0-1 for signal bars variableValue.
+  public var snrLevel: Double {
+    snrQuality.barLevel
+  }
+
+  /// RSSI formatted for display
+  public var rssiFormatted: String {
+    guard let rssi else { return "—" }
+    return "\(rssi) dBm"
+  }
+
+  /// SNR formatted for display
+  public var snrFormatted: String {
+    guard let snr else { return "—" }
+    return snr.formatted(.number.precision(.fractionLength(1))) + " dB"
+  }
+
+  /// Hash size per hop in bytes (1, 2, or 3) when the path length byte encodes a
+  /// valid hash mode; nil for reserved modes or the no-path marker (0xFF).
+  public var pathHashSizeIfKnown: Int? {
+    decodePathLen(pathLength)?.hashSize
+  }
+
+  /// Each hop as its raw hash bytes plus uppercase hex.
+  public var pathHops: [(data: Data, hex: String)] {
+    pathNodes.pathHops(hashSize: hashSize)
+  }
+
+  /// Path as arrow-separated string (e.g., "A3 → 7F → 42")
+  public var pathString: String {
+    pathNodesHex.joined(separator: " → ")
+  }
+
+  /// Path as comma-separated string for clipboard (e.g., "A3,7F,42")
+  public var pathStringForClipboard: String {
+    pathNodesHex.joined(separator: ",")
+  }
+}

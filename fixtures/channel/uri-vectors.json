@@ -1,0 +1,72 @@
+[
+  {
+    "label": "simple",
+    "name": "Ops",
+    "secretHex": "DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "uri": "meshcore://channel/add?name=Ops&secret=DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "iosProducerParity": true
+  },
+  {
+    "label": "space",
+    "name": "Field Base",
+    "secretHex": "DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "uri": "meshcore://channel/add?name=Field%20Base&secret=DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "iosProducerParity": true
+  },
+  {
+    "label": "plus-in-name",
+    "name": "C++ ops",
+    "secretHex": "DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "uri": "meshcore://channel/add?name=C%2B%2B%20ops&secret=DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "iosProducerParity": true
+  },
+  {
+    "label": "reserved-chars",
+    "name": "100% sure?",
+    "secretHex": "DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "uri": "meshcore://channel/add?name=100%25%20sure?&secret=DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "iosProducerParity": true
+  },
+  {
+    "label": "unicode-cjk",
+    "name": "北京",
+    "secretHex": "DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "uri": "meshcore://channel/add?name=%E5%8C%97%E4%BA%AC&secret=DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "iosProducerParity": true
+  },
+  {
+    "label": "unicode-accent",
+    "name": "Café au lait",
+    "secretHex": "DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "uri": "meshcore://channel/add?name=Caf%C3%A9%20au%20lait&secret=DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "iosProducerParity": true
+  },
+  {
+    "label": "hash",
+    "name": "a#b",
+    "secretHex": "DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "uri": "meshcore://channel/add?name=a%23b&secret=DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "iosProducerParity": true
+  },
+  {
+    "label": "public-channel",
+    "name": "Public",
+    "secretHex": "8B3387E9C5CDEA6AC9E5EDBAA115CD72",
+    "uri": "meshcore://channel/add?name=Public&secret=8B3387E9C5CDEA6AC9E5EDBAA115CD72",
+    "iosProducerParity": true
+  },
+  {
+    "label": "hashtag-name",
+    "name": "#avion-testing",
+    "secretHex": "B612EF23CF94915B815BCEE46DABE902",
+    "uri": "meshcore://channel/add?name=%23avion-testing&secret=B612EF23CF94915B815BCEE46DABE902",
+    "iosProducerParity": true
+  },
+  {
+    "label": "spoof-injection",
+    "name": "Ops&secret=00000000000000000000000000000000",
+    "secretHex": "DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "uri": "meshcore://channel/add?name=Ops%26secret%3D00000000000000000000000000000000&secret=DD07B663EC5851EBE92C71FB0AD9BEF0",
+    "iosProducerParity": false
+  }
+]

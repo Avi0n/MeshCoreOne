@@ -1,0 +1,17 @@
+strings:
+  - inputs:
+      - MC1/Resources/Localization/en.lproj/Localizable.strings
+      - MC1/Resources/Localization/en.lproj/Chats.strings
+      - MC1/Resources/Localization/en.lproj/Contacts.strings
+      - MC1/Resources/Localization/en.lproj/Settings.strings
+      - MC1/Resources/Localization/en.lproj/Map.strings
+      - MC1/Resources/Localization/en.lproj/Tools.strings
+      - MC1/Resources/Localization/en.lproj/Onboarding.strings
+      - MC1/Resources/Localization/en.lproj/RemoteNodes.strings
+      - MC1/Resources/Localization/en.lproj/WhatsNew.strings
+    outputs:
+      - templateName: structured-swift5
+        output: MC1/Resources/Generated/L10n.swift
+        params:
+          enumName: L10n
+          publicAccess: true

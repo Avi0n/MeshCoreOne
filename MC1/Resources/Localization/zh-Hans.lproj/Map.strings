@@ -1,0 +1,318 @@
+/*
+  Map.strings
+  MC1
+
+  Strings for Map feature, including node locations,
+  map controls, location details, and geographic UI elements.
+ */
+
+// MARK: - Common
+
+/* Location: MapView.swift - Purpose: Done button for sheets */
+"map.common.done" = "完成";
+
+// MARK: - Map Controls
+
+/* Location: MapView.swift - Purpose: Accessibility label when labels are hidden */
+"map.controls.showLabels" = "显示标签";
+
+/* Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that clusters nearby pins */
+"map.controls.clusterNodes" = "聚合节点";
+
+/* Location: MapView.swift - Purpose: Accessibility label for center on all contacts button */
+"map.controls.centerAll" = "以所有联系人为中心";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for user location button */
+"map.controls.centerOnMyLocation" = "以我的位置为中心";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map options menu button */
+/* AI-translated - please verify with native speakers. */
+"map.controls.mapOptions" = "地图选项";
+
+/* Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that locks the map bearing to north */
+/* AI-translated - please verify with native speakers. */
+"map.controls.lockNorth" = "正北朝上";
+
+/* Location: MapView.swift - Purpose: Accessibility label for refresh button */
+"map.controls.refresh" = "刷新联系人";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
+"map.controls.filter" = "筛选";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
+"map.controls.filterActive" = "已启用筛选";
+
+/* Location: MapControlsToolbar.swift - Purpose: Filter menu item that opens the Advanced Filters sheet */
+"map.controls.moreFilters" = "更多筛选…";
+
+// MARK: - Advanced Filters
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Sheet title */
+"map.filters.title" = "高级筛选";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Toolbar button that clears all advanced filters */
+"map.filters.reset" = "重置";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Row label for the lower bound of a range */
+"map.filters.minimum" = "最小值";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Row label for the upper bound of a range */
+"map.filters.maximum" = "最大值";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Placeholder for an empty range bound */
+"map.filters.noLimit" = "无限制";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Accessibility label for the preset buttons row */
+"map.filters.presets" = "预设";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Accessibility label for the button removing one filter. %@ is the filter summary, e.g. "Heard ≤ 2h" */
+"map.filters.remove" = "移除筛选：%@";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Accessibility hint for tapping an active filter chip */
+"map.filters.editHint" = "打开高级筛选";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Section header for the last-heard time range */
+"map.filters.lastHeard.header" = "最后收到";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset that disables the last-heard filter */
+"map.filters.lastHeard.anyTime" = "任意时间";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option */
+"map.filters.lastHeard.unit.minutes" = "分钟";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option */
+"map.filters.lastHeard.unit.hours" = "小时";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option */
+"map.filters.lastHeard.unit.days" = "天";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Accessibility label for a unit menu */
+"map.filters.lastHeard.unit.label" = "单位";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer when no last-heard filter is set */
+"map.filters.lastHeard.summary.any" = "显示节点，不考虑最后收到时间。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a maximum-age-only range. %@ is a duration, e.g. "2h" */
+"map.filters.lastHeard.summary.within" = "显示最近 %@ 内收到的节点。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a minimum-age-only range. %@ is a duration */
+"map.filters.lastHeard.summary.olderThan" = "显示至少 %@ 前收到的节点。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a bounded range. First %@ is the minimum age, second the maximum age */
+"map.filters.lastHeard.summary.between" = "显示 %1$@ 到 %2$@ 前收到的节点。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer explaining where last-heard time comes from */
+"map.filters.lastHeard.explanation" = "基于从每个节点收到的广告包、消息和 ping。启用此筛选时，从未收到过的节点会隐藏。";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a maximum-age-only range. %@ is a duration, e.g. "2h" */
+"map.filters.lastHeard.chip.within" = "收到 ≤ %@";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a minimum-age-only range. %@ is a duration */
+"map.filters.lastHeard.chip.olderThan" = "收到 ≥ %@";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a bounded range. First %@ is the minimum age, second the maximum age */
+"map.filters.lastHeard.chip.between" = "收到 %1$@–%2$@";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Section header for the hop-count range */
+"map.filters.hops.header" = "跳数";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset that disables the hop filter */
+"map.filters.hops.any" = "任意";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset showing only nodes heard without a repeater */
+"map.filters.hops.direct" = "直连";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset for an upper hop bound. %d is the hop count */
+"map.filters.hops.upTo" = "≤ %d";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer when no hop filter is set */
+"map.filters.hops.summary.any" = "显示任意跳数的节点。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for the direct-only range */
+"map.filters.hops.summary.direct" = "仅显示不经过转发节点、直接收到的节点。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a single hop count. %d is the hop count */
+"map.filters.hops.summary.exactly" = "显示跳数正好为 %d 的节点。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for an upper bound only. %d is the hop count */
+"map.filters.hops.summary.atMost" = "显示跳数最多为 %d 的节点。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a lower bound only. %d is the hop count */
+"map.filters.hops.summary.atLeast" = "显示跳数至少为 %d 的节点。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a bounded range. %1$d is the minimum, %2$d the maximum */
+"map.filters.hops.summary.between" = "显示跳数从 %1$d 到 %2$d 的节点。";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer explaining hop counts */
+"map.filters.hops.explanation" = "跳数是你与节点之间经过的转发节点数；0 表示直接收到。启用此筛选时，跳数未知的节点会隐藏。";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for the direct-only range */
+"map.filters.hops.chip.direct" = "仅直连";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a single hop count. %d is the hop count */
+"map.filters.hops.chip.exactly" = "跳数 = %d";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for an upper bound only. %d is the hop count */
+"map.filters.hops.chip.atMost" = "跳数 ≤ %d";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a lower bound only. %d is the hop count */
+"map.filters.hops.chip.atLeast" = "跳数 ≥ %d";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a bounded range. %1$d is the minimum, %2$d the maximum */
+"map.filters.hops.chip.between" = "跳数 %1$d–%2$d";
+
+// MARK: - Map Style Selection
+
+/* Location: MapStyleSelection.swift - Purpose: Standard map style option */
+"map.style.standard" = "标准";
+
+/* Location: MapStyleSelection.swift - Purpose: Satellite map style option */
+"map.style.satellite" = "卫星";
+
+/* Location: MapStyleSelection.swift - Purpose: Topo map style option */
+"map.style.topo" = "地形";
+
+/* Location: LayersMenu.swift - Purpose: Accessibility label for map style menu */
+"map.style.accessibilityLabel" = "地图样式";
+
+/* Location: LayersMenu.swift - Purpose: Hint when style requires network */
+"map.style.requiresNetwork" = "需要网络连接";
+
+/* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
+"map.style.noOfflineCoverage" = "没有离线地图覆盖此区域";
+
+// MARK: - Contact Detail Sheet
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for contact information */
+"map.detail.section.contactInfo" = "联系人信息";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for contact name */
+"map.detail.name" = "名称";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for contact type */
+"map.detail.type" = "类型";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for favorite status */
+"map.detail.status" = "状态";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Value showing contact is favorited */
+"map.detail.favorite" = "收藏";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp */
+"map.detail.lastAdvert" = "最后广播";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Last heard (phone-clock on-air) label */
+"map.detail.lastHeard" = "最后收到";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for full public key identifier */
+"map.detail.publicKey" = "公钥";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for location coordinates */
+"map.detail.section.location" = "位置";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for latitude coordinate */
+"map.detail.latitude" = "纬度";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for longitude coordinate */
+"map.detail.longitude" = "经度";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for outbound path info */
+"map.detail.section.outboundPath" = "出站路径";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for routing type */
+"map.detail.routing" = "路由";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Flood routing type value */
+"map.detail.routingFlood" = "泛洪";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for path length */
+"map.detail.pathLength" = "路径长度";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Path length value with hop count */
+"map.detail.hops" = "%d 跳";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Path length value for single hop */
+"map.detail.hopSingular" = "1 跳";
+
+// MARK: - Contact Detail Sheet Actions
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to view repeater telemetry */
+"map.detail.action.telemetry" = "遥测数据";
+
+/* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
+/* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
+"map.detail.action.telemetryAccessTitle" = "遥测数据访问权限";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to manage repeater */
+"map.detail.action.management" = "管理";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to join a room */
+"map.detail.action.joinRoom" = "加入房间";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to send a message */
+"map.detail.action.sendMessage" = "发送消息";
+
+// MARK: - Contact Type Names
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Display name for chat contact type */
+"map.nodeKind.chatContact" = "聊天联系人";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Display name for repeater type */
+"map.nodeKind.repeater" = "转发节点";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Display name for room type */
+"map.nodeKind.room" = "房间";
+
+// MARK: - Contact Callout
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to view contact details */
+"map.callout.details" = "详情";
+
+/* Location: ContactCalloutContent.swift - Purpose: Button to send message from callout */
+"map.callout.message" = "消息";
+
+/* Location: ContactCalloutContent.swift - Purpose: Display name for contact in callout */
+"map.callout.nodeKind.contact" = "联系人";
+
+/* Location: ContactCalloutContent.swift - Purpose: Display name for repeater in callout */
+"map.callout.nodeKind.repeater" = "转发节点";
+
+/* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
+"map.callout.nodeKind.room" = "房间";
+
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */
+"map.callout.add" = "添加";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Label that the pin is discovered, not on the node list */
+"map.callout.discovered" = "已发现";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail */
+"map.discoveredDetail.title" = "发现的节点";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Primary action to add discovered node to the radio table */
+"map.discoveredDetail.add" = "添加到节点";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Accessibility label for discovered pins */
+"map.pin.accessibility.discovered" = "已发现，不在节点列表中";
+
+// MARK: - Contact Annotation
+
+/* Location: ContactAnnotation.swift - Purpose: Subtitle for favorite contacts */
+/* Location: ContactAnnotation.swift - Purpose: Subtitle for repeater nodes */
+/* Location: ContactAnnotation.swift - Purpose: Subtitle for room nodes */
+// MARK: - Offline Badge
+
+/* Label shown on map when device has no internet connection */
+"map.offlineBadge.label" = "离线";
+
+// MARK: - Chat Map Preview
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the chat map-location thumbnail */
+"map.preview.accessibilityLabel" = "地图位置预览";
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail */
+"map.preview.accessibilityHint" = "在地图上打开此位置";
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
+"map.preview.retryButton.accessibilityLabel" = "重新加载地图缩略图";

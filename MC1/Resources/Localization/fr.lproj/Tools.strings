@@ -1,0 +1,869 @@
+/*
+  Tools.strings
+  MC1
+
+  French translation of strings for the Tools feature.
+  AI-translated - please verify with native speakers.
+*/
+
+// MARK: - Tools View
+
+/* Location: ToolsView.swift - Navigation title */
+"tools.title" = "Outils";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.tracePath" = "Tracer le chemin";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.lineOfSight" = "Ligne de vue";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.rxLog" = "Journal RX";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.noiseFloor" = "Plancher de bruit";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.nodeDiscovery" = "Découvrir les nœuds";
+
+/* Location: ToolsView.swift - Empty state when no tool selected */
+"tools.selectTool" = "Sélectionnez un outil";
+
+// MARK: - RX Log View
+
+/* Location: RxLogView.swift - Empty state title when listening */
+"tools.rxLog.listening" = "Écoute en cours...";
+
+/* Location: RxLogView.swift - Empty state description */
+"tools.rxLog.listeningDescription" = "Les paquets RF apparaîtront ici à leur arrivée.";
+
+/* Location: RxLogView.swift - Disconnected state title */
+"tools.rxLog.notConnected" = "Non connecté";
+
+/* Location: RxLogView.swift - Disconnected state description */
+"tools.rxLog.notConnectedDescription" = "Connectez-vous à une radio mesh pour voir les paquets RF.";
+
+/* Location: RxLogView.swift - Live status indicator */
+"tools.rxLog.live" = "En direct";
+
+/* Location: RxLogView.swift - Offline status indicator */
+"tools.rxLog.offline" = "Hors ligne";
+
+/* Location: RxLogView.swift - Packet count in header, %lld is count */
+"tools.rxLog.packetsCount" = "%lld paquets";
+
+/* Location: RxLogView.swift - Filter menu section header */
+"tools.rxLog.routeType" = "Type de route";
+
+/* Location: RxLogView.swift - Filter menu section header */
+"tools.rxLog.decryptStatus" = "Statut de déchiffrement";
+
+/* Location: RxLogView.swift - Filter button label */
+"tools.rxLog.filter" = "Filtrer";
+
+/* Location: RxLogView.swift - Overflow menu button label */
+"tools.rxLog.more" = "Plus";
+
+/* Location: RxLogView.swift - Group duplicates toggle */
+"tools.rxLog.groupDuplicates" = "Grouper les doublons";
+
+/* Location: RxLogView.swift - Delete logs button */
+"tools.rxLog.deleteLogs" = "Supprimer les journaux";
+
+/* Location: RxLogView.swift - Delete confirmation dialog title */
+"tools.rxLog.deleteConfirmation" = "Supprimer tous les journaux ?";
+
+/* Location: RxLogView.swift - Delete confirmation button */
+"tools.rxLog.delete" = "Supprimer";
+
+/* Location: RxLogView.swift - Direct route label */
+"tools.rxLog.direct" = "Direct";
+
+/* Location: RxLogView.swift - Flood route label */
+"tools.rxLog.flood" = "Inondation";
+
+/* Location: RxLogView.swift - Path detail for single hop */
+"tools.rxLog.hopSingular" = "saut";
+
+/* Location: RxLogView.swift - Path detail for multiple hops */
+"tools.rxLog.hopPlural" = "sauts";
+
+/* Location: RxLogView.swift - Signal strength accessibility label, %@ is quality */
+"tools.rxLog.signalStrength" = "Force du signal : %@";
+
+/* Location: RxLogView.swift - Duplicate count accessibility label, %lld is count */
+"tools.rxLog.receivedTimes" = "Reçu %lld fois";
+
+/* Location: RxLogView.swift - Raw payload section title */
+"tools.rxLog.rawPayload" = "Charge utile brute";
+
+/* Location: RxLogView.swift - Copy button */
+"tools.rxLog.copy" = "Copier";
+
+/* Location: RxLogView.swift - RSSI label */
+"tools.rxLog.rssiLabel" = "RSSI :";
+
+/* Location: RxLogView.swift - SNR label */
+"tools.rxLog.snrLabel" = "RSB :";
+
+/* Location: RxLogView.swift - Type label */
+"tools.rxLog.typeLabel" = "Type :";
+
+/* Location: RxLogView.swift - Size label */
+"tools.rxLog.sizeLabel" = "Taille :";
+
+/* Location: RxLogView.swift - Path label */
+"tools.rxLog.pathLabel" = "Chemin :";
+
+/* Location: RxLogView.swift - Hash label */
+"tools.rxLog.hashLabel" = "Hash :";
+
+/* Location: RxLogView.swift - From label */
+"tools.rxLog.fromLabel" = "De :";
+
+/* Location: RxLogView.swift - To label */
+"tools.rxLog.toLabel" = "À :";
+
+/* Location: RxLogView.swift - Channel hash label */
+"tools.rxLog.channelHashLabel" = "Hash du canal :";
+
+/* Location: RxLogView.swift - Channel name label */
+"tools.rxLog.channelNameLabel" = "Nom du canal :";
+
+/* Location: RxLogView.swift - Region label */
+"tools.rxLog.regionLabel" = "Région :";
+
+/* Location: RxLogView.swift - Unresolved region value */
+"tools.rxLog.regionUnresolved" = "Inconnue";
+
+/* Location: RxLogView.swift - Text label */
+"tools.rxLog.textLabel" = "Texte :";
+
+/* Location: RxLogView.swift - Bytes suffix for size display */
+"tools.rxLog.bytes" = "octets";
+
+// MARK: - RX Log Filters
+
+/* Location: RxLogViewModel.swift - Route filter: all */
+"tools.rxLog.filter.all" = "Tous";
+
+/* Location: RxLogViewModel.swift - Route filter: flood only */
+"tools.rxLog.filter.floodOnly" = "Inondation uniquement";
+
+/* Location: RxLogViewModel.swift - Route filter: direct only */
+"tools.rxLog.filter.directOnly" = "Direct uniquement";
+
+/* Location: RxLogViewModel.swift - Decrypt filter: decrypted */
+"tools.rxLog.filter.decrypted" = "Déchiffré";
+
+/* Location: RxLogViewModel.swift - Decrypt filter: failed */
+"tools.rxLog.filter.failed" = "Échec";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet */
+"tools.rxLog.decryptStatus.notApplicable" = "N/A";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches */
+"tools.rxLog.decryptStatus.noKey" = "Pas de clé";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: HMAC validation failed */
+"tools.rxLog.decryptStatus.hmacFailed" = "Échec HMAC";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: AES decryption failed */
+"tools.rxLog.decryptStatus.decryptFailed" = "Échec du déchiffrement";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: decrypted successfully */
+"tools.rxLog.decryptStatus.decrypted" = "Déchiffré";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: key found, decryption pending */
+"tools.rxLog.decryptStatus.hasKey" = "Clé disponible";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key */
+"tools.rxLog.decryptStatus.noDmKey" = "Pas de clé DM";
+
+/* Location: RxLogRowView - Label for local device in path display */
+"tools.rxLog.pathYou" = "Vous";
+
+/* Location: RxLogRowView - Route label for TRACE target hashes */
+"tools.rxLog.traceRouteLabel" = "Itinéraire :";
+
+// MARK: - Noise Floor View
+
+/* Location: NoiseFloorView.swift - Disconnected state description */
+"tools.noiseFloor.notConnectedDescription" = "Connectez-vous à une radio mesh pour mesurer le plancher de bruit.";
+
+/* Location: NoiseFloorView.swift - Collecting data title */
+"tools.noiseFloor.collectingData" = "Collecte des données...";
+
+/* Location: NoiseFloorView.swift - Collecting data description */
+"tools.noiseFloor.collectingDataDescription" = "Les mesures du plancher de bruit apparaîtront au fur et à mesure de leur collecte.";
+
+/* Location: NoiseFloorView.swift - Unit label */
+"tools.noiseFloor.dBm" = "dBm";
+
+/* Location: NoiseFloorView.swift - Unit label for decibels */
+"tools.noiseFloor.dB" = "dB";
+
+/* Location: NoiseFloorView.swift - No reading accessibility */
+"tools.noiseFloor.noReading" = "Aucune mesure disponible";
+
+/* Location: NoiseFloorView.swift - Chart accessibility, %lld readings, %lld min, %lld max, %lld avg, %@ trend */
+"tools.noiseFloor.chartAccessibility" = "Historique du plancher de bruit : %lld mesures, minimum %lld dBm, maximum %lld dBm, moyenne %lld dBm, tendance %@";
+
+/* Location: NoiseFloorView.swift - Chart accessibility when empty */
+"tools.noiseFloor.chartAccessibilityEmpty" = "Graphique de l'historique du plancher de bruit, pas de données";
+
+/* Location: NoiseFloorView.swift - Statistics section title */
+"tools.noiseFloor.statistics" = "Statistiques";
+
+/* Location: NoiseFloorView.swift - Minimum label */
+"tools.noiseFloor.minimum" = "Minimum";
+
+/* Location: NoiseFloorView.swift - Average label */
+"tools.noiseFloor.average" = "Moyenne";
+
+/* Location: NoiseFloorView.swift - Maximum label */
+"tools.noiseFloor.maximum" = "Maximum";
+
+/* Location: NoiseFloorView.swift - Last RSSI label */
+"tools.noiseFloor.lastRssi" = "Dernier RSSI";
+
+/* Location: NoiseFloorView.swift - Last SNR label */
+"tools.noiseFloor.lastSnr" = "Dernier RSB";
+
+/* Location: NoiseFloorView.swift - Trend: stable */
+"tools.noiseFloor.trendStable" = "stable";
+
+/* Location: NoiseFloorView.swift - Trend: increasing */
+"tools.noiseFloor.trendIncreasing" = "en hausse";
+
+/* Location: NoiseFloorView.swift - Trend: decreasing */
+"tools.noiseFloor.trendDecreasing" = "en baisse";
+
+// MARK: - Noise Floor Signal Quality
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: excellent */
+"tools.noiseFloor.quality.excellent" = "Excellent";
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: good */
+"tools.noiseFloor.quality.good" = "Bon";
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: fair */
+"tools.noiseFloor.quality.fair" = "Passable";
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: poor */
+"tools.noiseFloor.quality.poor" = "Faible";
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: unknown */
+"tools.noiseFloor.quality.unknown" = "Inconnu";
+
+/* Location: NoiseFloorViewModel.swift - Error: device disconnected */
+"tools.noiseFloor.error.disconnected" = "Appareil déconnecté";
+
+/* Location: NoiseFloorViewModel.swift - Error: unable to read stats */
+"tools.noiseFloor.error.unableToRead" = "Impossible de lire les statistiques radio";
+
+// MARK: - Node Discovery View
+
+/* Location: NodeDiscoveryView.swift - Disconnected state description */
+"tools.nodeDiscovery.notConnectedDescription" = "Connectez-vous à une radio mesh pour découvrir des %@.";
+
+/* Location: NodeDiscoveryView.swift - Initial empty state title */
+"tools.nodeDiscovery.scanPrompt" = "Rechercher des %@";
+
+/* Location: NodeDiscoveryView.swift - Initial empty state description */
+"tools.nodeDiscovery.scanPromptDescription" = "Appuyez sur le bouton ci-dessous pour découvrir des %@ à proximité.";
+
+/* Location: NodeDiscoveryView.swift - No results empty state title */
+"tools.nodeDiscovery.noResults" = "Aucun %@ trouvé";
+
+/* Location: NodeDiscoveryView.swift - No results empty state description */
+"tools.nodeDiscovery.noResultsDescription" = "Aucun %@ n'a répondu au ping de découverte. Réessayez ou rapprochez-vous du réseau mesh.";
+
+/* Location: NodeDiscoveryView.swift - Scan button label (idle) */
+"tools.nodeDiscovery.scanButton" = "Rechercher des %@";
+
+/* Location: NodeDiscoveryView.swift - Scan button label (scanning) */
+"tools.nodeDiscovery.stopButton" = "Arrêter la recherche";
+
+/* Location: NodeDiscoveryView.swift - Segment label */
+"tools.nodeDiscovery.repeaters" = "Répéteurs";
+
+/* Location: NodeDiscoveryView.swift - Segment label */
+"tools.nodeDiscovery.sensors" = "Capteurs";
+
+/* Location: NodeDiscoveryView.swift - Sort option */
+"tools.nodeDiscovery.sortSignal" = "Puissance du signal";
+
+/* Location: NodeDiscoveryView.swift - Sort option */
+"tools.nodeDiscovery.sortName" = "Nom";
+
+/* Location: NodeDiscoveryView.swift - Sort menu accessibility label */
+"tools.nodeDiscovery.sortMenu" = "Trier les nœuds";
+
+/* Location: NodeDiscoveryView.swift - Sort menu accessibility hint */
+"tools.nodeDiscovery.sortMenuHint" = "Change l'ordre de tri des nœuds découverts";
+
+/* Location: NodeDiscoveryRowView.swift - Unknown node name fallback */
+"tools.nodeDiscovery.unknownNode" = "Inconnu";
+
+/* Location: NodeDiscoveryRowView.swift - Node type: repeater */
+"tools.nodeDiscovery.typeRepeater" = "Répéteur";
+
+/* Location: NodeDiscoveryRowView.swift - Node type: sensor */
+"tools.nodeDiscovery.typeSensor" = "Capteur";
+
+/* Location: NodeDiscoveryRowView.swift - SNR label (local receive) */
+"tools.nodeDiscovery.snrDown" = "↓ %@ dB";
+
+/* Location: NodeDiscoveryRowView.swift - SNR label (remote receive) */
+"tools.nodeDiscovery.snrUp" = "↑ %@ dB";
+
+/* Location: NodeDiscoveryRowView.swift - RSSI label */
+"tools.nodeDiscovery.rssi" = "RSSI %@ dBm";
+
+/* Location: NodeDiscoveryView.swift - Error alert title */
+"tools.nodeDiscovery.errorTitle" = "Recherche échouée";
+
+// MARK: - Line of Sight View
+
+/* Location: LineOfSightView.swift - Map style: standard */
+/* Location: LineOfSightView.swift - Map style: terrain */
+/* Location: LineOfSightView.swift - Back button label */
+"tools.lineOfSight.back" = "Retour";
+
+/* Location: LineOfSightView.swift - Point A annotation */
+"tools.lineOfSight.pointA" = "Point A";
+
+/* Location: LineOfSightView.swift - Point B annotation */
+"tools.lineOfSight.pointB" = "Point B";
+
+/* Location: LineOfSightView.swift - Repeater annotation */
+"tools.lineOfSight.repeater" = "Répéteur";
+
+/* Location: LineOfSightView.swift - Points section title */
+"tools.lineOfSight.points" = "Points";
+
+/* Location: LineOfSightView.swift - Cancel button */
+"tools.lineOfSight.cancel" = "Annuler";
+
+/* Location: LineOfSightView.swift - Relocating message, %@ is point name */
+"tools.lineOfSight.relocating" = "Déplacement de %@...";
+
+/* Location: LineOfSightView.swift - Tap map instruction */
+"tools.lineOfSight.tapMapInstruction" = "Appuyez sur la carte pour définir une nouvelle position";
+
+/* Location: LineOfSightView.swift - Not selected placeholder */
+"tools.lineOfSight.notSelected" = "Non sélectionné";
+
+/* Location: LineOfSightView.swift - Loading elevation status */
+"tools.lineOfSight.loadingElevation" = "Chargement de l'altitude...";
+
+/* Location: LineOfSightView.swift - Long press points hint */
+"tools.lineOfSight.longPressPointsHint" = "Appuyez longuement sur la carte pour ajouter un emplacement";
+
+/* Location: LineOfSightView.swift - Elevation unavailable warning */
+"tools.lineOfSight.elevationUnavailable" = "Données d'altitude non disponibles. Utilisation du niveau de la mer (0 m) comme approximation.";
+
+/* Location: LineOfSightView.swift - Open in Maps button */
+"tools.lineOfSight.openInMaps" = "Ouvrir dans Plans";
+
+/* Location: LineOfSightView.swift - Copy coordinates button */
+"tools.lineOfSight.copyCoordinates" = "Copier les coordonnées";
+
+/* Location: LineOfSightView.swift - Share button */
+"tools.lineOfSight.share" = "Partager...";
+
+/* Location: LineOfSightView.swift - Share label */
+"tools.lineOfSight.shareLabel" = "Partager";
+
+/* Location: LineOfSightView.swift - Relocate button */
+"tools.lineOfSight.relocate" = "Déplacer";
+
+/* Location: LineOfSightView.swift - Done button */
+"tools.lineOfSight.done" = "Terminé";
+
+/* Location: LineOfSightView.swift - Edit button */
+"tools.lineOfSight.edit" = "Modifier";
+
+/* Location: LineOfSightView.swift - Clear button */
+"tools.lineOfSight.clear" = "Effacer";
+
+/* Location: LineOfSightView.swift - Ground elevation label */
+"tools.lineOfSight.groundElevation" = "Altitude du sol";
+
+/* Location: LineOfSightView.swift - Additional height label */
+"tools.lineOfSight.additionalHeight" = "Hauteur supplémentaire";
+
+/* Location: LineOfSightView.swift - Total height label */
+"tools.lineOfSight.totalHeight" = "Hauteur totale";
+
+/* Location: LineOfSightView.swift - Add repeater button */
+"tools.lineOfSight.addRepeater" = "Ajouter un répéteur";
+
+/* Location: LineOfSightView.swift - Analyze button */
+"tools.lineOfSight.analyze" = "Analyser la ligne de vue";
+
+/* Location: LineOfSightView.swift - Terrain profile section */
+"tools.lineOfSight.terrainProfile" = "Profil du terrain";
+
+/* Location: LineOfSightView.swift - Earth curvature note, %@ is k-factor */
+"tools.lineOfSight.earthCurvature" = "Ajusté pour la courbure de la Terre (%@)";
+
+/* Location: LineOfSightView.swift - Drag to adjust tooltip */
+"tools.lineOfSight.dragToAdjust" = "Faites glisser pour ajuster";
+
+/* Location: LineOfSightView.swift - RF Settings section */
+"tools.lineOfSight.rfSettings" = "Réglages RF";
+
+/* Location: LineOfSightView.swift - Frequency label */
+"tools.lineOfSight.frequency" = "Fréquence";
+
+/* Location: LineOfSightView.swift - MHz unit */
+"tools.lineOfSight.mhz" = "MHz";
+
+/* Location: LineOfSightView.swift - Refraction label */
+"tools.lineOfSight.refraction" = "Réfraction";
+
+/* Location: LineOfSightView.swift - Refraction: none */
+"tools.lineOfSight.refraction.none" = "Aucune";
+
+/* Location: LineOfSightView.swift - Refraction: standard */
+"tools.lineOfSight.refraction.standard" = "Standard (k=1,33)";
+
+/* Location: LineOfSightView.swift - Refraction: ducting */
+"tools.lineOfSight.refraction.ducting" = "Propagation guidée (k=4)";
+
+/* Location: LineOfSightView.swift - Analyzing progress */
+"tools.lineOfSight.analyzing" = "Analyse du chemin...";
+
+/* Location: LineOfSightView.swift - Analysis failed title */
+"tools.lineOfSight.analysisFailed" = "Échec de l'analyse";
+
+/* Location: LineOfSightView.swift - Retry button */
+"tools.lineOfSight.retry" = "Réessayer";
+
+/* Location: LineOfSightView.swift - Repeater location map item name */
+"tools.lineOfSight.repeaterLocation" = "Position du répéteur";
+
+/* Location: LineOfSightViewModel.swift - Dropped pin display name */
+"tools.lineOfSight.droppedPin" = "Épingle placée";
+
+/* Location: LineOfSightView.swift - Accessibility hint for repeater pin */
+/* Location: LineOfSightView.swift - Accessibility hint for point pin */
+/* Location: LineOfSightView.swift - Accessibility hint for repeater target */
+// MARK: - Terrain Profile Canvas
+
+/* Location: TerrainProfileCanvas.swift - Empty state title */
+"tools.lineOfSight.noData" = "Pas de données";
+
+/* Location: TerrainProfileCanvas.swift - Empty state description */
+"tools.lineOfSight.selectTwoPoints" = "Sélectionnez deux points pour analyser";
+
+/* Location: TerrainProfileCanvas.swift - Legend: terrain */
+"tools.lineOfSight.legend.terrain" = "Relief";
+
+/* Location: TerrainProfileCanvas.swift - Legend: line of sight */
+"tools.lineOfSight.legend.los" = "LDV";
+
+/* Location: TerrainProfileCanvas.swift - Legend: clear */
+"tools.lineOfSight.legend.clear" = "Dégagé";
+
+/* Location: TerrainProfileCanvas.swift - Legend: obstructed */
+"tools.lineOfSight.legend.obstructed" = "Obstrué";
+
+/* Location: TerrainProfileCanvas.swift - Indirect route label */
+"tools.lineOfSight.indirectRoute" = "Route indirecte via R · Déplacez sur la carte pour ajuster";
+
+/* Location: TerrainProfileCanvas.swift - Elevation data attribution */
+"tools.lineOfSight.elevationAttribution" = "Données d'altitude : Copernicus DEM GLO-90 via Open-Meteo";
+
+// MARK: - Results Card View
+
+/* Location: ResultsCardView.swift - Section title */
+"tools.lineOfSight.results" = "Résultats";
+
+/* Location: ResultsCardView.swift - Loss suffix */
+"tools.lineOfSight.loss" = "perte";
+
+/* Location: ResultsCardView.swift - Path loss breakdown section */
+"tools.lineOfSight.pathLossBreakdown" = "Détail de la perte de chemin";
+
+/* Location: ResultsCardView.swift - Free space loss label */
+"tools.lineOfSight.freeSpaceLoss" = "Perte en espace libre";
+
+/* Location: ResultsCardView.swift - Diffraction loss label */
+"tools.lineOfSight.diffractionLoss" = "Perte par diffraction";
+
+/* Location: ResultsCardView.swift - Total label */
+"tools.lineOfSight.total" = "Total";
+
+/* Location: ResultsCardView.swift - Clearance section title */
+"tools.lineOfSight.clearance" = "Dégagement";
+
+/* Location: ResultsCardView.swift - Obstructions found label */
+"tools.lineOfSight.obstructionsFound" = "Obstructions trouvées";
+
+/* Location: ResultsCardView.swift - Status label */
+"tools.lineOfSight.status" = "Statut";
+
+/* Location: ResultsCardView.swift - Distance label */
+"tools.lineOfSight.distance" = "Distance";
+
+/* Location: ResultsCardView.swift - Worst clearance short label */
+"tools.lineOfSight.worstClearanceShort" = "Pire dégagement";
+
+/* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
+"tools.lineOfSight.assumptions" = "%1$@, %2$@, seuil de 60 %% du 1er Fresnel";
+
+/* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
+"tools.lineOfSight.clearancePercent" = "%lld%% de dégagement";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
+"tools.lineOfSight.status.clear" = "Dégagé";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
+"tools.lineOfSight.status.marginal" = "Limite";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
+"tools.lineOfSight.status.partialObstruction" = "Obstruction partielle";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked */
+"tools.lineOfSight.status.blocked" = "Bloqué";
+
+/* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
+"tools.lineOfSight.status.blockedSubtitle" = "Le chemin direct croise le relief";
+
+// MARK: - CLI Tool View
+
+/* Location: CLIToolView.swift - Tool selection label */
+"tools.cli" = "CLI";
+
+/* Location: CLIToolView.swift - Disconnected state title */
+"tools.cli.notConnected" = "Non connecté";
+
+/* Location: CLIToolView.swift - Disconnected state description */
+"tools.cli.notConnectedDescription" = "Connectez-vous à une radio mesh pour utiliser la CLI.";
+
+/* Location: CLIToolView.swift - Prompt suffix */
+"tools.cli.promptSuffix" = ">";
+
+/* Location: CLIToolView.swift - Waiting indicator */
+/* Location: CLIToolView.swift - Disconnected prompt */
+"tools.cli.disconnected" = "déconnecté";
+
+/* Location: CLIToolView.swift - Help command output header */
+"tools.cli.helpHeader" = "Commandes disponibles :";
+
+/* Location: CLIToolView.swift - Session list header */
+"tools.cli.sessionListHeader" = "Sessions actives :";
+
+/* Location: CLIToolView.swift - Local session label */
+"tools.cli.sessionLocal" = "local";
+
+/* Location: CLIToolView.swift - No sessions message */
+/* Location: CLIToolView.swift - History empty message */
+/* Location: CLIToolView.swift - Unknown command error */
+"tools.cli.unknownCommand" = "Commande inconnue :";
+
+/* Location: CLIToolView.swift - Login success */
+"tools.cli.loginSuccess" = "Connecté à";
+
+/* Location: CLIToolView.swift - Login failed */
+"tools.cli.loginFailed" = "Échec de connexion :";
+
+/* Location: CLIToolView.swift - Login failed reason */
+"tools.cli.loginFailedAuth" = "Échec de l'authentification";
+
+/* Location: CLIToolView.swift - Node not found error */
+"tools.cli.nodeNotFound" = "Nœud introuvable :";
+
+/* Location: CLIToolView.swift - Password required error */
+"tools.cli.passwordRequired" = "Mot de passe requis";
+
+/* Location: CLIToolViewModel.swift - Password prompt */
+"tools.cli.passwordPrompt" = "Mot de passe :";
+
+/* Location: CLIToolViewModel.swift - Login countdown */
+"tools.cli.loggingIn" = "Connexion en cours... (%ds)";
+
+/* Location: CLIToolView.swift - Logout success */
+"tools.cli.logoutSuccess" = "Déconnecté";
+
+/* Location: CLIToolView.swift - Not logged in error */
+"tools.cli.notLoggedIn" = "Non connecté à un répéteur";
+
+/* Location: CLIToolView.swift - Session switched */
+"tools.cli.sessionSwitched" = "Basculé vers";
+
+/* Location: CLIToolView.swift - Session not found */
+"tools.cli.sessionNotFound" = "Session introuvable :";
+
+/* Location: CLIToolView.swift - Command timeout */
+"tools.cli.timeout" = "Délai d'attente dépassé";
+
+/* Location: CLIToolView.swift - Command cancelled */
+"tools.cli.cancelled" = "Commande annulée";
+
+/* Location: CLIToolView.swift - Login from local only */
+"tools.cli.loginFromLocalOnly" = "Connexion uniquement disponible depuis la session locale";
+
+/* Location: CLIToolView.swift - Login usage */
+"tools.cli.loginUsage" = "Utilisation : login [-f] <node>";
+
+/* Location: CLIToolView.swift - Accessory button: history up */
+"tools.cli.historyUp" = "Commande précédente";
+
+/* Location: CLIToolView.swift - Accessory button: history down */
+"tools.cli.historyDown" = "Commande suivante";
+
+/* Location: CLIToolView.swift - Accessory button: tab complete */
+"tools.cli.tabComplete" = "Autocomplétion";
+
+/* Location: CLIInputAccessoryView.swift - Cursor left button */
+"tools.cli.cursorLeft" = "Déplacer le curseur à gauche";
+
+/* Location: CLIInputAccessoryView.swift - Cursor right button */
+"tools.cli.cursorRight" = "Déplacer le curseur à droite";
+
+/* Location: CLIInputAccessoryView.swift - Paste button */
+"tools.cli.paste" = "Coller";
+
+/* Location: CLIToolView.swift - Accessory button: clear */
+/* Location: CLIToolView.swift - Accessory button: sessions */
+"tools.cli.sessions" = "Sessions";
+
+/* Location: CLIToolView.swift - Accessory button: dismiss */
+"tools.cli.dismiss" = "Masquer le clavier";
+
+/* Location: CLIToolView.swift - Default device name */
+"tools.cli.defaultDevice" = "Appareil";
+
+/* Location: CLIToolViewModel.swift - Help: login command */
+"tools.cli.helpLogin" = "  login [-f] <node>\n    Se connecter au répéteur (-f : oublier le mot de passe enregistré)";
+
+/* Location: CLIToolViewModel.swift - Help: logout command */
+"tools.cli.helpLogout" = "  logout\n    Terminer la session distante";
+
+/* Location: CLIToolViewModel.swift - Help: session list command */
+"tools.cli.helpSessionList" = "  session list\n    Afficher les sessions actives";
+
+/* Location: CLIToolViewModel.swift - Help: session local command */
+"tools.cli.helpSessionLocal" = "  session local\n    Basculer vers la session locale";
+
+/* Location: CLIToolViewModel.swift - Help: session name command */
+"tools.cli.helpSessionName" = "  session <name>\n    Basculer vers la session";
+
+/* Location: CLIToolViewModel.swift - Help: session shortcut */
+"tools.cli.helpSessionShortcut" = "  s<n>\n    Basculer vers la session n (ex. s1, s2)";
+
+/* Location: CLIToolViewModel.swift - Help: clear command */
+"tools.cli.helpClear" = "  clear\n    Effacer le terminal";
+
+/* Location: CLIToolViewModel.swift - Help: help command */
+"tools.cli.helpHelp" = "  help\n    Afficher cette aide";
+
+/* Location: CLIToolViewModel.swift - Help: nodes command */
+"tools.cli.helpNodes" = "  nodes\n    Afficher la liste des répéteurs et salles";
+
+/* Location: CLIToolViewModel.swift - Help: channels command */
+"tools.cli.helpChannels" = "  channels\n    Afficher la liste des canaux avec numéros de slot de l'appareil";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands header */
+"tools.cli.helpRepeaterHeader" = "Commandes du répéteur (passthrough) :";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands list 1 */
+"tools.cli.helpRepeaterList1" = "  ver, clock, reboot, advert, neighbors";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands list 2 */
+"tools.cli.helpRepeaterList2" = "  get/set <param>, password <new>";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands list 3 */
+"tools.cli.helpRepeaterList3" = "  log start/stop/erase";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands list 4 */
+"tools.cli.helpRepeaterList4" = "  setperm, tempradio, neighbor.remove";
+
+/* Location: CLIToolViewModel+Sessions.swift - Nodes header with count */
+"tools.cli.nodesHeader" = "Nœuds (%lld):";
+
+/* Location: CLIToolViewModel+Sessions.swift - Channels header with count */
+"tools.cli.channelsHeader" = "Canaux (%lld):";
+
+/* Location: CLIToolViewModel+Sessions.swift - No nodes found */
+"tools.cli.noNodes" = "Aucun nœud trouvé";
+
+/* Location: CLIToolViewModel+Sessions.swift - No channels found */
+"tools.cli.noChannels" = "Aucun canal trouvé";
+
+/* Location: CLIToolViewModel+Sessions.swift - Channel empty name placeholder */
+"tools.cli.channelEmpty" = "vide";
+
+/* Location: CLIToolViewModel.swift - Welcome banner line 1 */
+"tools.cli.welcomeLine1" = "MeshCore One CLI";
+
+/* Location: CLIToolViewModel.swift - Welcome banner line 2 */
+"tools.cli.welcomeConnected" = "Connecté à %@";
+
+/* Location: CLIToolViewModel.swift - Welcome banner line 3 */
+"tools.cli.welcomeHint" = "Tapez 'help' pour les commandes disponibles.";
+
+/* Location: CLIToolView.swift - Jump to bottom button */
+"tools.cli.jumpToBottom" = "Aller en bas";
+
+/* Location: CLIToolView.swift - Accessibility label for command input */
+"tools.cli.commandInput" = "Saisie de commande";
+
+/* Location: CLIToolView.swift - Accessibility label for command prompt */
+"tools.cli.commandPrompt" = "Invite de commande";
+
+/* Location: CLIInputAccessoryView.swift - Cancel operation button label */
+"tools.cli.cancelOperation" = "Annuler l'opération";
+
+/* Location: CLIToolViewModel.swift - Command timeout (post-login) */
+"tools.cli.commandTimeout" = "Délai de la requête dépassé";
+
+/* Location: CLIToolViewModel.swift - Reboot command confirmation */
+"tools.cli.rebootSent" = "Commande de redémarrage envoyée";
+
+/* Accessibility label for completion suggestions container */
+/* Accessibility value for completion suggestions - %lld is count, %@ is selected */
+/* Confirmation prompt for a dangerous local command */
+"tools.cli.confirmPrompt" = "confirmer %@ ? (yes/no):";
+
+/* Usage for the get command */
+"tools.cli.usageGet" = "Utilisation : get <key>";
+
+/* Usage for the set command */
+"tools.cli.usageSet" = "Utilisation : set <key> <value>";
+
+/* Usage for set radio */
+"tools.cli.usageSetRadio" = "Utilisation : set radio <freq>,<bw>,<sf>,<cr>";
+
+/* Invalid value error */
+"tools.cli.invalidValue" = "Valeur invalide";
+
+/* Custom var key/value contains a reserved character */
+"tools.cli.invalidCustomVarToken" = "Les clés ne peuvent pas contenir ':' ou ',' ; les valeurs ne peuvent pas contenir ','";
+
+/* Local radio commands help header */
+"tools.cli.helpLocalHeader" = "Commandes radio locales :";
+
+/* Local radio commands help line 1 */
+"tools.cli.helpLocalList1" = "  clock [sync], ver, board";
+
+/* Local radio commands help line 2 */
+"tools.cli.helpLocalList2" = "  advert (zero-hop), floodadv (flood), reboot";
+
+/* Local radio commands help line 3 */
+"tools.cli.helpLocalList3" = "  get <key>, set <key> <value>";
+
+/* Local radio commands help line 4 */
+"tools.cli.helpLocalList4" = "    keys: name, lat, lon, tx, radio, freq, multi.acks, path.hash.mode, public.key, bat";
+
+/* Local radio commands help line 5 */
+"tools.cli.helpLocalList5" = "  get custom  (all custom firmware vars); unknown get/set keys route to custom vars";
+
+// MARK: - Saved Paths
+
+/* Location: SavedPathsViewModel.swift - Error loading saved paths */
+"tools.savedPaths.loadFailed" = "Impossible de charger les chemins enregistrés.";
+
+/* Location: SavedPathsViewModel.swift - Error renaming a saved path */
+"tools.savedPaths.renameFailed" = "Impossible de renommer le chemin.";
+
+/* Location: SavedPathsViewModel.swift - Error deleting a saved path */
+"tools.savedPaths.deleteFailed" = "Impossible de supprimer le chemin.";
+
+// MARK: - App Intents
+
+/* Location: MessageTargetEntity.swift - App Intents entity type name for a send target (a contact DM or a channel broadcast) */
+"intent.entity.target" = "Destinataire";
+
+/* Location: MessageTargetEntity.swift - App Intents recipient-picker subtitle marking a channel (broadcast) target */
+"intent.entity.channel" = "Canal";
+
+/* Location: StatusQueryIntent.swift - App Intents: title of the radio status query intent */
+"intent.status.title" = "Vérifier l'état de la radio";
+
+/* Location: MC1AppShortcutsProvider.swift - App Shortcuts: short title for the radio status shortcut */
+"intent.status.shortTitle" = "État de la radio";
+
+/* Location: StatusQueryIntent.swift - App Intents: description of the radio status query intent */
+"intent.status.description" = "Indique le nom, l'état de connexion et le dernier niveau de batterie connu de votre radio connectée.";
+
+/* Location: StatusQueryIntent.swift - Spoken when the app is still launching and has no state to read yet */
+"intent.status.dialog.notReady" = "MeshCore One démarre encore. Réessayez dans un instant.";
+
+/* Location: StatusQueryIntent.swift - Spoken when connected; %1$@ is the radio name, %2$lld is the cached battery percent */
+"intent.status.dialog.connectedWithBattery" = "%1$@ est connectée. La batterie est à environ %2$lld%%, selon le dernier relevé.";
+
+/* Location: StatusQueryIntent.swift - Spoken when connected but no battery reading is available; %@ is the radio name */
+"intent.status.dialog.connectedNoBattery" = "%@ est connectée. Aucun relevé de batterie disponible.";
+
+/* Location: StatusQueryIntent.swift - Spoken while the radio is connecting; %@ is the radio name */
+"intent.status.dialog.connecting" = "%@ se connecte.";
+
+/* Location: StatusQueryIntent.swift - Spoken when not connected and a last radio name is known; %@ is the radio name */
+"intent.status.dialog.disconnectedNamed" = "%@ n'est pas connectée.";
+
+/* Location: StatusQueryIntent.swift - Spoken when not connected and no radio has been connected before */
+"intent.status.dialog.disconnectedUnknown" = "Aucune radio n'est connectée.";
+
+/* Location: StatusQueryIntent.swift - Generic radio name used when no device name is known */
+"intent.status.radioFallbackName" = "Votre radio";
+
+/* Location: SendMessageIntent.swift - App Intents: title of the send message intent */
+"intent.send.title" = "Envoyer un message";
+
+/* Location: MC1AppShortcutsProvider.swift - App Shortcuts: short title for the send message shortcut */
+"intent.send.shortTitle" = "Envoyer un message";
+
+/* Location: SendMessageIntent.swift - App Intents: description of the send message intent */
+"intent.send.description" = "Envoyez un texte à un contact ou à un canal sur votre radio.";
+
+/* Location: SendMessageIntent.swift - App Intents: title of the recipient parameter (a contact or a channel) */
+"intent.send.param.target" = "Destinataire";
+
+/* Location: SendMessageIntent.swift - App Intents: title of the message text parameter */
+"intent.send.param.message" = "Message";
+
+/* Location: SendMessageIntent.swift - Confirmation prompt shown before sending; %@ is the recipient name */
+"intent.send.confirm" = "Envoyer ce message à %@ ?";
+
+/* Location: SendMessageIntent.swift - Spoken when the app must come to the foreground to send (still connecting or reconnecting) */
+"intent.send.foreground" = "Ouvrez MeshCore One pour terminer l'envoi de ce message.";
+
+/* Location: SendMessageIntent.swift - App Intents parameter summary shown in the shortcut editor; ${message} and ${target} are framework parameter tokens */
+"Send ${message} to ${target}" = "Envoyer ${message} à ${target}";
+
+// MARK: - Send Advert Intent
+
+/* Location: SendAdvertIntent.swift - App Intents: title of the send advert intent */
+"intent.advert.title" = "Envoyer une annonce";
+
+/* Location: MC1AppShortcutsProvider.swift - App Shortcuts: short title for the send advert shortcut */
+"intent.advert.shortTitle" = "Envoyer annonce";
+
+/* Location: SendAdvertIntent.swift - App Intents: description of the send advert intent */
+"intent.advert.description" = "Diffuse une auto-annonce pour que les nœuds maillés proches puissent découvrir ta radio.";
+
+/* Location: SendAdvertIntent.swift - App Intents: title of the advert reach parameter (zero-hop or flood) */
+"intent.advert.param.reach" = "Portée";
+
+/* Location: AdvertReach.swift - App Intents: type name for the advert reach enum */
+"intent.advert.reach.type" = "Portée de l'annonce";
+
+/* Location: AdvertReach.swift - App Intents: zero-hop reach case (direct neighbors only) */
+"intent.advert.reach.zeroHop" = "Zero-Hop";
+
+/* Location: AdvertReach.swift - App Intents: flood reach case (entire mesh) */
+"intent.advert.reach.flood" = "Flood";
+
+/* Location: SendAdvertIntent.swift - Spoken after a zero-hop advert is sent */
+"intent.advert.dialog.sentZeroHop" = "Annonce envoyée aux nœuds proches.";
+
+/* Location: SendAdvertIntent.swift - Spoken after a flood advert is sent */
+"intent.advert.dialog.sentFlood" = "Annonce envoyée sur tout le réseau maillé.";
+
+/* Location: SendAdvertIntent.swift - App Intents parameter summary shown in the shortcut editor; ${reach} is the framework parameter token */
+"Send a ${reach} advert" = "Envoyer une annonce ${reach}";

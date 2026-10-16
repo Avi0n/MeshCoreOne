@@ -1,0 +1,1999 @@
+/*
+  Settings.strings
+  MC1
+
+  Ukrainian translation of strings for the Settings feature.
+  AI-translated - please verify with native speakers.
+*/
+
+// MARK: - Main Settings View
+
+/* Navigation title for the main settings screen */
+"title" = "Налаштування";
+
+/* Placeholder shown in split view detail when no setting is selected */
+"selectSetting" = "Виберіть налаштування";
+
+/* Section header for device-specific settings */
+"myDevice.header" = "Мій пристрій";
+
+/* Section header for app-level settings */
+"appSettings.header" = "Налаштування додатку";
+
+/* Footer text for the advanced settings row */
+/* Label for the advanced settings navigation row */
+"advancedSettings.title" = "Розширені налаштування";
+
+/* Version display prefix with version number */
+"version" = "v%@";
+
+/* Build number display with build number */
+"build" = "Збірка %@";
+
+// MARK: - Demo Mode Section
+
+/* Section header for demo mode */
+"demoMode.header" = "Демо-режим";
+
+/* Toggle label to enable demo mode */
+"demoMode.enabled" = "Увімкнено";
+
+/* Footer explaining what demo mode does */
+"demoMode.footer" = "Демо-режим дозволяє тестувати без обладнання, використовуючи тестові дані.";
+
+// MARK: - Device Section
+
+/* Section header for device information */
+"device.header" = "Пристрій";
+
+/* Status shown when device is connected */
+"device.connected" = "Підключено";
+
+/* Footer shown when no device is connected */
+"device.noDeviceConnected" = "Пристрій MeshCore не підключено";
+
+/* Button to connect a device */
+"device.connect" = "Підключити пристрій";
+
+// MARK: - Device Info View
+
+/* Navigation title for device info screen */
+"deviceInfo.title" = "Інформація про пристрій";
+
+/* Section header for connection status */
+"deviceInfo.connection.header" = "Підключення";
+
+/* Label for connection status */
+"deviceInfo.connection.status" = "Статус";
+
+/* Section header for power and storage */
+"deviceInfo.powerStorage.header" = "Живлення та пам'ять";
+
+/* Label for battery level */
+"deviceInfo.battery" = "Батарея";
+
+/* Label for storage used */
+"deviceInfo.storageUsed" = "Використано пам'яті";
+
+/* Combined label for battery and storage when loading */
+"deviceInfo.batteryAndStorage" = "Батарея та пам'ять";
+
+/* Section header for firmware information */
+"deviceInfo.firmware.header" = "Прошивка";
+
+/* Label for firmware version */
+"deviceInfo.firmwareVersion" = "Версія прошивки";
+
+/* Label for build date */
+"deviceInfo.buildDate" = "Дата збірки";
+
+/* Label for manufacturer */
+"deviceInfo.manufacturer" = "Виробник";
+
+/* Placeholder when a value is unknown */
+"deviceInfo.unknown" = "Невідомо";
+
+/* Section header for device capabilities */
+"deviceInfo.capabilities.header" = "Можливості";
+
+/* Label for max nodes capability */
+"deviceInfo.maxNodes" = "Макс. вузлів";
+
+/* Label for max channels capability */
+"deviceInfo.maxChannels" = "Макс. каналів";
+
+/* Label for max TX power capability */
+"deviceInfo.maxTxPower" = "Макс. потужність TX";
+
+/* TX power display format with dBm unit */
+"deviceInfo.txPowerFormat" = "%@ дБм";
+
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Section header for identity information */
+/* Label for public key */
+"deviceInfo.publicKey" = "Публічний ключ";
+
+/* Button to share contact information */
+"deviceInfo.shareContact" = "Поділитися моїм контактом";
+
+/* Title for ContentUnavailableView when no device is connected */
+"deviceInfo.noDevice.title" = "Пристрій не підключено";
+
+/* Description for ContentUnavailableView when no device is connected */
+"deviceInfo.noDevice.description" = "Підключіться до пристрою MeshCore для перегляду інформації";
+
+/* Fallback manufacturer name */
+"deviceInfo.defaultManufacturer" = "Пристрій MeshCore";
+
+// MARK: - Public Key View
+
+/* Navigation title for public key screen */
+"publicKey.title" = "Публічний ключ";
+
+/* Section header describing the key type */
+"publicKey.header" = "32-байтний публічний ключ Ed25519";
+
+/* Footer explaining the public key's purpose */
+"publicKey.footer" = "Цей ключ однозначно ідентифікує ваш пристрій у мережі mesh";
+
+/* Section header for base64 representation */
+"publicKey.base64.header" = "Base64";
+
+/* Button to copy key to clipboard */
+"publicKey.copy" = "Копіювати в буфер обміну";
+
+// MARK: - Private Key View
+
+/* Section header describing the key type */
+"privateKey.header" = "64-байтний закритий ключ Ed25519";
+
+// MARK: - Device Selection Sheet
+
+/* Navigation title for device selection */
+"deviceSelection.title" = "Підключити пристрій";
+
+/* Button to connect to selected device */
+/* Section header for previously paired devices */
+"deviceSelection.previouslyPaired" = "Раніше сполучені";
+
+/* Footer text prompting user to select a device */
+/* Button to connect via WiFi */
+"deviceSelection.connectViaWifi" = "Підключитися через WiFi";
+
+/* Button to scan for Bluetooth devices */
+"deviceSelection.scanBluetooth" = "Пошук Bluetooth-пристроїв";
+
+/* Trailing control on a previously paired row that still needs iPhone setup */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setup" = "Налаштувати";
+
+/* Sheet title when one device needs setup. %@ is the accessory name */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupTitle" = "Налаштувати %@";
+
+/* Sheet title when several devices need setup */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupTitleGeneric" = "Налаштувати";
+
+/* Sheet body when one device is paired with iPhone */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupMessage" = "Цей пристрій сполучено з iPhone. Вам потрібно забути його, перш ніж додати до MeshCore One.";
+
+/* Sheet body when several devices are paired with iPhone */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupMessagePlural" = "Ці пристрої сполучено з iPhone. Вам потрібно забути їх, перш ніж додати радіо до MeshCore One.";
+
+/* Reassurance that forgetting the iPhone pairing does not delete conversations */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupConversations" = "Це не видалить ваші розмови.";
+
+/* Destructive confirmation for one device */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.forgetThisDevice" = "Забути цей пристрій";
+
+/* Destructive confirmation for several devices */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.forgetTheseDevices" = "Забути ці пристрої";
+
+/* Footer under Previously Paired when one needs-setup row is present */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupFooter" = "Забудьте цей пристрій, щоб додати його до MeshCore One.";
+
+/* Footer under Previously Paired when several needs-setup rows are present */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupFooterPlural" = "Забудьте ці пристрої, щоб додати їх до MeshCore One.";
+
+/* VoiceOver label for a needs-setup row. %@ is the accessory name */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.accessibility.setupLabel" = "%@, сполучено з iPhone";
+
+/* VoiceOver hint for a needs-setup row */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.accessibility.setupHint" = "Натисніть двічі, щоб налаштувати";
+
+/* Title for empty state when no devices are paired */
+"deviceSelection.noPairedDevices" = "Немає сполучених пристроїв";
+
+/* Description for empty state */
+"deviceSelection.noPairedDescription" = "Ви ще не сполучили жодного пристрою.";
+
+/* Button to scan for new devices */
+"deviceSelection.scanForDevices" = "Пошук пристроїв";
+
+/* Accessibility label for a device connected to another app - %1$@ is device name */
+"deviceSelection.accessibility.connectedElsewhereLabel" = "%1$@, підключено до іншого додатку";
+
+/* Accessibility label for a device - %1$@ is device name, %2$@ is connection type */
+"deviceSelection.accessibility.deviceLabel" = "%1$@, %2$@";
+
+/* Accessibility hint for a device connected to another app */
+"deviceSelection.accessibility.connectedElsewhereHint" = "Цей пристрій використовується іншим додатком. Підключення може спричинити проблеми зі зв'язком.";
+
+/* Accessibility hint for selecting a device */
+"deviceSelection.accessibility.selectHint" = "Натисніть двічі, щоб підключити";
+
+/* Accessibility hint for a device that is out of Bluetooth range */
+"deviceSelection.accessibility.outOfRangeHint" = "Пристрій поза зоною дії Bluetooth";
+
+/* Label shown when device is connected to another app */
+"deviceSelection.connectedElsewhere" = "Підключено до іншого застосунку";
+
+/* Fallback connection type description */
+"deviceSelection.bluetooth" = "Bluetooth";
+
+// MARK: - Location Picker View
+
+/* Navigation title for location picker */
+"locationPicker.title" = "Встановити місцезнаходження";
+
+/* Marker title for node location on map */
+/* Button to clear the selected location */
+"locationPicker.clearLocation" = "Очистити місцезнаходження";
+
+/* Button to drop a pin at the map center */
+"locationPicker.dropPin" = "Поставити мітку в центрі";
+
+/* Label for latitude display */
+"locationPicker.latitude" = "Широта:";
+
+/* Label for longitude display */
+"locationPicker.longitude" = "Довгота:";
+
+// MARK: - Trusted Contacts Picker
+
+/* Navigation title for trusted contacts picker */
+"trustedContacts.title" = "Довірені контакти";
+
+/* Title for empty state when no contacts exist */
+"trustedContacts.noContacts" = "Немає контактів";
+
+/* Description for empty state */
+"trustedContacts.noContactsDescription" = "Додайте контакти, щоб вибрати довірених";
+
+/* Title for empty state when search returns no results */
+"trustedContacts.noResults" = "Немає результатів";
+
+/* Description for empty state when search returns no results */
+"trustedContacts.noResultsDescription" = "Жоден контакт не відповідає \"%@\"";
+
+/* Search prompt for trusted contacts list */
+"trustedContacts.searchPrompt" = "Пошук контактів";
+
+/* Toggle label for showing only favorite contacts */
+"trustedContacts.favoritesOnly" = "Лише обрані";
+
+/* Apply button label */
+"trustedContacts.apply" = "Застосувати";
+
+// MARK: - About Section
+
+/* Section header for about links */
+"about.header" = "Про застосунок";
+
+/* Link to MeshCore website */
+"about.website" = "Сайт MeshCore";
+
+/* Link to MeshCore online map */
+"about.onlineMap" = "Онлайн-карта MeshCore";
+
+/* Link to GitHub repository */
+"about.github" = "GitHub";
+
+/* Link to the privacy policy */
+/* AI-translated - please verify with native speakers. */
+"about.privacyPolicy" = "Політика конфіденційності";
+
+// MARK: - Advanced Radio Section
+
+/* Section header for manual radio parameters on Settings → Radio. */
+"advancedRadio.header" = "Розширені";
+
+/* Label for frequency input */
+"advancedRadio.frequency" = "Частота (МГц)";
+
+/* Placeholder for frequency text field */
+"advancedRadio.frequencyPlaceholder" = "МГц";
+
+/* Label for bandwidth picker */
+"advancedRadio.bandwidth" = "Смуга пропускання (кГц)";
+
+/* Label for spreading factor picker */
+"advancedRadio.spreadingFactor" = "Фактор розширення";
+
+/* Label for coding rate picker */
+"advancedRadio.codingRate" = "Швидкість кодування";
+
+/* Accessibility label for bandwidth picker options - %@ is formatted bandwidth value */
+"advancedRadio.accessibility.bandwidthLabel" = "%@ кілогерц";
+
+/* Accessibility label for spreading factor picker options - %d is the factor value */
+"advancedRadio.accessibility.spreadingFactorLabel" = "Фактор розширення %d";
+
+/* Accessibility label for coding rate picker options - %d is the rate value */
+"advancedRadio.accessibility.codingRateLabel" = "Швидкість кодування %d";
+
+/* Accessibility hint for bandwidth picker */
+"advancedRadio.accessibility.bandwidthHint" = "Менші значення збільшують дальність, але знижують швидкість";
+
+/* Accessibility hint for spreading factor picker */
+"advancedRadio.accessibility.spreadingFactorHint" = "Більші значення збільшують дальність, але знижують швидкість";
+
+/* Accessibility hint for coding rate picker */
+"advancedRadio.accessibility.codingRateHint" = "Більші значення покращують корекцію помилок, але знижують швидкість";
+
+/* Label for TX power input */
+"advancedRadio.txPower" = "Потужність TX (дБм)";
+
+/* Placeholder for TX power text field */
+"advancedRadio.txPowerPlaceholder" = "дБм";
+
+/* Button to apply radio settings */
+"advancedRadio.apply" = "Застосувати налаштування радіо";
+
+/* Footer warning about incorrect radio settings */
+"advancedRadio.footer" = "Попередження: Неправильні налаштування можуть завадити зв'язку з іншими пристроями mesh.";
+
+/* Footer when Repeat Mode is on: frequency is owned by Repeat Mode. */
+"advancedRadio.frequencyRepeatModeFooter" = "Частота задається режимом ретранслятора.";
+
+/* Error message for invalid input */
+"advancedRadio.invalidInput" = "Невірні значення або пристрій не підключено";
+
+// MARK: - Path Hash Mode Section
+
+/* Section header for path hash mode */
+"pathHashMode.header" = "Розмір хешу шляху";
+
+/* Label for path hash mode picker */
+"pathHashMode.label" = "Розмір хешу";
+
+/* Path hash mode option: 1 byte */
+"pathHashMode.oneByte" = "1 байт";
+
+/* Path hash mode option: 2 bytes */
+"pathHashMode.twoBytes" = "2 байти";
+
+/* Path hash mode option: 3 bytes */
+"pathHashMode.threeBytes" = "3 байти";
+
+/* Footer explaining path hash mode tradeoff */
+"pathHashMode.footer" = "Більші хеші зменшують колізії маршрутизації, але обмежують максимальну кількість переходів на шляху. Ретранслятори з прошивкою старшою за 1.14.0 не будуть повторювати повідомлення з розміром хешу більше 1 байта.";
+
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "Область flood за замовчуванням";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "Коли задано, пристрій застосовує цю область до flood-надсилань, якщо її не перевизначить область, прив'язана до каналу. Область зберігається на пристрої та не втрачається після перезавантаження.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "Немає";
+
+// MARK: - Battery Curve Section
+
+/* Accessibility label for voltage text field - %d is the percentage level */
+"batteryCurve.accessibility.voltageLabel" = "Напруга при %d відсотках";
+
+/* Accessibility value for voltage text field - %d is the millivolt value */
+"batteryCurve.accessibility.voltageValue" = "%d мілівольт";
+
+/* Accessibility hint for voltage text field */
+"batteryCurve.accessibility.voltageHint" = "Введіть очікувану напругу при цьому рівні заряду";
+
+/* Section header for battery curve */
+"batteryCurve.header" = "Крива батареї";
+
+/* Footer explaining battery curve configuration */
+"batteryCurve.footer" = "Налаштуйте криву напруга-відсоток для батареї вашого пристрою.";
+
+/* Label for preset picker */
+"batteryCurve.preset" = "Пресет";
+
+/* Option for custom battery curve */
+"batteryCurve.custom" = "Власний";
+
+/* Disclosure group label for editing values */
+"batteryCurve.editValues" = "Редагувати значення";
+
+/* Validation error for value out of range - %d is the percentage level */
+"batteryCurve.validation.outOfRange" = "Значення при %d%% має бути 1000-99999 мВ";
+
+/* Validation error for non-descending values */
+"batteryCurve.validation.notDescending" = "Значення повинні бути в порядку спадання";
+
+/* Unit label for millivolts */
+"batteryCurve.mV" = "мВ";
+
+// MARK: - Bluetooth Section
+
+/* Section header for Bluetooth settings */
+"bluetooth.header" = "Bluetooth";
+
+/* Label for PIN type picker */
+"bluetooth.pinType" = "Тип PIN";
+
+/* PIN type option for default PIN */
+"bluetooth.pinType.default" = "За замовчуванням";
+
+/* PIN type option for custom PIN */
+"bluetooth.pinType.custom" = "Власний PIN";
+
+/* Label showing current PIN */
+"bluetooth.currentPin" = "Поточний PIN";
+
+/* Button to change the PIN */
+"bluetooth.changePin" = "Змінити PIN";
+
+/* Button to change the device display name */
+"bluetooth.changeDisplayName" = "Змінити відображуване ім'я";
+
+/* Footer explaining default PIN */
+"bluetooth.defaultPinFooter" = "PIN за замовчуванням: 123456. Пристрої з екранами показують власний PIN.";
+
+/* Alert title for setting custom PIN */
+"bluetooth.alert.setPin.title" = "Встановити власний PIN";
+
+/* Alert title for changing custom PIN */
+"bluetooth.alert.changePin.title" = "Змінити власний PIN";
+
+/* Placeholder for PIN text field */
+"bluetooth.pinPlaceholder" = "6-значний PIN";
+
+/* Button to set the PIN */
+"bluetooth.setPin" = "Встановити PIN";
+
+/* Alert message for setting PIN */
+"bluetooth.alert.setPin.message" = "Введіть 6-значний PIN. Пристрій перезавантажиться для застосування змін.";
+
+/* Alert message for changing PIN */
+"bluetooth.alert.changePin.message" = "Введіть новий 6-значний PIN. Пристрій перезавантажиться для застосування змін.";
+
+/* Alert title for confirming PIN type change */
+"bluetooth.alert.changePinType.title" = "Змінити тип PIN?";
+
+/* Button to confirm change */
+"bluetooth.alert.change" = "Змінити";
+
+/* Alert message for PIN type change */
+"bluetooth.alert.changePinType.message" = "Пристрій перезавантажиться для застосування змін.";
+
+/* Error for invalid PIN format */
+"bluetooth.error.invalidPin" = "PIN повинен бути 6-значним числом від 100000 до 999999";
+
+// MARK: - Contacts Settings Section
+
+/* Section header for nodes/contacts settings */
+/* Toggle label for auto-add nodes */
+/* Description for auto-add nodes toggle */
+// MARK: - Nodes Settings Section
+
+/* Section header for nodes settings */
+"nodes.header" = "Вузли";
+
+/* Label for auto-add mode picker */
+"nodes.autoAddMode" = "Режим автододавання";
+
+/* Auto-add mode: manual */
+"nodes.autoAddMode.manual" = "Вручну";
+
+/* Auto-add mode: manual description */
+"nodes.autoAddMode.manualDescription" = "Переглянути всі вузли у Виявленні перед додаванням";
+
+/* Auto-add mode: selected types */
+"nodes.autoAddMode.selectedTypes" = "Вибрані типи";
+
+/* Auto-add mode: selected types description */
+"nodes.autoAddMode.selectedTypesDescription" = "Автоматично додавати лише увімкнені нижче типи";
+
+/* Auto-add mode: all */
+"nodes.autoAddMode.all" = "Усі";
+
+/* Auto-add mode: all description */
+"nodes.autoAddMode.allDescription" = "Автоматично додавати кожен виявлений вузол";
+
+/* Section header for auto-add types */
+/* Toggle label for auto-add contacts */
+"nodes.autoAddContacts" = "Контакти";
+
+/* Toggle label for auto-add repeaters */
+"nodes.autoAddRepeaters" = "Ретранслятори";
+
+/* Toggle label for auto-add room servers */
+"nodes.autoAddRoomServers" = "Сервери кімнат";
+
+/* Section header for storage settings */
+/* Toggle label for overwrite oldest */
+"nodes.overwriteOldest" = "Перезаписати найстаріший";
+
+/* Description for overwrite oldest toggle */
+"nodes.overwriteOldestDescription" = "Коли сховище заповнене, замінити найстаріший необраний вузол";
+
+/* Picker label for max hop distance */
+"nodes.maxHops" = "Макс. ліміт хопів (авто-додавання)";
+
+/* No limit option */
+"nodes.maxHops.noLimit" = "Без обмежень";
+
+/* Direct only option (0 hops) */
+"nodes.maxHops.directOnly" = "Тільки прямі";
+
+/* Singular 1 hop option */
+"nodes.maxHops.oneHop" = "1 хоп";
+
+/* Plural hops format string */
+"nodes.maxHops.hops" = "%d хопів";
+
+/* Footer text when hop limit is active */
+"nodes.maxHops.footerActive" = "Вузли за межами обраної відстані хопів не будуть додані автоматично.";
+
+// MARK: - Auto-Remove Old Nodes Section
+
+/* Toggle label / section header for stale node cleanup */
+"nodes.staleCleanup.header" = "Автовидалення старих вузлів";
+
+/* Label for threshold picker */
+"nodes.staleCleanup.threshold" = "Видаляти вузли старші за";
+
+/* Picker placeholder when no threshold is selected */
+"nodes.staleCleanup.select" = "Вибрати";
+
+/* Threshold option: number of days (%d = day count) */
+"nodes.staleCleanup.days" = "%d дн.";
+
+/* Footer when auto-remove is enabled (%d = day count) */
+"nodes.staleCleanup.footerEnabled" = "Необрані вузли, які не оновлювалися %d дн., автоматично видаляються при підключенні.";
+
+/* Footer describing the auto-remove feature (shown when toggle is off) */
+"nodes.staleCleanup.footerDisabled" = "Автоматично видаляє необрані вузли, які не оновлювалися протягом встановленого періоду. Обрані ніколи не видаляються.";
+
+/* Footer when toggle is on but no threshold selected yet */
+"nodes.staleCleanup.footerSelect" = "Оберіть, як довго зберігати вузли. Обрані ніколи не видаляються.";
+
+/* Footer when enabled but device is disconnected */
+"nodes.staleCleanup.footerDisconnected" = "Перевірить старі вузли при наступному підключенні. Обрані ніколи не видаляються.";
+
+/* Last cleanup date row (%@ = relative date) */
+"nodes.staleCleanup.lastRun" = "Остання перевірка %@";
+
+// MARK: - Device Actions Section
+
+/* Section header for device actions */
+"deviceActions.header" = "Пристрій";
+
+/* Button to reboot the device */
+"deviceActions.rebootDevice" = "Перезавантажити пристрій";
+
+/* Text shown while rebooting */
+"deviceActions.rebooting" = "Перезавантаження…";
+
+/* Alert title for reboot confirmation */
+"deviceActions.alert.reboot.title" = "Перезавантажити пристрій?";
+
+/* Button to confirm reboot */
+"deviceActions.alert.reboot.confirm" = "Перезавантажити";
+
+/* Alert message for reboot confirmation */
+"deviceActions.alert.reboot.message" = "Пристрій перезавантажиться і тимчасово відключиться.";
+
+// MARK: - Danger Zone Section
+
+/* Section header for danger zone */
+"dangerZone.header" = "Небезпечна зона";
+
+/* Button to forget/unpair the device */
+"dangerZone.forgetDevice" = "Забути пристрій";
+
+/* Button to factory reset the device */
+"dangerZone.factoryReset" = "Скидання до заводських налаштувань";
+
+/* Text shown while resetting */
+"dangerZone.resetting" = "Скидання...";
+
+/* Footer explaining factory reset */
+"dangerZone.footer" = "Скидання до заводських налаштувань видаляє всі контакти, повідомлення та налаштування на пристрої.";
+
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "Забути пристрій";
+
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "Ваш пристрій буде роз'єднано. Ви можете зберегти або видалити свої повідомлення, контакти та канали.";
+
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "Забути пристрій";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "Забути пристрій і видалити дані";
+
+/* Alert title for factory reset confirmation */
+"dangerZone.alert.reset.title" = "Скидання до заводських налаштувань";
+
+/* Button to confirm reset */
+"dangerZone.alert.reset.confirm" = "Скинути";
+
+/* Alert message for factory reset */
+"dangerZone.alert.reset.message" = "Це видалить усі дані на пристрої, включаючи контакти, повідомлення та налаштування. Натисніть «Видалити», коли з'явиться запит на від'єднання пристрою.";
+
+/* Error when services are not available */
+"dangerZone.error.servicesUnavailable" = "Сервіси недоступні";
+
+/* Button to remove non-favorite nodes */
+"dangerZone.removeUnfavorited" = "Видалити необрані вузли";
+
+/* Text shown while removing unfavorited nodes */
+"dangerZone.removing" = "Видалення…";
+
+/* Label shown after successful removal */
+"dangerZone.removed" = "Вузли видалено";
+
+/* Alert title for remove non-favorite confirmation */
+"dangerZone.alert.removeUnfavorited.title" = "Видалити необрані вузли";
+
+/* Button to confirm removal */
+"dangerZone.alert.removeUnfavorited.confirm" = "Видалити вузли";
+
+/* Alert title for removal result */
+"dangerZone.alert.removeUnfavorited.resultTitle" = "Результат видалення";
+
+/* Alert message for remove unfavorited (%d = count) */
+"dangerZone.alert.removeUnfavorited.message" = "Це назавжди видалить %d вузлів, не позначених як обрані, з пристрою та додатка, разом з їхніми повідомленнями.";
+
+/* Partial success message (%d = removed, %d = total) */
+"dangerZone.alert.removeUnfavorited.partial" = "Видалено %d з %d вузлів. З'єднання було перервано — натисніть кнопку ще раз, щоб видалити решту вузлів.";
+
+/* Message when no non-favorite nodes to remove */
+"dangerZone.alert.removeUnfavorited.noneFound" = "Немає необраних вузлів для видалення.";
+
+// MARK: - Diagnostics Section
+
+/* Section header for diagnostics */
+"diagnostics.header" = "Діагностика";
+
+/* Button to export debug logs */
+"diagnostics.exportLogs" = "Експорт журналів налагодження";
+
+/* Button to clear debug logs */
+"diagnostics.clearLogs" = "Очистити журнали налагодження";
+
+/* Footer explaining log export */
+"diagnostics.footer" = "Експорт включає журнали налагодження по всіх сесіях застосунку. Журнали зберігаються локально та автоматично видаляються через 7 днів.";
+
+/* Alert title for clear logs confirmation */
+"diagnostics.alert.clear.title" = "Очистити журнали налагодження";
+
+/* Button to confirm clear */
+"diagnostics.alert.clear.confirm" = "Очистити";
+
+/* Alert message for clear logs */
+"diagnostics.alert.clear.message" = "Це видалить усі збережені журнали налагодження. Експортовані файли журналів не будуть зачеплені.";
+
+/* Error when export fails */
+"diagnostics.error.exportFailed" = "Не вдалося створити файл експорту";
+
+// MARK: - Chat Settings
+
+/* Navigation title for chat settings page */
+"chatSettings.title" = "Чати";
+
+// MARK: - Link Preview Settings Section
+
+/* Section header for link content settings */
+"linkPreviews.header" = "Вміст посилань";
+
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "Показувати вміст посилань";
+
+/* Toggle label for showing previews in DMs */
+"linkPreviews.showInDMs" = "Показувати в особистих повідомленнях";
+
+/* Toggle label for showing previews in channels */
+"linkPreviews.showInChannels" = "Показувати в каналах";
+
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "Попередні перегляди посилань та зображення завантажуються через інтернет-з'єднання вашого телефону, а не через мережу mesh. Це може розкрити вашу IP-адресу серверу, на якому розміщено вміст, і використовувати мобільний трафік.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "Зменшення руху ввімкнено, тому GIF не відтворюватимуться автоматично.";
+
+// MARK: - Node Settings Section
+
+/* Section header for node settings */
+"node.header" = "Вузол";
+
+/* Label for node name */
+"node.name" = "Ім'я вузла";
+
+/* Default node name when unknown */
+/* Button text to copy */
+/* Label for set location button */
+"node.setLocation" = "Встановити місцезнаходження";
+
+/* Text shown when location is set */
+"node.locationSet" = "Встановлено";
+
+/* Text shown when location is not set */
+"node.locationNotSet" = "Не встановлено";
+
+/* Toggle label for share location publicly */
+"node.shareLocationPublicly" = "Публічно ділитися місцезнаходженням";
+
+/* Footer explaining node visibility */
+"node.footer" = "Ім'я та місцезнаходження вашого вузла видимі іншим користувачам mesh при увімкненому загальному доступі.";
+
+/* Alert title for editing node name */
+"node.alert.editName.title" = "Змінити ім'я вузла";
+
+// MARK: - Notification Settings Section
+
+/* Section header for notifications */
+"notifications.header" = "Сповіщення";
+
+/* Toggle label for contact messages notifications */
+"notifications.contactMessages" = "Повідомлення від контактів";
+
+/* Toggle label for channel messages notifications */
+"notifications.channelMessages" = "Повідомлення в каналах";
+
+/* Toggle label for room messages notifications */
+"notifications.roomMessages" = "Повідомлення в кімнатах";
+
+/* Toggle label for new contact discovered notifications */
+"notifications.newContactDiscovered" = "Виявлено новий контакт";
+
+/* Toggle label for companion discovery notifications */
+"notifications.discoveryContact" = "Компаньйон";
+
+/* Toggle label for repeater discovery notifications */
+"notifications.discoveryRepeater" = "Ретранслятор";
+
+/* Toggle label for room discovery notifications */
+"notifications.discoveryRoom" = "Кімната";
+
+/* Toggle label for low battery warnings */
+"notifications.lowBattery" = "Попередження про низький заряд";
+
+/* Toggle label for reaction notifications */
+"notifications.reactions" = "Реакції";
+
+/* Button to enable notifications */
+"notifications.enable" = "Увімкнути сповіщення";
+
+/* Label shown when notifications are disabled */
+"notifications.disabled" = "Сповіщення вимкнено";
+
+/* Button to open system settings */
+"notifications.openSettings" = "Відкрити налаштування";
+
+/* Message shown when device not connected */
+/* Footer for notifications navigation row */
+// MARK: - Radio Preset Section
+
+/* Section header for radio settings */
+"radio.header" = "Радіо";
+
+/* Label for radio preset picker */
+"radio.preset" = "Пресет радіо";
+
+/* Footer explaining radio presets. Location is geographic filter, not mesh Region. */
+"radio.footer" = "Виберіть пресет, що відповідає найближчим радіостанціям. Пристрої MeshCore повинні використовувати однакові налаштування радіо для зв'язку.";
+
+/* Radio row and PresetLocationView navigation title. Not Settings → Location (GPS pin). */
+"radio.presetLocation" = "Місцезнаходження";
+
+/* Trailing value when the place is unset: Location row, and empty Country / State rows in RegionPickerRows (Radio and onboarding). */
+"radio.presetLocation.notSet" = "Не встановлено";
+
+/* Footer on the Radio location section and the Location subpage. */
+"radio.presetLocation.footer" = "Фільтрує список пресетів. Не змінює радіо.";
+
+/* errorAlert when Use my location is authorized but resolve() returns nil. */
+"radio.presetLocation.useMyLocation.failure" = "Не вдалося визначити місце за вашим місцезнаходженням. Виберіть країну та область.";
+
+/* Visible label + VoiceOver value on Use my location while GPS / geocode is in flight. Not onboarding region.resolving. */
+"radio.presetLocation.useMyLocation.locating" = "Визначення місцезнаходження…";
+
+/* Open Settings alert message when Use my location is denied or restricted. */
+"radio.presetLocation.denied" = "Дозвіл на місцезнаходження було відхилено раніше. Увімкніть його в Налаштуваннях, щоб заповнити країну та область.";
+
+/* Toggle label for repeat mode */
+"radio.repeatMode" = "Режим ретранслятора";
+
+/* Footer explaining repeat mode */
+"radio.repeatMode.footer" = "Створює локальний ретранслятор на виділеній частоті. Корисно для походів та віддалених місцевостей.";
+
+/* Accessibility hint for repeat mode toggle */
+"radio.repeatMode.accessibilityHint" = "Увімкнення від'єднає вас від основної mesh-мережі";
+
+/* Confirmation dialog title for enabling repeat mode */
+"radio.repeatMode.confirm.title" = "Увімкнути режим ретранслятора?";
+
+/* Confirmation dialog message for enabling repeat mode */
+"radio.repeatMode.confirm.message" = "Ви будете від'єднані від основної mesh-мережі. Доступними будуть лише пристрої на тій самій частоті режиму ретранслятора.";
+
+/* Confirmation dialog enable button */
+"radio.repeatMode.confirm.enable" = "Увімкнути";
+
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "Показано пресети для %@.";
+
+/* Location: RadioPresetSection.swift - Footer reminding the operator to comply with local radio laws */
+"radio.regulationsFooter" = "Ви відповідальні за дотримання місцевих законів щодо радіо.";
+
+// MARK: - Telemetry Settings Section
+
+/* Section header for telemetry settings */
+"telemetry.header" = "Телеметрія";
+
+/* Toggle label for allowing telemetry requests */
+"telemetry.allowRequests" = "Дозволити запити телеметрії";
+
+/* Description for telemetry requests toggle */
+"telemetry.allowRequestsDescription" = "Потрібно для ручного трасування шляху до вас іншими користувачами. Показує рівень заряду батареї.";
+
+/* Toggle label for including location in telemetry */
+"telemetry.includeLocation" = "Включити місцезнаходження";
+
+/* Description for include location toggle */
+"telemetry.includeLocationDescription" = "Передавати GPS-координати в телеметрії";
+
+/* Toggle label for including environment sensors */
+"telemetry.includeEnvironment" = "Включити датчики середовища";
+
+/* Description for include environment toggle */
+"telemetry.includeEnvironmentDescription" = "Передавати температуру, вологість тощо";
+
+/* Toggle label for trusted contacts only */
+"telemetry.trustedOnly" = "Передавати лише довіреним контактам";
+
+/* Description for trusted contacts toggle */
+"telemetry.trustedOnlyDescription" = "Обмежити телеметрію вибраними контактами";
+
+/* Link to manage trusted contacts */
+"telemetry.manageTrusted" = "Керування довіреними контактами";
+
+/* Footer explaining telemetry */
+"telemetry.footer" = "Коли увімкнено, інші вузли можуть запитувати дані телеметрії вашого пристрою.";
+
+// MARK: - WiFi Section
+
+/* Section header for WiFi settings */
+"wifi.header" = "WiFi";
+
+/* Label for IP address */
+"wifi.address" = "Адреса";
+
+/* Label for port number */
+"wifi.port" = "Порт";
+
+/* Button to edit WiFi connection */
+"wifi.editConnection" = "Редагувати підключення";
+
+/* Footer explaining WiFi address */
+"wifi.footer" = "Адреса вашого пристрою в локальній мережі";
+
+// MARK: - WiFi Edit Sheet
+
+/* Navigation title for WiFi edit sheet */
+"wifiEdit.title" = "Редагувати WiFi-підключення";
+
+/* Section header for connection details */
+"wifiEdit.connectionDetails" = "Деталі підключення";
+
+/* Placeholder for IP address field */
+/* Placeholder for port field */
+/* Accessibility label for clear IP button */
+/* Accessibility label for clear port button */
+/* Footer explaining reconnection */
+"wifiEdit.footer" = "Зміна цих значень відключить та підключить заново до нової адреси.";
+
+/* Text shown while reconnecting */
+"wifiEdit.reconnecting" = "Перепідключення...";
+
+/* Button to save changes */
+"wifiEdit.saveChanges" = "Зберегти зміни";
+
+/* Error for invalid port */
+"wifiEdit.error.invalidPort" = "Невірний номер порту";
+
+// MARK: - Error Alert
+
+/* Alert title for generic errors */
+"alert.error.title" = "Помилка";
+
+// MARK: - Retry Alert
+
+/* Alert title when max retries exceeded */
+"alert.retry.unableToSave" = "Не вдалося зберегти налаштування";
+
+/* Alert title for connection errors */
+"alert.retry.connectionError" = "Помилка підключення";
+
+/* Button to retry the operation */
+"alert.retry.retry" = "Повторити";
+
+/* Alert message when max retries exceeded */
+"alert.retry.ensureConnected" = "Будь ласка, переконайтеся, що ваш пристрій підключено.";
+
+/* Fallback message for retry alerts when error description is unavailable */
+"alert.retry.fallbackMessage" = "Переконайтеся, що пристрій підключено, і спробуйте знову.";
+
+// MARK: - Battery Curve Chart
+
+/* Chart X axis label */
+"chart.percent" = "Відсоток";
+
+/* Chart Y axis label */
+"chart.voltage" = "Напруга (В)";
+
+/* Accessibility label for battery curve chart */
+"chart.accessibility" = "Крива розряду батареї, що показує напругу на кожному рівні заряду";
+
+// MARK: - Messages Settings Section
+
+/* Section header for message info settings in chats */
+"messages.header" = "Інфо повідомлення";
+
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+/* Toggle label for showing routing path on incoming messages */
+"messages.showIncomingPath" = "Вхідний шлях";
+
+/* Toggle label for showing hop count on incoming messages */
+"messages.showIncomingHopCount" = "Вхідна кількість переходів";
+
+/* Toggle label for showing the radio region an incoming message was flooded under */
+"messages.showIncomingRegion" = "Вхідний регіон";
+
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "Вхідна кількість почутих";
+
+/* Footer explaining what the message display options show */
+"messages.footer" = "Показувати інформацію про маршрутизацію та час у вхідних повідомленнях.";
+
+// MARK: - Direct Messages Settings Section
+
+/* Section header for direct message settings */
+"directMessages.header" = "Особисті повідомлення";
+
+/* Picker label for number of acknowledgments */
+"directMessages.acknowledgments" = "Підтвердження";
+
+/* Footer explaining the acknowledgments setting */
+"directMessages.footer" = "Кількість підтверджень, що надсилаються на кожне особисте повідомлення. Використовуйте 2 для кращого підтвердження доставки через ненадійні з'єднання.";
+
+// MARK: - BLE Status Indicator
+
+/* Menu item to send a zero-hop advertisement */
+"bleStatus.sendZeroHopAdvert" = "Надіслати Zero-Hop оголошення";
+
+/* Menu item to send a flood advertisement */
+"bleStatus.sendFloodAdvert" = "Надіслати Flood оголошення";
+
+/* Menu item to change the connected device */
+"bleStatus.changeDevice" = "Змінити пристрій";
+
+/* Menu item to disconnect from the current device */
+"bleStatus.disconnect" = "Відключитися";
+
+/* Status shown when device is disconnected */
+"bleStatus.status.disconnected" = "Відключено";
+
+/* Status shown when device is connecting */
+"bleStatus.status.connecting" = "Підключення...";
+
+/* Status shown when device is connected but not ready */
+"bleStatus.status.connected" = "Підключено";
+
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "Синхронізація";
+
+/* Status shown when device is ready */
+"bleStatus.status.ready" = "Готово";
+
+/* Accessibility label for BLE status indicator */
+"bleStatus.accessibilityLabel" = "Стан Bluetooth-підключення";
+
+/* Accessibility hint when disconnected */
+"bleStatus.accessibilityHint.disconnected" = "Подвійний дотик для підключення пристрою";
+
+/* Accessibility hint when connected */
+"bleStatus.accessibilityHint.connected" = "Показує опції підключення пристрою";
+
+/* Accessibility hint for zero-hop advert button */
+"bleStatus.sendZeroHopAdvert.hint" = "Транслює лише прямим сусідам";
+
+/* Accessibility hint for flood advert button */
+"bleStatus.sendFloodAdvert.hint" = "Поширює оголошення по всій мережі mesh";
+
+/* Label shown in BLE status menu when repeat mode is active */
+"bleStatus.repeatModeActive" = "Режим ретранслятора активний";
+
+// MARK: - Location Settings Section
+
+/* Section header for location settings */
+"location.header" = "Місцезнаходження";
+
+/* Footer for location settings section */
+"location.footer" = "Коли увімкнено опцію «Ділитися місцезнаходженням публічно», ваше місцезнаходження буде транслюватися через mesh-мережу під час надсилання оголошень. Увімкнення автоматичного оновлення місцезнаходження автоматично оновить місцезнаходження вашого пристрою перед надсиланням оголошень.";
+
+/* Toggle label for auto-update location */
+"location.autoUpdate" = "Автооновлення місцезнаходження";
+
+/* Label for GPS source picker */
+"location.gpsSource" = "Джерело GPS";
+
+/* GPS source option: phone GPS */
+"location.gpsSource.phone" = "GPS телефону";
+
+/* GPS source option: device GPS */
+"location.gpsSource.device" = "GPS пристрою";
+
+/* Section header for device GPS controls */
+"location.deviceGps.header" = "GPS пристрою";
+
+/* Toggle label for device GPS power */
+"location.deviceGps.toggle" = "Увімкнути GPS пристрою";
+
+/* Footer for device GPS controls */
+"location.deviceGps.footer" = "Вмикає або вимикає вбудований GPS радіостанції. Збереження місцезнаходження вручну на мапі вимикає GPS пристрою.";
+
+/* Detail text when location is being shared publicly */
+"location.sharingPublicly" = "Публічний доступ";
+
+/* Detail text when location is not being shared */
+"location.notSharing" = "Не ділиться";
+
+// MARK: - Config Export/Import
+
+/* Section title for config export/import */
+"configExport.sectionTitle" = "Конфігурація пристрою";
+
+/* Section footer explaining config export/import */
+"configExport.sectionFooter" = "Експорт або імпорт налаштувань пристрою, каналів та контактів у форматі JSON.";
+
+/* Export navigation row label */
+"configExport.export" = "Експорт конфігурації";
+
+/* Export screen navigation title */
+"configExport.title" = "Експорт конфігурації";
+
+/* Export full config button */
+"configExport.exportFull" = "Експортувати повну конфігурацію";
+
+/* Export selected sections button */
+"configExport.exportSelected" = "Експортувати вибрані розділи";
+
+/* Customize export disclosure label */
+/* Select all toggle label */
+"configExport.selectAll" = "Вибрати все";
+
+/* Toggle labels for export sections */
+"configExport.nodeIdentity" = "Ідентифікація вузла (Назва та ключі)";
+"configExport.nodeIdentity.description" = "Назва пристрою, відкритий ключ та закритий ключ";
+"configExport.radioSettings" = "Налаштування радіо";
+"configExport.radioSettings.description" = "Частота, смуга пропускання, коефіцієнт розширення, швидкість кодування, потужність TX";
+"configExport.positionSettings" = "Позиція";
+"configExport.positionSettings.description" = "Широта та довгота";
+"configExport.otherSettings" = "Інші налаштування";
+"configExport.otherSettings.description" = "Дозволи контактів, обмін місцезнаходженням";
+"configExport.channels" = "Канали";
+"configExport.channels.description" = "Усі канали та їхні ключі шифрування";
+"configExport.contacts" = "Контакти";
+"configExport.contacts.description" = "Імена, ключі та останні відомі позиції";
+
+// MARK: - Config Import
+
+/* Import screen navigation title */
+"configImport.title" = "Імпорт конфігурації";
+
+/* Select file button */
+"configImport.selectFile" = "Вибрати JSON-файл";
+
+/* Confirmation alert title */
+"configImport.confirmTitle" = "Застосувати конфігурацію?";
+
+/* Confirmation alert message (param: device name) */
+"configImport.confirmMessage" = "Вибрані налаштування буде об'єднано з %@. Наявні канали та контакти буде оновлено або додано.";
+
+/* Apply button label */
+"configImport.applyButton" = "Застосувати до пристрою";
+
+/* Apply button label (additive only — channels/contacts) */
+"configImport.applyButtonAdd" = "Додати до пристрою";
+
+/* Apply button label (overwrite settings) */
+"configImport.applyButtonOverwrite" = "Перезаписати налаштування";
+
+/* Confirmation alert title (additive only) */
+"configImport.confirmTitleAdd" = "Додати до пристрою?";
+
+/* Confirmation alert title (overwrite settings) */
+"configImport.confirmTitleOverwrite" = "Перезаписати налаштування?";
+
+/* Confirmation alert message (additive only, param: device name) */
+"configImport.confirmMessageAdd" = "Канали та контакти буде додано до %@. Наявні дані не буде видалено.";
+
+/* Confirmation alert message (overwrite only, param: device name) */
+"configImport.confirmMessageOverwrite" = "Вибрані налаштування на %@ буде перезаписано. Поточні значення буде замінено.";
+
+/* Confirmation alert message (mixed, param: device name) */
+"configImport.confirmMessageMixed" = "Налаштування буде перезаписано, а канали/контакти додано на %@.";
+
+/* Proximity warning */
+"configImport.proximityWarning" = "Тримайте пристрої поруч під час імпорту";
+
+/* Import cancelled */
+"configImport.cancelled" = "Імпорт було скасовано.";
+
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "Імпорт скасовано, але деякі налаштування вже було записано на пристрій. Перевірте конфігурацію пристрою.";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ Деякі налаштування, можливо, вже було записано на пристрій. Перевірте конфігурацію пристрою.";
+
+/* Import success */
+"configImport.importSuccess" = "Конфігурацію успішно імпортовано";
+
+/* Private key warning */
+"configImport.privateKeyWarning" = "Криптографічну ідентифікацію вузла буде замінено";
+
+"configImport.current" = "Поточне: %@";
+"configImport.new" = "Нове: %@";
+
+/* Channel count (param: integer) */
+"configImport.channelCount" = "Буде додано/оновлено %d каналів на пристрої";
+
+/* Import navigation row label */
+"configImport.importConfig" = "Імпорт конфігурації";
+
+/* Radio settings change warning */
+"configImport.radioWarning" = "Зміна налаштувань радіо призведе до від'єднання від поточної mesh-мережі";
+
+/* Contact count (param: integer) */
+"configImport.contactCount" = "Буде додано/оновлено %d контактів на пристрої";
+
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "цей пристрій";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "Встановлення місцезнаходження";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "Встановлення інших параметрів";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "Імпортування закритого ключа";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "Встановлення імені вузла";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "Встановлення параметрів радіо";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "Встановлення потужності TX";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "Імпортування каналу: %@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "Імпортування контакту: %@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "Частота";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "Смуга пропускання";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "Коефіцієнт розширення";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "Швидкість кодування";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "Потужність TX";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "Широта";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "Довгота";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ поза підтримуваним діапазоном радіо";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ має некоректну координату або координату поза межами діапазону";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "Контакт \"%@\" %@ має некоректну координату або координату поза межами діапазону";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "Контакт \"%@\" має некоректний маршрут";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "Для імпорту потрібно %d вільних слотів контактів, але на пристрої залишилося лише %d";
+
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "Канал %1$lld має некоректний секретний ключ (%2$lld шістнадцяткових символів, очікувалося 32)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "Контакт \"%@\" має некоректний відкритий ключ";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "Контакт \"%1$@\" має непідтримуваний режим хешування шляху %2$lld (очікувалося 0, 1 або 2)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "Некоректний приватний ключ (%1$lld шістнадцяткових символів, очікувалося %2$lld)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "Немає вільного слота каналу для \"%@\"";
+
+/* Toggle label for auto-play GIFs */
+"inlineImages.autoPlayGifs" = "Автовідтворення GIF";
+
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.header" = "Попередній перегляд карти";
+
+/* Toggle label for chat map thumbnails */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.toggle" = "Показувати мініатюри карти";
+
+/* Footer explaining map preview privacy implications */
+/* AI-translated - please verify with native speakers. */
+"mapPreviews.footer" = "Відображення мініатюр карти завантажує плитки для координати зі стороннього сервера, що може розкрити вашу IP-адресу.";
+
+// MARK: - Blocking Section
+
+/* Location: BlockingSection.swift - Purpose: Section header */
+"blocking.header" = "Блокування";
+
+/* Location: BlockingSection.swift - Purpose: Channel senders row */
+"blocking.channelSenders" = "Відправники каналів";
+
+/* Location: BlockingSection.swift - Purpose: Contacts row */
+"blocking.contacts" = "Контакти";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Navigation title */
+"blocking.channelSenders.title" = "Заблоковані відправники каналів";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Empty state title */
+"blocking.channelSenders.empty.title" = "Немає заблокованих користувачів";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Empty state description */
+"blocking.channelSenders.empty.description" = "Заблоковані імена відправників каналів з'являться тут.";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Swipe action to unblock */
+// MARK: - Language
+
+/* Location: SettingsView.swift - Purpose: Language row title */
+"language.title" = "Мова";
+
+"language.appLanguage.title" = "Мова застосунку";
+
+"language.appLanguage.footer" = "Кнопки, меню та інший текст.";
+
+"language.appLanguage.accessibilityHint" = "Відкриває Налаштування";
+
+"language.translateInto.header" = "Мова перекладу";
+
+"language.translateInto.footer" = "Вхідні повідомлення перекладаються цією мовою, коли ви натискаєте «Перекласти».";
+
+"language.translateInto.listFooter" = "Мови, якими цей пристрій може перекладати в застосунку. Для інших мов використовується ваш застосунок перекладу за замовчуванням.";
+
+"language.matchAppLanguage" = "Використовувати мову застосунку";
+
+"language.suggested.header" = "Рекомендовані";
+
+"language.all.header" = "Мови";
+
+"language.defaultTranslationApp.title" = "Використовувати застосунок перекладу за замовчуванням";
+
+"language.defaultTranslationApp.footer" = "Використовує «Перекладач» або інший застосунок, вибраний у Налаштуваннях.";
+
+"language.translationOffers.title" = "Пропонувати переклад";
+
+"language.translationOffers.offFooter" = "Вхідні повідомлення іншими мовами не показуватимуть кнопку «Перекласти».";
+
+"language.search.prompt" = "Пошук мов";
+
+"language.search.noResults" = "Немає результатів";
+
+"language.search.noResultsDescription" = "Жодна мова не відповідає \"%@\"";
+
+"language.search.unavailable" = "%@ недоступна в застосунку. Перекладіть за допомогою вашого застосунку перекладу за замовчуванням.";
+
+// MARK: - Region
+
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "Каліфорнія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Delaware (US-DE) state name */
+"region.subdivision.US-DE" = "Делавер";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maryland (US-MD) state name */
+"region.subdivision.US-MD" = "Меріленд";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Jersey (US-NJ) state name */
+"region.subdivision.US-NJ" = "Нью-Джерсі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Pennsylvania (US-PA) state name */
+"region.subdivision.US-PA" = "Пенсільванія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "Квінсленд";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "Південна Австралія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "Західна Австралія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alabama (US-AL) state name */
+"region.subdivision.US-AL" = "Алабама";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alaska (US-AK) state name */
+"region.subdivision.US-AK" = "Аляска";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arizona (US-AZ) state name */
+"region.subdivision.US-AZ" = "Аризона";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arkansas (US-AR) state name */
+"region.subdivision.US-AR" = "Арканзас";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Colorado (US-CO) state name */
+"region.subdivision.US-CO" = "Колорадо";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Connecticut (US-CT) state name */
+"region.subdivision.US-CT" = "Коннектикут";
+
+/* Location: RegionalAreas.subdivisionDisplayName - District of Columbia (US-DC) state name */
+"region.subdivision.US-DC" = "округ Колумбія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Florida (US-FL) state name */
+"region.subdivision.US-FL" = "Флорида";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Georgia (US-GA) state name */
+"region.subdivision.US-GA" = "Джорджія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Hawaii (US-HI) state name */
+"region.subdivision.US-HI" = "Гаваї";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Idaho (US-ID) state name */
+"region.subdivision.US-ID" = "Айдахо";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Illinois (US-IL) state name */
+"region.subdivision.US-IL" = "Іллінойс";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Indiana (US-IN) state name */
+"region.subdivision.US-IN" = "Індіана";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Iowa (US-IA) state name */
+"region.subdivision.US-IA" = "Айова";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kansas (US-KS) state name */
+"region.subdivision.US-KS" = "Канзас";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kentucky (US-KY) state name */
+"region.subdivision.US-KY" = "Кентуккі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Louisiana (US-LA) state name */
+"region.subdivision.US-LA" = "Луїзіана";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maine (US-ME) state name */
+"region.subdivision.US-ME" = "Мен";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Massachusetts (US-MA) state name */
+"region.subdivision.US-MA" = "Массачусетс";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Michigan (US-MI) state name */
+"region.subdivision.US-MI" = "Мічиган";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Minnesota (US-MN) state name */
+"region.subdivision.US-MN" = "Міннесота";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Mississippi (US-MS) state name */
+"region.subdivision.US-MS" = "Міссісіпі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Missouri (US-MO) state name */
+"region.subdivision.US-MO" = "Міссурі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Montana (US-MT) state name */
+"region.subdivision.US-MT" = "Монтана";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nebraska (US-NE) state name */
+"region.subdivision.US-NE" = "Небраска";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nevada (US-NV) state name */
+"region.subdivision.US-NV" = "Невада";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Hampshire (US-NH) state name */
+"region.subdivision.US-NH" = "Нью-Гемпшир";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Mexico (US-NM) state name */
+"region.subdivision.US-NM" = "Нью-Мексико";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New York (US-NY) state name */
+"region.subdivision.US-NY" = "Нью-Йорк";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Carolina (US-NC) state name */
+"region.subdivision.US-NC" = "Північна Кароліна";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Dakota (US-ND) state name */
+"region.subdivision.US-ND" = "Північна Дакота";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ohio (US-OH) state name */
+"region.subdivision.US-OH" = "Огайо";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oklahoma (US-OK) state name */
+"region.subdivision.US-OK" = "Оклахома";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oregon (US-OR) state name */
+"region.subdivision.US-OR" = "Орегон";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Rhode Island (US-RI) state name */
+"region.subdivision.US-RI" = "Род-Айленд";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Carolina (US-SC) state name */
+"region.subdivision.US-SC" = "Південна Кароліна";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Dakota (US-SD) state name */
+"region.subdivision.US-SD" = "Південна Дакота";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tennessee (US-TN) state name */
+"region.subdivision.US-TN" = "Теннессі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Texas (US-TX) state name */
+"region.subdivision.US-TX" = "Техас";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Utah (US-UT) state name */
+"region.subdivision.US-UT" = "Юта";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Vermont (US-VT) state name */
+"region.subdivision.US-VT" = "Вермонт";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Virginia (US-VA) state name */
+"region.subdivision.US-VA" = "Вірджинія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Washington (US-WA) state name */
+"region.subdivision.US-WA" = "Вашингтон";
+
+/* Location: RegionalAreas.subdivisionDisplayName - West Virginia (US-WV) state name */
+"region.subdivision.US-WV" = "Західна Вірджинія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wisconsin (US-WI) state name */
+"region.subdivision.US-WI" = "Вісконсин";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wyoming (US-WY) state name */
+"region.subdivision.US-WY" = "Вайомінг";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Australian Capital Territory (AU-ACT) state name */
+"region.subdivision.AU-ACT" = "Австралійська столична територія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New South Wales (AU-NSW) state name */
+"region.subdivision.AU-NSW" = "Новий Південний Уельс";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northern Territory (AU-NT) state name */
+"region.subdivision.AU-NT" = "Північна територія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tasmania (AU-TAS) state name */
+"region.subdivision.AU-TAS" = "Тасманія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
+"region.subdivision.AU-VIC" = "Вікторія";
+
+
+// MARK: - Live Activity
+
+/* Label for the Live Status toggle in App Settings */
+"liveActivity.title" = "Онлайн-активність";
+
+/* Title for the Live Activity tip shown after first connection */
+"liveActivity.tip.title" = "Стан радіо з першого погляду";
+
+/* Message for the Live Activity tip */
+"liveActivity.tip.message" = "Ваше з'єднання, батарея та повідомлення залишаються видимими — навіть без відкриття застосунку.";
+
+// MARK: - Regenerate Identity
+
+/* Section header for regenerate identity */
+"regenerateIdentity.header" = "Ідентифікація";
+
+/* Button label to open regenerate identity sheet */
+"regenerateIdentity.title" = "Перегенерувати ключ";
+
+/* Navigation title for the regenerate identity sheet */
+"regenerateIdentity.sheet.title" = "Перегенерувати ключ";
+
+/* Explanation of what regenerating identity does */
+"regenerateIdentity.sheet.explanation" = "Згенеруйте нову пару ключів Ed25519 для заміни поточної ідентифікації пристрою. Усі контакти повинні будуть заново виявити ваш пристрій.";
+
+/* Button to generate a new key */
+"regenerateIdentity.generate" = "Згенерувати ключ";
+
+/* Button to generate another key after the first */
+/* Progress label while generating */
+"regenerateIdentity.generating" = "Генерація…";
+
+/* Button to apply the generated key to the device */
+"regenerateIdentity.replace" = "Використати цей ключ";
+
+/* Progress label while importing key to device */
+"regenerateIdentity.importing" = "Імпорт…";
+
+/* Disclosure group label for vanity prefix */
+"regenerateIdentity.prefix.label" = "Власний префікс";
+
+/* Placeholder for prefix text field */
+"regenerateIdentity.prefix.placeholder" = "напр. 2BA1";
+
+/* Footer explaining vanity prefix */
+"regenerateIdentity.prefix.footer" = "За бажанням вкажіть до 4 шістнадцяткових символів, з яких має починатися ваш відкритий ключ. Довші префікси займають більше часу.";
+
+/* Error when prefix is not 1–4 hex characters */
+/* Error when prefix is 00 or FF */
+"regenerateIdentity.prefix.error.reserved" = "00 та FF зарезервовані і не можуть використовуватися";
+
+/* Alert title for replace identity confirmation */
+"regenerateIdentity.alert.replace.title" = "Замінити ідентифікацію?";
+
+/* Alert confirm button for replace identity */
+"regenerateIdentity.alert.replace.confirm" = "Замінити";
+
+/* Alert message for replace identity */
+"regenerateIdentity.alert.replace.message" = "Ідентифікацію вашого пристрою буде безповоротно замінено. Інші пристрої бачитимуть вас як новий контакт.";
+
+/* Error when firmware does not support key import */
+"regenerateIdentity.error.featureDisabled" = "Імпорт ключів не підтримується цією версією прошивки";
+
+/* Error when device rejects the key */
+"regenerateIdentity.error.deviceRejected" = "Пристрій відхилив ключ. Будь ласка, спробуйте ще раз.";
+
+// MARK: - Import Key
+
+/* Button label to open import key sheet */
+"importKey.title" = "Імпортувати ключ";
+
+/* Navigation title for the import key sheet */
+"importKey.sheet.title" = "Імпортувати ключ";
+
+/* Explanation of what importing a key does */
+"importKey.sheet.explanation" = "Вставте наявний закритий ключ Ed25519 (128 шістнадцяткових символів) для заміни поточної ідентифікації пристрою.";
+
+/* Label for the private key input field */
+"importKey.keyInput.label" = "Закритий ключ";
+
+/* Placeholder for the key input field */
+"importKey.keyInput.placeholder" = "Вставте 128-символьний шістнадцятковий ключ";
+
+/* Button to import the key */
+"importKey.import" = "Імпортувати ключ";
+
+/* Progress label while importing */
+"importKey.importing" = "Імпорт…";
+
+/* Error when hex input is wrong length or invalid */
+"importKey.error.invalidHex" = "Ключ повинен містити рівно 128 шістнадцяткових символів";
+
+/* Error when key fails Ed25519 validation */
+"importKey.error.invalidKey" = "Недійсний закритий ключ Ed25519";
+
+// Reply with Quote
+"replyWithQuote.toggle" = "Відповідати з цитатою";
+"replyWithQuote.footer" = "Відповідь включає попередній перегляд оригінального повідомлення.";
+
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Карти";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Відображення";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Вигляд карти";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Керує лише базовою картою. Кольори застосунку й надалі слідують «Зовнішньому вигляду».";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Офлайн-карти";
+
+// MARK: - Offline Maps
+
+/* Navigation title for offline maps settings */
+"offlineMaps.title" = "Офлайн-карти";
+
+/* Title for empty state when no offline packs exist */
+"offlineMaps.emptyTitle" = "Немає офлайн-карт";
+
+/* Description for empty state */
+"offlineMaps.emptyDescription" = "Завантажте регіони карти для використання без інтернету.";
+
+/* Button to download a new offline region */
+"offlineMaps.downloadRegion" = "Завантажити регіон";
+
+/* Section header for storage info */
+"offlineMaps.storage" = "Сховище";
+
+/* Label for total storage used */
+"offlineMaps.storageUsed" = "Використано";
+
+/* Fallback name for unknown region */
+"offlineMaps.unknownRegion" = "Невідомий регіон";
+
+/* Status when pack download is complete */
+"offlineMaps.complete" = "Завантажено";
+
+/* Status when pack is downloading */
+"offlineMaps.downloading" = "Завантаження…";
+
+/* Navigation title for region picker sheet */
+"offlineMaps.pickRegion" = "Оберіть регіон";
+
+/* Placeholder for region name text field */
+"offlineMaps.regionName" = "Назва регіону";
+
+/* Button to start download */
+"offlineMaps.download" = "Завантажити";
+
+/* Cancel button */
+"offlineMaps.cancel" = "Скасувати";
+
+/* Delete confirmation title */
+/* Delete confirmation message */
+/* Delete button */
+/* Error: insufficient disk space */
+"offlineMaps.error.insufficientDiskSpace" = "Недостатньо місця. Потрібно щонайменше 100 МБ.";
+
+/* Error: tile limit reached */
+"offlineMaps.error.tileLimitReached" = "Досягнуто ліміт тайлів для цього завантаження.";
+
+/* Pause download button */
+"offlineMaps.pause" = "Пауза";
+
+/* Resume download button */
+"offlineMaps.resume" = "Продовжити";
+
+/* Paused status label */
+"offlineMaps.paused" = "Призупинено";
+
+/* Estimated download size */
+"offlineMaps.estimatedSize" = "Орієнтовний розмір: ~%@";
+
+/* Large tile download warning */
+"offlineMaps.largeTileWarning" = "Велика область завантаження. Це може зайняти час і потребувати значного обсягу пам'яті.";
+
+/* Hint shown before estimate is available */
+"offlineMaps.downloadHint" = "Введіть назву та виберіть область для завантаження.";
+
+/* Download exceeds available storage */
+"offlineMaps.exceedsStorage" = "Недостатньо місця на пристрої. Збільште масштаб, щоб вибрати меншу область.";
+
+/* Layer type labels */
+"offlineMaps.layer.base" = "Базова карта";
+"offlineMaps.layer.topo" = "Топографія";
+
+/* Layers section header */
+"offlineMaps.layers" = "Шари";
+
+/* Include layers prompt */
+/* No network available */
+"offlineMaps.noNetwork" = "Для завантаження карт потрібне з'єднання з інтернетом.";
+
+/* Storage section footer */
+"offlineMaps.storageFooter" = "Включає дані карти та внутрішні індекси. Загальний обсяг може перевищувати суму окремих завантажень.";
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "Резервне копіювання";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "Резервна копія";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "Експортуйте або відновіть повідомлення, контакти, канали, збережені маршрути та налаштування.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "До резервної копії входять лише дані застосунку. Створіть резервну копію конфігурації радіо в Розширених налаштуваннях.";
+
+/* Export row title */
+"settings.backup.export.title" = "Експорт даних застосунку";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = "Зберегти як файл .mc1backup";
+
+/* Import row title */
+"settings.backup.import.title" = "Імпорт даних застосунку";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = "Відновити з файлу .mc1backup";
+
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "Відключіться від радіо перед імпортом резервної копії.";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "Попередження про безпеку";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "Ця резервна копія містить ключі шифрування каналів, історію повідомлень, список контактів, а також локальну мережеву адресу та порт вузла Wi-Fi. Зберігайте експортований файл у безпечному місці.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "Експортувати";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "Скасувати";
+
+/* Export progress label */
+"settings.backup.export.progress" = "Підготовка резервної копії…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "Попередній перегляд імпорту";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "Відомості про копію";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "Дата експорту";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "Версія застосунку";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "Вміст";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "Повідомлення";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "Контакти";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "Канали";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "Пристрої";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "Повідомлення кімнат";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "Реакції";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "Збережені маршрути";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "Сеанси віддалених вузлів";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "Додаються лише нові дані; наявні записи не перезаписуються. Контакти, видалені після створення цієї резервної копії, з'являться знову, а позначки блокування, приглушення або обраного з копії будуть застосовані повторно. Закріплення в копії вмикається, якщо цей чат не закріплений. Закріплення, вимкнене в копії, не знімає закріплення чату.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "Імпортувати дані";
+
+/* Import progress label */
+"settings.backup.import.progress" = "Імпорт даних…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "Читання резервної копії…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "Скасування…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "Скасувати";
+
+/* Import success title */
+"settings.backup.import.success.title" = "Імпорт завершено";
+
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "Додано на цей пристрій";
+
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "Уже на цьому пристрої";
+
+/* Import success section footer: always visible under the "Already on this iPhone" section */
+"settings.backup.import.success.already_here_footer" = "Наявні дані на цьому пристрої збережено без змін; нічого не було перезаписано.";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "Додано %d елементів.";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "Оновлено %d наявних елементів.";
+
+/* Import success disclosure row summary for the "Already on this iPhone" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "%d елементів уже тут";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "%d з них було оновлено новими даними з резервної копії.";
+
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "Не вдалося відновити";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "Не вдалося відновити %d елементів";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "Для цих каналів не було вільного слота на цій рації, тому вони та їхні повідомлення не були імпортовані. Звільніть слот каналу та імпортуйте знову, щоб відновити їх.";
+
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Ці виявлені вузли не вдалося відновити, бо список виявлення цієї рації заповнений (%d вузлів). Існуючі локальні вузли збережено; мережа mesh повторно оголосить відсутні.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Деякі елементи не вдалося відновити: канали без вільного слота на рації та виявлені вузли, що перевищили місткість списку виявлення (%d вузлів). Звільніть слот каналу та повторно імпортуйте канали; мережа mesh повторно оголосить відсутні виявлені вузли.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "Готово";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "Помилка імпорту";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "Закрити";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "Імпорт скасовано";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "Дані не було змінено.";
+
+/* File access error */
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "Заблоковані відправники";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "Знімки стану вузлів";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Виявлені вузли";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "Повтори повідомлень";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "Усе вже тут";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "Вміст цієї резервної копії вже є на цьому пристрої.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "Резервна копія MC1 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "Файл резервної копії недійсний або не може бути прочитаний.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "Файл резервної копії завеликий для імпорту (%1$d МБ; ліміт — %2$d МБ).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "Після розпакування файл резервної копії перевищує безпечний ліміт розміру (%d МБ без стиснення).";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "Цю резервну копію створено в новішому форматі (версія %1$d). Цей застосунок підтримує до версії %2$d. Оновіть застосунок і спробуйте знову.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "Файл резервної копії пошкоджено. Заявлена кількість записів не збігається з фактичними даними.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "Не вдалося створити резервну копію: %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "Не вдалося імпортувати резервну копію: %@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "Резервну копію збережено";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "Вміст резервної копії";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "Готово";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "Резервну копію збережено як %@";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "Ви не володієте цією темою.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "Тему повернено на стандартну.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "Підтримати розробку";
+"Support.Header.Body" = "Якщо вам подобається MC1, ось кілька способів підтримати його розробку! Усе тут необов’язкове, лише кілька чайових і кілька додаткових тем.";
+"Support.Themes.Title" = "Теми";
+"Support.Themes.Owned" = "Придбано";
+"Support.Themes.PurchasedFooter" = "Застосуйте нову тему в меню Налаштування → Зовнішній вигляд.";
+"Support.Themes.AllUnlocked" = "Усі теми розблоковано!";
+"Support.Bundle.Title" = "Усі теми";
+"Support.Bundle.Subtitle" = "Включно з темами, доданими пізніше.";
+"Support.Contributions.Title" = "Внески";
+"Support.Contributions.Footer" = "Подяка-чайові на підтримку розробки MC1. Жодних фізичних товарів, жодних переваг членства.";
+"Support.Contributions.HighValueConfirm" = "Надіслати %@?";
+"Support.Contributions.ConfirmButton" = "Зробити внесок %@";
+"Support.Restore.Button" = "Відновити покупки";
+"Support.Restore.Syncing" = "Відновлення…";
+"Support.Refund.Link" = "Запросити повернення коштів";
+"Support.Pending.Banner" = "Очікує схвалення — ваша покупка активується після схвалення.";
+"Support.Pending.Button" = "Очікує схвалення";
+"Support.Contact.Link" = "Звернутися до підтримки";
+"Support.ThankYou.Title" = "Дякую!";
+"Support.ThankYou.Body" = "Дякую за вашу підтримку — це дуже багато для мене. Я й далі працюватиму над покращенням MC1!";
+
+/* MARK: Feedback screen */
+/* AI-translated - please verify with native speakers. */
+"Feedback.Title" = "Зворотний зв’язок";
+"Feedback.Header.Body" = "Бажаний спосіб — GitHub Issues, але можна й електронною поштою.";
+"Feedback.GitHub.Link" = "Відкрити issue на GitHub";
+"Feedback.Email.Link" = "Написати розробнику";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "Стандартна";
+"Support.Theme.Ember" = "Жар";
+"Support.Theme.Fern" = "Папороть";
+"Support.Theme.Marine" = "Морський";
+"Support.Theme.Olive" = "Оливковий";
+"Support.Theme.Lavender" = "Лаванда";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "Не вдалося завантажити товари.";
+"Support.Error.ProductNotFound" = "Товар не знайдено.";
+"Support.Error.PurchaseFailed" = "Не вдалося здійснити покупку: %@";
+"Support.Error.NetworkUnavailable" = "Мережа недоступна.";
+"Support.Error.VerificationFailed" = "Не вдалося підтвердити вашу покупку.";
+"Support.Error.NotEntitled" = "Покупки на цьому пристрої обмежено. Перевірте обмеження вмісту в «Екранному часі».";
+"Support.Error.StorefrontUnavailable" = "Цей товар недоступний у вашому регіоні.";
+"Support.Error.Unsupported" = "Покупки в застосунку не підтримуються на цьому пристрої.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "Тема %@, заблоковано";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, придбано";
+"Support.Accessibility.BundleCard.LockedLabel" = "Набір «Усі теми», заблоковано, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "Купує набір «Усі теми»";
+"Support.Accessibility.BundleCard.LoadingLabel" = "Набір «Усі теми», завантаження ціни";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "Надсилає подяку-чайові";
+"Support.Accessibility.TipConfirmAnnouncement" = "Дякуємо за ваші чайові.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "Зовнішній вигляд";
+"Appearance.Scheme.Header" = "Світлий/темний режим";
+"Appearance.Scheme.System" = "Системна";
+"Appearance.Scheme.Light" = "Світла";
+"Appearance.Scheme.Dark" = "Темна";
+"Appearance.Themes.Header" = "Виберіть тему";
+"Appearance.Themes.Selected" = "Вибрано";
+"Appearance.MoreThemes.Link" = "Придбати інші теми";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "Тема %@, придбано";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "Застосовує цю тему";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "Тема %@, наразі вибрано";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, світлий і темний варіанти";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, лише темний";

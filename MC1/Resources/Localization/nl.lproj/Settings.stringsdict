@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Settings.stringsdict
+  PocketMesh
+
+  Dutch pluralization rules for danger zone removal strings.
+  Dutch uses: one (1), other (everything else).
+  AI-translated - please verify with native speakers.
+-->
+<plist version="1.0">
+<dict>
+    <key>dangerZone.alert.removeUnfavorited.message</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@nodeCount@</string>
+        <key>nodeCount</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Dit verwijdert permanent %d knooppunt dat niet als favoriet is gemarkeerd van het apparaat en de app, inclusief zijn berichten.</string>
+            <key>other</key>
+            <string>Dit verwijdert permanent %d knooppunten die niet als favoriet zijn gemarkeerd van het apparaat en de app, inclusief hun berichten.</string>
+        </dict>
+    </dict>
+    <key>dangerZone.alert.removeUnfavorited.partial</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%2$#@totalNodes@</string>
+        <key>totalNodes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%1$d van %2$d knooppunt verwijderd. De verbinding werd onderbroken — tik opnieuw op de knop om het overige knooppunt te verwijderen.</string>
+            <key>other</key>
+            <string>%1$d van %2$d knooppunten verwijderd. De verbinding werd onderbroken — tik opnieuw op de knop om de overige knooppunten te verwijderen.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_added</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d item toegevoegd.</string>
+            <key>other</key>
+            <string>%d items toegevoegd.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d bestaand item bijgewerkt.</string>
+            <key>other</key>
+            <string>%d bestaande items bijgewerkt.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d item al aanwezig</string>
+            <key>other</key>
+            <string>%d items al aanwezig</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d hiervan is bijgewerkt met nieuwere informatie uit de back-up.</string>
+            <key>other</key>
+            <string>%d hiervan zijn bijgewerkt met nieuwere informatie uit de back-up.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d item kon niet worden hersteld</string>
+            <key>other</key>
+            <string>%d items konden niet worden hersteld</string>
+        </dict>
+    </dict>
+</dict>
+</plist>

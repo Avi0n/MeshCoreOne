@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleDisplayName</key>
+	<string>MeshCore One</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSAccessorySetupBluetoothServices</key>
+	<array>
+		<string>6E400001-B5A3-F393-E0A9-E50E24DCCA9E</string>
+	</array>
+	<key>NSAccessorySetupSupports</key>
+	<array>
+		<string>Bluetooth</string>
+	</array>
+	<key>NSAccessorySetupKitSupports</key>
+	<array>
+		<string>Bluetooth</string>
+	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>MeshCore One uses Bluetooth to maintain connections with MeshCore radios, even in the background, so you can send and receive messages without opening the app.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>MeshCore One uses Bluetooth to connect to MeshCore radio devices for mesh messaging.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>MeshCore One needs camera access to scan channel QR codes.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>MeshCore One uses your location to suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance. When you enable location sharing, MeshCore One also advertises your location to your mesh contacts.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<true/>
+	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-central</string>
+	</array>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>meshcore</string>
+				<string>meshcoreone</string>
+			</array>
+		</dict>
+	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>MC1 Backup</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.pocketmesh.mc1.backup</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mc1backup</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+</dict>
+</plist>

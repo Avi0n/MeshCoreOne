@@ -1,0 +1,869 @@
+/*
+  Tools.strings
+  MC1
+
+  Strings for Tools feature, including utilities,
+  diagnostics, radio configuration, and device management tools.
+ */
+
+// MARK: - Tools View
+
+/* Location: ToolsView.swift - Navigation title */
+"tools.title" = "工具";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.tracePath" = "路由追踪";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.lineOfSight" = "视距分析";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.rxLog" = "接收日志";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.noiseFloor" = "底噪测量";
+
+/* Location: ToolsView.swift - Tool selection label */
+"tools.nodeDiscovery" = "节点发现";
+
+/* Location: ToolsView.swift - Empty state when no tool selected */
+"tools.selectTool" = "选择工具";
+
+// MARK: - RX Log View
+
+/* Location: RxLogView.swift - Empty state title when listening */
+"tools.rxLog.listening" = "正在监听...";
+
+/* Location: RxLogView.swift - Empty state description */
+"tools.rxLog.listeningDescription" = "RF 数据包将在到达时显示在此处";
+
+/* Location: RxLogView.swift - Disconnected state title */
+"tools.rxLog.notConnected" = "未连接";
+
+/* Location: RxLogView.swift - Disconnected state description */
+"tools.rxLog.notConnectedDescription" = "连接无线电以查看 RF 数据包";
+
+/* Location: RxLogView.swift - Live status indicator */
+"tools.rxLog.live" = "实时";
+
+/* Location: RxLogView.swift - Offline status indicator */
+"tools.rxLog.offline" = "离线";
+
+/* Location: RxLogView.swift - Packet count in header, %lld is count */
+"tools.rxLog.packetsCount" = "%lld 个数据包";
+
+/* Location: RxLogView.swift - Filter menu section header */
+"tools.rxLog.routeType" = "路由类型";
+
+/* Location: RxLogView.swift - Filter menu section header */
+"tools.rxLog.decryptStatus" = "解密状态";
+
+/* Location: RxLogView.swift - Filter button label */
+"tools.rxLog.filter" = "筛选";
+
+/* Location: RxLogView.swift - Overflow menu button label */
+"tools.rxLog.more" = "更多";
+
+/* Location: RxLogView.swift - Group duplicates toggle */
+"tools.rxLog.groupDuplicates" = "合并重复项";
+
+/* Location: RxLogView.swift - Delete logs button */
+"tools.rxLog.deleteLogs" = "删除日志";
+
+/* Location: RxLogView.swift - Delete confirmation dialog title */
+"tools.rxLog.deleteConfirmation" = "删除所有日志？";
+
+/* Location: RxLogView.swift - Delete confirmation button */
+"tools.rxLog.delete" = "删除";
+
+/* Location: RxLogView.swift - Direct route label */
+"tools.rxLog.direct" = "直连";
+
+/* Location: RxLogView.swift - Flood route label */
+"tools.rxLog.flood" = "泛洪";
+
+/* Location: RxLogView.swift - Path detail for single hop */
+"tools.rxLog.hopSingular" = "跳";
+
+/* Location: RxLogView.swift - Path detail for multiple hops */
+"tools.rxLog.hopPlural" = "跳";
+
+/* Location: RxLogView.swift - Signal strength accessibility label, %@ is quality */
+"tools.rxLog.signalStrength" = "信号强度：%@";
+
+/* Location: RxLogView.swift - Duplicate count accessibility label, %lld is count */
+"tools.rxLog.receivedTimes" = "已接收 %lld 次";
+
+/* Location: RxLogView.swift - Raw payload section title */
+"tools.rxLog.rawPayload" = "原始负载";
+
+/* Location: RxLogView.swift - Copy button */
+"tools.rxLog.copy" = "复制";
+
+/* Location: RxLogView.swift - RSSI label */
+"tools.rxLog.rssiLabel" = "RSSI：";
+
+/* Location: RxLogView.swift - SNR label */
+"tools.rxLog.snrLabel" = "信噪比：";
+
+/* Location: RxLogView.swift - Type label */
+"tools.rxLog.typeLabel" = "类型：";
+
+/* Location: RxLogView.swift - Size label */
+"tools.rxLog.sizeLabel" = "大小：";
+
+/* Location: RxLogView.swift - Path label */
+"tools.rxLog.pathLabel" = "路径：";
+
+/* Location: RxLogView.swift - Hash label */
+"tools.rxLog.hashLabel" = "哈希：";
+
+/* Location: RxLogView.swift - From label */
+"tools.rxLog.fromLabel" = "来自：";
+
+/* Location: RxLogView.swift - To label */
+"tools.rxLog.toLabel" = "到：";
+
+/* Location: RxLogView.swift - Channel hash label */
+"tools.rxLog.channelHashLabel" = "频道哈希：";
+
+/* Location: RxLogView.swift - Channel name label */
+"tools.rxLog.channelNameLabel" = "频道名称：";
+
+/* Location: RxLogView.swift - Region label */
+"tools.rxLog.regionLabel" = "区域：";
+
+/* Location: RxLogView.swift - Unresolved region value */
+"tools.rxLog.regionUnresolved" = "未知";
+
+/* Location: RxLogView.swift - Text label */
+"tools.rxLog.textLabel" = "文本：";
+
+/* Location: RxLogView.swift - Bytes suffix for size display */
+"tools.rxLog.bytes" = "字节";
+
+// MARK: - RX Log Filters
+
+/* Location: RxLogViewModel.swift - Route filter: all */
+"tools.rxLog.filter.all" = "全部";
+
+/* Location: RxLogViewModel.swift - Route filter: flood only */
+"tools.rxLog.filter.floodOnly" = "仅泛洪";
+
+/* Location: RxLogViewModel.swift - Route filter: direct only */
+"tools.rxLog.filter.directOnly" = "仅直连";
+
+/* Location: RxLogViewModel.swift - Decrypt filter: decrypted */
+"tools.rxLog.filter.decrypted" = "已解密";
+
+/* Location: RxLogViewModel.swift - Decrypt filter: failed */
+"tools.rxLog.filter.failed" = "失败";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet */
+"tools.rxLog.decryptStatus.notApplicable" = "不适用";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches */
+"tools.rxLog.decryptStatus.noKey" = "无密钥";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: HMAC validation failed */
+"tools.rxLog.decryptStatus.hmacFailed" = "HMAC 校验失败";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: AES decryption failed */
+"tools.rxLog.decryptStatus.decryptFailed" = "解密失败";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: decrypted successfully */
+"tools.rxLog.decryptStatus.decrypted" = "已解密";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: key found, decryption pending */
+"tools.rxLog.decryptStatus.hasKey" = "有密钥";
+
+/* Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key */
+"tools.rxLog.decryptStatus.noDmKey" = "无私信密钥";
+
+/* Location: RxLogRowView - Label for local device in path display */
+"tools.rxLog.pathYou" = "你";
+
+/* Location: RxLogRowView - Route label for TRACE target hashes */
+"tools.rxLog.traceRouteLabel" = "路由：";
+
+// MARK: - Noise Floor View
+
+/* Location: NoiseFloorView.swift - Disconnected state description */
+"tools.noiseFloor.notConnectedDescription" = "连接无线电以测量环境底噪";
+
+/* Location: NoiseFloorView.swift - Collecting data title */
+"tools.noiseFloor.collectingData" = "正在收集数据...";
+
+/* Location: NoiseFloorView.swift - Collecting data description */
+"tools.noiseFloor.collectingDataDescription" = "底噪读数将在收集后显示";
+
+/* Location: NoiseFloorView.swift - Unit label */
+"tools.noiseFloor.dBm" = "dBm";
+
+/* Location: NoiseFloorView.swift - Unit label for decibels */
+"tools.noiseFloor.dB" = "dB";
+
+/* Location: NoiseFloorView.swift - No reading accessibility */
+"tools.noiseFloor.noReading" = "无可用读数";
+
+/* Location: NoiseFloorView.swift - Chart accessibility, %lld readings, %lld min, %lld max, %lld avg, %@ trend */
+"tools.noiseFloor.chartAccessibility" = "底噪历史：%lld 个读数，最小 %lld dBm，最大 %lld dBm，平均 %lld dBm，趋势 %@";
+
+/* Location: NoiseFloorView.swift - Chart accessibility when empty */
+"tools.noiseFloor.chartAccessibilityEmpty" = "底噪历史图表，无数据";
+
+/* Location: NoiseFloorView.swift - Statistics section title */
+"tools.noiseFloor.statistics" = "统计";
+
+/* Location: NoiseFloorView.swift - Minimum label */
+"tools.noiseFloor.minimum" = "最小值";
+
+/* Location: NoiseFloorView.swift - Average label */
+"tools.noiseFloor.average" = "平均值";
+
+/* Location: NoiseFloorView.swift - Maximum label */
+"tools.noiseFloor.maximum" = "最大值";
+
+/* Location: NoiseFloorView.swift - Last RSSI label */
+"tools.noiseFloor.lastRssi" = "最近RSSI";
+
+/* Location: NoiseFloorView.swift - Last SNR label */
+"tools.noiseFloor.lastSnr" = "最近信噪比";
+
+/* Location: NoiseFloorView.swift - Trend: stable */
+"tools.noiseFloor.trendStable" = "稳定";
+
+/* Location: NoiseFloorView.swift - Trend: increasing */
+"tools.noiseFloor.trendIncreasing" = "增加";
+
+/* Location: NoiseFloorView.swift - Trend: decreasing */
+"tools.noiseFloor.trendDecreasing" = "减少";
+
+// MARK: - Noise Floor Signal Quality
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: excellent */
+"tools.noiseFloor.quality.excellent" = "优秀";
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: good */
+"tools.noiseFloor.quality.good" = "良好";
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: fair */
+"tools.noiseFloor.quality.fair" = "一般";
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: poor */
+"tools.noiseFloor.quality.poor" = "较差";
+
+/* Location: NoiseFloorViewModel.swift - Signal quality: unknown */
+"tools.noiseFloor.quality.unknown" = "未知";
+
+/* Location: NoiseFloorViewModel.swift - Error: device disconnected */
+"tools.noiseFloor.error.disconnected" = "设备已断开";
+
+/* Location: NoiseFloorViewModel.swift - Error: unable to read stats */
+"tools.noiseFloor.error.unableToRead" = "无法读取无线电统计";
+
+// MARK: - Node Discovery View
+
+/* Location: NodeDiscoveryView.swift - Disconnected state description */
+"tools.nodeDiscovery.notConnectedDescription" = "连接到无线电以发现%@";
+
+/* Location: NodeDiscoveryView.swift - Initial empty state title */
+"tools.nodeDiscovery.scanPrompt" = "扫描%@";
+
+/* Location: NodeDiscoveryView.swift - Initial empty state description */
+"tools.nodeDiscovery.scanPromptDescription" = "点击下面的按钮以发现附近的%@。";
+
+/* Location: NodeDiscoveryView.swift - No results empty state title */
+"tools.nodeDiscovery.noResults" = "未发现%@";
+
+/* Location: NodeDiscoveryView.swift - No results empty state description */
+"tools.nodeDiscovery.noResultsDescription" = "没有%@响应发现探测。请重试或靠近网格节点。";
+
+/* Location: NodeDiscoveryView.swift - Scan button label (idle) */
+"tools.nodeDiscovery.scanButton" = "扫描%@";
+
+/* Location: NodeDiscoveryView.swift - Scan button label (scanning) */
+"tools.nodeDiscovery.stopButton" = "停止扫描";
+
+/* Location: NodeDiscoveryView.swift - Segment label */
+"tools.nodeDiscovery.repeaters" = "转发节点";
+
+/* Location: NodeDiscoveryView.swift - Segment label */
+"tools.nodeDiscovery.sensors" = "传感器";
+
+/* Location: NodeDiscoveryView.swift - Sort option */
+"tools.nodeDiscovery.sortSignal" = "信号强度";
+
+/* Location: NodeDiscoveryView.swift - Sort option */
+"tools.nodeDiscovery.sortName" = "名称";
+
+/* Location: NodeDiscoveryView.swift - Sort menu accessibility label */
+"tools.nodeDiscovery.sortMenu" = "排序";
+
+/* Location: NodeDiscoveryView.swift - Sort menu accessibility hint */
+"tools.nodeDiscovery.sortMenuHint" = "更改发现节点的排序方式";
+
+/* Location: NodeDiscoveryRowView.swift - Unknown node name fallback */
+"tools.nodeDiscovery.unknownNode" = "未知";
+
+/* Location: NodeDiscoveryRowView.swift - Node type: repeater */
+"tools.nodeDiscovery.typeRepeater" = "转发节点";
+
+/* Location: NodeDiscoveryRowView.swift - Node type: sensor */
+"tools.nodeDiscovery.typeSensor" = "传感器";
+
+/* Location: NodeDiscoveryRowView.swift - SNR label (local receive) */
+"tools.nodeDiscovery.snrDown" = "↓ %@ dB";
+
+/* Location: NodeDiscoveryRowView.swift - SNR label (remote receive) */
+"tools.nodeDiscovery.snrUp" = "↑ %@ dB";
+
+/* Location: NodeDiscoveryRowView.swift - RSSI label */
+"tools.nodeDiscovery.rssi" = "RSSI %@ dBm";
+
+/* Location: NodeDiscoveryView.swift - Error alert title */
+"tools.nodeDiscovery.errorTitle" = "扫描失败";
+
+// MARK: - Line of Sight View
+
+/* Location: LineOfSightView.swift - Map style: standard */
+/* Location: LineOfSightView.swift - Map style: terrain */
+/* Location: LineOfSightView.swift - Back button label */
+"tools.lineOfSight.back" = "返回";
+
+/* Location: LineOfSightView.swift - Point A annotation */
+"tools.lineOfSight.pointA" = "A 点";
+
+/* Location: LineOfSightView.swift - Point B annotation */
+"tools.lineOfSight.pointB" = "B 点";
+
+/* Location: LineOfSightView.swift - Repeater annotation */
+"tools.lineOfSight.repeater" = "转发节点";
+
+/* Location: LineOfSightView.swift - Points section title */
+"tools.lineOfSight.points" = "点";
+
+/* Location: LineOfSightView.swift - Cancel button */
+"tools.lineOfSight.cancel" = "取消";
+
+/* Location: LineOfSightView.swift - Relocating message, %@ is point name */
+"tools.lineOfSight.relocating" = "正在重新定位 %@...";
+
+/* Location: LineOfSightView.swift - Tap map instruction */
+"tools.lineOfSight.tapMapInstruction" = "点击地图以设置新位置";
+
+/* Location: LineOfSightView.swift - Not selected placeholder */
+"tools.lineOfSight.notSelected" = "未选择";
+
+/* Location: LineOfSightView.swift - Loading elevation status */
+"tools.lineOfSight.loadingElevation" = "正在加载高程...";
+
+/* Location: LineOfSightView.swift - Long press points hint */
+"tools.lineOfSight.longPressPointsHint" = "长按地图以添加位置";
+
+/* Location: LineOfSightView.swift - Elevation unavailable warning */
+"tools.lineOfSight.elevationUnavailable" = "高程数据不可用。使用海平面（0m）作为近似值。";
+
+/* Location: LineOfSightView.swift - Open in Maps button */
+"tools.lineOfSight.openInMaps" = "在地图中打开";
+
+/* Location: LineOfSightView.swift - Copy coordinates button */
+"tools.lineOfSight.copyCoordinates" = "复制坐标";
+
+/* Location: LineOfSightView.swift - Share button */
+"tools.lineOfSight.share" = "分享...";
+
+/* Location: LineOfSightView.swift - Share label */
+"tools.lineOfSight.shareLabel" = "分享";
+
+/* Location: LineOfSightView.swift - Relocate button */
+"tools.lineOfSight.relocate" = "重新定位";
+
+/* Location: LineOfSightView.swift - Done button */
+"tools.lineOfSight.done" = "完成";
+
+/* Location: LineOfSightView.swift - Edit button */
+"tools.lineOfSight.edit" = "编辑";
+
+/* Location: LineOfSightView.swift - Clear button */
+"tools.lineOfSight.clear" = "清除";
+
+/* Location: LineOfSightView.swift - Ground elevation label */
+"tools.lineOfSight.groundElevation" = "地面高程";
+
+/* Location: LineOfSightView.swift - Additional height label */
+"tools.lineOfSight.additionalHeight" = "附加高度";
+
+/* Location: LineOfSightView.swift - Total height label */
+"tools.lineOfSight.totalHeight" = "总高度";
+
+/* Location: LineOfSightView.swift - Add repeater button */
+"tools.lineOfSight.addRepeater" = "添加转发节点";
+
+/* Location: LineOfSightView.swift - Analyze button */
+"tools.lineOfSight.analyze" = "分析视距";
+
+/* Location: LineOfSightView.swift - Terrain profile section */
+"tools.lineOfSight.terrainProfile" = "地形轮廓";
+
+/* Location: LineOfSightView.swift - Earth curvature note, %@ is k-factor */
+"tools.lineOfSight.earthCurvature" = "已针对地球曲率调整（%@）";
+
+/* Location: LineOfSightView.swift - Drag to adjust tooltip */
+"tools.lineOfSight.dragToAdjust" = "拖动以调整";
+
+/* Location: LineOfSightView.swift - RF Settings section */
+"tools.lineOfSight.rfSettings" = "RF 设置";
+
+/* Location: LineOfSightView.swift - Frequency label */
+"tools.lineOfSight.frequency" = "频率";
+
+/* Location: LineOfSightView.swift - MHz unit */
+"tools.lineOfSight.mhz" = "MHz";
+
+/* Location: LineOfSightView.swift - Refraction label */
+"tools.lineOfSight.refraction" = "折射";
+
+/* Location: LineOfSightView.swift - Refraction: none */
+"tools.lineOfSight.refraction.none" = "无";
+
+/* Location: LineOfSightView.swift - Refraction: standard */
+"tools.lineOfSight.refraction.standard" = "标准（k=1.33）";
+
+/* Location: LineOfSightView.swift - Refraction: ducting */
+"tools.lineOfSight.refraction.ducting" = "波导（k=4）";
+
+/* Location: LineOfSightView.swift - Analyzing progress */
+"tools.lineOfSight.analyzing" = "正在分析路径...";
+
+/* Location: LineOfSightView.swift - Analysis failed title */
+"tools.lineOfSight.analysisFailed" = "分析失败";
+
+/* Location: LineOfSightView.swift - Retry button */
+"tools.lineOfSight.retry" = "重试";
+
+/* Location: LineOfSightView.swift - Repeater location map item name */
+"tools.lineOfSight.repeaterLocation" = "转发节点位置";
+
+/* Location: LineOfSightViewModel.swift - Dropped pin display name */
+"tools.lineOfSight.droppedPin" = "已放置的图钉";
+
+/* Location: LOSRepeaterPinView.swift - Accessibility hint for repeater pins */
+/* Location: LOSPointPinView.swift - Accessibility hint for point pins */
+/* Location: LOSRepeaterTargetPinView.swift - Accessibility hint for repeater target */
+// MARK: - Terrain Profile Canvas
+
+/* Location: TerrainProfileCanvas.swift - Empty state title */
+"tools.lineOfSight.noData" = "无数据";
+
+/* Location: TerrainProfileCanvas.swift - Empty state description */
+"tools.lineOfSight.selectTwoPoints" = "选择两点以分析";
+
+/* Location: TerrainProfileCanvas.swift - Legend: terrain */
+"tools.lineOfSight.legend.terrain" = "地形";
+
+/* Location: TerrainProfileCanvas.swift - Legend: line of sight */
+"tools.lineOfSight.legend.los" = "视距";
+
+/* Location: TerrainProfileCanvas.swift - Legend: clear */
+"tools.lineOfSight.legend.clear" = "清除";
+
+/* Location: TerrainProfileCanvas.swift - Legend: obstructed */
+"tools.lineOfSight.legend.obstructed" = "受阻";
+
+/* Location: TerrainProfileCanvas.swift - Indirect route label */
+"tools.lineOfSight.indirectRoute" = "经由 R 的间接路由 · 在地图上重新定位以调整";
+
+/* Location: TerrainProfileCanvas.swift - Elevation data attribution */
+"tools.lineOfSight.elevationAttribution" = "高程数据：通过 Open-Meteo 的 Copernicus DEM GLO-90";
+
+// MARK: - Results Card View
+
+/* Location: ResultsCardView.swift - Section title */
+"tools.lineOfSight.results" = "结果";
+
+/* Location: ResultsCardView.swift - Loss suffix */
+"tools.lineOfSight.loss" = "损耗";
+
+/* Location: ResultsCardView.swift - Path loss breakdown section */
+"tools.lineOfSight.pathLossBreakdown" = "路径损耗分解";
+
+/* Location: ResultsCardView.swift - Free space loss label */
+"tools.lineOfSight.freeSpaceLoss" = "自由空间损耗";
+
+/* Location: ResultsCardView.swift - Diffraction loss label */
+"tools.lineOfSight.diffractionLoss" = "绕射损耗";
+
+/* Location: ResultsCardView.swift - Total label */
+"tools.lineOfSight.total" = "总计";
+
+/* Location: ResultsCardView.swift - Clearance section title */
+"tools.lineOfSight.clearance" = "间隙";
+
+/* Location: ResultsCardView.swift - Obstructions found label */
+"tools.lineOfSight.obstructionsFound" = "发现障碍物";
+
+/* Location: ResultsCardView.swift - Status label */
+"tools.lineOfSight.status" = "状态";
+
+/* Location: ResultsCardView.swift - Distance label */
+"tools.lineOfSight.distance" = "距离";
+
+/* Location: ResultsCardView.swift - Worst clearance short label */
+"tools.lineOfSight.worstClearanceShort" = "最差间隙";
+
+/* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
+"tools.lineOfSight.assumptions" = "%1$@、%2$@、第 1 菲涅尔区 60%% 阈值";
+
+/* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
+"tools.lineOfSight.clearancePercent" = "%lld%% 间隙";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
+"tools.lineOfSight.status.clear" = "通畅";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
+"tools.lineOfSight.status.marginal" = "勉强可用";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
+"tools.lineOfSight.status.partialObstruction" = "部分遮挡";
+
+/* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: blocked */
+"tools.lineOfSight.status.blocked" = "受阻";
+
+/* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
+"tools.lineOfSight.status.blockedSubtitle" = "直线路径与地形相交";
+
+// MARK: - CLI Tool View
+
+/* Location: CLIToolView.swift - Tool selection label */
+"tools.cli" = "CLI";
+
+/* Location: CLIToolView.swift - Disconnected state title */
+"tools.cli.notConnected" = "未连接";
+
+/* Location: CLIToolView.swift - Disconnected state description */
+"tools.cli.notConnectedDescription" = "连接无线电以使用 CLI";
+
+/* Location: CLIToolView.swift - Prompt suffix */
+"tools.cli.promptSuffix" = ">";
+
+/* Location: CLIToolView.swift - Waiting indicator */
+/* Location: CLIToolView.swift - Disconnected prompt */
+"tools.cli.disconnected" = "已断开";
+
+/* Location: CLIToolView.swift - Help command output header */
+"tools.cli.helpHeader" = "可用命令：";
+
+/* Location: CLIToolView.swift - Session list header */
+"tools.cli.sessionListHeader" = "活动会话：";
+
+/* Location: CLIToolView.swift - Local session label */
+"tools.cli.sessionLocal" = "本地";
+
+/* Location: CLIToolView.swift - No sessions message */
+/* Location: CLIToolView.swift - History empty message */
+/* Location: CLIToolView.swift - Unknown command error */
+"tools.cli.unknownCommand" = "未知命令：";
+
+/* Location: CLIToolView.swift - Login success */
+"tools.cli.loginSuccess" = "已登录到";
+
+/* Location: CLIToolView.swift - Login failed */
+"tools.cli.loginFailed" = "登录失败：";
+
+/* Location: CLIToolView.swift - Login failed reason */
+"tools.cli.loginFailedAuth" = "身份验证失败";
+
+/* Location: CLIToolView.swift - Node not found error */
+"tools.cli.nodeNotFound" = "未找到节点：";
+
+/* Location: CLIToolView.swift - Password required error */
+"tools.cli.passwordRequired" = "需要密码";
+
+/* Location: CLIToolViewModel.swift - Password prompt */
+"tools.cli.passwordPrompt" = "密码：";
+
+/* Location: CLIToolViewModel.swift - Login countdown */
+"tools.cli.loggingIn" = "正在登录...（%d秒）";
+
+/* Location: CLIToolView.swift - Logout success */
+"tools.cli.logoutSuccess" = "已注销";
+
+/* Location: CLIToolView.swift - Not logged in error */
+"tools.cli.notLoggedIn" = "未登录到任何转发节点";
+
+/* Location: CLIToolView.swift - Session switched */
+"tools.cli.sessionSwitched" = "已切换到";
+
+/* Location: CLIToolView.swift - Session not found */
+"tools.cli.sessionNotFound" = "未找到会话：";
+
+/* Location: CLIToolView.swift - Command timeout */
+"tools.cli.timeout" = "等待响应超时";
+
+/* Location: CLIToolView.swift - Command cancelled */
+"tools.cli.cancelled" = "命令已取消";
+
+/* Location: CLIToolView.swift - Login from local only */
+"tools.cli.loginFromLocalOnly" = "仅从本地会话登录";
+
+/* Location: CLIToolView.swift - Login usage */
+"tools.cli.loginUsage" = "用法：login [-f] <节点>";
+
+/* Location: CLIToolView.swift - Accessory button: history up */
+"tools.cli.historyUp" = "上一个命令";
+
+/* Location: CLIToolView.swift - Accessory button: history down */
+"tools.cli.historyDown" = "下一个命令";
+
+/* Location: CLIToolView.swift - Accessory button: tab complete */
+"tools.cli.tabComplete" = "Tab 补全";
+
+/* Location: CLIInputAccessoryView.swift - Cursor left button */
+"tools.cli.cursorLeft" = "向左移动光标";
+
+/* Location: CLIInputAccessoryView.swift - Cursor right button */
+"tools.cli.cursorRight" = "向右移动光标";
+
+/* Location: CLIInputAccessoryView.swift - Paste button */
+"tools.cli.paste" = "粘贴";
+
+/* Location: CLIToolView.swift - Accessory button: clear */
+/* Location: CLIToolView.swift - Accessory button: sessions */
+"tools.cli.sessions" = "会话";
+
+/* Location: CLIToolView.swift - Accessory button: dismiss */
+"tools.cli.dismiss" = "关闭键盘";
+
+/* Location: CLIToolView.swift - Default device name */
+"tools.cli.defaultDevice" = "设备";
+
+/* Location: CLIToolViewModel.swift - Help: login command */
+"tools.cli.helpLogin" = "  login [-f] <节点>\n    登录到转发节点（-f：忘记保存的密码）";
+
+/* Location: CLIToolViewModel.swift - Help: logout command */
+"tools.cli.helpLogout" = "  logout\n    结束远程会话";
+
+/* Location: CLIToolViewModel.swift - Help: session list command */
+"tools.cli.helpSessionList" = "  session list\n    显示活动会话";
+
+/* Location: CLIToolViewModel.swift - Help: session local command */
+"tools.cli.helpSessionLocal" = "  session local\n    切换到本地";
+
+/* Location: CLIToolViewModel.swift - Help: session name command */
+"tools.cli.helpSessionName" = "  session <名称>\n    切换到会话";
+
+/* Location: CLIToolViewModel.swift - Help: session shortcut */
+"tools.cli.helpSessionShortcut" = "  s<n>\n    切换到会话 n（例如，s1、s2）";
+
+/* Location: CLIToolViewModel.swift - Help: clear command */
+"tools.cli.helpClear" = "  clear\n    清除终端";
+
+/* Location: CLIToolViewModel.swift - Help: help command */
+"tools.cli.helpHelp" = "  help\n    显示此帮助";
+
+/* Location: CLIToolViewModel.swift - Help: nodes command */
+"tools.cli.helpNodes" = "  nodes\n    显示转发节点和房间列表";
+
+/* Location: CLIToolViewModel.swift - Help: channels command */
+"tools.cli.helpChannels" = "  channels\n    显示包含设备位置的频道列表";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands header */
+"tools.cli.helpRepeaterHeader" = "转发节点命令（透传）：";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands list 1 */
+"tools.cli.helpRepeaterList1" = "  ver、clock、reboot、advert、neighbors";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands list 2 */
+"tools.cli.helpRepeaterList2" = "  get/set <参数>、password <新值>";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands list 3 */
+"tools.cli.helpRepeaterList3" = "  log start/stop/erase";
+
+/* Location: CLIToolViewModel.swift - Help: repeater commands list 4 */
+"tools.cli.helpRepeaterList4" = "  setperm、tempradio、neighbor.remove";
+
+/* Location: CLIToolViewModel+Sessions.swift - Nodes header with count */
+"tools.cli.nodesHeader" = "节点（%lld）：";
+
+/* Location: CLIToolViewModel+Sessions.swift - Channels header with count */
+"tools.cli.channelsHeader" = "频道（%lld）：";
+
+/* Location: CLIToolViewModel+Sessions.swift - No nodes found */
+"tools.cli.noNodes" = "未找到节点";
+
+/* Location: CLIToolViewModel+Sessions.swift - No channels found */
+"tools.cli.noChannels" = "未找到频道";
+
+/* Location: CLIToolViewModel+Sessions.swift - Channel empty name placeholder */
+"tools.cli.channelEmpty" = "空";
+
+/* Location: CLIToolViewModel.swift - Welcome banner line 1 */
+"tools.cli.welcomeLine1" = "MeshCore One CLI";
+
+/* Location: CLIToolViewModel.swift - Welcome banner line 2 */
+"tools.cli.welcomeConnected" = "已连接到 %@";
+
+/* Location: CLIToolViewModel.swift - Welcome banner line 3 */
+"tools.cli.welcomeHint" = "输入 'help' 以查看可用命令";
+
+/* Location: CLIToolView.swift - Jump to bottom button */
+"tools.cli.jumpToBottom" = "跳转到底部";
+
+/* Location: CLIToolView.swift - Accessibility label for command input */
+"tools.cli.commandInput" = "命令输入";
+
+/* Location: CLIToolView.swift - Accessibility label for command prompt */
+"tools.cli.commandPrompt" = "命令提示符";
+
+/* Location: CLIInputAccessoryView.swift - Cancel operation button label */
+"tools.cli.cancelOperation" = "取消操作";
+
+/* Location: CLIToolViewModel.swift - Command timeout (post-login) */
+"tools.cli.commandTimeout" = "请求超时";
+
+/* Location: CLIToolViewModel.swift - Reboot command confirmation */
+"tools.cli.rebootSent" = "已发送重启命令";
+
+/* Accessibility label for completion suggestions container */
+/* Accessibility value for completion suggestions - %lld is count, %@ is selected */
+/* Confirmation prompt for a dangerous local command */
+"tools.cli.confirmPrompt" = "确认 %@？(yes/no):";
+
+/* Usage for the get command */
+"tools.cli.usageGet" = "用法： get <key>";
+
+/* Usage for the set command */
+"tools.cli.usageSet" = "用法： set <key> <value>";
+
+/* Usage for set radio */
+"tools.cli.usageSetRadio" = "用法： set radio <freq>,<bw>,<sf>,<cr>";
+
+/* Invalid value error */
+"tools.cli.invalidValue" = "无效值";
+
+/* Custom var key/value contains a reserved character */
+"tools.cli.invalidCustomVarToken" = "键不能包含 ':' 或 ','；值不能包含 ','";
+
+/* Local radio commands help header */
+"tools.cli.helpLocalHeader" = "本地无线电命令：";
+
+/* Local radio commands help line 1 */
+"tools.cli.helpLocalList1" = "  clock [sync], ver, board";
+
+/* Local radio commands help line 2 */
+"tools.cli.helpLocalList2" = "  advert (zero-hop), floodadv (flood), reboot";
+
+/* Local radio commands help line 3 */
+"tools.cli.helpLocalList3" = "  get <key>, set <key> <value>";
+
+/* Local radio commands help line 4 */
+"tools.cli.helpLocalList4" = "    keys: name, lat, lon, tx, radio, freq, multi.acks, path.hash.mode, public.key, bat";
+
+/* Local radio commands help line 5 */
+"tools.cli.helpLocalList5" = "  get custom  (all custom firmware vars); unknown get/set keys route to custom vars";
+
+// MARK: - Saved Paths
+
+/* Location: SavedPathsViewModel.swift - Error loading saved paths */
+"tools.savedPaths.loadFailed" = "无法加载已保存的路径。";
+
+/* Location: SavedPathsViewModel.swift - Error renaming a saved path */
+"tools.savedPaths.renameFailed" = "无法重命名路径。";
+
+/* Location: SavedPathsViewModel.swift - Error deleting a saved path */
+"tools.savedPaths.deleteFailed" = "无法删除路径。";
+
+// MARK: - App Intents
+
+/* Location: MessageTargetEntity.swift - App Intents entity type name for a send target (a contact DM or a channel broadcast) */
+"intent.entity.target" = "收件人";
+
+/* Location: MessageTargetEntity.swift - App Intents recipient-picker subtitle marking a channel (broadcast) target */
+"intent.entity.channel" = "频道";
+
+/* Location: StatusQueryIntent.swift - App Intents: title of the radio status query intent */
+"intent.status.title" = "查看电台状态";
+
+/* Location: MC1AppShortcutsProvider.swift - App Shortcuts: short title for the radio status shortcut */
+"intent.status.shortTitle" = "电台状态";
+
+/* Location: StatusQueryIntent.swift - App Intents: description of the radio status query intent */
+"intent.status.description" = "报告已连接电台的名称、连接状态和最近一次已知的电量。";
+
+/* Location: StatusQueryIntent.swift - Spoken when the app is still launching and has no state to read yet */
+"intent.status.dialog.notReady" = "MeshCore One 仍在启动。请稍后再试。";
+
+/* Location: StatusQueryIntent.swift - Spoken when connected; %1$@ is the radio name, %2$lld is the cached battery percent */
+"intent.status.dialog.connectedWithBattery" = "%1$@ 已连接。电量约为 %2$lld%%，数据来自最近一次读取。";
+
+/* Location: StatusQueryIntent.swift - Spoken when connected but no battery reading is available; %@ is the radio name */
+"intent.status.dialog.connectedNoBattery" = "%@ 已连接。无可用电量读数。";
+
+/* Location: StatusQueryIntent.swift - Spoken while the radio is connecting; %@ is the radio name */
+"intent.status.dialog.connecting" = "%@ 正在连接。";
+
+/* Location: StatusQueryIntent.swift - Spoken when not connected and a last radio name is known; %@ is the radio name */
+"intent.status.dialog.disconnectedNamed" = "%@ 未连接。";
+
+/* Location: StatusQueryIntent.swift - Spoken when not connected and no radio has been connected before */
+"intent.status.dialog.disconnectedUnknown" = "没有已连接的电台。";
+
+/* Location: StatusQueryIntent.swift - Generic radio name used when no device name is known */
+"intent.status.radioFallbackName" = "你的电台";
+
+/* Location: SendMessageIntent.swift - App Intents: title of the send message intent */
+"intent.send.title" = "发送消息";
+
+/* Location: MC1AppShortcutsProvider.swift - App Shortcuts: short title for the send message shortcut */
+"intent.send.shortTitle" = "发送消息";
+
+/* Location: SendMessageIntent.swift - App Intents: description of the send message intent */
+"intent.send.description" = "向电台上的联系人或频道发送文本。";
+
+/* Location: SendMessageIntent.swift - App Intents: title of the recipient parameter (a contact or a channel) */
+"intent.send.param.target" = "收件人";
+
+/* Location: SendMessageIntent.swift - App Intents: title of the message text parameter */
+"intent.send.param.message" = "消息";
+
+/* Location: SendMessageIntent.swift - Confirmation prompt shown before sending; %@ is the recipient name */
+"intent.send.confirm" = "将此消息发送给 %@？";
+
+/* Location: SendMessageIntent.swift - Spoken when the app must come to the foreground to send (still connecting or reconnecting) */
+"intent.send.foreground" = "打开 MeshCore One 以完成发送此消息。";
+
+/* Location: SendMessageIntent.swift - App Intents parameter summary shown in the shortcut editor; ${message} and ${target} are framework parameter tokens */
+"Send ${message} to ${target}" = "将 ${message} 发送给 ${target}";
+
+// MARK: - Send Advert Intent
+
+/* Location: SendAdvertIntent.swift - App Intents: title of the send advert intent */
+"intent.advert.title" = "发送广播";
+
+/* Location: MC1AppShortcutsProvider.swift - App Shortcuts: short title for the send advert shortcut */
+"intent.advert.shortTitle" = "发送广播";
+
+/* Location: SendAdvertIntent.swift - App Intents: description of the send advert intent */
+"intent.advert.description" = "广播自我通告，让附近的 Mesh 节点发现你的电台。";
+
+/* Location: SendAdvertIntent.swift - App Intents: title of the advert reach parameter (zero-hop or flood) */
+"intent.advert.param.reach" = "范围";
+
+/* Location: AdvertReach.swift - App Intents: type name for the advert reach enum */
+"intent.advert.reach.type" = "广播范围";
+
+/* Location: AdvertReach.swift - App Intents: zero-hop reach case (direct neighbors only) */
+"intent.advert.reach.zeroHop" = "零跳";
+
+/* Location: AdvertReach.swift - App Intents: flood reach case (entire mesh) */
+"intent.advert.reach.flood" = "泛洪";
+
+/* Location: SendAdvertIntent.swift - Spoken after a zero-hop advert is sent */
+"intent.advert.dialog.sentZeroHop" = "已向附近节点发送广播。";
+
+/* Location: SendAdvertIntent.swift - Spoken after a flood advert is sent */
+"intent.advert.dialog.sentFlood" = "已向整个 Mesh 网络发送广播。";
+
+/* Location: SendAdvertIntent.swift - App Intents parameter summary shown in the shortcut editor; ${reach} is the framework parameter token */
+"Send a ${reach} advert" = "发送${reach}广播";

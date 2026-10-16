@@ -1,0 +1,581 @@
+import CoreLocation
+import MC1Services
+import OSLog
+import SwiftUI
+import UIKit
+
+/// ViewModel for chat operations
+@Observable
+@MainActor
+final class ChatViewModel {
+  /// Tracks the last flood scope we pushed to the device for the current channel.
+  /// Keyed by the input pair (per-channel preference, device default) so that a
+  /// change in either triggers a fresh push next time `loadChannelMessages` runs.
+  enum RegionScopeState: Equatable {
+    case unknown
+    case pushed(ChannelFloodScope, deviceDefault: String?)
+  }
+
+  /// Identifies an incoming self-mention with a per-mention sequence number so
+  /// `.onChange(of:)` fires for consecutive mentions of the same message.
+  /// `Equatable` is auto-synthesised from `UUID` + `UInt64`; adding a non-Equatable
+  /// field would break `.onChange` propagation.
+  struct MentionEvent: Equatable {
+    let messageID: UUID
+    let sequence: UInt64
+  }
+
+  // MARK: - Properties
+
+  let logger = Logger(subsystem: "com.mc1", category: "ChatViewModel")
+
+  /// Observed source of truth the list diffs against. Stays observed because that
+  /// observation drives the diff; assigned only by `recomputeSnapshot()`.
+  var conversationSnapshot: ConversationSnapshot = .empty
+
+  /// Cheap Equatable surrogate for `onChange(of:)`; bumped only in `recomputeSnapshot()`.
+  var snapshotGeneration: Int = 0
+
+  /// Non-observed fetch buffer feeding `recomputeSnapshot()`; `internal` so tests can seed it.
+  @ObservationIgnored var conversations: [ContactDTO] = []
+
+  /// All contacts for mention autocomplete (includes contacts without messages)
+  var allContacts: [ContactDTO] = []
+
+  /// Contact ids committed with `conversations`. Nil when contacts were not
+  /// fetched, so a messageless direct stays open until a successful fetch.
+  var retainingDirectContactIDs: Set<UUID>?
+
+  /// `loweredName -> nickname` for channel sender matching, rebuilt whenever
+  /// `allContacts` changes so per-message resolution stays O(1).
+  var nicknamesByLoweredName: [String: String] = [:]
+
+  /// Unique lowered contact name → channel incoming-avatar identity.
+  var incomingAvatarIdentitiesByLoweredName: [String: IncomingAvatarIdentity] = [:]
+
+  /// Bumped at the start of each `loadAllContacts` so a slower first fetch
+  /// cannot publish after a newer overlapping load.
+  @ObservationIgnored var incomingAvatarLoadGeneration = 0
+
+  /// Synthetic contacts for channel senders not in contacts
+  var channelSenders: [ContactDTO] = []
+
+  /// O(1) lookup for channel sender names
+  var channelSenderNames: Set<String> = []
+
+  /// Sender name → latest message timestamp (for mention sort order)
+  var channelSenderOrder: [String: UInt32] = [:]
+
+  /// O(1) lookup for contact names
+  var contactNameSet: Set<String> = []
+
+  /// Current channels with messages. Non-observed fetch buffer feeding `recomputeSnapshot()`.
+  @ObservationIgnored var channels: [ChannelDTO] = []
+
+  /// Current room sessions. Non-observed fetch buffer feeding `recomputeSnapshot()`.
+  @ObservationIgnored var roomSessions: [RemoteNodeSessionDTO] = []
+
+  /// Ids hidden optimistically on delete until a DB-confirming reload drops them.
+  /// `reconcilePendingRemovals()` self-heals this once the fetch confirms the row is gone.
+  @ObservationIgnored var pendingRemovalIDs: Set<UUID> = []
+
+  /// Rows showing a delete spinner during a radio-backed delete (channel clear, room leave).
+  /// Observed presentation state read by the rows; never filters the snapshot. Distinct from
+  /// `pendingRemovalIDs`, the optimistic-hide mask.
+  var deletingIDs: Set<UUID> = []
+
+  /// Cancel-and-replace token for the serialized reload funnel. No view reads it.
+  @ObservationIgnored var reloadTask: Task<Void, Never>?
+
+  /// View-owned drop animation. Weak so a disappeared conversation cannot
+  /// start a flight after its overlay is gone.
+  @ObservationIgnored weak var incomingAvatarFlight: IncomingAvatarFlight?
+
+  #if DEBUG
+    /// Test-only interleave hook, awaited once mid-reload so a test can suspend reload #1
+    /// between fetches and commit reload #2 first. Compiled out of release builds.
+    @ObservationIgnored var reloadInterleaveHook: (@MainActor () async -> Void)?
+
+    /// Test-only interleave hook, awaited after the failed-send keys fetch so a
+    /// test can suspend refresh #1 until a newer refresh has applied.
+    @ObservationIgnored var failedSendRefreshInterleaveHook: (@MainActor () async -> Void)?
+
+    /// Test-only fault injection fired immediately before the failed-send keys
+    /// fetch so tests can exercise the keep-last-known catch path.
+    @ObservationIgnored var failedSendRefreshFaultInjection: (@MainActor () throws -> Void)?
+  #endif
+
+  // MARK: - Conversation Cache Storage
+
+  /// Tracks the last region scope sent to the device via setFloodScope.
+  @ObservationIgnored var lastSetRegionScope: RegionScopeState = .unknown
+
+  /// Per-conversation assembly module owning the bake state, write
+  /// capability, and populate/bake ordering. Bound by `configure(...)` once
+  /// the conversation identity is known. Always present; inert (no
+  /// coordinator) for conversation-list usage.
+  @ObservationIgnored let timeline = ChatTimeline(role: .interactive)
+
+  /// Per-(radio, conversation) coordinator that owns the canonical chat
+  /// state for this view model. Two `ChatViewModel`s on the same
+  /// conversation share one coordinator via the registry, so an update
+  /// applied from one view is visible to the other.
+  var coordinator: ChatCoordinator? {
+    timeline.coordinator
+  }
+
+  /// Messages for the current conversation. Forwards to the bound
+  /// coordinator; empty when no coordinator is bound (e.g., conversation
+  /// list views).
+  var messages: [MessageDTO] {
+    coordinator?.messages ?? []
+  }
+
+  /// Immutable snapshot of the timeline as the view sees it. Forwards
+  /// to the bound coordinator.
+  var renderState: ChatRenderState {
+    coordinator?.renderState ?? .empty
+  }
+
+  /// Environment-derived inputs that feed `MessageItem` construction.
+  var envInputs: EnvInputs {
+    get { timeline.envInputs }
+    set { timeline.envInputs = newValue }
+  }
+
+  /// Update env-derived inputs and trigger a full rebuild when the value
+  /// changes and there are messages to rebuild. Idempotent on no-change.
+  func applyEnvInputs(_ new: EnvInputs) {
+    if !MessageLanguageDetector.isSameLanguage(
+      envInputs.preferredLanguageCode,
+      new.preferredLanguageCode
+    ) {
+      invalidateTranslations(preferredLanguageCode: new.preferredLanguageCode)
+    }
+    timeline.applyEnvInputs(new)
+  }
+
+  /// Monotonic counter bumped when a `MessageEvent` indicates the current
+  /// contact (route, profile) should be re-fetched. Observed by the view.
+  var contactRefreshSignal: UInt64 = 0
+
+  /// Most recent incoming self-mention, with a per-mention sequence number
+  /// so consecutive mentions of the same message still fire `.onChange`.
+  var lastIncomingMention: MentionEvent?
+
+  /// Internal mention counter; never observed by the view, so it stays out
+  /// of the `@Observable` graph.
+  @ObservationIgnored var mentionSequence: UInt64 = 0
+
+  /// Stored timeline rows. The cell-content closure consumes this directly;
+  /// the bubble view reads `MessageItem` fields without any per-render rebuild.
+  var items: [MessageItem] {
+    renderState.items
+  }
+
+  /// O(1) item-index lookup by message ID, forwarded from the render state.
+  var itemIndexByID: [UUID: Int] {
+    renderState.itemIndexByID
+  }
+
+  /// O(1) message lookup by ID (used by views to get full DTO when needed).
+  /// Forwards to the bound coordinator.
+  var messagesByID: [UUID: MessageDTO] {
+    coordinator?.messagesByID ?? [:]
+  }
+
+  /// Current contact being chatted with. `timeline.conversation` is not
+  /// mirrored from here: the load paths assign it via `stageOpen`/`open`,
+  /// and DTO refreshes assign it directly alongside this property.
+  var currentContact: ContactDTO?
+
+  /// Current channel being viewed. Same contract as `currentContact`.
+  var currentChannel: ChannelDTO?
+
+  /// Loading state
+  var isLoading = false
+
+  /// True once a list-level conversation fetch has completed. Gates the
+  /// list-level empty-state placeholder. The per-conversation timeline
+  /// has its own gate on `ChatRenderState.LoadPhase`.
+  var hasLoadedOnce = false
+
+  /// Error message if any
+  var errorMessage: String?
+
+  /// Pending Translation session request. Observed by the conversation view
+  /// so it can invalidate `TranslationSession.Configuration`.
+  var translationSessionRequest: TranslationSessionRequest?
+
+  /// Monotonic generation for in-flight translation. Apply a result only
+  /// when it still matches `translationSessionRequest.generation`.
+  @ObservationIgnored var translationGeneration: UInt64 = 0
+
+  /// Error state for send-only failures (queue drains, retry call site).
+  /// Separate from `errorMessage`, which surfaces load and fetch errors
+  /// with the generic "Error" alert title. `sendErrorMessage` surfaces
+  /// with the "Unable to Send" title so retry-context errors read as
+  /// user-actionable rather than generic.
+  ///
+  /// Routing:
+  /// - Send-queue drain errors are assigned post-`loadMessages` so the
+  ///   load reset of `errorMessage = nil` does not clobber the alert.
+  /// - Load errors continue to flow to `errorMessage`.
+  /// - Passive load and prefetch failures route to `errorBannerMessage` for
+  ///   the non-modal banner surface.
+  var sendErrorMessage: String?
+
+  /// Error message for passive failure surfaces. Driven by `errorBanner(_:)`
+  /// and rendered as a tap-to-dismiss strip between the message list and the
+  /// input bar. Use this instead of `errorMessage` for failures the user did
+  /// not initiate (prefetch, scroll-triggered pagination). User-initiated
+  /// failures and initial-open load failures continue to surface via
+  /// `errorMessage` (modal "Error" alert) or `sendErrorMessage` (modal
+  /// "Unable to Send" alert).
+  var errorBannerMessage: String?
+
+  /// Message text being composed
+  var composingText = ""
+
+  /// Reentry guard for retry actions. A single `ChatViewModel` is bound to one
+  /// conversation at a time (`currentChannel` xor `currentContact`), so this
+  /// flag covers both DM and channel retry paths — they can never overlap.
+  @ObservationIgnored var retryInFlight = false
+
+  /// Last message previews cache
+  var lastMessageCache: [UUID: MessageDTO] = [:]
+
+  /// Conversation ids (contact, channel, or room session) with at least one
+  /// unseen outgoing `.failed` send. Observed so list rows invalidate like previews.
+  var failedSendConversationIDs: Set<UUID> = []
+
+  /// Bumped at the start of each failed-send indicator refresh so a slower
+  /// first fetch cannot publish after a newer overlapping refresh.
+  @ObservationIgnored var failedSendRefreshGeneration = 0
+
+  /// Scope preferences (master + per-conversation-type auto-resolve) read by
+  /// the image fetch sites so inline images honor the same DM/channel gate the
+  /// card path applies inside `LinkPreviewCache`. Internal so tests can inject
+  /// a scratch `UserDefaults` suite instead of leaking into `.standard`.
+  var linkPreviewPreferences = LinkPreviewPreferences()
+
+  /// Per-message bake state (preview/image caches, divider) and the item-build
+  /// pipeline reading it. Owned by `timeline`; not observed, because redraw
+  /// is decided by `MessageItem`.
+  ///
+  /// Per-VM state, not shared across view models bound to the same
+  /// `ChatCoordinator`. On iPad split view each rebuilds its own caches, so the
+  /// two can diverge until the next rebuild on each side;
+  /// `ChatCoordinatorRegistry.coordinator(for:)` carries the trade-off context.
+  var bake: ChatMessageBakeState {
+    timeline.bake
+  }
+
+  /// In-flight preview fetch tasks (prevents duplicate fetches)
+  var previewFetchTasks: [UUID: Task<Void, Never>] = [:]
+
+  /// In-flight image fetch tasks
+  var imageFetchTasks: [UUID: Task<Void, Never>] = [:]
+
+  /// In-flight reaction sends (prevents duplicate reactions on rapid taps)
+  /// Key format: "{messageID}-{emoji}"
+  var inFlightReactions: Set<String> = []
+
+  // MARK: - Pagination State
+
+  /// Whether currently fetching older messages (exposed for UI binding)
+  var isLoadingOlder: Bool {
+    renderState.isLoadingOlder
+  }
+
+  /// Whether more messages exist beyond what's loaded
+  var hasMoreMessages: Bool {
+    renderState.hasMoreMessages
+  }
+
+  /// Total messages fetched from database (unfiltered, for accurate offset calculation)
+  var totalFetchedCount: Int {
+    renderState.totalFetchedCount
+  }
+
+  /// Snapshot of observed contact tables for the item bake.
+  func currentSenderTables() -> ChatSenderTables {
+    ChatSenderTables(
+      contacts: allContacts,
+      nicknamesByLoweredName: nicknamesByLoweredName,
+      incomingAvatars: incomingAvatarIdentitiesByLoweredName
+    )
+  }
+
+  // MARK: - Dependencies
+
+  /// Groups all provider closures for the `configure` call. Provider closures
+  /// are re-evaluated at every use so a disconnect (or a reconnect's fresh
+  /// per-connection services) is picked up live; a nil read means disconnected.
+  struct Dependencies {
+    var dataStore: @MainActor () -> DataStore?
+    var messageService: @MainActor () -> MessageService?
+    var notificationService: @MainActor () -> NotificationService?
+    var channelService: @MainActor () -> ChannelService?
+    var roomServerService: @MainActor () -> RoomServerService?
+    var contactService: @MainActor () -> ContactService?
+    var syncCoordinator: @MainActor () -> SyncCoordinator?
+    var connectionState: @MainActor () -> DeviceConnectionState
+    var connectedDevice: @MainActor () -> DeviceDTO?
+    var currentRadioID: @MainActor () -> UUID?
+    var session: @MainActor () -> MeshCoreSession?
+    var reactionService: @MainActor () -> ReactionService?
+    var chatSendQueueService: @MainActor () -> ChatSendQueueService?
+    var inlineImageDimensionsStore: @MainActor () -> InlineImageDimensionsStore?
+    var prefetchDataStore: @MainActor () -> (any PersistenceStoreProtocol)?
+  }
+
+  @ObservationIgnored private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
+  var dataStore: DataStore? {
+    dataStoreProvider()
+  }
+
+  @ObservationIgnored private var messageServiceProvider: @MainActor () -> MessageService? = { nil }
+  var messageService: MessageService? {
+    messageServiceProvider()
+  }
+
+  @ObservationIgnored private var notificationServiceProvider: @MainActor () -> NotificationService? = { nil }
+  var notificationService: NotificationService? {
+    notificationServiceProvider()
+  }
+
+  @ObservationIgnored private var channelServiceProvider: @MainActor () -> ChannelService? = { nil }
+  private var channelService: ChannelService? {
+    channelServiceProvider()
+  }
+
+  @ObservationIgnored private var roomServerServiceProvider: @MainActor () -> RoomServerService? = { nil }
+  private var roomServerService: RoomServerService? {
+    roomServerServiceProvider()
+  }
+
+  @ObservationIgnored private var contactServiceProvider: @MainActor () -> ContactService? = { nil }
+  var contactService: ContactService? {
+    contactServiceProvider()
+  }
+
+  @ObservationIgnored private var syncCoordinatorProvider: @MainActor () -> SyncCoordinator? = { nil }
+  var syncCoordinator: SyncCoordinator? {
+    syncCoordinatorProvider()
+  }
+
+  @ObservationIgnored var connectionStateProvider: @MainActor () -> DeviceConnectionState = { .disconnected }
+  @ObservationIgnored var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
+  @ObservationIgnored var currentRadioIDProvider: @MainActor () -> UUID? = { nil }
+  @ObservationIgnored var sessionProvider: @MainActor () -> MeshCoreSession? = { nil }
+  @ObservationIgnored var reactionServiceProvider: @MainActor () -> ReactionService? = { nil }
+  @ObservationIgnored var chatSendQueueServiceProvider: @MainActor () -> ChatSendQueueService? = { nil }
+
+  var inlineImageDimensionsStore: InlineImageDimensionsStore? {
+    bake.inlineImageDimensionsStore
+  }
+
+  @ObservationIgnored private var prefetchDataStoreProvider: @MainActor () -> (any PersistenceStoreProtocol)? = { nil }
+
+  /// App-lifetime cache for link previews. Passed directly from the environment;
+  /// held for the screen's lifetime and used in `fetchPreview` and `manualFetchPreview`.
+  @ObservationIgnored var linkPreviewCache: (any LinkPreviewCaching)?
+
+  /// Navigation sink for map-thumbnail taps; nil makes the tap a no-op
+  /// (the always-present text link remains the baseline).
+  @ObservationIgnored var onNavigateToMap: ((CLLocationCoordinate2D) -> Void)?
+
+  /// Resolves image dimensions and preview metadata after message insertion.
+  /// Constructed in `configure(...)` when services are available; nil while disconnected.
+  @ObservationIgnored var prefetcher: InlineImagePrefetcher?
+
+  /// Long-running subscription to `InlineImageDimensionsStore.resolutionUpdates()`.
+  /// On each emitted URL, every message whose body contains that URL is
+  /// rebuilt so the bubble picks up the now-known `cachedAspect`. Speculative
+  /// primes use `ChatTimelinePrimer` and never subscribe; this path is for the
+  /// interactive conversation only.
+  @ObservationIgnored var dimensionResolutionTask: Task<Void, Never>?
+
+  /// Long-running subscription to `MapSnapshotStore.shared.resolutionStream`.
+  /// Started once (the store is a process-lifetime singleton). Interactive only;
+  /// `ChatTimelinePrimer` does not subscribe.
+  @ObservationIgnored var snapshotResolutionTask: Task<Void, Never>?
+
+  /// Write capability for the bound coordinator, minted when `timeline`
+  /// binds. Every timeline mutation goes through this; when a newer owner
+  /// binds the same coordinator (live open superseding a prime, BFU scene
+  /// rebuild), this writer goes stale and its writes no-op, so a cold view
+  /// model can never bake its state over the live timeline.
+  /// Reads keep using `coordinator` directly. `nil` when unbound.
+  var timelineWriter: ChatTimelineWriter? {
+    timeline.writer
+  }
+
+  // MARK: - Initialization
+
+  init() {}
+
+  /// Forwards a map-thumbnail tap to the same navigation sink the coordinate
+  /// text link uses. `onNavigateToMap` is optional; if nil, the tap is a
+  /// no-op (the always-present text link remains the baseline).
+  func navigateToMap(_ coordinate: CLLocationCoordinate2D) {
+    onNavigateToMap?(coordinate)
+  }
+
+  /// Configure the chat view model for a conversation list or a specific conversation.
+  /// Conversation views also pass `linkPreviewCache`, `chatCoordinatorRegistry`, and
+  /// `conversation` so the per-conversation `ChatCoordinator` is bound before the
+  /// first view body evaluates; list views omit them.
+  func configure(
+    dependencies: Dependencies,
+    onNavigateToMap: ((CLLocationCoordinate2D) -> Void)?,
+    linkPreviewCache: (any LinkPreviewCaching)?,
+    chatCoordinatorRegistry: ChatCoordinatorRegistry?,
+    conversation: ChatConversationType?
+  ) {
+    dataStoreProvider = dependencies.dataStore
+    messageServiceProvider = dependencies.messageService
+    notificationServiceProvider = dependencies.notificationService
+    channelServiceProvider = dependencies.channelService
+    roomServerServiceProvider = dependencies.roomServerService
+    contactServiceProvider = dependencies.contactService
+    syncCoordinatorProvider = dependencies.syncCoordinator
+    connectionStateProvider = dependencies.connectionState
+    connectedDeviceProvider = dependencies.connectedDevice
+    currentRadioIDProvider = dependencies.currentRadioID
+    sessionProvider = dependencies.session
+    reactionServiceProvider = dependencies.reactionService
+    chatSendQueueServiceProvider = dependencies.chatSendQueueService
+    bake.bindInlineImageDimensionsStore(dependencies.inlineImageDimensionsStore)
+    prefetchDataStoreProvider = dependencies.prefetchDataStore
+    self.onNavigateToMap = onNavigateToMap
+    lastSetRegionScope = .unknown
+    if let linkPreviewCache {
+      self.linkPreviewCache = linkPreviewCache
+      configurePrefetcher(
+        linkPreviewCache: linkPreviewCache,
+        dimensionsStore: dependencies.inlineImageDimensionsStore(),
+        prefetchDataStore: prefetchDataStoreProvider()
+      )
+    }
+    bindCoordinator(registry: chatCoordinatorRegistry, conversation: conversation)
+  }
+
+  /// Eagerly attaches the shared coordinator so a warm (prefetched or previously
+  /// opened) conversation renders its messages on the first frame, before the
+  /// load task runs. Sets only the timeline's `coordinator` reference, never
+  /// the coordinator's rebuild hooks, which belong to the persistent view model
+  /// and are installed by `configure`/`bindCoordinator`. That omission is what
+  /// makes it safe to call from `init`, where transient view-model instances may
+  /// be created and discarded.
+  func attachCoordinator(_ coordinator: ChatCoordinator) {
+    timeline.attach(coordinator)
+  }
+
+  private func bindCoordinator(registry: ChatCoordinatorRegistry?, conversation: ChatConversationType?) {
+    guard let conversation else { return }
+    guard let registry else { return }
+    let resolved = registry.coordinator(for: conversation.coordinatorID)
+    // The timeline owns both the rebuild hooks and the write capability,
+    // installed as one atomic act. An `.interactive` bind always succeeds
+    // and revokes any prior writer (a stale prime's in-flight bakes then
+    // no-op at the coordinator). With two observers on the same conversation
+    // the rendered state stays consistent because both read the shared
+    // coordinator's `renderState`; only the current writer bakes items.
+    timeline.bind(
+      resolved,
+      dataStore: { [weak self] in self?.dataStore },
+      senderTables: { [weak self] in self?.currentSenderTables() ?? .empty },
+      postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
+    )
+  }
+
+  /// Vacates the coordinator's writer slot so arrival-time prime refreshes
+  /// can service this conversation while it is off screen; the load task's
+  /// `configure` rebinds on the next appearance. Deallocation is not a
+  /// substitute: SwiftUI can keep a popped destination's state alive.
+  func releaseTimelineWriter() {
+    timeline.releaseWriter()
+  }
+
+  #if DEBUG
+    /// Test seam mirroring `bindCoordinator` for suites that construct a
+    /// coordinator directly instead of resolving one through a registry:
+    /// installs the interactive writer and the rebuild hooks in one act,
+    /// exactly like a live open.
+    func bindCoordinatorForTesting(_ coordinator: ChatCoordinator) {
+      timeline.bind(
+        coordinator,
+        dataStore: { [weak self] in self?.dataStore },
+        senderTables: { [weak self] in self?.currentSenderTables() ?? .empty },
+        postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
+      )
+    }
+  #endif
+
+  /// Build the receive-time prefetcher and start (or restart) the
+  /// dimension-resolution subscription. Called from `configure(...)` when a
+  /// `linkPreviewCache` is supplied. The per-connection inputs are nil while
+  /// disconnected (offline browse), which tears the prefetcher down.
+  private func configurePrefetcher(
+    linkPreviewCache: any LinkPreviewCaching,
+    dimensionsStore: InlineImageDimensionsStore?,
+    prefetchDataStore: (any PersistenceStoreProtocol)?
+  ) {
+    // The snapshot-resolution stream is a process-lifetime singleton with no
+    // dependency on per-connection services, so subscribe once regardless of
+    // connection state: offline browse of cached coordinate messages still
+    // needs late snapshot resolutions to refresh their thumbnails.
+    if snapshotResolutionTask == nil {
+      snapshotResolutionTask = Task { [weak self] in
+        for await request in MapSnapshotStore.shared.resolutionStream() {
+          guard !Task.isCancelled else { return }
+          self?.handleSnapshotResolution(request)
+        }
+      }
+    }
+
+    guard let dimensionsStore, let prefetchDataStore else {
+      prefetcher = nil
+      dimensionResolutionTask?.cancel()
+      dimensionResolutionTask = nil
+      return
+    }
+    prefetcher = InlineImagePrefetcher(
+      imageCache: InlineImageCache.shared,
+      linkPreviewCache: linkPreviewCache,
+      dimensionsStore: dimensionsStore,
+      dataStore: prefetchDataStore
+    )
+    startObservingDimensionResolutions(store: dimensionsStore)
+  }
+
+  private func startObservingDimensionResolutions(store: InlineImageDimensionsStore) {
+    dimensionResolutionTask?.cancel()
+    dimensionResolutionTask = Task { [weak self] in
+      for await resolvedURL in store.resolutionUpdates() {
+        guard !Task.isCancelled else { return }
+        await self?.handleDimensionResolution(resolvedURL)
+      }
+    }
+  }
+
+  deinit {
+    dimensionResolutionTask?.cancel()
+    snapshotResolutionTask?.cancel()
+  }
+
+  static func copyForEnqueueFailure(_ error: Error) -> String {
+    if case ChatSendQueueServiceError.notConnected = error {
+      return L10n.Chats.Chats.Alert.UnableToSend.message
+    }
+    return L10n.Chats.Chats.Error.sendQueuePersistFailed
+  }
+}
+
+// MARK: - Environment Key
+
+extension EnvironmentValues {
+  @Entry var chatViewModel: ChatViewModel?
+}

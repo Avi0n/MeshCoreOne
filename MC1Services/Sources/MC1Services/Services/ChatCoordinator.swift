@@ -1,0 +1,280 @@
+import Foundation
+import OSLog
+
+/// Role a bound timeline writer plays.
+///
+/// `.interactive` is the live conversation UI: binding it always succeeds
+/// and revokes any prior writer. `.prime` is a speculative warm
+/// (navigation-time prefetch, arrival-time refresh): binding succeeds only
+/// while no live interactive owner exists, so a prime can populate an idle
+/// coordinator but can never write over an open chat.
+public enum ChatWriterRole: String, Sendable {
+  case interactive
+  case prime
+}
+
+/// Per-(radio, conversation) source of truth for chat timeline state.
+///
+/// Replaces the parallel-storage model on `ChatViewModel`. Two
+/// `ChatViewModel`s pointing at the same conversation — iPad split view,
+/// sheet dismissal, navigation transitions — share one `ChatCoordinator`;
+/// the registry resolves instances by `ChatConversationID`.
+///
+/// Owned by `ChatCoordinatorRegistry` on `AppState`. Lifetime is bounded
+/// by LRU eviction and backup restore, not by the connection.
+@Observable
+@MainActor
+public final class ChatCoordinator {
+  /// Messages fetched per pagination page. `hardReset` uses this as the
+  /// window-refetch floor; `ChatViewModel` uses it for initial-load sizing.
+  public static let pageSize: Int = 50
+
+  /// Read messages loaded above the first unread so the "New Messages" divider
+  /// has a little context to sit beneath rather than pinning to the very top.
+  public static let dividerReadContext: Int = 12
+
+  /// Ceiling on the first-page fetch. Remaining unread pages in via `loadOlder`;
+  /// the divider stays on the oldest row of this window and is not recomputed.
+  public static let maxInitialPageSize: Int = 200
+
+  /// Initial fetch size: at least `pageSize`, enough unread plus read context
+  /// to land the divider when that fits, otherwise `maxInitialPageSize`.
+  public static func initialPageSize(unreadCount: Int) -> Int {
+    min(max(pageSize, unreadCount + dividerReadContext), maxInitialPageSize)
+  }
+
+  public let conversationID: ChatConversationID
+
+  @ObservationIgnored
+  let logger = Logger(subsystem: "com.mc1", category: "ChatCoordinator")
+
+  /// Canonical loaded-messages list. Mutated only inside this class;
+  /// every reader either reads `messagesByID` (O(1) lookup) or
+  /// `renderState.items` (the rendered timeline).
+  public internal(set) var messages: [MessageDTO] = []
+
+  /// O(1) lookup keyed by message ID. The guard at every append /
+  /// update / event-handler site reads this, never `renderState`.
+  ///
+  /// Pairing invariant: every `messagesByID` mutation must trigger a
+  /// downstream `renderState.items` change — typically via the
+  /// `renderStateID` bump + off-main `rebuildItems` → `setRenderState`
+  /// apply chain on `ChatCoordinator`. View-body callers reach this map
+  /// only transitively through observation-tracked `renderState.items`;
+  /// cells re-render when items change. Any mutation that bypasses the
+  /// standard mutate-then-renderStateID-bump flow must manually
+  /// invalidate `renderState.items`, or drop `@ObservationIgnored` here.
+  @ObservationIgnored
+  public internal(set) var messagesByID: [UUID: MessageDTO] = [:]
+
+  /// Immutable timeline snapshot rendered by the chat table. Rebuilt
+  /// from `messages` by the off-main builder; assigned on main only.
+  public internal(set) var renderState: ChatRenderState = .empty
+
+  /// Monotonic counter incremented on every mutation of `messages` or
+  /// every assignment to `renderState`. The off-main build captures
+  /// this at start and discards its result if the counter has advanced
+  /// when it returns to main. Companion `urlDetectionGeneration` on the
+  /// view model gates `cachedURLs` writes from the URL-detection writer.
+  /// Consumed by the off-main builder and internal mutation tracking
+  /// only — no view body reads it.
+  @ObservationIgnored
+  public internal(set) var renderStateID: UInt64 = 0
+
+  /// IDs accumulated since the last load cycle. The next coalesced load
+  /// drains this set atomically. `enqueueReload(updatedMessageIDs:)` is
+  /// the single chokepoint for ack / retry / fail / heard-repeat /
+  /// reaction events. `@ObservationIgnored` because no view reads this
+  /// set directly — readers consume `renderState` after the load cycle
+  /// applies — and the registrar bookkeeping on every burst-event union
+  /// would be wasted work.
+  @ObservationIgnored
+  var pendingReloadIDs: Set<UUID> = []
+
+  /// Whether a load cycle is currently in flight. The chase-the-counter
+  /// pattern in `coalescedReload` consults this. Also
+  /// `@ObservationIgnored` for the same reason as `pendingReloadIDs`.
+  @ObservationIgnored
+  var reloadInFlight = false
+
+  /// Gates concurrent loads while a `hardReset` is mid-flight. The
+  /// scheduler guard prevents new `coalescedReload` Tasks from starting
+  /// after a hardReset begins; the loop-top check in `coalescedReload`
+  /// stops the already-running Task from draining `pendingReloadIDs` and
+  /// stomping the freshly-refetched post-hardReset state with stale
+  /// per-ID `update(messageID:)` writes. Cleared on hardReset completion
+  /// via a `defer`-driven cleanup that also schedules any buffered IDs.
+  @ObservationIgnored
+  var hardResetInFlight = false
+
+  /// In-flight off-main batch build. Cancelled before each new
+  /// `rebuildItems` call so successive rebuilds do not pile up concurrent
+  /// work. Mirrors the cancel-and-reassign pattern used by URL detection.
+  @ObservationIgnored
+  public internal(set) var buildItemsTask: Task<Void, Never>?
+
+  /// In-flight coalesced-reload drain Task. Stored so `cancelInFlight`
+  /// can stop it. Distinct from `reloadInFlight`, which breaks the running loop.
+  @ObservationIgnored
+  public internal(set) var coalescedReloadTask: Task<Void, Never>?
+
+  /// In-flight hardReset refetch Task. See `coalescedReloadTask` for the
+  /// teardown rationale.
+  @ObservationIgnored
+  public internal(set) var hardResetTask: Task<Void, Never>?
+
+  /// Completion marker for the latest window operation. `performWindowOperation`
+  /// chains on it so populate, loadOlder, and hardReset never interleave.
+  @ObservationIgnored
+  var windowOperationTask: Task<Void, Never>?
+
+  /// Runs `operation` after prior window operations finish, in the caller's
+  /// task so cancellation and errors propagate. `hardReset` mutates the
+  /// coordinator directly; populate and loadOlder still use a writer.
+  func performWindowOperation<T>(
+    _ operation: @MainActor () async throws -> T
+  ) async rethrows -> T {
+    let prior = windowOperationTask
+    let (turnEnded, turn) = AsyncStream<Void>.makeStream()
+    windowOperationTask = Task { for await _ in turnEnded {} }
+    defer { turn.finish() }
+    await prior?.value
+    return try await operation()
+  }
+
+  /// Data store used by `applyReloadedIDs` for per-ID fetches. Bound at
+  /// construction by the registry. `@ObservationIgnored` — never read
+  /// from a view body.
+  @ObservationIgnored
+  let dataStore: PersistenceStore
+
+  /// Per-ID render-item rebuild hook invoked by `applyReloadedIDs` after a
+  /// successful DTO refresh. The bound `ChatViewModel` rebuilds the
+  /// corresponding `MessageItem` using its main-actor-only inputs
+  /// (preview state, cached URLs, decoded images). Stays `nil` when no
+  /// view model is bound — `applyReloadedIDs` then refreshes DTOs without
+  /// rebuilding render items, which matches headless and test usage.
+  /// Installed only through `bindWriter(owner:role:...)` so hook ownership
+  /// and write ownership are one atomic act.
+  /// `@ObservationIgnored` because no view body reads this closure.
+  @ObservationIgnored
+  public internal(set) var renderItemRebuilder: (@MainActor (UUID) -> Void)?
+
+  /// Fires when the coordinator's `renderState.items` no longer reflects
+  /// canonical `messages` and the bound view model must reassemble per-message
+  /// inputs (preview state, cached URLs, decoded images live on main and are
+  /// owned by the VM) before `rebuildItems` can be called again. Triggered
+  /// when a fresher mutation lands mid-flight and `setRenderState` rejects
+  /// the stale rebuild, and after `hardReset`'s `replaceAll`. Installed only
+  /// through `bindWriter(owner:role:...)`.
+  @ObservationIgnored
+  public internal(set) var renderStateInvalidated: (@MainActor () -> Void)?
+
+  // MARK: - Writer ownership
+
+  /// Generation stamp of the most recent `bindWriter` call. Every
+  /// `ChatTimelineWriter` carries the generation it was minted with; a
+  /// writer whose generation no longer matches is stale and its mutations
+  /// no-op. `@ObservationIgnored`: never read from a view body.
+  @ObservationIgnored
+  private(set) var writerGeneration: UInt64 = 0
+
+  /// The object (view model) holding the current writer. Owners vacate the
+  /// slot explicitly via `releaseWriter(owner:)` when their view leaves the
+  /// screen; the weak reference is the fallback, freeing the slot for the
+  /// next `.prime` bind when an owner deallocates without releasing.
+  @ObservationIgnored
+  private(set) weak var writerOwner: AnyObject?
+
+  /// Role of the current writer. Meaningful only while `writerOwner` is
+  /// non-nil; a deallocated owner leaves a stale role behind, which
+  /// `bindWriter` treats as vacant.
+  @ObservationIgnored
+  private(set) var writerRole: ChatWriterRole = .prime
+
+  /// Claims write access to this timeline and installs the rebuild hooks.
+  ///
+  /// `.interactive` always succeeds, bumping the generation so every
+  /// previously minted writer goes stale. `.prime` succeeds only while no
+  /// live interactive owner exists (vacant slot, deallocated owner, or a
+  /// prior prime), and returns nil otherwise: a speculative warm must
+  /// never write over an open conversation.
+  ///
+  /// Reads (`messages`, `messagesByID`, `renderState`) stay unrestricted:
+  /// a superseded view model can still render the shared state.
+  public func bindWriter(
+    owner: AnyObject,
+    role: ChatWriterRole,
+    renderItemRebuilder: (@MainActor (UUID) -> Void)? = nil,
+    renderStateInvalidated: (@MainActor () -> Void)? = nil
+  ) -> ChatTimelineWriter? {
+    if role == .prime, writerRole == .interactive, writerOwner != nil {
+      logger.info("bindWriter: prime bind denied; interactive owner active for \(String(describing: self.conversationID), privacy: .public)")
+      return nil
+    }
+    writerGeneration &+= 1
+    writerOwner = owner
+    writerRole = role
+    self.renderItemRebuilder = renderItemRebuilder
+    self.renderStateInvalidated = renderStateInvalidated
+    return ChatTimelineWriter(coordinator: self, generation: writerGeneration, role: role)
+  }
+
+  /// Vacates the writer slot if `owner` still holds it, clearing the rebuild
+  /// hooks with it. Owner deallocation cannot free the slot reliably (SwiftUI
+  /// can keep a popped destination's state alive), and a slot that never
+  /// vacates starves every arrival-time `.prime` refresh. The identity check
+  /// keeps a stale view's teardown from evicting a successor that has already
+  /// bound; no generation bump, so the next bind revokes writers as usual.
+  public func releaseWriter(owner: AnyObject) {
+    guard writerOwner === owner else { return }
+    writerOwner = nil
+    writerRole = .prime
+    renderItemRebuilder = nil
+    renderStateInvalidated = nil
+  }
+
+  init(
+    conversationID: ChatConversationID,
+    dataStore: PersistenceStore
+  ) {
+    self.conversationID = conversationID
+    self.dataStore = dataStore
+  }
+
+  #if DEBUG
+    /// Test-only factory that builds a standalone coordinator backed by
+    /// an in-memory `PersistenceStore`. Lets unit tests exercise mutation
+    /// behaviour without bringing up a `ServiceContainer`.
+    public static func makeForTesting(
+      conversationID: ChatConversationID = .dm(radioID: UUID(), contactID: UUID())
+    ) -> ChatCoordinator {
+      // swiftlint:disable:next force_try
+      let container = try! PersistenceStore.createContainer(inMemory: true)
+      let store = PersistenceStore(modelContainer: container)
+      return ChatCoordinator(conversationID: conversationID, dataStore: store)
+    }
+
+    /// Test-only fixture seam: seeds the timeline without minting a writer,
+    /// so fixture setup neither steals the bound view model's hooks nor
+    /// revokes its write capability. Release code mutates timelines only
+    /// through `ChatTimelineWriter`.
+    public func replaceAllForTesting(_ newMessages: [MessageDTO]) {
+      replaceAll(newMessages)
+    }
+
+    /// Test-only fixture seam; see `replaceAllForTesting`.
+    public func markLoadedForTesting() {
+      markLoaded()
+    }
+
+    /// When set, populate throws this after the entry spinner clear.
+    public var testPopulateFetchError: Error?
+
+    /// Awaited in populate after the window fetch so a test can cancel before commit.
+    public var testPopulateAfterFetchHook: (@MainActor () async -> Void)?
+
+    /// Awaited in `hardReset` after the window fetch so a test can cancel before `replaceAll`.
+    public var hardResetAfterFetchHook: (@MainActor () async -> Void)?
+  #endif
+}

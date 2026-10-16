@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- WiFi/TCP transport reaches the radio over the local network. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Companion Device Manager is the AccessorySetupKit analog: system BLE chooser keyed
+         on Nordic UART, leftover-association confirm, and disassociate on forget. Optional so
+         devices without the feature still install and fall back to in-app scan. -->
+    <uses-feature
+        android:name="android.software.companion_device_setup"
+        android:required="false" />
+
+    <!-- BLE. SCAN/CONNECT are the API 31+ runtime permissions; the legacy BLUETOOTH/ADMIN cover <=30.
+         neverForLocation asserts scans are not used to derive physical location. -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <!-- Location is a product feature (map user dot, distance sort and labels, onboarding region
+         suggestion), and BLE scanning below API 31 additionally requires it, so it is declared for
+         every API level. Both precisions are declared: on API 31+ the system only offers the
+         precise/approximate choice when both are requested, and an approximate grant is usable. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Camera: requested at contact/channel QR-scan time; the feature is optional so devices without a
+         camera still install and fall back to the paste path. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+
+    <!-- Notifications: the onboarding card requests POST_NOTIFICATIONS (33+); the foreground service
+         posts its ongoing notification lawfully whether or not it is granted. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <!-- After reboot the FGS is gone. This start restores the last wanted radio, matching iOS
+         bluetooth-central state restore. Companion Device Manager presence restarts the same
+         path when an associated radio appears after process death without a reboot. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND" />
+    <uses-permission android:name="android.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND" />
+    <uses-permission android:name="android.permission.REQUEST_COMPANION_START_FOREGROUND_SERVICES_FROM_BACKGROUND" />
+    <uses-permission android:name="android.permission.REQUEST_OBSERVE_COMPANION_DEVICE_PRESENCE" />
+    <!-- Lets Settings → Connection request Unrestricted battery so Doze cannot kill the
+         connected-device foreground service. iOS bluetooth-central needs no analog. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- Qualifying install-time permission for FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE on WiFi-only
+         connects (no Bluetooth runtime grant). See Android connected-device FGS docs. -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
+    <application
+        android:name=".MeshCoreApplication"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MeshCore.Splash"
+        tools:targetApi="tiramisu">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- meshcore:// deep links (channel/add, contact/add, map, and the bare shortcut hosts) plus
+                 meshcoreone://hashtag, all resolved by DeepLinkRouter. meshcoreone://mention is claimed
+                 too but stays local to an open chat, which intercepts it before the router. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="meshcore" />
+                <data android:scheme="meshcoreone" />
+            </intent-filter>
+        </activity>
+
+        <!-- Shares .mc1backup export files via content:// URIs (not raw file paths). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- The connection foreground service: owns the live link's lifetime across Activity death. -->
+        <service
+            android:name=".ConnectionService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+
+        <!-- Handles the quick-reply and mark-as-read message-notification actions. Only this app's
+             PendingIntents trigger it, so it is not exported. -->
+        <receiver
+            android:name=".NotificationActionReceiver"
+            android:exported="false" />
+
+        <!-- Reconnect the last radio after a reboot or Play update. Exported so the system
+             can deliver BOOT_COMPLETED / MY_PACKAGE_REPLACED. Credential-encrypted so BLE
+             is up before we start. -->
+        <receiver
+            android:name=".BootCompletedReceiver"
+            android:directBootAware="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Companion Device Manager presence: when an associated radio appears, start the
+             connection service the way iOS bluetooth-central relaunches. -->
+        <service
+            android:name=".RadioPresenceService"
+            android:exported="true"
+            android:permission="android.permission.BIND_COMPANION_DEVICE_SERVICE"
+            tools:targetApi="s">
+            <intent-filter>
+                <action android:name="android.companion.CompanionDeviceService" />
+            </intent-filter>
+        </service>
+
+        <!-- Quick Settings tile: connect/disconnect radio (Control widget equivalent). -->
+        <service
+            android:name=".RadioTileService"
+            android:exported="true"
+            android:icon="@android:drawable/stat_sys_data_bluetooth"
+            android:label="@string/radio_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

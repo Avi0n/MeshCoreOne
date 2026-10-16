@@ -1,0 +1,81 @@
+name: Deploy to TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: "Git ref to build (branch/tag/SHA)"
+        required: true
+        type: string
+        default: "dev"
+      skip_testflight:
+        description: "Build only (skip TestFlight upload)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  deploy:
+    runs-on: xcode-27
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_ref }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew tap FelixHerrmann/tap
+          brew trust FelixHerrmann/tap
+          brew install make xcodegen swiftgen swift-package-list
+          echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
+          gem install fastlane -v 2.240.1
+
+      - name: Setup SSH for Match
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.MATCH_DEPLOY_KEY }}
+
+      - name: Install certificates
+        env:
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+        run: |
+          cd fastlane
+          fastlane sync_certs
+
+      - name: Build and upload to TestFlight
+        if: ${{ !inputs.skip_testflight }}
+        env:
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY: ${{ secrets.ASC_KEY }}
+          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 120
+        run: |
+          cd fastlane
+          fastlane beta
+
+      - name: Build only
+        if: ${{ inputs.skip_testflight }}
+        env:
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 120
+        run: |
+          cd fastlane
+          fastlane build_only

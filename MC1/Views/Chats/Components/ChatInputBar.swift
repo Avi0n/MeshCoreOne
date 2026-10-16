@@ -1,0 +1,356 @@
+import MC1Services
+import SwiftUI
+import UIKit
+
+enum ChatInputMetrics {
+  /// Shared height for the compose field and its flanking glass buttons so the three controls align.
+  static let controlHeight: CGFloat = 36
+  /// Corner radius of the compose field, shared by its iOS 26 glass capsule and its outlined
+  /// legacy form.
+  static let fieldCornerRadius: CGFloat = 20
+  /// Hairline width for the legacy field's outline.
+  static let fieldBorderWidth: CGFloat = 1
+}
+
+/// Opaque plate behind the compose controls before iOS 26. `nil` on iOS 26+ so the
+/// field and send button can sample the timeline through a themed canvas.
+enum ChatInputBarChrome {
+  static func opaqueFill(themedCanvas: Color?) -> Color? {
+    if #available(iOS 26.0, *) {
+      return nil
+    }
+    return themedCanvas ?? Color(.systemBackground)
+  }
+}
+
+struct ChatInputBar<Leading: View>: View {
+  @Environment(\.appState) private var appState
+  @Environment(\.appTheme) private var theme
+  @Binding var text: String
+  /// Focus-request token forwarded to the composer; see `ChatComposerTextView`.
+  let focusRequest: Int
+  let placeholder: String
+  let maxBytes: Int
+  let isEncrypted: Bool
+  @ViewBuilder let leading: () -> Leading
+  var onFocus: () -> Void = {}
+  let onSend: (String) -> Void
+
+  @State private var isCoolingDown = false
+  @State private var sendInvocationCounter: Int = 0
+  @State private var composerProxy = ChatComposerProxy()
+  @Namespace private var glassNamespace
+
+  private var byteCount: Int {
+    text.utf8.count
+  }
+
+  private var isOverLimit: Bool {
+    byteCount > maxBytes
+  }
+
+  private var shouldShowCharacterCount: Bool {
+    byteCount >= maxBytes - 20
+  }
+
+  var body: some View {
+    HStack(alignment: .bottom, spacing: 12) {
+      leading()
+      LiquidGlassContainer(spacing: 12) {
+        HStack(alignment: .bottom, spacing: 12) {
+          ChatInputTextField(
+            text: $text,
+            placeholder: placeholder,
+            focusRequest: focusRequest,
+            isEncrypted: isEncrypted,
+            proxy: composerProxy,
+            onSend: handleHardwareSend,
+            onFocus: onFocus,
+            glassNamespace: glassNamespace
+          )
+          if canSend || shouldShowCharacterCount {
+            ChatSendButtonWithCounter(
+              canSend: canSend,
+              isOverLimit: isOverLimit,
+              shouldShowCharacterCount: shouldShowCharacterCount,
+              byteCount: byteCount,
+              maxBytes: maxBytes,
+              sendAccessibilityLabel: sendAccessibilityLabel,
+              sendAccessibilityHint: sendAccessibilityHint,
+              onSend: send,
+              glassNamespace: glassNamespace
+            )
+          }
+        }
+      }
+    }
+    .padding(.horizontal)
+    .padding(.vertical, 8)
+    .inputBarBackground(themedCanvas: theme.surfaces?.canvas)
+    .sensoryFeedback(.start, trigger: sendInvocationCounter)
+    .animation(.smooth(duration: 0.28), value: canSend)
+    .animation(.smooth(duration: 0.28), value: shouldShowCharacterCount)
+  }
+
+  private var sendAccessibilityLabel: String {
+    if isOverLimit {
+      L10n.Chats.Chats.Input.tooLong
+    } else {
+      L10n.Chats.Chats.Input.sendMessage
+    }
+  }
+
+  private var sendAccessibilityHint: String {
+    if isOverLimit {
+      L10n.Chats.Chats.Input.removeCharacters(byteCount - maxBytes)
+    } else if appState.connectionState != .ready {
+      L10n.Chats.Chats.Input.requiresConnection
+    } else if canSend {
+      L10n.Chats.Chats.Input.tapToSend
+    } else {
+      L10n.Chats.Chats.Input.typeFirst
+    }
+  }
+
+  private var canSend: Bool {
+    !isCoolingDown &&
+      appState.connectionState == .ready &&
+      !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isOverLimit
+  }
+
+  /// Hardware Return: `true` consumes it and sends under the same gates as the send
+  /// button; `false` inserts a newline. The composer keeps focus itself.
+  private func handleHardwareSend() -> Bool {
+    guard canSend else { return false }
+    send()
+    return true
+  }
+
+  private func send() {
+    composerProxy.commitPendingInput()
+    let captured = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !captured.isEmpty else { return }
+    isCoolingDown = true
+    text = ""
+    sendInvocationCounter &+= 1
+    onSend(captured)
+    Task {
+      try? await Task.sleep(for: .seconds(1))
+      isCoolingDown = false
+    }
+  }
+}
+
+extension ChatInputBar where Leading == EmptyView {
+  /// Input bar with no leading accessory, for call sites that only pass `onSend`.
+  init(
+    text: Binding<String>,
+    focusRequest: Int,
+    placeholder: String,
+    maxBytes: Int,
+    isEncrypted: Bool,
+    onSend: @escaping (String) -> Void
+  ) {
+    self.init(
+      text: text,
+      focusRequest: focusRequest,
+      placeholder: placeholder,
+      maxBytes: maxBytes,
+      isEncrypted: isEncrypted,
+      leading: { EmptyView() },
+      onSend: onSend
+    )
+  }
+}
+
+// MARK: - Extracted Views
+
+private struct ChatInputTextField: View {
+  @Binding var text: String
+  let placeholder: String
+  let focusRequest: Int
+  let isEncrypted: Bool
+  let proxy: ChatComposerProxy
+  let onSend: () -> Bool
+  let onFocus: () -> Void
+  let glassNamespace: Namespace.ID
+
+  var body: some View {
+    ChatComposerTextView(
+      text: $text,
+      focusRequest: focusRequest,
+      isEncrypted: isEncrypted,
+      proxy: proxy,
+      onSend: onSend,
+      onFocus: onFocus
+    )
+    .frame(maxWidth: .infinity, minHeight: ChatInputMetrics.controlHeight)
+    .overlay(alignment: .topLeading) {
+      if text.isEmpty {
+        Text(placeholder)
+          .font(.body)
+          .foregroundStyle(Color(uiColor: .placeholderText))
+          .padding(.top, ChatComposerUITextView.verticalInset)
+          .allowsHitTesting(false)
+          .accessibilityHidden(true)
+      }
+    }
+    .padding(.leading, 12)
+    .padding(.trailing, 28)
+    .overlay(alignment: .trailing) {
+      Image(systemName: isEncrypted ? "lock.fill" : "lock.open.fill")
+        .font(.footnote)
+        .foregroundStyle(isEncrypted ? .blue : .orange)
+        .padding(.trailing, 10)
+        .accessibilityHidden(true)
+    }
+    .textFieldBackground()
+    .liquidGlassID("chatComposer", in: glassNamespace)
+  }
+}
+
+private struct ChatSendButtonWithCounter: View {
+  let canSend: Bool
+  let isOverLimit: Bool
+  let shouldShowCharacterCount: Bool
+  let byteCount: Int
+  let maxBytes: Int
+  let sendAccessibilityLabel: String
+  let sendAccessibilityHint: String
+  let onSend: () -> Void
+  let glassNamespace: Namespace.ID
+
+  var body: some View {
+    VStack(spacing: 4) {
+      if canSend {
+        ChatSendButton(
+          sendAccessibilityLabel: sendAccessibilityLabel,
+          sendAccessibilityHint: sendAccessibilityHint,
+          onSend: onSend
+        )
+        .liquidGlassID("chatSend", in: glassNamespace)
+        .transition(chatSendButtonTransition)
+      }
+      if shouldShowCharacterCount {
+        ChatCharacterCountLabel(
+          byteCount: byteCount,
+          maxBytes: maxBytes,
+          isOverLimit: isOverLimit
+        )
+      }
+    }
+  }
+}
+
+private var chatSendButtonTransition: AnyTransition {
+  if #available(iOS 26.0, *) {
+    .opacity
+  } else {
+    .scale(scale: 0.5, anchor: .trailing).combined(with: .opacity)
+  }
+}
+
+private struct ChatCharacterCountLabel: View {
+  let byteCount: Int
+  let maxBytes: Int
+  let isOverLimit: Bool
+
+  var body: some View {
+    Text("\(byteCount)/\(maxBytes)")
+      .font(.caption2)
+      .monospacedDigit()
+      .foregroundStyle(isOverLimit ? .red : .secondary)
+      .accessibilityLabel(L10n.Chats.Chats.Input.characterCount(byteCount, maxBytes))
+  }
+}
+
+private struct ChatSendButton: View {
+  let sendAccessibilityLabel: String
+  let sendAccessibilityHint: String
+  let onSend: () -> Void
+
+  var body: some View {
+    Button(action: onSend) {
+      Image(systemName: "arrow.up")
+        .font(.system(size: 18, weight: .semibold))
+        .foregroundStyle(.white)
+        .frame(width: ChatInputMetrics.controlHeight, height: ChatInputMetrics.controlHeight)
+        .sendButtonBackground()
+        .contentShape(Circle())
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(sendAccessibilityLabel)
+    .accessibilityHint(sendAccessibilityHint)
+  }
+}
+
+// MARK: - Platform-Conditional Styling
+
+private extension View {
+  @ViewBuilder
+  func sendButtonBackground() -> some View {
+    if #available(iOS 26.0, *) {
+      glassEffect(.regular.tint(.blue), in: .circle)
+    } else {
+      background(Color.blue, in: Circle())
+    }
+  }
+
+  @ViewBuilder
+  func textFieldBackground() -> some View {
+    if #available(iOS 26.0, *) {
+      glassEffect(
+        .regular.interactive(!ProcessInfo.processInfo.isiOSAppOnMac),
+        in: .rect(cornerRadius: ChatInputMetrics.fieldCornerRadius)
+      )
+    } else {
+      // Without the glass capsule the field would read as one fill on the bar's fill, so its edge
+      // carries the affordance. A clear centre keeps it legible against any theme canvas.
+      overlay {
+        RoundedRectangle(cornerRadius: ChatInputMetrics.fieldCornerRadius)
+          .strokeBorder(Color(.separator), lineWidth: ChatInputMetrics.fieldBorderWidth)
+      }
+    }
+  }
+
+  @ViewBuilder
+  func inputBarBackground(themedCanvas: Color?) -> some View {
+    if let fill = ChatInputBarChrome.opaqueFill(themedCanvas: themedCanvas) {
+      background(fill)
+    } else {
+      self
+    }
+  }
+}
+
+// MARK: - Preview
+
+private struct ChatInputBarPreviewHost: View {
+  @State private var plainText = ""
+  @State private var leadingText = ""
+
+  var body: some View {
+    VStack(spacing: 24) {
+      ChatInputBar(
+        text: $plainText,
+        focusRequest: 0,
+        placeholder: "No leading accessory",
+        maxBytes: 140,
+        isEncrypted: true
+      ) { _ in }
+
+      ChatInputBar(
+        text: $leadingText,
+        focusRequest: 0,
+        placeholder: "With leading accessory",
+        maxBytes: 140,
+        isEncrypted: false,
+        leading: { Image(systemName: "plus") }
+      ) { _ in }
+    }
+  }
+}
+
+#Preview {
+  ChatInputBarPreviewHost()
+}

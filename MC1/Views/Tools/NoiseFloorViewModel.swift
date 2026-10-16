@@ -1,0 +1,189 @@
+import MC1Services
+import MeshCore
+import SwiftUI
+
+struct NoiseFloorReading: Identifiable {
+  let id: UUID
+  let timestamp: Date
+  let noiseFloor: Int16
+  let lastRSSI: Int8
+  let lastSNR: Double
+}
+
+struct NoiseFloorStatistics {
+  let min: Int16
+  let max: Int16
+  let average: Double
+}
+
+enum NoiseFloorQuality: Equatable {
+  case excellent
+  case good
+  case fair
+  case poor
+  case unknown
+
+  static func from(noiseFloor: Int16) -> NoiseFloorQuality {
+    switch noiseFloor {
+    case ...(-100): .excellent
+    case ...(-90): .good
+    case ...(-80): .fair
+    default: .poor
+    }
+  }
+
+  var label: String {
+    switch self {
+    case .excellent: L10n.Tools.Tools.NoiseFloor.Quality.excellent
+    case .good: L10n.Tools.Tools.NoiseFloor.Quality.good
+    case .fair: L10n.Tools.Tools.NoiseFloor.Quality.fair
+    case .poor: L10n.Tools.Tools.NoiseFloor.Quality.poor
+    case .unknown: L10n.Tools.Tools.NoiseFloor.Quality.unknown
+    }
+  }
+
+  var color: Color {
+    switch self {
+    case .excellent: .green
+    case .good: .blue
+    case .fair: .orange
+    case .poor: .red
+    case .unknown: .secondary
+    }
+  }
+
+  var icon: String {
+    switch self {
+    case .excellent: "checkmark.circle.fill"
+    case .good: "circle.fill"
+    case .fair: "exclamationmark.circle.fill"
+    case .poor: "xmark.circle.fill"
+    case .unknown: "questionmark.circle"
+    }
+  }
+}
+
+@Observable
+@MainActor
+final class NoiseFloorViewModel {
+  var currentReading: NoiseFloorReading?
+  var readings: [NoiseFloorReading] = []
+  var isPolling = false
+  var errorMessage: String?
+  /// Chart x-axis origin for this workspace. Kept across stop/start so a gap
+  /// in polling does not shift retained samples.
+  private(set) var chartStartTime: Date?
+
+  static let chartWindowSeconds: Double = 300
+
+  var chartDomain: ClosedRange<Double> {
+    guard let startTime = chartStartTime, let lastReading = readings.last else {
+      return 0...Self.chartWindowSeconds
+    }
+    let latestElapsed = max(0, lastReading.timestamp.timeIntervalSince(startTime))
+    if latestElapsed <= Self.chartWindowSeconds {
+      return 0...Self.chartWindowSeconds
+    }
+    return (latestElapsed - Self.chartWindowSeconds)...latestElapsed
+  }
+
+  private let maxReadings = 200
+  private let pollingInterval: Duration = .seconds(1.5)
+  #if DEBUG
+    private(set) var radioStatsReadCountForTesting = 0
+  #endif
+
+  // Re-evaluated each poll tick so a disconnect mid-poll surfaces immediately.
+  private var sessionProvider: @MainActor () -> MeshCoreSession? = { nil }
+  private var pollingTask: Task<Void, Never>?
+  /// Ignored so the statistics getter can fill the cache during view body
+  /// evaluation without mutating observed state; readings drives invalidation.
+  @ObservationIgnored private var cachedStatistics: NoiseFloorStatistics?
+
+  var statistics: NoiseFloorStatistics? {
+    if let cached = cachedStatistics { return cached }
+    guard !readings.isEmpty else { return nil }
+    let values = readings.map(\.noiseFloor)
+    let computed = NoiseFloorStatistics(
+      min: values.min()!,
+      max: values.max()!,
+      average: Double(values.reduce(0) { $0 + Int($1) }) / Double(values.count)
+    )
+    cachedStatistics = computed
+    return computed
+  }
+
+  var qualityLevel: NoiseFloorQuality {
+    guard let reading = currentReading else { return .unknown }
+    return NoiseFloorQuality.from(noiseFloor: reading.noiseFloor)
+  }
+
+  func appendReading(_ reading: NoiseFloorReading) {
+    currentReading = reading
+    readings.append(reading)
+    if readings.count > maxReadings {
+      readings.removeFirst()
+    }
+    cachedStatistics = nil
+    errorMessage = nil
+  }
+
+  func setWorkspaceActive(_ active: Bool, sessionProvider: @escaping @MainActor () -> MeshCoreSession?) {
+    if active {
+      startPolling(sessionProvider: sessionProvider)
+    } else {
+      stopPolling()
+    }
+  }
+
+  func startPolling(sessionProvider: @escaping @MainActor () -> MeshCoreSession?) {
+    self.sessionProvider = sessionProvider
+    if chartStartTime == nil {
+      chartStartTime = Date()
+    }
+    guard pollingTask == nil else { return }
+    isPolling = true
+
+    pollingTask = Task { [weak self] in
+      while true {
+        do {
+          guard let self else { break }
+          await fetchReading()
+          try await Task.sleep(for: pollingInterval)
+        } catch {
+          break
+        }
+      }
+    }
+  }
+
+  func stopPolling() {
+    pollingTask?.cancel()
+    pollingTask = nil
+    isPolling = false
+  }
+
+  private func fetchReading() async {
+    guard let session = sessionProvider() else {
+      errorMessage = L10n.Tools.Tools.NoiseFloor.Error.disconnected
+      return
+    }
+
+    do {
+      #if DEBUG
+        radioStatsReadCountForTesting += 1
+      #endif
+      let stats = try await session.getStatsRadio()
+      let reading = NoiseFloorReading(
+        id: UUID(),
+        timestamp: .now,
+        noiseFloor: stats.noiseFloor,
+        lastRSSI: stats.lastRSSI,
+        lastSNR: stats.lastSNR
+      )
+      appendReading(reading)
+    } catch {
+      errorMessage = L10n.Tools.Tools.NoiseFloor.Error.unableToRead
+    }
+  }
+}

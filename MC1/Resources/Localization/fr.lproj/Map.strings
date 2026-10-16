@@ -1,0 +1,319 @@
+/*
+  Map.strings
+  MC1
+
+  French translation of strings for the Map feature.
+  AI-translated - please verify with native speakers.
+*/
+
+// MARK: - Common
+
+/* Location: MapView.swift - Purpose: Done button for sheets */
+"map.common.done" = "Terminé";
+
+// MARK: - Map Controls
+
+/* Location: MapView.swift - Purpose: Accessibility label when labels are hidden */
+"map.controls.showLabels" = "Afficher les étiquettes";
+
+/* Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that clusters nearby pins */
+/* AI-translated - please verify with native speakers. */
+"map.controls.clusterNodes" = "Regrouper les nœuds";
+
+/* Location: MapView.swift - Purpose: Accessibility label for center on all contacts button */
+"map.controls.centerAll" = "Centrer sur tous les contacts";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for user location button */
+"map.controls.centerOnMyLocation" = "Centrer sur ma position";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map options menu button */
+/* AI-translated - please verify with native speakers. */
+"map.controls.mapOptions" = "Options de la carte";
+
+/* Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that locks the map bearing to north */
+/* AI-translated - please verify with native speakers. */
+"map.controls.lockNorth" = "Nord en haut";
+
+/* Location: MapView.swift - Purpose: Accessibility label for refresh button */
+"map.controls.refresh" = "Actualiser les contacts";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
+"map.controls.filter" = "Filtrer";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
+"map.controls.filterActive" = "Filtres actifs";
+
+/* Location: MapControlsToolbar.swift - Purpose: Filter menu item that opens the Advanced Filters sheet */
+"map.controls.moreFilters" = "Plus de filtres…";
+
+// MARK: - Advanced Filters
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Sheet title */
+"map.filters.title" = "Filtres avancés";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Toolbar button that clears all advanced filters */
+"map.filters.reset" = "Réinitialiser";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Row label for the lower bound of a range */
+"map.filters.minimum" = "Minimum";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Row label for the upper bound of a range */
+"map.filters.maximum" = "Maximum";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Placeholder for an empty range bound */
+"map.filters.noLimit" = "Aucune limite";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Accessibility label for the preset buttons row */
+"map.filters.presets" = "Préréglages";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Accessibility label for the button removing one filter. %@ is the filter summary, e.g. "Heard ≤ 2h" */
+"map.filters.remove" = "Supprimer le filtre : %@";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Accessibility hint for tapping an active filter chip */
+"map.filters.editHint" = "Ouvre les filtres avancés";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Section header for the last-heard time range */
+"map.filters.lastHeard.header" = "Dernière écoute";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset that disables the last-heard filter */
+"map.filters.lastHeard.anyTime" = "N’importe quand";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option */
+"map.filters.lastHeard.unit.minutes" = "Minutes";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option */
+"map.filters.lastHeard.unit.hours" = "Heures";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option */
+"map.filters.lastHeard.unit.days" = "Jours";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Accessibility label for a unit menu */
+"map.filters.lastHeard.unit.label" = "Unité";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer when no last-heard filter is set */
+"map.filters.lastHeard.summary.any" = "Affiche les nœuds quelle que soit leur dernière écoute.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a maximum-age-only range. %@ is a duration, e.g. "2h" */
+"map.filters.lastHeard.summary.within" = "Affiche les nœuds entendus depuis moins de %@.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a minimum-age-only range. %@ is a duration */
+"map.filters.lastHeard.summary.olderThan" = "Affiche les nœuds entendus il y a au moins %@.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a bounded range. First %@ is the minimum age, second the maximum age */
+"map.filters.lastHeard.summary.between" = "Affiche les nœuds entendus il y a entre %1$@ et %2$@.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer explaining where last-heard time comes from */
+"map.filters.lastHeard.explanation" = "Basé sur les annonces, messages et pings reçus de chaque nœud. Les nœuds jamais entendus sont masqués tant que ce filtre est actif.";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a maximum-age-only range. %@ is a duration, e.g. "2h" */
+"map.filters.lastHeard.chip.within" = "Entendu ≤ %@";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a minimum-age-only range. %@ is a duration */
+"map.filters.lastHeard.chip.olderThan" = "Entendu ≥ %@";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a bounded range. First %@ is the minimum age, second the maximum age */
+"map.filters.lastHeard.chip.between" = "Entendu %1$@–%2$@";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Section header for the hop-count range */
+"map.filters.hops.header" = "Sauts";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset that disables the hop filter */
+"map.filters.hops.any" = "Tous";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset showing only nodes heard without a repeater */
+"map.filters.hops.direct" = "Direct";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset for an upper hop bound. %d is the hop count */
+"map.filters.hops.upTo" = "≤ %d";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer when no hop filter is set */
+"map.filters.hops.summary.any" = "Affiche les nœuds avec n’importe quel nombre de sauts.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for the direct-only range */
+"map.filters.hops.summary.direct" = "Affiche uniquement les nœuds entendus directement, sans répéteur.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a single hop count. %d is the hop count */
+"map.filters.hops.summary.exactly" = "Affiche les nœuds avec exactement %d sauts.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for an upper bound only. %d is the hop count */
+"map.filters.hops.summary.atMost" = "Affiche les nœuds avec au plus %d sauts.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a lower bound only. %d is the hop count */
+"map.filters.hops.summary.atLeast" = "Affiche les nœuds avec au moins %d sauts.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a bounded range. %1$d is the minimum, %2$d the maximum */
+"map.filters.hops.summary.between" = "Affiche les nœuds avec de %1$d à %2$d sauts.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer explaining hop counts */
+"map.filters.hops.explanation" = "Les sauts sont les répéteurs entre vous et le nœud ; 0 signifie entendu directement. Les nœuds au nombre de sauts inconnu sont masqués tant que ce filtre est actif.";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for the direct-only range */
+"map.filters.hops.chip.direct" = "Direct seul";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a single hop count. %d is the hop count */
+"map.filters.hops.chip.exactly" = "Sauts = %d";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for an upper bound only. %d is the hop count */
+"map.filters.hops.chip.atMost" = "Sauts ≤ %d";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a lower bound only. %d is the hop count */
+"map.filters.hops.chip.atLeast" = "Sauts ≥ %d";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a bounded range. %1$d is the minimum, %2$d the maximum */
+"map.filters.hops.chip.between" = "Sauts %1$d–%2$d";
+
+// MARK: - Map Style Selection
+
+/* Location: MapStyleSelection.swift - Purpose: Standard map style option */
+"map.style.standard" = "Standard";
+
+/* Location: MapStyleSelection.swift - Purpose: Satellite map style option */
+"map.style.satellite" = "Satellite";
+
+/* Location: MapStyleSelection.swift - Purpose: Topo map style option */
+"map.style.topo" = "Topographie";
+
+/* Location: LayersMenu.swift - Purpose: Accessibility label for map style menu */
+"map.style.accessibilityLabel" = "Style de carte";
+
+/* Location: LayersMenu.swift - Purpose: Hint when style requires network */
+"map.style.requiresNetwork" = "Nécessite une connexion réseau";
+
+/* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
+"map.style.noOfflineCoverage" = "Aucune carte hors ligne ne couvre cette zone";
+
+// MARK: - Contact Detail Sheet
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for contact information */
+"map.detail.section.contactInfo" = "Infos du contact";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for contact name */
+"map.detail.name" = "Nom";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for contact type */
+"map.detail.type" = "Type";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for favorite status */
+"map.detail.status" = "Statut";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Value showing contact is favorited */
+"map.detail.favorite" = "Favori";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp */
+"map.detail.lastAdvert" = "Dernière annonce";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Last heard (phone-clock on-air) label */
+"map.detail.lastHeard" = "Dernière écoute";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for full public key identifier */
+"map.detail.publicKey" = "Clé publique";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for location coordinates */
+"map.detail.section.location" = "Position";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for latitude coordinate */
+"map.detail.latitude" = "Latitude";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for longitude coordinate */
+"map.detail.longitude" = "Longitude";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for outbound path info */
+"map.detail.section.outboundPath" = "Chemin sortant";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for routing type */
+"map.detail.routing" = "Routage";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Flood routing type value */
+"map.detail.routingFlood" = "Inondation";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for path length */
+"map.detail.pathLength" = "Longueur du chemin";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Path length value with hop count */
+"map.detail.hops" = "%d sauts";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Path length value for single hop */
+"map.detail.hopSingular" = "1 saut";
+
+// MARK: - Contact Detail Sheet Actions
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to view repeater telemetry */
+"map.detail.action.telemetry" = "Télémétrie";
+
+/* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
+/* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
+"map.detail.action.telemetryAccessTitle" = "Accès à la télémétrie";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to manage repeater */
+"map.detail.action.management" = "Gestion";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to join a room */
+"map.detail.action.joinRoom" = "Rejoindre le salon";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to send a message */
+"map.detail.action.sendMessage" = "Envoyer un message";
+
+// MARK: - Contact Type Names
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Display name for chat contact type */
+"map.nodeKind.chatContact" = "Contact de discussion";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Display name for repeater type */
+"map.nodeKind.repeater" = "Répéteur";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Display name for room type */
+"map.nodeKind.room" = "Salon";
+
+// MARK: - Contact Callout
+
+/* Location: ContactCalloutContent.swift - Purpose: Button to view contact details */
+"map.callout.details" = "Détails";
+
+/* Location: ContactCalloutContent.swift - Purpose: Button to send message from callout */
+"map.callout.message" = "Message";
+
+/* Location: ContactCalloutContent.swift - Purpose: Display name for contact in callout */
+"map.callout.nodeKind.contact" = "Contact";
+
+/* Location: ContactCalloutContent.swift - Purpose: Display name for repeater in callout */
+"map.callout.nodeKind.repeater" = "Répéteur";
+
+/* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
+"map.callout.nodeKind.room" = "Salon";
+
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */
+"map.callout.add" = "Ajouter";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Label that the pin is discovered, not on the node list */
+"map.callout.discovered" = "Découvert";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail */
+"map.discoveredDetail.title" = "Nœud découvert";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Primary action to add discovered node to the radio table */
+"map.discoveredDetail.add" = "Ajouter aux nœuds";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Accessibility label for discovered pins */
+"map.pin.accessibility.discovered" = "Découvert, pas dans la liste de nœuds";
+
+// MARK: - Contact Annotation
+
+/* Location: ContactAnnotation.swift - Purpose: Subtitle for favorite contacts */
+/* Location: ContactAnnotation.swift - Purpose: Subtitle for repeater nodes */
+/* Location: ContactAnnotation.swift - Purpose: Subtitle for room nodes */
+// MARK: - Offline Badge
+
+/* Label shown on map when device has no internet connection */
+"map.offlineBadge.label" = "Hors ligne";
+
+// MARK: - Chat Map Preview
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the chat map-location thumbnail */
+"map.preview.accessibilityLabel" = "Aperçu de l'emplacement sur la carte";
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail */
+"map.preview.accessibilityHint" = "Ouvre cet emplacement sur la carte";
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
+"map.preview.retryButton.accessibilityLabel" = "Réessayer de charger la miniature de la carte";

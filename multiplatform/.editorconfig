@@ -1,0 +1,21 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+max_line_length = 120
+ktlint_code_style = intellij_idea
+# expect/actual and platform-suffixed files (Platform.android.kt, Platform.desktop.kt) do not
+# map one-to-one to a single top-level declaration, so the filename rule does not apply here.
+ktlint_standard_filename = disabled
+# Compose @Composable functions are intentionally PascalCase.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+[*.{yml,yaml,toml,xml}]
+indent_size = 2

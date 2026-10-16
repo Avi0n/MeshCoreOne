@@ -1,0 +1,298 @@
+import Foundation
+@testable import MC1
+@testable import MC1Services
+import Testing
+
+@MainActor
+@Suite("MessageFooter footer-slot algebra")
+struct MessageBubblePredicateTests {
+  @Test(arguments: [
+    // (showFlag, routeType, expected)
+    (true, RouteType.flood, true), // gate open
+    (true, RouteType.tcFlood, true), // tcFlood is treated as flood
+    (true, RouteType.direct, false), // direct-routed must suppress hop even with flag on
+    (true, RouteType.tcDirect, false), // tcDirect is treated as direct
+    (false, RouteType.flood, false), // flag off
+    (false, RouteType.direct, false),
+  ])
+  func `showHop: gated by both flag AND isFloodRouted`(showFlag: Bool, routeType: RouteType, expected: Bool) {
+    let message = makeMessage(routeType: routeType)
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingHopCount: showFlag
+    )
+    #expect(bundle.item.footer.showHop == expected)
+  }
+
+  @Test(arguments: [
+    // (showFlag, direction, heardRepeats, expected)
+    (false, MessageDirection.incoming, 2, false),
+    (true, MessageDirection.incoming, 2, true),
+    (true, MessageDirection.incoming, 0, false),
+    (true, MessageDirection.outgoing, 2, false),
+  ])
+  func `showHeardCount: gated by flag AND incoming AND heardRepeats`(
+    showFlag: Bool,
+    direction: MessageDirection,
+    heardRepeats: Int,
+    expected: Bool
+  ) {
+    let message = makeMessage(direction: direction, heardRepeats: heardRepeats)
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingHeardCount: showFlag
+    )
+    #expect(bundle.item.footer.showHeardCount == expected)
+  }
+
+  @Test(arguments: [
+    // (showFlag, routeType, scope, expected)
+    (true, RouteType.flood, "United States" as String?, "United States" as String?), // happy path
+    (true, RouteType.tcFlood, "United States" as String?, "United States" as String?), // tcFlood is flood
+    (true, RouteType.flood, nil, nil), // no scope to show
+    // Direct-routed messages must hide region even when flag is on and scope is populated.
+    // This is the regression row for the previously-shipped bug where regionToShow lacked
+    // the isFloodRouted gate that its sibling showHop already had.
+    (true, RouteType.direct, "United States" as String?, nil),
+    (true, RouteType.tcDirect, "United States" as String?, nil), // tcDirect is direct
+    (false, RouteType.flood, "United States" as String?, nil), // user setting off
+    (false, RouteType.direct, "United States" as String?, nil),
+    (true, RouteType.direct, nil, nil),
+  ])
+  func `regionToShow: nil unless flag AND isFloodRouted AND scope present`(showFlag: Bool, routeType: RouteType, scope: String?, expected: String?) {
+    let message = makeMessage(routeType: routeType, regionScope: scope)
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: showFlag
+    )
+    #expect(bundle.item.footer.regionToShow == expected)
+  }
+
+  @Test
+  func `regionToShow: channel messages render region regardless of routeType`() {
+    // channelIndex != nil makes isFloodRouted always true (channels are always flood),
+    // so the direct routeType is ignored. Verifies the channel-override path through
+    // MessageDTO.isFloodRouted that the parameterized matrix doesn't otherwise exercise.
+    let message = makeMessage(channelIndex: 0, routeType: .direct, regionScope: "United States")
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: true
+    )
+    #expect(bundle.item.footer.regionToShow == "United States")
+  }
+
+  @Test
+  func `regionToShow: legacy radio with no routeType respects pathLength 0xFF as direct`() {
+    // Older radios may not populate routeType. In that case isFloodRouted falls back to
+    // pathLength != 0xFF. A 0xFF marker means direct-routed, so region must hide.
+    let message = makeMessage(pathLength: 0xFF, routeType: nil, regionScope: "United States")
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: true
+    )
+    #expect(bundle.item.footer.regionToShow == nil)
+  }
+
+  struct HasFooterCase: CustomTestStringConvertible {
+    let showHopFlag: Bool
+    let showRegionFlag: Bool
+    let routeType: RouteType
+    let regionScope: String?
+    let formattedPath: String?
+    let expected: Bool
+
+    var testDescription: String {
+      "hop=\(showHopFlag) region=\(showRegionFlag) "
+        + "route=\(routeType) scope=\(regionScope ?? "nil") "
+        + "path=\(formattedPath ?? "nil") -> \(expected)"
+    }
+  }
+
+  @Test(arguments: [
+    // All off: no footer
+    HasFooterCase(showHopFlag: false, showRegionFlag: false, routeType: .direct,
+                  regionScope: nil, formattedPath: nil, expected: false),
+    // Hop only contributes
+    HasFooterCase(showHopFlag: true, showRegionFlag: false, routeType: .flood,
+                  regionScope: nil, formattedPath: nil, expected: true),
+    // Path only contributes (path is direction-blind in hasFooter; gate lives upstream)
+    HasFooterCase(showHopFlag: false, showRegionFlag: false, routeType: .direct,
+                  regionScope: nil, formattedPath: "A3,7F", expected: true),
+    // Region only contributes
+    HasFooterCase(showHopFlag: false, showRegionFlag: true, routeType: .flood,
+                  regionScope: "US", formattedPath: nil, expected: true),
+    // Region flag on but direct-routed must NOT contribute (regression row for the
+    // previously-shipped missing-isFloodRouted-gate bug, expressed in OR composition).
+    HasFooterCase(showHopFlag: false, showRegionFlag: true, routeType: .direct,
+                  regionScope: "US", formattedPath: nil, expected: false),
+    // Region + path on with hop off: isolates the case where region is the only
+    // gate-sensitive contributor. Catches a future regression where regionToShow
+    // loses its gate but a co-contributing axis (hop) would otherwise mask it.
+    HasFooterCase(showHopFlag: false, showRegionFlag: true, routeType: .flood,
+                  regionScope: "US", formattedPath: "A3,7F", expected: true),
+    // All three on
+    HasFooterCase(showHopFlag: true, showRegionFlag: true, routeType: .flood,
+                  regionScope: "US", formattedPath: "A3,7F", expected: true),
+  ])
+  func `hasFooter true iff any of hop/path/region contributes`(testCase: HasFooterCase) {
+    let message = makeMessage(routeType: testCase.routeType, regionScope: testCase.regionScope)
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      formattedPath: testCase.formattedPath,
+      showIncomingHopCount: testCase.showHopFlag,
+      showIncomingRegion: testCase.showRegionFlag
+    )
+    let footer = bundle.item.footer
+    let hasFooter = footer.showHop || footer.formattedPath != nil || footer.regionToShow != nil
+    #expect(hasFooter == testCase.expected)
+  }
+
+  // MARK: - Consumer-site accessibility label coverage
+
+  @Test
+  func `accessibilityMessageLabel: direct-routed message must not include region fragment`() {
+    // Mirrors the predicate-level regression row at the consumer site: even with
+    // showIncomingRegion=true and a populated regionScope, a direct-routed message
+    // must not assemble the region accessibility fragment into the screen-reader label.
+    let message = makeMessage(routeType: .direct, regionScope: "United States")
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingHopCount: true,
+      showIncomingRegion: true
+    )
+    let bubble = UnifiedMessageBubble(
+      message: message,
+      contactName: "Alice",
+      configuration: .directMessage,
+      item: bundle.item,
+      layout: FragmentLayout(content: bundle.item.content),
+      imageResolver: bundle.imageResolver
+    )
+    let regionFragment = L10n.Chats.Chats.Message.Region.accessibilityLabel("United States")
+
+    #expect(bubble.accessibilityMessageLabel.contains(regionFragment) == false)
+  }
+
+  @Test
+  func `accessibilityMessageLabel: flood-routed message includes region fragment`() {
+    let message = makeMessage(routeType: .flood, regionScope: "United States")
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: true
+    )
+    let bubble = UnifiedMessageBubble(
+      message: message,
+      contactName: "Alice",
+      configuration: .directMessage,
+      item: bundle.item,
+      layout: FragmentLayout(content: bundle.item.content),
+      imageResolver: bundle.imageResolver
+    )
+    let regionFragment = L10n.Chats.Chats.Message.Region.accessibilityLabel("United States")
+
+    #expect(bubble.accessibilityMessageLabel.contains(regionFragment) == true)
+  }
+
+  @Test
+  func `footer bakes multi-match chip label and ambiguous flag`() {
+    let message = makeMessage(
+      routeType: .flood,
+      regionScope: "Germany", // sticky first-match must lose to multi-match
+      regionScopeMatches: ["de-hh", "de-by"]
+    )
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: true
+    )
+    let footer = bundle.item.footer
+
+    #expect(footer.regionToShow == "de-by / de-hh")
+    #expect(footer.regionIsAmbiguous)
+    #expect(footer.regionMatchNames == ["de-by", "de-hh"])
+  }
+
+  @Test
+  func `footer bakes legacy scope-only as unique without ambiguous flag`() {
+    let message = makeMessage(routeType: .flood, regionScope: "Germany", regionScopeMatches: [])
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: true
+    )
+    let footer = bundle.item.footer
+
+    #expect(footer.regionToShow == "Germany")
+    #expect(!footer.regionIsAmbiguous)
+    #expect(footer.regionMatchNames == ["Germany"])
+  }
+
+  @Test
+  func `accessibilityMessageLabel lists all candidates when ambiguous`() {
+    // Ambiguous region footer (nil sticky scope, multi-match candidates) must surface
+    // every candidate name in the screen-reader label, not only the chip text.
+    let message = makeMessage(
+      routeType: .flood,
+      regionScope: nil,
+      regionScopeMatches: ["de-hh", "de-by"]
+    )
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: true
+    )
+    let footer = bundle.item.footer
+    let bubble = UnifiedMessageBubble(
+      message: message,
+      contactName: "Alice",
+      configuration: .directMessage,
+      item: bundle.item,
+      layout: FragmentLayout(content: bundle.item.content),
+      imageResolver: bundle.imageResolver
+    )
+
+    #expect(footer.regionIsAmbiguous)
+    #expect(footer.regionMatchNames.contains("de-by"))
+    #expect(footer.regionMatchNames.contains("de-hh"))
+    #expect(bubble.accessibilityMessageLabel.contains("de-by"))
+    #expect(bubble.accessibilityMessageLabel.contains("de-hh"))
+  }
+
+  // MARK: - Helpers
+
+  private func makeMessage(
+    channelIndex: UInt8? = nil,
+    pathLength: UInt8 = 0x02,
+    pathNodes: Data? = Data([0xA3, 0x7F]),
+    direction: MessageDirection = .incoming,
+    heardRepeats: Int = 0,
+    routeType: RouteType? = nil,
+    regionScope: String? = nil,
+    regionScopeMatches: [String] = []
+  ) -> MessageDTO {
+    MessageDTO(
+      id: UUID(),
+      radioID: UUID(),
+      contactID: nil,
+      channelIndex: channelIndex,
+      text: "Test",
+      timestamp: 0,
+      createdAt: Date(),
+      direction: direction,
+      status: .delivered,
+      textType: .plain,
+      ackCode: nil,
+      pathLength: pathLength,
+      snr: nil,
+      pathNodes: pathNodes,
+      senderKeyPrefix: nil,
+      senderNodeName: channelIndex != nil ? "RemoteNode" : nil,
+      isRead: true,
+      replyToID: nil,
+      roundTripTime: nil,
+      heardRepeats: heardRepeats,
+      retryAttempt: 0,
+      maxRetryAttempts: 0,
+      routeType: routeType,
+      regionScope: regionScope,
+      regionScopeMatches: regionScopeMatches
+    )
+  }
+}

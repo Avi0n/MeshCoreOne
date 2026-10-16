@@ -1,0 +1,257 @@
+import CryptoKit
+import Foundation
+import SwiftData
+
+/// Represents a message in a room server conversation.
+@Model
+public final class RoomMessage {
+  #Index<RoomMessage>(
+    [\.sessionID, \.timestamp],
+    [\.sessionID, \.deduplicationKey]
+  )
+
+  /// Unique message identifier
+  @Attribute(.unique)
+  public var id: UUID
+
+  /// References RemoteNodeSession.id
+  public var sessionID: UUID
+
+  /// 4-byte original author's public key prefix from server push
+  public var authorKeyPrefix: Data
+
+  /// Resolved author name (from contacts or nil)
+  public var authorName: String?
+
+  /// Message text content
+  public var text: String
+
+  /// Message timestamp (server time)
+  public var timestamp: UInt32
+
+  /// Local creation date
+  public var createdAt: Date
+
+  /// Whether this message was posted by the current user
+  public var isFromSelf: Bool
+
+  /// Deduplication key combining timestamp, author, and content hash
+  /// Format: "\(timestamp)-\(authorPrefixHex)-\(contentHashPrefix)"
+  public var deduplicationKey: String
+
+  /// Message delivery status (uses MessageStatus enum)
+  public var statusRawValue: Int = MessageStatus.delivered.rawValue
+
+  /// ACK code returned by MeshCore when message was sent
+  public var ackCode: UInt32?
+
+  /// Round-trip time in milliseconds when ACK received
+  public var roundTripTime: UInt32?
+
+  /// Current retry attempt number
+  public var retryAttempt: Int = 0
+
+  /// Maximum retry attempts configured
+  public var maxRetryAttempts: Int = 0
+
+  /// Whether the user has opened the room after this outgoing send failed.
+  /// The conversation-list badge shows only unseen `.failed` rows.
+  public var failureSeen: Bool = false
+
+  public init(
+    id: UUID = UUID(),
+    sessionID: UUID,
+    authorKeyPrefix: Data,
+    authorName: String? = nil,
+    text: String,
+    timestamp: UInt32,
+    isFromSelf: Bool = false,
+    status: MessageStatus = .delivered
+  ) {
+    self.id = id
+    self.sessionID = sessionID
+    self.authorKeyPrefix = authorKeyPrefix
+    self.authorName = authorName
+    self.text = text
+    self.timestamp = timestamp
+    createdAt = Date()
+    self.isFromSelf = isFromSelf
+    statusRawValue = status.rawValue
+    deduplicationKey = Self.generateDeduplicationKey(
+      timestamp: timestamp,
+      authorKeyPrefix: authorKeyPrefix,
+      text: text
+    )
+  }
+
+  /// Builds a model instance directly from a DTO, preserving the exact
+  /// createdAt, deduplicationKey, and delivery metadata from the source.
+  public convenience init(dto: RoomMessageDTO) {
+    self.init(
+      id: dto.id,
+      sessionID: dto.sessionID,
+      authorKeyPrefix: dto.authorKeyPrefix,
+      authorName: dto.authorName,
+      text: dto.text,
+      timestamp: dto.timestamp,
+      isFromSelf: dto.isFromSelf,
+      status: dto.status
+    )
+    createdAt = dto.createdAt
+    deduplicationKey = dto.deduplicationKey
+    ackCode = dto.ackCode
+    roundTripTime = dto.roundTripTime
+    retryAttempt = dto.retryAttempt
+    maxRetryAttempts = dto.maxRetryAttempts
+    failureSeen = dto.failureSeen
+  }
+}
+
+// MARK: - Computed Properties
+
+public extension RoomMessage {
+  /// Display name for author (resolved name or hex prefix)
+  var authorDisplayName: String {
+    authorName ?? authorKeyPrefix.map { String(format: "%02X", $0) }.joined()
+  }
+
+  /// Date representation of timestamp
+  var date: Date {
+    Date(timeIntervalSince1970: TimeInterval(timestamp))
+  }
+
+  /// Delivery status
+  var status: MessageStatus {
+    MessageStatus(rawValue: statusRawValue) ?? .delivered
+  }
+}
+
+// MARK: - Deduplication
+
+public extension RoomMessage {
+  /// Generate a deduplication key for message uniqueness.
+  /// Uses timestamp + author prefix + first 8 chars of content hash.
+  static func generateDeduplicationKey(
+    timestamp: UInt32,
+    authorKeyPrefix: Data,
+    text: String
+  ) -> String {
+    let authorHex = authorKeyPrefix.map { String(format: "%02X", $0) }.joined()
+    let contentHash = SHA256.hash(data: Data(text.utf8))
+    let hashPrefix = contentHash.prefix(4).map { String(format: "%02X", $0) }.joined()
+    return "\(timestamp)-\(authorHex)-\(hashPrefix)"
+  }
+}
+
+// MARK: - Sendable DTO
+
+/// A sendable snapshot of RoomMessage for cross-actor transfers
+public struct RoomMessageDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
+  public let id: UUID
+  public var sessionID: UUID
+  public let authorKeyPrefix: Data
+  public let authorName: String?
+  public let text: String
+  public let timestamp: UInt32
+  public let createdAt: Date
+  public let isFromSelf: Bool
+  public let deduplicationKey: String
+  public let statusRawValue: Int
+  public let ackCode: UInt32?
+  public let roundTripTime: UInt32?
+  public let retryAttempt: Int
+  public let maxRetryAttempts: Int
+  public let failureSeen: Bool
+
+  public init(from model: RoomMessage) {
+    id = model.id
+    sessionID = model.sessionID
+    authorKeyPrefix = model.authorKeyPrefix
+    authorName = model.authorName
+    text = model.text
+    timestamp = model.timestamp
+    createdAt = model.createdAt
+    isFromSelf = model.isFromSelf
+    deduplicationKey = model.deduplicationKey
+    statusRawValue = model.statusRawValue
+    ackCode = model.ackCode
+    roundTripTime = model.roundTripTime
+    retryAttempt = model.retryAttempt
+    maxRetryAttempts = model.maxRetryAttempts
+    failureSeen = model.failureSeen
+  }
+
+  public init(
+    id: UUID = UUID(),
+    sessionID: UUID,
+    authorKeyPrefix: Data,
+    authorName: String? = nil,
+    text: String,
+    timestamp: UInt32,
+    createdAt: Date = Date(),
+    isFromSelf: Bool = false,
+    status: MessageStatus = .delivered,
+    ackCode: UInt32? = nil,
+    roundTripTime: UInt32? = nil,
+    retryAttempt: Int = 0,
+    maxRetryAttempts: Int = 0,
+    failureSeen: Bool = false
+  ) {
+    self.id = id
+    self.sessionID = sessionID
+    self.authorKeyPrefix = authorKeyPrefix
+    self.authorName = authorName
+    self.text = text
+    self.timestamp = timestamp
+    self.createdAt = createdAt
+    self.isFromSelf = isFromSelf
+    statusRawValue = status.rawValue
+    self.ackCode = ackCode
+    self.roundTripTime = roundTripTime
+    self.retryAttempt = retryAttempt
+    self.maxRetryAttempts = maxRetryAttempts
+    self.failureSeen = failureSeen
+    deduplicationKey = RoomMessage.generateDeduplicationKey(
+      timestamp: timestamp,
+      authorKeyPrefix: authorKeyPrefix,
+      text: text
+    )
+  }
+
+  private enum CodingKeys: String, CodingKey {
+    case id, sessionID, authorKeyPrefix, authorName, text, timestamp, createdAt,
+         isFromSelf, deduplicationKey, statusRawValue, ackCode, roundTripTime,
+         retryAttempt, maxRetryAttempts, failureSeen
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(UUID.self, forKey: .id)
+    sessionID = try container.decode(UUID.self, forKey: .sessionID)
+    authorKeyPrefix = try container.decode(Data.self, forKey: .authorKeyPrefix)
+    authorName = try container.decodeIfPresent(String.self, forKey: .authorName)
+    text = try container.decode(String.self, forKey: .text)
+    timestamp = try container.decode(UInt32.self, forKey: .timestamp)
+    createdAt = try container.decode(Date.self, forKey: .createdAt)
+    isFromSelf = try container.decode(Bool.self, forKey: .isFromSelf)
+    deduplicationKey = try container.decode(String.self, forKey: .deduplicationKey)
+    statusRawValue = try container.decode(Int.self, forKey: .statusRawValue)
+    ackCode = try container.decodeIfPresent(UInt32.self, forKey: .ackCode)
+    roundTripTime = try container.decodeIfPresent(UInt32.self, forKey: .roundTripTime)
+    retryAttempt = try container.decode(Int.self, forKey: .retryAttempt)
+    maxRetryAttempts = try container.decode(Int.self, forKey: .maxRetryAttempts)
+    failureSeen = try container.decodeIfPresent(Bool.self, forKey: .failureSeen) ?? false
+  }
+
+  public var authorDisplayName: String {
+    authorName ?? authorKeyPrefix.map { String(format: "%02X", $0) }.joined()
+  }
+
+  public var date: Date {
+    Date(timeIntervalSince1970: TimeInterval(timestamp))
+  }
+
+  public var status: MessageStatus {
+    MessageStatus(rawValue: statusRawValue) ?? .delivered
+  }
+}

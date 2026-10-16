@@ -1,0 +1,22 @@
+{
+  "version": 8,
+  "name": "Topo Offline",
+  "sources": {
+    "topo": {
+      "type": "raster",
+      "tiles": [
+        "https://a.tile.opentopomap.org/{z}/{x}/{y}.png"
+      ],
+      "tileSize": 256,
+      "maxzoom": 17,
+      "attribution": "<a href=\"https://opentopomap.org\">OpenTopoMap</a>"
+    }
+  },
+  "layers": [
+    {
+      "id": "topo",
+      "type": "raster",
+      "source": "topo"
+    }
+  ]
+}

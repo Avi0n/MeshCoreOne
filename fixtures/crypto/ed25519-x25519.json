@@ -1,0 +1,15 @@
+{
+  "comment": "Ed25519 public key to X25519 public key via u = (1+y)/(1-y) mod 2^255-19. Second implementation (Kotlin and Swift); not packet framing.",
+  "vectors": [
+    {
+      "name": "repeating-0x01",
+      "ed25519PublicHex": "0101010101010101010101010101010101010101010101010101010101010101",
+      "x25519PublicHex": "4560d37eb20436ed274b60d37eb20436ed274b60d37eb20436ed274b60d37e32"
+    },
+    {
+      "name": "rfc8032-test1-public",
+      "ed25519PublicHex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+      "x25519PublicHex": "d85e07ec22b0ad881537c2f44d662d1a143cf830c57aca4305d85c7a90f6b62e"
+    }
+  ]
+}

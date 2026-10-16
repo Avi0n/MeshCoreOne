@@ -1,0 +1,99 @@
+import Foundation
+@testable import MC1
+@testable import MC1Services
+import Testing
+
+/// App Intents speaks `localizedStringResource`; it must match `errorDescription`
+/// and the `L10n` key in every locale, never the raw key.
+struct IntentErrorLocalizationTests {
+  /// The localizable table backing the `error.intent.*` keys.
+  private static let table = "Localizable"
+
+  /// Every `IntentError` case that carries its own L10n key, paired with the
+  /// raw `.strings` key and the generated accessor that must agree with it.
+  private static let casesWithKeys: [(error: IntentError, rawKey: String, generatedAccessor: String)] = [
+    (.notConnected, "error.intent.notConnected", L10n.Localizable.Error.Intent.notConnected),
+    (.invalidRecipient, "error.intent.invalidRecipient", L10n.Localizable.Error.Intent.invalidRecipient),
+    (.messageTooLong, "error.intent.messageTooLong", L10n.Localizable.Error.Intent.messageTooLong),
+    (.sendFailed, "error.intent.sendFailed", L10n.Localizable.Error.Intent.sendFailed),
+    // `.advertFailed` reuses the existing advertisement-error copy rather than
+    // minting a duplicate intent-scoped key.
+    (.advertFailed, "error.advertisement.sendFailed", L10n.Localizable.Error.Advertisement.sendFailed),
+  ]
+
+  /// The 12 shipped locales. A key missing from any one would fall back to the
+  /// raw key string at runtime, so each must resolve real copy.
+  private static let locales = ["de", "en", "es", "fr", "it", "ko", "nl", "pl", "pt", "ru", "uk", "zh-Hans"]
+
+  // MARK: - Generated accessor agreement
+
+  @Test func `error description routes through L 10 n for each case`() {
+    for entry in Self.casesWithKeys {
+      #expect(entry.error.errorDescription == entry.generatedAccessor)
+    }
+  }
+
+  @Test func `localized string resource matches error description`() {
+    let cases: [IntentError] = Self.casesWithKeys.map(\.error) + [.sessionError(.timeout)]
+    for error in cases {
+      #expect(error.errorDescription == String(localized: error.localizedStringResource))
+    }
+  }
+
+  // MARK: - sessionError recursion
+
+  @Test func `session error recurses into wrapped mesh core error`() {
+    #expect(
+      IntentError.sessionError(.timeout).errorDescription
+        == L10n.Localizable.Error.MeshCore.timeout
+    )
+    #expect(
+      IntentError.sessionError(.notConnected).errorDescription
+        == MeshCoreError.notConnected.userFacingMessage
+    )
+  }
+
+  @Test func `session error carries no key of its own`() {
+    // `.sessionError` must resolve to the wrapped error's copy, never the
+    // raw key, in every locale (the wrapped error owns the localization).
+    let resolved = IntentError.sessionError(.featureDisabled).errorDescription
+    #expect(resolved == MeshCoreError.featureDisabled.userFacingMessage)
+    #expect(resolved?.isEmpty == false)
+  }
+
+  // MARK: - No raw-key fallback across all 12 locales
+
+  @Test func `every intent key resolves in every locale`() throws {
+    for locale in Self.locales {
+      let bundle = try #require(
+        Self.localeBundle(locale),
+        "Missing \(locale).lproj in the app bundle"
+      )
+      for entry in Self.casesWithKeys {
+        let resolved = bundle.localizedString(
+          forKey: entry.rawKey,
+          value: Self.sentinel,
+          table: Self.table
+        )
+        #expect(
+          resolved != Self.sentinel && resolved != entry.rawKey,
+          "\(entry.rawKey) falls back to the raw key in \(locale).lproj"
+        )
+      }
+    }
+  }
+
+  // MARK: - Helpers
+
+  /// A value the bundle returns verbatim when the key is missing, so a
+  /// missing key is distinguishable from real (possibly key-shaped) copy.
+  private static let sentinel = "\u{0}__intent_key_missing__\u{0}"
+
+  private static func localeBundle(_ locale: String) -> Bundle? {
+    // The test host is the app, so Bundle.main carries every .lproj.
+    guard let url = Bundle.main.url(forResource: locale, withExtension: "lproj") else {
+      return nil
+    }
+    return Bundle(url: url)
+  }
+}

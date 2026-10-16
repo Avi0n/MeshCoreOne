@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Every shortcut here emits a URL DeepLinkRouter resolves (AppShortcutDestination); a shortcut whose URL
+  no parser handles just restores the previous tab, which reads as a broken app. "Send advert" is
+  deliberately absent from this launcher list: a static shortcut can only start the Activity, so an
+  unconfirmed transmit fired by a stray long-press is worse than no pin. Reach inventory is
+  launcher-hidden dynamic shortcuts. The action is
+  `meshcore://advert?reach=zeroHop|flood` (default zero-hop, no location prompt), plus the device
+  menu and the Tools CLI. The confirm dialog in AppRoot is what actually transmits.
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <shortcut
+        android:shortcutId="open_chats"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:shortcutShortLabel="@string/shortcut_open_chats_short"
+        android:shortcutLongLabel="@string/shortcut_open_chats_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="io.pocketmesh.app"
+            android:targetClass="one.meshcore.android.MainActivity"
+            android:data="meshcore://chats" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="open_map"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_dialog_map"
+        android:shortcutShortLabel="@string/shortcut_open_map_short"
+        android:shortcutLongLabel="@string/shortcut_open_map_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="io.pocketmesh.app"
+            android:targetClass="one.meshcore.android.MainActivity"
+            android:data="meshcore://map" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="open_status"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:shortcutShortLabel="@string/shortcut_open_status_short"
+        android:shortcutLongLabel="@string/shortcut_open_status_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="io.pocketmesh.app"
+            android:targetClass="one.meshcore.android.MainActivity"
+            android:data="meshcore://status" />
+    </shortcut>
+
+    <!--
+      Assistant SEND_MESSAGE: recipient names come from launcher-hidden dynamic shortcuts
+      published by SendMessageShortcutPublisher. The inventory binds message.recipient.name;
+      text is supplied by the spoken utterance.
+    -->
+    <capability android:name="actions.intent.SEND_MESSAGE">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="one.meshcore.android.MainActivity">
+            <url-template android:value="meshcore://send{?kind,id,name,text}" />
+            <parameter
+                android:name="message.text"
+                android:key="text"
+                android:required="true" />
+            <parameter
+                android:name="message.recipient.name"
+                android:key="name"
+                app:shortcutMatchRequired="true" />
+        </intent>
+    </capability>
+
+    <!--
+      Assistant SEND_ADVERT: reach names come from launcher-hidden dynamic shortcuts
+      published by SendAdvertShortcutPublisher. Default URL is zero-hop.
+    -->
+    <capability android:name="custom.actions.intent.SEND_ADVERT">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="one.meshcore.android.MainActivity">
+            <url-template android:value="meshcore://advert{?reach}" />
+            <parameter
+                android:name="reach"
+                android:key="reach"
+                app:shortcutMatchRequired="false" />
+        </intent>
+    </capability>
+</shortcuts>

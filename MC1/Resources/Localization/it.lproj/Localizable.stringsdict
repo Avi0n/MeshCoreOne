@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Localizable.stringsdict
+  MC1
+
+  Italian pluralization rules (one / other).
+  AI-translated - please verify with native speakers.
+-->
+<plist version="1.0">
+<dict>
+	<key>error.channelService.circuitBreakerOpen</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Sincronizzazione canali sospesa dopo %lld errore consecutivo.</string>
+			<key>other</key>
+			<string>Sincronizzazione canali sospesa dopo %lld errori consecutivi.</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

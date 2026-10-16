@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Manifest, launcher-shortcut, and foreground-service strings. In-app UI goes through Compose
+  resources. convertStrings copies translated values for a mapped subset into values-<locale>/;
+  keys that stay only here remain English. locales_config.xml is generated from the same locale list.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" translatable="false">MeshCore One</string>
+    <string name="radio_tile_label">MeshCore Radio</string>
+    <string name="shortcut_open_chats_short">Chats</string>
+    <string name="shortcut_open_chats_long">Open Chats</string>
+    <string name="shortcut_open_map_short">Map</string>
+    <string name="shortcut_open_map_long">Open Map</string>
+    <string name="shortcut_open_status_short">Status</string>
+    <string name="shortcut_open_status_long">Open radio status</string>
+
+    <!-- Foreground-service notification strings. These run in the service (not a composition), so they
+         must be Android resources rather than Compose resources. Android-new: the ongoing-connection
+         notification has no iOS counterpart (iOS uses a Live Activity, W13). -->
+    <string name="notification_channel_connection">Connection</string>
+    <string name="notification_state_disconnected">Disconnected</string>
+    <string name="notification_state_connecting">Connecting…</string>
+    <string name="notification_state_syncing">Syncing…</string>
+    <string name="notification_state_connected">Connected</string>
+    <!-- "Unread" is an invariant adjective here; localized values mirror the iOS source of truth. -->
+    <string name="notification_unread_count" tools:ignore="PluralsCandidate">%d unread</string>
+    <string name="notification_packet_rate">%d/min</string>
+
+    <!-- Message-notification channels and action buttons. Posted from ingest coroutines and a
+         BroadcastReceiver (outside any composition), so they must be Android resources. -->
+    <string name="notification_channel_messages">Messages</string>
+    <string name="notification_channel_mentions">Mentions</string>
+    <string name="notification_channel_low_battery">Low Battery</string>
+    <string name="notification_channel_reactions">Reactions</string>
+    <string name="notification_channel_discovery">Discoveries</string>
+    <string name="notification_action_speak_status">Speak status</string>
+</resources>

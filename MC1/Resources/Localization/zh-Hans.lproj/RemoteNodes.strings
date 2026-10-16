@@ -1,0 +1,932 @@
+/*
+  RemoteNodes.strings
+  MC1
+
+  Strings for Remote Nodes feature, including node authentication,
+  repeater settings, repeater status, and room conversations.
+ */
+
+// MARK: - Node Authentication Sheet
+
+/* Location: NodeAuthenticationSheet.swift - Navigation title for room authentication */
+"remoteNodes.auth.joinRoom" = "加入房间";
+
+/* Location: NodeAuthenticationSheet.swift - Navigation title for repeater management */
+"remoteNodes.auth.management" = "管理";
+
+/* Location: NodeAuthenticationSheet.swift - Cancel button */
+"remoteNodes.auth.cancel" = "取消";
+
+/* Location: NodeAuthenticationSheet.swift - Node details section header */
+"remoteNodes.auth.nodeDetails" = "节点详情";
+
+/* Location: NodeAuthenticationSheet.swift - Name label */
+"remoteNodes.auth.name" = "名称";
+
+/* Location: NodeAuthenticationSheet.swift - Type label */
+"remoteNodes.auth.type" = "类型";
+
+/* Location: NodeAuthenticationSheet.swift - Room type value */
+"remoteNodes.auth.typeRoom" = "房间";
+
+/* Location: NodeAuthenticationSheet.swift - Repeater type value */
+"remoteNodes.auth.typeRepeater" = "转发节点";
+
+/* Location: NodeAuthenticationSheet.swift - Authentication section header */
+"remoteNodes.auth.authentication" = "身份验证";
+
+/* Location: NodeAuthenticationSheet.swift - Password field placeholder */
+"remoteNodes.auth.password" = "密码";
+
+/* Location: NodeAuthenticationSheet.swift - Remember password toggle */
+"remoteNodes.auth.rememberPassword" = "记住密码";
+
+/* Location: NodeAuthenticationSheet.swift - Error accessibility label prefix */
+"remoteNodes.auth.errorPrefix" = "错误：%@";
+
+/* Location: NodeAuthenticationSheet.swift - Password too long warning for repeaters */
+"remoteNodes.auth.passwordTooLongRepeaters" = "MeshCore 转发节点仅接受最多 %d 个字符的密码。多余字符将被忽略。";
+
+/* Location: NodeAuthenticationSheet.swift - Password too long warning for rooms */
+"remoteNodes.auth.passwordTooLongRooms" = "MeshCore 房间仅接受最多 %d 个字符的密码。多余字符将被忽略。";
+
+/* Location: NodeAuthenticationSheet.swift - Countdown text showing seconds remaining */
+"remoteNodes.auth.secondsRemaining" = "最多 %d 秒剩余";
+
+/* Location: NodeAuthenticationSheet.swift - Connect button */
+"remoteNodes.auth.connect" = "连接";
+
+/* Location: NodeAuthenticationSheet.swift - Path section header */
+"remoteNodes.auth.path" = "路径";
+
+/* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
+"remoteNodes.auth.floodRouting" = "泛洪路由";
+"remoteNodes.auth.floodRetryStatus" = "已知路由无响应。正在改用泛洪路由重试。";
+"remoteNodes.auth.floodFooter" = "泛洪路由速度更慢，且占用更多网络空中时间。当已知路由在当前位置不可用时再使用。登录后会自动学习新路由。";
+
+/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
+"remoteNodes.auth.pathFooter" = "使用已知路由到此节点，或切换到泛洪路由让网络自动寻找路径。";
+
+/* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
+"remoteNodes.auth.pathHopUnknown" = "<未知>";
+
+/* Location: NodeAuthenticationSheet.swift - Label when no route is set */
+"remoteNodes.auth.noRouteSet" = "未设置路由";
+
+/* Location: NodeAuthenticationSheet.swift - Path section footer when no route is set */
+"remoteNodes.auth.noRouteFooter" = "没有到此节点的已知路由。网络将自动寻找路径。";
+
+/* Location: NodeAuthenticationSheet.swift - Accessibility announcement for countdown */
+"remoteNodes.auth.secondsRemainingAnnouncement" = "%d 秒剩余";
+
+// MARK: - Repeater Settings
+
+/* Location: RepeaterSettingsView.swift - Navigation title */
+"remoteNodes.settings.title" = "转发节点设置";
+
+/* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
+"remoteNodes.settings.done" = "完成";
+
+/* Location: NodeSettingsView.swift - Settings tab label */
+"remoteNodes.settings.tab.settings" = "设置";
+
+/* Location: NodeSettingsView.swift - CLI tab label */
+"remoteNodes.settings.tab.cli" = "CLI";
+
+/* Location: NodeSettingsView.swift - Telemetry tab label */
+"remoteNodes.settings.tab.telemetry" = "遥测";
+
+/* Location: NodeSettingsView.swift - View mode picker label */
+"remoteNodes.settings.tab.picker" = "查看模式";
+
+/* Location: RepeaterSettingsView.swift - Success alert title */
+"remoteNodes.settings.success" = "成功";
+
+/* Location: RepeaterSettingsView.swift - OK button */
+"remoteNodes.settings.ok" = "确定";
+
+/* Location: RepeaterSettingsView.swift - Default success message */
+"remoteNodes.settings.settingsApplied" = "设置已应用";
+
+/* Location: RepeaterSettingsView.swift - Device info section title */
+"remoteNodes.settings.deviceInfo" = "设备信息";
+
+/* Location: RepeaterSettingsView.swift - Firmware label */
+"remoteNodes.settings.firmware" = "固件";
+
+/* Location: RepeaterSettingsView.swift - Device time label */
+"remoteNodes.settings.deviceTime" = "设备时间";
+
+/* Location: RepeaterSettingsView.swift - Radio parameters section title */
+"remoteNodes.settings.radioParameters" = "无线电参数";
+
+/* Location: RepeaterSettingsView.swift - Radio restart warning */
+"remoteNodes.settings.radioRestartWarning" = "这些更改需重启转发节点后才会生效";
+
+/* Location: RepeaterSettingsView.swift - Frequency label */
+"remoteNodes.settings.frequencyMHz" = "频率（MHz）";
+
+/* Location: RepeaterSettingsView.swift - MHz placeholder */
+"remoteNodes.settings.mhz" = "MHz";
+
+/* Location: RepeaterSettingsView.swift - Loading placeholder */
+"remoteNodes.settings.loading" = "正在加载...";
+
+/* Location: RepeaterSettingsView.swift - Failed to load placeholder */
+"remoteNodes.settings.failedToLoad" = "加载失败";
+
+/* Location: RepeaterSettingsView.swift - Bandwidth label */
+"remoteNodes.settings.bandwidthKHz" = "带宽（kHz）";
+
+/* Location: RepeaterSettingsView.swift - Accessibility label for bandwidth picker options - %@ is formatted bandwidth */
+"remoteNodes.settings.accessibility.bandwidthLabel" = "%@ 千赫兹";
+
+/* Location: RepeaterSettingsView.swift - Bandwidth accessibility hint */
+"remoteNodes.settings.bandwidthHint" = "较低的值会增加范围但降低速度";
+
+/* Location: RepeaterSettingsView.swift - Spreading factor label */
+"remoteNodes.settings.spreadingFactor" = "扩频因子";
+
+/* Location: RepeaterSettingsView.swift - Accessibility label for spreading factor picker options - %d is factor */
+"remoteNodes.settings.accessibility.spreadingFactorLabel" = "扩频因子 %d";
+
+/* Location: RepeaterSettingsView.swift - Spreading factor accessibility hint */
+"remoteNodes.settings.spreadingFactorHint" = "较高的值会增加范围但降低速度";
+
+/* Location: RepeaterSettingsView.swift - Coding rate label */
+"remoteNodes.settings.codingRate" = "编码率";
+
+/* Location: RepeaterSettingsView.swift - Accessibility label for coding rate picker options - %d is rate */
+"remoteNodes.settings.accessibility.codingRateLabel" = "编码率 %d";
+
+/* Location: RepeaterSettingsView.swift - Coding rate accessibility hint */
+"remoteNodes.settings.codingRateHint" = "较高的值会增加纠错但降低速度";
+
+/* Location: RepeaterSettingsView.swift - TX power label */
+"remoteNodes.settings.txPowerDbm" = "发射功率（dBm）";
+
+/* Location: RepeaterSettingsView.swift - dBm placeholder */
+"remoteNodes.settings.dbm" = "dBm";
+
+/* Location: RepeaterSettingsView.swift - Apply radio settings button */
+"remoteNodes.settings.applyRadioSettings" = "应用无线电设置";
+
+/* Location: RepeaterSettingsView.swift - Identity & location section title */
+"remoteNodes.settings.identityLocation" = "身份和位置";
+
+/* Location: RepeaterSettingsView.swift - Latitude label */
+"remoteNodes.settings.latitude" = "纬度";
+
+/* Location: RepeaterSettingsView.swift - Lat placeholder */
+/* Location: RepeaterSettingsView.swift - Longitude label */
+"remoteNodes.settings.longitude" = "经度";
+
+/* Location: RepeaterSettingsView.swift - Lon placeholder */
+/* Location: RepeaterSettingsView.swift - Pick on map button */
+"remoteNodes.settings.pickOnMap" = "在地图上选择";
+
+/* Location: RepeaterSettingsView.swift - Apply identity settings button */
+"remoteNodes.settings.applyIdentitySettings" = "应用身份设置";
+
+/* Location: RepeaterSettingsView.swift - Contact info section title */
+"remoteNodes.settings.contactInfo" = "联系信息";
+
+/* Location: RepeaterSettingsView.swift - Contact info placeholder */
+"remoteNodes.settings.contactInfoPlaceholder" = "频率、操作员姓名、网站...";
+
+/* Location: RepeaterSettingsView.swift - Contact info footer */
+"remoteNodes.settings.contactInfoFooter" = "其他节点可见的公开联系信息。使用换行符分隔各字段。";
+
+/* Location: RepeaterSettingsView.swift - Apply contact info button */
+"remoteNodes.settings.applyContactInfo" = "应用联系信息";
+
+/* Location: RepeaterSettingsView.swift - Contact info character count format */
+/* Location: RepeaterSettingsView.swift - Behavior section title */
+"remoteNodes.settings.behavior" = "行为";
+
+/* Location: RepeaterSettingsView.swift - Repeater mode toggle */
+"remoteNodes.settings.repeaterMode" = "转发节点模式";
+
+/* Location: RepeaterSettingsView.swift - Advert interval (0-hop) label */
+"remoteNodes.settings.advertInterval0Hop" = "广播间隔（0 跳）";
+
+/* Location: RepeaterSettingsView.swift - Minutes unit */
+"remoteNodes.settings.min" = "分钟";
+
+/* Location: RepeaterSettingsView.swift - Advert interval (flood) label */
+"remoteNodes.settings.advertIntervalFlood" = "广播间隔（泛洪）";
+
+/* Location: RepeaterSettingsView.swift - Hours unit */
+"remoteNodes.settings.hrs" = "小时";
+
+/* Location: RepeaterSettingsView.swift - Max flood hops label */
+"remoteNodes.settings.maxFloodHops" = "最大泛洪跳数";
+
+/* Location: RepeaterSettingsView.swift - Hops unit */
+"remoteNodes.settings.hops" = "跳";
+
+/* Location: RepeaterSettingsView.swift - Apply behavior settings button */
+"remoteNodes.settings.applyBehaviorSettings" = "应用行为设置";
+
+/* Location: RepeaterSettingsView.swift - Security section title */
+"remoteNodes.settings.security" = "安全";
+
+/* Location: RepeaterSettingsView.swift - New password placeholder */
+"remoteNodes.settings.newPassword" = "新密码";
+
+/* Location: RepeaterSettingsView.swift - Confirm password placeholder */
+"remoteNodes.settings.confirmPassword" = "确认密码";
+
+/* Location: RepeaterSettingsView.swift - Change password button */
+"remoteNodes.settings.changePassword" = "更改密码";
+
+/* Location: RepeaterSettingsView.swift - Security footer text */
+"remoteNodes.settings.securityFooter" = "更改管理员身份验证密码";
+
+/* Location: RepeaterSettingsView.swift - Device info section footer */
+"remoteNodes.settings.deviceInfoFooter" = "固件版本和设备时钟。";
+
+/* Location: RepeaterSettingsView.swift - Radio settings section footer */
+"remoteNodes.settings.radioFooter" = "频率、带宽、扩频因子和编码率。";
+
+/* Location: RepeaterSettingsView.swift - Identity section footer */
+"remoteNodes.settings.identityFooter" = "转发节点名称和用于地图显示的GPS坐标。";
+
+/* Location: RepeaterSettingsView.swift - Behavior section footer */
+"remoteNodes.settings.behaviorFooter" = "广播间隔、泛洪跳数和转发节点模式。";
+
+/* Location: RepeaterSettingsView.swift - Device actions section header */
+"remoteNodes.settings.deviceActions" = "设备操作";
+
+/* Location: RepeaterSettingsView.swift - Send advert button */
+"remoteNodes.settings.sendAdvert" = "发送广播";
+
+/* Location: RepeaterSettingsView.swift - Sync time button */
+"remoteNodes.settings.syncTime" = "同步时间";
+
+/* Location: RepeaterSettingsView.swift - Reboot device button */
+"remoteNodes.settings.rebootDevice" = "重启设备";
+
+/* Location: RepeaterSettingsView.swift - Reboot confirmation dialog title */
+"remoteNodes.settings.rebootConfirmTitle" = "是否重启转发节点？";
+
+/* Location: RepeaterSettingsView.swift - Reboot confirmation dialog button */
+"remoteNodes.settings.reboot" = "重启";
+
+/* Location: RepeaterSettingsView.swift - Reboot confirmation message */
+"remoteNodes.settings.rebootMessage" = "转发节点将重启并暂时不可用";
+
+// MARK: - Repeater Settings ViewModel Messages
+
+/* Location: RepeaterSettingsViewModel.swift - Radio not loaded error */
+"remoteNodes.settings.radioNotLoaded" = "无线电设置未加载";
+
+/* Location: RepeaterSettingsViewModel.swift - Radio applied success */
+"remoteNodes.settings.radioAppliedSuccess" = "无线电设置已应用。重启设备以生效。";
+
+/* Location: RepeaterSettingsViewModel.swift - Radio apply failure */
+"remoteNodes.settings.radioApplyFailed" = "无线电设置应用失败";
+
+/* Location: RepeaterSettingsViewModel.swift - General apply failure */
+"remoteNodes.settings.someSettingsFailedToApply" = "部分设置应用失败";
+
+/* Location: RepeaterSettingsViewModel.swift - Empty password error */
+"remoteNodes.settings.passwordEmpty" = "密码不能为空";
+
+/* Location: RepeaterSettingsViewModel.swift - Password mismatch error */
+"remoteNodes.settings.passwordMismatch" = "密码不匹配";
+
+/* Location: RepeaterSettingsViewModel.swift - Password changed success */
+/* Location: RepeaterSettingsViewModel.swift - Password change failure */
+"remoteNodes.settings.passwordChangeFailed" = "更改密码失败";
+
+/* Location: RepeaterSettingsViewModel.swift - Reboot sent success */
+"remoteNodes.settings.rebootSent" = "已发送重启命令";
+
+/* Location: RepeaterSettingsViewModel.swift - Advert sent success */
+"remoteNodes.settings.advertSent" = "已发送广播";
+
+/* Location: RepeaterSettingsViewModel.swift - Time synced success */
+"remoteNodes.settings.timeSynced" = "时间已同步";
+
+/* Location: RepeaterSettingsViewModel.swift - Clock ahead error */
+"remoteNodes.settings.clockAheadError" = "转发节点时钟早于手机时间。如果过远，请重启转发节点然后再次同步时间。";
+
+/* Location: RepeaterSettingsViewModel.swift - Sync time failure */
+"remoteNodes.settings.syncTimeFailed" = "同步时间失败";
+
+/* Location: RepeaterSettingsViewModel.swift - Unexpected response error */
+"remoteNodes.settings.unexpectedResponse" = "意外响应：%@";
+
+/* Location: RepeaterSettingsViewModel.swift - Not connected error */
+/* Location: RepeaterSettingsViewModel.swift - Timeout error */
+/* Location: NodeSettingsViewModel.swift - No service error */
+"remoteNodes.settings.noService" = "服务不可用";
+
+/* Location: RepeaterSettingsViewModel.swift - Advert interval validation error */
+"remoteNodes.settings.advertIntervalValidation" = "接受 0（禁用）或 60-240 分钟";
+
+/* Location: RepeaterSettingsViewModel.swift - Flood interval validation error */
+"remoteNodes.settings.floodIntervalValidation" = "接受 0（关闭）或 3–168 小时";
+
+/* Location: RepeaterSettingsViewModel.swift - Flood max hops validation error */
+"remoteNodes.settings.floodMaxValidation" = "接受 0-64 跳";
+
+/* Location: NodeSettingsViewModel.swift - Node name length validation error */
+"remoteNodes.settings.nameValidation" = "接受最多 %d 字节";
+
+/* Location: NodeSettingsViewModel.swift - Latitude range validation error */
+"remoteNodes.settings.latitudeValidation" = "接受 -90 到 90";
+
+/* Location: NodeSettingsViewModel.swift - Longitude range validation error */
+"remoteNodes.settings.longitudeValidation" = "接受 -180 到 180";
+
+// MARK: - Repeater Settings: Regions
+
+/* Location: RepeaterSettingsView.swift - Regions section title */
+"remoteNodes.settings.regions" = "区域";
+
+/* Location: RepeaterSettingsView.swift - Regions section footer */
+"remoteNodes.settings.regionsFooter" = "保存到转发节点以在重启后保留更改。";
+
+/* Location: RepeaterSettingsView.swift - Unscoped region display name */
+"remoteNodes.settings.regions.allTraffic" = "无范围";
+
+/* Location: RepeaterSettingsView.swift - Unscoped region with asterisk display */
+"remoteNodes.settings.regions.allTrafficWildcard" = "*（无范围）";
+
+/* Location: RepeaterSettingsView.swift - Home region picker label */
+"remoteNodes.settings.regions.homeRegion" = "主区域";
+
+/* Location: RepeaterSettingsView.swift - Default scope picker label */
+"remoteNodes.settings.regions.defaultScope" = "默认泛洪范围";
+
+/* Location: RepeaterSettingsView.swift - Load default scope button */
+"remoteNodes.settings.regions.loadDefaultScope" = "加载";
+
+/* Location: RepeaterSettingsView.swift - No default scope */
+"remoteNodes.settings.regions.noDefault" = "无";
+
+/* Location: RepeaterSettingsView.swift - Caption under default scope picker */
+"remoteNodes.settings.regions.defaultScopeCaption" = "为此节点发起的数据包（例如广播）设置范围。此设置会立即保存到转发节点。";
+
+/* Location: RepeaterSettingsView.swift - No home region set */
+/* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
+/* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
+"remoteNodes.settings.regions.floodToggleHint" = "关闭时，来自此区域的泛洪数据包将被丢弃";
+
+/* Location: RepeaterSettingsView.swift - Caption under the region flood list */
+"remoteNodes.settings.regions.floodToggleCaption" = "来自任何关闭区域的泛洪数据包将被丢弃。";
+
+/* Location: RepeaterSettingsView.swift - Add region button */
+"remoteNodes.settings.regions.addRegion" = "添加区域";
+
+/* Location: RepeaterSettingsView.swift - Add region alert title */
+"remoteNodes.settings.regions.addRegionTitle" = "添加区域";
+
+/* Location: RepeaterSettingsView.swift - Region name placeholder */
+"remoteNodes.settings.regions.regionName" = "区域名称";
+
+/* Location: RepeaterSettingsView.swift - Save regions to device button */
+"remoteNodes.settings.regions.saveToDevice" = "保存到转发节点";
+
+/* Location: RepeaterSettingsViewModel.swift - Region save success */
+/* Location: RepeaterSettingsViewModel.swift - Region save failure */
+"remoteNodes.settings.regions.saveFailed" = "保存区域失败";
+
+/* Location: RepeaterSettingsViewModel.swift - Region not found error */
+"remoteNodes.settings.regions.unknownRegion" = "未知区域";
+
+/* Location: RepeaterSettingsViewModel.swift - Region has children error */
+"remoteNodes.settings.regions.notEmpty" = "请先移除子区域";
+
+/* Location: RepeaterSettingsView.swift - Alert title when deleting a parent region */
+"remoteNodes.settings.regions.cannotDelete" = "无法删除“%@”";
+
+/* Location: RepeaterSettingsViewModel.swift - Region add failure */
+"remoteNodes.settings.regions.addFailed" = "添加区域失败";
+
+/* Location: RepeaterSettingsView.swift - Region name charset validation */
+"remoteNodes.settings.regions.invalidName" = "区域名称只能包含字母、数字和连字符。";
+
+/* Location: RepeaterSettingsView.swift - Region name length validation */
+"remoteNodes.settings.regions.nameTooLong" = "区域名称限制为 %d 字节。";
+
+/* Location: RepeaterSettingsView.swift - Duplicate region name validation */
+"remoteNodes.settings.regions.duplicate" = "此区域已存在。";
+
+/* Location: RepeaterAddRegionSheet.swift - Parent picker label */
+"remoteNodes.settings.regions.parent" = "父级";
+
+/* Location: RepeaterSettingsView.swift - Add child region context menu item */
+"remoteNodes.settings.regions.addChild" = "添加子区域";
+/* Location: RegionFloodToggleRow.swift - Full VoiceOver label (name, parent) */
+"remoteNodes.settings.regions.childOf" = "%@，%@ 的子区域";
+
+/* Location: RepeaterSettingsViewModel.swift - Region remove failure */
+"remoteNodes.settings.regions.removeFailed" = "移除区域失败";
+
+/* Location: RepeaterSettingsViewModel.swift - No regions on device */
+"remoteNodes.settings.regions.empty" = "未配置区域";
+
+// MARK: - Repeater Status
+
+/* Location: RepeaterStatusView.swift - Navigation title */
+"remoteNodes.status.title" = "转发节点状态";
+
+/* Location: RepeaterStatusView.swift - Guest mode badge in header */
+"remoteNodes.status.guestMode" = "访客模式";
+"remoteNodes.status.clockAhead" = "此节点的时钟比你的电台快 %@。时钟不准的节点可能会忽略命令或显示错误的消息时间。";
+"remoteNodes.status.clockBehind" = "此节点的时钟比你的电台慢 %@。时钟不准的节点可能会忽略命令或显示错误的消息时间。";
+
+/* Location: RepeaterStatusView.swift - Owner info section label */
+"remoteNodes.status.ownerInfo" = "联系信息";
+
+/* Location: RepeaterStatusView.swift - No owner info empty state */
+"remoteNodes.status.noOwnerInfo" = "无联系信息";
+
+/* Location: RepeaterStatusView.swift - Owner info section footer */
+"remoteNodes.status.ownerInfoFooter" = "联系信息和固件版本。";
+
+/* Location: RepeaterStatusView.swift - Status section header */
+"remoteNodes.status.statusSection" = "状态";
+
+/* Location: RepeaterStatusView.swift - Battery label */
+"remoteNodes.status.battery" = "电池";
+
+/* Location: RepeaterStatusView.swift - Uptime label */
+"remoteNodes.status.uptime" = "运行时间";
+
+/* Location: SharedNodeViews.swift - Airtime label */
+"remoteNodes.status.airtime" = "通信时间";
+
+/* Location: SharedNodeViews.swift - Airtime percent label */
+"remoteNodes.status.airtimePercent" = "通信时间百分比";
+
+/* Location: RepeaterStatusView.swift - Last RSSI label */
+"remoteNodes.status.lastRssi" = "最后 RSSI";
+
+/* Location: RepeaterStatusView.swift - Last SNR label */
+"remoteNodes.status.lastSnr" = "最后信噪比";
+
+/* Location: RepeaterStatusView.swift - Noise floor label */
+"remoteNodes.status.noiseFloor" = "无线电底噪";
+
+/* Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows */
+"remoteNodes.status.packets" = "数据包";
+/* Location: SharedNodeStatusViews.swift - Total sent packets label, under the Packets group header */
+"remoteNodes.status.packetsSent" = "已发送";
+
+/* Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header */
+"remoteNodes.status.packetsReceived" = "已接收";
+
+/* Location: SharedNodeStatusViews.swift - Receive errors label, under the Packets group header */
+"remoteNodes.status.receiveErrors" = "错误";
+"remoteNodes.status.sentDirect" = "已发送（直连）";
+"remoteNodes.status.sentFlood" = "已发送（泛洪）";
+"remoteNodes.status.receivedDirect" = "已接收（直连）";
+"remoteNodes.status.receivedFlood" = "已接收（泛洪）";
+"remoteNodes.status.duplicates" = "重复";
+
+/* Location: RepeaterStatusView.swift - Neighbors section header */
+"remoteNodes.status.neighbors" = "邻居";
+
+/* Location: RepeaterStatusView.swift - No neighbors empty state */
+"remoteNodes.status.noNeighbors" = "未发现邻居";
+
+/* Location: RepeaterStatusView.swift - Battery curve section label */
+"remoteNodes.status.batteryCurve" = "电池曲线";
+
+/* Location: RepeaterStatusView.swift - Telemetry section header */
+"remoteNodes.status.telemetry" = "遥测数据";
+
+/* Location: RepeaterStatusView.swift - No sensor data empty state */
+"remoteNodes.status.noSensorData" = "无传感器数据";
+
+/* Location: RepeaterStatusView.swift - No telemetry data empty state */
+"remoteNodes.status.noTelemetryData" = "无遥测数据";
+
+/* Location: RepeaterStatusView.swift - Unknown neighbor name */
+"remoteNodes.status.unknown" = "未知";
+
+/* Location: RepeaterStatusView.swift - Seconds ago format */
+"remoteNodes.status.secondsAgo" = "%d秒前";
+
+/* Location: RepeaterStatusView.swift - Minutes ago format */
+"remoteNodes.status.minutesAgo" = "%d分钟前";
+
+/* Location: RepeaterStatusView.swift - Hours ago format */
+"remoteNodes.status.hoursAgo" = "%d小时前";
+
+/* Location: RepeaterStatusView.swift - SNR display format */
+"remoteNodes.status.snrFormat" = "信噪比 %@dB";
+
+/* Location: RepeaterStatusView.swift - Accessibility label for possible match indicator */
+"remoteNodes.status.possibleMatch" = "可能匹配，通过短前缀匹配";
+
+/* Location: RepeaterStatusView.swift - Title for possible match explanation popover */
+"remoteNodes.status.possibleMatchTitle" = "可能匹配";
+
+/* Location: RepeaterStatusView.swift - Explanation of what a possible match means */
+"remoteNodes.status.possibleMatchExplanation" = "多个节点共享此前缀。显示的名称可能不正确。";
+
+// MARK: - Repeater Status ViewModel Messages
+
+/* Location: RepeaterStatusViewModel.swift - Request timed out */
+"remoteNodes.status.requestTimedOut" = "请求超时";
+"remoteNodes.status.telemetryTimedOut" = "超时或联系人已禁用遥测";
+
+/* Location: RepeaterStatusViewModel.swift - Uptime 1 day format */
+"remoteNodes.status.uptime1Day" = "1 天 %d小时 %d分钟";
+
+/* Location: RepeaterStatusViewModel.swift - Uptime multiple days format */
+"remoteNodes.status.uptimeDays" = "%d 天 %d小时 %d分钟";
+
+/* Location: RepeaterStatusViewModel.swift - Uptime hours format */
+"remoteNodes.status.uptimeHours" = "%d小时 %d分钟";
+
+/* Location: RepeaterStatusViewModel.swift - Uptime minutes format */
+"remoteNodes.status.uptimeMinutes" = "%d分钟";
+
+/* Location: RepeaterStatusViewModel.swift - Failed to load OCV settings */
+"remoteNodes.status.ocvLoadFailed" = "电池曲线设置失败";
+
+/* Location: RepeaterStatusViewModel.swift - Cannot save OCV error */
+"remoteNodes.status.ocvSaveNoContact" = "无法保存：未找到联系人";
+
+/* Location: RepeaterStatusViewModel.swift - OCV save failed */
+"remoteNodes.status.ocvSaveFailed" = "保存失败：%@";
+
+/* Location: RepeaterStatusView.swift - Channel header for grouped telemetry */
+"remoteNodes.status.channel" = "通道 %d";
+
+/* Location: RepeaterStatusView.swift - Telemetry section footer */
+"remoteNodes.status.telemetryFooter" = "传感器读数，如温度、湿度和电压。";
+
+/* Location: RepeaterStatusView.swift - Neighbors section footer */
+"remoteNodes.status.neighborsFooter" = "此节点发现的其他节点及其信号质量";
+
+/* Location: RepeaterStatusView.swift - Discover neighbours button label */
+"remoteNodes.status.discoverNeighbors" = "发现邻居";
+
+/* Location: RepeaterStatusView.swift - Discovery in progress with countdown */
+"remoteNodes.status.discoveringSeconds" = "发现中... %d秒";
+
+/* Location: RepeaterStatusView.swift - Battery curve section footer */
+"remoteNodes.status.batteryCurveFooter" = "用于估算电池电量的电压百分比";
+
+/* Location: NodeTelemetryView.swift - Refresh button accessibility label */
+"remoteNodes.status.refresh" = "刷新";
+
+/* Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for the status counters */
+"remoteNodes.status.accessibility.reloadStatus" = "重新加载状态";
+
+/* Location: SharedNodeStatusViews.swift - Per-section reload button accessibility label for telemetry */
+"remoteNodes.status.accessibility.reloadTelemetry" = "重新加载遥测数据";
+
+/* Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for owner info */
+"remoteNodes.status.accessibility.reloadOwnerInfo" = "重新加载联系信息";
+
+/* Location: RepeaterStatusContent.swift - Per-section reload button accessibility label for neighbors */
+"remoteNodes.status.accessibility.reloadNeighbors" = "重新加载邻居";
+
+// MARK: - Neighbors Map
+
+/* Location: RepeaterStatusContent.swift - View on Map button in the Neighbors section */
+"remoteNodes.status.viewOnMap" = "在地图上查看";
+
+/* Location: RepeaterStatusContent.swift - Accessibility label for the View on Map button */
+"remoteNodes.status.accessibility.viewNeighborsOnMap" = "在地图上查看邻居";
+
+/* Location: NeighborSNRMapView.swift - Navigation title for the neighbors map */
+"remoteNodes.status.neighborsMapTitle" = "邻居地图";
+
+/* Location: NeighborSNRMapView.swift - Map pill and pushed-list title counting neighbors that could not be plotted - %d is the count */
+"remoteNodes.status.neighborsNotShown" = "%d 个邻居未显示";
+
+/* Location: NeighborSNRMapBuilder.swift - Unit suffix for the SNR value in the map midpoint badge, matching the "<distance> · <snr> dB" form */
+"remoteNodes.status.snrBadgeUnit" = "dB";
+
+// MARK: - Location Map
+
+/* Location: SharedNodeStatusViews.swift - Accessibility label for the location "View on Map" affordance */
+"remoteNodes.status.accessibility.viewLocationOnMap" = "在地图上查看位置";
+
+/* Location: NodeStatusRoute.swift - Navigation title for the live location map */
+"remoteNodes.status.locationMapTitle" = "位置";
+
+// MARK: - History
+
+/* Location: RepeaterStatusViewModel.swift - Delta timestamp (minutes ago) */
+"remoteNodes.history.vsMinutesAgo" = "自上次访问（%d分钟前）";
+
+/* Location: RepeaterStatusViewModel.swift - Delta timestamp (hours ago) */
+"remoteNodes.history.vsHoursAgo" = "自上次访问（%d小时前）";
+
+/* Location: RepeaterStatusViewModel.swift - Delta timestamp (date) */
+"remoteNodes.history.vsDate" = "自 %@";
+
+/* Location: NodeStatusHistoryView.swift - History navigation title */
+"remoteNodes.history.title" = "历史";
+
+/* Location: NeighborRow - New neighbor badge */
+"remoteNodes.history.new" = "新";
+
+/* Location: NeighborRow - Not seen status */
+"remoteNodes.history.notSeen" = "未发现";
+
+/* Location: NodeStatusHistoryView.swift - Empty state message */
+"remoteNodes.history.checkBack" = "每15分钟最多记录一次快照。下次访问后再来查看趋势。";
+
+/* Location: NodeStatusHistoryView.swift - Time range picker */
+"remoteNodes.history.week" = "1周";
+
+/* Location: NodeStatusHistoryView.swift - Time range picker */
+"remoteNodes.history.month" = "1月";
+
+/* Location: NodeStatusHistoryView.swift - Time range picker */
+"remoteNodes.history.threeMonths" = "3月";
+
+/* Location: NodeStatusHistoryView.swift - Time range picker */
+"remoteNodes.history.all" = "全部";
+
+/* Location: NodeStatusHistoryView.swift - Battery chart title */
+"remoteNodes.history.battery" = "电池";
+
+/* Location: NodeStatusHistoryView.swift - SNR chart title */
+"remoteNodes.history.snr" = "信噪比";
+
+/* Location: NodeStatusHistoryView.swift - RSSI chart title */
+"remoteNodes.history.rssi" = "RSSI";
+
+/* Location: NodeStatusHistoryView.swift - Noise floor chart title */
+"remoteNodes.history.noiseFloor" = "无线电底噪";
+
+/* Location: NodeStatusHistoryView.swift - Neighbor count chart title */
+/* Location: NodeStatusHistoryView.swift - Packets sent chart title */
+"remoteNodes.history.packetsSent" = "已发送";
+
+/* Location: NodeStatusHistoryView.swift - Packets received chart title */
+"remoteNodes.history.packetsReceived" = "已接收";
+
+/* Location: NodeStatusHistoryView.swift - Receive errors chart title */
+"remoteNodes.history.receiveErrors" = "错误";
+"remoteNodes.history.direct" = "直连";
+"remoteNodes.history.flood" = "泛洪";
+"remoteNodes.history.duplicates" = "重复";
+/* Location: RadioMetricCharts.swift - Section header grouping the packet-count charts */
+"remoteNodes.history.packets" = "数据包";
+
+/* Location: NeighborHistoryView.swift - Active status */
+/* Location: NeighborHistoryView.swift - Last seen status */
+/* Location: NeighborHistoryView.swift - Neighbors section title */
+/* Location: StatusDeltaView.swift - Accessibility: metric increased */
+"remoteNodes.history.a11y.increased" = "增加";
+
+/* Location: StatusDeltaView.swift - Accessibility: metric decreased */
+"remoteNodes.history.a11y.decreased" = "减少";
+
+/* Location: StatusDeltaView.swift - Accessibility: metric improved */
+"remoteNodes.history.a11y.improved" = "改善";
+
+/* Location: StatusDeltaView.swift - Accessibility: metric degraded */
+"remoteNodes.history.a11y.degraded" = "恶化";
+
+/* Location: StatusDeltaView.swift - Accessibility: delta description format (quality, direction, value, unit) */
+"remoteNodes.history.a11y.deltaDescription" = "%1$@，%2$@了%3$@%4$@";
+
+/* Location: HistoryTimeRangePicker.swift - Accessibility label for time range picker */
+"remoteNodes.history.timeRange" = "时间范围";
+
+/* Location: NodeStatusHistoryView.swift - Footer about data retention */
+"remoteNodes.history.retentionNotice" = "超过一年的历史数据将被自动删除。";
+
+/* Location: TelemetryHistoryOverviewView.swift - Purpose: Radio section header */
+"remoteNodes.history.radioSection" = "无线电";
+
+/* Location: TelemetryHistoryOverviewView.swift - Purpose: Sensors section header */
+"remoteNodes.history.sensorsSection" = "传感器";
+
+/* Location: TelemetryHistoryOverviewView.swift - Purpose: Neighbors section header */
+"remoteNodes.history.neighborsSection" = "邻居节点";
+
+/* Location: TelemetryHistoryOverviewView.swift - Purpose: Location section header */
+"remoteNodes.history.locationSection" = "位置";
+
+/* Location: LocationHistorySection.swift - Purpose: Header for the location report list beneath the map preview */
+"remoteNodes.history.locationReportsHeader" = "位置历史";
+
+/* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when no snapshots exist */
+"remoteNodes.history.noSnapshotsMessage" = "至少连接此节点一次以查看历史。";
+
+/* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when section data not captured */
+"remoteNodes.history.sectionNotCaptured" = "此数据在您于实时遥测会话期间查看 %@ 部分时捕获。";
+
+/* Location: TelemetryHistoryOverviewView.swift - Purpose: Navigation title */
+"remoteNodes.history.overviewTitle" = "遥测历史";
+
+// MARK: - Room Conversation
+
+/* Location: RoomConversationView.swift - Disconnected status */
+"remoteNodes.room.disconnected" = "已断开";
+
+/* Location: RoomConversationView.swift - Empty state title */
+"remoteNodes.room.noMessagesYet" = "暂无公开消息";
+
+/* Location: RoomConversationView.swift - Empty state hint */
+"remoteNodes.room.beFirstToPost" = "首先发布";
+
+/* Location: RoomConversationView.swift - Input placeholder */
+"remoteNodes.room.publicMessage" = "公开消息";
+
+/* Location: RoomConversationView.swift - Read-only banner */
+"remoteNodes.room.viewOnlyBanner" = "仅查看 - 以成员身份加入以发布";
+
+/* Location: RoomConversationView.swift - Hint text for read-only banner */
+"remoteNodes.room.viewOnlyHint" = "点击以登录";
+
+/* Location: RoomConversationView.swift - Room info sheet title */
+"remoteNodes.room.infoTitle" = "房间信息";
+
+/* Location: RoomConversationView.swift - Details section header */
+"remoteNodes.room.details" = "详情";
+
+/* Location: RoomConversationView.swift - Permission label */
+"remoteNodes.room.permission" = "权限";
+
+/* Location: RoomInfoSheet.swift, RoomConversationView.swift - Guest permission level */
+"remoteNodes.permission.guest" = "访客";
+
+/* Location: RoomInfoSheet.swift, RoomConversationView.swift - Member (read-write) permission level */
+"remoteNodes.permission.member" = "成员";
+
+/* Location: RoomInfoSheet.swift, RoomConversationView.swift - Admin permission level */
+"remoteNodes.permission.admin" = "管理员";
+
+/* Location: RoomConversationView.swift - Status label */
+"remoteNodes.room.status" = "状态";
+
+/* Location: RoomConversationView.swift - Connected status */
+"remoteNodes.room.connected" = "已连接";
+
+/* Location: RoomConversationView.swift - Activity section header */
+"remoteNodes.room.activity" = "活动";
+
+/* Location: RoomConversationView.swift - Last connected label */
+"remoteNodes.room.lastConnected" = "最后连接";
+
+/* Location: RoomConversationView.swift - Identification section header */
+"remoteNodes.room.identification" = "身份";
+
+/* Location: RoomConversationView.swift - Public key label */
+"remoteNodes.room.publicKey" = "公钥";
+
+/* Location: RoomConversationView.swift - Disconnected banner text */
+"remoteNodes.room.disconnectedBanner" = "已断开";
+
+/* Location: RoomConversationView.swift - Accessibility hint for disconnected banner */
+"remoteNodes.room.disconnectedHint" = "点击以重新连接";
+
+/* Location: RoomConversationView.swift - VoiceOver announcement when room reconnects */
+"remoteNodes.room.reconnected" = "房间已重新连接";
+
+// MARK: - Room Message Bubble
+
+/* Location: RoomMessageBubble.swift - Accessibility hint for retry button */
+"remoteNodes.room.message.retryHint" = "双击以重新发送此消息";
+
+/* Location: RoomMessageBubble.swift - Accessibility label for failed message status */
+"remoteNodes.room.message.status.failedLabel" = "消息发送失败。双击重试按钮以重新发送。";
+
+/* Location: RoomMessageBubble.swift - Accessibility label for sending message status */
+"remoteNodes.room.message.status.sendingLabel" = "正在发送消息";
+
+/* Location: RoomMessageBubble.swift - Accessibility label for delivered message status */
+"remoteNodes.room.message.status.deliveredLabel" = "消息已送达";
+
+// MARK: - Room Status
+
+/* Location: RoomStatusView.swift - Navigation title */
+"remoteNodes.roomStatus.title" = "聊天室状态";
+
+/* Location: RoomStatusView.swift - Posts received label */
+"remoteNodes.roomStatus.postsReceived" = "已接收消息";
+
+/* Location: RoomStatusView.swift - Posts pushed label */
+"remoteNodes.roomStatus.postsPushed" = "已推送消息";
+
+// MARK: - Room Settings
+
+/* Location: RoomSettingsView.swift - Navigation title */
+"remoteNodes.roomSettings.title" = "聊天室设置";
+
+/* Location: RoomSettingsView.swift - Room settings section header */
+"remoteNodes.roomSettings.roomSettingsSection" = "聊天室设置";
+
+/* Location: RoomSettingsView.swift - Room settings section footer */
+"remoteNodes.roomSettings.roomSettingsFooter" = "访客密码和只读访问。";
+
+/* Location: RoomSettingsView.swift - Guest password label */
+"remoteNodes.roomSettings.guestPassword" = "访客密码";
+
+/* Location: RoomSettingsView.swift - Allow read-only toggle label */
+"remoteNodes.roomSettings.allowReadOnly" = "允许只读";
+
+/* Location: RoomSettingsView.swift - Allow read-only footer */
+"remoteNodes.roomSettings.allowReadOnlyFooter" = "允许没有密码的用户以只读模式连接。";
+
+/* Location: RoomSettingsView.swift - Apply room settings button */
+"remoteNodes.roomSettings.applyRoomSettings" = "应用聊天室设置";
+
+/* Location: RoomSettingsView.swift - Room behavior section footer */
+"remoteNodes.roomSettings.behaviorFooter" = "广播间隔和泛洪跳数。";
+
+/* Location: RoomSettingsView.swift - Identity section footer */
+/* Location: RoomSettingsView.swift - Reboot confirmation title */
+"remoteNodes.roomSettings.rebootConfirmTitle" = "重启聊天室？";
+
+/* Location: RoomSettingsView.swift - Reboot confirmation message */
+"remoteNodes.roomSettings.rebootMessage" = "房间将重启并暂时不可用。";
+
+/* Location: RoomSettingsView.swift - Radio restart warning */
+"remoteNodes.roomSettings.radioRestartWarning" = "这些更改需重启房间后才会生效";
+
+/* Location: RoomSettingsView.swift - No service error */
+/* Location: RoomSettingsView.swift - Not connected error */
+/* Location: RoomSettingsView.swift - Clock ahead error */
+// MARK: - Room Info Sheet (additions)
+
+/* Location: RoomInfoSheet.swift - Telemetry button */
+/* Location: RoomInfoSheet.swift - Management button */
+// MARK: - Node CLI
+
+/* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */
+"remoteNodes.nodeCli.bannerConnected" = "已连接到 %@";
+
+/* Location: NodeCliView.swift - Hint shown below connected banner */
+"remoteNodes.nodeCli.bannerHint" = "输入“help”查看可用命令。";
+
+/* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
+"remoteNodes.nodeCli.rebootSent" = "重启命令已发送";
+
+/* Location: NodeCliViewModel.swift - Toast after command is cancelled */
+"remoteNodes.nodeCli.cancelled" = "命令已取消";
+
+/* Location: NodeCliViewModel.swift - Header line in help output */
+"remoteNodes.nodeCli.helpHeader" = "可用命令：";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'help' command */
+"remoteNodes.nodeCli.helpHelp" = "  help\n    显示此帮助";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'clear' command */
+"remoteNodes.nodeCli.helpClear" = "  clear\n    清除终端";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
+"remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    重置节点统计信息";
+
+/* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
+"remoteNodes.nodeCli.helpReboot" = "  reboot\n    重启此节点";
+
+/* Location: NodeCliViewModel.swift - Passthrough note at end of help output */
+"remoteNodes.nodeCli.helpPassthrough" = "任何其他输入都将发送到节点。";
+
+// MARK: - Shared
+
+/* Location: Multiple files - Cancel button */
+"remoteNodes.cancel" = "取消";
+
+/* Location: Multiple files - Done button */
+"remoteNodes.done" = "完成";
+
+/* Location: Multiple files - Name label */
+"remoteNodes.name" = "名称";
+
+/* Telemetry sensor type display labels */
+"remoteNodes.status.sensor.digitalInput" = "数字输入";
+"remoteNodes.status.sensor.digitalOutput" = "数字输出";
+"remoteNodes.status.sensor.analogInput" = "模拟输入";
+"remoteNodes.status.sensor.analogOutput" = "模拟输出";
+"remoteNodes.status.sensor.genericSensor" = "传感器";
+"remoteNodes.status.sensor.illuminance" = "照度";
+"remoteNodes.status.sensor.presence" = "存在检测";
+"remoteNodes.status.sensor.temperature" = "温度";
+"remoteNodes.status.sensor.mcuTemperature" = "MCU 温度";
+"remoteNodes.status.sensor.humidity" = "湿度";
+"remoteNodes.status.sensor.accelerometer" = "加速度计";
+"remoteNodes.status.sensor.barometer" = "气压";
+"remoteNodes.status.sensor.voltage" = "电压";
+"remoteNodes.status.sensor.current" = "电流";
+"remoteNodes.status.sensor.frequency" = "频率";
+"remoteNodes.status.sensor.percentage" = "百分比";
+"remoteNodes.status.sensor.altitude" = "海拔";
+"remoteNodes.status.sensor.load" = "负载";
+"remoteNodes.status.sensor.concentration" = "浓度";
+"remoteNodes.status.sensor.power" = "功率";
+"remoteNodes.status.sensor.distance" = "距离";
+"remoteNodes.status.sensor.energy" = "能量";
+"remoteNodes.status.sensor.direction" = "方向";
+"remoteNodes.status.sensor.unixTime" = "时间";
+"remoteNodes.status.sensor.gyrometer" = "陀螺仪";
+"remoteNodes.status.sensor.colour" = "颜色";
+"remoteNodes.status.sensor.gps" = "GPS";
+"remoteNodes.status.sensor.switchValue" = "开关";

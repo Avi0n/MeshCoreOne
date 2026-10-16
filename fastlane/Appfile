@@ -1,0 +1,14 @@
+# App Store Connect / Apple Developer Portal configuration
+# https://docs.fastlane.tools/advanced/Appfile/
+
+# Bundle identifier
+app_identifier("io.pocketmesh.app")
+
+# Your Apple ID email (for App Store Connect)
+apple_id(ENV["APPLE_ID"])
+
+# App Store Connect Team ID (if you're on multiple teams)
+itc_team_id(ENV["ITC_TEAM_ID"])
+
+# Apple Developer Portal Team ID
+team_id(ENV["TEAM_ID"])

@@ -1,0 +1,30 @@
+[
+  {
+    "label": "consistent",
+    "timestamp": 1702500000,
+    "authorHex": "AABBCCDD",
+    "text": "Hello world",
+    "key": "1702500000-AABBCCDD-64EC88CA"
+  },
+  {
+    "label": "spec-example-format",
+    "timestamp": 1720000000,
+    "authorHex": "A1B2C3D4",
+    "text": "gm all",
+    "key": "1720000000-A1B2C3D4-8C27BB5A"
+  },
+  {
+    "label": "empty-text-zero-inputs",
+    "timestamp": 0,
+    "authorHex": "00000000",
+    "text": "",
+    "key": "0-00000000-E3B0C442"
+  },
+  {
+    "label": "max-timestamp-unicode",
+    "timestamp": 4294967295,
+    "authorHex": "FFFFFFFF",
+    "text": "🔐 secure 密码",
+    "key": "4294967295-FFFFFFFF-BA44E9D4"
+  }
+]

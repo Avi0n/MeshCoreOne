@@ -1,0 +1,321 @@
+/*
+  Onboarding.strings
+  MC1
+
+  Strings for the Onboarding feature, including welcome screens,
+  permission requests, device scanning, and initial setup flow.
+*/
+
+
+// MARK: - Welcome View
+
+/* Location: WelcomeView.swift - App title displayed on welcome screen */
+"welcome.title" = "MeshCore One";
+
+/* Location: WelcomeView.swift - Subtitle describing the app */
+"welcome.subtitle" = "Send messages through a community built network, even without internet.";
+
+/* Location: WelcomeView.swift - Button to proceed to next onboarding step */
+"welcome.getStarted" = "Get Started";
+
+
+// MARK: - Permissions View
+
+/* Location: PermissionsView.swift - Screen title for permissions */
+"permissions.title" = "A couple of permissions";
+
+/* Location: PermissionsView.swift - Subtitle encouraging notification permission */
+"permissions.subtitle" = "Both optional. You can change your mind in Settings anytime.";
+
+/* Location: PermissionsView.swift - Permission card title for notifications */
+"permissions.notifications.title" = "Notifications";
+
+/* Location: PermissionsView.swift - Permission card description for notifications */
+"permissions.notifications.description" = "Get alerts for new messages and low battery, even when the app is closed.";
+
+/* Location: PermissionsView.swift - Permission card title for location */
+"permissions.location.title" = "Location";
+
+/* Location: PermissionsView.swift - Permission card description for location */
+"permissions.location.description" = "Suggest local radio presets, show your position on the map, and sort contacts by distance.";
+
+/* Location: PermissionsView.swift - Button to proceed to next step */
+"permissions.continue" = "Continue";
+
+/* Location: PermissionsView.swift - Badge shown for optional permissions */
+"permissions.optional" = "Optional";
+
+/* Location: PermissionsView.swift - Button to open system settings */
+"permissions.openSettings" = "Settings";
+
+/* Location: PermissionsView.swift - Button to begin a permission request */
+"permissions.request" = "Continue";
+
+/* Location: PermissionsView.swift - Alert title for location permission */
+"permissions.locationAlert.title" = "Location Permission";
+
+/* Location: PermissionsView.swift - Alert button to open settings */
+"permissions.locationAlert.openSettings" = "Open Settings";
+
+/* Location: PermissionsView.swift - Alert message explaining denied location permission */
+"permissions.locationAlert.message" = "Location permission was previously denied. Please enable it in Settings to share your location with mesh contacts.";
+
+
+// MARK: - Device Scan View
+
+/* Location: DeviceScanView.swift - Screen title for device pairing */
+"deviceScan.title" = "Pair your device";
+
+/* Location: DeviceScanView.swift - Subtitle with pairing instructions */
+"deviceScan.subtitle" = "Power your radio on, disconnect it from all other apps and devices, then tap Add Device.";
+
+/* Location: DeviceScanView.swift - Message shown when device is already paired */
+"deviceScan.alreadyPaired" = "Your device is already paired";
+
+/* Location: DeviceScanView.swift - "I don't have a device yet" tertiary */
+"deviceScan.noDeviceYet" = "I don't have a device yet";
+
+/* Location: DeviceScanView.swift - Button to continue after pairing */
+"deviceScan.continue" = "Continue";
+
+/* Location: DeviceScanView.swift - Button label while connecting */
+"deviceScan.connecting" = "Connecting...";
+
+/* Location: DeviceScanView.swift - Button to connect simulator (debug) */
+"deviceScan.connectSimulator" = "Connect Simulator";
+
+/* Location: DeviceScanView.swift - Button to continue in demo mode */
+"deviceScan.continueDemo" = "Continue in Demo Mode";
+
+/* Location: DeviceScanView.swift - Button to add a new device */
+"deviceScan.addDevice" = "Add Device";
+
+/* Location: DeviceScanView.swift - Button to retry connection after other-app conflict */
+"deviceScan.retryConnection" = "Retry Connection";
+
+/* Location: DeviceScanView.swift - Button for troubleshooting */
+"deviceScan.deviceNotAppearing" = "Help";
+
+/* Location: DeviceScanView.swift - Button to connect via WiFi */
+"deviceScan.connectViaWifi" = "Connect via WiFi";
+
+/* Location: DeviceScanView.swift - Alert title when demo mode is unlocked */
+"deviceScan.demoModeAlert.title" = "Demo Mode Unlocked";
+
+/* Location: DeviceScanView.swift - Alert message for demo mode */
+"deviceScan.demoModeAlert.message" = "You can now continue without a device. Toggle demo mode in Settings anytime.";
+
+/* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
+"deviceScan.error.authenticationFailed" = "The saved pairing with this radio stopped working. Tap Remove and Try Again to re-pair in the app; the radio may show a new pairing code.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "The saved pairing with this radio stopped working. In System Settings, forget this radio under Bluetooth, then tap Remove and Try Again.";
+"deviceScan.error.pinRejected" = "The PIN wasn't accepted. Check the PIN shown on your device, then try again. iOS will ask you to confirm removing the failed pairing first.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "The PIN wasn't accepted. In System Settings, forget this radio under Bluetooth, then try again.";
+"deviceScan.error.connectionFailed" = "Couldn't connect to the device. Try again, or remove it if the problem continues.";
+
+// MARK: - Troubleshooting Sheet
+
+/* Location: DeviceScanView.swift - Navigation title for troubleshooting sheet */
+"troubleshooting.title" = "Troubleshooting";
+
+/* Location: DeviceScanView.swift - Section header for basic checks */
+"troubleshooting.basicChecks.header" = "Basic Checks";
+
+/* Location: DeviceScanView.swift - Check to ensure device is powered on */
+"troubleshooting.basicChecks.powerOn" = "Make sure your device is powered on";
+
+/* Location: DeviceScanView.swift - Check to move device closer */
+"troubleshooting.basicChecks.moveCloser" = "Move the device closer to your phone";
+
+/* Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere */
+"troubleshooting.basicChecks.notConnectedElsewhere" = "Make sure your radio isn't connected to another phone or app";
+
+/* Location: DeviceScanView.swift - Check to restart the device */
+"troubleshooting.basicChecks.restart" = "Restart the MeshCore device";
+
+/* Location: DeviceScanView.swift - Section header for factory reset help */
+"troubleshooting.factoryReset.header" = "Factory Reset Device?";
+
+/* Location: DeviceScanView.swift - Explanation about stale pairings */
+"troubleshooting.factoryReset.explanation" = "If you factory-reset your MeshCore device, iOS may still have the old pairing stored. Clearing this in system Settings allows the device to appear again.";
+
+/* Location: DeviceScanView.swift - Additional explanation about removal confirmation */
+"troubleshooting.factoryReset.confirmationNote" = "Tapping below will ask you to confirm removing the old pairing. This is normal — it allows your reset device to appear again.";
+
+/* Location: DeviceScanView.swift - Button to clear previous pairing */
+"troubleshooting.factoryReset.clearPairing" = "Clear Previous Pairing";
+
+/* Location: DeviceScanView.swift - Footer when no pairings found */
+"troubleshooting.factoryReset.noPairings" = "No previous pairings found.";
+
+/* Location: DeviceScanView.swift - Footer showing pairing count - uses stringsdict */
+"troubleshooting.factoryReset.pairingsFound" = "Found %d previous pairing(s).";
+
+/* Location: DeviceScanView.swift - Section header for system settings info */
+"troubleshooting.systemSettings.header" = "System Settings";
+
+/* Location: DeviceScanView.swift - Info about managing accessories */
+"troubleshooting.systemSettings.manageAccessories" = "You can also manage Bluetooth accessories in:";
+
+/* Location: DeviceScanView.swift - Path to accessories in settings */
+"troubleshooting.systemSettings.path" = "Settings → Privacy & Security → Accessories";
+
+/* Location: TroubleshootingSheet.swift - Button that opens iOS Settings */
+"troubleshooting.systemSettings.openSettings" = "Open Settings";
+
+
+// MARK: - Still Not Appearing
+
+/* Location: TroubleshootingSheet.swift - Section header for last-resort flashing steps */
+"troubleshooting.stillNotAppearing.header" = "Still Not Appearing?";
+
+/* Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps */
+"troubleshooting.stillNotAppearing.body" = "If you've tried everything above, back up your radio's configuration in Liam Cottle's MeshCore app, then erase and reflash it on your computer at https://flasher.meshcore.io";
+
+
+// MARK: - Mesh Animation View
+
+/* Location: MeshAnimationView.swift - Accessibility label for mesh visualization */
+"meshAnimation.accessibilityLabel" = "Mesh network visualization";
+
+
+// MARK: - No Device Sheet
+
+/* Location: NoDeviceSheet.swift - Sheet title */
+"noDevice.sheet.title" = "Take a look around";
+
+/* Location: NoDeviceSheet.swift - Sheet body */
+"noDevice.sheet.body" = "You'll need a paired radio to send and receive messages. Explore the app for now and pair anytime from Settings.";
+
+/* Location: NoDeviceSheet.swift - Primary CTA */
+"noDevice.sheet.confirm" = "Continue";
+
+/* Location: NoDeviceSheet.swift - Secondary CTA */
+"noDevice.sheet.cancel" = "Cancel";
+
+
+// MARK: - Preset Step View
+
+/* Location: PresetStepView.swift - Title */
+"preset.title" = "Pick a preset";
+
+/* Location: PresetStepView.swift - Subtitle listing presets for the selected place */
+"preset.subtitle.recommended" = "Presets for %@";
+
+/* Location: PresetStepView.swift - Subtitle for empty-region fallback */
+"preset.subtitle.locale" = "Pick a preset for your radio.";
+
+/* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
+"preset.discordHelp" = "Not sure which preset to pick? Join the official MeshCore Discord and ask! [https://meshcore.gg](https://meshcore.gg)";
+
+/* Location: PresetStepView.swift - Apply CTA "Use %@" */
+"preset.use" = "Use %@";
+
+/* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
+"preset.error.notConnected" = "Connect to your device to apply this preset.";
+
+/* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
+"preset.continue" = "Continue";
+
+/* Location: PresetStepView.swift - VoiceOver hint for tapping a preset card */
+"preset.row.accessibilityHint" = "Selects this preset.";
+
+// MARK: - WiFi Connection Sheet
+
+/* Location: WiFiConnectionSheet.swift - Navigation title */
+"wifiConnection.title" = "Connect via WiFi";
+
+/* Location: WiFiConnectionSheet.swift - Section header for connection details */
+"wifiConnection.connectionDetails.header" = "Connection Details";
+
+/* Location: WiFiConnectionSheet.swift - Placeholder for hostname or IP address field */
+"wifiConnection.ipAddress.placeholder" = "Hostname or IP";
+
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear hostname or IP button */
+"wifiConnection.ipAddress.clearAccessibility" = "Clear hostname or IP";
+
+/* Location: WiFiConnectionSheet.swift - Placeholder for port field */
+"wifiConnection.port.placeholder" = "Port";
+
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear port button */
+"wifiConnection.port.clearAccessibility" = "Clear port";
+
+/* Location: WiFiConnectionSheet.swift - Footer explaining connection details */
+"wifiConnection.connectionDetails.footer" = "Enter your MeshCore device's hostname or IP address. The default port is 5000.";
+
+/* Location: WiFiConnectionSheet.swift - Button label while connecting */
+"wifiConnection.connecting" = "Connecting...";
+
+/* Location: WiFiConnectionSheet.swift - Button to initiate connection */
+"wifiConnection.connect" = "Connect";
+
+/* Location: WiFiConnectionSheet.swift - Error message for invalid port */
+"wifiConnection.error.invalidPort" = "Invalid port number";
+
+
+// MARK: - Region Picker View
+
+/* Location: RegionPickerView.swift - Country picker label */
+"region.country" = "Country";
+
+/* Location: RegionPickerView.swift - State picker label (US, AU) */
+"region.state" = "State";
+
+/* Location: RegionPickerView.swift - Province picker label (Canada) */
+"region.province" = "Province";
+
+/* Location: RegionPickerView.swift - Continue CTA in manual picker */
+"region.continue" = "Continue";
+
+/* Location: RegionStepView.swift - Title (both states) */
+"region.title" = "Choose your region";
+
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "We'll show presets that work in your area.";
+
+/* Location: RegionStepView.swift - "Detected" tag */
+"region.detected.tag" = "Detected";
+
+/* Location: RegionStepView.swift - Caption "From your location" */
+"region.detected.source" = "From your location";
+
+/* Location: RegionStepView.swift - Primary CTA in detected state */
+"region.useThisRegion" = "Use this region";
+
+/* Location: RegionStepView.swift - "Choose another" link */
+"region.chooseAnother" = "Choose another";
+
+/* Location: RegionStepView.swift - "Use my location" link in manual state */
+"region.useMyLocation" = "Use my location";
+
+/* Location: RegionStepView.swift - "Finding your region…" */
+"region.resolving" = "Finding your region…";
+
+/* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
+"region.useMyLocation.failure" = "Location lookup didn't return a region. Pick manually below.";
+
+
+// MARK: - Device Scanner Sheet (macOS)
+
+/* Location: DeviceScannerSheet.swift - Navigation title for the macOS BLE scanner */
+"deviceScanner.title" = "Select Device";
+
+/* Location: DeviceScannerSheet.swift - Placeholder name for peripherals with no advertised name */
+"deviceScanner.unknownDevice" = "Unknown Device";
+
+/* Location: DeviceScannerSheet.swift - Empty state shown while scanning for devices */
+"deviceScanner.scanning" = "Scanning for devices…";
+
+/* Location: DeviceScannerSheet.swift - Title shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.title" = "Bluetooth Is Off";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.message" = "Turn on Bluetooth to scan for nearby devices.";
+
+/* Location: DeviceScannerSheet.swift - Title shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.title" = "Bluetooth Access Needed";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.message" = "Allow Bluetooth access in Settings to scan for nearby devices.";
+

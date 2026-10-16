@@ -1,0 +1,239 @@
+import MC1Services
+import SwiftUI
+import TipKit
+
+/// Settings list for `SettingsView`. Selection is always `selectedSetting`.
+/// `isSidebar` only changes list style and row flattening.
+struct SettingsListContent: View {
+  @Environment(\.appState) private var appState
+  @Environment(\.appTheme) private var theme
+  @Environment(\.locale) private var locale
+  @Binding var showingDeviceSelection: Bool
+  @Bindable var demoModeManager: DemoModeManager
+  /// `true` when this list is the iPad split-view sidebar column, whose `.sidebar` style draws
+  /// rows transparent so the column canvas shows through and the native selection highlight shows.
+  let isSidebar: Bool
+  private let liveActivityTip = LiveActivityTip()
+
+  private var settingSelection: Binding<SettingsDetail?> {
+    Binding(
+      get: { appState.navigation.selectedSetting },
+      set: { appState.navigation.selectedSetting = $0 }
+    )
+  }
+
+  var body: some View {
+    settingsList
+      .themedCanvas(theme)
+      .navigationTitle(L10n.Settings.title)
+      .toolbar {
+        bleStatusToolbarItem()
+      }
+      .sheet(isPresented: $showingDeviceSelection, onDismiss: {
+        appState.handleDeviceSelectionSheetDismissed()
+      }) {
+        DeviceSelectionSheet()
+          .presentationDetents([.medium])
+          .presentationDragIndicator(.visible)
+      }
+  }
+
+  @ViewBuilder
+  private var settingsList: some View {
+    if isSidebar {
+      List(selection: settingSelection) { sections }
+        .listStyle(.sidebar)
+    } else {
+      List(selection: settingSelection) { sections }
+    }
+  }
+
+  @ViewBuilder
+  private var sections: some View {
+    if let device = appState.connectedDevice {
+      MyDeviceSection(device: device, isSidebar: isSidebar)
+    } else {
+      NoDeviceSection(showingDeviceSelection: $showingDeviceSelection, isSidebar: isSidebar)
+    }
+
+    Section {
+      SettingsDetailRow(detail: .notifications) {
+        TintedLabel(L10n.Settings.Notifications.header, systemImage: "bell.badge")
+      }
+
+      SettingsDetailRow(detail: .chats) {
+        TintedLabel(L10n.Settings.ChatSettings.title, systemImage: "bubble.left.and.bubble.right")
+      }
+
+      AppearanceSection()
+
+      TipView(liveActivityTip, arrowEdge: .bottom)
+
+      Toggle(isOn: Binding(
+        get: { appState.liveActivityManager.isEnabled },
+        set: { newValue in
+          appState.liveActivityManager.isEnabled = newValue
+          Task {
+            if !newValue {
+              await appState.liveActivityManager.endActivity()
+            } else if appState.connectionState.isConnected {
+              await appState.wireServicesIfConnected()
+            }
+          }
+        }
+      )) {
+        TintedLabel(L10n.Settings.LiveActivity.title, systemImage: "platter.filled.bottom.and.arrow.down.iphone")
+      }
+
+      SettingsDetailRow(detail: .language) {
+        HStack {
+          TintedLabel(L10n.Settings.Language.title, systemImage: "globe")
+          Spacer()
+          Text(languageRowDetail)
+            .foregroundStyle(.secondary)
+        }
+      }
+
+      SettingsDetailRow(detail: .maps) {
+        TintedLabel(L10n.Settings.Maps.title, systemImage: "map.fill")
+      }
+
+      SettingsDetailRow(detail: .backup) {
+        TintedLabel(L10n.Settings.Settings.Backup.title, systemImage: "archivebox.fill")
+      }
+    } header: {
+      Text(L10n.Settings.AppSettings.header)
+    }
+    .themedRowBackground(theme, flatten: isSidebar)
+
+    AboutSection(isSidebar: isSidebar)
+
+    if demoModeManager.isUnlocked {
+      Section {
+        Toggle(L10n.Settings.DemoMode.enabled, isOn: $demoModeManager.isEnabled)
+      } header: {
+        Text(L10n.Settings.DemoMode.header)
+      } footer: {
+        Text(L10n.Settings.DemoMode.footer)
+      }
+      .themedRowBackground(theme, flatten: isSidebar)
+    }
+
+    #if DEBUG
+      Section {
+        Button {
+          appState.onboarding.resetOnboarding()
+        } label: {
+          TintedLabel("Reset Onboarding", systemImage: "arrow.counterclockwise")
+        }
+      } header: {
+        Text("Debug")
+      }
+      .themedRowBackground(theme, flatten: isSidebar)
+    #endif
+
+    Section {} footer: {
+      let version = Bundle.main.appVersion
+      let build = Bundle.main.appBuild
+      VStack {
+        Text(L10n.Settings.version(version))
+        Text(L10n.Settings.build(build))
+      }
+      .padding(.top, -8)
+      .padding(.bottom)
+      .frame(maxWidth: .infinity)
+    }
+    .themedRowBackground(theme, flatten: isSidebar)
+  }
+
+  private var languageRowDetail: String {
+    let code = Bundle.main.preferredLocalizations.first ?? "en"
+    return locale.localizedString(forLanguageCode: code) ?? code
+  }
+}
+
+// MARK: - My Device Section
+
+private struct MyDeviceSection: View {
+  let device: DeviceDTO
+  let isSidebar: Bool
+  @Environment(\.appState) private var appState
+  @Environment(\.appTheme) private var theme
+
+  var body: some View {
+    Section {
+      SettingsDetailRow(detail: .deviceInfo) {
+        SettingsRow(L10n.Settings.DeviceInfo.title, systemImage: "cpu", detail: device.nodeName)
+      }
+      .accessibilityValue(device.nodeName)
+
+      SettingsDetailRow(detail: .radio) {
+        SettingsRow(L10n.Settings.Radio.header, systemImage: "antenna.radiowaves.left.and.right", detail: radioDetailText)
+      }
+      .accessibilityValue(radioDetailText)
+
+      SettingsDetailRow(detail: .location) {
+        SettingsRow(L10n.Settings.Location.header, systemImage: "location", detail: locationDetailText)
+      }
+      .accessibilityValue(locationDetailText)
+
+      SettingsDetailRow(detail: .connection) {
+        let isWiFi = appState.connectionManager.currentTransportType == .wifi
+        TintedLabel(
+          isWiFi ? L10n.Settings.Wifi.header : L10n.Settings.Bluetooth.header,
+          systemImage: isWiFi ? "wifi" : "wave.3.right"
+        )
+      }
+
+      SettingsDetailRow(detail: .advanced) {
+        TintedLabel(L10n.Settings.AdvancedSettings.title, systemImage: "gearshape.2")
+      }
+    } header: {
+      Text(L10n.Settings.MyDevice.header)
+    }
+    .themedRowBackground(theme, flatten: isSidebar)
+  }
+
+  private var radioDetailText: String {
+    let preset = device.clientRepeat
+      ? RadioPresets.matchingRepeatPreset(frequencyKHz: device.frequency)
+      : RadioPresets.resolvedPreset(
+        frequencyKHz: device.frequency,
+        bandwidthKHz: device.bandwidth,
+        spreadingFactor: device.spreadingFactor,
+        codingRate: device.codingRate,
+        preferredID: device.appliedRadioPresetID,
+        region: appState.regionSelection
+      )
+    return preset?.name ?? L10n.Settings.BatteryCurve.custom
+  }
+
+  private var locationDetailText: String {
+    device.sharesLocationPublicly
+      ? L10n.Settings.Location.sharingPublicly
+      : L10n.Settings.Location.notSharing
+  }
+}
+
+// MARK: - Settings Row with Detail Text
+
+private struct SettingsRow: View {
+  let title: String
+  let systemImage: String
+  let detail: String
+
+  init(_ title: String, systemImage: String, detail: String) {
+    self.title = title
+    self.systemImage = systemImage
+    self.detail = detail
+  }
+
+  var body: some View {
+    HStack {
+      TintedLabel(title, systemImage: systemImage)
+      Spacer()
+      Text(detail)
+        .foregroundStyle(.secondary)
+    }
+  }
+}

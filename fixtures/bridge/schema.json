@@ -1,0 +1,418 @@
+{
+  "version": 1,
+  "format": "json-envelope-v1",
+  "events": [
+    {
+      "form": "payload",
+      "type": "MeshEvent.Acknowledgement",
+      "kind": "acknowledgement"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.ACLResponseReceived",
+      "kind": "aclResponse"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.AdvertPathResponseReceived",
+      "kind": "advertPathResponse"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.Advertisement",
+      "kind": "advertisement"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.AllowedRepeatFreq",
+      "kind": "allowedRepeatFreq"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.AutoAddConfigReceived",
+      "kind": "autoAddConfig"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.BatteryReceived",
+      "kind": "battery"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.BinaryResponseReceived",
+      "kind": "binaryResponse"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.ChannelDataReceived",
+      "kind": "channelDataReceived"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.ChannelInfoReceived",
+      "kind": "channelInfo"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.ChannelMessageReceived",
+      "kind": "channelMessageReceived"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.ConnectionStateChanged",
+      "kind": "connectionStateChanged"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.ContactReceived",
+      "kind": "contact"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.ContactDeleted",
+      "kind": "contactDeleted"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.ContactMessageReceived",
+      "kind": "contactMessageReceived"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.ContactUri",
+      "kind": "contactURI"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.ContactsEnd",
+      "kind": "contactsEnd"
+    },
+    {
+      "form": "object",
+      "type": "MeshEvent.ContactsFull",
+      "kind": "contactsFull"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.ContactsStart",
+      "kind": "contactsStart"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.ControlData",
+      "kind": "controlData"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.CurrentTime",
+      "kind": "currentTime"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.CustomVars",
+      "kind": "customVars"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.DefaultFloodScopeReceived",
+      "kind": "defaultFloodScope"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.DeviceInfoReceived",
+      "kind": "deviceInfo"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.Disabled",
+      "kind": "disabled"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.DiscoverResponseReceived",
+      "kind": "discoverResponse"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.ErrorReported",
+      "kind": "error"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.LogData",
+      "kind": "logData"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.LoginFailed",
+      "kind": "loginFailed"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.LoginSuccess",
+      "kind": "loginSuccess"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.MessageSent",
+      "kind": "messageSent"
+    },
+    {
+      "form": "object",
+      "type": "MeshEvent.MessagesWaiting",
+      "kind": "messagesWaiting"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.MMAResponseReceived",
+      "kind": "mmaResponse"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.NeighboursResponseReceived",
+      "kind": "neighboursResponse"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.NewContact",
+      "kind": "newContact"
+    },
+    {
+      "form": "object",
+      "type": "MeshEvent.NoMoreMessages",
+      "kind": "noMoreMessages"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.Ok",
+      "kind": "ok"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.ParseFailure",
+      "kind": "parseFailure"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.PathResponse",
+      "kind": "pathResponse"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.PathUpdate",
+      "kind": "pathUpdate"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.PrivateKeyReceived",
+      "kind": "privateKey"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.RawData",
+      "kind": "rawData"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.RxLogData",
+      "kind": "rxLogData"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.SelfInfoReceived",
+      "kind": "selfInfo"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.SignStart",
+      "kind": "signStart"
+    },
+    {
+      "form": "payload",
+      "type": "MeshEvent.SignatureReceived",
+      "kind": "signature"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.StatsCore",
+      "kind": "statsCore"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.StatsPackets",
+      "kind": "statsPackets"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.StatsRadio",
+      "kind": "statsRadio"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.StatusResponseReceived",
+      "kind": "statusResponse"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.TelemetryResponseReceived",
+      "kind": "telemetryResponse"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.TraceData",
+      "kind": "traceData"
+    },
+    {
+      "form": "wrap",
+      "type": "MeshEvent.TuningParamsResponseReceived",
+      "kind": "tuningParamsResponse"
+    }
+  ],
+  "results": [
+    {
+      "form": "wrap",
+      "type": "CommandResult.ACLResult",
+      "kind": "aclResponse"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.AllowedRepeatFreqResult",
+      "kind": "allowedRepeatFreq"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.AutoAddConfigResult",
+      "kind": "autoAddConfig"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.BatteryResult",
+      "kind": "battery"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.ChannelInfoResult",
+      "kind": "channelInfo"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.ChannelsResult",
+      "kind": "channels"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.ContactOptionalResult",
+      "kind": "contactOptional"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.ContactUriResult",
+      "kind": "contactURI"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.ContactsResult",
+      "kind": "contacts"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.CustomVarsResult",
+      "kind": "customVars"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.DefaultFloodScopeResult",
+      "kind": "defaultFloodScope"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.DeviceCapabilitiesResult",
+      "kind": "deviceCapabilities"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.DiscoverTagResult",
+      "kind": "discoverTag"
+    },
+    {
+      "form": "custom",
+      "expr": "CommandResult.MessageResult(decodeGetMessage(payload))",
+      "kind": "messageResult"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.MessageSentResult",
+      "kind": "messageSent"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.MMAResult",
+      "kind": "mmaResponse"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.NeighboursResult",
+      "kind": "neighboursResponse"
+    },
+    {
+      "form": "object",
+      "type": "CommandResult.Ok",
+      "kind": "ok"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.OwnerInfoResult",
+      "kind": "ownerInfo"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.PrivateKeyResult",
+      "kind": "privateKey"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.RegionsResult",
+      "kind": "regions"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.SelfInfoResult",
+      "kind": "selfInfo"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.SignatureResult",
+      "kind": "signature"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.StatsCoreResult",
+      "kind": "statsCore"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.StatsPacketsResult",
+      "kind": "statsPackets"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.StatsRadioResult",
+      "kind": "statsRadio"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.StatusResponseResult",
+      "kind": "statusResponse"
+    },
+    {
+      "form": "wrap",
+      "type": "CommandResult.TelemetryResponseResult",
+      "kind": "telemetryResponse"
+    },
+    {
+      "form": "payload",
+      "type": "CommandResult.TimeResult",
+      "kind": "time"
+    }
+  ]
+}

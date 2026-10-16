@@ -1,0 +1,485 @@
+import CoreLocation
+import MC1Services
+import SwiftUI
+
+/// Segment for the nodes picker
+enum NodeSegment: String, CaseIterable {
+  case favorites
+  case contacts
+  case repeaters
+  case rooms
+
+  var localizedTitle: String {
+    switch self {
+    case .favorites: L10n.Contacts.Contacts.Segment.favorites
+    case .contacts: L10n.Contacts.Contacts.Segment.contacts
+    case .repeaters: L10n.Contacts.Contacts.Segment.repeaters
+    case .rooms: L10n.Contacts.Contacts.Segment.rooms
+    }
+  }
+}
+
+/// Sort order for nodes list
+enum NodeSortOrder: String, CaseIterable {
+  case lastHeard
+  case name
+  case distance
+  case hops
+
+  var localizedTitle: String {
+    switch self {
+    case .lastHeard: L10n.Contacts.Contacts.Sort.lastHeard
+    case .name: L10n.Contacts.Contacts.Sort.name
+    case .distance: L10n.Contacts.Contacts.Sort.distance
+    case .hops: L10n.Contacts.Contacts.Sort.hops
+    }
+  }
+}
+
+/// ViewModel for contact management
+@Observable
+@MainActor
+final class ContactsViewModel {
+  // MARK: - Properties
+
+  /// All contacts
+  var contacts: [ContactDTO] = []
+
+  /// Inbound advert hop count per contact public key, sourced from the volatile discovered-node
+  /// table and refreshed on each load. A contact's "Hops" falls back to this when it has no
+  /// out-path; absence (evicted or never heard via advert) just leaves the fallback unavailable.
+  var inboundHopByKey: [Data: Int] = [:]
+
+  /// Loading state
+  var isLoading = false
+
+  /// Whether data has been loaded at least once (prevents empty state flash)
+  var hasLoadedOnce = false
+
+  /// Syncing state
+  var isSyncing = false
+
+  /// Sync progress (current, total)
+  var syncProgress: (Int, Int)?
+
+  /// Error message if any
+  var errorMessage: String?
+
+  /// User's current location for distance sorting (optional)
+  var userLocation: CLLocation?
+
+  /// Contact ID currently having its favorite status toggled (for loading UI)
+  var togglingFavoriteID: UUID?
+
+  /// Mask of rows hidden after a confirmed delete, held until a reload sees the row gone so a
+  /// racing reload can't resurrect it. Observed because `filteredContacts` reads it during body
+  /// evaluation. Distinct from `deletingIDs`, the in-flight presentation set.
+  var pendingRemovalIDs: Set<UUID> = []
+
+  /// Rows with a delete command in flight, surfaced as a spinner. Distinct from
+  /// `pendingRemovalIDs`, the post-confirmation mask.
+  var deletingIDs: Set<UUID> = []
+
+  /// Bumped at the start of each `loadContacts` so a slower fetch cannot overwrite a newer list.
+  private var loadGeneration = 0
+
+  /// Upserted rows held until a fetch includes the same id or public key and radio.
+  /// A slower load must not drop a just-added contact.
+  private var pendingAdmissions: [UUID: ContactDTO] = [:]
+
+  /// True while a delete for this row is either confirmed-but-unreloaded or in flight.
+  func isDeletePending(_ id: UUID) -> Bool {
+    pendingRemovalIDs.contains(id) || deletingIDs.contains(id)
+  }
+
+  // MARK: - Dependencies
+
+  private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
+  private var contactServiceProvider: @MainActor () -> ContactService? = { nil }
+  private var advertisementServiceProvider: @MainActor () -> AdvertisementService? = { nil }
+
+  private var dataStore: DataStore? {
+    dataStoreProvider()
+  }
+
+  private var contactService: ContactService? {
+    contactServiceProvider()
+  }
+
+  private var advertisementService: AdvertisementService? {
+    advertisementServiceProvider()
+  }
+
+  // MARK: - Initialization
+
+  init() {}
+
+  /// Configure with the services this view model uses; a provider returning nil mirrors a disconnected state.
+  func configure(
+    dataStore: @escaping @MainActor () -> DataStore?,
+    contactService: @escaping @MainActor () -> ContactService?,
+    advertisementService: @escaping @MainActor () -> AdvertisementService?
+  ) {
+    dataStoreProvider = dataStore
+    contactServiceProvider = contactService
+    advertisementServiceProvider = advertisementService
+  }
+
+  // MARK: - Load Contacts
+
+  /// Load contacts from local database
+  func loadContacts(radioID: UUID) async {
+    guard let dataStore else { return }
+
+    loadGeneration += 1
+    let generation = loadGeneration
+
+    isLoading = true
+    errorMessage = nil
+
+    do {
+      let fetched = try await dataStore.fetchContacts(radioID: radioID)
+      guard generation == loadGeneration else { return }
+      contacts = mergeAdmissions(into: fetched, radioID: radioID)
+      // Self-heal the mask: once a deleted row is gone from the fetch, stop masking it.
+      pendingRemovalIDs.formIntersection(Set(contacts.map(\.id)))
+    } catch is CancellationError {
+      if generation == loadGeneration {
+        isLoading = false
+      }
+      return
+    } catch {
+      guard generation == loadGeneration else { return }
+      errorMessage = error.userFacingMessage
+    }
+
+    // Best-effort inbound-hop fallback from the volatile discovered-node table; a failure here
+    // must not fail the contact load, so it is fetched outside the throwing load path.
+    let hops: [Data: Int] = await (try? dataStore.fetchDiscoveredNodes(radioID: radioID))?
+      .reduce(into: [:]) { map, node in
+        if let inbound = node.inboundHopCount { map[node.publicKey] = inbound }
+      } ?? [:]
+    guard generation == loadGeneration else { return }
+
+    inboundHopByKey = hops
+    hasLoadedOnce = true
+    isLoading = false
+  }
+
+  /// Holds a contact the list does not already show until a fetch includes it.
+  /// A listed row is not pinned, or the next load puts it back after a delete or a radio switch.
+  func admitIfAbsent(_ contact: ContactDTO) {
+    let alreadyListed = contacts.contains { existing in
+      existing.id == contact.id
+        || (existing.publicKey == contact.publicKey && existing.radioID == contact.radioID)
+    }
+    guard !alreadyListed else { return }
+    upsert(contact)
+  }
+
+  /// Inserts or replaces by `id`, then public key and `radioID`.
+  /// Unmasks `pendingRemovalIDs` so a re-add is visible before the next load.
+  func upsert(_ contact: ContactDTO) {
+    rememberAdmission(contact)
+    applyUpsert(contact)
+  }
+
+  private func rememberAdmission(_ contact: ContactDTO) {
+    pendingAdmissions = pendingAdmissions.filter { id, existing in
+      id != contact.id
+        && !(existing.publicKey == contact.publicKey && existing.radioID == contact.radioID)
+    }
+    pendingAdmissions[contact.id] = contact
+  }
+
+  private func applyUpsert(_ contact: ContactDTO) {
+    pendingRemovalIDs.remove(contact.id)
+    if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+      contacts[index] = contact
+      return
+    }
+    if let index = contacts.firstIndex(where: {
+      $0.publicKey == contact.publicKey && $0.radioID == contact.radioID
+    }) {
+      pendingRemovalIDs.remove(contacts[index].id)
+      contacts[index] = contact
+      return
+    }
+    contacts.append(contact)
+  }
+
+  private func mergeAdmissions(into fetched: [ContactDTO], radioID: UUID) -> [ContactDTO] {
+    var result = fetched
+    var resolved: [UUID] = []
+    for (id, contact) in pendingAdmissions {
+      guard contact.radioID == radioID else { continue }
+      let present = result.contains {
+        $0.id == contact.id
+          || ($0.publicKey == contact.publicKey && $0.radioID == contact.radioID)
+      }
+      if present {
+        resolved.append(id)
+      } else {
+        result.append(contact)
+      }
+    }
+    for id in resolved {
+      pendingAdmissions.removeValue(forKey: id)
+    }
+    return result
+  }
+
+  // MARK: - Sync Contacts
+
+  /// Sync contacts from device
+  func syncContacts(radioID: UUID) async {
+    guard let contactService else { return }
+    // Claim the sync synchronously so a re-trigger while one is in flight is a no-op.
+    guard !isSyncing else { return }
+
+    isSyncing = true
+    syncProgress = nil
+    errorMessage = nil
+
+    // `setSyncingContacts(true)` then `syncContactsForRefresh` so an advert-driven
+    // sync cannot interleave progress events with this refresh.
+    if let advertisementService {
+      await advertisementService.setSyncingContacts(true)
+    }
+
+    // Subscribed synchronously before the sync starts so no progress event
+    // is missed; scoped to this sync and cancelled when it completes.
+    let events = contactService.events()
+    let progressTask = Task { [weak self] in
+      for await event in events {
+        if case let .syncProgress(received, total) = event {
+          self?.syncProgress = (received, total)
+        }
+      }
+    }
+    defer { progressTask.cancel() }
+
+    do {
+      _ = try await contactService.syncContactsForRefresh(radioID: radioID)
+
+      // Reload from database
+      await loadContacts(radioID: radioID)
+
+      // Clear sync progress
+      syncProgress = nil
+    } catch is CancellationError {
+      // Pull-to-refresh interrupted (tab switch, view teardown); not a failure to report.
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+
+    // Awaited rather than deferred to an unstructured Task so this sync's reset cannot
+    // land after a later sync's setSyncingContacts(true) and clear the flag mid-sync.
+    if let advertisementService {
+      await advertisementService.setSyncingContacts(false)
+    }
+
+    isSyncing = false
+  }
+
+  // MARK: - Contact Actions
+
+  /// Toggle favorite status on device and update local state
+  func toggleFavorite(contact: ContactDTO) async {
+    guard let contactService else { return }
+    guard let current = contacts.first(where: { $0.id == contact.id }) else { return }
+
+    togglingFavoriteID = contact.id
+    defer { togglingFavoriteID = nil }
+
+    do {
+      try await contactService.setContactFavorite(contact.id, isFavorite: !current.isFavorite)
+
+      // Reload to get updated state
+      if contacts.contains(where: { $0.id == contact.id }) {
+        await loadContacts(radioID: contact.radioID)
+      }
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  /// Toggle blocked status
+  func toggleBlocked(contact: ContactDTO) async {
+    guard let contactService else { return }
+    guard let current = contacts.first(where: { $0.id == contact.id }) else { return }
+
+    do {
+      try await contactService.updateContactPreferences(
+        contactID: contact.id,
+        isBlocked: !current.isBlocked
+      )
+
+      // Update local list
+      await loadContacts(radioID: contact.radioID)
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  /// Update nickname
+  func updateNickname(contact: ContactDTO, nickname: String?) async {
+    guard let contactService else { return }
+
+    do {
+      try await contactService.updateContactPreferences(
+        contactID: contact.id,
+        nickname: nickname?.isEmpty == true ? nil : nickname
+      )
+
+      // Update local list
+      await loadContacts(radioID: contact.radioID)
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  /// Delete a contact. Removing a node is a real radio command, so the row stays in place with a
+  /// spinner until the radio acks, then is hidden once; a failure or timeout leaves it untouched
+  /// with an error rather than bouncing it out and back.
+  func deleteContact(_ contact: ContactDTO) async {
+    guard let contactService else {
+      errorMessage = L10n.Contacts.Contacts.ViewModel.connectToDelete
+      return
+    }
+    guard !isDeletePending(contact.id) else { return }
+
+    deletingIDs.insert(contact.id)
+    defer { deletingIDs.remove(contact.id) }
+
+    do {
+      try await withTimeout(RadioCommandTimeout.delete, operationName: "removeContact") {
+        try await contactService.removeContact(
+          radioID: contact.radioID,
+          publicKey: contact.publicKey
+        )
+      }
+      hideDeletedContact(contact)
+    } catch ContactServiceError.contactNotFound {
+      // The radio no longer knows this contact (e.g. a prior attempt's command landed but its
+      // local delete was interrupted). Clear the orphaned local row so it stops reappearing.
+      do {
+        try await contactService.removeLocalContact(contactID: contact.id, publicKey: contact.publicKey)
+        hideDeletedContact(contact)
+      } catch {
+        errorMessage = error.userFacingMessage
+      }
+    } catch is TimeoutError {
+      errorMessage = L10n.Contacts.Contacts.ViewModel.removeTimedOut
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  /// Masks and removes a row whose deletion the radio confirmed, in one animation.
+  /// The mask insert is observed (read live by `filteredContacts`), so it must land inside
+  /// the same transaction as the array removal or it hides the row unanimated first.
+  private func hideDeletedContact(_ contact: ContactDTO) {
+    withAnimation(.snappy) {
+      pendingRemovalIDs.insert(contact.id)
+      pendingAdmissions.removeValue(forKey: contact.id)
+      contacts.removeAll { $0.id == contact.id }
+    }
+  }
+
+  // MARK: - Filtering
+
+  /// True when any loaded contact is a favorite; drives the initial Nodes segment.
+  var hasFavorites: Bool {
+    contacts.contains(where: \.isFavorite)
+  }
+
+  /// Returns contacts filtered by segment and sorted
+  func filteredContacts(
+    searchText: String,
+    segment: NodeSegment,
+    sortOrder: NodeSortOrder,
+    userLocation: CLLocation?
+  ) -> [ContactDTO] {
+    var result = contacts.filter { !pendingRemovalIDs.contains($0.id) }
+
+    // If searching, show all types (ignore segment)
+    if searchText.isEmpty {
+      // Filter by segment
+      switch segment {
+      case .favorites:
+        result = result.filter(\.isFavorite)
+      case .contacts:
+        result = result.filter { $0.type == .chat }
+      case .repeaters:
+        result = result.filter { $0.type == .repeater }
+      case .rooms:
+        result = result.filter { $0.type == .room }
+      }
+    } else {
+      // Filter by search text only
+      result = result.filter { contact in
+        contact.displayName.localizedStandardContains(searchText)
+          || contact.publicKey.uppercaseHexString().hasPrefix(searchText.uppercased())
+      }
+    }
+
+    // Sort
+    result = sorted(result, by: sortOrder, userLocation: userLocation)
+
+    return result
+  }
+
+  /// Sort contacts by the given order
+  private func sorted(
+    _ contacts: [ContactDTO],
+    by order: NodeSortOrder,
+    userLocation: CLLocation?
+  ) -> [ContactDTO] {
+    switch order {
+    case .lastHeard:
+      contacts.sorted { $0.recencyTimestamp > $1.recencyTimestamp }
+    case .name:
+      contacts.sorted {
+        $0.displayName.localizedCompare($1.displayName) == .orderedAscending
+      }
+    case .distance:
+      contacts.sorted { orderedByDistanceThenName($0, $1, from: userLocation) }
+    case .hops:
+      contacts.sorted { lhs, rhs in
+        let lhsHops = lhs.displayedHopCount(inboundHopCount: inboundHopByKey[lhs.publicKey])
+        let rhsHops = rhs.displayedHopCount(inboundHopCount: inboundHopByKey[rhs.publicKey])
+        // A nil hop count (flood-routed and never heard via advert) sorts to the bottom.
+        if (lhsHops == nil) != (rhsHops == nil) {
+          return lhsHops != nil
+        }
+        if let lhsHops, let rhsHops, lhsHops != rhsHops {
+          return lhsHops < rhsHops
+        }
+        return orderedByDistanceThenName(lhs, rhs, from: userLocation)
+      }
+    }
+  }
+
+  /// Located nodes first, then nearest to `userLocation`, then by name. Falls back to name when
+  /// there is no user location, neither node has coordinates, or the distances tie.
+  private func orderedByDistanceThenName(
+    _ lhs: ContactDTO,
+    _ rhs: ContactDTO,
+    from userLocation: CLLocation?
+  ) -> Bool {
+    if let userLocation {
+      if lhs.hasLocation != rhs.hasLocation {
+        return lhs.hasLocation
+      }
+      if lhs.hasLocation {
+        let lhsDistance = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude).distance(from: userLocation)
+        let rhsDistance = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude).distance(from: userLocation)
+        if lhsDistance != rhsDistance {
+          return lhsDistance < rhsDistance
+        }
+      }
+    }
+    return lhs.displayName.localizedCompare(rhs.displayName) == .orderedAscending
+  }
+}

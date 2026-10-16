@@ -1,0 +1,1488 @@
+{
+  "decode" : [
+    {
+      "byteLength" : 0,
+      "encoded" : 0,
+      "hashSize" : 1,
+      "hopCount" : 0
+    },
+    {
+      "byteLength" : 1,
+      "encoded" : 1,
+      "hashSize" : 1,
+      "hopCount" : 1
+    },
+    {
+      "byteLength" : 2,
+      "encoded" : 2,
+      "hashSize" : 1,
+      "hopCount" : 2
+    },
+    {
+      "byteLength" : 3,
+      "encoded" : 3,
+      "hashSize" : 1,
+      "hopCount" : 3
+    },
+    {
+      "byteLength" : 4,
+      "encoded" : 4,
+      "hashSize" : 1,
+      "hopCount" : 4
+    },
+    {
+      "byteLength" : 5,
+      "encoded" : 5,
+      "hashSize" : 1,
+      "hopCount" : 5
+    },
+    {
+      "byteLength" : 6,
+      "encoded" : 6,
+      "hashSize" : 1,
+      "hopCount" : 6
+    },
+    {
+      "byteLength" : 7,
+      "encoded" : 7,
+      "hashSize" : 1,
+      "hopCount" : 7
+    },
+    {
+      "byteLength" : 8,
+      "encoded" : 8,
+      "hashSize" : 1,
+      "hopCount" : 8
+    },
+    {
+      "byteLength" : 9,
+      "encoded" : 9,
+      "hashSize" : 1,
+      "hopCount" : 9
+    },
+    {
+      "byteLength" : 10,
+      "encoded" : 10,
+      "hashSize" : 1,
+      "hopCount" : 10
+    },
+    {
+      "byteLength" : 11,
+      "encoded" : 11,
+      "hashSize" : 1,
+      "hopCount" : 11
+    },
+    {
+      "byteLength" : 12,
+      "encoded" : 12,
+      "hashSize" : 1,
+      "hopCount" : 12
+    },
+    {
+      "byteLength" : 13,
+      "encoded" : 13,
+      "hashSize" : 1,
+      "hopCount" : 13
+    },
+    {
+      "byteLength" : 14,
+      "encoded" : 14,
+      "hashSize" : 1,
+      "hopCount" : 14
+    },
+    {
+      "byteLength" : 15,
+      "encoded" : 15,
+      "hashSize" : 1,
+      "hopCount" : 15
+    },
+    {
+      "byteLength" : 16,
+      "encoded" : 16,
+      "hashSize" : 1,
+      "hopCount" : 16
+    },
+    {
+      "byteLength" : 17,
+      "encoded" : 17,
+      "hashSize" : 1,
+      "hopCount" : 17
+    },
+    {
+      "byteLength" : 18,
+      "encoded" : 18,
+      "hashSize" : 1,
+      "hopCount" : 18
+    },
+    {
+      "byteLength" : 19,
+      "encoded" : 19,
+      "hashSize" : 1,
+      "hopCount" : 19
+    },
+    {
+      "byteLength" : 20,
+      "encoded" : 20,
+      "hashSize" : 1,
+      "hopCount" : 20
+    },
+    {
+      "byteLength" : 21,
+      "encoded" : 21,
+      "hashSize" : 1,
+      "hopCount" : 21
+    },
+    {
+      "byteLength" : 22,
+      "encoded" : 22,
+      "hashSize" : 1,
+      "hopCount" : 22
+    },
+    {
+      "byteLength" : 23,
+      "encoded" : 23,
+      "hashSize" : 1,
+      "hopCount" : 23
+    },
+    {
+      "byteLength" : 24,
+      "encoded" : 24,
+      "hashSize" : 1,
+      "hopCount" : 24
+    },
+    {
+      "byteLength" : 25,
+      "encoded" : 25,
+      "hashSize" : 1,
+      "hopCount" : 25
+    },
+    {
+      "byteLength" : 26,
+      "encoded" : 26,
+      "hashSize" : 1,
+      "hopCount" : 26
+    },
+    {
+      "byteLength" : 27,
+      "encoded" : 27,
+      "hashSize" : 1,
+      "hopCount" : 27
+    },
+    {
+      "byteLength" : 28,
+      "encoded" : 28,
+      "hashSize" : 1,
+      "hopCount" : 28
+    },
+    {
+      "byteLength" : 29,
+      "encoded" : 29,
+      "hashSize" : 1,
+      "hopCount" : 29
+    },
+    {
+      "byteLength" : 30,
+      "encoded" : 30,
+      "hashSize" : 1,
+      "hopCount" : 30
+    },
+    {
+      "byteLength" : 31,
+      "encoded" : 31,
+      "hashSize" : 1,
+      "hopCount" : 31
+    },
+    {
+      "byteLength" : 32,
+      "encoded" : 32,
+      "hashSize" : 1,
+      "hopCount" : 32
+    },
+    {
+      "byteLength" : 33,
+      "encoded" : 33,
+      "hashSize" : 1,
+      "hopCount" : 33
+    },
+    {
+      "byteLength" : 34,
+      "encoded" : 34,
+      "hashSize" : 1,
+      "hopCount" : 34
+    },
+    {
+      "byteLength" : 35,
+      "encoded" : 35,
+      "hashSize" : 1,
+      "hopCount" : 35
+    },
+    {
+      "byteLength" : 36,
+      "encoded" : 36,
+      "hashSize" : 1,
+      "hopCount" : 36
+    },
+    {
+      "byteLength" : 37,
+      "encoded" : 37,
+      "hashSize" : 1,
+      "hopCount" : 37
+    },
+    {
+      "byteLength" : 38,
+      "encoded" : 38,
+      "hashSize" : 1,
+      "hopCount" : 38
+    },
+    {
+      "byteLength" : 39,
+      "encoded" : 39,
+      "hashSize" : 1,
+      "hopCount" : 39
+    },
+    {
+      "byteLength" : 40,
+      "encoded" : 40,
+      "hashSize" : 1,
+      "hopCount" : 40
+    },
+    {
+      "byteLength" : 41,
+      "encoded" : 41,
+      "hashSize" : 1,
+      "hopCount" : 41
+    },
+    {
+      "byteLength" : 42,
+      "encoded" : 42,
+      "hashSize" : 1,
+      "hopCount" : 42
+    },
+    {
+      "byteLength" : 43,
+      "encoded" : 43,
+      "hashSize" : 1,
+      "hopCount" : 43
+    },
+    {
+      "byteLength" : 44,
+      "encoded" : 44,
+      "hashSize" : 1,
+      "hopCount" : 44
+    },
+    {
+      "byteLength" : 45,
+      "encoded" : 45,
+      "hashSize" : 1,
+      "hopCount" : 45
+    },
+    {
+      "byteLength" : 46,
+      "encoded" : 46,
+      "hashSize" : 1,
+      "hopCount" : 46
+    },
+    {
+      "byteLength" : 47,
+      "encoded" : 47,
+      "hashSize" : 1,
+      "hopCount" : 47
+    },
+    {
+      "byteLength" : 48,
+      "encoded" : 48,
+      "hashSize" : 1,
+      "hopCount" : 48
+    },
+    {
+      "byteLength" : 49,
+      "encoded" : 49,
+      "hashSize" : 1,
+      "hopCount" : 49
+    },
+    {
+      "byteLength" : 50,
+      "encoded" : 50,
+      "hashSize" : 1,
+      "hopCount" : 50
+    },
+    {
+      "byteLength" : 51,
+      "encoded" : 51,
+      "hashSize" : 1,
+      "hopCount" : 51
+    },
+    {
+      "byteLength" : 52,
+      "encoded" : 52,
+      "hashSize" : 1,
+      "hopCount" : 52
+    },
+    {
+      "byteLength" : 53,
+      "encoded" : 53,
+      "hashSize" : 1,
+      "hopCount" : 53
+    },
+    {
+      "byteLength" : 54,
+      "encoded" : 54,
+      "hashSize" : 1,
+      "hopCount" : 54
+    },
+    {
+      "byteLength" : 55,
+      "encoded" : 55,
+      "hashSize" : 1,
+      "hopCount" : 55
+    },
+    {
+      "byteLength" : 56,
+      "encoded" : 56,
+      "hashSize" : 1,
+      "hopCount" : 56
+    },
+    {
+      "byteLength" : 57,
+      "encoded" : 57,
+      "hashSize" : 1,
+      "hopCount" : 57
+    },
+    {
+      "byteLength" : 58,
+      "encoded" : 58,
+      "hashSize" : 1,
+      "hopCount" : 58
+    },
+    {
+      "byteLength" : 59,
+      "encoded" : 59,
+      "hashSize" : 1,
+      "hopCount" : 59
+    },
+    {
+      "byteLength" : 60,
+      "encoded" : 60,
+      "hashSize" : 1,
+      "hopCount" : 60
+    },
+    {
+      "byteLength" : 61,
+      "encoded" : 61,
+      "hashSize" : 1,
+      "hopCount" : 61
+    },
+    {
+      "byteLength" : 62,
+      "encoded" : 62,
+      "hashSize" : 1,
+      "hopCount" : 62
+    },
+    {
+      "byteLength" : 63,
+      "encoded" : 63,
+      "hashSize" : 1,
+      "hopCount" : 63
+    },
+    {
+      "byteLength" : 0,
+      "encoded" : 64,
+      "hashSize" : 2,
+      "hopCount" : 0
+    },
+    {
+      "byteLength" : 2,
+      "encoded" : 65,
+      "hashSize" : 2,
+      "hopCount" : 1
+    },
+    {
+      "byteLength" : 4,
+      "encoded" : 66,
+      "hashSize" : 2,
+      "hopCount" : 2
+    },
+    {
+      "byteLength" : 6,
+      "encoded" : 67,
+      "hashSize" : 2,
+      "hopCount" : 3
+    },
+    {
+      "byteLength" : 8,
+      "encoded" : 68,
+      "hashSize" : 2,
+      "hopCount" : 4
+    },
+    {
+      "byteLength" : 10,
+      "encoded" : 69,
+      "hashSize" : 2,
+      "hopCount" : 5
+    },
+    {
+      "byteLength" : 12,
+      "encoded" : 70,
+      "hashSize" : 2,
+      "hopCount" : 6
+    },
+    {
+      "byteLength" : 14,
+      "encoded" : 71,
+      "hashSize" : 2,
+      "hopCount" : 7
+    },
+    {
+      "byteLength" : 16,
+      "encoded" : 72,
+      "hashSize" : 2,
+      "hopCount" : 8
+    },
+    {
+      "byteLength" : 18,
+      "encoded" : 73,
+      "hashSize" : 2,
+      "hopCount" : 9
+    },
+    {
+      "byteLength" : 20,
+      "encoded" : 74,
+      "hashSize" : 2,
+      "hopCount" : 10
+    },
+    {
+      "byteLength" : 22,
+      "encoded" : 75,
+      "hashSize" : 2,
+      "hopCount" : 11
+    },
+    {
+      "byteLength" : 24,
+      "encoded" : 76,
+      "hashSize" : 2,
+      "hopCount" : 12
+    },
+    {
+      "byteLength" : 26,
+      "encoded" : 77,
+      "hashSize" : 2,
+      "hopCount" : 13
+    },
+    {
+      "byteLength" : 28,
+      "encoded" : 78,
+      "hashSize" : 2,
+      "hopCount" : 14
+    },
+    {
+      "byteLength" : 30,
+      "encoded" : 79,
+      "hashSize" : 2,
+      "hopCount" : 15
+    },
+    {
+      "byteLength" : 32,
+      "encoded" : 80,
+      "hashSize" : 2,
+      "hopCount" : 16
+    },
+    {
+      "byteLength" : 34,
+      "encoded" : 81,
+      "hashSize" : 2,
+      "hopCount" : 17
+    },
+    {
+      "byteLength" : 36,
+      "encoded" : 82,
+      "hashSize" : 2,
+      "hopCount" : 18
+    },
+    {
+      "byteLength" : 38,
+      "encoded" : 83,
+      "hashSize" : 2,
+      "hopCount" : 19
+    },
+    {
+      "byteLength" : 40,
+      "encoded" : 84,
+      "hashSize" : 2,
+      "hopCount" : 20
+    },
+    {
+      "byteLength" : 42,
+      "encoded" : 85,
+      "hashSize" : 2,
+      "hopCount" : 21
+    },
+    {
+      "byteLength" : 44,
+      "encoded" : 86,
+      "hashSize" : 2,
+      "hopCount" : 22
+    },
+    {
+      "byteLength" : 46,
+      "encoded" : 87,
+      "hashSize" : 2,
+      "hopCount" : 23
+    },
+    {
+      "byteLength" : 48,
+      "encoded" : 88,
+      "hashSize" : 2,
+      "hopCount" : 24
+    },
+    {
+      "byteLength" : 50,
+      "encoded" : 89,
+      "hashSize" : 2,
+      "hopCount" : 25
+    },
+    {
+      "byteLength" : 52,
+      "encoded" : 90,
+      "hashSize" : 2,
+      "hopCount" : 26
+    },
+    {
+      "byteLength" : 54,
+      "encoded" : 91,
+      "hashSize" : 2,
+      "hopCount" : 27
+    },
+    {
+      "byteLength" : 56,
+      "encoded" : 92,
+      "hashSize" : 2,
+      "hopCount" : 28
+    },
+    {
+      "byteLength" : 58,
+      "encoded" : 93,
+      "hashSize" : 2,
+      "hopCount" : 29
+    },
+    {
+      "byteLength" : 60,
+      "encoded" : 94,
+      "hashSize" : 2,
+      "hopCount" : 30
+    },
+    {
+      "byteLength" : 62,
+      "encoded" : 95,
+      "hashSize" : 2,
+      "hopCount" : 31
+    },
+    {
+      "byteLength" : 64,
+      "encoded" : 96,
+      "hashSize" : 2,
+      "hopCount" : 32
+    },
+    {
+      "byteLength" : 66,
+      "encoded" : 97,
+      "hashSize" : 2,
+      "hopCount" : 33
+    },
+    {
+      "byteLength" : 68,
+      "encoded" : 98,
+      "hashSize" : 2,
+      "hopCount" : 34
+    },
+    {
+      "byteLength" : 70,
+      "encoded" : 99,
+      "hashSize" : 2,
+      "hopCount" : 35
+    },
+    {
+      "byteLength" : 72,
+      "encoded" : 100,
+      "hashSize" : 2,
+      "hopCount" : 36
+    },
+    {
+      "byteLength" : 74,
+      "encoded" : 101,
+      "hashSize" : 2,
+      "hopCount" : 37
+    },
+    {
+      "byteLength" : 76,
+      "encoded" : 102,
+      "hashSize" : 2,
+      "hopCount" : 38
+    },
+    {
+      "byteLength" : 78,
+      "encoded" : 103,
+      "hashSize" : 2,
+      "hopCount" : 39
+    },
+    {
+      "byteLength" : 80,
+      "encoded" : 104,
+      "hashSize" : 2,
+      "hopCount" : 40
+    },
+    {
+      "byteLength" : 82,
+      "encoded" : 105,
+      "hashSize" : 2,
+      "hopCount" : 41
+    },
+    {
+      "byteLength" : 84,
+      "encoded" : 106,
+      "hashSize" : 2,
+      "hopCount" : 42
+    },
+    {
+      "byteLength" : 86,
+      "encoded" : 107,
+      "hashSize" : 2,
+      "hopCount" : 43
+    },
+    {
+      "byteLength" : 88,
+      "encoded" : 108,
+      "hashSize" : 2,
+      "hopCount" : 44
+    },
+    {
+      "byteLength" : 90,
+      "encoded" : 109,
+      "hashSize" : 2,
+      "hopCount" : 45
+    },
+    {
+      "byteLength" : 92,
+      "encoded" : 110,
+      "hashSize" : 2,
+      "hopCount" : 46
+    },
+    {
+      "byteLength" : 94,
+      "encoded" : 111,
+      "hashSize" : 2,
+      "hopCount" : 47
+    },
+    {
+      "byteLength" : 96,
+      "encoded" : 112,
+      "hashSize" : 2,
+      "hopCount" : 48
+    },
+    {
+      "byteLength" : 98,
+      "encoded" : 113,
+      "hashSize" : 2,
+      "hopCount" : 49
+    },
+    {
+      "byteLength" : 100,
+      "encoded" : 114,
+      "hashSize" : 2,
+      "hopCount" : 50
+    },
+    {
+      "byteLength" : 102,
+      "encoded" : 115,
+      "hashSize" : 2,
+      "hopCount" : 51
+    },
+    {
+      "byteLength" : 104,
+      "encoded" : 116,
+      "hashSize" : 2,
+      "hopCount" : 52
+    },
+    {
+      "byteLength" : 106,
+      "encoded" : 117,
+      "hashSize" : 2,
+      "hopCount" : 53
+    },
+    {
+      "byteLength" : 108,
+      "encoded" : 118,
+      "hashSize" : 2,
+      "hopCount" : 54
+    },
+    {
+      "byteLength" : 110,
+      "encoded" : 119,
+      "hashSize" : 2,
+      "hopCount" : 55
+    },
+    {
+      "byteLength" : 112,
+      "encoded" : 120,
+      "hashSize" : 2,
+      "hopCount" : 56
+    },
+    {
+      "byteLength" : 114,
+      "encoded" : 121,
+      "hashSize" : 2,
+      "hopCount" : 57
+    },
+    {
+      "byteLength" : 116,
+      "encoded" : 122,
+      "hashSize" : 2,
+      "hopCount" : 58
+    },
+    {
+      "byteLength" : 118,
+      "encoded" : 123,
+      "hashSize" : 2,
+      "hopCount" : 59
+    },
+    {
+      "byteLength" : 120,
+      "encoded" : 124,
+      "hashSize" : 2,
+      "hopCount" : 60
+    },
+    {
+      "byteLength" : 122,
+      "encoded" : 125,
+      "hashSize" : 2,
+      "hopCount" : 61
+    },
+    {
+      "byteLength" : 124,
+      "encoded" : 126,
+      "hashSize" : 2,
+      "hopCount" : 62
+    },
+    {
+      "byteLength" : 126,
+      "encoded" : 127,
+      "hashSize" : 2,
+      "hopCount" : 63
+    },
+    {
+      "byteLength" : 0,
+      "encoded" : 128,
+      "hashSize" : 3,
+      "hopCount" : 0
+    },
+    {
+      "byteLength" : 3,
+      "encoded" : 129,
+      "hashSize" : 3,
+      "hopCount" : 1
+    },
+    {
+      "byteLength" : 6,
+      "encoded" : 130,
+      "hashSize" : 3,
+      "hopCount" : 2
+    },
+    {
+      "byteLength" : 9,
+      "encoded" : 131,
+      "hashSize" : 3,
+      "hopCount" : 3
+    },
+    {
+      "byteLength" : 12,
+      "encoded" : 132,
+      "hashSize" : 3,
+      "hopCount" : 4
+    },
+    {
+      "byteLength" : 15,
+      "encoded" : 133,
+      "hashSize" : 3,
+      "hopCount" : 5
+    },
+    {
+      "byteLength" : 18,
+      "encoded" : 134,
+      "hashSize" : 3,
+      "hopCount" : 6
+    },
+    {
+      "byteLength" : 21,
+      "encoded" : 135,
+      "hashSize" : 3,
+      "hopCount" : 7
+    },
+    {
+      "byteLength" : 24,
+      "encoded" : 136,
+      "hashSize" : 3,
+      "hopCount" : 8
+    },
+    {
+      "byteLength" : 27,
+      "encoded" : 137,
+      "hashSize" : 3,
+      "hopCount" : 9
+    },
+    {
+      "byteLength" : 30,
+      "encoded" : 138,
+      "hashSize" : 3,
+      "hopCount" : 10
+    },
+    {
+      "byteLength" : 33,
+      "encoded" : 139,
+      "hashSize" : 3,
+      "hopCount" : 11
+    },
+    {
+      "byteLength" : 36,
+      "encoded" : 140,
+      "hashSize" : 3,
+      "hopCount" : 12
+    },
+    {
+      "byteLength" : 39,
+      "encoded" : 141,
+      "hashSize" : 3,
+      "hopCount" : 13
+    },
+    {
+      "byteLength" : 42,
+      "encoded" : 142,
+      "hashSize" : 3,
+      "hopCount" : 14
+    },
+    {
+      "byteLength" : 45,
+      "encoded" : 143,
+      "hashSize" : 3,
+      "hopCount" : 15
+    },
+    {
+      "byteLength" : 48,
+      "encoded" : 144,
+      "hashSize" : 3,
+      "hopCount" : 16
+    },
+    {
+      "byteLength" : 51,
+      "encoded" : 145,
+      "hashSize" : 3,
+      "hopCount" : 17
+    },
+    {
+      "byteLength" : 54,
+      "encoded" : 146,
+      "hashSize" : 3,
+      "hopCount" : 18
+    },
+    {
+      "byteLength" : 57,
+      "encoded" : 147,
+      "hashSize" : 3,
+      "hopCount" : 19
+    },
+    {
+      "byteLength" : 60,
+      "encoded" : 148,
+      "hashSize" : 3,
+      "hopCount" : 20
+    },
+    {
+      "byteLength" : 63,
+      "encoded" : 149,
+      "hashSize" : 3,
+      "hopCount" : 21
+    },
+    {
+      "byteLength" : 66,
+      "encoded" : 150,
+      "hashSize" : 3,
+      "hopCount" : 22
+    },
+    {
+      "byteLength" : 69,
+      "encoded" : 151,
+      "hashSize" : 3,
+      "hopCount" : 23
+    },
+    {
+      "byteLength" : 72,
+      "encoded" : 152,
+      "hashSize" : 3,
+      "hopCount" : 24
+    },
+    {
+      "byteLength" : 75,
+      "encoded" : 153,
+      "hashSize" : 3,
+      "hopCount" : 25
+    },
+    {
+      "byteLength" : 78,
+      "encoded" : 154,
+      "hashSize" : 3,
+      "hopCount" : 26
+    },
+    {
+      "byteLength" : 81,
+      "encoded" : 155,
+      "hashSize" : 3,
+      "hopCount" : 27
+    },
+    {
+      "byteLength" : 84,
+      "encoded" : 156,
+      "hashSize" : 3,
+      "hopCount" : 28
+    },
+    {
+      "byteLength" : 87,
+      "encoded" : 157,
+      "hashSize" : 3,
+      "hopCount" : 29
+    },
+    {
+      "byteLength" : 90,
+      "encoded" : 158,
+      "hashSize" : 3,
+      "hopCount" : 30
+    },
+    {
+      "byteLength" : 93,
+      "encoded" : 159,
+      "hashSize" : 3,
+      "hopCount" : 31
+    },
+    {
+      "byteLength" : 96,
+      "encoded" : 160,
+      "hashSize" : 3,
+      "hopCount" : 32
+    },
+    {
+      "byteLength" : 99,
+      "encoded" : 161,
+      "hashSize" : 3,
+      "hopCount" : 33
+    },
+    {
+      "byteLength" : 102,
+      "encoded" : 162,
+      "hashSize" : 3,
+      "hopCount" : 34
+    },
+    {
+      "byteLength" : 105,
+      "encoded" : 163,
+      "hashSize" : 3,
+      "hopCount" : 35
+    },
+    {
+      "byteLength" : 108,
+      "encoded" : 164,
+      "hashSize" : 3,
+      "hopCount" : 36
+    },
+    {
+      "byteLength" : 111,
+      "encoded" : 165,
+      "hashSize" : 3,
+      "hopCount" : 37
+    },
+    {
+      "byteLength" : 114,
+      "encoded" : 166,
+      "hashSize" : 3,
+      "hopCount" : 38
+    },
+    {
+      "byteLength" : 117,
+      "encoded" : 167,
+      "hashSize" : 3,
+      "hopCount" : 39
+    },
+    {
+      "byteLength" : 120,
+      "encoded" : 168,
+      "hashSize" : 3,
+      "hopCount" : 40
+    },
+    {
+      "byteLength" : 123,
+      "encoded" : 169,
+      "hashSize" : 3,
+      "hopCount" : 41
+    },
+    {
+      "byteLength" : 126,
+      "encoded" : 170,
+      "hashSize" : 3,
+      "hopCount" : 42
+    },
+    {
+      "byteLength" : 129,
+      "encoded" : 171,
+      "hashSize" : 3,
+      "hopCount" : 43
+    },
+    {
+      "byteLength" : 132,
+      "encoded" : 172,
+      "hashSize" : 3,
+      "hopCount" : 44
+    },
+    {
+      "byteLength" : 135,
+      "encoded" : 173,
+      "hashSize" : 3,
+      "hopCount" : 45
+    },
+    {
+      "byteLength" : 138,
+      "encoded" : 174,
+      "hashSize" : 3,
+      "hopCount" : 46
+    },
+    {
+      "byteLength" : 141,
+      "encoded" : 175,
+      "hashSize" : 3,
+      "hopCount" : 47
+    },
+    {
+      "byteLength" : 144,
+      "encoded" : 176,
+      "hashSize" : 3,
+      "hopCount" : 48
+    },
+    {
+      "byteLength" : 147,
+      "encoded" : 177,
+      "hashSize" : 3,
+      "hopCount" : 49
+    },
+    {
+      "byteLength" : 150,
+      "encoded" : 178,
+      "hashSize" : 3,
+      "hopCount" : 50
+    },
+    {
+      "byteLength" : 153,
+      "encoded" : 179,
+      "hashSize" : 3,
+      "hopCount" : 51
+    },
+    {
+      "byteLength" : 156,
+      "encoded" : 180,
+      "hashSize" : 3,
+      "hopCount" : 52
+    },
+    {
+      "byteLength" : 159,
+      "encoded" : 181,
+      "hashSize" : 3,
+      "hopCount" : 53
+    },
+    {
+      "byteLength" : 162,
+      "encoded" : 182,
+      "hashSize" : 3,
+      "hopCount" : 54
+    },
+    {
+      "byteLength" : 165,
+      "encoded" : 183,
+      "hashSize" : 3,
+      "hopCount" : 55
+    },
+    {
+      "byteLength" : 168,
+      "encoded" : 184,
+      "hashSize" : 3,
+      "hopCount" : 56
+    },
+    {
+      "byteLength" : 171,
+      "encoded" : 185,
+      "hashSize" : 3,
+      "hopCount" : 57
+    },
+    {
+      "byteLength" : 174,
+      "encoded" : 186,
+      "hashSize" : 3,
+      "hopCount" : 58
+    },
+    {
+      "byteLength" : 177,
+      "encoded" : 187,
+      "hashSize" : 3,
+      "hopCount" : 59
+    },
+    {
+      "byteLength" : 180,
+      "encoded" : 188,
+      "hashSize" : 3,
+      "hopCount" : 60
+    },
+    {
+      "byteLength" : 183,
+      "encoded" : 189,
+      "hashSize" : 3,
+      "hopCount" : 61
+    },
+    {
+      "byteLength" : 186,
+      "encoded" : 190,
+      "hashSize" : 3,
+      "hopCount" : 62
+    },
+    {
+      "byteLength" : 189,
+      "encoded" : 191,
+      "hashSize" : 3,
+      "hopCount" : 63
+    },
+    {
+      "encoded" : 192
+    },
+    {
+      "encoded" : 193
+    },
+    {
+      "encoded" : 194
+    },
+    {
+      "encoded" : 195
+    },
+    {
+      "encoded" : 196
+    },
+    {
+      "encoded" : 197
+    },
+    {
+      "encoded" : 198
+    },
+    {
+      "encoded" : 199
+    },
+    {
+      "encoded" : 200
+    },
+    {
+      "encoded" : 201
+    },
+    {
+      "encoded" : 202
+    },
+    {
+      "encoded" : 203
+    },
+    {
+      "encoded" : 204
+    },
+    {
+      "encoded" : 205
+    },
+    {
+      "encoded" : 206
+    },
+    {
+      "encoded" : 207
+    },
+    {
+      "encoded" : 208
+    },
+    {
+      "encoded" : 209
+    },
+    {
+      "encoded" : 210
+    },
+    {
+      "encoded" : 211
+    },
+    {
+      "encoded" : 212
+    },
+    {
+      "encoded" : 213
+    },
+    {
+      "encoded" : 214
+    },
+    {
+      "encoded" : 215
+    },
+    {
+      "encoded" : 216
+    },
+    {
+      "encoded" : 217
+    },
+    {
+      "encoded" : 218
+    },
+    {
+      "encoded" : 219
+    },
+    {
+      "encoded" : 220
+    },
+    {
+      "encoded" : 221
+    },
+    {
+      "encoded" : 222
+    },
+    {
+      "encoded" : 223
+    },
+    {
+      "encoded" : 224
+    },
+    {
+      "encoded" : 225
+    },
+    {
+      "encoded" : 226
+    },
+    {
+      "encoded" : 227
+    },
+    {
+      "encoded" : 228
+    },
+    {
+      "encoded" : 229
+    },
+    {
+      "encoded" : 230
+    },
+    {
+      "encoded" : 231
+    },
+    {
+      "encoded" : 232
+    },
+    {
+      "encoded" : 233
+    },
+    {
+      "encoded" : 234
+    },
+    {
+      "encoded" : 235
+    },
+    {
+      "encoded" : 236
+    },
+    {
+      "encoded" : 237
+    },
+    {
+      "encoded" : 238
+    },
+    {
+      "encoded" : 239
+    },
+    {
+      "encoded" : 240
+    },
+    {
+      "encoded" : 241
+    },
+    {
+      "encoded" : 242
+    },
+    {
+      "encoded" : 243
+    },
+    {
+      "encoded" : 244
+    },
+    {
+      "encoded" : 245
+    },
+    {
+      "encoded" : 246
+    },
+    {
+      "encoded" : 247
+    },
+    {
+      "encoded" : 248
+    },
+    {
+      "encoded" : 249
+    },
+    {
+      "encoded" : 250
+    },
+    {
+      "encoded" : 251
+    },
+    {
+      "encoded" : 252
+    },
+    {
+      "encoded" : 253
+    },
+    {
+      "encoded" : 254
+    },
+    {
+      "encoded" : 255
+    }
+  ],
+  "encode" : [
+    {
+      "encoded" : 0,
+      "hashSize" : 1,
+      "hopCount" : 0
+    },
+    {
+      "encoded" : 1,
+      "hashSize" : 1,
+      "hopCount" : 1
+    },
+    {
+      "encoded" : 2,
+      "hashSize" : 1,
+      "hopCount" : 2
+    },
+    {
+      "encoded" : 3,
+      "hashSize" : 1,
+      "hopCount" : 3
+    },
+    {
+      "encoded" : 7,
+      "hashSize" : 1,
+      "hopCount" : 7
+    },
+    {
+      "encoded" : 63,
+      "hashSize" : 1,
+      "hopCount" : 63
+    },
+    {
+      "encoded" : 63,
+      "hashSize" : 1,
+      "hopCount" : 64
+    },
+    {
+      "encoded" : 63,
+      "hashSize" : 1,
+      "hopCount" : 100
+    },
+    {
+      "encoded" : 63,
+      "hashSize" : 1,
+      "hopCount" : 255
+    },
+    {
+      "encoded" : 64,
+      "hashSize" : 2,
+      "hopCount" : 0
+    },
+    {
+      "encoded" : 65,
+      "hashSize" : 2,
+      "hopCount" : 1
+    },
+    {
+      "encoded" : 66,
+      "hashSize" : 2,
+      "hopCount" : 2
+    },
+    {
+      "encoded" : 67,
+      "hashSize" : 2,
+      "hopCount" : 3
+    },
+    {
+      "encoded" : 71,
+      "hashSize" : 2,
+      "hopCount" : 7
+    },
+    {
+      "encoded" : 127,
+      "hashSize" : 2,
+      "hopCount" : 63
+    },
+    {
+      "encoded" : 127,
+      "hashSize" : 2,
+      "hopCount" : 64
+    },
+    {
+      "encoded" : 127,
+      "hashSize" : 2,
+      "hopCount" : 100
+    },
+    {
+      "encoded" : 127,
+      "hashSize" : 2,
+      "hopCount" : 255
+    },
+    {
+      "encoded" : 128,
+      "hashSize" : 3,
+      "hopCount" : 0
+    },
+    {
+      "encoded" : 129,
+      "hashSize" : 3,
+      "hopCount" : 1
+    },
+    {
+      "encoded" : 130,
+      "hashSize" : 3,
+      "hopCount" : 2
+    },
+    {
+      "encoded" : 131,
+      "hashSize" : 3,
+      "hopCount" : 3
+    },
+    {
+      "encoded" : 135,
+      "hashSize" : 3,
+      "hopCount" : 7
+    },
+    {
+      "encoded" : 191,
+      "hashSize" : 3,
+      "hopCount" : 63
+    },
+    {
+      "encoded" : 191,
+      "hashSize" : 3,
+      "hopCount" : 64
+    },
+    {
+      "encoded" : 191,
+      "hashSize" : 3,
+      "hopCount" : 100
+    },
+    {
+      "encoded" : 191,
+      "hashSize" : 3,
+      "hopCount" : 255
+    }
+  ],
+  "maxHopCount" : 63,
+  "maxPathBytes" : 64,
+  "maxPathHashMode" : 2
+}

@@ -1,0 +1,316 @@
+/*
+  Onboarding.strings
+  MC1
+
+  Strings for Onboarding feature, including welcome screens,
+  permission requests, device scanning, and initial setup flow.
+ */
+
+
+// MARK: - Welcome View
+
+/* Location: WelcomeView.swift - App title displayed on welcome screen */
+"welcome.title" = "MeshCore One";
+
+/* Location: WelcomeView.swift - Subtitle describing the app */
+"welcome.subtitle" = "即使没有互联网，也能通过社区搭建的网络发送消息。";
+
+/* Location: WelcomeView.swift - Button to proceed to next onboarding step */
+"welcome.getStarted" = "开始使用";
+
+// MARK: - Permissions View
+
+/* Location: PermissionsView.swift - Screen title for permissions */
+"permissions.title" = "需要几项权限";
+
+/* Location: PermissionsView.swift - Subtitle encouraging notification permission */
+"permissions.subtitle" = "两项均为可选。您可以随时在设置中更改。";
+
+/* Location: PermissionsView.swift - Permission card title for notifications */
+"permissions.notifications.title" = "通知";
+
+/* Location: PermissionsView.swift - Permission card description for notifications */
+"permissions.notifications.description" = "在有新消息和电量不足时提醒您，即使应用已关闭。";
+
+/* Location: PermissionsView.swift - Permission card title for location */
+"permissions.location.title" = "位置";
+
+/* Location: PermissionsView.swift - Permission card description for location */
+"permissions.location.description" = "推荐本地无线电预设、在地图上显示您的位置，并按距离排列联系人。";
+
+/* Location: PermissionsView.swift - Button when all permissions granted */
+"permissions.continue" = "继续";
+
+/* Location: PermissionsView.swift - Badge shown for optional permissions */
+"permissions.optional" = "可选";
+
+/* Location: PermissionsView.swift - Button to open system settings */
+"permissions.openSettings" = "设置";
+
+/* Location: PermissionsView.swift - Button to begin a permission request */
+"permissions.request" = "继续";
+
+/* Location: PermissionsView.swift - Alert title for location permission */
+"permissions.locationAlert.title" = "位置权限";
+
+/* Location: PermissionsView.swift - Alert button to open settings */
+"permissions.locationAlert.openSettings" = "打开设置";
+
+/* Location: PermissionsView.swift - Alert message explaining denied location permission */
+"permissions.locationAlert.message" = "位置权限先前被拒绝。请在设置中启用它以与Mesh网络联系人共享您的位置。";
+
+// MARK: - Device Scan View
+
+/* Location: DeviceScanView.swift - Screen title for device pairing */
+"deviceScan.title" = "配对您的设备";
+
+/* Location: DeviceScanView.swift - Subtitle with pairing instructions */
+"deviceScan.subtitle" = "开启设备，断开它与所有其他应用和设备的连接，然后点击「添加设备」。";
+
+/* Location: DeviceScanView.swift - Message shown when device is already paired */
+"deviceScan.alreadyPaired" = "您的设备已配对";
+
+/* Location: DeviceScanView.swift - "I don't have a device yet" tertiary */
+"deviceScan.noDeviceYet" = "我还没有设备";
+
+/* Location: DeviceScanView.swift - Button to continue after pairing */
+"deviceScan.continue" = "继续";
+
+/* Location: DeviceScanView.swift - Button label while connecting */
+"deviceScan.connecting" = "连接中...";
+
+/* Location: DeviceScanView.swift - Button to connect simulator (debug) */
+"deviceScan.connectSimulator" = "连接模拟器";
+
+/* Location: DeviceScanView.swift - Button to continue in demo mode */
+"deviceScan.continueDemo" = "在演示模式下继续";
+
+/* Location: DeviceScanView.swift - Button to add a new device */
+"deviceScan.addDevice" = "添加设备";
+
+/* Location: DeviceScanView.swift - Button to retry connection after other-app conflict */
+"deviceScan.retryConnection" = "重试连接";
+
+/* Location: DeviceScanView.swift - Button for troubleshooting */
+"deviceScan.deviceNotAppearing" = "帮助";
+
+/* Location: DeviceScanView.swift - Button to connect via WiFi */
+"deviceScan.connectViaWifi" = "通过 WiFi 连接";
+
+/* Location: DeviceScanView.swift - Alert title when demo mode is unlocked */
+"deviceScan.demoModeAlert.title" = "演示模式已解锁";
+
+/* Location: DeviceScanView.swift - Alert message for demo mode */
+"deviceScan.demoModeAlert.message" = "您现在可以无需设备继续。随时在设置中切换演示模式。";
+
+/* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
+"deviceScan.error.authenticationFailed" = "与此电台保存的配对已失效。点按“移除并重试”在应用内重新配对；电台可能会显示新的配对码。";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "与此电台保存的配对已失效。在系统设置的蓝牙中忘记此电台，然后点按“移除并重试”。";
+"deviceScan.error.pinRejected" = "PIN 码未被接受。请检查设备上显示的 PIN 码，然后重试。iOS 会先要求你确认移除失败的配对。";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "PIN 码未被接受。在系统设置的蓝牙中忘记此电台，然后重试。";
+"deviceScan.error.connectionFailed" = "无法连接到设备。请重试，或在问题持续时移除设备。";
+
+// MARK: - Troubleshooting Sheet
+
+/* Location: DeviceScanView.swift - Navigation title for troubleshooting sheet */
+"troubleshooting.title" = "故障排除";
+
+/* Location: DeviceScanView.swift - Section header for basic checks */
+"troubleshooting.basicChecks.header" = "基本检查";
+
+/* Location: DeviceScanView.swift - Check to ensure device is powered on */
+"troubleshooting.basicChecks.powerOn" = "确保您的设备已开机";
+
+/* Location: DeviceScanView.swift - Check to move device closer */
+"troubleshooting.basicChecks.moveCloser" = "将设备移近您的手机";
+
+/* Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere */
+"troubleshooting.basicChecks.notConnectedElsewhere" = "确保您的电台未连接到其他手机或应用";
+
+/* Location: DeviceScanView.swift - Check to restart device */
+"troubleshooting.basicChecks.restart" = "重启 MeshCore 设备";
+
+/* Location: DeviceScanView.swift - Section header for factory reset help */
+"troubleshooting.factoryReset.header" = "恢复出厂设置设备？";
+
+/* Location: DeviceScanView.swift - Explanation about stale pairings */
+"troubleshooting.factoryReset.explanation" = "如果您对 MeshCore 设备进行了恢复出厂设置，iOS 可能仍存储旧的配对。在系统设置中清除此操作允许设备再次出现。";
+
+/* Location: DeviceScanView.swift - Additional explanation about removal confirmation */
+"troubleshooting.factoryReset.confirmationNote" = "点击下方将要求您确认删除旧的配对。这是正常的 — 它允许您恢复出厂设置的设备再次出现。";
+
+/* Location: DeviceScanView.swift - Button to clear previous pairing */
+"troubleshooting.factoryReset.clearPairing" = "清除之前的配对";
+
+/* Location: DeviceScanView.swift - Footer when no pairings found */
+"troubleshooting.factoryReset.noPairings" = "未找到之前的配对";
+
+/* Location: DeviceScanView.swift - Footer showing pairing count - uses stringsdict */
+"troubleshooting.factoryReset.pairingsFound" = "找到 %d 个之前的配对";
+
+/* Location: DeviceScanView.swift - Section header for system settings info */
+"troubleshooting.systemSettings.header" = "系统设置";
+
+/* Location: DeviceScanView.swift - Info about managing accessories */
+"troubleshooting.systemSettings.manageAccessories" = "您也可以在以下位置管理蓝牙配件：";
+
+/* Location: DeviceScanView.swift - Path to accessories in settings */
+"troubleshooting.systemSettings.path" = "设置 → 隐私与安全 → 配件";
+
+/* Location: TroubleshootingSheet.swift - Button that opens iOS Settings */
+"troubleshooting.systemSettings.openSettings" = "打开设置";
+
+/* Location: TroubleshootingSheet.swift - Section header for last-resort flashing steps */
+"troubleshooting.stillNotAppearing.header" = "仍然无法发现设备？";
+
+/* Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps */
+"troubleshooting.stillNotAppearing.body" = "如果您已尝试以上所有方法，请在 Liam Cottle 的 MeshCore 应用中备份您电台的配置，然后在电脑上通过 https://flasher.meshcore.io 擦除并重新刷写";
+
+
+// MARK: - Mesh Animation View
+
+/* Location: MeshAnimationView.swift - Accessibility label for mesh visualization */
+"meshAnimation.accessibilityLabel" = "网络可视化";
+
+
+// MARK: - No Device Sheet
+
+/* Location: NoDeviceSheet.swift - Sheet title */
+"noDevice.sheet.title" = "四处看看";
+
+/* Location: NoDeviceSheet.swift - Sheet body */
+"noDevice.sheet.body" = "您需要配对的无线电才能发送和接收消息。先浏览应用，随时可以在设置中配对。";
+
+/* Location: NoDeviceSheet.swift - Primary CTA */
+"noDevice.sheet.confirm" = "继续";
+
+/* Location: NoDeviceSheet.swift - Secondary CTA */
+"noDevice.sheet.cancel" = "取消";
+
+
+// MARK: - Preset Step View
+
+/* Location: PresetStepView.swift - Title */
+"preset.title" = "选择预设";
+
+/* Location: PresetStepView.swift - Subtitle listing presets for the selected place */
+"preset.subtitle.recommended" = "%@ 的预设";
+
+/* Location: PresetStepView.swift - Subtitle for empty-region fallback */
+"preset.subtitle.locale" = "为您的无线电选择预设。";
+
+/* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
+"preset.discordHelp" = "不确定选择哪个预设？加入官方 MeshCore Discord 并询问！[https://meshcore.gg](https://meshcore.gg)";
+
+/* Location: PresetStepView.swift - Apply CTA "Use %@" */
+"preset.use" = "使用 %@";
+
+/* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
+"preset.error.notConnected" = "连接到您的设备以应用此预设。";
+
+/* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
+"preset.continue" = "继续";
+
+/* Location: PresetStepView.swift - VoiceOver hint for tapping a preset card */
+"preset.row.accessibilityHint" = "选择此预设。";
+
+// MARK: - WiFi Connection Sheet
+
+/* Location: WiFiConnectionSheet.swift - Navigation title */
+"wifiConnection.title" = "通过 WiFi 连接";
+
+/* Location: WiFiConnectionSheet.swift - Section header for connection details */
+"wifiConnection.connectionDetails.header" = "连接详情";
+
+/* Location: WiFiConnectionSheet.swift - Placeholder for hostname or IP address field */
+"wifiConnection.ipAddress.placeholder" = "主机名或 IP 地址";
+
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear hostname or IP button */
+"wifiConnection.ipAddress.clearAccessibility" = "清除主机名或 IP 地址";
+
+/* Location: WiFiConnectionSheet.swift - Placeholder for port field */
+"wifiConnection.port.placeholder" = "端口";
+
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear port button */
+"wifiConnection.port.clearAccessibility" = "清除端口";
+
+/* Location: WiFiConnectionSheet.swift - Footer explaining connection details */
+"wifiConnection.connectionDetails.footer" = "输入您的 MeshCore 设备的主机名或 IP 地址。默认端口为 5000。";
+
+/* Location: WiFiConnectionSheet.swift - Button label while connecting */
+"wifiConnection.connecting" = "连接中...";
+
+/* Location: WiFiConnectionSheet.swift - Button to initiate connection */
+"wifiConnection.connect" = "连接";
+
+/* Location: WiFiConnectionSheet.swift - Error message for invalid port */
+"wifiConnection.error.invalidPort" = "无效的端口号";
+
+
+// MARK: - Region Picker View
+
+/* Location: RegionPickerView.swift - Country picker label */
+"region.country" = "国家";
+
+/* Location: RegionPickerView.swift - State picker label (US, AU) */
+"region.state" = "州";
+
+/* Location: RegionPickerView.swift - Province picker label (Canada) */
+"region.province" = "省";
+
+/* Location: RegionPickerView.swift - Continue CTA in manual picker */
+"region.continue" = "继续";
+
+/* Location: RegionStepView.swift - Title (both states) */
+"region.title" = "选择您的地区";
+
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "我们将显示适合您所在地区的预设。";
+
+/* Location: RegionStepView.swift - "Detected" tag */
+"region.detected.tag" = "已检测";
+
+/* Location: RegionStepView.swift - Caption "From your location" */
+"region.detected.source" = "来自您的位置";
+
+/* Location: RegionStepView.swift - Primary CTA in detected state */
+"region.useThisRegion" = "使用此地区";
+
+/* Location: RegionStepView.swift - "Choose another" link */
+"region.chooseAnother" = "选择其他";
+
+/* Location: RegionStepView.swift - "Use my location" link in manual state */
+"region.useMyLocation" = "使用我的位置";
+
+/* Location: RegionStepView.swift - "Finding your region…" */
+"region.resolving" = "正在查找您的地区…";
+
+/* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
+"region.useMyLocation.failure" = "未能根据位置确定地区。请在下方手动选择。";
+
+
+// MARK: - Device Scanner Sheet (macOS)
+
+/* Location: DeviceScannerSheet.swift - Navigation title for the macOS BLE scanner */
+"deviceScanner.title" = "选择设备";
+
+/* Location: DeviceScannerSheet.swift - Placeholder name for peripherals with no advertised name */
+"deviceScanner.unknownDevice" = "未知设备";
+
+/* Location: DeviceScannerSheet.swift - Empty state shown while scanning for devices */
+"deviceScanner.scanning" = "正在扫描设备…";
+
+/* Location: DeviceScannerSheet.swift - Title shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.title" = "蓝牙已关闭";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.message" = "打开蓝牙以扫描附近的设备。";
+
+/* Location: DeviceScannerSheet.swift - Title shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.title" = "需要蓝牙权限";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.message" = "请在“设置”中允许蓝牙访问，以扫描附近的设备。";
+

@@ -1,0 +1,203 @@
+## Version catalog for the MeshCore One multiplatform build.
+##
+## Versions were verified against upstream release channels on 2026-07-09. Where a
+## pin is deliberately not the newest release, the reason is on its line: the
+## controlling constraint is a stable, first-try-green KMP + Compose toolchain, not
+## bleeding-edge numbers.
+
+[versions]
+# Isolated physical-device microbenchmarks; no shipping application dependency.
+benchmark = "1.5.0"
+# Kotlin 2.2.20 (not the newest 2.4.0) on purpose: Compose Multiplatform 1.12.0 needs
+# Kotlin 2.2+ on JVM (2.3 is only required for native/web, which this project does not
+# target), and 2.2.20 is the only Kotlin the STABLE detekt (1.23.8) is confirmed working
+# with. Kotlin 2.3+ currently needs detekt 2.0-alpha.
+kotlin = "2.2.20"
+# Compose Multiplatform 1.12.0 is the latest stable Gradle-plugin release.
+composeMultiplatform = "1.12.0"
+# Material3 is versioned independently of the CMP plugin; 1.12.0 ships this alpha as the
+# official pairing (based on Jetpack Material3 1.5.0-alpha22).
+composeMaterial3 = "1.12.0-alpha03"
+# Koala Plot 0.10.4 retains arrival-order series and supports the Kotlin 2.2 toolchain.
+koalaPlot = "0.10.4"
+# AGP 9.1.1 is the minimum that accepts compileSdk 37, which Jetpack Compose 1.12.0 (the
+# Android baseline of Compose Multiplatform 1.12.0) requires along with minAgpVersion 9.1.0.
+# :shared uses com.android.kotlin.multiplatform.library (androidResources.enable for CMP-9547).
+# :swift-core stays on com.android.library because the KMP library plugin has no NDK/JNI.
+agp = "9.1.1"
+# kotlinx-coroutines 1.11.0 is the latest stable; its 1.11.0 line is compiled against Kotlin 2.2.20.
+coroutines = "1.11.0"
+# kotlinx-serialization 1.9.0 is the runtime aligned to Kotlin 2.2 (1.10+ is built on Kotlin 2.3).
+serialization = "1.9.0"
+# ktlint-gradle 14.2.0 is the latest stable of the JLLeitschuh plugin.
+ktlint = "14.2.0"
+# detekt 1.23.8 is the latest stable; confirmed working with Kotlin 2.2.20 + AGP 8.13 by maintainers.
+detekt = "1.23.8"
+# KSP 2.2.20-2.0.4 is the newest KSP whose Kotlin-compiler half is exactly 2.2.20 (KSP versions are
+# <kotlin>-<ksp>). It MUST equal the Kotlin plugin version or the build fails ("ksp too old for kotlin").
+# Newer KSP (2.3.x) tracks Kotlin 2.3 and is rejected here. Room's KSP compiler runs through this.
+# The 2.2.20 gradle plugin still casts androidJvm compilations to KotlinJvmAndroidCompilation; the
+# includeBuild ksp-android-kmp-compat replaces KspConfigurations so :shared can use the AGP 9 KMP
+# library plugin. Drop the includeBuild when KSP is allowed to move to 2.3.x.
+ksp = "2.2.20-2.0.4"
+# Room 2.8.4 is the latest stable KMP Room (2.7.0 was the first stable KMP release; 3.0 is alpha and
+# breaking, so avoided). Targets Kotlin language 2.0+, satisfied by 2.2.20. The Android KMP library
+# target + jvm(desktop) are both supported. exportSchema is disabled on the @Database so no schema dir is needed.
+room = "2.8.4"
+# androidx.sqlite 2.7.0 is the latest stable; it is the sqlite-bundled version Google's own Room-KMP
+# docs pair with room 2.8.4. BundledSQLiteDriver compiles SQLite from source for a consistent engine
+# across the Android target and the desktop JVM.
+sqlite = "2.7.0"
+# androidx.datastore 1.1.7 is the latest stable 1.1.x — a multiplatform Preferences store built against
+# Kotlin 2.x, ABI-compatible with the 2.2.20 / coroutines 1.11.0 pins here (1.2.x tracks newer androidx
+# baselines, avoided). It backs PreferencesStore on both JVM targets and brings okio transitively.
+datastore = "1.1.7"
+# androidx.activity-compose 1.13.0: latest stable. Hosts NavigationEventDispatcherOwner natively (1.12+),
+# so androidApp needs no OnBackPressedDispatcher bridge. AAR minCompileSdk 36 is covered by compileSdk 37.
+# Android adapters use core-ktx for permission, preferences, URI, and notification helpers.
+activityCompose = "1.13.0"
+# JetBrains multiplatform Navigation Event compose APIs (NavigationBackHandler). 1.1.0 is the
+# version Compose Multiplatform 1.12.0 ships (Jetpack Navigation Event 1.1.1). Android system
+# back is provided by Activity 1.13+; desktop Escape by Compose UI's host dispatcher.
+navigationeventCompose = "1.1.0"
+# androidx.lifecycle-service 2.11.0 matches the lifecycle line Compose Multiplatform 1.12.0
+# publishes, so the foreground service and Compose runtime do not skew.
+lifecycle = "2.11.0"
+# androidx.core 1.16.0 supplies NotificationCompat + the notification-channel builder for the ongoing
+# foreground-service notification; 1.16.0 is the compileSdk-36 baseline (1.15 targets sdk 35).
+androidxCore = "1.16.0"
+# Kable 0.42.0 (27 Jan 2026) is the newest release still built against Kotlin 2.2.20: 0.43.0 bumped to
+# Kotlin 2.3.21 and 0.43.1 to 2.4.0 (ABI change), both above this project's pinned Kotlin 2.2.20. 0.41.0
+# and 0.42.0 carry no Kotlin/coroutines bump over 0.40.2 (Kotlin 2.2.20), so 0.42.0 is ABI-compatible
+# with the Kotlin 2.2.20 / coroutines 1.11.0 pins here. Resolved from Maven Central; androidMain only
+# (BLE is the Android transport; desktop uses TCP in a later phase).
+kable = "0.42.0"
+# MapLibre Android 11.13.5 — latest 11.x (12+/13+ need broader dependency review).
+maplibre = "11.13.5"
+# Play Billing Library 7.1.1: last 7.x with the enablePendingPurchases() API used by PlayBillingClient;
+# 8.x requires PendingPurchasesParams and a broader review.
+playBilling = "7.1.1"
+# qrcode-kotlin 4.5.0: pure-Kotlin multiplatform QR generation (commonMain — one impl for android +
+# desktop), the W4-S6 QrEncoder seam's backing. Verified latest stable at selection time (2026-07-10);
+# correction level M per the iOS generator. The payload is frozen by the W4-S0 goldens, so any
+# conformant encoder is interop-safe.
+qrcodeKotlin = "4.5.0"
+# CameraX 1.4.2 + ML Kit barcode 17.3.0 back the W4-S6 ContactQrScanner seam (androidApp only;
+# desktop falls back to paste). Verified latest stable at selection time (2026-07-10).
+camerax = "1.4.2"
+mlkitBarcode = "17.3.0"
+mlkitLanguageId = "17.0.6"
+mlkitTranslate = "17.0.3"
+# JUnit 4 for the Android unit test (Robolectric-free, pure JVM assertions).
+junit = "4.13.2"
+# androidx.test for the instrumented (on-device/emulator) test that exercises the real Swift .so
+# through the JNI bridge. runner 1.6.2 / ext-junit 1.2.1 are the latest stable, compileSdk 36-safe.
+androidxTestRunner = "1.6.2"
+androidxTestExtJunit = "1.2.1"
+# androidx.test:core 1.6.1 supplies ActivityScenario for the foreground-service instrumented test.
+androidxTestCore = "1.6.1"
+# Compose UI instrumented-test artifacts. Pinned to Jetpack Compose UI 1.12.0, the Android
+# baseline Compose Multiplatform 1.12.0 is built on; the JUnit4 test rule must match the
+# compose-ui runtime or it links wrong.
+androidxComposeUiTest = "1.12.0"
+# Ktor client 3.3.3: the newest 3.x built on a Kotlin 2.2.x compiler (its libs.versions.toml pins
+# kotlin 2.2.21; 3.4.0 jumps to 2.3.0, above this project's Kotlin pin). Backs link previews and the
+# map elevation/geocoder HTTP. If a klib metadata error ever surfaces, 3.3.1 is the exact-2.2.20 build.
+ktor = "3.3.3"
+# Coil 3.3.0: the last 3.x built on Kotlin 2.2.x ("Update Kotlin to 2.2.0"; 3.4.0 moves the compiler
+# to 2.3.10). Inline chat images via AsyncImage in commonMain; the network fetcher rides the Ktor
+# client above (coil-network-ktor3).
+coil = "3.3.0"
+# Ksoup 0.2.5: the last release built on Kotlin 2.2.x (0.2.6 bumps to 2.3.10). KMP HTML parser for
+# link-preview scraping (OpenGraph/title extraction).
+ksoup = "0.2.5"
+# swiftkit-core 0.4.2 is the swift-java runtime the jextract-generated Java bindings compile
+# against (SwiftArena, JNISwiftInstance, SwiftLibraries, ...). It matches the swift-java revision
+# pinned for the Swift side (tag 0.4.2). swift-java is pre-1.0 and not on Maven Central, so this
+# artifact must be published to mavenLocal once; see multiplatform/swift-core/README.md.
+swiftkitCore = "0.4.2"
+# Android SDK levels: compileSdk 37 is required by Compose UI 1.12.0; targetSdk stays 36 so
+# Play behavior does not change with this Compose bump. minSdk 28 per the port spec.
+compileSdk = "37"
+targetSdk = "36"
+minSdk = "28"
+
+[libraries]
+koala-plot = { module = "io.github.koalaplot:koalaplot-core", version.ref = "koalaPlot" }
+androidx-benchmark-junit4 = { module = "androidx.benchmark:benchmark-junit4", version.ref = "benchmark" }
+androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "benchmark" }
+# Matches the Compose UI 1.12.0 runtime already on the Android classpath. Benchmark-only:
+# recomposition slices in the macrobenchmark Perfetto trace.
+androidx-compose-runtime-tracing = { module = "androidx.compose.runtime:runtime-tracing", version.ref = "androidxComposeUiTest" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+# Direct Compose Multiplatform artifacts. The Gradle-plugin `compose.runtime` / `compose.foundation`
+# / `compose.material3` / `compose.desktop.currentOs` accessors are deprecated as of 1.10; pin
+# coordinates here so the catalog is the single version source.
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
+compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
+compose-desktop = { module = "org.jetbrains.compose.desktop:desktop", version.ref = "composeMultiplatform" }
+# Multiplatform NavigationBackHandler / rememberNavigationEventState (replaces deprecated ui-backhandler).
+androidx-navigationevent-compose = { module = "org.jetbrains.androidx.navigationevent:navigationevent-compose", version.ref = "navigationeventCompose" }
+androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
+junit = { module = "junit:junit", version.ref = "junit" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
+androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidxTestExtJunit" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTestCore" }
+# rules ships GrantPermissionRule; versioned with test-core (same androidx.test release train).
+androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidxTestCore" }
+# Compose instrumented tests use ui-test-junit4-android. ui-test-manifest supplies the
+# ComponentActivity in the shared device-test harness's debug target APK.
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4-android", version.ref = "androidxComposeUiTest" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "androidxComposeUiTest" }
+qrcode-kotlin = { module = "io.github.g0dkar:qrcode-kotlin", version.ref = "qrcodeKotlin" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+# OkHttp engine serves BOTH JVM targets (android + desktop) from jvmCommonMain — one engine, no
+# per-target actuals, matching how that source set already hosts the socket transport.
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+# Animated GIF decoder for inline chat images; Android-only (no desktop/JVM decoder ships from the same
+# source), so it rides androidMain rather than commonMain like coil-compose above.
+coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
+ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "camerax" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
+mlkit-barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "mlkitBarcode" }
+mlkit-language-id = { module = "com.google.mlkit:language-id", version.ref = "mlkitLanguageId" }
+mlkit-translate = { module = "com.google.mlkit:translate", version.ref = "mlkitTranslate" }
+swiftkit-core = { module = "org.swift.swiftkit:swiftkit-core", version.ref = "swiftkitCore" }
+kable-core = { module = "com.juul.kable:kable-core", version.ref = "kable" }
+# MapLibre Android (W6). 11.13.5 is the latest 11.x on Kotlin 2.2 / minSdk 28; 12+/13+ track newer
+# androidx baselines and are deferred until the host is proven green.
+maplibre-android-sdk = { module = "org.maplibre.gl:android-sdk", version.ref = "maplibre" }
+# Google Play Billing (W13). androidMain only — desktop stays on NoOpBillingClient.
+billing-client = { module = "com.android.billingclient:billing-ktx", version.ref = "playBilling" }
+
+[plugins]
+androidxBenchmark = { id = "androidx.benchmark", version.ref = "benchmark" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidTest = { id = "com.android.test", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+androidKmpLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

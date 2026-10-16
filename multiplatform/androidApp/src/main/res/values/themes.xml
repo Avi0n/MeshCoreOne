@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Pre-Compose splash: follow the system light/dark window instead of forcing Material 1 light. -->
+    <style name="Theme.MeshCore.Splash" parent="@android:style/Theme.DeviceDefault.NoActionBar" />
+</resources>

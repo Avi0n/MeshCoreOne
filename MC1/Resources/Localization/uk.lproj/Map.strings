@@ -1,0 +1,319 @@
+/*
+  Map.strings
+  MC1
+
+  Ukrainian translation of strings for the Map feature.
+  AI-translated - please verify with native speakers.
+*/
+
+// MARK: - Common
+
+/* Location: MapView.swift - Purpose: Done button for sheets */
+"map.common.done" = "Готово";
+
+// MARK: - Map Controls
+
+/* Location: MapView.swift - Purpose: Accessibility label when labels are hidden */
+"map.controls.showLabels" = "Показати мітки";
+
+/* Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that clusters nearby pins */
+/* AI-translated - please verify with native speakers. */
+"map.controls.clusterNodes" = "Групувати вузли";
+
+/* Location: MapView.swift - Purpose: Accessibility label for center on all contacts button */
+"map.controls.centerAll" = "Центрувати на всіх контактах";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for user location button */
+"map.controls.centerOnMyLocation" = "Центрувати на моєму місцезнаходженні";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map options menu button */
+/* AI-translated - please verify with native speakers. */
+"map.controls.mapOptions" = "Параметри карти";
+
+/* Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that locks the map bearing to north */
+/* AI-translated - please verify with native speakers. */
+"map.controls.lockNorth" = "Північ вгорі";
+
+/* Location: MapView.swift - Purpose: Accessibility label for refresh button */
+"map.controls.refresh" = "Оновити контакти";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
+"map.controls.filter" = "Фільтр";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
+"map.controls.filterActive" = "Фільтри активні";
+
+/* Location: MapControlsToolbar.swift - Purpose: Filter menu item that opens the Advanced Filters sheet */
+"map.controls.moreFilters" = "Більше фільтрів…";
+
+// MARK: - Advanced Filters
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Sheet title */
+"map.filters.title" = "Розширені фільтри";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Toolbar button that clears all advanced filters */
+"map.filters.reset" = "Скинути";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Row label for the lower bound of a range */
+"map.filters.minimum" = "Мінімум";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Row label for the upper bound of a range */
+"map.filters.maximum" = "Максимум";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Placeholder for an empty range bound */
+"map.filters.noLimit" = "Без обмеження";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Accessibility label for the preset buttons row */
+"map.filters.presets" = "Шаблони";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Accessibility label for the button removing one filter. %@ is the filter summary, e.g. "Heard ≤ 2h" */
+"map.filters.remove" = "Вилучити фільтр: %@";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Accessibility hint for tapping an active filter chip */
+"map.filters.editHint" = "Відкриває розширені фільтри";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Section header for the last-heard time range */
+"map.filters.lastHeard.header" = "Останнє отримання";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset that disables the last-heard filter */
+"map.filters.lastHeard.anyTime" = "Будь-коли";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option */
+"map.filters.lastHeard.unit.minutes" = "Хвилини";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option */
+"map.filters.lastHeard.unit.hours" = "Години";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option */
+"map.filters.lastHeard.unit.days" = "Дні";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Accessibility label for a unit menu */
+"map.filters.lastHeard.unit.label" = "Одиниця";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer when no last-heard filter is set */
+"map.filters.lastHeard.summary.any" = "Показує вузли незалежно від часу останнього отримання.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a maximum-age-only range. %@ is a duration, e.g. "2h" */
+"map.filters.lastHeard.summary.within" = "Показує вузли, отримані за останні %@.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a minimum-age-only range. %@ is a duration */
+"map.filters.lastHeard.summary.olderThan" = "Показує вузли, отримані щонайменше %@ тому.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a bounded range. First %@ is the minimum age, second the maximum age */
+"map.filters.lastHeard.summary.between" = "Показує вузли, отримані від %1$@ до %2$@ тому.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer explaining where last-heard time comes from */
+"map.filters.lastHeard.explanation" = "На основі оголошень, повідомлень і пінгів, отриманих від кожного вузла. Вузли, які жодного разу не отримувалися, приховано, доки цей фільтр увімкнено.";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a maximum-age-only range. %@ is a duration, e.g. "2h" */
+"map.filters.lastHeard.chip.within" = "Отрим. ≤ %@";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a minimum-age-only range. %@ is a duration */
+"map.filters.lastHeard.chip.olderThan" = "Отрим. ≥ %@";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a bounded range. First %@ is the minimum age, second the maximum age */
+"map.filters.lastHeard.chip.between" = "Отрим. %1$@–%2$@";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Section header for the hop-count range */
+"map.filters.hops.header" = "Переходи";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset that disables the hop filter */
+"map.filters.hops.any" = "Будь-які";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset showing only nodes heard without a repeater */
+"map.filters.hops.direct" = "Напряму";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Preset for an upper hop bound. %d is the hop count */
+"map.filters.hops.upTo" = "≤ %d";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer when no hop filter is set */
+"map.filters.hops.summary.any" = "Показує вузли з будь-якою кількістю переходів.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for the direct-only range */
+"map.filters.hops.summary.direct" = "Показує лише вузли, отримані напряму, без ретранслятора.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a single hop count. %d is the hop count */
+"map.filters.hops.summary.exactly" = "Показує вузли з кількістю переходів рівно %d.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for an upper bound only. %d is the hop count */
+"map.filters.hops.summary.atMost" = "Показує вузли з кількістю переходів не більше %d.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a lower bound only. %d is the hop count */
+"map.filters.hops.summary.atLeast" = "Показує вузли з кількістю переходів не менше %d.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a bounded range. %1$d is the minimum, %2$d the maximum */
+"map.filters.hops.summary.between" = "Показує вузли з кількістю переходів від %1$d до %2$d.";
+
+/* Location: MapAdvancedFiltersSheet.swift - Purpose: Footer explaining hop counts */
+"map.filters.hops.explanation" = "Переходи — це ретранслятори між вами та вузлом; 0 означає отримано напряму. Вузли з невідомою кількістю переходів приховано, доки цей фільтр увімкнено.";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for the direct-only range */
+"map.filters.hops.chip.direct" = "Лише напряму";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a single hop count. %d is the hop count */
+"map.filters.hops.chip.exactly" = "Пер. = %d";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for an upper bound only. %d is the hop count */
+"map.filters.hops.chip.atMost" = "Пер. ≤ %d";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a lower bound only. %d is the hop count */
+"map.filters.hops.chip.atLeast" = "Пер. ≥ %d";
+
+/* Location: MapActiveFiltersBar.swift - Purpose: Chip for a bounded range. %1$d is the minimum, %2$d the maximum */
+"map.filters.hops.chip.between" = "Пер. %1$d–%2$d";
+
+// MARK: - Map Style Selection
+
+/* Location: MapStyleSelection.swift - Purpose: Standard map style option */
+"map.style.standard" = "Стандартна";
+
+/* Location: MapStyleSelection.swift - Purpose: Satellite map style option */
+"map.style.satellite" = "Супутникова";
+
+/* Location: MapStyleSelection.swift - Purpose: Topo map style option */
+"map.style.topo" = "Топографія";
+
+/* Location: LayersMenu.swift - Purpose: Accessibility label for map style menu */
+"map.style.accessibilityLabel" = "Стиль карти";
+
+/* Location: LayersMenu.swift - Purpose: Hint when style requires network */
+"map.style.requiresNetwork" = "Потрібне з'єднання з мережею";
+
+/* Location: LayersMenu.swift - Purpose: Hint when no offline pack covers viewport */
+"map.style.noOfflineCoverage" = "Жодна офлайн-карта не охоплює цю область";
+
+// MARK: - Contact Detail Sheet
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for contact information */
+"map.detail.section.contactInfo" = "Інформація про контакт";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for contact name */
+"map.detail.name" = "Ім'я";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for contact type */
+"map.detail.type" = "Тип";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for favorite status */
+"map.detail.status" = "Статус";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Value showing contact is favorited */
+"map.detail.favorite" = "Обраний";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp */
+"map.detail.lastAdvert" = "Останнє оголошення";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Last heard (phone-clock on-air) label */
+"map.detail.lastHeard" = "Останнє отримання";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for full public key identifier */
+"map.detail.publicKey" = "Публічний ключ";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for location coordinates */
+"map.detail.section.location" = "Місцезнаходження";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for latitude coordinate */
+"map.detail.latitude" = "Широта";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for longitude coordinate */
+"map.detail.longitude" = "Довгота";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Section header for outbound path info */
+"map.detail.section.outboundPath" = "Вихідний шлях";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for routing type */
+"map.detail.routing" = "Маршрутизація";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Flood routing type value */
+"map.detail.routingFlood" = "Розсилка";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Label for path length */
+"map.detail.pathLength" = "Довжина шляху";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Path length value with hop count */
+"map.detail.hops" = "%d переходів";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Path length value for single hop */
+"map.detail.hopSingular" = "1 перехід";
+
+// MARK: - Contact Detail Sheet Actions
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to view repeater telemetry */
+"map.detail.action.telemetry" = "Телеметрія";
+
+/* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
+/* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
+"map.detail.action.telemetryAccessTitle" = "Доступ до телеметрії";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to manage repeater */
+"map.detail.action.management" = "Керування";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to join a room */
+"map.detail.action.joinRoom" = "Приєднатися до кімнати";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Button to send a message */
+"map.detail.action.sendMessage" = "Надіслати повідомлення";
+
+// MARK: - Contact Type Names
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Display name for chat contact type */
+"map.nodeKind.chatContact" = "Контакт чату";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Display name for repeater type */
+"map.nodeKind.repeater" = "Ретранслятор";
+
+/* Location: MapView.swift ContactDetailSheet - Purpose: Display name for room type */
+"map.nodeKind.room" = "Кімната";
+
+// MARK: - Contact Callout
+
+/* Location: ContactCalloutContent.swift - Purpose: Button to view contact details */
+"map.callout.details" = "Детальніше";
+
+/* Location: ContactCalloutContent.swift - Purpose: Button to send message from callout */
+"map.callout.message" = "Повідомлення";
+
+/* Location: ContactCalloutContent.swift - Purpose: Display name for contact in callout */
+"map.callout.nodeKind.contact" = "Контакт";
+
+/* Location: ContactCalloutContent.swift - Purpose: Display name for repeater in callout */
+"map.callout.nodeKind.repeater" = "Ретранслятор";
+
+/* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
+"map.callout.nodeKind.room" = "Кімната";
+
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */
+"map.callout.add" = "Додати";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Label that the pin is discovered, not on the node list */
+"map.callout.discovered" = "Виявлений";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail */
+"map.discoveredDetail.title" = "Виявлений вузол";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Primary action to add discovered node to the radio table */
+"map.discoveredDetail.add" = "Додати до вузлів";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Accessibility label for discovered pins */
+"map.pin.accessibility.discovered" = "Виявлений, немає у списку вузлів";
+
+// MARK: - Contact Annotation
+
+/* Location: ContactAnnotation.swift - Purpose: Subtitle for favorite contacts */
+/* Location: ContactAnnotation.swift - Purpose: Subtitle for repeater nodes */
+/* Location: ContactAnnotation.swift - Purpose: Subtitle for room nodes */
+// MARK: - Offline Badge
+
+/* Label shown on map when device has no internet connection */
+"map.offlineBadge.label" = "Офлайн";
+
+// MARK: - Chat Map Preview
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the chat map-location thumbnail */
+"map.preview.accessibilityLabel" = "Перегляд місця на карті";
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail */
+"map.preview.accessibilityHint" = "Відкриває це місце на карті";
+
+/* Location: MapPreviewFragmentView.swift - Purpose: Accessibility label for the retry control shown on the failed-thumbnail fallback */
+"map.preview.retryButton.accessibilityLabel" = "Повторити завантаження мініатюри карти";

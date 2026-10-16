@@ -1,0 +1,173 @@
+// Android/Compose-only string supplement. Merged after the iOS .strings families by
+// scripts/strings-to-compose.py. Keys are FINAL Compose resource names (no family
+// derivation). These are strings the iOS app no longer ships but the Kotlin UI still needs.
+
+"chats_channel_info_title" = "Info del canale";
+"chats_error_delete_conversation_failed" = "Impossibile eliminare la conversazione.";
+"chats_error_delete_message_failed" = "Impossibile eliminare il messaggio.";
+"chats_error_delete_timed_out" = "La radio non ha risposto. Riprova.";
+"chats_error_load_messages_failed" = "Impossibile caricare i messaggi";
+"chats_message_actions_title" = "Messaggio";
+"chats_message_info_adjusted_accessibility" = "Ora di invio corretta per errore dell'orologio del mittente";
+"chats_message_path_hops_plural" = "%d salti";
+"chats_message_path_hops_singular" = "1 salto";
+"chats_new_chat_contact_type_room" = "Stanza";
+"chats_scroll_button_scroll_to_divider_accessibility_hint" = "Tocca due volte per scorrere fino al separatore dei nuovi messaggi";
+"chats_scroll_button_scroll_to_divider_accessibility_label" = "Scorri ai nuovi messaggi";
+"chats_scroll_button_scroll_to_mention_accessibility_hint" = "Tocca due volte per andare al messaggio";
+"chats_scroll_button_scroll_to_mention_accessibility_label" = "Scorri alla tua menzione non letta più vecchia";
+"chats_scroll_button_scroll_to_mention_accessibility_value" = "%d menzioni non lette";
+"chats_thread_back_accessibility" = "Indietro";
+"chats_timestamp_today" = "Oggi";
+"chats_timestamp_yesterday" = "Ieri";
+"localizable_common_close" = "Chiudi";
+"map_empty_no_locations" = "Ancora nessun contatto con posizione. I nodi con coordinate appariranno qui come segnaposto sulla mappa una volta caricato MapLibre.";
+"remotenodes_remote_nodes_history_days_ago" = "%dg fa";
+"remotenodes_remote_nodes_room_telemetry" = "Telemetria";
+"remotenodes_remote_nodes_settings_password_changed_success" = "Password cambiata correttamente";
+"remotenodes_remote_nodes_settings_regions_allow_flood" = "Consenti traffico flood";
+"remotenodes_remote_nodes_settings_regions_save_success" = "Regioni salvate sul dispositivo";
+"settings_advanced_settings_footer" = "Regolazione radio, telemetria, impostazioni contatti e gestione del dispositivo";
+"settings_blocking_channel_senders_unblock" = "Sblocca";
+"settings_demo_mode_screenshot" = "Modalità screenshot";
+"settings_device_info_identity_header" = "Identità";
+"settings_device_selection_accessibility_select_action" = "Connetti";
+"settings_device_selection_select_to_reconnect" = "Seleziona un dispositivo per riconnetterti";
+"settings_messages_show_incoming_send_time" = "Ora di invio in arrivo";
+"settings_nodes_auto_add_types_header" = "Tipi di aggiunta automatica";
+"settings_notifications_footer" = "Avvisi di messaggi, scoperte di contatti e avvisi di batteria scarica.";
+"settings_offline_maps_delete" = "Elimina";
+"settings_regenerate_identity_generate_another" = "Generane un'altra";
+"settings_regenerate_identity_prefix_error_invalid_length" = "Il prefisso deve avere da 1 a 4 caratteri esadecimali";
+"settings_wifi_edit_ip_placeholder" = "Indirizzo IP";
+"settings_wifi_edit_port_placeholder" = "Porta";
+"settings_support_tip_1" = "Caffè";
+"settings_support_tip_2" = "Pranzo";
+"settings_support_tip_3" = "Cena";
+"settings_support_tip_4" = "Mancia generosa";
+"settings_support_tip_5" = "Mancia enorme";
+"settings_support_tip_6" = "Mancia epica";
+"tools_cli_clear" = "Cancella";
+// Solo Android: scheda del permesso Bluetooth di benvenuto, azioni sui salti dell'editor di percorso e
+// sottotitoli degli hub Impostazioni/Strumenti. Nessun equivalente iOS: iOS usa AccessorySetupKit.
+"android_onboarding_permissions_bluetooth_title" = "Bluetooth";
+"android_onboarding_permissions_bluetooth_description" = "Necessario per trovare e connettere la tua radio MeshCore via Bluetooth.";
+"android_onboarding_permissions_title" = "Alcune autorizzazioni";
+"android_onboarding_permissions_subtitle" = "Il Bluetooth è necessario per connettersi. Notifiche e posizione sono facoltative. Puoi cambiare idea in Impostazioni in qualsiasi momento.";
+"android_ble_scan_allow" = "Consenti";
+"android_radio_tile_label" = "Radio MeshCore";
+"android_path_edit_move_hop_up" = "Sposta salto su";
+"android_path_edit_move_hop_down" = "Sposta salto giù";
+"android_path_edit_remove_hop" = "Rimuovi salto";
+"android_overflow_menu" = "More options";
+"android_block_sender_no_matches" = "No matching contacts";
+"chats_input_placeholder_message" = "Message";
+"android_path_edit_reorder_hint" = "Usa le frecce per riordinare. Tocca Chiudi per rimuovere";
+"android_settings_hub_device_info_subtitle" = "Nome, firmware e chiave pubblica";
+"android_settings_hub_location_subtitle" = "Condividi e aggiorna la posizione del dispositivo";
+"android_settings_hub_maps_subtitle" = "Aspetto della mappa base e mappe offline";
+"android_settings_hub_radio_subtitle" = "Preimpostazione regione e parametri radio";
+"android_settings_hub_connection_subtitle" = "Dettagli di connessione Bluetooth e Wi-Fi";
+"android_settings_hub_advanced_subtitle" = "Regolazione, telemetria e gestione dei nodi";
+"android_settings_hub_notifications_subtitle" = "Avvisi di messaggi e scoperte";
+"android_settings_hub_offline_maps_subtitle" = "Scarica regioni della mappa per l'uso offline";
+"android_settings_hub_danger_subtitle" = "Scollega o ripristina le impostazioni di fabbrica di questa radio";
+"android_settings_hub_diagnostics_subtitle" = "Esporta e cancella i log di debug";
+"android_settings_hub_trusted_contacts_subtitle" = "Contatti autorizzati alle azioni privilegiate";
+"android_settings_hub_chats_subtitle" = "Visualizzazione messaggi, anteprime e dettagli del percorso";
+"android_settings_hub_appearance_subtitle" = "Tema e modalità chiara o scura";
+// Didascalia della scheda tema predefinito quando la piattaforma deriva i colori Material You dallo sfondo.
+"android_appearance_default_uses_wallpaper" = "Usa i colori dello sfondo";
+"android_settings_hub_backup_subtitle" = "Esporta o ripristina i dati dell'app";
+"android_settings_hub_support_subtitle" = "Mance e supporto allo sviluppo";
+"android_settings_hub_language_subtitle" = "Cambia la lingua dell'app";
+"android_settings_hub_requires_radio" = "Connetti una radio per modificare questa impostazione";
+
+// Compact relative-age row labels (Nodes, Chats, Discover, contact detail). No iOS counterpart:
+// iOS renders these through the system RelativeDateTimeFormatter.
+// Pending translation: the five android_relative_age_* values below are the untranslated English
+// abbreviations, kept only so every locale declares the same key set.
+"android_relative_age_minutes" = "%dm";
+"android_relative_age_hours" = "%dh";
+"android_relative_age_days" = "%dd";
+"android_relative_age_weeks" = "%dw";
+"android_relative_age_seconds" = "%ds";
+"android_tools_hub_trace_path_subtitle" = "Misura la qualità del percorso verso un contatto";
+"android_tools_hub_line_of_sight_subtitle" = "Stima la copertura RF tra due punti";
+"android_tools_hub_rx_log_subtitle" = "Visualizza i pacchetti RF man mano che arrivano";
+"android_tools_hub_noise_floor_subtitle" = "Leggi il rumore ambientale del canale";
+"android_tools_hub_node_discovery_subtitle" = "Trova i nodi mesh nelle vicinanze";
+"android_tools_hub_cli_subtitle" = "Invia comandi di gestione remota";
+"android_tools_hub_requires_radio" = "Connetti una radio mesh per usare questo strumento";
+
+// Node-config import: the picked file failed to decode. No iOS counterpart: iOS shows the
+// Foundation decoding error, which the system already localizes.
+"android_settings_config_import_error_invalid_file" = "Questo file non è una configurazione MeshCore valida.";
+"settings_maps_show_discovered" = "Mostra nodi scoperti";
+"settings_maps_show_discovered_footer" = "Se attivo, i nodi da Scopri che condividono una posizione compaiono sulla mappa insieme ai nodi salvati.";
+"tools_intent_advert_confirm" = "Inviare un annuncio %s?";
+
+// Fresh-pair PIN copy: iOS names AccessorySetupKit confirmation; Android forgets the saved row and reopens the picker.
+"android_onboarding_device_scan_error_pin_rejected" = "Il PIN non è stato accettato. Controlla il PIN mostrato sul dispositivo, poi riprova. Tocca Rimuovi e riprova per dimenticare questa associazione, poi inserisci il PIN mostrato sulla radio.";
+// Auth copy when Companion Device Manager cannot drop the OS Bluetooth bond (API < 36). iOS Mac authenticationFailedMac analog.
+"android_onboarding_device_scan_error_authentication_failed_settings" = "L'associazione salvata con questa radio non funziona più. Nelle impostazioni Bluetooth, dimentica questa radio, poi tocca Rimuovi e riprova.";
+// Unrestricted battery: iOS bluetooth-central has no analog; Android needs an exemption so Doze cannot kill the connection service.
+"android_settings_connection_unrestricted_battery_title" = "Batteria senza restrizioni";
+"android_settings_connection_unrestricted_battery_footer" = "Consente alla radio di restare connessa quando Android interromperebbe il lavoro in background.";
+"android_settings_connection_unrestricted_battery_accessibility_hint" = "Apri le impostazioni di ottimizzazione della batteria";
+
+// Millisecond duration shown on ping and Trace Path (iOS hardcodes the unit).
+"android_duration_ms" = "%d ms";
+
+// Empty preference values (Wi‑Fi host/port, node settings). Missing telemetry still uses an em dash.
+"android_value_not_set" = "Non impostato";
+
+// Unsupported date/time outside the platform calendar range; the imported date is unchanged.
+// TODO(translate)
+"android_timestamp_unavailable" = "Unavailable";
+
+// Abbreviated length units (iOS Measurement .abbreviated). Latin locales keep SI tokens.
+"android_unit_kilometer" = "km";
+"android_unit_meter" = "m";
+"android_unit_mile" = "mi";
+"android_unit_foot" = "ft";
+// Foreground-service and launcher-shortcut host strings. No iOS counterpart (Live Activity / ASK).
+"android_shortcut_open_chats_long" = "Apri chat";
+"android_notification_packet_rate" = "%d/min";
+"android_notification_channel_discovery" = "Scoperte";
+"android_notification_action_speak_status" = "Leggi stato";
+
+// TalkBack custom action on reaction badges. iOS uses the badge hint; Android needs an explicit action name.
+"chats_reactions_view_details" = "Vedi dettagli reazioni";
+// Search field placeholder. iOS uses the system Search prompt; Compose TextField needs a resource.
+"localizable_common_search" = "Cerca";
+// PIN rejection when Companion Device Manager cannot drop the OS bond (API < 36). iOS pinRejectedMac analog, Bluetooth settings not System Settings.
+"android_onboarding_device_scan_error_pin_rejected_settings" = "Il PIN non è stato accettato. Controlla il PIN mostrato sul dispositivo, poi riprova. Potresti dover prima dimenticare l'associazione non riuscita nelle impostazioni Bluetooth.";
+// Factory-reset pairing leftover. iOS names iOS/Settings; Android names Bluetooth settings.
+"android_onboarding_troubleshooting_factory_reset_explanation" = "Se hai ripristinato il dispositivo MeshCore alle impostazioni di fabbrica, il sistema potrebbe avere ancora la vecchia associazione memorizzata. Cancellarla nelle impostazioni Bluetooth permette al dispositivo di riapparire.";
+// Troubleshooting Bluetooth section title. iOS System Settings; Android Bluetooth.
+"android_onboarding_troubleshooting_system_settings_header" = "Bluetooth";
+// Troubleshooting manage-devices line. iOS accessories; Android paired Bluetooth devices.
+"android_onboarding_troubleshooting_system_settings_manage_accessories" = "Puoi anche gestire i dispositivi Bluetooth associati in:";
+// Path to Bluetooth settings. iOS Privacy & Security → Accessories; Android Connected devices → Bluetooth.
+"android_onboarding_troubleshooting_system_settings_path" = "Impostazioni → Dispositivi connessi → Bluetooth";
+// CDM leftover pairing. iOS names iPhone; Android names this phone.
+"android_settings_device_selection_setup_message" = "This device is paired with this phone. You'll need to forget it before adding it to MeshCore One.";
+// CDM leftover pairing, plural.
+"android_settings_device_selection_setup_message_plural" = "These devices are paired with this phone. You'll need to forget them before adding a radio to MeshCore One.";
+// TalkBack for a leftover CDM association row.
+"android_settings_device_selection_accessibility_setup_label" = "%1$s, paired with this phone";
+// Language row TalkBack. iOS names iOS Settings.
+"android_settings_language_app_language_accessibility_hint" = "Apre Impostazioni";
+// Translate-into footer. iOS names Translate / iOS Settings.
+"android_settings_language_default_translation_app_footer" = "Usa Traduci o un’altra app che hai scelto in Impostazioni.";
+
+// Permesso fotocamera QR. iOS indica Impostazioni; Android indica Fotocamera nelle impostazioni di sistema.
+"android_scan_camera_permission_message" = "Consenti Fotocamera nelle impostazioni di sistema per scansionare i codici QR.";
+
+// Conversation search empty. iOS per-filter empty is wrong while searching.
+"android_chats_search_no_results_title" = "No Results";
+"android_chats_search_no_results_description" = "No conversations match '%s'";
+// LoS caption without iOS middot; chart uses a Slider instead of a drag-hint overlay.
+"android_tools_line_of_sight_indirect_route" = "Indirect route via R. Relocate on map to adjust.";
+"android_tools_line_of_sight_repeater_position" = "Repeater position";

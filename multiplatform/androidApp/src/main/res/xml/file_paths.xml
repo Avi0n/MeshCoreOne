@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Paths shared via FileProvider (node-config JSON, images, and debug logs). -->
+<paths>
+    <cache-path name="node_config_export" path="node-config/" />
+    <cache-path name="chat_image_share" path="chat-images/" />
+    <cache-path name="debug_log_export" path="debug-logs/" />
+</paths>

@@ -1,0 +1,79 @@
+[
+  {
+    "label": "simple",
+    "name": "AVN2",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 1,
+    "uri": "meshcore://contact/add?name=AVN2&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=1"
+  },
+  {
+    "label": "repeater-type",
+    "name": "Repeater 7",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 2,
+    "uri": "meshcore://contact/add?name=Repeater%207&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=2"
+  },
+  {
+    "label": "room-type",
+    "name": "Ops Room",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 3,
+    "uri": "meshcore://contact/add?name=Ops%20Room&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=3"
+  },
+  {
+    "label": "plus-in-name",
+    "name": "C++ dev",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 1,
+    "uri": "meshcore://contact/add?name=C%2B%2B%20dev&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=1"
+  },
+  {
+    "label": "spoof-injection",
+    "name": "Alice&public_key=BCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBC&type=3",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 1,
+    "uri": "meshcore://contact/add?name=Alice%26public_key%3DBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBC%26type%3D3&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=1"
+  },
+  {
+    "label": "reserved-chars",
+    "name": "100% sure?",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 1,
+    "uri": "meshcore://contact/add?name=100%25%20sure?&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=1"
+  },
+  {
+    "label": "ampersand-equals",
+    "name": "key & value = pair",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 1,
+    "uri": "meshcore://contact/add?name=key%20%26%20value%20%3D%20pair&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=1"
+  },
+  {
+    "label": "space-colon",
+    "name": "12:30 rally point",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 1,
+    "uri": "meshcore://contact/add?name=12:30%20rally%20point&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=1"
+  },
+  {
+    "label": "unicode-cjk",
+    "name": "北京",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 1,
+    "uri": "meshcore://contact/add?name=%E5%8C%97%E4%BA%AC&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=1"
+  },
+  {
+    "label": "unicode-accent",
+    "name": "Café au lait",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 1,
+    "uri": "meshcore://contact/add?name=Caf%C3%A9%20au%20lait&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=1"
+  },
+  {
+    "label": "hash",
+    "name": "a#b",
+    "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+    "type": 1,
+    "uri": "meshcore://contact/add?name=a%23b&public_key=A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D&type=1"
+  }
+]

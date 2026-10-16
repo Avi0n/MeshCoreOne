@@ -1,0 +1,20 @@
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Machine-specific SDK location
+local.properties
+
+# IDE
+.idea/
+*.iml
+.kotlin/
+
+# Release signing (self-signed key; never commit)
+*.jks
+*.keystore
+keystore.properties
+
+# Local release packages
+dist/

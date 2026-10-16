@@ -1,0 +1,625 @@
+import Foundation
+@testable import MC1Services
+import Testing
+
+@Suite("AppBackupEnvelope")
+struct AppBackupEnvelopeTests {
+  // MARK: - Round-trip encoding
+
+  @Test
+  func `Envelope round-trips through JSON encode/decode`() throws {
+    let radioID = UUID()
+    let envelope = makeTestEnvelope(radioID: radioID)
+
+    let encoder = makeBackupJSONEncoder()
+    let json = try encoder.encode(envelope)
+
+    let decoder = makeBackupJSONDecoder()
+    let decoded = try decoder.decode(AppBackupEnvelope.self, from: json)
+
+    #expect(decoded.version == envelope.version)
+    #expect(decoded.appVersion == envelope.appVersion)
+    #expect(decoded.appBuild == envelope.appBuild)
+    #expect(decoded.manifest == envelope.manifest)
+    #expect(decoded.devices.count == envelope.devices.count)
+    #expect(decoded.contacts.count == envelope.contacts.count)
+    #expect(decoded.channels.count == envelope.channels.count)
+    #expect(decoded.messages.count == envelope.messages.count)
+    #expect(decoded.messageRepeats.count == envelope.messageRepeats.count)
+    #expect(decoded.reactions.count == envelope.reactions.count)
+    #expect(decoded.roomMessages.count == envelope.roomMessages.count)
+    #expect(decoded.remoteNodeSessions.count == envelope.remoteNodeSessions.count)
+    #expect(decoded.savedTracePaths.count == envelope.savedTracePaths.count)
+    #expect(decoded.blockedChannelSenders.count == envelope.blockedChannelSenders.count)
+    #expect(decoded.nodeStatusSnapshots.count == envelope.nodeStatusSnapshots.count)
+    #expect(decoded.discoveredNodes.count == envelope.discoveredNodes.count)
+    #expect(decoded.discoveredNodes == envelope.discoveredNodes)
+    #expect(decoded.userDefaults == envelope.userDefaults)
+  }
+
+  @Test
+  func `Backup JSON round-trips sub-second timestamps without truncation`() throws {
+    let radioID = UUID()
+    let exportDate = Date(timeIntervalSince1970: 1_700_000_500.9876542)
+    let messageDate = Date(timeIntervalSince1970: 1_700_000_501.1234567)
+    let snapshotTimestamp = Date(timeIntervalSince1970: 1_700_000_502.7654321)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let session = RemoteNodeSessionDTO.testSession(
+      radioID: radioID,
+      lastMessageDate: messageDate
+    )
+    let snapshot = NodeStatusSnapshotDTO.testSnapshot(
+      timestamp: snapshotTimestamp,
+      nodePublicKey: Data(repeating: 0xAB, count: 32)
+    )
+    let envelope = AppBackupEnvelope(
+      exportDate: exportDate,
+      appVersion: "1.0.0",
+      appBuild: "42",
+      manifest: BackupManifest(
+        deviceCount: 1,
+        remoteNodeSessionCount: 1,
+        nodeStatusSnapshotCount: 1
+      ),
+      devices: [device],
+      remoteNodeSessions: [session],
+      nodeStatusSnapshots: [snapshot]
+    )
+
+    let json = try makeBackupJSONEncoder().encode(envelope)
+    let decoded = try makeBackupJSONDecoder().decode(AppBackupEnvelope.self, from: json)
+
+    #expect(decoded.exportDate == exportDate)
+    #expect(decoded.remoteNodeSessions.first?.lastMessageDate == messageDate)
+    #expect(decoded.nodeStatusSnapshots.first?.timestamp == snapshotTimestamp)
+  }
+
+  // MARK: - parseBackup (compress -> parse round-trip)
+
+  @Test
+  func `parseBackup decompresses and decodes a valid backup`() throws {
+    let envelope = makeTestEnvelope(radioID: UUID())
+
+    let json = try makeBackupJSONEncoder().encode(envelope)
+    let compressed = try json.zlibCompressed()
+
+    let parsed = try parseBackup(data: compressed)
+    #expect(parsed.version == AppBackupEnvelope.currentVersion)
+    #expect(parsed.appVersion == "1.0.0")
+    #expect(parsed.devices.count == 1)
+    #expect(parsed.contacts.count == 1)
+  }
+
+  @Test
+  func `parseBackup throws invalidFile for garbage data`() {
+    let garbage = Data([0x00, 0xFF, 0xAB, 0xCD])
+    #expect(throws: AppBackupError.self) {
+      try parseBackup(data: garbage)
+    }
+  }
+
+  @Test
+  func `parseBackup throws invalidFile for truncated zlib payloads`() throws {
+    let envelope = makeTestEnvelope(radioID: UUID())
+    let json = try makeBackupJSONEncoder().encode(envelope)
+    let compressed = try json.zlibCompressed()
+    // Valid zlib header, missing trailer + tail of deflate stream — matches
+    // what a truncated download or interrupted file-copy would produce.
+    let truncated = Data(compressed.prefix(max(compressed.count / 2, 4)))
+
+    #expect {
+      try parseBackup(data: truncated)
+    } throws: { error in
+      guard let backupError = error as? AppBackupError,
+            case .invalidFile = backupError else {
+        return false
+      }
+      return true
+    }
+  }
+
+  @Test
+  func `parseBackup rejects files larger than the size cap`() {
+    let oversized = Data(count: maxBackupCompressedBytes + 1)
+    #expect {
+      try parseBackup(data: oversized)
+    } throws: { error in
+      guard let backupError = error as? AppBackupError,
+            case .fileTooLarge = backupError else {
+        return false
+      }
+      return true
+    }
+  }
+
+  @Test
+  func `parseBackup rejects payloads whose decompressed size exceeds the cap`() throws {
+    // 2 MB of zeros compresses to a few KB, well under the compressed cap.
+    // With a 1 MB uncompressed cap, decompression must abort partway through.
+    let testUncompressedCap = 1 * 1_048_576
+    let bomb = Data(count: 2 * 1_048_576)
+    let compressed = try bomb.zlibCompressed()
+    #expect(compressed.count < maxBackupCompressedBytes)
+
+    #expect {
+      try parseBackup(data: compressed, maxUncompressedBytes: testUncompressedCap)
+    } throws: { error in
+      guard let backupError = error as? AppBackupError,
+            case let .decompressedTooLarge(maxBytes) = backupError else {
+        return false
+      }
+      return maxBytes == testUncompressedCap
+    }
+  }
+
+  @Test
+  func `parseBackup throws unsupportedVersion for future versions`() throws {
+    let envelope = makeTestEnvelope(radioID: UUID())
+    let encoded = try makeBackupJSONEncoder().encode(envelope)
+    guard var json = try JSONSerialization.jsonObject(with: encoded) as? [String: Any] else {
+      Issue.record("Failed to deserialize envelope JSON")
+      return
+    }
+    json["version"] = 999
+    let modified = try JSONSerialization.data(withJSONObject: json)
+    let compressed = try modified.zlibCompressed()
+
+    #expect {
+      try parseBackup(data: compressed)
+    } throws: { error in
+      guard let backupError = error as? AppBackupError,
+            case let .unsupportedVersion(found, max) = backupError else {
+        return false
+      }
+      return found == 999 && max == AppBackupEnvelope.currentVersion
+    }
+  }
+
+  @Test
+  func `parseBackup throws corruptedManifest when counts mismatch`() throws {
+    let envelope = makeTestEnvelope(radioID: UUID())
+    let wrongManifest = BackupManifest(deviceCount: 0)
+    let tampered = AppBackupEnvelope(
+      appVersion: envelope.appVersion,
+      appBuild: envelope.appBuild,
+      manifest: wrongManifest,
+      devices: envelope.devices,
+      contacts: envelope.contacts
+    )
+
+    let json = try makeBackupJSONEncoder().encode(tampered)
+    let compressed = try json.zlibCompressed()
+
+    #expect(throws: AppBackupError.self) {
+      try parseBackup(data: compressed)
+    }
+  }
+
+  @Test
+  func `DiscoveredNodeDTO survives JSON encode → decode round-trip`() throws {
+    let dto = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: UUID(),
+      publicKey: Data(repeating: 0xAB, count: 32),
+      name: "Repeater-7",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 42,
+      latitude: 37.3349,
+      longitude: -122.009,
+      outPathLength: 3,
+      outPath: Data([0x01, 0x02, 0x03]),
+      inboundHopCount: 2,
+      inboundHopAdvertTimestamp: 99
+    )
+    let encoded = try makeBackupJSONEncoder().encode(dto)
+    let decoded = try makeBackupJSONDecoder().decode(DiscoveredNodeDTO.self, from: encoded)
+    #expect(decoded == dto)
+  }
+
+  @Test
+  func `Legacy envelope without discoveredNodes decodes to empty array`() throws {
+    // Legacy envelope JSON: no `discoveredNodes` key, and a manifest with no
+    // `discoveredNodeCount` key.
+    let legacyJSON = """
+    {
+      "version": 1,
+      "exportDate": 1700000000,
+      "appVersion": "1.0",
+      "appBuild": "1",
+      "manifest": {
+        "deviceCount": 0, "contactCount": 0, "channelCount": 0,
+        "messageCount": 0, "messageRepeatCount": 0, "reactionCount": 0,
+        "roomMessageCount": 0, "remoteNodeSessionCount": 0,
+        "savedTracePathCount": 0, "blockedChannelSenderCount": 0,
+        "nodeStatusSnapshotCount": 0
+      },
+      "devices": [], "contacts": [], "channels": [], "messages": [],
+      "messageRepeats": [], "reactions": [], "roomMessages": [],
+      "remoteNodeSessions": [], "savedTracePaths": [],
+      "blockedChannelSenders": [], "nodeStatusSnapshots": []
+    }
+    """
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .secondsSince1970
+    let envelope = try decoder.decode(AppBackupEnvelope.self, from: Data(legacyJSON.utf8))
+    #expect(envelope.discoveredNodes.isEmpty)
+    #expect(envelope.manifest.discoveredNodeCount == 0)
+    #expect(envelope.manifest.validate(against: envelope))
+  }
+
+  // MARK: - BackupManifest validation
+
+  @Test
+  func `Manifest validates correctly when counts match`() {
+    let envelope = makeTestEnvelope(radioID: UUID())
+    #expect(envelope.manifest.validate(against: envelope))
+  }
+
+  @Test
+  func `Manifest detects mismatch`() {
+    var envelope = makeTestEnvelope(radioID: UUID())
+    envelope.devices.append(DeviceDTO.testDevice())
+    #expect(!envelope.manifest.validate(against: envelope))
+  }
+
+  // MARK: - ImportResult
+
+  @Test
+  func `ImportResult computes totals correctly`() {
+    var result = ImportResult()
+    result.record(.devices, inserted: 2)
+    result.record(.contacts, inserted: 5, merged: 1)
+    result.record(.messages, skipped: 3)
+    result.userDefaultsRestored = true
+
+    #expect(result.totalInserted == 7)
+    #expect(result.totalMerged == 1)
+    #expect(result.totalSkipped == 3)
+    #expect(result.hasRestoredChanges)
+  }
+
+  // MARK: - BackupUserDefaults Codable round-trip
+
+  @Test
+  func `BackupUserDefaults round-trips through JSON`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.hasCompletedOnboarding = true
+    prefs.mapStyleSelection = "topo"
+    prefs.autoDeleteStaleNodesDays = 30
+    prefs.frequentEmojis = ["👍", "❤️"]
+    prefs.recentEmojis = ["😂", "😮"]
+    prefs.notifyContactMessages = false
+    prefs.linkPreviewsEnabled = true
+    prefs.showIncomingRegion = true
+    prefs.showIncomingHeardCount = true
+    prefs.showIncomingSendTime = true
+    prefs.showInlineImages = false
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+
+    #expect(decoded == prefs)
+    #expect(decoded.showIncomingRegion == true)
+    #expect(decoded.showIncomingHeardCount == true)
+    #expect(decoded.showIncomingSendTime == true)
+    #expect(decoded.showInlineImages == false)
+  }
+
+  @Test
+  func `Legacy envelope without showIncomingSendTime decodes to nil and restore skips it`() throws {
+    // A backup predating the toggle has no key. decodeIfPresent must yield nil,
+    // and write-if-missing restore must leave any existing local value untouched.
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showIncomingSendTime == nil)
+
+    let suiteName = "test.showIncomingSendTime.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let key = AppStorageKey.showIncomingSendTime.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(key))
+    #expect(defaults.object(forKey: key) == nil)
+  }
+
+  @Test
+  func `Legacy envelope without showIncomingHeardCount decodes to nil and restore skips it`() throws {
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showIncomingHeardCount == nil)
+
+    let suiteName = "test.showIncomingHeardCount.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let key = AppStorageKey.showIncomingHeardCount.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(key))
+    #expect(defaults.object(forKey: key) == nil)
+  }
+
+  @Test
+  func `Legacy envelope without map preference keys decodes to nil and restore skips them`() throws {
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showDiscoveredNodesOnMap == nil)
+    #expect(decoded.mapColorSchemePreference == nil)
+    #expect(decoded.mapClusteringEnabled == nil)
+
+    let suiteName = "test.mapPrefs.legacy.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let showKey = AppStorageKey.showDiscoveredNodesOnMap.rawValue
+    let schemeKey = AppStorageKey.mapColorSchemePreference.rawValue
+    let clusteringKey = AppStorageKey.mapClusteringEnabled.rawValue
+    // Pre-seed local prefs: write-if-missing must leave them untouched.
+    defaults.set(false, forKey: showKey)
+    defaults.set("light", forKey: schemeKey)
+    defaults.set(false, forKey: clusteringKey)
+
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(showKey))
+    #expect(!setKeys.contains(schemeKey))
+    #expect(!setKeys.contains(clusteringKey))
+    #expect(defaults.bool(forKey: showKey) == false)
+    #expect(defaults.string(forKey: schemeKey) == "light")
+    #expect(defaults.bool(forKey: clusteringKey) == false)
+  }
+
+  @Test
+  func `Map preference keys round-trip non-default values through restore`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.showDiscoveredNodesOnMap = true
+    prefs.mapColorSchemePreference = "dark"
+    prefs.mapClusteringEnabled = false
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showDiscoveredNodesOnMap == true)
+    #expect(decoded.mapColorSchemePreference == "dark")
+    #expect(decoded.mapClusteringEnabled == false)
+
+    let suiteName = "test.mapPrefs.roundTrip.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let showKey = AppStorageKey.showDiscoveredNodesOnMap.rawValue
+    let schemeKey = AppStorageKey.mapColorSchemePreference.rawValue
+    let clusteringKey = AppStorageKey.mapClusteringEnabled.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(setKeys.contains(showKey))
+    #expect(setKeys.contains(schemeKey))
+    #expect(setKeys.contains(clusteringKey))
+    #expect(defaults.bool(forKey: showKey) == true)
+    #expect(defaults.string(forKey: schemeKey) == "dark")
+    #expect(defaults.bool(forKey: clusteringKey) == false)
+  }
+
+  @Test
+  func `Legacy envelope without mapFilter keys decodes to nil and restore skips them`() throws {
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.mapFilterMainMap == nil)
+    #expect(decoded.mapFilterTracePath == nil)
+    #expect(decoded.mapFilterNeighborSNR == nil)
+
+    let suiteName = "test.mapFilter.legacy.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let mainKey = AppStorageKey.mapFilterMainMap.rawValue
+    defaults.set("{\"favoritesOnly\":false}", forKey: mainKey)
+
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(mainKey))
+    #expect(defaults.string(forKey: mainKey) == "{\"favoritesOnly\":false}")
+  }
+
+  @Test
+  func `mapFilterMainMap non-default JSON string round-trips through restore`() throws {
+    // Fixture mirrors MapFilterState.storageString without depending on MC1 types.
+    let filterJSON =
+      #"{"favoritesOnly":true,"showDiscovered":false,"showChat":true,"showRepeater":false,"showRoom":true}"#
+    let traceJSON =
+      #"{"favoritesOnly":false,"showDiscovered":true,"showChat":true,"showRepeater":true,"showRoom":true}"#
+    let neighborJSON =
+      #"{"favoritesOnly":true,"showDiscovered":false,"showChat":true,"showRepeater":true,"showRoom":true}"#
+    var prefs = BackupUserDefaults()
+    prefs.mapFilterMainMap = filterJSON
+    prefs.mapFilterTracePath = traceJSON
+    prefs.mapFilterNeighborSNR = neighborJSON
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.mapFilterMainMap == filterJSON)
+    #expect(decoded.mapFilterTracePath == traceJSON)
+    #expect(decoded.mapFilterNeighborSNR == neighborJSON)
+
+    let suiteName = "test.mapFilter.roundTrip.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let mainKey = AppStorageKey.mapFilterMainMap.rawValue
+    let traceKey = AppStorageKey.mapFilterTracePath.rawValue
+    let neighborKey = AppStorageKey.mapFilterNeighborSNR.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(setKeys.contains(mainKey))
+    #expect(setKeys.contains(traceKey))
+    #expect(setKeys.contains(neighborKey))
+    #expect(defaults.string(forKey: mainKey) == filterJSON)
+    #expect(defaults.string(forKey: traceKey) == traceJSON)
+    #expect(defaults.string(forKey: neighborKey) == neighborJSON)
+  }
+
+  @Test
+  func `dual legacy discovered and mapFilterMainMap both preserve on envelope wire`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.showDiscoveredNodesOnMap = true
+    prefs.mapFilterMainMap =
+      #"{"favoritesOnly":false,"showDiscovered":false,"showChat":true,"showRepeater":true,"showRoom":true}"#
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showDiscoveredNodesOnMap == true)
+    #expect(decoded.mapFilterMainMap?.contains("\"showDiscovered\":false") == true)
+  }
+
+  @Test
+  func `showInlineImages survives restore and never reconstructs the link-content toggle`() throws {
+    // showInlineImages is retained in the wire format but no longer read as a
+    // gate. It must survive encode -> decode -> restore, and restoring an
+    // envelope that carries it must never set linkPreviewsEnabled (the toggle
+    // is not reconstructed from the image toggle).
+    let imagesKey = AppStorageKey.showInlineImages.rawValue
+    let linkPreviewsEnabledKey = AppStorageKey.linkPreviewsEnabled.rawValue
+
+    var prefs = BackupUserDefaults()
+    prefs.showInlineImages = false
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showInlineImages == false)
+    #expect(decoded.linkPreviewsEnabled == nil)
+
+    let suiteName = "test.showInlineImages.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let setKeys = decoded.restore(to: defaults)
+    #expect(setKeys.contains(imagesKey))
+    #expect(defaults.bool(forKey: imagesKey) == false)
+    #expect(!setKeys.contains(linkPreviewsEnabledKey))
+    #expect(defaults.object(forKey: linkPreviewsEnabledKey) == nil)
+  }
+
+  @Test
+  func `Legacy envelope without showInlineImages decodes to nil and restore skips it`() throws {
+    // A backup predating the collapse omits the key. decodeIfPresent must yield
+    // nil, restore must not write it, and the link-content toggle must stay
+    // untouched.
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showInlineImages == nil)
+
+    let suiteName = "test.legacyShowInlineImages.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let imagesKey = AppStorageKey.showInlineImages.rawValue
+    let linkPreviewsEnabledKey = AppStorageKey.linkPreviewsEnabled.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(imagesKey))
+    #expect(defaults.object(forKey: imagesKey) == nil)
+    #expect(!setKeys.contains(linkPreviewsEnabledKey))
+    #expect(defaults.object(forKey: linkPreviewsEnabledKey) == nil)
+  }
+
+  // MARK: - AppBackupError descriptions
+
+  @Test
+  func `AppBackupError provides user-facing descriptions`() {
+    let errors: [AppBackupError] = [
+      .invalidFile,
+      .fileTooLarge(actualBytes: 100_000_000, maxBytes: 50_000_000),
+      .unsupportedVersion(found: 5, maxSupported: 1),
+      .corruptedManifest,
+      .exportFailed(underlying: NSError(domain: "test", code: 1)),
+      .importFailed(underlying: NSError(domain: "test", code: 2)),
+    ]
+
+    for error in errors {
+      #expect(error.errorDescription != nil)
+    }
+
+    // Verify importFailed does not claim "no data was changed"
+    let importError = AppBackupError.importFailed(underlying: NSError(domain: "", code: 0))
+    let description = importError.errorDescription ?? ""
+    #expect(!description.lowercased().contains("no data was changed"))
+  }
+
+  // MARK: - Helpers
+
+  private func makeTestEnvelope(radioID: UUID) -> AppBackupEnvelope {
+    let device = DeviceDTO.testDevice()
+    let contact = ContactDTO.testContact(radioID: radioID)
+    let channel = ChannelDTO.testChannel(radioID: radioID)
+    let message = MessageDTO.testDirectMessage(radioID: radioID, contactID: UUID())
+    let messageRepeat = MessageRepeatDTO.testRepeat(messageID: UUID())
+    let reaction = ReactionDTO.testReaction(messageID: UUID(), radioID: radioID)
+    let roomMessage = RoomMessageDTO.testRoomMessage(sessionID: UUID())
+    let session = RemoteNodeSessionDTO.testSession(radioID: radioID)
+    let tracePath = SavedTracePathDTO.testPath(radioID: radioID, runs: [TracePathRunDTO.testRun()])
+    let blocked = BlockedChannelSenderDTO.testBlockedSender(radioID: radioID)
+    let snapshot = NodeStatusSnapshotDTO.testSnapshot(
+      nodePublicKey: Data(repeating: 0xAA, count: 32),
+      neighborSnapshots: []
+    )
+    let discovered = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: Data(repeating: 0x55, count: 32),
+      name: "Discovered-Test",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 9,
+      latitude: 1.0,
+      longitude: 2.0,
+      outPathLength: 0xFF,
+      outPath: Data(),
+      inboundHopCount: 1,
+      inboundHopAdvertTimestamp: 9
+    )
+
+    var prefs = BackupUserDefaults()
+    prefs.hasCompletedOnboarding = true
+    prefs.mapStyleSelection = "standard"
+
+    let manifest = BackupManifest(
+      deviceCount: 1,
+      contactCount: 1,
+      channelCount: 1,
+      messageCount: 1,
+      messageRepeatCount: 1,
+      reactionCount: 1,
+      roomMessageCount: 1,
+      remoteNodeSessionCount: 1,
+      savedTracePathCount: 1,
+      blockedChannelSenderCount: 1,
+      nodeStatusSnapshotCount: 1,
+      discoveredNodeCount: 1
+    )
+
+    return AppBackupEnvelope(
+      appVersion: "1.0.0",
+      appBuild: "42",
+      manifest: manifest,
+      devices: [device],
+      contacts: [contact],
+      channels: [channel],
+      messages: [message],
+      messageRepeats: [messageRepeat],
+      reactions: [reaction],
+      roomMessages: [roomMessage],
+      remoteNodeSessions: [session],
+      savedTracePaths: [tracePath],
+      blockedChannelSenders: [blocked],
+      nodeStatusSnapshots: [snapshot],
+      discoveredNodes: [discovered],
+      userDefaults: prefs
+    )
+  }
+}

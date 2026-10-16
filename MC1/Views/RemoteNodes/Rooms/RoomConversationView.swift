@@ -1,0 +1,538 @@
+import MC1Services
+import SwiftUI
+import Translation
+import UIKit
+
+/// Full room chat interface
+struct RoomConversationView: View {
+  @Environment(\.appState) private var appState
+  @Environment(\.dismiss) private var dismiss
+  @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.appTheme) private var theme
+  @Environment(\.locale) private var locale
+
+  @State private var session: RemoteNodeSessionDTO
+  @State private var viewModel = RoomConversationViewModel()
+  @State private var chatViewModel = ChatViewModel()
+  @State private var showingRoomInfo = false
+  @State private var roomToAuthenticate: RemoteNodeSessionDTO?
+  @State private var selectedRoomMessage: RoomMessageDTO?
+  @State private var sendDMContext: SendDMContext?
+  @State private var inputFocusRequest = 0
+  @State private var isAtBottom = true
+  @State private var unreadCount = 0
+  @State private var scrollToBottomRequest = 0
+  @State private var translationConfiguration: TranslationSession.Configuration?
+  @State private var systemTranslationText = ""
+  @State private var showSystemTranslation = false
+
+  @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
+  @AppStorage(AppStorageKey.translationTargetLanguage.rawValue)
+  private var translationTargetLanguage = AppStorageKey.defaultTranslationTargetLanguage
+  @AppStorage(AppStorageKey.useDefaultTranslationApp.rawValue)
+  private var useDefaultTranslationApp = AppStorageKey.defaultUseDefaultTranslationApp
+  @AppStorage(AppStorageKey.translationOffersEnabled.rawValue)
+  private var translationOffersEnabled = AppStorageKey.defaultTranslationOffersEnabled
+
+  init(session: RemoteNodeSessionDTO) {
+    _session = State(initialValue: session)
+  }
+
+  var body: some View {
+    makeMessagesView()
+      .mentionTapHandling(
+        contacts: chatViewModel.allContacts,
+        radioID: session.radioID,
+        shouldSuppressOpen: { selectedRoomMessage != nil }
+      )
+      .safeAreaInset(edge: .bottom, spacing: 0) {
+        ChatBottomChrome(canvas: theme.surfaces?.canvas ?? Color(.systemBackground)) {
+          if !session.isConnected {
+            makeDisconnectedBanner()
+          } else if session.canPost {
+            makeInputBar()
+          } else {
+            makeReadOnlyBanner()
+          }
+        }
+      }
+      .chatIgnoresLaggingTabBarInset()
+      // Owned lift: residual system keyboard safe area can park the compose bar
+      // mid-screen after an interrupted hide (app switch, notification activation).
+      .chatKeyboardOwnedLift()
+      .animation(.default, value: session.isConnected)
+      .navigationHeader(
+        title: session.name,
+        subtitle: connectionStatus,
+        contentScrollsUnderBar: true,
+        titleIcon: AnyView(NodeAvatar(publicKey: session.publicKey, role: .roomServer, size: 30)),
+        onTitleTap: { showingRoomInfo = true }
+      )
+      .toolbar {
+        if #unavailable(iOS 26) {
+          ToolbarItem(placement: .primaryAction) {
+            Button(L10n.RemoteNodes.RemoteNodes.Room.infoTitle, systemImage: "info.circle") {
+              showingRoomInfo = true
+            }
+          }
+        }
+      }
+      .sheet(isPresented: $showingRoomInfo) {
+        RoomInfoSheet(session: session)
+          .environment(\.chatViewModel, chatViewModel)
+      }
+      .sheet(item: $roomToAuthenticate) { sessionToAuth in
+        RoomAuthenticationSheet(session: sessionToAuth) { authenticatedSession in
+          roomToAuthenticate = nil
+          session = authenticatedSession
+        }
+        .presentationSizing(.page)
+      }
+      .sheet(item: $selectedRoomMessage) { message in
+        RoomMessageActionsSheet(
+          message: message,
+          availability: RoomMessageActionAvailability(
+            message: message,
+            session: session
+          ),
+          onAction: { dispatch($0, for: message) }
+        )
+      }
+      .sheet(item: $sendDMContext) { context in
+        SendDMSheet(
+          senderName: context.senderName,
+          radioID: context.radioID,
+          unverifiedNickname: context.unverifiedNickname
+        ) { contact in
+          appState.navigation.navigateToChat(with: contact)
+        }
+      }
+      .task {
+        viewModel.configure(
+          roomServerService: { appState.services?.roomServerService },
+          dataStore: { appState.services?.dataStore },
+          syncCoordinator: { appState.syncCoordinator },
+          notificationService: { appState.services?.notificationService }
+        )
+        chatViewModel.configure(
+          dependencies: ChatViewModel.Dependencies(
+            dataStore: { appState.offlineDataStore },
+            messageService: { appState.services?.messageService },
+            notificationService: { appState.services?.notificationService },
+            channelService: { appState.services?.channelService },
+            roomServerService: { appState.services?.roomServerService },
+            contactService: { appState.services?.contactService },
+            syncCoordinator: { appState.syncCoordinator },
+            connectionState: { appState.connectionState },
+            connectedDevice: { appState.connectedDevice },
+            currentRadioID: { appState.currentRadioID },
+            session: { appState.services?.session },
+            reactionService: { appState.services?.reactionService },
+            chatSendQueueService: { appState.services?.chatSendQueueService },
+            inlineImageDimensionsStore: { nil },
+            prefetchDataStore: { nil }
+          ),
+          onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
+          linkPreviewCache: nil,
+          chatCoordinatorRegistry: nil,
+          conversation: nil
+        )
+        await chatViewModel.loadAllContacts(radioID: session.radioID)
+        viewModel.applyPreferredLanguageCode(resolvedPreferredLanguage(from: locale))
+        viewModel.applyTranslationOffersEnabled(translationOffersEnabled)
+        await viewModel.loadMessages(for: session)
+      }
+      .conversationTranslationSession(
+        configuration: $translationConfiguration,
+        request: $viewModel.translationSessionRequest,
+        perform: { translator, request in
+          let result = await viewModel.performPendingTranslation(using: translator, for: request)
+          if case let .presentSystemOverlay(text: text) = result {
+            systemTranslationText = text
+            showSystemTranslation = true
+          }
+          return result
+        }
+      )
+      // Overlay after `.conversationTranslationSession`: `.translationPresentation`
+      // must not sit in that modifier's `.translationTask` content tree.
+      .background {
+        Color.clear
+          .accessibilityHidden(true)
+          .translationPresentation(
+            isPresented: $showSystemTranslation,
+            text: systemTranslationText
+          )
+      }
+      .onChange(of: locale) { _, newLocale in
+        viewModel.applyPreferredLanguageCode(resolvedPreferredLanguage(from: newLocale))
+      }
+      .onChange(of: translationTargetLanguage) { _, _ in
+        viewModel.applyPreferredLanguageCode(resolvedPreferredLanguage(from: locale))
+      }
+      .onChange(of: translationOffersEnabled) { _, enabled in
+        viewModel.applyTranslationOffersEnabled(enabled)
+      }
+      .errorAlert($viewModel.errorMessage)
+      .onChange(of: appState.contactsVersion) { _, _ in
+        // Keep the mention-resolution snapshot fresh: a contact added after the
+        // room opened must be tappable without reopening the screen.
+        Task { await chatViewModel.loadAllContacts(radioID: session.radioID) }
+      }
+      .task(id: appState.servicesVersion) {
+        // Track the active room so foreground banners for it are suppressed.
+        // Keyed on servicesVersion so a reconnect, which mints a fresh
+        // NotificationService, re-asserts this on the new instance.
+        appState.services?.notificationService.setActiveConversation(roomSessionID: session.id)
+      }
+      .task {
+        for await event in appState.messageEventStream.events() {
+          await viewModel.handleEvent(event)
+        }
+      }
+      .onChange(of: appState.sessionStateChangeCount) { _, _ in
+        Task {
+          await viewModel.refreshSession()
+          if let updated = viewModel.session {
+            session = updated
+          }
+        }
+      }
+      .task(id: session.isConnected) {
+        guard session.isConnected else { return }
+        await appState.services?.remoteNodeService.startSessionKeepAlive(
+          sessionID: session.id, publicKey: session.publicKey
+        )
+      }
+      .onChange(of: session.isConnected) { _, isConnected in
+        if isConnected {
+          AccessibilityNotification.Announcement(
+            L10n.RemoteNodes.RemoteNodes.Room.reconnected
+          ).post()
+        }
+      }
+      .onChange(of: scenePhase) { _, newPhase in
+        if newPhase == .active {
+          // Re-clear the tray: notifications usually arrive while
+          // backgrounded with this room already on screen.
+          Task {
+            await appState.services?.notificationService
+              .removeDeliveredNotifications(forRoomSessionID: session.id)
+            await appState.services?.notificationService.updateBadgeCount()
+          }
+          if session.isConnected {
+            Task {
+              await appState.services?.remoteNodeService.startSessionKeepAlive(
+                sessionID: session.id, publicKey: session.publicKey
+              )
+            }
+          }
+        }
+      }
+      .onDisappear {
+        viewModel.cancelPendingTranslation()
+        // Only clear if this room still owns the active slot; a newer room's
+        // .task may have already claimed it before this view tears down.
+        if appState.services?.notificationService.activeRoomSessionID == session.id {
+          appState.services?.notificationService.activeRoomSessionID = nil
+        }
+        Task {
+          await appState.services?.remoteNodeService.stopSessionKeepAlive(
+            sessionID: session.id
+          )
+        }
+      }
+  }
+
+  private var connectionStatus: String {
+    if session.isConnected {
+      return session.permissionLevel.localizedName
+    }
+    return L10n.RemoteNodes.RemoteNodes.Room.disconnected
+  }
+
+  private func resolvedPreferredLanguage(from locale: Locale) -> String {
+    TranslationTargetPreference(rawValue: translationTargetLanguage)
+      .resolvedLanguageCode(appLocale: locale)
+  }
+
+  // MARK: - Subviews
+
+  private func makeMessagesView() -> some View {
+    MessagesView(
+      viewModel: viewModel,
+      hasLoadedOnce: viewModel.hasLoadedOnce,
+      tiledRows: viewModel.tiledRows,
+      isAtBottom: $isAtBottom,
+      unreadCount: $unreadCount,
+      scrollToBottomRequest: scrollToBottomRequest,
+      session: session,
+      theme: theme,
+      onRetry: { id in
+        Task { await viewModel.retryMessage(id: id) }
+      },
+      onLongPress: { selectedRoomMessage = $0 },
+      onTranslationAction: { handleInBubbleTranslation(for: $0) }
+    )
+  }
+
+  private func makeInputBar() -> some View {
+    ChatInputBar(
+      text: $viewModel.composingText,
+      focusRequest: inputFocusRequest,
+      placeholder: L10n.RemoteNodes.RemoteNodes.Room.publicMessage,
+      maxBytes: ProtocolLimits.maxDirectMessageLength,
+      isEncrypted: false
+    ) { text in
+      scrollToBottomRequest += 1
+      Task { await viewModel.sendMessage(text: text) }
+    }
+  }
+
+  private func makeReadOnlyBanner() -> some View {
+    RoomStatusBanner(
+      icon: "eye",
+      title: L10n.RemoteNodes.RemoteNodes.Room.viewOnlyBanner,
+      hint: L10n.RemoteNodes.RemoteNodes.Room.viewOnlyHint,
+      style: AnyShapeStyle(.secondary),
+      isBold: false,
+      action: { roomToAuthenticate = session }
+    )
+  }
+
+  private func makeDisconnectedBanner() -> some View {
+    RoomStatusBanner(
+      icon: "exclamationmark.triangle.fill",
+      title: L10n.RemoteNodes.RemoteNodes.Room.disconnectedBanner,
+      hint: L10n.RemoteNodes.RemoteNodes.Room.disconnectedHint,
+      style: AnyShapeStyle(.orange),
+      isBold: true,
+      action: { roomToAuthenticate = session }
+    )
+  }
+}
+
+// MARK: - Message Actions
+
+extension RoomConversationView {
+  private func dispatch(_ action: RoomMessageAction, for message: RoomMessageDTO) {
+    switch action {
+    case .copy:
+      UIPasteboard.general.string = viewModel.displayedText(for: message)
+    case .translate:
+      presentSystemTranslation(text: message.text)
+    case .reply:
+      handleReply(for: message)
+    case .sendDM:
+      handleSendDM(for: message)
+    case .sendAgain:
+      Task { await viewModel.sendMessage(text: message.text) }
+    }
+  }
+
+  private func presentSystemTranslation(text: String) {
+    systemTranslationText = text
+    Task {
+      try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
+      showSystemTranslation = true
+    }
+  }
+
+  private func handleInBubbleTranslation(for messageID: UUID) {
+    if case .showing? = viewModel.translationPhases[messageID] {
+      viewModel.performTranslationAction(for: messageID)
+      return
+    }
+    if TranslationTargetPreference.usesSystemOverlay(
+      languageRawValue: translationTargetLanguage,
+      useDefaultTranslationApp: useDefaultTranslationApp
+    ) {
+      guard let text = viewModel.messages.first(where: { $0.id == messageID })?.text else { return }
+      systemTranslationText = text
+      showSystemTranslation = true
+      return
+    }
+    viewModel.performTranslationAction(for: messageID)
+  }
+
+  private func handleReply(for message: RoomMessageDTO) {
+    if replyWithQuote {
+      viewModel.composingText = MentionUtilities.buildReplyText(
+        mentionName: message.authorDisplayName, messageText: message.text
+      )
+    } else {
+      viewModel.composingText = MentionUtilities.appendMention(
+        for: message.authorDisplayName,
+        to: viewModel.composingText
+      )
+    }
+    // Raise the keyboard only after the actions sheet has finished dismissing;
+    // a focus request issued while it is still animating away is lost.
+    Task {
+      try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
+      inputFocusRequest += 1
+    }
+  }
+
+  private func handleSendDM(for message: RoomMessageDTO) {
+    Task {
+      try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
+      sendDMContext = SendDMContext(
+        senderName: message.authorDisplayName,
+        radioID: session.radioID,
+        unverifiedNickname: nil
+      )
+    }
+  }
+}
+
+// MARK: - Messages View
+
+private struct MessagesView: View {
+  var viewModel: RoomConversationViewModel
+  let hasLoadedOnce: Bool
+  let tiledRows: [RoomTiledRow]
+  @Binding var isAtBottom: Bool
+  @Binding var unreadCount: Int
+  let scrollToBottomRequest: Int
+  let session: RemoteNodeSessionDTO
+  let theme: Theme
+  let onRetry: (UUID) -> Void
+  let onLongPress: (RoomMessageDTO) -> Void
+  let onTranslationAction: (UUID) -> Void
+
+  @Environment(\.openURL) private var openURL
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var incomingAvatarFlight = IncomingAvatarFlight()
+
+  var body: some View {
+    Group {
+      if !hasLoadedOnce {
+        ProgressView()
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+      } else if tiledRows.isEmpty {
+        EmptyMessagesView(session: session)
+      } else {
+        ChatTiledView(
+          items: tiledRows,
+          cellContent: { row in
+            messageBubble(for: row)
+              .environment(\.appTheme, theme)
+              .environment(\.openURL, openURL)
+              .environment(\.incomingAvatarFlight, incomingAvatarFlight)
+          },
+          contentBackground: theme.surfaces?.canvas,
+          isAtBottom: $isAtBottom,
+          unreadCount: $unreadCount,
+          scrollToBottomRequest: scrollToBottomRequest,
+          countsTowardUnread: { !$0.message.isFromSelf }
+        )
+        .overlay {
+          incomingAvatarFlight.overlay()
+        }
+        .onAppear {
+          viewModel.incomingAvatarFlight = incomingAvatarFlight
+          incomingAvatarFlight.isAtBottom = isAtBottom
+          incomingAvatarFlight.reduceMotion = reduceMotion
+        }
+        .onChange(of: isAtBottom, initial: true) { _, atBottom in
+          incomingAvatarFlight.isAtBottom = atBottom
+        }
+        .onChange(of: reduceMotion, initial: true) { _, reduce in
+          incomingAvatarFlight.reduceMotion = reduce
+        }
+      }
+    }
+    .themedCanvas(theme)
+  }
+
+  private func messageBubble(for row: RoomTiledRow) -> some View {
+    RoomMessageBubble(
+      message: row.message,
+      showTimestamp: row.showTimestamp,
+      showSenderName: row.showSenderName,
+      showAvatar: row.showAvatar,
+      translation: row.translation,
+      onRetry: row.message.status == .failed ? {
+        onRetry(row.message.id)
+      } : nil,
+      onLongPress: onLongPress,
+      onTranslationAction: { onTranslationAction(row.message.id) }
+    )
+  }
+}
+
+// MARK: - Empty Messages View
+
+private struct EmptyMessagesView: View {
+  let session: RemoteNodeSessionDTO
+
+  var body: some View {
+    VStack(spacing: 16) {
+      NodeAvatar(publicKey: session.publicKey, role: .roomServer, size: 80)
+
+      Text(session.name)
+        .font(.title2)
+        .bold()
+
+      Text(L10n.RemoteNodes.RemoteNodes.Room.noMessagesYet)
+        .foregroundStyle(.secondary)
+
+      if session.canPost {
+        Text(L10n.RemoteNodes.RemoteNodes.Room.beFirstToPost)
+          .font(.caption)
+          .foregroundStyle(.tertiary)
+      }
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .padding()
+  }
+}
+
+// MARK: - Room Status Banner
+
+private struct RoomStatusBanner: View {
+  let icon: String
+  let title: String
+  let hint: String
+  let style: AnyShapeStyle
+  let isBold: Bool
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      VStack(spacing: 2) {
+        HStack {
+          Image(systemName: icon)
+          Text(title)
+        }
+        .bold(isBold)
+        Text(hint)
+          .font(.caption)
+      }
+      .font(.subheadline)
+      .foregroundStyle(style)
+      .frame(maxWidth: .infinity)
+      .padding()
+      .background(.bar)
+    }
+    .accessibilityLabel(title)
+    .accessibilityHint(hint)
+  }
+}
+
+#Preview {
+  NavigationStack {
+    RoomConversationView(
+      session: RemoteNodeSessionDTO(
+        radioID: UUID(),
+        publicKey: Data(repeating: 0x42, count: 32),
+        name: "Test Room",
+        role: .roomServer,
+        isConnected: true,
+        permissionLevel: .readWrite
+      )
+    )
+  }
+  .environment(\.appState, AppState())
+}

@@ -1,0 +1,1283 @@
+/*
+  Chats.strings
+  MC1
+
+  Dutch translation of strings for the Chats feature.
+  AI-translated - please verify with native speakers.
+*/
+
+// MARK: - Navigation & Titles
+
+/* Location: ChatsView.swift - Navigation title for main chat list */
+"chats.title" = "Chats";
+
+/* Location: ChatsView.swift - Search placeholder */
+"chats.search.placeholder" = "Zoek gesprekken";
+
+/* Location: ChatsView.swift - Filter option for all conversations */
+"chats.filter.all" = "Alle";
+
+/* Location: ChatsView.swift - Filter menu title */
+"chats.filter.title" = "Filter";
+
+/* Location: ChatsView.swift - Button to clear active filter */
+"chats.filter.clear" = "Filter wissen";
+
+/* Location: ChatsView.swift - Filter option for unread conversations */
+"chats.filter.unread" = "Ongelezen";
+
+/* Location: ChatsView.swift - Filter option for direct messages */
+"chats.filter.directMessages" = "DBs";
+
+/* Location: ChatsView.swift - Filter option for channels */
+"chats.filter.channels" = "Kanalen";
+
+/* Location: ChatsView.swift - Filter option for rooms */
+"chats.filter.rooms" = "Kamers";
+
+// MARK: - Compose Menu
+
+/* Location: ChatsView.swift - Button to start a new direct chat */
+"chats.compose.newChat" = "Nieuwe chat";
+
+/* Location: ChatsView.swift - Button to create or join a channel */
+"chats.compose.newChannel" = "Nieuw kanaal";
+
+/* Location: ChatsView.swift - Menu label for new message options */
+"chats.compose.newMessage" = "Nieuw bericht";
+
+// MARK: - Empty States
+
+/* Location: ChatsView.swift - Title when no conversations exist */
+"chats.emptyState.noConversations.title" = "Geen gesprekken";
+
+/* Location: ChatsView.swift - Description when no conversations exist */
+"chats.emptyState.noConversations.description" = "Start een gesprek vanuit Contacten";
+
+/* Location: ChatsView.swift - Title when no unread messages */
+"chats.emptyState.noUnread.title" = "Geen ongelezen berichten";
+
+/* Location: ChatsView.swift - Description when no unread messages */
+"chats.emptyState.noUnread.description" = "Je bent helemaal bij";
+
+/* Location: ChatsView.swift - Title when no direct messages */
+"chats.emptyState.noDirectMessages.title" = "Geen directe berichten";
+
+/* Location: ChatsView.swift - Description when no direct messages */
+"chats.emptyState.noDirectMessages.description" = "Start een chat vanuit Contacten";
+
+/* Location: ChatsView.swift - Title when no channels */
+"chats.emptyState.noChannels.title" = "Geen kanalen";
+
+/* Location: ChatsView.swift - Description when no channels */
+"chats.emptyState.noChannels.description" = "Neem deel aan een kanaal of maak er een";
+
+/* Location: ChatsView.swift - Title when no rooms exist */
+"chats.emptyState.noRooms.title" = "Geen kamers";
+
+/* Location: ChatsView.swift - Description when no rooms exist */
+"chats.emptyState.noRooms.description" = "Neem deel aan een kamer vanuit Contacten";
+
+/* Location: ChatsView.swift - Split view placeholder when no conversation selected */
+"chats.emptyState.selectConversation" = "Selecteer een gesprek";
+
+// MARK: - Refresh & Offline Alerts
+
+/* Location: ChatsView.swift - VoiceOver announcement when viewing cached data offline */
+"chats.accessibility.offlineAnnouncement" = "Je bekijkt opgeslagen gegevens. Verbind met apparaat voor updates.";
+
+// MARK: - Room Deletion
+
+/* Location: ChatsView.swift - Alert title for leaving a room */
+"chats.alert.leaveRoom.title" = "Kamer verlaten";
+
+/* Location: ChatsView.swift - Button to confirm leaving a room */
+"chats.alert.leaveRoom.confirm" = "Verlaten";
+
+/* Location: ChatsView.swift - Alert message explaining what leaving a room does */
+"chats.alert.leaveRoom.message" = "Dit verwijdert de kamer uit je chatlijst, wist alle kamerberichten en verwijdert het bijbehorende contact.";
+
+// MARK: - Message Timestamps
+
+/* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
+/* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
+/* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
+"chats.timestamp.now" = "Nu";
+
+// MARK: - Scroll Buttons
+
+/* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
+"chats.scrollButton.scrollToBottom.accessibilityLabel" = "Scroll naar nieuwste bericht";
+
+/* Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages */
+"chats.scrollButton.scrollToBottom.accessibilityValue" = "%d ongelezen berichten";
+/* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
+"chats.scrollButton.badge.overflow" = "99+";
+
+// MARK: - Chat View (Direct Messages)
+
+/* Location: ChatConversationView.swift - Alert title when message send fails */
+"chats.alert.unableToSend.title" = "Kan niet verzenden";
+
+/* Location: ChatConversationView.swift - Alert message when message send fails */
+"chats.alert.unableToSend.message" = "Controleer of je apparaat verbonden is en probeer het opnieuw.";
+
+/* Location: ChatConversationView.swift - Connection status for flood routed contacts */
+"chats.connectionStatus.floodRouting" = "Flood-routing";
+
+/* Location: ChatConversationView.swift - Connection status format for direct path - %d is hop count */
+"chats.connectionStatus.direct" = "Direct • %d sprongen";
+
+/* Location: ChatConversationView.swift - Placeholder when message data is unavailable */
+"chats.message.unavailable" = "Bericht niet beschikbaar";
+
+/* Location: ChatConversationView.swift - Accessibility label for unavailable message */
+"chats.message.unavailableAccessibility" = "Bericht kon niet worden geladen";
+
+/* Location: ChatConversationView.swift - Empty state text prompting user to start chatting */
+"chats.emptyState.startConversation" = "Start een gesprek";
+
+/* Location: ChatConversationView.swift - Label showing contact has location */
+"chats.contactInfo.hasLocation" = "Heeft locatie";
+
+/* Location: ChatConversationView.swift - Input bar placeholder for direct messages */
+"chats.input.placeholder.directMessage" = "Direct bericht";
+
+// MARK: - Channel Chat View
+
+/* Location: ChatConversationView.swift - Fallback channel name format - %d is channel index */
+"chats.channel.defaultName" = "Kanaal %d";
+
+/* Location: ChatConversationView.swift - Header subtitle for public channels */
+"chats.channel.typePublic" = "Openbaar kanaal";
+
+/* Location: ChatConversationView.swift - Header subtitle for private channels */
+"chats.channel.typePrivate" = "Privékanaal";
+
+/* Location: ChatConversationType.swift - Channel header subtitle when a flood region is active - %@ is the region name */
+"chats.channel.headerRegion" = "Regio: %@";
+
+/* Location: ChatConversationView.swift - Empty state message */
+"chats.channel.emptyState.noMessages" = "Nog geen berichten";
+
+/* Location: ChatConversationView.swift - Empty state description for public channel */
+"chats.channel.emptyState.publicDescription" = "Dit is een openbaar uitzendkanaal";
+
+/* Location: ChatConversationView.swift - Empty state description for private channel */
+"chats.channel.emptyState.privateDescription" = "Dit is een privékanaal";
+
+// MARK: - Channel Info Sheet
+
+/* Location: ChannelInfoSheet.swift - Navigation title */
+/* Location: ChannelInfoSheet.swift - Confirmation dialog title */
+"chats.channelInfo.deleteConfirm.title" = "Kanaal verwijderen";
+
+/* Location: ChannelInfoSheet.swift - Confirmation dialog message */
+"chats.channelInfo.deleteConfirm.message" = "Dit verwijdert het kanaal van je apparaat en wist alle lokale berichten. Deze actie kan niet ongedaan worden gemaakt.";
+
+/* Location: ChannelInfoSheet.swift - Channel type label for public channel */
+"chats.channelInfo.channelType.public" = "Openbaar kanaal";
+
+/* Location: ChannelInfoSheet.swift - Channel type label for hashtag channel */
+"chats.channelInfo.channelType.hashtag" = "Hashtag-kanaal";
+
+/* Location: ChannelInfoSheet.swift - Channel type label for private channel */
+"chats.channelInfo.channelType.private" = "Privékanaal";
+
+/* Location: ChannelInfoSheet.swift - Label for channel slot */
+/* Location: ChannelInfoSheet.swift - Label for last message date */
+/* Location: ChannelInfoSheet.swift - QR code instruction text */
+"chats.channelInfo.scanToJoin" = "Scan om deel te nemen aan dit kanaal";
+
+/* Location: ChannelInfoSheet.swift - Section header for QR sharing */
+"chats.channelInfo.shareChannel" = "Kanaal delen";
+
+/* Location: ChannelInfoSheet.swift - Label for secret key */
+"chats.channelInfo.secretKey" = "Geheime sleutel";
+
+/* Location: ChannelInfoSheet.swift - Button to copy secret key */
+"chats.channelInfo.copy" = "Kopiëren";
+
+/* Location: ChannelInfoSheet.swift - Section header for manual sharing */
+"chats.channelInfo.manualSharing" = "Handmatig delen";
+
+/* Location: ChannelInfoSheet.swift - Footer explaining manual sharing */
+"chats.channelInfo.manualSharingFooter" = "Deel de kanaalnaam en deze geheime sleutel zodat anderen handmatig kunnen deelnemen.";
+
+/* Location: ChannelInfoSheet.swift - Clear messages button */
+"chats.channelInfo.clearMessagesButton" = "Berichten wissen";
+
+/* Location: ChannelInfoSheet.swift - Clear messages confirmation dialog title */
+"chats.channelInfo.clearMessagesConfirm.title" = "Berichten wissen?";
+
+/* Location: ChannelInfoSheet.swift - Clear messages confirmation dialog message */
+"chats.channelInfo.clearMessagesConfirm.message" = "Alle berichten in dit kanaal worden permanent verwijderd. Het kanaal blijft actief.";
+
+/* Location: ChannelInfoSheet.swift - Delete channel button */
+"chats.channelInfo.deleteButton" = "Kanaal verwijderen";
+
+/* Location: ChannelInfoSheet.swift - Footer explaining delete action */
+"chats.channelInfo.deleteFooter" = "Verwijderen haalt dit kanaal van je apparaat. Je kunt later opnieuw deelnemen als je de geheime sleutel hebt.";
+
+/* Location: ChatsView.swift - Alert title when channel deletion fails */
+"chats.channelInfo.deleteFailed.title" = "Kanaal verwijderen mislukt";
+
+/* Location: ChannelInfoSheet.swift - Error when device not connected */
+"chats.error.noDeviceConnected" = "Geen apparaat verbonden";
+
+/* Location: ChannelInfoSheet.swift - Error when services unavailable */
+"chats.error.servicesUnavailable" = "Services niet beschikbaar";
+
+/* Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+"chats.error.notConnectedToDelete" = "Verbind met je radio om dit gesprek te verwijderen.";
+
+/* Location: ChatConversationView.swift - Error when loading older messages fails */
+"chats.error.loadOlderMessagesFailed" = "Laden van oudere berichten mislukt";
+
+/* Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it */
+"chats.error.banner.dismissAccessibilityHint" = "Tik om te sluiten";
+
+/* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
+"chats.error.sendQueuePersistFailed" = "Je bericht kon niet in de wachtrij worden gezet. Probeer het opnieuw.";
+
+/* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
+"chats.error.loadConversationsFailed" = "Kan gesprekken niet laden.";
+
+/* Location: ChatViewModel - Error when saving a chat pin fails */
+"chats.error.pinSaveFailed" = "Het vastzetten kon niet worden opgeslagen. Probeer het opnieuw.";
+
+// MARK: - Channel Options Sheet
+
+/* Location: ChannelOptionsSheet.swift - Loading indicator text */
+"chats.channelOptions.loading" = "Kanalen laden...";
+
+/* Location: ChannelOptionsSheet.swift - Navigation title */
+"chats.channelOptions.title" = "Nieuw kanaal";
+
+/* Location: ChannelOptionsSheet.swift - Create private channel option title */
+"chats.channelOptions.createPrivate.title" = "Maak een privékanaal";
+
+/* Location: ChannelOptionsSheet.swift - Create private channel option description */
+"chats.channelOptions.createPrivate.description" = "Genereer een geheime sleutel en QR-code om te delen";
+
+/* Location: ChannelOptionsSheet.swift - Join private channel option title */
+"chats.channelOptions.joinPrivate.title" = "Neem deel aan een privékanaal";
+
+/* Location: ChannelOptionsSheet.swift - Join private channel option description */
+"chats.channelOptions.joinPrivate.description" = "Voer kanaalnaam en geheime sleutel in";
+
+/* Location: ChannelOptionsSheet.swift - Scan QR code option title */
+"chats.channelOptions.scanQR.title" = "Scan een QR-code";
+
+/* Location: ChannelOptionsSheet.swift - Scan QR code option description */
+"chats.channelOptions.scanQR.description" = "Neem deel aan een kanaal door de QR-code te scannen";
+
+/* Location: ChannelOptionsSheet.swift - Section header for private channels */
+"chats.channelOptions.section.private" = "Privékanalen";
+
+/* Location: ChannelOptionsSheet.swift - Join public channel option title */
+"chats.channelOptions.joinPublic.title" = "Neem deel aan het openbare kanaal";
+
+/* Location: ChannelOptionsSheet.swift - Join public channel option description */
+"chats.channelOptions.joinPublic.description" = "Het standaard openbare kanaal";
+
+/* Location: ChannelOptionsSheet.swift - Join hashtag channel option title */
+"chats.channelOptions.joinHashtag.title" = "Neem deel aan een hashtag-kanaal";
+
+/* Location: ChannelOptionsSheet.swift - Join hashtag channel option description */
+"chats.channelOptions.joinHashtag.description" = "Openbaar kanaal waar iedereen op naam kan deelnemen";
+
+/* Location: ChannelOptionsSheet.swift - Section header for public channels */
+"chats.channelOptions.section.public" = "Openbare kanalen";
+
+/* Location: ChannelOptionsSheet.swift - Footer when all slots are in use */
+"chats.channelOptions.footer.noSlots" = "Alle kanaalslots zijn in gebruik. Verwijder een bestaand kanaal om een nieuw toe te voegen.";
+
+/* Location: ChannelOptionsSheet.swift - Footer when public channel already exists */
+"chats.channelOptions.footer.hasPublic" = "Het openbare kanaal is al geconfigureerd op slot 0.";
+
+// MARK: - New Chat View
+
+/* Location: NewChatView.swift - Empty state title */
+"chats.newChat.emptyState.title" = "Geen contacten";
+
+/* Location: NewChatView.swift - Empty state description */
+"chats.newChat.emptyState.description" = "Contacten verschijnen wanneer ze worden ontdekt";
+
+/* Location: NewChatView.swift - Navigation title */
+"chats.newChat.title" = "Nieuwe chat";
+
+/* Location: NewChatView.swift - Search placeholder */
+"chats.newChat.search.placeholder" = "Zoek contacten";
+
+/* Location: NewChatView.swift - Contact type label for direct contacts */
+"chats.newChat.contactType.direct" = "Direct";
+
+/* Location: NewChatView.swift - Contact type label for repeaters */
+"chats.newChat.contactType.repeater" = "Repeater";
+
+/* Location: NewChatView.swift - Contact type label for rooms */
+// MARK: - Conversation Row
+
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
+"chats.row.pin" = "Vastgezet";
+
+/* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
+"chats.row.noMessages" = "Nog geen berichten";
+
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for failed-send indicator */
+"chats.row.failedSend" = "Verzenden mislukt";
+
+/* Location: MutedIndicator.swift - Accessibility label for muted indicator */
+"chats.row.muted" = "Gedempt";
+
+// MARK: - Swipe Actions
+
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
+"chats.action.delete" = "Verwijderen";
+
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to unmute */
+"chats.action.unmute" = "Dempen opheffen";
+
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
+"chats.action.mute" = "Dempen";
+
+/* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
+"chats.action.pin" = "Vastzetten";
+
+/* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
+"chats.action.unpin" = "Losmaken";
+
+// MARK: - Room Conversation Row
+
+/* Location: RoomConversationRow.swift - Status when room is connected */
+"chats.room.connected" = "Verbonden";
+
+/* Location: RoomConversationRow.swift - Prompt to reconnect to room */
+"chats.room.tapToReconnect" = "Tik om opnieuw te verbinden";
+
+// MARK: - Room Authentication Sheet
+
+/* Location: RoomAuthenticationSheet.swift - Error title when room not found */
+"chats.roomAuth.notFound.title" = "Kamer niet gevonden";
+
+/* Location: RoomAuthenticationSheet.swift - Error description when room not found */
+"chats.roomAuth.notFound.description" = "Kon het kamercontact niet vinden";
+
+// MARK: - Conversation List Sections
+
+/* Location: ConversationListContent.swift - Section accessibility label for favorites */
+/* Location: ConversationListContent.swift - Section accessibility label for other conversations */
+// MARK: - Mention Suggestions
+
+/* Location: MentionSuggestionRow.swift - Accessibility label for mention suggestion - %@ is user name */
+"chats.mention.accessibility.label" = "%@ vermelden";
+
+/* Location: MentionSuggestionRow.swift - Accessibility hint for channel sender */
+"chats.mention.accessibility.hintChannel" = "Kanaalafzender. Dubbeltik om te vermelden";
+
+/* Location: MentionSuggestionRow.swift - Accessibility hint for saved contact */
+"chats.mention.accessibility.hintContact" = "Opgeslagen contact. Dubbeltik om te vermelden";
+
+/* Location: MentionSuggestionView.swift - Accessibility label for mention suggestions popup */
+"chats.suggestions.accessibilityLabel" = "Vermeldingssuggesties";
+
+// MARK: - Create Private Channel View
+
+/* Location: CreatePrivateChannelView.swift - Title when sharing created channel */
+"chats.createPrivate.titleShare" = "Privékanaal delen";
+
+/* Location: CreatePrivateChannelView.swift - Title when creating channel */
+"chats.createPrivate.titleCreate" = "Privékanaal maken";
+
+/* Location: CreatePrivateChannelView.swift - Text field placeholder for channel name */
+"chats.createPrivate.channelName" = "Kanaalnaam";
+
+/* Location: CreatePrivateChannelView.swift - Section header for channel details */
+"chats.createPrivate.section.details" = "Kanaaldetails";
+
+/* Location: CreatePrivateChannelView.swift - Section header for generated secret */
+"chats.createPrivate.section.secret" = "Gegenereerd geheim";
+
+/* Location: CreatePrivateChannelView.swift - Footer explaining generated secret */
+"chats.createPrivate.secretFooter" = "Een willekeurige geheime sleutel is gegenereerd. Je kunt deze via QR-code delen nadat je het kanaal hebt aangemaakt.";
+
+/* Location: CreatePrivateChannelView.swift - Button to create channel */
+"chats.createPrivate.createButton" = "Kanaal maken";
+
+/* Location: CreatePrivateChannelView.swift - Section header for manual sharing */
+"chats.createPrivate.section.shareManually" = "Handmatig delen";
+
+/* Location: CreatePrivateChannelView.swift - Footer explaining manual sharing */
+"chats.createPrivate.shareManuallyFooter" = "Deel de kanaalnaam en deze geheime sleutel met anderen. Ze hebben beide nodig om deel te nemen.";
+
+// MARK: - Join Private Channel View
+
+/* Location: JoinPrivateChannelView.swift - Text field placeholder for secret key */
+"chats.joinPrivate.secretKeyPlaceholder" = "Geheime sleutel (32 hex-tekens)";
+
+/* Location: JoinPrivateChannelView.swift - Validation error for invalid secret */
+"chats.joinPrivate.error.invalidSecret" = "Geheime sleutel moet precies 32 hexadecimale tekens zijn (0-9, A-F)";
+
+/* Location: JoinPrivateChannelView.swift - Footer explaining how to join */
+"chats.joinPrivate.footer" = "Voer de kanaalnaam en geheime sleutel in die door de kanaalmaker zijn gedeeld.";
+
+/* Location: JoinPrivateChannelView.swift - Button to join channel */
+"chats.joinPrivate.joinButton" = "Deelnemen aan kanaal";
+
+/* Location: JoinPrivateChannelView.swift - Navigation title */
+"chats.joinPrivate.title" = "Deelnemen aan privékanaal";
+
+/* Location: JoinPrivateChannelView.swift - Error for invalid secret key format */
+"chats.joinPrivate.error.invalidFormat" = "Ongeldig formaat geheime sleutel";
+
+// MARK: - Join Public Channel View
+
+/* Location: JoinPublicChannelView.swift - Channel name displayed */
+"chats.joinPublic.channelName" = "Openbaar kanaal";
+
+/* Location: JoinPublicChannelView.swift - Description of public channel */
+"chats.joinPublic.description" = "Het openbare kanaal is een open uitzendkanaal op slot 0. Alle apparaten op het mesh-netwerk kunnen berichten verzenden en ontvangen op dit kanaal.";
+
+/* Location: JoinPublicChannelView.swift - Button to add public channel */
+"chats.joinPublic.addButton" = "Openbaar kanaal toevoegen";
+
+/* Location: JoinPublicChannelView.swift - Navigation title */
+"chats.joinPublic.title" = "Deelnemen aan openbaar kanaal";
+
+// MARK: - Join Hashtag Channel View
+
+/* Location: JoinHashtagChannelView.swift - Text field placeholder */
+"chats.joinHashtag.placeholder" = "kanaal-naam";
+
+/* Location: JoinHashtagChannelView.swift - Section header */
+"chats.joinHashtag.section.header" = "Hashtag-kanaal";
+
+/* Location: JoinHashtagChannelView.swift - Footer explaining hashtag channels */
+"chats.joinHashtag.footer" = "Hashtag-kanalen zijn openbaar. Iedereen kan deelnemen door dezelfde naam in te voeren. Alleen kleine letters, cijfers en streepjes zijn toegestaan.";
+
+/* Location: JoinHashtagChannelView.swift - Description about encryption */
+"chats.joinHashtag.encryptionDescription" = "De kanaalnaam wordt gebruikt om de encryptiesleutel te genereren. Iedereen met dezelfde naam kan berichten lezen.";
+
+/* Location: JoinHashtagChannelView.swift - Button format for existing channel - %@ is channel name */
+"chats.joinHashtag.goToButton" = "Ga naar #%@";
+
+/* Location: JoinHashtagChannelView.swift - Button format for new channel - %@ is channel name */
+"chats.joinHashtag.joinButton" = "Deelnemen aan #%@";
+
+/* Location: JoinHashtagChannelView.swift - Accessibility hint for existing channel */
+"chats.joinHashtag.existingHint" = "Opent het kanaal waaraan je al deelneemt";
+
+/* Location: JoinHashtagChannelView.swift - Accessibility hint for new channel */
+"chats.joinHashtag.newHint" = "Maakt en neemt deel aan dit hashtag-kanaal";
+
+/* Location: JoinHashtagChannelView.swift - Footer label when channel already joined */
+"chats.joinHashtag.alreadyJoined" = "Al deelgenomen";
+
+/* Location: JoinHashtagChannelView.swift - Accessibility label for already joined */
+"chats.joinHashtag.alreadyJoinedAccessibility" = "Al deelgenomen aan kanaal";
+
+/* Location: JoinHashtagChannelView.swift - Navigation title */
+"chats.joinHashtag.title" = "Deelnemen aan hashtag-kanaal";
+
+// MARK: - Join Hashtag From Message View
+
+/* Location: JoinHashtagFromMessageView.swift - Loading text */
+"chats.joinFromMessage.loading" = "Laden...";
+
+/* Location: JoinHashtagFromMessageView.swift - Navigation title */
+"chats.joinFromMessage.title" = "Deelnemen aan kanaal";
+
+/* Location: JoinHashtagFromMessageView.swift - No device connected title */
+"chats.joinFromMessage.noDevice.title" = "Geen apparaat verbonden";
+
+/* Location: JoinHashtagFromMessageView.swift - No device connected description - %@ is channel name */
+"chats.joinFromMessage.noDevice.description" = "Verbind een apparaat om deel te nemen aan %@.";
+
+/* Location: JoinHashtagFromMessageView.swift - No slots available title */
+"chats.joinFromMessage.noSlots.title" = "Geen slots beschikbaar";
+
+/* Location: JoinHashtagFromMessageView.swift - No slots available description - %@ is channel name */
+"chats.joinFromMessage.noSlots.description" = "Alle kanaalslots zijn vol. Verwijder een bestaand kanaal om deel te nemen aan %@.";
+
+/* Location: JoinHashtagFromMessageView.swift - Description of hashtag channels */
+"chats.joinFromMessage.description" = "Hashtag-kanalen zijn openbaar. Iedereen kan deelnemen door dezelfde naam in te voeren.";
+
+/* Location: JoinHashtagFromMessageView.swift - Button to join channel - %@ is channel name */
+"chats.joinFromMessage.joinButton" = "Deelnemen aan %@";
+
+/* Location: JoinHashtagFromMessageView.swift - Error for no available slots */
+"chats.joinFromMessage.error.noSlots" = "Geen beschikbare slots.";
+
+/* Location: JoinHashtagFromMessageView.swift - Error for invalid channel name */
+"chats.joinFromMessage.error.invalidName" = "Ongeldig kanaalnaamformaat.";
+
+/* Location: JoinHashtagFromMessageView.swift - Error when channel created but couldn't be loaded */
+"chats.joinFromMessage.error.loadFailed" = "Kanaal aangemaakt maar kon niet worden geladen.";
+
+/* Location: JoinChannelConfirmationSheet.swift - Region scope shown before join - %@ is region name */
+"chats.joinFromMessage.regionScope" = "Regio: %@";
+
+/* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
+"chats.joinFromMessage.hashtagSecretMismatch" = "Deze geheime sleutel komt niet overeen met de bekende sleutel die uit de hashtag-naam wordt afgeleid. Je neemt deel aan een privékanaal met deze naam.";
+
+// MARK: - Scan Channel QR View
+
+/* Location: ScanChannelQRView.swift - Navigation title */
+"chats.scanQR.title" = "Scan QR-code";
+
+/* Location: ScanChannelQRView.swift - Error when scanner not available */
+"chats.scanQR.notAvailable.title" = "Scanner niet beschikbaar";
+
+/* Location: ScanChannelQRView.swift - Error description when scanner not available */
+"chats.scanQR.notAvailable.description" = "QR-scanning wordt niet ondersteund op dit apparaat";
+
+/* Location: ScanChannelQRView.swift - Instruction to point camera */
+"chats.scanQR.instruction" = "Richt je camera op een kanaal-QR-code";
+
+/* Location: ScanChannelQRView.swift - Button to scan again */
+"chats.scanQR.scanAgain" = "Opnieuw scannen";
+
+/* Location: ScanChannelQRView.swift - Camera permission denied title */
+"chats.scanQR.permissionDenied.title" = "Cameratoegang vereist";
+
+/* Location: ScanChannelQRView.swift - Camera permission denied message */
+"chats.scanQR.permissionDenied.message" = "Schakel cameratoegang in via Instellingen om QR-codes te scannen.";
+
+/* Location: ScanChannelQRView.swift - Button to open settings */
+"chats.scanQR.openSettings" = "Open Instellingen";
+
+/* Location: ScanChannelQRView.swift - Error for invalid QR format */
+"chats.scanQR.error.invalidFormat" = "Ongeldig QR-codeformaat";
+
+/* Location: ScanChannelQRView.swift - Error for invalid channel data */
+// MARK: - Message Bubble
+
+/* Location: UnifiedMessageBubble.swift - Fallback sender name */
+"chats.message.sender.unknown" = "Onbekend";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix */
+"chats.message.sender.possibleMatch" = "Mogelijke overeenkomst, gematcht via kort voorvoegsel";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to reply */
+"chats.message.action.reply" = "Beantwoorden";
+
+/* Location: MessageActionsSheet.swift - Context menu action to mention */
+"chats.message.action.mention" = "Vermelden";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to copy */
+"chats.message.action.copy" = "Kopiëren";
+
+/* Location: BubbleTranslationControl.swift - In-bubble Translation offer */
+"chats.message.action.translate" = "Vertalen";
+
+/* Location: BubbleTranslationControl.swift - Restore the stored message body */
+"chats.message.action.showOriginal" = "Origineel tonen";
+
+/* Location: BubbleTranslationControl.swift - Translation in progress */
+"chats.message.action.translating" = "Vertalen...";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver prefix when the visible body is a translation - %@ is the translated text */
+"chats.message.translatedAccessibility" = "Vertaald: %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to view repeat details */
+"chats.message.action.repeatDetails" = "Herhalingsdetails";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to send again */
+"chats.message.action.sendAgain" = "Opnieuw verzenden";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing heard repeats - %d is count, second %@ is "repeat" or "repeats" */
+"chats.message.info.heardRepeats" = "Gehoord: %d %@";
+
+/* Location: UnifiedMessageBubble.swift - Singular form of repeat */
+"chats.message.repeat.singular" = "herhaling";
+
+/* Location: UnifiedMessageBubble.swift - Plural form of repeats */
+"chats.message.repeat.plural" = "herhalingen";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing sent time - %@ is formatted date */
+"chats.message.info.sent" = "Verzonden: %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing round trip time - %d is milliseconds */
+"chats.message.info.roundTrip" = "Retour: %dms";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to view path */
+"chats.message.action.viewPath" = "Pad bekijken";
+
+/* Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet */
+"chats.message.action.pathDetails" = "Padgegevens";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn */
+"chats.message.action.heardTimes.singular" = "1 keer gehoord";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn */
+"chats.message.action.heardTimes.plural" = "%d keer gehoord";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
+"chats.message.info.hops" = "Sprongen: %@";
+
+/* Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3 */
+"chats.message.info.pathHash" = "Pad-hash: %d byte";
+
+/* Location: UnifiedMessageBubble.swift - Indicator that timestamp was adjusted */
+"chats.message.info.adjusted" = "(aangepast)";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for adjusted timestamp */
+/* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
+/* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
+"chats.message.info.originalSendTime" = "Oorspronkelijke verzendtijd: %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date */
+"chats.message.info.received" = "Ontvangen: %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing SNR - %@ is formatted value */
+"chats.message.info.snr" = "SNR: %@";
+
+/* Location: MessageActionsSheet.swift - Context menu text showing the radio region the message was flooded under - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.info.floodedUnder" = "Regio: %@";
+
+/* Location: MessageActionsSheet.swift - Details row shown when region could not be resolved */
+"chats.message.info.regionUnresolved" = "Regio: Onbekend";
+
+/* Location: ActionsDetailsSection.swift - Details row when multiple known regions match the packet transport code - %@ is localized list of names */
+"chats.message.info.regionAmbiguous" = "Regio (dubbelzinnig): %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu submenu label */
+"chats.message.action.details" = "Details";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is expanded */
+"chats.message.action.expanded" = "Uitgevouwen";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed */
+"chats.message.action.collapsed" = "Ingevouwen";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to delete */
+"chats.message.action.delete" = "Verwijderen";
+
+/* Location: MessageActionsSheet.swift - Purpose: Block sender action */
+"chats.message.action.blockSender" = "Afzender blokkeren";
+
+/* Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender */
+"chats.message.action.sendDM" = "DM sturen";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send */
+"chats.message.action.retry" = "Opnieuw proberen";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet */
+"chats.message.action.viewReactions" = "Reacties bekijken";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
+"chats.message.action.openLink" = "Link openen";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a web link, %@ is the host */
+"chats.message.action.openWebLink" = "Link openen: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared map coordinate */
+"chats.message.action.openMapLink" = "Kaart openen";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a mention, %@ is the mentioned name */
+"chats.message.action.openMention" = "Vermelden: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a hashtag channel, %@ is the channel name */
+"chats.message.action.openHashtag" = "#%@ openen";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to add a shared contact, %@ is the contact name */
+"chats.message.action.addContact" = "Contact toevoegen: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared channel link, %@ is the channel name */
+"chats.message.action.openChannel" = "Kanaal openen: %@";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
+"chats.message.action.viewImage" = "Afbeelding bekijken";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download */
+"chats.message.action.retryImage" = "Afbeelding opnieuw laden";
+
+/* Location: UnifiedMessageBubble.swift - Status row retry button */
+"chats.message.status.retry" = "Opnieuw";
+
+/* Location: UnifiedMessageBubble.swift - Message status sending */
+"chats.message.status.sending" = "Verzenden...";
+
+/* Location: UnifiedMessageBubble.swift - Message status sent */
+"chats.message.status.sent" = "Verzonden";
+
+/* Location: UnifiedMessageBubble.swift - Message status sent multiple times - %d is count */
+"chats.message.status.sentMultiple" = "%d keer verzonden";
+
+/* Location: UnifiedMessageBubble.swift - Message status delivered */
+"chats.message.status.delivered" = "Afgeleverd";
+
+/* Location: UnifiedMessageBubble.swift - Message status failed */
+"chats.message.status.failed" = "Mislukt";
+
+/* Location: UnifiedMessageBubble.swift - Message status retrying */
+"chats.message.status.retrying" = "Opnieuw proberen...";
+
+/* Location: UnifiedMessageBubble.swift - Message status retrying with attempt count - %d is current attempt, %d is max attempts */
+"chats.message.status.retryingAttempt" = "Poging %d/%d";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality excellent */
+"chats.signal.excellent" = "Uitstekend";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality good */
+"chats.signal.good" = "Goed";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality fair */
+"chats.signal.fair" = "Redelijk";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality poor */
+"chats.signal.poor" = "Slecht";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality very poor */
+/* Location: UnifiedMessageBubble.swift - Hop count direct */
+"chats.message.hops.direct" = "Direct";
+
+// MARK: - Chat Input Bar
+
+/* Location: ChatInputBar.swift - Accessibility label for text input */
+"chats.input.accessibilityLabel" = "Berichtinvoer";
+
+/* Location: ChatInputBar.swift - Accessibility hint for text input */
+"chats.input.accessibilityHint" = "Typ hier je bericht";
+
+/* Location: ChatInputBar.swift - Accessibility label for character count - %d is current, %d is max */
+"chats.input.characterCount" = "%d van %d tekens";
+
+/* Location: ChatInputBar.swift - Accessibility label when message too long */
+"chats.input.tooLong" = "Bericht te lang";
+
+/* Location: ChatInputBar.swift - Accessibility label for send button */
+"chats.input.sendMessage" = "Bericht verzenden";
+
+/* Location: ChatInputBar.swift - Accessibility hint when over character limit - %d is characters to remove */
+"chats.input.removeCharacters" = "Verwijder %d tekens om te verzenden";
+
+/* Location: ChatInputBar.swift - Accessibility hint when not connected */
+"chats.input.requiresConnection" = "Vereist radioverbinding";
+
+/* Location: ChatInputBar.swift - Accessibility hint when ready to send */
+"chats.input.tapToSend" = "Tik om je bericht te verzenden";
+
+/* Location: ChatInputBar.swift - Accessibility hint when message is empty */
+"chats.input.typeFirst" = "Typ eerst een bericht";
+"chats.input.encrypted" = "Versleuteld";
+"chats.input.notEncrypted" = "Niet versleuteld";
+
+/* Location: ChatShareMenu.swift - Accessibility label for the share (plus) button */
+"chats.input.shareButton.accessibilityLabel" = "Delen";
+
+// MARK: - Share Menu
+
+/* Location: ChatShareMenu.swift - Share menu action to share the current location */
+"chats.share.location" = "Locatie delen";
+
+/* Location: ChatShareMenu.swift - Share menu action to share a contact */
+"chats.share.contact" = "Contact delen";
+
+/* Location: ChatShareMenu.swift - Share menu action to share the user's own node info */
+"chats.share.myInfo" = "Mijn contact delen";
+
+// MARK: - Contact Picker
+
+/* Location: ShareContactPickerSheet.swift - Navigation title for the share-contact picker */
+"chats.contactPicker.title" = "Contact delen";
+
+/* Location: ShareContactPickerSheet.swift - Search placeholder for the contact picker */
+"chats.contactPicker.search.placeholder" = "Zoek contacten";
+
+/* Location: ShareContactPickerSheet.swift - Empty state when no contacts are available to share */
+"chats.contactPicker.emptyState" = "Geen contacten om te delen";
+
+// MARK: - Message Path Sheet
+
+/* Location: MessagePathSheet.swift - Empty state title */
+"chats.path.unavailable.title" = "Pad niet beschikbaar";
+
+/* Location: MessagePathSheet.swift - Empty state description */
+"chats.path.unavailable.description" = "Padgegevens zijn niet beschikbaar voor dit bericht";
+
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Kan pad niet plaatsen";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Sprongen die onbekend zijn, geen locatie hebben of met meer dan één node overeenkomen, worden niet op de kaart geplaatst.";
+
+/* Location: MessagePathSheet.swift - Button to copy path */
+"chats.path.copyButton" = "Pad kopiëren";
+
+/* Location: MessagePathSheet.swift - Accessibility label for copy button */
+"chats.path.copyAccessibility" = "Kopieer pad naar klembord";
+
+/* Location: MessagePathSheet.swift - Accessibility hint for copy button */
+"chats.path.copyHint" = "Kopieert node-ID's als hexadecimale waarden";
+
+/* Location: MessagePathSheet.swift - Section header for path */
+/* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
+"chats.path.map" = "Padkaart";
+
+/* Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival */
+"chats.path.arrival.first" = "Eerste";
+
+/* Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s */
+"chats.path.arrival.offset" = "+%@";
+
+/* Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration */
+"chats.path.arrival.offsetAccessibility" = "%@, %@ na de eerste aankomst";
+
+/* Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map */
+"chats.path.accessibility.viewOnMap" = "Pad op kaart bekijken";
+
+/* Location: MessageActionsSheet.swift - Alert when extra path fetch fails */
+"chats.path.extrasLoadFailed" = "Kan extra paden niet laden.";
+
+/* Location: MessagePathMapView.swift - Center on path map control accessibility label */
+"chats.path.centerOnPath" = "Centreren op pad";
+
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Padafstand";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Padafstand";
+
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Afstand kan onnauwkeurig zijn. Sprongen die onbekend zijn, geen locatie hebben of met meer dan één node overeenkomen, worden niet meegenomen in de berekening.";
+
+// MARK: - Path Hop Row View
+
+/* Location: PathHopRowView.swift - Unknown node name */
+"chats.path.hop.unknown" = "<onbekend>";
+
+/* Location: PathHopRowView.swift - Label for sender (first hop) */
+"chats.path.hop.sender" = "Afzender";
+
+/* Location: PathHopRowView.swift - Label for intermediate hops - %d is hop number */
+"chats.path.hop.number" = "Sprong %d";
+
+/* Location: PathHopRowView.swift - Accessibility value format for last hop - %@ is quality, %@ is SNR */
+"chats.path.hop.signalQuality" = "Signaalkwaliteit: %@, SNR %@ dB";
+
+/* Location: PathHopRowView.swift - Accessibility value format for non-last hops - %@ is hex ID */
+"chats.path.hop.nodeId" = "Node-ID: %@";
+
+/* Location: PathHopRowView.swift - Unknown signal quality */
+"chats.path.hop.signalUnknown" = "Onbekend";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for possible match indicator */
+"chats.path.hop.possibleMatch" = "Mogelijke overeenkomst, gematcht via kort voorvoegsel";
+
+/* Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover */
+"chats.path.hop.possibleMatchTitle" = "Mogelijke Overeenkomst";
+
+/* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
+"chats.path.hop.possibleMatchExplanation" = "Meerdere nodes delen dit voorvoegsel. De weergegeven naam kan onjuist zijn.";
+
+/* Location: PathHopRowView.swift - Label for receiver (your device) */
+"chats.path.receiver.label" = "Ontvanger";
+
+/* Location: MessagePathSheet.swift - Fallback name when device name unavailable */
+"chats.path.receiver.you" = "Jij";
+
+// MARK: - Repeat Details Sheet
+
+/* Location: RepeatDetailsSheet.swift - Empty state title */
+"chats.repeats.emptyState.title" = "Nog geen herhalingen";
+
+/* Location: RepeatDetailsSheet.swift - Empty state description */
+"chats.repeats.emptyState.description" = "Herhalingen verschijnen hier terwijl je bericht door het mesh verspreidt";
+
+/* Location: RepeatDetailsSheet.swift - Navigation title */
+// MARK: - Repeat Row View
+
+/* Location: RepeatRowView.swift - Accessibility label format - %@ is repeater name */
+"chats.repeats.row.accessibility" = "Herhaling van %@";
+
+/* Location: RepeatRowView.swift - Accessibility value format - %@ is quality, %@ is SNR, %@ is RSSI */
+"chats.repeats.row.accessibilityValue" = "%@ signaal, SNR %@, RSSI %@";
+
+/* Location: RepeatRowView.swift - Singular hop label */
+"chats.repeats.hop.singular" = "1 sprong";
+
+/* Location: RepeatRowView.swift - Plural hops label - %d is count */
+"chats.repeats.hop.plural" = "%d sprongen";
+
+/* Location: RepeatRowView.swift - Unknown repeater name */
+"chats.repeats.unknownRepeater" = "<onbekende repeater>";
+
+/* Location: LinkPreviewView.swift - Accessibility label for link preview - %1$@ is title, %2$@ is host */
+"chats.linkPreview.accessibility.label" = "%1$@, van %2$@, link";
+
+/* Location: LinkPreviewView.swift - Accessibility hint for link preview */
+"chats.linkPreview.accessibility.hint" = "Opent in browser";
+
+// MARK: - Tap to Load Preview
+
+/* Location: TapToLoadPreview.swift - Loading state text */
+"chats.preview.loading" = "Voorbeeld laden...";
+
+/* Location: TapToLoadPreview.swift - Idle state text */
+"chats.preview.tapToLoad" = "Tik om voorbeeld te laden";
+
+/* Location: TapToLoadPreview.swift - Loading accessibility label format - %@ is host */
+"chats.preview.loadingAccessibility" = "Voorbeeld laden voor %@";
+
+/* Location: TapToLoadPreview.swift - Idle accessibility label format - %@ is host */
+"chats.preview.tapAccessibility" = "Laad voorbeeld voor %@";
+
+/* Location: TapToLoadPreview.swift - Loading accessibility hint */
+"chats.preview.loadingHint" = "Even geduld";
+
+/* Location: TapToLoadPreview.swift - Idle accessibility hint */
+"chats.preview.tapHint" = "Haalt titel en afbeelding op van de website";
+
+// MARK: - Common Buttons
+
+/* Location: Various - OK button */
+"chats.common.ok" = "OK";
+
+/* Location: Various - Cancel button */
+"chats.common.cancel" = "Annuleren";
+
+/* Location: Various - Done button */
+"chats.common.done" = "Klaar";
+
+// MARK: - Message Path
+
+/* Direct message path (no hops) */
+"chats.message.path.direct" = "Direct";
+/* Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology. */
+"chats.message.path.flood" = "Flood";
+
+/* Message path hop count */
+/* Fallback when path nodes unavailable */
+/* Accessibility label for message path */
+"chats.message.path.accessibilityLabel" = "Routeringspad: %@";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count */
+"chats.message.hopCount.accessibilityLabel" = "Aantal hops: %d";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.region.accessibilityLabel" = "Regio %@";
+
+/* Location: BubbleFooterRow.swift - VoiceOver when multiple regions match - %@ is localized list of names */
+"chats.message.region.ambiguousAccessibilityLabel" = "Regio, dubbelzinnig: %@";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for region multi-match */
+"chats.message.region.ambiguous.possibleMatch" = "Meerdere overeenkomende regio's";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility hint for region multi-match */
+"chats.message.region.ambiguous.possibleMatchHint" = "Meer dan één regio in je lijst komt overeen met de transportcode van dit pakket. De app kan niet bepalen welke is gebruikt.";
+
+/* Location: FallbackMatchIndicatorView.swift - Popover title for region multi-match */
+"chats.message.region.ambiguous.popoverTitle" = "Meerdere overeenkomende regio's";
+
+/* Location: FallbackMatchIndicatorView.swift - Popover body; %@ is newline-prefixed list of candidate names */
+"chats.message.region.ambiguous.popoverBody" = "Meer dan één regio in je lijst komt overeen met de transportcode van dit pakket. De app kan niet bepalen welke is gebruikt.%@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time */
+"chats.message.sendTime.accessibilityLabel" = "Verzendtijd: %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the send time footer when the sender's clock was corrected - %@ is the time */
+"chats.message.sendTime.correctedAccessibilityLabel" = "Verzendtijd: %@, aangepast vanwege klokfout afzender";
+
+// MARK: - Reaction Details Sheet
+
+/* Location: ReactionDetailsSheet.swift - Navigation title */
+"reactions.title" = "Reacties";
+
+/* Location: ReactionDetailsSheet.swift - Empty state title */
+"reactions.emptyState.title" = "Geen reacties";
+
+/* Location: ReactionDetailsSheet.swift - Empty state description */
+"reactions.emptyState.description" = "Nog niemand heeft op dit bericht gereageerd";
+
+// MARK: - Emoji Picker Categories
+
+/* Location: EmojiProvider.swift - Frequently used category */
+"reactions.emoji.category.frequent" = "Vaak gebruikt";
+
+/* Location: EmojiProvider.swift - People category */
+"reactions.emoji.category.people" = "Smileys en mensen";
+
+/* Location: EmojiProvider.swift - Nature category */
+"reactions.emoji.category.nature" = "Dieren en natuur";
+
+/* Location: EmojiProvider.swift - Foods category */
+"reactions.emoji.category.foods" = "Eten en drinken";
+
+/* Location: EmojiProvider.swift - Activity category */
+"reactions.emoji.category.activity" = "Activiteit";
+
+/* Location: EmojiProvider.swift - Places category */
+"reactions.emoji.category.places" = "Reizen en plaatsen";
+
+/* Location: EmojiProvider.swift - Objects category */
+"reactions.emoji.category.objects" = "Objecten";
+
+/* Location: EmojiProvider.swift - Symbols category */
+"reactions.emoji.category.symbols" = "Symbolen";
+
+/* Location: EmojiProvider.swift - Flags category */
+"reactions.emoji.category.flags" = "Vlaggen";
+
+/* Location: EmojiPickerSheet.swift - Search placeholder */
+"reactions.emoji.searchPlaceholder" = "Emoji's zoeken";
+
+// MARK: - Divider
+
+/* Location: NewMessagesDividerView.swift - Label for new messages divider */
+"chats.divider.newMessages" = "Nieuwe berichten";
+
+/* Location: NewMessagesDividerView.swift - VoiceOver label for new messages divider */
+"chats.divider.newMessagesAccessibility" = "Scheidingslijn nieuwe berichten";
+
+// MARK: - Tips
+
+/* Location: DeviceMenuTip.swift - Purpose: Tip title introducing device menu */
+"chats.tip.deviceMenu.title" = "Je apparaatmenu";
+
+/* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
+"chats.tip.deviceMenu.message" = "Beheer je verbinding, verstuur advertenties en controleer de batterij. De radio blijft verbonden, zelfs na een geforceerde afsluiting. Tik op Verbreken om de verbinding uit te schakelen.";
+
+/* Location: InlineImageView.swift - Accessibility label for static image */
+"chats.inlineImage.imageAccessibility" = "Afbeelding";
+
+/* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
+/* Location: InlineImageView.swift - Accessibility label for animated image */
+"chats.inlineImage.animatedAccessibility" = "Geanimeerde afbeelding";
+
+/* Location: InlineImageView.swift - Accessibility hint for tap to view full screen */
+"chats.inlineImage.tapHint" = "Dubbeltik om op volledig scherm te bekijken";
+
+/* Location: UnifiedMessageBubble.swift - Tap to retry loading failed image */
+"chats.inlineImage.tapToRetry" = "Tik om opnieuw te proberen";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility hint for retry button */
+"chats.inlineImage.retryHint" = "Dubbeltik om de afbeelding opnieuw te laden";
+
+/* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
+"chats.inlineImage.failedLabel" = "Afbeelding kon niet worden geladen";
+
+/* Location: FullScreenImageViewer.swift - Close button label */
+"chats.imageViewer.close" = "Sluiten";
+
+/* Location: FullScreenImageViewer.swift - Share button label */
+"chats.imageViewer.share" = "Afbeelding";
+
+// MARK: - Block Sender Sheet
+
+/* Location: BlockSenderSheet.swift - Purpose: Sheet title with sender name */
+"chats.blockSender.title" = "\"%@\" blokkeren";
+
+/* Location: BlockSenderSheet.swift - Purpose: Explanation of name-based blocking limitation */
+"chats.blockSender.limitation" = "Kanaalberichten bevatten geen afzenderidentiteit. Deze blokkering komt alleen overeen op naam — de afzender kan van naam veranderen om het te omzeilen.";
+
+/* Location: BlockSenderSheet.swift - Purpose: Section header when matching contacts found */
+"chats.blockSender.matchingContacts" = "De volgende contacten delen deze naam. Selecteer degenen die je ook wilt blokkeren:";
+
+/* Location: BlockSenderSheet.swift - Purpose: Cancel button */
+"chats.blockSender.cancel" = "Annuleren";
+
+/* Location: BlockSenderSheet.swift - Purpose: Destructive block button */
+"chats.blockSender.blockAnyway" = "Blokkeren";
+
+// MARK: - Contact Match Row
+
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is selected */
+"chats.contactMatch.accessibility.selected" = "Geselecteerd";
+
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is not selected */
+"chats.contactMatch.accessibility.notSelected" = "Niet geselecteerd";
+
+/* Location: ContactMatchRow.swift - Purpose: Public key label */
+"chats.contactMatch.key" = "Sleutel: %@";
+
+// MARK: - Send DM Sheet
+
+/* Location: SendDMSheet.swift - Purpose: Sheet title with sender name */
+"chats.sendDM.title" = "DM sturen naar \"%@\"";
+
+/* Location: SendDMSheet.swift - Purpose: Name-based matching limitation warning */
+"chats.sendDM.limitation" = "Kanaalberichten bevatten geen afzenderidentiteit. Deze overeenkomst is alleen op naam — het contact kan iemand anders zijn met dezelfde naam.";
+
+/* Location: SendDMSheet.swift - Purpose: Section header listing matching contacts */
+"chats.sendDM.matchingContacts" = "Kies een contactpersoon om een bericht te sturen:";
+
+/* Location: SendDMSheet.swift - Purpose: Empty-state message when no contact matches */
+"chats.sendDM.noMatches" = "Geen contact gevonden met de naam \"%@\".";
+
+/* Location: SendDMSheet.swift - Purpose: Cancel button */
+"chats.sendDM.cancel" = "Annuleren";
+
+// MARK: - Message Actions & Notification Level
+
+/* Location: MessageActionsSheet.swift - Purpose: Sheet title */
+/* Location: NotificationLevelPicker.swift - Purpose: Label for notification level */
+"chats.notificationLevel.label" = "Meldingsniveau";
+
+/* Location: NotificationLevelPicker.swift - Purpose: Accessibility hint for notification level */
+"chats.notificationLevel.hint" = "Kies wanneer je meldingen wilt ontvangen";
+
+/* Location: NotificationLevelPicker.swift - Muted level label */
+"chats.notificationLevel.muted" = "Gedempt";
+
+/* Location: NotificationLevelPicker.swift - Mentions-only level label */
+"chats.notificationLevel.mentions" = "Vermeldingen";
+
+/* Location: NotificationLevelPicker.swift - All notifications level label */
+"chats.notificationLevel.all" = "Alle";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for muted level */
+"chats.notificationLevel.accessibility.muted" = "Gedempt, geen meldingen";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level */
+"chats.notificationLevel.accessibility.mentionsOnly" = "Alleen vermeldingen";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level */
+"chats.notificationLevel.accessibility.all" = "Alle meldingen";
+
+/* Location: ConversationRow.swift - Purpose: Mentions-only indicator */
+"chats.row.mentionsOnly" = "Alleen vermeldingen";
+
+// MARK: - Reaction Badges & Actions
+
+/* Location: ReactionBadgeView.swift - Badge format: emoji + count */
+"reactions.badge" = "%@ %d";
+
+/* Location: ReactionBadgeView.swift - Badge accessibility hint */
+"reactions.badge_hint" = "Toont wie heeft gereageerd";
+
+/* Location: ReactionBadgeView.swift - More badge showing additional reaction types */
+"reactions.more_badge" = "%d meer reactietypes";
+
+/* Location: ReactionBadgeView.swift - More badge accessibility hint */
+"reactions.more_badge_hint" = "Toont alle reacties";
+
+/* Location: EmojiPickerSheet.swift - More emojis button */
+"reactions.more_emojis" = "Meer emoji's";
+
+/* Location: ReactionDetailsSheet.swift - Details sheet title */
+/* Location: ReactionSendError.swift - Send failed message */
+/* Location: MessageActionsSheet.swift - Reply action */
+/* Location: MessageActionsSheet.swift - Copy action */
+/* Location: MessageActionsSheet.swift - Delete action */
+// MARK: - Malware Warning
+
+/* Location: MalwareWarningCard.swift - Warning title for flagged domains */
+"chats.malwareWarning.title" = "Link gemarkeerd als verdacht";
+
+/* Location: MalwareWarningCard.swift - Accessibility label - %@ is domain */
+"chats.malwareWarning.accessibility" = "Waarschuwing: link naar %@ gemarkeerd als verdacht";
+
+// MARK: - Region Filtering
+
+/* Location: ChannelInfoSheet.swift - Purpose: Region row label */
+"chats.channelInfo.region" = "Regio";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
+"chats.channelInfo.region.allRegions" = "Zonder regio";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
+"chats.channelInfo.region.useDefaultFormat" = "%@ (standaard)";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
+"chats.channelInfo.region.notConfigured" = "Niet geconfigureerd";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist */
+"chats.channelInfo.region.explanation" = "Beperk berichten tot een geografisch gebied";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Discover button */
+"chats.channelInfo.region.discover" = "Regio's in de buurt ontdekken";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Discover button loading state */
+"chats.channelInfo.region.discovering" = "Zoeken…";
+
+/* Location: RegionManagementView.swift - Purpose: Navigation title */
+"chats.channelInfo.region.manage" = "Regio's";
+
+/* Location: RegionManagementView.swift - Purpose: Manage regions link */
+"chats.channelInfo.region.manageRegions" = "Regio's beheren";
+
+/* Location: RegionManagementView.swift - Purpose: Add manually button */
+"chats.channelInfo.region.addManually" = "Handmatig toevoegen";
+
+/* Location: RegionManagementView.swift - Purpose: Empty state title */
+"chats.channelInfo.region.noRegions" = "Geen regio's toegevoegd";
+
+/* Location: RegionManagementView.swift - Purpose: Empty state description */
+"chats.channelInfo.region.noRegionsDescription" = "Ontdek regio's via repeaters in de buurt of voeg ze handmatig toe.";
+
+/* Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found */
+"chats.channelInfo.region.noNewRegions" = "Geen nieuwe regio's gevonden";
+
+/* Location: RegionDiscoveryResultsView.swift - Purpose: No repeaters responded */
+"chats.channelInfo.region.noRepeatersResponded" = "Geen repeaters reageerden";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list */
+"chats.channelInfo.region.errLoadingRepeaters" = "Kan repeaters in de buurt niet laden";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Some queries failed because radio contact list is full */
+"chats.channelInfo.region.errRadioContactsFull" = "Contactlijst van de radio is vol — sommige repeaters konden niet worden opgevraagd";
+
+/* Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button */
+"chats.channelInfo.region.addSelected" = "Voeg toe";
+
+/* Location: AddRegionView.swift - Purpose: Navigation title */
+"chats.channelInfo.region.addRegionTitle" = "Regio toevoegen";
+
+/* Location: AddRegionView.swift - Purpose: Text field placeholder */
+"chats.channelInfo.region.addRegionPlaceholder" = "Regionaam";
+
+/* Location: AddRegionView.swift - Purpose: Validation error */
+"chats.channelInfo.region.invalidName" = "Regionamen mogen alleen letters, cijfers en koppeltekens bevatten.";
+
+/* Location: RegionManagementView.swift - Purpose: Validation error when a region name exceeds the firmware byte cap */
+"chats.channelInfo.region.nameTooLong" = "Regionamen zijn beperkt tot %d bytes.";
+
+/* Location: AddRegionView.swift - Purpose: Duplicate error */
+"chats.channelInfo.region.duplicate" = "Deze regio staat al in je lijst.";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Private region label */
+"chats.channelInfo.region.private" = "Privé";
+
+/* Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope */
+"chats.channelInfo.region.scopedDefault" = "%@ (standaard)";
+
+// MARK: - Common
+
+/* Location: ChatConversationView.swift - Conversation toolbar Info button */
+"chats.common.info" = "Info";
+
+// MARK: - Mention Picker
+
+/* Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
+"chats.mention.picker.title" = "Vermelden: %@";
+
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedTitle" = "Geen opgeslagen contact";
+
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedSubtitle" = "@%@ komt niet overeen met een contact op deze radio.";
+
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
+"chats.mention.picker.selfTitle" = "Dat ben jij";
+
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
+"chats.mention.picker.selfSubtitle" = "@%@ is de naam van je eigen knooppunt.";
+
+/* Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
+"chats.mention.picker.matchingContacts" = "Overeenkomende contacten";
+
+// MARK: - Unverified Nickname
+
+/* Location: UnifiedMessageBubble.swift - Title for unverified nickname explanation popover */
+"chats.message.sender.unverifiedNickname" = "Niet geverifieerde naam";
+
+/* Location: UnifiedMessageBubble.swift - Explanation of why the sender name is unverified */
+"chats.message.sender.unverifiedNicknameExplanation" = "Afzenders van kanaalberichten kunnen niet worden geverifieerd. Dit kan een andere persoon zijn.";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for unverified nickname indicator */
+"chats.message.sender.unverifiedNicknameAccessibilityLabel" = "Niet geverifieerde naamovereenkomst";
+
+/* Location: UnifiedMessageBubble.swift - Format string for unverified nickname display - %@ is the nickname */
+"chats.message.sender.unverifiedNicknameFormat" = "(%@)";

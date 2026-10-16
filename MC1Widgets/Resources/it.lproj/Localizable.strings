@@ -1,0 +1,16 @@
+/* Widget localization — Italian
+   AI-translated - please verify with native speakers.
+*/
+
+/* Connection status shown when radio is disconnected */
+"Disconnected" = "Disconnesso";
+
+
+/* Accessibility: packet rate */
+"%lld packets per minute" = "%lld pacchetti al minuto";
+
+/* Accessibility: battery level */
+"Battery %lld percent" = "Batteria %lld percento";
+
+/* Control Center button: opens the app */
+"Open MeshCore One" = "Apri MeshCore One";

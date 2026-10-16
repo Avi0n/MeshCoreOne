@@ -1,0 +1,149 @@
+name: Build Unsigned IPA
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'project.yml'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version label (defaults to project.yml MARKETING_VERSION)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: xcode-27
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 2
+
+      - name: Check version change
+        id: version_check
+        run: |
+          # Get version from project.yml
+          VERSION=$(grep 'MARKETING_VERSION:' project.yml | head -1 | awk '{print $2}')
+
+          echo "Current version: $VERSION"
+
+          # Check if tag already exists
+          if git ls-remote --tags origin | grep -q "refs/tags/v${VERSION}$"; then
+            echo "Tag v${VERSION} already exists, skipping"
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "New version detected: $VERSION"
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Determine version
+        id: version
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          if [[ -n "${{ inputs.version }}" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${{ steps.version_check.outputs.version }}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Install dependencies
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          brew tap FelixHerrmann/tap
+          brew trust FelixHerrmann/tap
+          brew install make xcodegen swiftgen swift-package-list
+          echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
+
+      - name: Generate Xcode project
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        run: make generate
+
+      - name: Update acknowledgements
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p MC1.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
+          xcodebuild -resolvePackageDependencies -project MC1.xcodeproj -clonedSourcePackagesDirPath ./SourcePackages
+          swift-package-list MC1.xcodeproj --custom-source-packages-path ./SourcePackages --output-type settings-bundle --requires-license --output-path MC1
+          rm -rf SourcePackages
+
+      - name: Build Debug
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          xcodebuild build \
+            -project MC1.xcodeproj \
+            -scheme MC1 \
+            -configuration Debug \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath ./DerivedData \
+            -xcconfig ci/sideload.xcconfig \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Build Release
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          xcodebuild build \
+            -project MC1.xcodeproj \
+            -scheme MC1 \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath ./DerivedData \
+            -xcconfig ci/sideload.xcconfig \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package Debug IPA
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p Payload
+          cp -r DerivedData/Build/Products/Debug-iphoneos/MC1.app Payload/
+          zip -r "MeshCore-One-Debug-${{ steps.version.outputs.version }}.ipa" Payload
+          rm -rf Payload
+
+      - name: Package Release IPA
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p Payload
+          cp -r DerivedData/Build/Products/Release-iphoneos/MC1.app Payload/
+          zip -r "MeshCore-One-Release-${{ steps.version.outputs.version }}.ipa" Payload
+          rm -rf Payload
+
+      - name: Upload Debug IPA
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MeshCore-One-Debug-${{ steps.version.outputs.version }}
+          path: MeshCore-One-Debug-${{ steps.version.outputs.version }}.ipa
+
+      - name: Upload Release IPA
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MeshCore-One-Release-${{ steps.version.outputs.version }}
+          path: MeshCore-One-Release-${{ steps.version.outputs.version }}.ipa
+
+      - name: Create tag and draft release
+        if: steps.version_check.outputs.should_build == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.version.outputs.version }}" \
+            --draft \
+            --title "MeshCore One ${{ steps.version.outputs.version }}" \
+            --target "${{ github.sha }}" \
+            "MeshCore-One-Debug-${{ steps.version.outputs.version }}.ipa" \
+            "MeshCore-One-Release-${{ steps.version.outputs.version }}.ipa"

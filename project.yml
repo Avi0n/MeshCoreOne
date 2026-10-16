@@ -1,0 +1,162 @@
+name: MC1
+options:
+  bundleIdPrefix: com.meshcoreone
+  deploymentTarget:
+    iOS: "18.0"
+  xcodeVersion: "27.0"
+  generateEmptyDirectories: true
+
+# dev.yml is gitignored and supplies DEVELOPMENT_TEAM for local signing.
+# It is created empty by `make generate` and in CI.
+include:
+  - dev.yml
+
+settings:
+  base:
+    SWIFT_VERSION: "6.2"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+packages:
+  MeshCore:
+    path: MeshCore
+  MC1Services:
+    path: MC1Services
+  Emojibase:
+    url: https://github.com/matrix-org/emojibase-bindings
+    from: 1.5.0
+  MapLibre:
+    url: https://github.com/maplibre/maplibre-gl-native-distribution
+    exactVersion: 6.28.0
+  MessagingUI:
+    url: https://github.com/bwees-forks/swiftui-messaging-ui
+    # Pinned to an exact revision: Package.resolved is gitignored (the whole
+    # generated .xcodeproj is), so branch tracking resolves to whatever each
+    # machine last fetched and different developers silently build different
+    # library code. Bump this hash deliberately when the fork advances.
+    revision: 4840eb1ebbcf9d922b9c011f17a292e871d8753e
+
+targets:
+  MC1:
+    type: application
+    platform: iOS
+    sources:
+      - path: MC1
+        excludes:
+          - "**/*.md"
+      - path: AppIcon.icon
+      - path: Shared
+    dependencies:
+      - package: MC1Services
+      - package: Emojibase
+      - package: MapLibre
+      - package: MessagingUI
+      - target: MC1Widgets
+    preBuildScripts:
+      - name: SwiftGen
+        script: |
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+          if ! command -v swiftgen &> /dev/null; then
+              echo "error: SwiftGen not installed. Install with: brew install swiftgen"
+              exit 1
+          fi
+          swiftgen config run --config "${PROJECT_DIR}/swiftgen.yml"
+        inputFiles:
+          - $(PROJECT_DIR)/swiftgen.yml
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Localizable.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Chats.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Contacts.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Map.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Settings.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Tools.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/Onboarding.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/RemoteNodes.strings
+          - $(PROJECT_DIR)/MC1/Resources/Localization/en.lproj/WhatsNew.strings
+        outputFiles:
+          - $(PROJECT_DIR)/MC1/Resources/Generated/L10n.swift
+        basedOnDependencyAnalysis: false
+    settings:
+      base:
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        MARKETING_VERSION: 1.5.3
+        CURRENT_PROJECT_VERSION: 1
+        VERSIONING_SYSTEM: apple-generic
+        TARGETED_DEVICE_FAMILY: "1,2"
+        NSSupportsLiveActivities: true
+        UIBackgroundModes:
+          - bluetooth-central
+        NSBluetoothAlwaysUsageDescription: "MeshCore One uses Bluetooth to maintain connections with MeshCore radios, even in the background, so you can send and receive messages without opening the app."
+        NSBluetoothPeripheralUsageDescription: "MeshCore One uses Bluetooth to connect to MeshCore radios."
+        NSLocationWhenInUseUsageDescription: "MeshCore One uses your location to suggest a recommended radio preset for your area, show your position on maps, and sort contacts by distance. When you enable location sharing, MeshCore One also advertises your location to your mesh contacts."
+        NSAccessorySetupSupports:
+          - Bluetooth
+        NSAccessorySetupKitSupports:
+          - Bluetooth
+        NSAccessorySetupBluetoothServices:
+          - "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+      configs:
+        Debug:
+          INFOPLIST_FILE: MC1/Info-Debug.plist
+          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmeshtest.app
+        Release:
+          INFOPLIST_FILE: MC1/Info.plist
+          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app
+
+  MC1Tests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: MC1Tests
+    dependencies:
+      - target: MC1
+    settings:
+      base:
+        INFOPLIST_FILE: MC1Tests/Info.plist
+        MARKETING_VERSION: 1.5.3
+        CURRENT_PROJECT_VERSION: 1
+        VERSIONING_SYSTEM: apple-generic
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/MC1.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MC1"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+  MC1Widgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: MC1Widgets
+      - path: Shared
+    settings:
+      base:
+        MARKETING_VERSION: 1.5.3
+        CURRENT_PROJECT_VERSION: 1
+        VERSIONING_SYSTEM: apple-generic
+        TARGETED_DEVICE_FAMILY: "1,2"
+      configs:
+        Debug:
+          INFOPLIST_FILE: MC1Widgets/Info.plist
+          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmeshtest.app.widgets
+        Release:
+          INFOPLIST_FILE: MC1Widgets/Info.plist
+          PRODUCT_BUNDLE_IDENTIFIER: io.pocketmesh.app.widgets
+
+schemes:
+  MC1:
+    build:
+      targets:
+        MC1: all
+        MC1Tests: [test]
+        MC1Widgets: [run]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      language: en
+      region: US
+      targets:
+        - MC1Tests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release

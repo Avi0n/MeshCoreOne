@@ -1,0 +1,1277 @@
+/*
+  Chats.strings
+  MC1
+
+  Polish translation of strings for the Chats feature.
+  AI-translated - please verify with native speakers.
+*/
+
+// MARK: - Navigation & Titles
+
+/* Location: ChatsView.swift - Navigation title for main chat list */
+"chats.title" = "Czaty";
+
+/* Location: ChatsView.swift - Search placeholder */
+"chats.search.placeholder" = "Szukaj rozmów";
+
+/* Location: ChatsView.swift - Filter option for all conversations */
+"chats.filter.all" = "Wszystkie";
+
+/* Location: ChatsView.swift - Filter menu title */
+"chats.filter.title" = "Filtr";
+
+/* Location: ChatsView.swift - Button to clear active filter */
+"chats.filter.clear" = "Wyczyść filtr";
+
+/* Location: ChatsView.swift - Filter option for unread conversations */
+"chats.filter.unread" = "Nieprzeczytane";
+
+/* Location: ChatsView.swift - Filter option for direct messages */
+"chats.filter.directMessages" = "WB";
+
+/* Location: ChatsView.swift - Filter option for channels */
+"chats.filter.channels" = "Kanały";
+
+/* Location: ChatsView.swift - Filter option for rooms */
+"chats.filter.rooms" = "Pokoje";
+
+// MARK: - Compose Menu
+
+/* Location: ChatsView.swift - Button to start a new direct chat */
+"chats.compose.newChat" = "Nowy czat";
+
+/* Location: ChatsView.swift - Button to create or join a channel */
+"chats.compose.newChannel" = "Nowy kanał";
+
+/* Location: ChatsView.swift - Menu label for new message options */
+"chats.compose.newMessage" = "Nowa wiadomość";
+
+// MARK: - Empty States
+
+/* Location: ChatsView.swift - Title when no conversations exist */
+"chats.emptyState.noConversations.title" = "Brak rozmów";
+
+/* Location: ChatsView.swift - Description when no conversations exist */
+"chats.emptyState.noConversations.description" = "Rozpocznij rozmowę z kontaktów";
+
+/* Location: ChatsView.swift - Title when no unread messages */
+"chats.emptyState.noUnread.title" = "Brak nieprzeczytanych wiadomości";
+
+/* Location: ChatsView.swift - Description when no unread messages */
+"chats.emptyState.noUnread.description" = "Wszystko przeczytane";
+
+/* Location: ChatsView.swift - Title when no direct messages */
+"chats.emptyState.noDirectMessages.title" = "Brak wiadomości bezpośrednich";
+
+/* Location: ChatsView.swift - Description when no direct messages */
+"chats.emptyState.noDirectMessages.description" = "Rozpocznij czat z kontaktów";
+
+/* Location: ChatsView.swift - Title when no channels */
+"chats.emptyState.noChannels.title" = "Brak kanałów";
+
+/* Location: ChatsView.swift - Description when no channels */
+"chats.emptyState.noChannels.description" = "Dołącz lub utwórz kanał";
+
+/* Location: ChatsView.swift - Title when no rooms exist */
+"chats.emptyState.noRooms.title" = "Brak pokoi";
+
+/* Location: ChatsView.swift - Description when no rooms exist */
+"chats.emptyState.noRooms.description" = "Dołącz do pokoju z Kontaktów";
+
+/* Location: ChatsView.swift - Split view placeholder when no conversation selected */
+"chats.emptyState.selectConversation" = "Wybierz rozmowę";
+
+// MARK: - Refresh & Offline Alerts
+
+/* Location: ChatsView.swift - VoiceOver announcement when viewing cached data offline */
+"chats.accessibility.offlineAnnouncement" = "Wyświetlanie danych z pamięci podręcznej. Połącz z urządzeniem, aby uzyskać aktualizacje.";
+
+// MARK: - Room Deletion
+
+/* Location: ChatsView.swift - Alert title for leaving a room */
+"chats.alert.leaveRoom.title" = "Opuść pokój";
+
+/* Location: ChatsView.swift - Button to confirm leaving a room */
+"chats.alert.leaveRoom.confirm" = "Opuść";
+
+/* Location: ChatsView.swift - Alert message explaining what leaving a room does */
+"chats.alert.leaveRoom.message" = "Spowoduje to usunięcie pokoju z listy czatów, usunięcie wszystkich wiadomości pokoju i powiązanego kontaktu.";
+
+// MARK: - Message Timestamps
+
+/* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
+/* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
+/* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
+"chats.timestamp.now" = "Teraz";
+
+// MARK: - Scroll Buttons
+
+/* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
+"chats.scrollButton.scrollToBottom.accessibilityLabel" = "Przewiń do najnowszej wiadomości";
+
+/* Location: ScrollToBottomButton.swift - Accessibility value for unread message count - %d is the number of unread messages */
+"chats.scrollButton.scrollToBottom.accessibilityValue" = "%d nieprzeczytanych wiadomości";
+/* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
+"chats.scrollButton.badge.overflow" = "99+";
+
+// MARK: - Chat View (Direct Messages)
+
+/* Location: ChatConversationView.swift - Alert title when message send fails */
+"chats.alert.unableToSend.title" = "Nie można wysłać";
+
+/* Location: ChatConversationView.swift - Alert message when message send fails */
+"chats.alert.unableToSend.message" = "Upewnij się, że urządzenie jest połączone i spróbuj ponownie.";
+
+/* Location: ChatConversationView.swift - Connection status for flood routed contacts */
+"chats.connectionStatus.floodRouting" = "Routing rozproszony";
+
+/* Location: ChatConversationView.swift - Connection status format for direct path - %d is hop count */
+"chats.connectionStatus.direct" = "Bezpośredni • %d skoków";
+
+/* Location: ChatConversationView.swift - Placeholder when message data is unavailable */
+"chats.message.unavailable" = "Wiadomość niedostępna";
+
+/* Location: ChatConversationView.swift - Accessibility label for unavailable message */
+"chats.message.unavailableAccessibility" = "Nie można załadować wiadomości";
+
+/* Location: ChatConversationView.swift - Empty state text prompting user to start chatting */
+"chats.emptyState.startConversation" = "Rozpocznij rozmowę";
+
+/* Location: ChatConversationView.swift - Label showing contact has location */
+"chats.contactInfo.hasLocation" = "Ma lokalizację";
+
+/* Location: ChatConversationView.swift - Input bar placeholder for direct messages */
+"chats.input.placeholder.directMessage" = "Wiadomość bezpośrednia";
+
+// MARK: - Channel Chat View
+
+/* Location: ChatConversationView.swift - Fallback channel name format - %d is channel index */
+"chats.channel.defaultName" = "Kanał %d";
+
+/* Location: ChatConversationView.swift - Header subtitle for public channels */
+"chats.channel.typePublic" = "Kanał publiczny";
+
+/* Location: ChatConversationView.swift - Header subtitle for private channels */
+"chats.channel.typePrivate" = "Kanał prywatny";
+
+/* Location: ChatConversationType.swift - Channel header subtitle when a flood region is active - %@ is the region name */
+"chats.channel.headerRegion" = "Region: %@";
+
+/* Location: ChatConversationView.swift - Empty state message */
+"chats.channel.emptyState.noMessages" = "Brak wiadomości";
+
+/* Location: ChatConversationView.swift - Empty state description for public channel */
+"chats.channel.emptyState.publicDescription" = "To jest publiczny kanał nadawczy";
+
+/* Location: ChatConversationView.swift - Empty state description for private channel */
+"chats.channel.emptyState.privateDescription" = "To jest kanał prywatny";
+
+// MARK: - Channel Info Sheet
+
+/* Location: ChannelInfoSheet.swift - Navigation title */
+/* Location: ChannelInfoSheet.swift - Confirmation dialog title */
+"chats.channelInfo.deleteConfirm.title" = "Usuń kanał";
+
+/* Location: ChannelInfoSheet.swift - Confirmation dialog message */
+"chats.channelInfo.deleteConfirm.message" = "Spowoduje to usunięcie kanału z urządzenia i wszystkich lokalnych wiadomości. Tej operacji nie można cofnąć.";
+
+/* Location: ChannelInfoSheet.swift - Channel type label for public channel */
+"chats.channelInfo.channelType.public" = "Kanał publiczny";
+
+/* Location: ChannelInfoSheet.swift - Channel type label for hashtag channel */
+"chats.channelInfo.channelType.hashtag" = "Kanał hashtagowy";
+
+/* Location: ChannelInfoSheet.swift - Channel type label for private channel */
+"chats.channelInfo.channelType.private" = "Kanał prywatny";
+
+/* Location: ChannelInfoSheet.swift - Label for channel slot */
+/* Location: ChannelInfoSheet.swift - Label for last message date */
+/* Location: ChannelInfoSheet.swift - QR code instruction text */
+"chats.channelInfo.scanToJoin" = "Zeskanuj, aby dołączyć do kanału";
+
+/* Location: ChannelInfoSheet.swift - Section header for QR sharing */
+"chats.channelInfo.shareChannel" = "Udostępnij kanał";
+
+/* Location: ChannelInfoSheet.swift - Label for secret key */
+"chats.channelInfo.secretKey" = "Klucz tajny";
+
+/* Location: ChannelInfoSheet.swift - Button to copy secret key */
+"chats.channelInfo.copy" = "Kopiuj";
+
+/* Location: ChannelInfoSheet.swift - Section header for manual sharing */
+"chats.channelInfo.manualSharing" = "Udostępnianie ręczne";
+
+/* Location: ChannelInfoSheet.swift - Footer explaining manual sharing */
+"chats.channelInfo.manualSharingFooter" = "Udostępnij nazwę kanału i ten klucz tajny, aby inni mogli dołączyć ręcznie.";
+
+/* Location: ChannelInfoSheet.swift - Clear messages button */
+"chats.channelInfo.clearMessagesButton" = "Wyczyść wiadomości";
+
+/* Location: ChannelInfoSheet.swift - Clear messages confirmation dialog title */
+"chats.channelInfo.clearMessagesConfirm.title" = "Wyczyścić wiadomości?";
+
+/* Location: ChannelInfoSheet.swift - Clear messages confirmation dialog message */
+"chats.channelInfo.clearMessagesConfirm.message" = "Wszystkie wiadomości na tym kanale zostaną trwale usunięte. Kanał pozostanie aktywny.";
+
+/* Location: ChannelInfoSheet.swift - Delete channel button */
+"chats.channelInfo.deleteButton" = "Usuń kanał";
+
+/* Location: ChannelInfoSheet.swift - Footer explaining delete action */
+"chats.channelInfo.deleteFooter" = "Usunięcie usuwa ten kanał z urządzenia. Możesz dołączyć ponownie później, jeśli masz klucz tajny.";
+
+/* Location: ChatsView.swift - Alert title when channel deletion fails */
+"chats.channelInfo.deleteFailed.title" = "Nie udało się usunąć kanału";
+
+/* Location: ChannelInfoSheet.swift - Error when device not connected */
+"chats.error.noDeviceConnected" = "Brak połączonego urządzenia";
+
+/* Location: ChannelInfoSheet.swift - Error when services unavailable */
+"chats.error.servicesUnavailable" = "Usługi niedostępne";
+
+/* Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted */
+"chats.error.notConnectedToDelete" = "Połącz się z radiem, aby usunąć tę rozmowę.";
+
+/* Location: ChatConversationView.swift - Error when loading older messages fails */
+"chats.error.loadOlderMessagesFailed" = "Nie udało się załadować starszych wiadomości";
+
+/* Location: ErrorBannerModifier.swift - Accessibility hint announcing that tapping the banner dismisses it */
+"chats.error.banner.dismissAccessibilityHint" = "Dotknij, aby zamknąć";
+
+/* Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error) */
+"chats.error.sendQueuePersistFailed" = "Nie udało się dodać wiadomości do kolejki. Spróbuj ponownie.";
+
+/* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
+"chats.error.loadConversationsFailed" = "Nie udało się załadować rozmów.";
+
+/* Location: ChatViewModel - Error when saving a chat pin fails */
+"chats.error.pinSaveFailed" = "Nie udało się zapisać przypięcia. Spróbuj ponownie.";
+
+// MARK: - Channel Options Sheet
+
+/* Location: ChannelOptionsSheet.swift - Loading indicator text */
+"chats.channelOptions.loading" = "Ładowanie kanałów...";
+
+/* Location: ChannelOptionsSheet.swift - Navigation title */
+"chats.channelOptions.title" = "Nowy kanał";
+
+/* Location: ChannelOptionsSheet.swift - Create private channel option title */
+"chats.channelOptions.createPrivate.title" = "Utwórz kanał prywatny";
+
+/* Location: ChannelOptionsSheet.swift - Create private channel option description */
+"chats.channelOptions.createPrivate.description" = "Wygeneruj klucz tajny i kod QR do udostępnienia";
+
+/* Location: ChannelOptionsSheet.swift - Join private channel option title */
+"chats.channelOptions.joinPrivate.title" = "Dołącz do kanału prywatnego";
+
+/* Location: ChannelOptionsSheet.swift - Join private channel option description */
+"chats.channelOptions.joinPrivate.description" = "Wprowadź nazwę kanału i klucz tajny";
+
+/* Location: ChannelOptionsSheet.swift - Scan QR code option title */
+"chats.channelOptions.scanQR.title" = "Zeskanuj kod QR";
+
+/* Location: ChannelOptionsSheet.swift - Scan QR code option description */
+"chats.channelOptions.scanQR.description" = "Dołącz do kanału skanując jego kod QR";
+
+/* Location: ChannelOptionsSheet.swift - Section header for private channels */
+"chats.channelOptions.section.private" = "Kanały prywatne";
+
+/* Location: ChannelOptionsSheet.swift - Join public channel option title */
+"chats.channelOptions.joinPublic.title" = "Dołącz do kanału publicznego";
+
+/* Location: ChannelOptionsSheet.swift - Join public channel option description */
+"chats.channelOptions.joinPublic.description" = "Domyślny kanał publiczny";
+
+/* Location: ChannelOptionsSheet.swift - Join hashtag channel option title */
+"chats.channelOptions.joinHashtag.title" = "Dołącz do kanału hashtagowego";
+
+/* Location: ChannelOptionsSheet.swift - Join hashtag channel option description */
+"chats.channelOptions.joinHashtag.description" = "Kanał publiczny, do którego każdy może dołączyć po nazwie";
+
+/* Location: ChannelOptionsSheet.swift - Section header for public channels */
+"chats.channelOptions.section.public" = "Kanały publiczne";
+
+/* Location: ChannelOptionsSheet.swift - Footer when all slots are in use */
+"chats.channelOptions.footer.noSlots" = "Wszystkie sloty kanałów są zajęte. Usuń istniejący kanał, aby dodać nowy.";
+
+/* Location: ChannelOptionsSheet.swift - Footer when public channel already exists */
+"chats.channelOptions.footer.hasPublic" = "Kanał publiczny jest już skonfigurowany na slocie 0.";
+
+// MARK: - New Chat View
+
+/* Location: NewChatView.swift - Empty state title */
+"chats.newChat.emptyState.title" = "Brak kontaktów";
+
+/* Location: NewChatView.swift - Empty state description */
+"chats.newChat.emptyState.description" = "Kontakty pojawią się po odkryciu";
+
+/* Location: NewChatView.swift - Navigation title */
+"chats.newChat.title" = "Nowy czat";
+
+/* Location: NewChatView.swift - Search placeholder */
+"chats.newChat.search.placeholder" = "Szukaj kontaktów";
+
+/* Location: NewChatView.swift - Contact type label for direct contacts */
+"chats.newChat.contactType.direct" = "Bezpośredni";
+
+/* Location: NewChatView.swift - Contact type label for repeaters */
+"chats.newChat.contactType.repeater" = "Przekaźnik";
+
+/* Location: NewChatView.swift - Contact type label for rooms */
+// MARK: - Conversation Row
+
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
+"chats.row.pin" = "Przypięte";
+
+/* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
+"chats.row.noMessages" = "Brak wiadomości";
+
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for failed-send indicator */
+"chats.row.failedSend" = "Nie udało się wysłać";
+
+/* Location: MutedIndicator.swift - Accessibility label for muted indicator */
+"chats.row.muted" = "Wyciszony";
+
+// MARK: - Swipe Actions
+
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to delete */
+"chats.action.delete" = "Usuń";
+
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to unmute */
+"chats.action.unmute" = "Wyłącz wyciszenie";
+
+/* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
+"chats.action.mute" = "Wycisz";
+
+/* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
+"chats.action.pin" = "Przypnij";
+
+/* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
+"chats.action.unpin" = "Odepnij";
+
+// MARK: - Room Conversation Row
+
+/* Location: RoomConversationRow.swift - Status when room is connected */
+"chats.room.connected" = "Połączony";
+
+/* Location: RoomConversationRow.swift - Prompt to reconnect to room */
+"chats.room.tapToReconnect" = "Dotknij, aby połączyć ponownie";
+
+// MARK: - Room Authentication Sheet
+
+/* Location: RoomAuthenticationSheet.swift - Error title when room not found */
+"chats.roomAuth.notFound.title" = "Nie znaleziono pokoju";
+
+/* Location: RoomAuthenticationSheet.swift - Error description when room not found */
+"chats.roomAuth.notFound.description" = "Nie można znaleźć kontaktu pokoju";
+
+// MARK: - Conversation List Sections
+
+/* Location: ConversationListContent.swift - Section accessibility label for favorites */
+/* Location: ConversationListContent.swift - Section accessibility label for other conversations */
+// MARK: - Mention Suggestions
+
+"chats.mention.accessibility.label" = "Wspomnij %@";
+"chats.mention.accessibility.hintChannel" = "Nadawca kanału. Stuknij dwukrotnie, aby wspomnieć";
+"chats.mention.accessibility.hintContact" = "Zapisany kontakt. Stuknij dwukrotnie, aby wspomnieć";
+
+/* Location: MentionSuggestionView.swift - Accessibility label for mention suggestions popup */
+"chats.suggestions.accessibilityLabel" = "Sugestie wzmianek";
+
+// MARK: - Create Private Channel View
+
+/* Location: CreatePrivateChannelView.swift - Title when sharing created channel */
+"chats.createPrivate.titleShare" = "Udostępnij kanał prywatny";
+
+/* Location: CreatePrivateChannelView.swift - Title when creating channel */
+"chats.createPrivate.titleCreate" = "Utwórz kanał prywatny";
+
+/* Location: CreatePrivateChannelView.swift - Text field placeholder for channel name */
+"chats.createPrivate.channelName" = "Nazwa kanału";
+
+/* Location: CreatePrivateChannelView.swift - Section header for channel details */
+"chats.createPrivate.section.details" = "Szczegóły kanału";
+
+/* Location: CreatePrivateChannelView.swift - Section header for generated secret */
+"chats.createPrivate.section.secret" = "Wygenerowany klucz tajny";
+
+/* Location: CreatePrivateChannelView.swift - Footer explaining generated secret */
+"chats.createPrivate.secretFooter" = "Wygenerowano losowy klucz tajny. Po utworzeniu kanału będziesz mógł go udostępnić za pomocą kodu QR.";
+
+/* Location: CreatePrivateChannelView.swift - Button to create channel */
+"chats.createPrivate.createButton" = "Utwórz kanał";
+
+/* Location: CreatePrivateChannelView.swift - Section header for manual sharing */
+"chats.createPrivate.section.shareManually" = "Udostępnij ręcznie";
+
+/* Location: CreatePrivateChannelView.swift - Footer explaining manual sharing */
+"chats.createPrivate.shareManuallyFooter" = "Udostępnij nazwę kanału i ten klucz tajny innym. Będą potrzebować obu, aby dołączyć.";
+
+// MARK: - Join Private Channel View
+
+/* Location: JoinPrivateChannelView.swift - Text field placeholder for secret key */
+"chats.joinPrivate.secretKeyPlaceholder" = "Klucz tajny (32 znaki szesnastkowe)";
+
+/* Location: JoinPrivateChannelView.swift - Validation error for invalid secret */
+"chats.joinPrivate.error.invalidSecret" = "Klucz tajny musi mieć dokładnie 32 znaki szesnastkowe (0-9, A-F)";
+
+/* Location: JoinPrivateChannelView.swift - Footer explaining how to join */
+"chats.joinPrivate.footer" = "Wprowadź nazwę kanału i klucz tajny udostępniony przez twórcę kanału.";
+
+/* Location: JoinPrivateChannelView.swift - Button to join channel */
+"chats.joinPrivate.joinButton" = "Dołącz do kanału";
+
+/* Location: JoinPrivateChannelView.swift - Navigation title */
+"chats.joinPrivate.title" = "Dołącz do kanału prywatnego";
+
+/* Location: JoinPrivateChannelView.swift - Error for invalid secret key format */
+"chats.joinPrivate.error.invalidFormat" = "Nieprawidłowy format klucza tajnego";
+
+// MARK: - Join Public Channel View
+
+/* Location: JoinPublicChannelView.swift - Channel name displayed */
+"chats.joinPublic.channelName" = "Kanał publiczny";
+
+/* Location: JoinPublicChannelView.swift - Description of public channel */
+"chats.joinPublic.description" = "Kanał publiczny to otwarty kanał nadawczy na slocie 0. Wszystkie urządzenia w sieci mesh mogą wysyłać i odbierać wiadomości na tym kanale.";
+
+/* Location: JoinPublicChannelView.swift - Button to add public channel */
+"chats.joinPublic.addButton" = "Dodaj kanał publiczny";
+
+/* Location: JoinPublicChannelView.swift - Navigation title */
+"chats.joinPublic.title" = "Dołącz do kanału publicznego";
+
+// MARK: - Join Hashtag Channel View
+
+/* Location: JoinHashtagChannelView.swift - Text field placeholder */
+"chats.joinHashtag.placeholder" = "nazwa-kanału";
+
+/* Location: JoinHashtagChannelView.swift - Section header */
+"chats.joinHashtag.section.header" = "Kanał hashtagowy";
+
+/* Location: JoinHashtagChannelView.swift - Footer explaining hashtag channels */
+"chats.joinHashtag.footer" = "Kanały hashtagowe są publiczne. Każdy może dołączyć, wpisując tę samą nazwę. Dozwolone są tylko małe litery, cyfry i myślniki.";
+
+/* Location: JoinHashtagChannelView.swift - Description about encryption */
+"chats.joinHashtag.encryptionDescription" = "Nazwa kanału jest używana do generowania klucza szyfrowania. Każdy z tą samą nazwą może czytać wiadomości.";
+
+/* Location: JoinHashtagChannelView.swift - Button format for existing channel - %@ is channel name */
+"chats.joinHashtag.goToButton" = "Przejdź do #%@";
+
+/* Location: JoinHashtagChannelView.swift - Button format for new channel - %@ is channel name */
+"chats.joinHashtag.joinButton" = "Dołącz do #%@";
+
+/* Location: JoinHashtagChannelView.swift - Accessibility hint for existing channel */
+"chats.joinHashtag.existingHint" = "Otwiera kanał, do którego już dołączyłeś";
+
+/* Location: JoinHashtagChannelView.swift - Accessibility hint for new channel */
+"chats.joinHashtag.newHint" = "Tworzy i dołącza do tego kanału hashtagowego";
+
+/* Location: JoinHashtagChannelView.swift - Footer label when channel already joined */
+"chats.joinHashtag.alreadyJoined" = "Już dołączono";
+
+/* Location: JoinHashtagChannelView.swift - Accessibility label for already joined */
+"chats.joinHashtag.alreadyJoinedAccessibility" = "Już dołączono do kanału";
+
+/* Location: JoinHashtagChannelView.swift - Navigation title */
+"chats.joinHashtag.title" = "Dołącz do kanału hashtagowego";
+
+// MARK: - Join Hashtag From Message View
+
+/* Location: JoinHashtagFromMessageView.swift - Loading text */
+"chats.joinFromMessage.loading" = "Ładowanie...";
+
+/* Location: JoinHashtagFromMessageView.swift - Navigation title */
+"chats.joinFromMessage.title" = "Dołącz do kanału";
+
+/* Location: JoinHashtagFromMessageView.swift - No device connected title */
+"chats.joinFromMessage.noDevice.title" = "Brak połączonego urządzenia";
+
+/* Location: JoinHashtagFromMessageView.swift - No device connected description - %@ is channel name */
+"chats.joinFromMessage.noDevice.description" = "Połącz urządzenie, aby dołączyć do %@.";
+
+/* Location: JoinHashtagFromMessageView.swift - No slots available title */
+"chats.joinFromMessage.noSlots.title" = "Brak dostępnych slotów";
+
+/* Location: JoinHashtagFromMessageView.swift - No slots available description - %@ is channel name */
+"chats.joinFromMessage.noSlots.description" = "Wszystkie sloty kanałów są zajęte. Usuń istniejący kanał, aby dołączyć do %@.";
+
+/* Location: JoinHashtagFromMessageView.swift - Description of hashtag channels */
+"chats.joinFromMessage.description" = "Kanały hashtagowe są publiczne. Każdy może dołączyć, wpisując tę samą nazwę.";
+
+/* Location: JoinHashtagFromMessageView.swift - Button to join channel - %@ is channel name */
+"chats.joinFromMessage.joinButton" = "Dołącz do %@";
+
+/* Location: JoinHashtagFromMessageView.swift - Error for no available slots */
+"chats.joinFromMessage.error.noSlots" = "Brak dostępnych slotów.";
+
+/* Location: JoinHashtagFromMessageView.swift - Error for invalid channel name */
+"chats.joinFromMessage.error.invalidName" = "Nieprawidłowy format nazwy kanału.";
+
+/* Location: JoinHashtagFromMessageView.swift - Error when channel created but couldn't be loaded */
+"chats.joinFromMessage.error.loadFailed" = "Kanał utworzony, ale nie można go załadować.";
+
+/* Location: JoinChannelConfirmationSheet.swift - Region scope shown before join - %@ is region name */
+"chats.joinFromMessage.regionScope" = "Region: %@";
+
+/* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
+"chats.joinFromMessage.hashtagSecretMismatch" = "Ten klucz tajny nie pasuje do publicznego klucza hashtagowego. Dołączysz do kanału prywatnego o tej nazwie.";
+
+// MARK: - Scan Channel QR View
+
+/* Location: ScanChannelQRView.swift - Navigation title */
+"chats.scanQR.title" = "Skanuj kod QR";
+
+/* Location: ScanChannelQRView.swift - Error when scanner not available */
+"chats.scanQR.notAvailable.title" = "Skaner niedostępny";
+
+/* Location: ScanChannelQRView.swift - Error description when scanner not available */
+"chats.scanQR.notAvailable.description" = "Skanowanie QR nie jest obsługiwane na tym urządzeniu";
+
+/* Location: ScanChannelQRView.swift - Instruction to point camera */
+"chats.scanQR.instruction" = "Skieruj kamerę na kod QR kanału";
+
+/* Location: ScanChannelQRView.swift - Button to scan again */
+"chats.scanQR.scanAgain" = "Skanuj ponownie";
+
+/* Location: ScanChannelQRView.swift - Camera permission denied title */
+"chats.scanQR.permissionDenied.title" = "Wymagany dostęp do kamery";
+
+/* Location: ScanChannelQRView.swift - Camera permission denied message */
+"chats.scanQR.permissionDenied.message" = "Włącz dostęp do kamery w Ustawieniach, aby skanować kody QR.";
+
+/* Location: ScanChannelQRView.swift - Button to open settings */
+"chats.scanQR.openSettings" = "Otwórz Ustawienia";
+
+/* Location: ScanChannelQRView.swift - Error for invalid QR format */
+"chats.scanQR.error.invalidFormat" = "Nieprawidłowy format kodu QR";
+
+/* Location: ScanChannelQRView.swift - Error for invalid channel data */
+// MARK: - Message Bubble
+
+/* Location: UnifiedMessageBubble.swift - Fallback sender name */
+"chats.message.sender.unknown" = "Nieznany";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility text for sender names resolved from a short prefix */
+"chats.message.sender.possibleMatch" = "Możliwe dopasowanie, dopasowane po krótkim prefiksie";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to reply */
+"chats.message.action.reply" = "Odpowiedz";
+
+/* Location: MessageActionsSheet.swift - Context menu action to mention */
+"chats.message.action.mention" = "Wspomnij";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to copy */
+"chats.message.action.copy" = "Kopiuj";
+
+/* Location: BubbleTranslationControl.swift - In-bubble Translation offer */
+"chats.message.action.translate" = "Tłumacz";
+
+/* Location: BubbleTranslationControl.swift - Restore the stored message body */
+"chats.message.action.showOriginal" = "Pokaż oryginał";
+
+/* Location: BubbleTranslationControl.swift - Translation in progress */
+"chats.message.action.translating" = "Tłumaczenie...";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver prefix when the visible body is a translation - %@ is the translated text */
+"chats.message.translatedAccessibility" = "Przetłumaczono: %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to view repeat details */
+"chats.message.action.repeatDetails" = "Szczegóły powtórzeń";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to send again */
+"chats.message.action.sendAgain" = "Wyślij ponownie";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing heard repeats - %d is count, second %@ is "repeat" or "repeats" */
+"chats.message.info.heardRepeats" = "Odebrano: %d %@";
+
+/* Location: UnifiedMessageBubble.swift - Singular form of repeat */
+"chats.message.repeat.singular" = "powtórzenie";
+
+/* Location: UnifiedMessageBubble.swift - Plural form of repeats */
+"chats.message.repeat.plural" = "powtórzeń";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing sent time - %@ is formatted date */
+"chats.message.info.sent" = "Wysłano: %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing round trip time - %d is milliseconds */
+"chats.message.info.roundTrip" = "Czas podróży: %dms";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to view path */
+"chats.message.action.viewPath" = "Zobacz ścieżkę";
+
+/* Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet */
+"chats.message.action.pathDetails" = "Szczegóły ścieżki";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn */
+"chats.message.action.heardTimes.singular" = "Odebrano 1 raz";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn */
+"chats.message.action.heardTimes.plural" = "Odebrano %d razy";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
+"chats.message.info.hops" = "Skoki: %@";
+
+/* Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3 */
+"chats.message.info.pathHash" = "Skrót ścieżki: %d B";
+
+/* Location: UnifiedMessageBubble.swift - Indicator that timestamp was adjusted */
+"chats.message.info.adjusted" = "(skorygowany)";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for adjusted timestamp */
+/* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
+/* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
+"chats.message.info.originalSendTime" = "Pierwotny czas wysłania: %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing received time - %@ is formatted date */
+"chats.message.info.received" = "Odebrano: %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu text showing SNR - %@ is formatted value */
+"chats.message.info.snr" = "SNR: %@";
+
+/* Location: MessageActionsSheet.swift - Context menu text showing the radio region the message was flooded under - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.info.floodedUnder" = "Region: %@";
+
+/* Location: MessageActionsSheet.swift - Details row shown when region could not be resolved */
+"chats.message.info.regionUnresolved" = "Region: Nieznany";
+
+/* Location: ActionsDetailsSection.swift - Details row when multiple known regions match the packet transport code - %@ is localized list of names */
+"chats.message.info.regionAmbiguous" = "Region (niejednoznaczny): %@";
+
+/* Location: UnifiedMessageBubble.swift - Context menu submenu label */
+"chats.message.action.details" = "Szczegóły";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is expanded */
+"chats.message.action.expanded" = "Rozwinięto";
+
+/* Location: ActionsDetailsSection.swift - Accessibility value when the details row is collapsed */
+"chats.message.action.collapsed" = "Zwinięto";
+
+/* Location: UnifiedMessageBubble.swift - Context menu action to delete */
+"chats.message.action.delete" = "Usuń";
+
+/* Location: MessageActionsSheet.swift - Purpose: Block sender action */
+"chats.message.action.blockSender" = "Zablokuj nadawcę";
+
+/* Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender */
+"chats.message.action.sendDM" = "Wyślij DM";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send */
+"chats.message.action.retry" = "Spróbuj ponownie";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet */
+"chats.message.action.viewReactions" = "Pokaż reakcje";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open the message's link preview URL */
+"chats.message.action.openLink" = "Otwórz łącze";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a web link, %@ is the host */
+"chats.message.action.openWebLink" = "Otwórz łącze: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared map coordinate */
+"chats.message.action.openMapLink" = "Otwórz mapę";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a mention, %@ is the mentioned name */
+"chats.message.action.openMention" = "Wspomnij: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a hashtag channel, %@ is the channel name */
+"chats.message.action.openHashtag" = "Otwórz #%@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to add a shared contact, %@ is the contact name */
+"chats.message.action.addContact" = "Dodaj kontakt: %@";
+
+/* Location: MessageLinkAccessibility.swift - VoiceOver action to open a shared channel link, %@ is the channel name */
+"chats.message.action.openChannel" = "Otwórz kanał: %@";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen */
+"chats.message.action.viewImage" = "Pokaż obraz";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed image download */
+"chats.message.action.retryImage" = "Spróbuj ponownie obraz";
+
+/* Location: UnifiedMessageBubble.swift - Status row retry button */
+"chats.message.status.retry" = "Ponów";
+
+/* Location: UnifiedMessageBubble.swift - Message status sending */
+"chats.message.status.sending" = "Wysyłanie...";
+
+/* Location: UnifiedMessageBubble.swift - Message status sent */
+"chats.message.status.sent" = "Wysłano";
+
+/* Location: UnifiedMessageBubble.swift - Message status sent multiple times - %d is count */
+"chats.message.status.sentMultiple" = "Wysłano %d razy";
+
+/* Location: UnifiedMessageBubble.swift - Message status delivered */
+"chats.message.status.delivered" = "Dostarczono";
+
+/* Location: UnifiedMessageBubble.swift - Message status failed */
+"chats.message.status.failed" = "Niepowodzenie";
+
+/* Location: UnifiedMessageBubble.swift - Message status retrying */
+"chats.message.status.retrying" = "Ponawianie...";
+
+/* Location: UnifiedMessageBubble.swift - Message status retrying with attempt count - %d is current attempt, %d is max attempts */
+"chats.message.status.retryingAttempt" = "Ponawianie %d/%d";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality excellent */
+"chats.signal.excellent" = "Doskonały";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality good */
+"chats.signal.good" = "Dobry";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality fair */
+"chats.signal.fair" = "Średni";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality poor */
+"chats.signal.poor" = "Słaby";
+
+/* Location: UnifiedMessageBubble.swift - SNR quality very poor */
+/* Location: UnifiedMessageBubble.swift - Hop count direct */
+"chats.message.hops.direct" = "Bezpośredni";
+
+// MARK: - Chat Input Bar
+
+/* Location: ChatInputBar.swift - Accessibility label for text input */
+"chats.input.accessibilityLabel" = "Pole wiadomości";
+
+/* Location: ChatInputBar.swift - Accessibility hint for text input */
+"chats.input.accessibilityHint" = "Wpisz swoją wiadomość tutaj";
+
+/* Location: ChatInputBar.swift - Accessibility label for character count - %d is current, %d is max */
+"chats.input.characterCount" = "%d z %d znaków";
+
+/* Location: ChatInputBar.swift - Accessibility label when message too long */
+"chats.input.tooLong" = "Wiadomość za długa";
+
+/* Location: ChatInputBar.swift - Accessibility label for send button */
+"chats.input.sendMessage" = "Wyślij wiadomość";
+
+/* Location: ChatInputBar.swift - Accessibility hint when over character limit - %d is characters to remove */
+"chats.input.removeCharacters" = "Usuń %d znaków, aby wysłać";
+
+/* Location: ChatInputBar.swift - Accessibility hint when not connected */
+"chats.input.requiresConnection" = "Wymaga połączenia radiowego";
+
+/* Location: ChatInputBar.swift - Accessibility hint when ready to send */
+"chats.input.tapToSend" = "Dotknij, aby wysłać wiadomość";
+
+/* Location: ChatInputBar.swift - Accessibility hint when message is empty */
+"chats.input.typeFirst" = "Najpierw wpisz wiadomość";
+"chats.input.encrypted" = "Zaszyfrowane";
+"chats.input.notEncrypted" = "Niezaszyfrowane";
+
+/* Location: ChatShareMenu.swift - Accessibility label for the share (plus) button */
+"chats.input.shareButton.accessibilityLabel" = "Udostępnij";
+
+// MARK: - Share Menu
+
+/* Location: ChatShareMenu.swift - Share menu action to share the current location */
+"chats.share.location" = "Udostępnij lokalizację";
+
+/* Location: ChatShareMenu.swift - Share menu action to share a contact */
+"chats.share.contact" = "Udostępnij kontakt";
+
+/* Location: ChatShareMenu.swift - Share menu action to share the user's own node info */
+"chats.share.myInfo" = "Udostępnij mój kontakt";
+
+// MARK: - Contact Picker
+
+/* Location: ShareContactPickerSheet.swift - Navigation title for the share-contact picker */
+"chats.contactPicker.title" = "Udostępnij kontakt";
+
+/* Location: ShareContactPickerSheet.swift - Search placeholder for the contact picker */
+"chats.contactPicker.search.placeholder" = "Szukaj kontaktów";
+
+/* Location: ShareContactPickerSheet.swift - Empty state when no contacts are available to share */
+"chats.contactPicker.emptyState" = "Brak kontaktów do udostępnienia";
+
+// MARK: - Message Path Sheet
+
+/* Location: MessagePathSheet.swift - Empty state title */
+"chats.path.unavailable.title" = "Ścieżka niedostępna";
+
+/* Location: MessagePathSheet.swift - Empty state description */
+"chats.path.unavailable.description" = "Dane ścieżki nie są dostępne dla tej wiadomości";
+
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Nie można umieścić ścieżki";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Skoki, które są nieznane, nie mają lokalizacji lub pasują do więcej niż jednego węzła, nie są umieszczane na mapie.";
+
+/* Location: MessagePathSheet.swift - Button to copy path */
+"chats.path.copyButton" = "Kopiuj ścieżkę";
+
+/* Location: MessagePathSheet.swift - Accessibility label for copy button */
+"chats.path.copyAccessibility" = "Kopiuj ścieżkę do schowka";
+
+/* Location: MessagePathSheet.swift - Accessibility hint for copy button */
+"chats.path.copyHint" = "Kopiuje identyfikatory węzłów jako wartości szesnastkowe";
+
+/* Location: MessagePathSheet.swift - Section header for path */
+/* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
+"chats.path.map" = "Mapa trasy";
+
+/* Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival */
+"chats.path.arrival.first" = "Pierwsze";
+
+/* Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s */
+"chats.path.arrival.offset" = "+%@";
+
+/* Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration */
+"chats.path.arrival.offsetAccessibility" = "%@, %@ po pierwszym przybyciu";
+
+/* Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map */
+"chats.path.accessibility.viewOnMap" = "Zobacz trasę na mapie";
+
+/* Location: MessageActionsSheet.swift - Alert when extra path fetch fails */
+"chats.path.extrasLoadFailed" = "Nie udało się załadować dodatkowych ścieżek.";
+
+/* Location: MessagePathMapView.swift - Center on path map control accessibility label */
+"chats.path.centerOnPath" = "Wyśrodkuj na trasie";
+
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Odległość trasy";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Odległość Trasy";
+
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Odległość może być niedokładna. Skoki, które są nieznane, nie mają lokalizacji lub pasują do więcej niż jednego węzła, nie są uwzględniane w obliczeniach.";
+
+// MARK: - Path Hop Row View
+
+/* Location: PathHopRowView.swift - Unknown node name */
+"chats.path.hop.unknown" = "<nieznany>";
+
+/* Location: PathHopRowView.swift - Label for sender (first hop) */
+"chats.path.hop.sender" = "Nadawca";
+
+/* Location: PathHopRowView.swift - Label for intermediate hops - %d is hop number */
+"chats.path.hop.number" = "Skok %d";
+
+/* Location: PathHopRowView.swift - Accessibility value format for last hop - %@ is quality, %@ is SNR */
+"chats.path.hop.signalQuality" = "Jakość sygnału: %@, SNR %@ dB";
+
+/* Location: PathHopRowView.swift - Accessibility value format for non-last hops - %@ is hex ID */
+"chats.path.hop.nodeId" = "ID węzła: %@";
+
+/* Location: PathHopRowView.swift - Unknown signal quality */
+"chats.path.hop.signalUnknown" = "Nieznany";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for possible match indicator */
+"chats.path.hop.possibleMatch" = "Możliwe dopasowanie, dopasowane po krótkim prefiksie";
+
+/* Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover */
+"chats.path.hop.possibleMatchTitle" = "Możliwe Dopasowanie";
+
+/* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
+"chats.path.hop.possibleMatchExplanation" = "Wiele węzłów współdzieli ten prefiks. Wyświetlana nazwa może być nieprawidłowa.";
+
+/* Location: PathHopRowView.swift - Label for receiver (your device) */
+"chats.path.receiver.label" = "Odbiorca";
+
+/* Location: MessagePathSheet.swift - Fallback name when device name unavailable */
+"chats.path.receiver.you" = "Ty";
+
+// MARK: - Repeat Details Sheet
+
+/* Location: RepeatDetailsSheet.swift - Empty state title */
+"chats.repeats.emptyState.title" = "Brak powtórzeń";
+
+/* Location: RepeatDetailsSheet.swift - Empty state description */
+"chats.repeats.emptyState.description" = "Powtórzenia pojawią się tutaj, gdy wiadomość będzie propagowana przez sieć mesh";
+
+/* Location: RepeatDetailsSheet.swift - Navigation title */
+// MARK: - Repeat Row View
+
+/* Location: RepeatRowView.swift - Accessibility label format - %@ is repeater name */
+"chats.repeats.row.accessibility" = "Powtórzenie od %@";
+
+/* Location: RepeatRowView.swift - Accessibility value format - %@ is quality, %@ is SNR, %@ is RSSI */
+"chats.repeats.row.accessibilityValue" = "Sygnał %@, SNR %@, RSSI %@";
+
+/* Location: RepeatRowView.swift - Singular hop label */
+"chats.repeats.hop.singular" = "1 skok";
+
+/* Location: RepeatRowView.swift - Plural hops label - %d is count */
+"chats.repeats.hop.plural" = "%d skoków";
+
+/* Location: RepeatRowView.swift - Unknown repeater name */
+"chats.repeats.unknownRepeater" = "<nieznany przekaźnik>";
+
+// MARK: - Tap to Load Preview
+
+"chats.linkPreview.accessibility.label" = "%1$@, z %2$@, link";
+"chats.linkPreview.accessibility.hint" = "Otwiera w przeglądarce";
+
+/* Location: TapToLoadPreview.swift - Loading state text */
+"chats.preview.loading" = "Ładowanie podglądu...";
+
+/* Location: TapToLoadPreview.swift - Idle state text */
+"chats.preview.tapToLoad" = "Dotknij, aby załadować podgląd";
+
+/* Location: TapToLoadPreview.swift - Loading accessibility label format - %@ is host */
+"chats.preview.loadingAccessibility" = "Ładowanie podglądu dla %@";
+
+/* Location: TapToLoadPreview.swift - Idle accessibility label format - %@ is host */
+"chats.preview.tapAccessibility" = "Załaduj podgląd dla %@";
+
+/* Location: TapToLoadPreview.swift - Loading accessibility hint */
+"chats.preview.loadingHint" = "Proszę czekać";
+
+/* Location: TapToLoadPreview.swift - Idle accessibility hint */
+"chats.preview.tapHint" = "Pobiera tytuł i obraz ze strony internetowej";
+
+// MARK: - Common Buttons (using Localizable.strings common keys where possible)
+
+/* Location: Various - OK button (use L10n.Localizable.Common.ok) */
+"chats.common.ok" = "OK";
+
+/* Location: Various - Cancel button (use L10n.Localizable.Common.cancel) */
+"chats.common.cancel" = "Anuluj";
+
+/* Location: Various - Done button (use L10n.Localizable.Common.done) */
+"chats.common.done" = "Gotowe";
+
+// MARK: - Message Path
+
+/* Direct message path (no hops) */
+"chats.message.path.direct" = "Bezpośrednio";
+/* Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology. */
+"chats.message.path.flood" = "Flood";
+
+/* Message path hop count */
+/* Fallback when path nodes unavailable */
+/* Accessibility label for message path */
+"chats.message.path.accessibilityLabel" = "Ścieżka trasowania: %@";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count */
+"chats.message.hopCount.accessibilityLabel" = "Liczba skoków: %d";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
+"chats.message.region.accessibilityLabel" = "Region %@";
+
+/* Location: BubbleFooterRow.swift - VoiceOver when multiple regions match - %@ is localized list of names */
+"chats.message.region.ambiguousAccessibilityLabel" = "Region, niejednoznaczny: %@";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for region multi-match */
+"chats.message.region.ambiguous.possibleMatch" = "Wiele pasujących regionów";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility hint for region multi-match */
+"chats.message.region.ambiguous.possibleMatchHint" = "Więcej niż jeden region na Twojej liście pasuje do kodu transportowego tego pakietu. Aplikacja nie może określić, który został użyty.";
+
+/* Location: FallbackMatchIndicatorView.swift - Popover title for region multi-match */
+"chats.message.region.ambiguous.popoverTitle" = "Wiele pasujących regionów";
+
+/* Location: FallbackMatchIndicatorView.swift - Popover body; %@ is newline-prefixed list of candidate names */
+"chats.message.region.ambiguous.popoverBody" = "Więcej niż jeden region na Twojej liście pasuje do kodu transportowego tego pakietu. Aplikacja nie może określić, który został użyty.%@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time */
+"chats.message.sendTime.accessibilityLabel" = "Czas wysłania: %@";
+
+/* Location: BubbleFooterRow.swift - Accessibility label for the send time footer when the sender's clock was corrected - %@ is the time */
+"chats.message.sendTime.correctedAccessibilityLabel" = "Czas wysłania: %@, skorygowany z powodu błędu zegara nadawcy";
+
+// MARK: - Reaction Details Sheet
+
+/* Location: ReactionDetailsSheet.swift - Navigation title */
+"reactions.title" = "Reakcje";
+
+/* Location: ReactionDetailsSheet.swift - Empty state title */
+"reactions.emptyState.title" = "Brak reakcji";
+
+/* Location: ReactionDetailsSheet.swift - Empty state description */
+"reactions.emptyState.description" = "Nikt jeszcze nie zareagował na tę wiadomość";
+
+// MARK: - Emoji Picker Categories
+
+/* Location: EmojiProvider.swift - Frequently used category */
+"reactions.emoji.category.frequent" = "Często używane";
+
+/* Location: EmojiProvider.swift - People category */
+"reactions.emoji.category.people" = "Emotikony i ludzie";
+
+/* Location: EmojiProvider.swift - Nature category */
+"reactions.emoji.category.nature" = "Zwierzęta i natura";
+
+/* Location: EmojiProvider.swift - Foods category */
+"reactions.emoji.category.foods" = "Jedzenie i napoje";
+
+/* Location: EmojiProvider.swift - Activity category */
+"reactions.emoji.category.activity" = "Aktywność";
+
+/* Location: EmojiProvider.swift - Places category */
+"reactions.emoji.category.places" = "Podróże i miejsca";
+
+/* Location: EmojiProvider.swift - Objects category */
+"reactions.emoji.category.objects" = "Obiekty";
+
+/* Location: EmojiProvider.swift - Symbols category */
+"reactions.emoji.category.symbols" = "Symbole";
+
+/* Location: EmojiProvider.swift - Flags category */
+"reactions.emoji.category.flags" = "Flagi";
+
+/* Location: EmojiPickerSheet.swift - Search placeholder */
+"reactions.emoji.searchPlaceholder" = "Szukaj emoji";
+
+// MARK: - Divider
+
+/* Location: NewMessagesDividerView.swift - Label for new messages divider */
+"chats.divider.newMessages" = "Nowe wiadomości";
+
+/* Location: NewMessagesDividerView.swift - VoiceOver label for new messages divider */
+"chats.divider.newMessagesAccessibility" = "Separator nowych wiadomości";
+
+// MARK: - Tips
+
+/* Location: DeviceMenuTip.swift - Purpose: Tip title introducing device menu */
+"chats.tip.deviceMenu.title" = "Menu urządzenia";
+
+/* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
+"chats.tip.deviceMenu.message" = "Zarządzaj połączeniem, wysyłaj ogłoszenia i sprawdzaj baterię. Radio pozostaje połączone nawet po wymuszonym zamknięciu aplikacji. Dotknij Rozłącz, aby wyłączyć łącze.";
+
+/* Location: InlineImageView.swift - Accessibility label for static image */
+"chats.inlineImage.imageAccessibility" = "Obraz";
+
+/* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
+/* Location: InlineImageView.swift - Accessibility label for animated image */
+"chats.inlineImage.animatedAccessibility" = "Animowany obraz";
+
+/* Location: InlineImageView.swift - Accessibility hint for tap to view full screen */
+"chats.inlineImage.tapHint" = "Stuknij dwukrotnie, aby wyświetlić na pełnym ekranie";
+
+/* Location: UnifiedMessageBubble.swift - Tap to retry loading failed image */
+"chats.inlineImage.tapToRetry" = "Dotknij, aby spróbować ponownie";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility hint for retry button */
+"chats.inlineImage.retryHint" = "Stuknij dwukrotnie, aby ponownie spróbować załadować obraz";
+
+/* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
+"chats.inlineImage.failedLabel" = "Nie udało się załadować obrazu";
+
+/* Location: FullScreenImageViewer.swift - Close button label */
+"chats.imageViewer.close" = "Zamknij";
+
+/* Location: FullScreenImageViewer.swift - Share button label */
+"chats.imageViewer.share" = "Obraz";
+
+// MARK: - Block Sender Sheet
+
+/* Location: BlockSenderSheet.swift - Purpose: Sheet title with sender name */
+"chats.blockSender.title" = "Zablokować \"%@\"";
+
+/* Location: BlockSenderSheet.swift - Purpose: Explanation of name-based blocking limitation */
+"chats.blockSender.limitation" = "Wiadomości w kanałach nie zawierają tożsamości nadawcy. Ta blokada działa tylko na podstawie nazwy — nadawca może ją obejść, zmieniając swoją nazwę.";
+
+/* Location: BlockSenderSheet.swift - Purpose: Section header when matching contacts found */
+"chats.blockSender.matchingContacts" = "Następujące kontakty mają tę samą nazwę. Wybierz te, które chcesz również zablokować:";
+
+/* Location: BlockSenderSheet.swift - Purpose: Cancel button */
+"chats.blockSender.cancel" = "Anuluj";
+
+/* Location: BlockSenderSheet.swift - Purpose: Destructive block button */
+"chats.blockSender.blockAnyway" = "Zablokuj";
+
+// MARK: - Contact Match Row
+
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is selected */
+"chats.contactMatch.accessibility.selected" = "Zaznaczono";
+
+/* Location: ContactMatchRow.swift - Purpose: Accessibility value when contact is not selected */
+"chats.contactMatch.accessibility.notSelected" = "Nie zaznaczono";
+
+/* Location: ContactMatchRow.swift - Purpose: Public key label */
+"chats.contactMatch.key" = "Klucz: %@";
+
+// MARK: - Send DM Sheet
+
+/* Location: SendDMSheet.swift - Purpose: Sheet title with sender name */
+"chats.sendDM.title" = "Wyślij DM do \"%@\"";
+
+/* Location: SendDMSheet.swift - Purpose: Name-based matching limitation warning */
+"chats.sendDM.limitation" = "Wiadomości w kanałach nie zawierają tożsamości nadawcy. To dopasowanie działa tylko na podstawie nazwy — kontakt może być inną osobą o tym samym imieniu.";
+
+/* Location: SendDMSheet.swift - Purpose: Section header listing matching contacts */
+"chats.sendDM.matchingContacts" = "Wybierz kontakt, do którego chcesz wysłać wiadomość:";
+
+/* Location: SendDMSheet.swift - Purpose: Empty-state message when no contact matches */
+"chats.sendDM.noMatches" = "Nie znaleziono kontaktu o nazwie \"%@\".";
+
+/* Location: SendDMSheet.swift - Purpose: Cancel button */
+"chats.sendDM.cancel" = "Anuluj";
+
+// MARK: - Message Actions
+
+/* Location: MessageActionsSheet.swift - Purpose: Sheet title */
+// MARK: - Notification Level
+
+/* Location: NotificationLevelPicker.swift - Purpose: Picker label */
+"chats.notificationLevel.label" = "Poziom powiadomień";
+
+/* Location: NotificationLevelPicker.swift - Purpose: Picker accessibility hint */
+"chats.notificationLevel.hint" = "Wybierz, kiedy otrzymywać powiadomienia";
+
+/* Location: NotificationLevelPicker.swift - Muted level label */
+"chats.notificationLevel.muted" = "Wyciszone";
+
+/* Location: NotificationLevelPicker.swift - Mentions-only level label */
+"chats.notificationLevel.mentions" = "Wzmianki";
+
+/* Location: NotificationLevelPicker.swift - All notifications level label */
+"chats.notificationLevel.all" = "Wszystkie";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for muted level */
+"chats.notificationLevel.accessibility.muted" = "Wyciszone, brak powiadomień";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for mentions-only level */
+"chats.notificationLevel.accessibility.mentionsOnly" = "Tylko wzmianki";
+
+/* Location: NotificationLevelPicker.swift - Accessibility description for all-notifications level */
+"chats.notificationLevel.accessibility.all" = "Wszystkie powiadomienia";
+
+/* Location: ConversationRow.swift - Purpose: Mentions-only indicator */
+"chats.row.mentionsOnly" = "Tylko wzmianki";
+
+// MARK: - Reactions
+
+/* Location: ReactionBadgeView.swift - Purpose: Badge format (emoji + count) */
+"reactions.badge" = "%@ %d";
+
+/* Location: ReactionBadgeView.swift - Purpose: Badge accessibility hint */
+"reactions.badge_hint" = "Pokazuje, kto zareagował";
+
+/* Location: ReactionBadgeView.swift - Purpose: Overflow badge showing additional reaction types */
+"reactions.more_badge" = "%d więcej typów reakcji";
+
+/* Location: ReactionBadgeView.swift - Purpose: Overflow badge accessibility hint */
+"reactions.more_badge_hint" = "Pokazuje wszystkie reakcje";
+
+/* Location: EmojiPickerSheet.swift - Purpose: More emoji button */
+"reactions.more_emojis" = "Więcej emoji";
+
+/* Location: ReactionDetailsSheet.swift - Purpose: Details sheet title */
+/* Location: ReactionBadgeView.swift - Purpose: Error message when reaction fails */
+/* Location: MessageActionsSheet.swift - Purpose: Reply action */
+/* Location: MessageActionsSheet.swift - Purpose: Copy action */
+/* Location: MessageActionsSheet.swift - Purpose: Delete action */
+// MARK: - Malware Warning
+
+/* Location: MalwareWarningCard.swift - Warning title for flagged domains */
+"chats.malwareWarning.title" = "Link oznaczony jako podejrzany";
+
+/* Location: MalwareWarningCard.swift - Accessibility label - %@ is domain */
+"chats.malwareWarning.accessibility" = "Ostrzeżenie: link do %@ oznaczony jako podejrzany";
+
+// MARK: - Region Filtering
+
+/* Location: ChannelInfoSheet.swift - Purpose: Region row label */
+"chats.channelInfo.region" = "Region";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
+"chats.channelInfo.region.allRegions" = "Bez regionu";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
+"chats.channelInfo.region.useDefaultFormat" = "%@ (domyślny)";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Region value when no regions configured */
+"chats.channelInfo.region.notConfigured" = "Nie skonfigurowano";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Explanation shown when no regions exist */
+"chats.channelInfo.region.explanation" = "Ogranicz wiadomości do obszaru geograficznego";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Discover button */
+"chats.channelInfo.region.discover" = "Odkryj pobliskie regiony";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Discover button loading state */
+"chats.channelInfo.region.discovering" = "Wyszukiwanie…";
+
+/* Location: RegionManagementView.swift - Purpose: Navigation title */
+"chats.channelInfo.region.manage" = "Regiony";
+
+/* Location: RegionManagementView.swift - Purpose: Manage regions link */
+"chats.channelInfo.region.manageRegions" = "Zarządzaj regionami";
+
+/* Location: RegionManagementView.swift - Purpose: Add manually button */
+"chats.channelInfo.region.addManually" = "Dodaj ręcznie";
+
+/* Location: RegionManagementView.swift - Purpose: Empty state title */
+"chats.channelInfo.region.noRegions" = "Nie dodano regionów";
+
+/* Location: RegionManagementView.swift - Purpose: Empty state description */
+"chats.channelInfo.region.noRegionsDescription" = "Odkryj regiony z pobliskich przekaźników lub dodaj je ręcznie.";
+
+/* Location: RegionDiscoveryResultsView.swift - Purpose: No new regions found */
+"chats.channelInfo.region.noNewRegions" = "Nie znaleziono nowych regionów";
+
+/* Location: RegionDiscoveryResultsView.swift - Purpose: No repeaters responded */
+"chats.channelInfo.region.noRepeatersResponded" = "Żaden repeater nie odpowiedział";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Couldn't load nearby repeater list */
+"chats.channelInfo.region.errLoadingRepeaters" = "Nie udało się załadować pobliskich przekaźników";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Some queries failed because radio contact list is full */
+"chats.channelInfo.region.errRadioContactsFull" = "Lista kontaktów radia jest pełna — niektórych przekaźników nie udało się odpytać";
+
+/* Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button */
+"chats.channelInfo.region.addSelected" = "Dodaj";
+
+/* Location: AddRegionView.swift - Purpose: Navigation title */
+"chats.channelInfo.region.addRegionTitle" = "Dodaj region";
+
+/* Location: AddRegionView.swift - Purpose: Text field placeholder */
+"chats.channelInfo.region.addRegionPlaceholder" = "Nazwa regionu";
+
+/* Location: AddRegionView.swift - Purpose: Validation error */
+"chats.channelInfo.region.invalidName" = "Nazwy regionów mogą zawierać tylko litery, cyfry i myślniki.";
+
+/* Location: RegionManagementView.swift - Purpose: Validation error when a region name exceeds the firmware byte cap */
+"chats.channelInfo.region.nameTooLong" = "Nazwy regionów są ograniczone do %d bajtów.";
+
+/* Location: AddRegionView.swift - Purpose: Duplicate error */
+"chats.channelInfo.region.duplicate" = "Ten region jest już na Twojej liście.";
+
+/* Location: ChannelInfoSheet.swift - Purpose: Private region label */
+"chats.channelInfo.region.private" = "Prywatny";
+
+/* Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope */
+"chats.channelInfo.region.scopedDefault" = "%@ (domyślny)";
+
+// MARK: - Common
+
+/* Location: ChatConversationView.swift - Conversation toolbar Info button */
+"chats.common.info" = "Informacje";
+
+// MARK: - Mention Picker
+
+/* Location: ChatConversationView.swift - Mention picker navigation title shown with the tapped mention name */
+"chats.mention.picker.title" = "Wspomnij: %@";
+
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedTitle" = "Brak w zapisanych kontaktach";
+
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name matches no saved contact */
+"chats.mention.picker.notSavedSubtitle" = "@%@ nie pasuje do żadnego kontaktu na tym radiu.";
+
+/* Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
+"chats.mention.picker.selfTitle" = "To Ty";
+
+/* Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
+"chats.mention.picker.selfSubtitle" = "@%@ to nazwa Twojego własnego węzła.";
+
+/* Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
+"chats.mention.picker.matchingContacts" = "Pasujące kontakty";
+
+// MARK: - Unverified Nickname
+
+/* Location: UnifiedMessageBubble.swift - Title for unverified nickname explanation popover */
+"chats.message.sender.unverifiedNickname" = "Niezweryfikowana nazwa";
+
+/* Location: UnifiedMessageBubble.swift - Explanation of why the sender name is unverified */
+"chats.message.sender.unverifiedNicknameExplanation" = "Nadawców wiadomości w kanałach nie można zweryfikować. Może to być inna osoba.";
+
+/* Location: UnifiedMessageBubble.swift - Accessibility label for unverified nickname indicator */
+"chats.message.sender.unverifiedNicknameAccessibilityLabel" = "Niezweryfikowane dopasowanie nazwy";
+
+/* Location: UnifiedMessageBubble.swift - Format string for unverified nickname display - %@ is the nickname */
+"chats.message.sender.unverifiedNicknameFormat" = "(%@)";

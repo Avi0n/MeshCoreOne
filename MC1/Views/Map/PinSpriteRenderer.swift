@@ -1,0 +1,590 @@
+import MapLibre
+import UIKit
+
+@MainActor
+enum PinSpriteRenderer {
+  /// Height of a standard pin sprite in points (circle + triangle pointer).
+  /// Used by the map Coordinator to position callout anchors above the pin icon.
+  static let standardHeight: CGFloat = 43 // 36 (circle) + 10 (triangle) - 3 (overlap)
+
+  /// Diameter of the small center-anchored location-fix dot.
+  static let locationDotDiameter: CGFloat = 14
+
+  /// Number of recency buckets a location trail's dots are graded into. Five reads
+  /// as a clear directional gradient without banding into noise at dot size.
+  /// `nonisolated` so the (non-isolated) path builder can bucket against it.
+  nonisolated static let recencyBucketCount = 5
+
+  /// Recency ramp for sampled location-fix dots, oldest → newest: a warm "ember"
+  /// family (warm-grey → ochre → amber → orange → coral) that harmonizes with the
+  /// pink hero while stopping short of its hue, so the newest dot is never mistaken
+  /// for the current-position hero. Tuned per basemap because a single ramp can't
+  /// stay legible on both: the light stops would sink into a dark ground, and vice
+  /// versa. Recency rises in saturation and warmth together, so it survives greyscale
+  /// and red/green colour-vision deficiency. From an Apple UI/UX design consult.
+  private static let locationDotPaletteLight = [0xA19687, 0xB68F68, 0xD17A47, 0xE76740, 0xF55E47].map(hexColor)
+  private static let locationDotPaletteDark = [0xB1A695, 0xC59E77, 0xD8885A, 0xED7C5A, 0xF87662].map(hexColor)
+
+  /// The hero tint for the node's latest location report (the mockup's `--hero`).
+  private static let locationHeroColor = hexColor(0xFF375F)
+
+  /// Sprite name for a location-fix dot at the given recency bucket (clamped in range).
+  static func locationDotSpriteName(bucket: Int) -> String {
+    "pin-location-fix-\(min(max(bucket, 0), recencyBucketCount - 1))"
+  }
+
+  private nonisolated static func hexColor(_ hex: UInt32) -> UIColor {
+    UIColor(
+      red: CGFloat((hex >> 16) & 0xFF) / 255,
+      green: CGFloat((hex >> 8) & 0xFF) / 255,
+      blue: CGFloat(hex & 0xFF) / 255,
+      alpha: 1
+    )
+  }
+
+  /// Upward offset from a pin's coordinate to where its tap callout should attach:
+  /// the top of the drawn sprite. Bottom-anchored teardrops lift a full pin height;
+  /// the center-anchored location dot lifts only its radius plus a hair of clearance.
+  static func calloutLift(for style: MapPoint.PinStyle) -> CGFloat {
+    switch style {
+    case .locationFix: locationDotDiameter / 2 + 4
+    default: standardHeight
+    }
+  }
+
+  static let labelSpritePrefix = "label-"
+
+  /// Largest hop number a pin badge will render. Hops beyond this clamp to the
+  /// cap rather than failing to resolve a sprite. MeshCore paths top out at 64 hops.
+  static let maxHopBadge = 64
+
+  private static var cachedImages: [String: UIImage]?
+
+  /// Sprites cached for static snapshot compositing, keyed by spec name. Distinct
+  /// from `cachedImages`, which is only populated after the Map tab loads its GL
+  /// style; the snapshot render paths never load that style.
+  private static var cachedSnapshotSprites: [String: UIImage] = [:]
+
+  /// A base pin sprite rendered once and reused, so snapshot thumbnails composite
+  /// the exact pins the live map drops. Unknown names return an empty image.
+  static func snapshotSprite(named name: String) -> UIImage {
+    if let cached = cachedSnapshotSprites[name] { return cached }
+    let image: UIImage
+    if let spec = allSpecs.first(where: { $0.name == name }) {
+      image = render(spec)
+    } else if let hopImage = renderHopVariant(named: name) {
+      image = hopImage
+    } else {
+      return UIImage()
+    }
+    cachedSnapshotSprites[name] = image
+    return image
+  }
+
+  /// The dropped-pin sprite (systemPink circle + `mappin`) for the chat map thumbnail.
+  static func droppedPinSprite() -> UIImage {
+    snapshotSprite(named: "pin-dropped")
+  }
+
+  /// Registers base pin sprites. Hop-ring and name-label sprites load lazily via
+  /// `renderOnDemand` / `image(named:)`. `isDarkMode` picks the location-dot palette.
+  static func renderAll(into style: MLNStyle, isDarkMode: Bool) {
+    var rendered: [String: UIImage] = [:]
+    for spec in allSpecs {
+      rendered[spec.name] = render(spec)
+    }
+    // Recency-graded location dots: one sprite per bucket, from the theme's palette.
+    let palette = isDarkMode ? locationDotPaletteDark : locationDotPaletteLight
+    // A pure-white casing on every small dot over a dark basemap sparkles and starts
+    // borrowing the hero's white-centre language, so soften it on dark ground.
+    let casing = isDarkMode ? UIColor.white.withAlphaComponent(0.85) : UIColor.white
+    for bucket in 0..<recencyBucketCount {
+      rendered[locationDotSpriteName(bucket: bucket)] = renderLocationDot(fill: palette[bucket], casing: casing)
+    }
+    rendered["pin-badge"] = UIGraphicsImageRenderer(
+      size: CGSize(width: 1, height: 1), format: .preferred()
+    ).image { _ in }
+    rendered["pill-bg"] = renderPillBackground()
+    cachedImages = rendered
+
+    for (name, image) in rendered {
+      style.setImage(image, forName: name)
+    }
+  }
+
+  /// Keep label, pin, and pill-bg sprites across source replaces. Basemap sprites still evict.
+  static func shouldRetainStyleImage(_ name: String) -> Bool {
+    name == "pill-bg"
+      || name.hasPrefix(labelSpritePrefix)
+      || name.hasPrefix("pin-")
+  }
+
+  /// Cached hop-ring or name-label sprite for `didFailToLoadImage` to register once.
+  static func image(named name: String) -> UIImage? {
+    if let cached = cachedImages?[name] {
+      return cached
+    }
+
+    let image: UIImage
+    if let hopImage = renderHopVariant(named: name) {
+      image = hopImage
+    } else if name.hasPrefix(labelSpritePrefix) {
+      let text = String(name.dropFirst(labelSpritePrefix.count))
+      guard !text.isEmpty else { return nil }
+      image = renderLabelSprite(text: text)
+    } else {
+      return nil
+    }
+
+    cachedImages?[name] = image
+    return image
+  }
+
+  /// Registers the sprite only when the style does not already have it, so a
+  /// source replace does not rebuild the image atlas.
+  static func renderOnDemand(name: String, into style: MLNStyle) -> UIImage? {
+    guard let image = image(named: name) else { return nil }
+    if style.image(forName: name) == nil {
+      style.setImage(image, forName: name)
+    }
+    return image
+  }
+
+  /// Hop-badged names are not in `allSpecs`. Snapshots have no `MLNStyle`, so they
+  /// cannot go through `renderOnDemand`.
+  private static func renderHopVariant(named name: String) -> UIImage? {
+    if name.hasPrefix("pin-repeater-ring-white-hop-") {
+      guard let hopString = name.split(separator: "-").last,
+            let hop = Int(hopString),
+            (1...maxHopBadge).contains(hop),
+            let ringWhiteSpec = allSpecs.first(where: { $0.name == "pin-repeater-ring-white" }) else {
+        return nil
+      }
+      return render(ringWhiteSpec, hopIndex: hop)
+    }
+    if name.hasPrefix("pin-repeater-hop-") {
+      guard let hopString = name.split(separator: "-").last,
+            let hop = Int(hopString),
+            (1...maxHopBadge).contains(hop),
+            let repeaterSpec = allSpecs.first(where: { $0.name == "pin-repeater" }) else {
+        return nil
+      }
+      return render(repeaterSpec, hopIndex: hop)
+    }
+    return nil
+  }
+
+  // MARK: - Sprite specifications
+
+  private enum RenderStyle {
+    case standard
+    case crosshair
+    case obstruction
+  }
+
+  private struct SpriteSpec {
+    let name: String
+    let circleColor: UIColor
+    let iconName: String? // SF Symbol name
+    let text: String? // e.g. "A", "B" for point pins
+    let ringColor: UIColor? // selection ring
+    let renderStyle: RenderStyle
+    var centerDot: Bool = false // white dot in the circle head (location hero)
+  }
+
+  private static let allSpecs: [SpriteSpec] = [
+    // Main map contacts
+    SpriteSpec(name: "pin-chat", circleColor: UIColor(red: 204 / 255, green: 122 / 255, blue: 92 / 255, alpha: 1),
+               iconName: "person.fill", text: nil, ringColor: nil, renderStyle: .standard),
+    SpriteSpec(name: "pin-repeater", circleColor: .systemCyan,
+               iconName: "antenna.radiowaves.left.and.right", text: nil, ringColor: nil, renderStyle: .standard),
+    SpriteSpec(name: "pin-room", circleColor: UIColor(red: 1, green: 136 / 255, blue: 0, alpha: 1),
+               iconName: "person.3.fill", text: nil, ringColor: nil, renderStyle: .standard),
+
+    // LOS/TracePath repeater states
+    SpriteSpec(name: "pin-repeater-ring-blue", circleColor: .systemCyan,
+               iconName: "antenna.radiowaves.left.and.right", text: nil, ringColor: .systemBlue, renderStyle: .standard),
+    SpriteSpec(name: "pin-repeater-ring-green", circleColor: .systemCyan,
+               iconName: "antenna.radiowaves.left.and.right", text: nil, ringColor: .systemGreen, renderStyle: .standard),
+    SpriteSpec(name: "pin-repeater-ring-white", circleColor: .systemCyan,
+               iconName: "antenna.radiowaves.left.and.right", text: nil, ringColor: .white, renderStyle: .standard),
+
+    // LOS point pins
+    SpriteSpec(name: "pin-point-a", circleColor: .systemBlue,
+               iconName: nil, text: "A", ringColor: nil, renderStyle: .standard),
+    SpriteSpec(name: "pin-point-b", circleColor: .systemGreen,
+               iconName: nil, text: "B", ringColor: nil, renderStyle: .standard),
+
+    // LOS crosshair target
+    SpriteSpec(name: "pin-crosshair", circleColor: .systemPurple,
+               iconName: nil, text: "R", ringColor: nil, renderStyle: .crosshair),
+
+    // LOS obstruction marker
+    SpriteSpec(name: "pin-obstruction", circleColor: .systemRed,
+               iconName: nil, text: nil, ringColor: nil, renderStyle: .obstruction),
+
+    // Chat-dropped coordinate pin
+    SpriteSpec(name: "pin-dropped", circleColor: .systemPink,
+               iconName: "mappin", text: nil, ringColor: nil, renderStyle: .standard),
+
+    // Node location history hero: the emphasized latest-fix teardrop. The recency
+    // dots are rendered separately per bucket in renderAll (theme-specific palette).
+    SpriteSpec(name: "pin-location-latest", circleColor: locationHeroColor,
+               iconName: nil, text: nil, ringColor: nil, renderStyle: .standard, centerDot: true),
+  ]
+
+  // MARK: - Rendering
+
+  private static func render(_ spec: SpriteSpec, hopIndex: Int? = nil) -> UIImage {
+    switch spec.renderStyle {
+    case .crosshair: return renderCrosshair(spec)
+    case .obstruction: return renderObstruction()
+    case .standard: break
+    }
+
+    let circleSize: CGFloat = 36
+    let iconSize: CGFloat = 16
+    let triangleSize: CGFloat = 10
+    let ringPadding: CGFloat = spec.ringColor != nil ? 4 : 0
+    let ringSize: CGFloat = spec.ringColor != nil ? 44 : 0
+    // A hop badge overhangs the circle's right edge by 4pt; widen the canvas
+    // (symmetrically, to keep the triangle tip horizontally centered on the
+    // coordinate) so a ringless badged pin isn't clipped.
+    let badgeRoom: CGFloat = hopIndex != nil ? 44 : 0
+    let totalWidth = max(circleSize, ringSize, badgeRoom)
+    let totalHeight = circleSize + triangleSize - 3 + ringPadding
+
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: totalWidth, height: totalHeight), format: .preferred())
+    return renderer.image { ctx in
+      let cgContext = ctx.cgContext
+      let centerX = totalWidth / 2
+
+      // Selection ring, centered on the circle head so it encircles the
+      // round portion rather than the triangle tail.
+      if let ringColor = spec.ringColor {
+        let circleCenterY = ringPadding + circleSize / 2
+        let ringRect = CGRect(
+          x: centerX - ringSize / 2,
+          y: circleCenterY - ringSize / 2,
+          width: ringSize,
+          height: ringSize
+        )
+        ringColor.setStroke()
+        cgContext.setLineWidth(3)
+        cgContext.strokeEllipse(in: ringRect.insetBy(dx: 1.5, dy: 1.5))
+      }
+
+      // Circle shadow
+      cgContext.saveGState()
+      cgContext.setShadow(offset: CGSize(width: 0, height: 2), blur: 4, color: UIColor.black.withAlphaComponent(0.3).cgColor)
+      let circleRect = CGRect(
+        x: centerX - circleSize / 2,
+        y: ringPadding,
+        width: circleSize,
+        height: circleSize
+      )
+      spec.circleColor.setFill()
+      cgContext.fillEllipse(in: circleRect)
+      cgContext.restoreGState()
+
+      // Circle (again without shadow for crisp edge)
+      spec.circleColor.setFill()
+      cgContext.fillEllipse(in: circleRect)
+
+      // Icon or text
+      if let iconName = spec.iconName {
+        let config = UIImage.SymbolConfiguration(pointSize: iconSize, weight: .regular)
+        if let icon = UIImage(systemName: iconName, withConfiguration: config)?.withTintColor(.white, renderingMode: .alwaysOriginal) {
+          let iconRect = CGRect(
+            x: centerX - icon.size.width / 2,
+            y: circleRect.midY - icon.size.height / 2,
+            width: icon.size.width,
+            height: icon.size.height
+          )
+          icon.draw(in: iconRect)
+        }
+      } else if let text = spec.text {
+        let font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: UIColor.white]
+        let size = (text as NSString).size(withAttributes: attrs)
+        let textRect = CGRect(
+          x: centerX - size.width / 2,
+          y: circleRect.midY - size.height / 2,
+          width: size.width,
+          height: size.height
+        )
+        (text as NSString).draw(in: textRect, withAttributes: attrs)
+      } else if spec.centerDot {
+        let dotDiameter: CGFloat = 12
+        let dotRect = CGRect(
+          x: circleRect.midX - dotDiameter / 2,
+          y: circleRect.midY - dotDiameter / 2,
+          width: dotDiameter,
+          height: dotDiameter
+        )
+        UIColor.white.setFill()
+        cgContext.fillEllipse(in: dotRect)
+      }
+
+      // Triangle pointer
+      let triangleTop = circleRect.maxY - 3
+      let path = UIBezierPath()
+      path.move(to: CGPoint(x: centerX - triangleSize / 2, y: triangleTop))
+      path.addLine(to: CGPoint(x: centerX + triangleSize / 2, y: triangleTop))
+      path.addLine(to: CGPoint(x: centerX, y: triangleTop + triangleSize))
+      path.close()
+      spec.circleColor.setFill()
+      path.fill()
+
+      // Hop badge overlay
+      if let hopIndex {
+        let badgeSize: CGFloat = 18
+        let badgeX = circleRect.maxX + 4 - badgeSize
+        let badgeY = circleRect.minY
+        let badgeRect = CGRect(x: badgeX, y: badgeY, width: badgeSize, height: badgeSize)
+
+        UIColor.systemBlue.setFill()
+        cgContext.fillEllipse(in: badgeRect)
+
+        let text = "\(hopIndex)"
+        let font = UIFont.systemFont(ofSize: 11, weight: .bold)
+        let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: UIColor.white]
+        let textSize = (text as NSString).size(withAttributes: attrs)
+        let textRect = CGRect(
+          x: badgeRect.midX - textSize.width / 2,
+          y: badgeRect.midY - textSize.height / 2,
+          width: textSize.width,
+          height: textSize.height
+        )
+        (text as NSString).draw(in: textRect, withAttributes: attrs)
+      }
+    }
+  }
+
+  // MARK: - Pill sprites
+
+  /// Semi-transparent stretchable pill for stats badges.
+  /// Registered as a resizable image so MapLibre's `iconTextFit` can stretch
+  /// the flat center while preserving the rounded caps.
+  private static func renderPillBackground() -> UIImage {
+    let cornerRadius: CGFloat = 4
+    let size: CGFloat = 2 * cornerRadius + 2
+    let shadowPadding: CGFloat = 1
+    let totalSize = size + shadowPadding * 2
+    let capInset = cornerRadius + shadowPadding
+
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: totalSize, height: totalSize), format: .preferred())
+    let image = renderer.image { ctx in
+      let cgContext = ctx.cgContext
+      let pillRect = CGRect(x: shadowPadding, y: shadowPadding, width: size, height: size)
+      let pillPath = UIBezierPath(roundedRect: pillRect, cornerRadius: cornerRadius)
+
+      // Shadow pass
+      cgContext.saveGState()
+      cgContext.setShadow(
+        offset: CGSize(width: 0, height: 0.5),
+        blur: 1,
+        color: UIColor.black.withAlphaComponent(0.15).cgColor
+      )
+      UIColor.white.setFill()
+      pillPath.fill()
+      cgContext.restoreGState()
+
+      // Light fill for readability in both light and dark mode
+      UIColor.white.withAlphaComponent(0.85).setFill()
+      pillPath.fill()
+    }
+
+    return image.resizableImage(
+      withCapInsets: UIEdgeInsets(top: capInset, left: capInset, bottom: capInset, right: capInset),
+      resizingMode: .stretch
+    )
+  }
+
+  private static func renderLabelSprite(text: String) -> UIImage {
+    let font = UIFont.systemFont(ofSize: 12, weight: .bold)
+    let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: UIColor.black]
+    let textSize = (text as NSString).size(withAttributes: attrs)
+
+    let horizontalPadding: CGFloat = 6
+    let verticalPadding: CGFloat = 4
+    let cornerRadius: CGFloat = 4
+    let shadowPadding: CGFloat = 1
+
+    let pillWidth = textSize.width + horizontalPadding * 2
+    let pillHeight = textSize.height + verticalPadding * 2
+    let totalWidth = pillWidth + shadowPadding * 2
+    let totalHeight = pillHeight + shadowPadding * 2
+
+    let renderer = UIGraphicsImageRenderer(
+      size: CGSize(width: totalWidth, height: totalHeight),
+      format: .preferred()
+    )
+    return renderer.image { ctx in
+      let cgContext = ctx.cgContext
+      let pillRect = CGRect(x: shadowPadding, y: shadowPadding, width: pillWidth, height: pillHeight)
+      let pillPath = UIBezierPath(roundedRect: pillRect, cornerRadius: cornerRadius)
+
+      cgContext.saveGState()
+      cgContext.setShadow(
+        offset: CGSize(width: 0, height: 0.5),
+        blur: 1,
+        color: UIColor.black.withAlphaComponent(0.15).cgColor
+      )
+      UIColor.white.setFill()
+      pillPath.fill()
+      cgContext.restoreGState()
+
+      UIColor.white.withAlphaComponent(0.85).setFill()
+      pillPath.fill()
+
+      let textRect = CGRect(
+        x: shadowPadding + (pillWidth - textSize.width) / 2,
+        y: shadowPadding + (pillHeight - textSize.height) / 2,
+        width: textSize.width,
+        height: textSize.height
+      )
+      (text as NSString).draw(in: textRect, withAttributes: attrs)
+    }
+  }
+
+  /// A small filled dot with a casing stroke and soft shadow: one sampled node
+  /// location report, center-anchored on its coordinate. No teardrop pointer, so a
+  /// dense trail of them reads as a track of observations rather than a pin field.
+  /// `fill` encodes the fix's recency bucket; `casing` carries figure/ground
+  /// separation from the basemap and softens on dark ground.
+  private static func renderLocationDot(fill: UIColor, casing: UIColor) -> UIImage {
+    let diameter = locationDotDiameter
+    let strokeWidth: CGFloat = 2
+    let padding: CGFloat = 2 // room for the drop shadow
+    let total = diameter + strokeWidth + padding * 2
+
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: total, height: total), format: .preferred())
+    return renderer.image { ctx in
+      let cgContext = ctx.cgContext
+      let dotRect = CGRect(
+        x: (total - diameter) / 2,
+        y: (total - diameter) / 2,
+        width: diameter,
+        height: diameter
+      )
+
+      cgContext.saveGState()
+      cgContext.setShadow(offset: CGSize(width: 0, height: 1), blur: 2, color: UIColor.black.withAlphaComponent(0.3).cgColor)
+      fill.setFill()
+      cgContext.fillEllipse(in: dotRect)
+      cgContext.restoreGState()
+
+      fill.setFill()
+      cgContext.fillEllipse(in: dotRect)
+
+      casing.setStroke()
+      cgContext.setLineWidth(strokeWidth)
+      cgContext.strokeEllipse(in: dotRect.insetBy(dx: strokeWidth / 2, dy: strokeWidth / 2))
+    }
+  }
+
+  private static func renderObstruction() -> UIImage {
+    let size: CGFloat = 20
+    let padding: CGFloat = 3
+    let totalSize = size + padding * 2
+    let armLength: CGFloat = size / 2 - 1
+    let casingWidth: CGFloat = 6
+    let strokeWidth: CGFloat = 2.5
+
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: totalSize, height: totalSize), format: .preferred())
+    return renderer.image { ctx in
+      let cgContext = ctx.cgContext
+      let center = CGPoint(x: totalSize / 2, y: totalSize / 2)
+
+      // Draw white casing (thick white stroke behind the red X)
+      cgContext.setStrokeColor(UIColor.white.cgColor)
+      cgContext.setLineWidth(casingWidth)
+      cgContext.setLineCap(.round)
+
+      cgContext.move(to: CGPoint(x: center.x - armLength, y: center.y - armLength))
+      cgContext.addLine(to: CGPoint(x: center.x + armLength, y: center.y + armLength))
+      cgContext.move(to: CGPoint(x: center.x + armLength, y: center.y - armLength))
+      cgContext.addLine(to: CGPoint(x: center.x - armLength, y: center.y + armLength))
+      cgContext.strokePath()
+
+      // Draw red X on top
+      cgContext.setStrokeColor(UIColor.systemRed.cgColor)
+      cgContext.setLineWidth(strokeWidth)
+      cgContext.setLineCap(.round)
+
+      cgContext.move(to: CGPoint(x: center.x - armLength, y: center.y - armLength))
+      cgContext.addLine(to: CGPoint(x: center.x + armLength, y: center.y + armLength))
+      cgContext.move(to: CGPoint(x: center.x + armLength, y: center.y - armLength))
+      cgContext.addLine(to: CGPoint(x: center.x - armLength, y: center.y + armLength))
+      cgContext.strokePath()
+    }
+  }
+
+  private static func renderCrosshair(_ spec: SpriteSpec) -> UIImage {
+    let casingWidth: CGFloat = 6
+    let capInset = casingWidth / 2
+    let size: CGFloat = 44 + capInset * 2
+    let gapRadius: CGFloat = 4
+    let outerRadius: CGFloat = 22
+    let badgeHeight: CGFloat = 20
+    let badgeGap: CGFloat = 2
+    // Top padding so the crosshair center sits at the image's vertical midpoint
+    let topPadding = badgeHeight + badgeGap
+    let totalHeight = topPadding + size + badgeGap + badgeHeight
+
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: totalHeight), format: .preferred())
+    return renderer.image { ctx in
+      let cgContext = ctx.cgContext
+      let center = CGPoint(x: size / 2, y: topPadding + size / 2)
+
+      // White casing behind crosshair lines
+      cgContext.setStrokeColor(UIColor.white.cgColor)
+      cgContext.setLineWidth(6)
+      cgContext.setLineCap(.round)
+
+      cgContext.move(to: CGPoint(x: center.x, y: center.y - outerRadius))
+      cgContext.addLine(to: CGPoint(x: center.x, y: center.y - gapRadius))
+      cgContext.move(to: CGPoint(x: center.x, y: center.y + gapRadius))
+      cgContext.addLine(to: CGPoint(x: center.x, y: center.y + outerRadius))
+      cgContext.move(to: CGPoint(x: center.x - outerRadius, y: center.y))
+      cgContext.addLine(to: CGPoint(x: center.x - gapRadius, y: center.y))
+      cgContext.move(to: CGPoint(x: center.x + gapRadius, y: center.y))
+      cgContext.addLine(to: CGPoint(x: center.x + outerRadius, y: center.y))
+      cgContext.strokePath()
+
+      // Crosshair lines
+      cgContext.setStrokeColor(UIColor.systemPurple.cgColor)
+      cgContext.setLineWidth(2)
+      cgContext.setLineCap(.round)
+
+      cgContext.move(to: CGPoint(x: center.x, y: center.y - outerRadius))
+      cgContext.addLine(to: CGPoint(x: center.x, y: center.y - gapRadius))
+      cgContext.move(to: CGPoint(x: center.x, y: center.y + gapRadius))
+      cgContext.addLine(to: CGPoint(x: center.x, y: center.y + outerRadius))
+      cgContext.move(to: CGPoint(x: center.x - outerRadius, y: center.y))
+      cgContext.addLine(to: CGPoint(x: center.x - gapRadius, y: center.y))
+      cgContext.move(to: CGPoint(x: center.x + gapRadius, y: center.y))
+      cgContext.addLine(to: CGPoint(x: center.x + outerRadius, y: center.y))
+      cgContext.strokePath()
+
+      // "R" badge
+      let badgeWidth: CGFloat = 20
+      let badgeRect = CGRect(x: center.x - badgeWidth / 2, y: topPadding + size + badgeGap, width: badgeWidth, height: badgeHeight)
+      let badgePath = UIBezierPath(roundedRect: badgeRect, cornerRadius: 9)
+      UIColor.systemPurple.setFill()
+      badgePath.fill()
+
+      let font = UIFont.systemFont(ofSize: 11, weight: .bold)
+      let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: UIColor.white]
+      let textSize = ("R" as NSString).size(withAttributes: attrs)
+      let textRect = CGRect(
+        x: badgeRect.midX - textSize.width / 2,
+        y: badgeRect.midY - textSize.height / 2,
+        width: textSize.width,
+        height: textSize.height
+      )
+      ("R" as NSString).draw(in: textRect, withAttributes: attrs)
+    }
+  }
+}

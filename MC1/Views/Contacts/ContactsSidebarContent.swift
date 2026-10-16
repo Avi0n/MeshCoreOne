@@ -1,0 +1,227 @@
+import MC1Services
+import OSLog
+import SwiftUI
+
+private let sidebarLogger = Logger(subsystem: "com.mc1", category: "NodesListView")
+
+struct ContactsSidebarContent: View {
+  private struct LoadID: Equatable {
+    let servicesVersion: Int
+    let contactsVersion: Int
+  }
+
+  @Environment(\.appState) private var appState
+
+  @Bindable var viewModel: ContactsViewModel
+  let filteredContacts: [ContactDTO]
+  let isSearching: Bool
+  let searchPrompt: String
+
+  @Binding var selectedSegment: NodeSegment
+  let selectedContact: ContactDTO?
+  @Binding var searchText: String
+  @Binding var sortOrder: NodeSortOrder
+  @Binding var syncSuccessTrigger: Bool
+  @Binding var showShareMyContact: Bool
+  @Binding var showAddContact: Bool
+  @Binding var showLocationDeniedAlert: Bool
+  @Binding var showOfflineRefreshAlert: Bool
+
+  let onSelect: (ContactDTO) -> Void
+  let onLoadContacts: () async -> Void
+  let onSyncContacts: () async -> Void
+  let onAnnounceOfflineStateIfNeeded: () -> Void
+
+  var body: some View {
+    ContactsListContent(
+      selectedContact: selectedContact,
+      onSelect: onSelect,
+      selectedSegment: $selectedSegment,
+      isSearching: isSearching,
+      searchText: searchText,
+      filteredContacts: filteredContacts,
+      hasLoadedOnce: viewModel.hasLoadedOnce,
+      viewModel: viewModel,
+      onRefresh: refreshNodes
+    )
+    .navigationTitle(L10n.Contacts.Contacts.List.title)
+    .navigationDestination(for: ContactRoute.self) { route in
+      switch route {
+      case .blockedContacts:
+        BlockedContactsView()
+      }
+    }
+    // Always-visible drawer keeps search below the large title. Default toolbar
+    // placement on iOS 26 draws both in the same slot.
+    .searchable(
+      text: $searchText,
+      placement: .navigationBarDrawer(displayMode: .always),
+      prompt: searchPrompt
+    )
+    .toolbar {
+      bleStatusToolbarItem()
+
+      ToolbarItem(placement: .automatic) {
+        Menu {
+          ForEach(NodeSortOrder.allCases, id: \.self) { order in
+            Button {
+              sortOrder = order
+            } label: {
+              if sortOrder == order {
+                Label(order.localizedTitle, systemImage: "checkmark")
+              } else {
+                Text(order.localizedTitle)
+              }
+            }
+          }
+        } label: {
+          Label(L10n.Contacts.Contacts.List.sort, systemImage: "arrow.up.arrow.down")
+        }
+      }
+
+      ToolbarItem(placement: .automatic) {
+        Menu {
+          NavigationLink(value: ContactRoute.blockedContacts) {
+            Label(L10n.Contacts.Contacts.List.blockedContacts, systemImage: "hand.raised.fill")
+          }
+
+          Divider()
+
+          Button {
+            showShareMyContact = true
+          } label: {
+            Label(L10n.Contacts.Contacts.List.shareMyContact, systemImage: "square.and.arrow.up")
+          }
+
+          Button {
+            showAddContact = true
+          } label: {
+            Label(L10n.Contacts.Contacts.List.addContact, systemImage: "plus")
+          }
+
+          Divider()
+
+          Button {
+            appState.navigation.navigateToDiscovery()
+          } label: {
+            Label(L10n.Contacts.Contacts.List.discover, systemImage: "antenna.radiowaves.left.and.right")
+          }
+
+          Divider()
+
+          Button {
+            Task {
+              if appState.connectionState != .ready {
+                showOfflineRefreshAlert = true
+              } else {
+                await onSyncContacts()
+              }
+            }
+          } label: {
+            Label(L10n.Contacts.Contacts.List.syncNodes, systemImage: "arrow.triangle.2.circlepath")
+          }
+          .disabled(viewModel.isSyncing)
+        } label: {
+          Label(L10n.Contacts.Contacts.List.options, systemImage: "ellipsis.circle")
+        }
+      }
+    }
+    .alert(L10n.Contacts.Contacts.List.cannotRefresh, isPresented: $showOfflineRefreshAlert) {
+      Button(L10n.Contacts.Contacts.Common.ok, role: .cancel) {}
+    } message: {
+      Text(L10n.Contacts.Contacts.List.connectToSync)
+    }
+    .sensoryFeedback(.success, trigger: syncSuccessTrigger)
+    .task {
+      sidebarLogger.info("NodesListView: task started, services=\(appState.services != nil)")
+      viewModel.configure(
+        dataStore: { [appState] in appState.offlineDataStore },
+        contactService: { [appState] in appState.services?.contactService },
+        advertisementService: { [appState] in appState.services?.advertisementService }
+      )
+      onAnnounceOfflineStateIfNeeded()
+
+      // Request location for distance display (only if already authorized)
+      if appState.locationService.isAuthorized {
+        appState.locationService.requestLocation()
+      }
+    }
+    .task(id: LoadID(
+      servicesVersion: appState.servicesVersion,
+      contactsVersion: appState.contactsVersion
+    )) {
+      await onLoadContacts()
+      sidebarLogger.info("NodesListView: loaded, contacts=\(viewModel.contacts.count)")
+    }
+    .task(id: sortOrder) {
+      if sortOrder == .distance {
+        if appState.locationService.isAuthorized {
+          appState.locationService.requestLocation()
+        } else if appState.locationService.isLocationDenied {
+          showLocationDeniedAlert = true
+        } else {
+          appState.locationService.requestPermissionIfNeeded()
+        }
+      }
+    }
+    .onChange(of: viewModel.hasLoadedOnce) { _, loaded in
+      // On the first successful load, land on Favorites when any exist. Guarded on the default
+      // segment so a user who switched during loading isn't overridden, and keyed off the
+      // false->true transition so returning to the tab doesn't yank an existing selection.
+      if loaded, selectedSegment == .contacts, viewModel.hasFavorites {
+        selectedSegment = .favorites
+      }
+    }
+    .onChange(of: appState.navigation.selectedContact, initial: true) { _, contact in
+      guard let contact else { return }
+      // Admit a just-added contact before the next reload, or the list drops the row
+      // the detail pane is already showing.
+      viewModel.admitIfAbsent(contact)
+    }
+    .onChange(of: appState.locationService.authorizationStatus) { _, status in
+      if sortOrder == .distance {
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
+          appState.locationService.requestLocation()
+        case .denied, .restricted:
+          showLocationDeniedAlert = true
+        default:
+          break
+        }
+      }
+    }
+    .sheet(isPresented: $showShareMyContact) {
+      if let device = appState.connectedDevice {
+        ContactQRShareSheet(
+          contactName: device.nodeName,
+          publicKey: device.publicKey,
+          contactType: .chat
+        )
+      }
+    }
+    .sheet(isPresented: $showAddContact) {
+      AddContactSheet()
+    }
+    .alert(L10n.Contacts.Contacts.List.locationUnavailable, isPresented: $showLocationDeniedAlert) {
+      Button(L10n.Contacts.Contacts.List.openSettings) {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+          UIApplication.shared.open(url)
+        }
+      }
+      Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
+    } message: {
+      Text(L10n.Contacts.Contacts.List.distanceRequiresLocation)
+    }
+    .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
+  }
+
+  /// SwiftUI cancels a ScrollView's `.refreshable` task when observed state mutates
+  /// mid-refresh (`isSyncing`). The detached task shields the sync from that cancellation.
+  private func refreshNodes() async {
+    if appState.connectionState != .ready {
+      showOfflineRefreshAlert = true
+    } else {
+      await Task { await onSyncContacts() }.value
+    }
+  }
+}

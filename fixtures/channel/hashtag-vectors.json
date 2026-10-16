@@ -1,0 +1,20 @@
+[
+  {
+    "label": "avion-testing",
+    "cleanName": "avion-testing",
+    "hashedString": "#avion-testing",
+    "secretHex": "B612EF23CF94915B815BCEE46DABE902"
+  },
+  {
+    "label": "general",
+    "cleanName": "general",
+    "hashedString": "#general",
+    "secretHex": "4C49F3F24629F5EE4AD5B3965DB47985"
+  },
+  {
+    "label": "unicode",
+    "cleanName": "北京-town",
+    "hashedString": "#北京-town",
+    "secretHex": "FF95F1D37A3DAE4314962981BDA32CA3"
+  }
+]

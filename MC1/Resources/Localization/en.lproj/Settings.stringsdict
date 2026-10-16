@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>dangerZone.alert.removeUnfavorited.message</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@nodeCount@</string>
+        <key>nodeCount</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>This will permanently delete %d node not marked as favorite from the device and the app, along with its messages.</string>
+            <key>other</key>
+            <string>This will permanently delete %d nodes not marked as favorite from the device and the app, along with their messages.</string>
+        </dict>
+    </dict>
+    <key>dangerZone.alert.removeUnfavorited.partial</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%2$#@totalNodes@</string>
+        <key>totalNodes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Removed %1$d of %2$d node. The connection was interrupted — tap the button again to retry.</string>
+            <key>other</key>
+            <string>Removed %1$d of %2$d nodes. The connection was interrupted — tap the button again to retry removing the remaining nodes.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_added</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d item added.</string>
+            <key>other</key>
+            <string>%d items added.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d existing item refreshed.</string>
+            <key>other</key>
+            <string>%d existing items refreshed.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d item already here</string>
+            <key>other</key>
+            <string>%d items already here</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d of these was refreshed with newer info from the backup.</string>
+            <key>other</key>
+            <string>%d of these were refreshed with newer info from the backup.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d item couldn't be restored</string>
+            <key>other</key>
+            <string>%d items couldn't be restored</string>
+        </dict>
+    </dict>
+</dict>
+</plist>

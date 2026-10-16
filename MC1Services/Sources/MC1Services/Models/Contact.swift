@@ -1,0 +1,684 @@
+import CoreLocation
+import Foundation
+import MeshCore
+import SwiftData
+
+/// Represents a contact discovered on the mesh network.
+/// Contacts are stored per-device and synced from the device's contact table.
+@Model
+public final class Contact {
+  #Index<Contact>(
+    [\.radioID],
+    [\.radioID, \.publicKey]
+  )
+
+  /// Unique identifier (derived from public key hash)
+  @Attribute(.unique)
+  public var id: UUID
+
+  /// The device this contact belongs to
+  @Attribute(originalName: "deviceID")
+  public var radioID: UUID
+
+  /// The 32-byte public key of the contact
+  public var publicKey: Data
+
+  /// Human-readable name
+  public var name: String
+
+  /// Contact type (chat, repeater, room)
+  public var typeRawValue: UInt8
+
+  /// Permission flags
+  public var flags: UInt8
+
+  /// Encoded outbound path length (0xFF = flood; upper 2 bits = hash mode,
+  /// lower 6 bits = hop count). Stored as Int so leftover Int8 flood sentinels
+  /// (-1) survive SwiftData fetch; the DTO exposes UInt8 via truncatingIfNeeded.
+  public var outPathLength: Int
+
+  /// Outgoing routing path (up to 64 bytes)
+  public var outPath: Data
+
+  /// Last advertisement timestamp (device time)
+  public var lastAdvertTimestamp: UInt32
+
+  /// Contact latitude
+  public var latitude: Double
+
+  /// Contact longitude
+  public var longitude: Double
+
+  /// Last modification timestamp (for sync watermarking)
+  public var lastModified: UInt32
+
+  /// Phone-clock epoch seconds of the last mesh liveness evidence this phone
+  /// recorded for the contact (advert receive, inbound DM, successful ping,
+  /// path-discovery response). Monotonic; 0 means never heard by this phone.
+  public var lastHeardTimestamp: UInt32 = 0
+
+  /// Local nickname override (optional)
+  public var nickname: String?
+
+  /// Whether this contact is blocked
+  public var isBlocked: Bool
+
+  /// Whether this contact's notifications are muted
+  public var isMuted: Bool = false
+
+  /// Whether this contact is a favorite on the radio (flags bit 0).
+  public var isFavorite: Bool
+
+  /// Whether this chat is pinned on this phone.
+  public var isPinned: Bool = false
+
+  /// Last message timestamp (for sorting conversations)
+  public var lastMessageDate: Date?
+
+  /// Unread message count
+  public var unreadCount: Int
+
+  /// Unread mention count (mentions of current user not yet seen)
+  public var unreadMentionCount: Int = 0
+
+  /// Selected OCV preset name (nil = liIon default)
+  public var ocvPreset: String?
+
+  /// Custom OCV array as comma-separated string (e.g., "4240,4112,4029,...")
+  public var customOCVArrayString: String?
+
+  /// User-picked profile picture (compressed JPEG), overrides the generated initials avatar
+  public var avatarImageData: Data?
+
+  public init(
+    id: UUID = UUID(),
+    radioID: UUID,
+    publicKey: Data,
+    name: String,
+    typeRawValue: UInt8 = 0,
+    flags: UInt8 = 0,
+    outPathLength: UInt8 = PacketBuilder.floodPathSentinel,
+    outPath: Data = Data(),
+    lastAdvertTimestamp: UInt32 = 0,
+    latitude: Double = 0,
+    longitude: Double = 0,
+    lastModified: UInt32 = 0,
+    lastHeardTimestamp: UInt32,
+    nickname: String? = nil,
+    isBlocked: Bool = false,
+    isMuted: Bool = false,
+    isFavorite: Bool = false,
+    isPinned: Bool = false,
+    lastMessageDate: Date? = nil,
+    unreadCount: Int = 0,
+    unreadMentionCount: Int = 0,
+    ocvPreset: String? = nil,
+    customOCVArrayString: String? = nil,
+    avatarImageData: Data? = nil
+  ) {
+    self.id = id
+    self.radioID = radioID
+    self.publicKey = publicKey
+    self.name = name
+    self.typeRawValue = typeRawValue
+    self.flags = flags
+    self.outPathLength = Int(outPathLength)
+    self.outPath = outPath
+    self.lastAdvertTimestamp = lastAdvertTimestamp
+    self.latitude = latitude
+    self.longitude = longitude
+    self.lastModified = lastModified
+    self.lastHeardTimestamp = lastHeardTimestamp
+    self.nickname = nickname
+    self.isBlocked = isBlocked
+    self.isMuted = isMuted
+    self.isFavorite = isFavorite
+    self.isPinned = isPinned
+    self.lastMessageDate = lastMessageDate
+    self.unreadCount = unreadCount
+    self.unreadMentionCount = unreadMentionCount
+    self.ocvPreset = ocvPreset
+    self.customOCVArrayString = customOCVArrayString
+    self.avatarImageData = avatarImageData
+  }
+
+  /// Builds a model instance directly from a DTO. Shared by `saveContact` and
+  /// backup batch-insert paths so they can't drift on field coverage.
+  public convenience init(dto: ContactDTO) {
+    self.init(
+      id: dto.id,
+      radioID: dto.radioID,
+      publicKey: dto.publicKey,
+      name: dto.name,
+      typeRawValue: dto.typeRawValue,
+      flags: dto.flags,
+      outPathLength: dto.outPathLength,
+      outPath: dto.outPath,
+      lastAdvertTimestamp: dto.lastAdvertTimestamp,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      lastModified: dto.lastModified,
+      lastHeardTimestamp: dto.lastHeardTimestamp ?? 0,
+      nickname: dto.nickname,
+      isBlocked: dto.isBlocked,
+      isMuted: dto.isMuted,
+      isFavorite: dto.isFavorite,
+      isPinned: dto.isPinned,
+      lastMessageDate: dto.lastMessageDate,
+      unreadCount: dto.unreadCount,
+      unreadMentionCount: dto.unreadMentionCount,
+      ocvPreset: dto.ocvPreset,
+      customOCVArrayString: dto.customOCVArrayString,
+      avatarImageData: dto.avatarImageData
+    )
+  }
+
+  /// Applies all mutable fields from a DTO to this model instance.
+  /// `radioID` and `publicKey` are identity and stay frozen: this runs in the
+  /// id-matched `saveContact(_:)` upsert, which owns app-side metadata. Key
+  /// changes arrive from the radio as `ContactFrame`s keyed by
+  /// `(radioID, publicKey)`, where a new key is a new contact row.
+  func apply(_ dto: ContactDTO) {
+    name = dto.name
+    typeRawValue = dto.typeRawValue
+    flags = dto.flags
+    outPathLength = Int(dto.outPathLength)
+    outPath = dto.outPath
+    lastAdvertTimestamp = dto.lastAdvertTimestamp
+    latitude = dto.latitude
+    longitude = dto.longitude
+    lastModified = dto.lastModified
+    lastHeardTimestamp = max(lastHeardTimestamp, dto.lastHeardTimestamp ?? 0)
+    nickname = dto.nickname
+    isBlocked = dto.isBlocked
+    isMuted = dto.isMuted
+    isFavorite = dto.isFavorite
+    // An existing row keeps its pin so a save that started earlier cannot clear it.
+    lastMessageDate = dto.lastMessageDate
+    unreadCount = dto.unreadCount
+    unreadMentionCount = dto.unreadMentionCount
+    ocvPreset = dto.ocvPreset
+    customOCVArrayString = dto.customOCVArrayString
+    avatarImageData = dto.avatarImageData
+  }
+
+  /// Creates a Contact from a protocol ContactFrame
+  public convenience init(radioID: UUID, from frame: ContactFrame) {
+    self.init(
+      radioID: radioID,
+      publicKey: frame.publicKey,
+      name: frame.name,
+      typeRawValue: frame.typeRawValue,
+      flags: frame.flags,
+      outPathLength: frame.outPathLength,
+      outPath: frame.outPath,
+      lastAdvertTimestamp: frame.lastAdvertTimestamp,
+      latitude: frame.latitude,
+      longitude: frame.longitude,
+      lastModified: frame.lastModified,
+      lastHeardTimestamp: 0,
+      isFavorite: (frame.flags & 0x01) != 0
+    )
+  }
+}
+
+// MARK: - Computed Properties
+
+public extension Contact {
+  /// The contact type enum
+  var type: ContactType {
+    ContactType(rawValue: typeRawValue) ?? .chat
+  }
+
+  /// Display name (nickname if set, otherwise name)
+  var displayName: String {
+    nickname ?? name
+  }
+
+  /// The 6-byte public key prefix for message addressing
+  var publicKeyPrefix: Data {
+    publicKey.prefix(6)
+  }
+
+  /// Whether this contact uses flood routing
+  var isFloodRouted: Bool {
+    UInt8(truncatingIfNeeded: outPathLength) == PacketBuilder.floodPathSentinel
+  }
+
+  /// Whether this contact has a known, valid location
+  var hasLocation: Bool {
+    let hasNonZero = latitude != 0 || longitude != 0
+    guard hasNonZero else { return false }
+    return CLLocationCoordinate2DIsValid(
+      CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    )
+  }
+
+  /// Whether this contact is a repeater
+  var isRepeater: Bool {
+    type == .repeater
+  }
+
+  /// Whether this contact is a room
+  var isRoom: Bool {
+    type == .room
+  }
+
+  /// Updates from a protocol ContactFrame
+  func update(from frame: ContactFrame) {
+    name = frame.name
+    typeRawValue = frame.typeRawValue
+    // Preserve bit 0 (favorite) from existing flags, take bits 1-7 from frame
+    flags = (flags & 0x01) | (frame.flags & ~0x01)
+    outPathLength = Int(frame.outPathLength)
+    outPath = frame.outPath
+    lastAdvertTimestamp = frame.lastAdvertTimestamp
+    latitude = frame.latitude
+    longitude = frame.longitude
+    lastModified = frame.lastModified
+  }
+
+  /// Converts to a protocol ContactFrame for sending to device
+  func toContactFrame() -> ContactFrame {
+    ContactFrame(
+      publicKey: publicKey,
+      type: type,
+      typeRawValue: typeRawValue,
+      flags: flags,
+      outPathLength: UInt8(truncatingIfNeeded: outPathLength),
+      outPath: outPath,
+      name: name,
+      lastAdvertTimestamp: lastAdvertTimestamp,
+      latitude: latitude,
+      longitude: longitude,
+      lastModified: lastModified
+    )
+  }
+}
+
+// MARK: - Sendable DTO
+
+/// A sendable snapshot of Contact for cross-actor transfers
+public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, RepeaterResolvable {
+  public let id: UUID
+  public var radioID: UUID
+  public let publicKey: Data
+  public let name: String
+  public let typeRawValue: UInt8
+  public let flags: UInt8
+  public let outPathLength: UInt8
+  public let outPath: Data
+  public let lastAdvertTimestamp: UInt32
+  public let latitude: Double
+  public let longitude: Double
+  public let lastModified: UInt32
+  /// Phone-clock epoch seconds; nil in legacy backup envelopes means never heard.
+  public let lastHeardTimestamp: UInt32?
+  public let nickname: String?
+  public let isBlocked: Bool
+  public let isMuted: Bool
+  public let isFavorite: Bool
+  public let isPinned: Bool
+  public let lastMessageDate: Date?
+  public let unreadCount: Int
+  public let unreadMentionCount: Int
+  public let ocvPreset: String?
+  public let customOCVArrayString: String?
+  public let avatarImageData: Data?
+
+  /// A missing `isPinned` key decodes as `isFavorite`. An explicit false stays unpinned.
+  private enum CodingKeys: String, CodingKey {
+    case id, radioID, publicKey, name, typeRawValue, flags, outPathLength, outPath
+    case lastAdvertTimestamp, latitude, longitude, lastModified, lastHeardTimestamp
+    case nickname, isBlocked, isMuted, isFavorite, isPinned, lastMessageDate
+    case unreadCount, unreadMentionCount, ocvPreset, customOCVArrayString, avatarImageData
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(UUID.self, forKey: .id)
+    radioID = try container.decode(UUID.self, forKey: .radioID)
+    publicKey = try container.decode(Data.self, forKey: .publicKey)
+    name = try container.decode(String.self, forKey: .name)
+    typeRawValue = try container.decode(UInt8.self, forKey: .typeRawValue)
+    flags = try container.decode(UInt8.self, forKey: .flags)
+    outPathLength = try container.decode(UInt8.self, forKey: .outPathLength)
+    outPath = try container.decode(Data.self, forKey: .outPath)
+    lastAdvertTimestamp = try container.decode(UInt32.self, forKey: .lastAdvertTimestamp)
+    latitude = try container.decode(Double.self, forKey: .latitude)
+    longitude = try container.decode(Double.self, forKey: .longitude)
+    lastModified = try container.decode(UInt32.self, forKey: .lastModified)
+    lastHeardTimestamp = try container.decodeIfPresent(UInt32.self, forKey: .lastHeardTimestamp)
+    nickname = try container.decodeIfPresent(String.self, forKey: .nickname)
+    isBlocked = try container.decode(Bool.self, forKey: .isBlocked)
+    isMuted = try container.decode(Bool.self, forKey: .isMuted)
+    isFavorite = try container.decode(Bool.self, forKey: .isFavorite)
+    if let pinned = try container.decodeIfPresent(Bool.self, forKey: .isPinned) {
+      isPinned = pinned
+    } else {
+      isPinned = isFavorite
+    }
+    lastMessageDate = try container.decodeIfPresent(Date.self, forKey: .lastMessageDate)
+    unreadCount = try container.decode(Int.self, forKey: .unreadCount)
+    unreadMentionCount = try container.decodeIfPresent(Int.self, forKey: .unreadMentionCount) ?? 0
+    ocvPreset = try container.decodeIfPresent(String.self, forKey: .ocvPreset)
+    customOCVArrayString = try container.decodeIfPresent(String.self, forKey: .customOCVArrayString)
+    avatarImageData = try container.decodeIfPresent(Data.self, forKey: .avatarImageData)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(id, forKey: .id)
+    try container.encode(radioID, forKey: .radioID)
+    try container.encode(publicKey, forKey: .publicKey)
+    try container.encode(name, forKey: .name)
+    try container.encode(typeRawValue, forKey: .typeRawValue)
+    try container.encode(flags, forKey: .flags)
+    try container.encode(outPathLength, forKey: .outPathLength)
+    try container.encode(outPath, forKey: .outPath)
+    try container.encode(lastAdvertTimestamp, forKey: .lastAdvertTimestamp)
+    try container.encode(latitude, forKey: .latitude)
+    try container.encode(longitude, forKey: .longitude)
+    try container.encode(lastModified, forKey: .lastModified)
+    try container.encodeIfPresent(lastHeardTimestamp, forKey: .lastHeardTimestamp)
+    try container.encodeIfPresent(nickname, forKey: .nickname)
+    try container.encode(isBlocked, forKey: .isBlocked)
+    try container.encode(isMuted, forKey: .isMuted)
+    try container.encode(isFavorite, forKey: .isFavorite)
+    try container.encode(isPinned, forKey: .isPinned)
+    try container.encodeIfPresent(lastMessageDate, forKey: .lastMessageDate)
+    try container.encode(unreadCount, forKey: .unreadCount)
+    try container.encode(unreadMentionCount, forKey: .unreadMentionCount)
+    try container.encodeIfPresent(ocvPreset, forKey: .ocvPreset)
+    try container.encodeIfPresent(customOCVArrayString, forKey: .customOCVArrayString)
+    try container.encodeIfPresent(avatarImageData, forKey: .avatarImageData)
+  }
+
+  public init(from contact: Contact) {
+    id = contact.id
+    radioID = contact.radioID
+    publicKey = contact.publicKey
+    name = contact.name
+    typeRawValue = contact.typeRawValue
+    flags = contact.flags
+    outPathLength = UInt8(truncatingIfNeeded: contact.outPathLength)
+    outPath = contact.outPath
+    lastAdvertTimestamp = contact.lastAdvertTimestamp
+    latitude = contact.latitude
+    longitude = contact.longitude
+    lastModified = contact.lastModified
+    lastHeardTimestamp = contact.lastHeardTimestamp
+    nickname = contact.nickname
+    isBlocked = contact.isBlocked
+    isMuted = contact.isMuted
+    isFavorite = contact.isFavorite
+    isPinned = contact.isPinned
+    lastMessageDate = contact.lastMessageDate
+    unreadCount = contact.unreadCount
+    unreadMentionCount = contact.unreadMentionCount
+    ocvPreset = contact.ocvPreset
+    customOCVArrayString = contact.customOCVArrayString
+    avatarImageData = contact.avatarImageData
+  }
+
+  /// Memberwise initializer for creating DTOs directly
+  public init(
+    id: UUID,
+    radioID: UUID,
+    publicKey: Data,
+    name: String,
+    typeRawValue: UInt8,
+    flags: UInt8,
+    outPathLength: UInt8,
+    outPath: Data,
+    lastAdvertTimestamp: UInt32,
+    latitude: Double,
+    longitude: Double,
+    lastModified: UInt32,
+    lastHeardTimestamp: UInt32?,
+    nickname: String?,
+    isBlocked: Bool,
+    isMuted: Bool,
+    isFavorite: Bool,
+    isPinned: Bool = false,
+    lastMessageDate: Date?,
+    unreadCount: Int,
+    unreadMentionCount: Int = 0,
+    ocvPreset: String? = nil,
+    customOCVArrayString: String? = nil,
+    avatarImageData: Data? = nil
+  ) {
+    self.id = id
+    self.radioID = radioID
+    self.publicKey = publicKey
+    self.name = name
+    self.typeRawValue = typeRawValue
+    self.flags = flags
+    self.outPathLength = outPathLength
+    self.outPath = outPath
+    self.lastAdvertTimestamp = lastAdvertTimestamp
+    self.latitude = latitude
+    self.longitude = longitude
+    self.lastModified = lastModified
+    self.lastHeardTimestamp = lastHeardTimestamp
+    self.nickname = nickname
+    self.isBlocked = isBlocked
+    self.isMuted = isMuted
+    self.isFavorite = isFavorite
+    self.isPinned = isPinned
+    self.lastMessageDate = lastMessageDate
+    self.unreadCount = unreadCount
+    self.unreadMentionCount = unreadMentionCount
+    self.ocvPreset = ocvPreset
+    self.customOCVArrayString = customOCVArrayString
+    self.avatarImageData = avatarImageData
+  }
+
+  public var type: ContactType {
+    ContactType(rawValue: typeRawValue) ?? .chat
+  }
+
+  public var displayName: String {
+    nickname ?? name
+  }
+
+  public var publicKeyPrefix: Data {
+    publicKey.prefix(6)
+  }
+
+  public var isFloodRouted: Bool {
+    outPathLength == PacketBuilder.floodPathSentinel
+  }
+
+  /// The hash size per hop in bytes (1, 2, or 3), derived from the upper 2 bits of ``outPathLength``.
+  public var pathHashSize: Int {
+    decodePathLen(outPathLength)?.hashSize ?? 1
+  }
+
+  /// The number of hops in the path, derived from the lower 6 bits of ``outPathLength``.
+  public var pathHopCount: Int {
+    decodePathLen(outPathLength)?.hopCount ?? 0
+  }
+
+  /// The hop count to surface in the UI: the deliberately-set out-path hops when a route exists,
+  /// otherwise the passively-heard inbound advert hops, which a contact does not store and the
+  /// caller looks up live from the discovered-node list. nil when flood-routed and none is known.
+  public func displayedHopCount(inboundHopCount: Int?) -> Int? {
+    isFloodRouted ? inboundHopCount : pathHopCount
+  }
+
+  /// The total byte length of the path data (`pathHopCount * pathHashSize`).
+  public var pathByteLength: Int {
+    decodePathLen(outPathLength)?.byteLength ?? 0
+  }
+
+  /// Each hop as its raw hash bytes plus uppercase hex, e.g. `[(0xA3, "A3"), (0x7F, "7F")]`.
+  /// The raw bytes are needed to match a hop against a repeater's public-key prefix.
+  public var pathHops: [(data: Data, hex: String)] {
+    outPath.prefix(pathByteLength).pathHops(hashSize: pathHashSize)
+  }
+
+  /// Each hop's hash as a hex string, e.g. `["A3", "7F", "42"]`.
+  public var pathNodesHex: [String] {
+    pathHops.map(\.hex)
+  }
+
+  /// Human-readable path string with arrow separators, e.g. `"A3 → 7F → 42"`.
+  public var pathString: String {
+    pathNodesHex.joined(separator: " \u{2192} ")
+  }
+
+  public var hasLocation: Bool {
+    let hasNonZero = latitude != 0 || longitude != 0
+    guard hasNonZero else { return false }
+    return CLLocationCoordinate2DIsValid(
+      CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    )
+  }
+
+  public var publicKeyHex: String {
+    publicKey.uppercaseHexString()
+  }
+
+  /// Returns a copy with only `isMuted` changed.
+  public func with(isMuted: Bool) -> ContactDTO {
+    ContactDTO(
+      id: id, radioID: radioID, publicKey: publicKey, name: name,
+      typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
+      outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
+      latitude: latitude, longitude: longitude, lastModified: lastModified,
+      lastHeardTimestamp: lastHeardTimestamp,
+      nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
+      isFavorite: isFavorite, isPinned: isPinned, lastMessageDate: lastMessageDate,
+      unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
+      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
+      avatarImageData: avatarImageData
+    )
+  }
+
+  /// Returns a copy with only `isFavorite` changed.
+  public func with(isFavorite: Bool) -> ContactDTO {
+    ContactDTO(
+      id: id, radioID: radioID, publicKey: publicKey, name: name,
+      typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
+      outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
+      latitude: latitude, longitude: longitude, lastModified: lastModified,
+      lastHeardTimestamp: lastHeardTimestamp,
+      nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
+      isFavorite: isFavorite, isPinned: isPinned, lastMessageDate: lastMessageDate,
+      unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
+      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
+      avatarImageData: avatarImageData
+    )
+  }
+
+  /// Returns a copy with only `isPinned` changed.
+  public func with(isPinned: Bool) -> ContactDTO {
+    ContactDTO(
+      id: id, radioID: radioID, publicKey: publicKey, name: name,
+      typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
+      outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
+      latitude: latitude, longitude: longitude, lastModified: lastModified,
+      lastHeardTimestamp: lastHeardTimestamp,
+      nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
+      isFavorite: isFavorite, isPinned: isPinned, lastMessageDate: lastMessageDate,
+      unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
+      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
+      avatarImageData: avatarImageData
+    )
+  }
+
+  /// Returns a copy with only `avatarImageData` changed.
+  public func with(avatarImageData: Data?) -> ContactDTO {
+    ContactDTO(
+      id: id, radioID: radioID, publicKey: publicKey, name: name,
+      typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
+      outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
+      latitude: latitude, longitude: longitude, lastModified: lastModified,
+      lastHeardTimestamp: lastHeardTimestamp,
+      nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
+      isFavorite: isFavorite, isPinned: isPinned, lastMessageDate: lastMessageDate,
+      unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
+      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
+      avatarImageData: avatarImageData
+    )
+  }
+
+  /// The active OCV array for this contact (preset or custom)
+  public var activeOCVArray: [Int] {
+    // If custom preset with valid custom string, parse it
+    if ocvPreset == OCVPreset.custom.rawValue, let customString = customOCVArrayString {
+      let parsed = customString.split(separator: ",")
+        .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+      if parsed.count == 11 {
+        return parsed
+      }
+    }
+
+    // Use preset if set
+    if let presetName = ocvPreset, let preset = OCVPreset(rawValue: presetName) {
+      return preset.ocvArray
+    }
+
+    // Default to Li-Ion
+    return OCVPreset.liIon.ocvArray
+  }
+
+  // MARK: - RepeaterResolvable
+
+  /// Max of radio `lastModified` and phone-clock `lastHeardTimestamp`.
+  /// Legacy rows with a nil/0 heard stamp keep `lastModified` behavior.
+  public var recencyTimestamp: UInt32 {
+    max(lastModified, lastHeardTimestamp ?? 0)
+  }
+
+  /// Match used by `ConnectionManager.removeStaleNodes` for the given cutoff
+  /// (epoch seconds). Favorites never match.
+  public func matchesStaleNodePrune(cutoff: UInt32) -> Bool {
+    !isFavorite && recencyTimestamp < cutoff
+  }
+
+  public var recencyDate: Date {
+    Date(timeIntervalSince1970: Double(recencyTimestamp))
+  }
+
+  public var resolvableName: String {
+    displayName
+  }
+
+  /// Converts to a protocol ContactFrame for sending to device
+  public func toContactFrame() -> ContactFrame {
+    ContactFrame(
+      publicKey: publicKey,
+      type: type,
+      typeRawValue: typeRawValue,
+      flags: flags,
+      outPathLength: outPathLength,
+      outPath: outPath,
+      name: name,
+      lastAdvertTimestamp: lastAdvertTimestamp,
+      latitude: latitude,
+      longitude: longitude,
+      lastModified: lastModified
+    )
+  }
+
+  /// A frame for this contact with the path reset to flood routing. A contact the radio doesn't
+  /// know has no valid stored path, so flooding is the only route that can reach it; the firmware
+  /// rediscovers the direct path from the first response.
+  public func floodedContactFrame(asOf now: UInt32) -> ContactFrame {
+    ContactFrame(
+      publicKey: publicKey,
+      type: type,
+      typeRawValue: typeRawValue,
+      flags: flags,
+      outPathLength: PacketBuilder.floodPathSentinel,
+      outPath: Data(),
+      name: name,
+      lastAdvertTimestamp: lastAdvertTimestamp,
+      latitude: latitude,
+      longitude: longitude,
+      lastModified: now
+    )
+  }
+}

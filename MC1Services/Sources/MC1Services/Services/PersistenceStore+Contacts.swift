@@ -1,0 +1,703 @@
+import Foundation
+import SwiftData
+
+public extension PersistenceStore {
+  // MARK: - Contact Operations
+
+  /// Contact ids for one radio. Callers that only need membership skip name sorting and DTO construction.
+  func fetchContactIDs(radioID: UUID) throws -> Set<UUID> {
+    #if DEBUG
+      try fetchContactIDsFaultInjection?()
+    #endif
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID
+    }
+    let contacts = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    return Set(contacts.map(\.id))
+  }
+
+  #if DEBUG
+    func setFetchContactIDsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      fetchContactIDsFaultInjection = hook
+    }
+  #endif
+
+  /// Fetch all contacts for a device
+  func fetchContacts(radioID: UUID) throws -> [ContactDTO] {
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID
+    }
+    let descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\.name)]
+    )
+    let contacts = try modelContext.fetch(descriptor)
+    return contacts.map { ContactDTO(from: $0) }
+  }
+
+  /// Fetch contacts with recent messages (for chat list).
+  /// Runs the favorite-to-pin copy first. Chats can load before `activate()`.
+  func fetchConversations(radioID: UUID) throws -> [ContactDTO] {
+    try fetchConversations(radioID: radioID, defaults: .standard)
+  }
+
+  func fetchConversations(radioID: UUID, defaults: UserDefaults) throws -> [ContactDTO] {
+    try performChatPinMigration(defaults: defaults)
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID && contact.lastMessageDate != nil
+    }
+    let descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Contact.lastMessageDate, order: .reverse)]
+    )
+    let contacts = try modelContext.fetch(descriptor)
+    return contacts.map { ContactDTO(from: $0) }
+  }
+
+  /// Fetch a contact by ID
+  func fetchContact(id: UUID) throws -> ContactDTO? {
+    let targetID = id
+    let predicate = #Predicate<Contact> { contact in
+      contact.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    return try modelContext.fetch(descriptor).first.map { ContactDTO(from: $0) }
+  }
+
+  /// Fetch a contact by public key
+  func fetchContact(radioID: UUID, publicKey: Data) throws -> ContactDTO? {
+    let targetRadioID = radioID
+    let targetKey = publicKey
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID && contact.publicKey == targetKey
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    return try modelContext.fetch(descriptor).first.map { ContactDTO(from: $0) }
+  }
+
+  /// Fetch a contact by public key prefix (6 bytes)
+  func fetchContact(radioID: UUID, publicKeyPrefix: Data) throws -> ContactDTO? {
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID
+    }
+    let contacts = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    return contacts.first { $0.publicKey.prefix(6) == publicKeyPrefix }.map { ContactDTO(from: $0) }
+  }
+
+  /// Fetch all contacts with their public keys grouped by 1-byte prefix.
+  /// Used for crypto operations when looking up contacts by public key prefix.
+  func fetchContactPublicKeysByPrefix(radioID: UUID) throws -> [UInt8: [Data]] {
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID
+    }
+    let descriptor = FetchDescriptor(predicate: predicate)
+    let contacts = try modelContext.fetch(descriptor)
+
+    var result: [UInt8: [Data]] = [:]
+    for contact in contacts {
+      guard contact.publicKey.count >= 1 else { continue }
+      let prefix = contact.publicKey[0]
+      result[prefix, default: []].append(contact.publicKey)
+    }
+    return result
+  }
+
+  /// Save or update a contact from a ContactFrame.
+  /// Returns the contact id and whether the row was newly inserted (`isNew`).
+  func saveContact(radioID: UUID, from frame: ContactFrame) throws -> (id: UUID, isNew: Bool) {
+    let targetRadioID = radioID
+    let targetKey = frame.publicKey
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID && contact.publicKey == targetKey
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    let contact: Contact
+    let isNew: Bool
+    if let existing = try modelContext.fetch(descriptor).first {
+      existing.update(from: frame)
+      contact = existing
+      isNew = false
+    } else {
+      contact = Contact(radioID: radioID, from: frame)
+      modelContext.insert(contact)
+      isNew = true
+    }
+
+    try modelContext.save()
+    return (id: contact.id, isNew: isNew)
+  }
+
+  /// Upserts contacts from frames in a single transaction, matching local rows by
+  /// `(radioID, publicKey)`. Commits once for the whole batch instead of once per contact,
+  /// which is the dominant cost of a full contact sync over BLE. Returns the number of
+  /// frames persisted.
+  @discardableResult
+  func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) throws -> Int {
+    guard !frames.isEmpty else { return 0 }
+
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID
+    }
+    let existing = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    var byKey = Dictionary(existing.map { ($0.publicKey, $0) }, uniquingKeysWith: { current, _ in current })
+
+    for frame in frames {
+      if let row = byKey[frame.publicKey] {
+        row.update(from: frame)
+      } else {
+        let contact = Contact(radioID: radioID, from: frame)
+        modelContext.insert(contact)
+        byKey[frame.publicKey] = contact
+      }
+    }
+
+    try modelContext.save()
+    return frames.count
+  }
+
+  /// Save or update a contact from DTO
+  func saveContact(_ dto: ContactDTO) throws {
+    let targetID = dto.id
+    let predicate = #Predicate<Contact> { contact in
+      contact.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    if let existing = try modelContext.fetch(descriptor).first {
+      existing.apply(dto)
+    } else {
+      modelContext.insert(Contact(dto: dto))
+    }
+
+    try modelContext.save()
+  }
+
+  /// Sets the local chat pin. Does not change the radio favorite flag.
+  func setContactPinned(_ contactID: UUID, isPinned: Bool) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { $0.id == targetID }
+    var descriptor = FetchDescriptor<Contact>(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    guard let contact = try modelContext.fetch(descriptor).first else {
+      throw PersistenceStoreError.contactNotFound
+    }
+
+    contact.isPinned = isPinned
+    try modelContext.save()
+  }
+
+  /// Delete a contact and everything scoped to it in a single transactional
+  /// save. The cascade is keyed by the contact ID value, not the Contact row,
+  /// so orphaned local data is removed even when the row is already gone.
+  func deleteContact(id: UUID) throws {
+    try commitPendingRxLogEntries()
+    do {
+      try _stageOverwriteOldestCascade(contactID: id)
+      let targetID = id
+      let predicate = #Predicate<Contact> { contact in
+        contact.id == targetID
+      }
+      if let contact = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
+        modelContext.delete(contact)
+      }
+      #if DEBUG
+        try deleteContactsFaultInjection?()
+      #endif
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+  }
+
+  /// Deletes matching contacts and their scoped messages, reactions, repeats,
+  /// and pending sends in one save. Missing keys are omitted from the returned ids.
+  func deleteContacts(radioID: UUID, publicKeys: Set<Data>) throws -> [UUID] {
+    try _deleteContacts(
+      radioID: radioID, publicKeys: publicKeys, skippingPublicKeys: { [] }
+    )
+  }
+
+  func deleteContacts(
+    radioID: UUID,
+    publicKeys: Set<Data>,
+    skippingPublicKeys: @Sendable () -> Set<Data>
+  ) async throws -> [UUID] {
+    try _deleteContacts(
+      radioID: radioID, publicKeys: publicKeys, skippingPublicKeys: skippingPublicKeys
+    )
+  }
+
+  private func _deleteContacts(
+    radioID: UUID,
+    publicKeys: Set<Data>,
+    skippingPublicKeys: @Sendable () -> Set<Data>
+  ) throws -> [UUID] {
+    guard !publicKeys.isEmpty else { return [] }
+    try commitPendingRxLogEntries()
+    let targetRadioID = radioID
+    var candidates: [(contact: Contact, publicKey: Data)] = []
+    for publicKey in publicKeys {
+      if skippingPublicKeys().contains(publicKey) { continue }
+      let targetKey = publicKey
+      let predicate = #Predicate<Contact> { contact in
+        contact.radioID == targetRadioID && contact.publicKey == targetKey
+      }
+      var descriptor = FetchDescriptor(predicate: predicate)
+      descriptor.fetchLimit = 1
+      guard let contact = try modelContext.fetch(descriptor).first else { continue }
+      candidates.append((contact, publicKey))
+    }
+    var deletedIDs: [UUID] = []
+    do {
+      for (contact, publicKey) in candidates {
+        if skippingPublicKeys().contains(publicKey) { continue }
+        let contactID = contact.id
+        try _stageOverwriteOldestCascade(contactID: contactID)
+        modelContext.delete(contact)
+        deletedIDs.append(contactID)
+      }
+      if !deletedIDs.isEmpty {
+        #if DEBUG
+          try deleteContactsFaultInjection?()
+        #endif
+        try modelContext.save()
+      }
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    return deletedIDs
+  }
+
+  /// Insert-only rollback: probe for messages and delete in one ModelActor
+  /// region with no suspension between them. Prefer an orphan contact over a
+  /// cascade that wipes a concurrent DM.
+  func deleteContactIfUnreferenced(id: UUID) throws {
+    let targetID = id
+    let messagePredicate = #Predicate<Message> { message in
+      message.contactID == targetID
+    }
+    var messageDescriptor = FetchDescriptor<Message>(predicate: messagePredicate)
+    messageDescriptor.fetchLimit = 1
+    if try modelContext.fetch(messageDescriptor).first != nil {
+      return
+    }
+    try deleteContact(id: id)
+  }
+
+  /// Links direct messages stored before their contact row existed. Channel
+  /// rows are excluded by their non-nil channelIndex; the sender-key prefix
+  /// match runs in memory because `#Predicate` cannot express `Data.prefix`.
+  /// A prefix matching two contacts is left orphaned rather than guessed.
+  ///
+  /// Once a DM is adopted, `deleteContactIfUnreferenced` cannot roll that
+  /// contact back. Ghost contacts become permanent. That is the intended trade.
+  ///
+  /// Reaction-format wire text is skipped so it does not become a chat bubble.
+  /// Blocked contacts get no unread or mention bump. Dedup keys are recomputed
+  /// with the adopted contact id so a later re-delivery does not duplicate.
+  @discardableResult
+  func adoptOrphanedDirectMessages(
+    radioID: UUID,
+    contacts: [(id: UUID, publicKey: Data)]
+  ) async throws -> [UUID: Int] {
+    guard !contacts.isEmpty else { return [:] }
+
+    let targetRadioID = radioID
+    let nilContactID: UUID? = nil
+    let nilChannel: UInt8? = nil
+    let incoming = MessageDirection.incoming.rawValue
+    // Scoped predicate with typed nils. Prefix match stays in memory because
+    // #Predicate cannot express Data.prefix.
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID
+        && message.contactID == nilContactID
+        && message.channelIndex == nilChannel
+        && message.directionRawValue == incoming
+    }
+    let orphans = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    guard !orphans.isEmpty else { return [:] }
+
+    var contactByID: [UUID: Contact] = [:]
+    contactByID.reserveCapacity(contacts.count)
+    for candidate in contacts {
+      let targetID = candidate.id
+      let contactPredicate = #Predicate<Contact> { contact in
+        contact.id == targetID
+      }
+      var descriptor = FetchDescriptor(predicate: contactPredicate)
+      descriptor.fetchLimit = 1
+      if let row = try modelContext.fetch(descriptor).first {
+        contactByID[row.id] = row
+      }
+    }
+
+    var adoptedCounts: [UUID: Int] = [:]
+    var newestDateByContact: [UUID: Date] = [:]
+    var unreadByContact: [UUID: Int] = [:]
+    var mentionByContact: [UUID: Int] = [:]
+
+    for message in orphans {
+      guard let prefix = message.senderKeyPrefix, !prefix.isEmpty else { continue }
+      if ReactionParser.isReactionText(message.text, isDM: true) {
+        continue
+      }
+
+      let matches = contacts.filter { candidate in
+        candidate.publicKey.starts(with: prefix)
+      }
+      guard matches.count == 1, let match = matches.first else { continue }
+      guard contactByID[match.id] != nil else { continue }
+
+      message.contactID = match.id
+      message.deduplicationKey = DeduplicationKey.contentBased(
+        contactID: match.id,
+        channelIndex: nil,
+        senderNodeName: message.senderNodeName,
+        timestamp: message.timestamp,
+        content: message.text
+      )
+
+      adoptedCounts[match.id, default: 0] += 1
+      let messageDate = message.sortDate
+      if let existing = newestDateByContact[match.id] {
+        newestDateByContact[match.id] = max(existing, messageDate)
+      } else {
+        newestDateByContact[match.id] = messageDate
+      }
+      if !message.isRead {
+        unreadByContact[match.id, default: 0] += 1
+      }
+      if message.containsSelfMention, !message.mentionSeen {
+        mentionByContact[match.id, default: 0] += 1
+      }
+    }
+
+    guard !adoptedCounts.isEmpty else { return [:] }
+
+    for contactID in adoptedCounts.keys {
+      guard let contact = contactByID[contactID] else { continue }
+      if let newest = newestDateByContact[contactID] {
+        if let existing = contact.lastMessageDate {
+          contact.lastMessageDate = max(existing, newest)
+        } else {
+          contact.lastMessageDate = newest
+        }
+      }
+      // Blocked contacts gain no unread or mention bump (live path parity).
+      if !contact.isBlocked {
+        if let unread = unreadByContact[contactID], unread > 0 {
+          contact.unreadCount += unread
+        }
+        if let mentions = mentionByContact[contactID], mentions > 0 {
+          contact.unreadMentionCount += mentions
+        }
+      }
+    }
+
+    try modelContext.save()
+    return adoptedCounts
+  }
+
+  /// Stamps phone-clock recency for a contact heard on air and the matching
+  /// DiscoveredNode lastHeard, creating that row from stored radio fields when missing.
+  /// Returns true when a Contact row existed.
+  @discardableResult
+  func touchContactHeard(radioID: UUID, publicKey: Data, at date: Date) throws -> Bool {
+    let targetRadioID = radioID
+    let targetKey = publicKey
+    let contactPredicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID && contact.publicKey == targetKey
+    }
+    var contactDescriptor = FetchDescriptor(predicate: contactPredicate)
+    contactDescriptor.fetchLimit = 1
+
+    guard let contact = try modelContext.fetch(contactDescriptor).first else {
+      return false
+    }
+
+    let rawStamp = UInt32(date.timeIntervalSince1970)
+    let stamp = Self.clampedPhoneClockTimestamp(rawStamp, at: date)
+    contact.lastHeardTimestamp = max(contact.lastHeardTimestamp, stamp)
+
+    let nodePredicate = #Predicate<DiscoveredNode> { node in
+      node.radioID == targetRadioID && node.publicKey == targetKey
+    }
+    var nodeDescriptor = FetchDescriptor(predicate: nodePredicate)
+    nodeDescriptor.fetchLimit = 1
+    if try modelContext.fetch(nodeDescriptor).first == nil {
+      // A known contact can lack a Discover row (paired before the row existed,
+      // or restored from a backup). Hearing it on air makes it discoverable.
+      _ = try upsertDiscoveredNode(radioID: radioID, from: contact.toContactFrame())
+    }
+    if let node = try modelContext.fetch(nodeDescriptor).first {
+      node.lastHeard = date
+    }
+
+    try modelContext.save()
+    return true
+  }
+
+  /// Fetch all blocked contacts for a device
+  func fetchBlockedContacts(radioID: UUID) throws -> [ContactDTO] {
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID && contact.isBlocked == true
+    }
+    let descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\.name)]
+    )
+    let contacts = try modelContext.fetch(descriptor)
+    return contacts.map { ContactDTO(from: $0) }
+  }
+
+  /// Update contact's last message info (nil clears the date, removing from conversations list)
+  func updateContactLastMessage(contactID: UUID, date: Date?) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { contact in
+      contact.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    if let contact = try modelContext.fetch(descriptor).first {
+      contact.lastMessageDate = date
+      try modelContext.save()
+    }
+  }
+
+  /// Re-derives a contact's lastMessageDate from its newest remaining message,
+  /// clearing it (removing the conversation from the list) when none remain.
+  /// Returns the resulting date so callers can react to removal.
+  @discardableResult
+  func recomputeContactLastMessageDate(contactID: UUID) throws -> Date? {
+    let newest = try fetchMessages(contactID: contactID, limit: 1, offset: 0).first
+    try updateContactLastMessage(contactID: contactID, date: newest?.date)
+    return newest?.date
+  }
+
+  /// Increment unread count for a contact
+  func incrementUnreadCount(contactID: UUID) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { contact in
+      contact.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    if let contact = try modelContext.fetch(descriptor).first {
+      contact.unreadCount += 1
+      try modelContext.save()
+    }
+  }
+
+  /// Clear unread count for a contact
+  func clearUnreadCount(contactID: UUID) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { contact in
+      contact.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    if let contact = try modelContext.fetch(descriptor).first {
+      contact.unreadCount = 0
+      try modelContext.save()
+    }
+  }
+
+  // MARK: - Mention Tracking
+
+  func incrementUnreadMentionCount(contactID: UUID) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { contact in
+      contact.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    guard let contact = try modelContext.fetch(descriptor).first else { return }
+    contact.unreadMentionCount += 1
+    try modelContext.save()
+  }
+
+  func decrementUnreadMentionCount(contactID: UUID) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { contact in
+      contact.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    guard let contact = try modelContext.fetch(descriptor).first else { return }
+    contact.unreadMentionCount = max(0, contact.unreadMentionCount - 1)
+    try modelContext.save()
+  }
+
+  func clearUnreadMentionCount(contactID: UUID) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { contact in
+      contact.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    guard let contact = try modelContext.fetch(descriptor).first else { return }
+    contact.unreadMentionCount = 0
+    try modelContext.save()
+  }
+
+  func fetchUnseenMentionIDs(contactID: UUID) throws -> [UUID] {
+    let targetID = contactID
+    let predicate = #Predicate<Message> { message in
+      message.contactID == targetID &&
+        message.containsSelfMention == true &&
+        message.mentionSeen == false
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.sortBy = [SortDescriptor(\.timestamp, order: .forward)]
+
+    let messages = try modelContext.fetch(descriptor)
+    return messages.map(\.id)
+  }
+
+  /// Sets the muted state for a contact
+  func setContactMuted(_ contactID: UUID, isMuted: Bool) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { $0.id == targetID }
+    var descriptor = FetchDescriptor<Contact>(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    guard let contact = try modelContext.fetch(descriptor).first else {
+      throw PersistenceStoreError.contactNotFound
+    }
+
+    contact.isMuted = isMuted
+    try modelContext.save()
+  }
+
+  /// Delete all messages, reactions, message repeats, and pending sends for a contact
+  /// in a single transactional save. Leaves the Contact row in place.
+  func deleteMessagesForContact(contactID: UUID) throws {
+    try _deleteMessagesForContactWithoutSaving(contactID: contactID)
+    try modelContext.save()
+  }
+
+  /// Instance-deletes cascade rows so a thrown `save()` can `rollback()` the batch.
+  /// Bulk `delete(model:where:)` is not change-tracked.
+  private func _stageOverwriteOldestCascade(contactID: UUID) throws {
+    let targetContactID: UUID? = contactID
+    let messagePredicate = #Predicate<Message> { message in
+      message.contactID == targetContactID
+    }
+    let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
+    let messageIDs = messages.map(\.id)
+
+    if !messageIDs.isEmpty {
+      let chunkSize = 500
+      for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+        let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+        let pendingPredicate = #Predicate<PendingSend> { row in
+          chunk.contains(row.messageID)
+        }
+        for row in try modelContext.fetch(FetchDescriptor(predicate: pendingPredicate)) {
+          modelContext.delete(row)
+        }
+        let repeatPredicate = #Predicate<MessageRepeat> { row in
+          chunk.contains(row.messageID)
+        }
+        for row in try modelContext.fetch(FetchDescriptor(predicate: repeatPredicate)) {
+          modelContext.delete(row)
+        }
+      }
+    }
+
+    let reactionPredicate = #Predicate<Reaction> { reaction in
+      reaction.contactID == targetContactID
+    }
+    for row in try modelContext.fetch(FetchDescriptor(predicate: reactionPredicate)) {
+      modelContext.delete(row)
+    }
+    for message in messages {
+      modelContext.delete(message)
+    }
+  }
+
+  private func _deleteMessagesForContactWithoutSaving(contactID: UUID) throws {
+    let targetContactID: UUID? = contactID
+    let messagePredicate = #Predicate<Message> { message in
+      message.contactID == targetContactID
+    }
+
+    let messageIDs = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).map(\.id)
+
+    try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
+
+    // Reaction is keyed by contactID directly here (single-value predicate) —
+    // no SQLITE_MAX_VARIABLE_NUMBER risk, no chunking needed.
+    try modelContext.delete(model: Reaction.self, where: #Predicate {
+      $0.contactID == targetContactID
+    })
+    // Cascade MessageRepeat — no contactID column, so key by messageIDs.
+    // Chunk to stay under SQLITE_MAX_VARIABLE_NUMBER (32766 on iOS 18+).
+    if !messageIDs.isEmpty {
+      let chunkSize = 500
+      for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+        let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+        try modelContext.delete(model: MessageRepeat.self, where: #Predicate {
+          chunk.contains($0.messageID)
+        })
+      }
+    }
+    try modelContext.delete(model: Message.self, where: messagePredicate)
+  }
+
+  // MARK: - Contact Helper Methods
+
+  /// Find contact display name by 4-byte or 6-byte public key prefix.
+  /// Searches across all devices — room message authors may only be known
+  /// from a previously-connected radio's contact list.
+  func findContactNameByKeyPrefix(_ prefix: Data) throws -> String? {
+    // Fetch all contacts and filter by prefix match
+    let contacts = try modelContext.fetch(FetchDescriptor<Contact>())
+    let prefixLength = prefix.count
+    return contacts.first { contact in
+      contact.publicKey.prefix(prefixLength) == prefix
+    }?.displayName
+  }
+
+  /// Find contact by 32-byte public key.
+  /// Searches across all devices — used for routing hints where the contact
+  /// may exist under a different device's ID.
+  func findContactByPublicKey(_ publicKey: Data) throws -> ContactDTO? {
+    let targetKey = publicKey
+    let predicate = #Predicate<Contact> { contact in
+      contact.publicKey == targetKey
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    return try modelContext.fetch(descriptor).first.map { ContactDTO(from: $0) }
+  }
+
+  func fetchContactPublicKeys(radioID: UUID) throws -> Set<Data> {
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { $0.radioID == targetRadioID }
+    let descriptor = FetchDescriptor<Contact>(predicate: predicate)
+    let contacts = try modelContext.fetch(descriptor)
+    return Set(contacts.map(\.publicKey))
+  }
+}

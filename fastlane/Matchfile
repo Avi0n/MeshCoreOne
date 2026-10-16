@@ -1,0 +1,23 @@
+# Match configuration
+# https://docs.fastlane.tools/actions/match/
+
+# Git repo where certificates/profiles are stored (private repo)
+git_url(ENV["MATCH_GIT_URL"])
+
+# Storage mode (git is most common, can also use google_cloud or s3)
+storage_mode("git")
+
+# Certificate type(s) to manage
+type("appstore")
+
+# App bundle identifier
+app_identifier(["io.pocketmesh.app", "io.pocketmesh.app.widgets"])
+
+# Your Apple Developer account email
+username(ENV["APPLE_ID"])
+
+# Team ID (optional if you only have one team)
+team_id(ENV["TEAM_ID"])
+
+# Don't force create new profiles if they exist
+force_for_new_devices(false)

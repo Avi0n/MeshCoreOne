@@ -1,0 +1,79 @@
+# detekt configuration for the MeshCore One multiplatform build.
+# Layered on top of detekt's default rules (build_upon_default_config = true in each module),
+# so this file only records the deliberate deviations.
+
+naming:
+  FunctionNaming:
+    # Compose @Composable functions are PascalCase by convention.
+    ignoreAnnotated: ['Composable']
+    # Backticked behavior names are the test suite's executable specification.
+    excludes: ['**/test/**', '**/*Test/**']
+  TopLevelPropertyNaming:
+    active: true
+
+style:
+  # Every user-facing string must go through the generated resources, so bare string
+  # literals are expected in resource-key plumbing and small scaffolding; keep this relaxed
+  # rather than papering over it with @Suppress everywhere.
+  MagicNumber:
+    active: true
+    # Test inputs and expected values are local examples, not production policy constants.
+    excludes: ['**/test/**', '**/*Test/**']
+    ignoreAnnotated: ['Composable', 'Preview']
+    # An enum's raw value is already a named constant: the enum entry names it. Pinned protocol raw
+    # values (e.g. RemoteNodeRole.REPEATER = 0x02) are the point, not a magic number to extract.
+    ignoreEnums: true
+    # A named property IS the named constant the project's literal rule asks for; flagging the
+    # literal inside `private val READY_GREEN = Color(0xFF2E7D32)` is noise, not a violation.
+    ignorePropertyDeclaration: true
+  MaxLineLength:
+    maxLineLength: 120
+    # Frozen payloads and descriptive behavior names stay legible when kept intact in tests.
+    excludes: ['**/test/**', '**/*Test/**']
+  ReturnCount:
+    # Leading guard clauses (early validation returns) are idiomatic and read more clearly than a
+    # single deeply-nested return; they should not count against the limit.
+    excludeGuardClauses: true
+
+complexity:
+  CyclomaticComplexMethod:
+    # Protocol fakes intentionally switch over the complete command surface.
+    excludes: ['**/test/**', '**/*Test/**']
+  LargeClass:
+    # Behavior suites group scenarios by production owner; file size is reviewed separately.
+    excludes: ['**/test/**', '**/*Test/**']
+  LongParameterList:
+    functionThreshold: 6
+    constructorThreshold: 7
+    # Composables take state + event callbacks as parameters by design; hoisting them into holder
+    # classes to satisfy a count is the Compose anti-pattern, not the fix.
+    ignoreAnnotated: ['Composable']
+    # Test builders expose independent scenario knobs directly at their call sites.
+    excludes: ['**/test/**', '**/*Test/**']
+  LongMethod:
+    # A screen-level composable is one declarative layout tree; splitting it at an arbitrary line
+    # count fragments the layout without reducing complexity.
+    ignoreAnnotated: ['Composable']
+    # End-to-end setup and assertions read as one behavior in integration tests.
+    excludes: ['**/test/**', '**/*Test/**']
+  TooManyFunctions:
+    # Test classes collect behaviors for one production owner, including interface-complete fakes.
+    excludes: ['**/test/**', '**/*Test/**']
+
+coroutines:
+  InjectDispatcher:
+    # Tests intentionally select concrete test or integration dispatchers at the scenario boundary.
+    excludes: ['**/test/**', '**/*Test/**']
+  RedundantSuspendModifier:
+    # Suspend test helpers preserve the shape of the production seams they exercise.
+    excludes: ['**/test/**', '**/*Test/**']
+
+empty-blocks:
+  EmptyFunctionBlock:
+    # Empty interface callbacks are valid no-op behavior in focused test doubles.
+    excludes: ['**/test/**', '**/*Test/**']
+
+potential-bugs:
+  UnsafeCallOnNullableType:
+    # A failed non-null fixture precondition should fail the test at the point of use.
+    excludes: ['**/test/**', '**/*Test/**']

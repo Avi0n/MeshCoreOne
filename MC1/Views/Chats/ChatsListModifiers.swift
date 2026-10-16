@@ -1,0 +1,100 @@
+import MC1Services
+import SwiftUI
+
+/// Search, compose, and reload chrome for the conversation list.
+struct ChatsListModifiers: ViewModifier {
+  @Environment(\.appState) private var appState
+  @Environment(\.appTheme) private var theme
+
+  let viewModel: ChatViewModel
+
+  @Binding var searchText: String
+  @Binding var showingNewChat: Bool
+  @Binding var showingChannelOptions: Bool
+
+  let onAnnounceOfflineStateIfNeeded: () -> Void
+
+  func body(content: Content) -> some View {
+    content
+      .themedCanvas(theme)
+      .navigationTitle(L10n.Chats.Chats.title)
+      // Always-visible drawer keeps search below the large title. Default toolbar
+      // placement on iOS 26 draws both in the same slot.
+      .searchable(
+        text: $searchText,
+        placement: .navigationBarDrawer(displayMode: .always),
+        prompt: L10n.Chats.Chats.Search.placeholder
+      )
+      .toolbar {
+        bleStatusToolbarItem()
+        ToolbarItem(placement: .automatic) {
+          Menu {
+            Button {
+              showingNewChat = true
+            } label: {
+              Label(L10n.Chats.Chats.Compose.newChat, systemImage: "person")
+            }
+
+            Button {
+              showingChannelOptions = true
+            } label: {
+              Label(L10n.Chats.Chats.Compose.newChannel, systemImage: "number")
+            }
+          } label: {
+            Label(L10n.Chats.Chats.Compose.newMessage, systemImage: "square.and.pencil")
+          }
+        }
+      }
+      .task {
+        viewModel.configure(
+          dependencies: ChatViewModel.Dependencies(
+            dataStore: { appState.offlineDataStore },
+            messageService: { appState.services?.messageService },
+            notificationService: { appState.services?.notificationService },
+            channelService: { appState.services?.channelService },
+            roomServerService: { appState.services?.roomServerService },
+            contactService: { appState.services?.contactService },
+            syncCoordinator: { appState.syncCoordinator },
+            connectionState: { appState.connectionState },
+            connectedDevice: { appState.connectedDevice },
+            currentRadioID: { appState.currentRadioID },
+            session: { appState.services?.session },
+            reactionService: { appState.services?.reactionService },
+            chatSendQueueService: { appState.services?.chatSendQueueService },
+            inlineImageDimensionsStore: { nil },
+            prefetchDataStore: { nil }
+          ),
+          onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
+          linkPreviewCache: nil,
+          chatCoordinatorRegistry: nil,
+          conversation: nil
+        )
+        await viewModel.requestConversationReload()?.value
+        onAnnounceOfflineStateIfNeeded()
+      }
+      .task {
+        for await event in appState.messageEventStream.events() {
+          if viewModel.shouldRefreshFailedSendIndicators(for: event) {
+            await viewModel.refreshFailedSendIndicators()
+          }
+        }
+      }
+      .onChange(of: appState.servicesVersion) { _, _ in
+        viewModel.requestConversationReload()
+      }
+      .onChange(of: appState.conversationsVersion) { _, _ in
+        viewModel.requestConversationReload()
+      }
+      .onChange(of: appState.connectionState) { _, newState in
+        if newState == .disconnected {
+          viewModel.requestConversationReload()
+        }
+      }
+      // Surfaces direct-message and room delete failures; the channel retry alert lives on
+      // ChatsConversationSheets, and only one can present since deletes happen one at a time.
+      .errorAlert(Binding(
+        get: { viewModel.errorMessage },
+        set: { viewModel.errorMessage = $0 }
+      ))
+  }
+}

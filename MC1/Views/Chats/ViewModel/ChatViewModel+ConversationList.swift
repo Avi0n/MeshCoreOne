@@ -1,0 +1,473 @@
+import MC1Services
+import SwiftUI
+
+extension ChatViewModel {
+  // MARK: - Notification Level
+
+  /// Sets notification level for a conversation with optimistic UI update
+  func setNotificationLevel(_ conversation: Conversation, level: NotificationLevel) async {
+    guard connectionStateProvider() == .ready else { return }
+    let originalLevel = conversation.notificationLevel
+
+    // Capture once so the write and the badge update target the same container.
+    let dataStore = dataStore
+    let notificationService = notificationService
+
+    // Optimistic UI update
+    updateConversationNotificationLevel(conversation, level: level)
+
+    do {
+      switch conversation {
+      case let .direct(contact):
+        // Contacts still use boolean muted
+        try await dataStore?.setContactMuted(contact.id, isMuted: level == .muted)
+      case let .channel(channel):
+        try await dataStore?.setChannelNotificationLevel(channel.id, level: level)
+      case let .room(session):
+        try await dataStore?.setSessionNotificationLevel(session.id, level: level)
+      }
+      await notificationService?.updateBadgeCount()
+    } catch {
+      // Rollback on failure
+      updateConversationNotificationLevel(conversation, level: originalLevel)
+      logger.error("Failed to set notification level: \(error)")
+    }
+  }
+
+  /// Live row for `id` from the fetch buffers.
+  /// Swipe chrome keeps the value from first reveal, so toggles must not use that snapshot.
+  func liveConversation(id: UUID) -> Conversation? {
+    if let contact = conversations.first(where: { $0.id == id }) {
+      return .direct(contact)
+    }
+    if let channel = channels.first(where: { $0.id == id }) {
+      return .channel(channel)
+    }
+    if let session = roomSessions.first(where: { $0.id == id }) {
+      return .room(session)
+    }
+    return nil
+  }
+
+  func toggleMute(_ conversation: Conversation) async {
+    guard let current = liveConversation(id: conversation.id) else { return }
+    let newLevel: NotificationLevel = current.isMuted ? .all : .muted
+    await setNotificationLevel(current, level: newLevel)
+  }
+
+  /// Updates the notification level in the local conversations array
+  private func updateConversationNotificationLevel(_ conversation: Conversation, level: NotificationLevel) {
+    updateConversation(
+      conversation,
+      direct: { $0.with(isMuted: level == .muted) },
+      channel: { $0.with(notificationLevel: level) },
+      room: { $0.with(notificationLevel: level) }
+    )
+  }
+
+  // MARK: - Pin
+
+  /// Writes the local pin. Does not check the connection and does not change the radio favorite flag.
+  /// Moves a listed row first, then saves. A missing store throws before that move.
+  func setPinned(_ conversation: Conversation, isPinned: Bool) async throws {
+    try await writePin(conversation, isPinned: isPinned, disableAnimation: false)
+  }
+
+  /// Flips the live row's pin. Swipe passes `disableAnimation` so the row move does not
+  /// fight the swipe dismissal.
+  func togglePinned(_ conversation: Conversation, disableAnimation: Bool = false) async {
+    guard let current = liveConversation(id: conversation.id) else { return }
+    do {
+      try await writePin(current, isPinned: !current.isPinned, disableAnimation: disableAnimation)
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  private func writePin(_ conversation: Conversation, isPinned: Bool, disableAnimation: Bool) async throws {
+    let current = liveConversation(id: conversation.id) ?? conversation
+    let original = current.isPinned
+    guard original != isPinned else { return }
+    guard let dataStore else { throw ChatPinError.storeUnavailable }
+
+    let isListed = liveConversation(id: conversation.id) != nil
+    if isListed {
+      applyPinUpdate(current, isPinned: isPinned, disableAnimation: disableAnimation)
+    }
+
+    do {
+      switch current {
+      case let .direct(contact):
+        try await dataStore.setContactPinned(contact.id, isPinned: isPinned)
+      case let .channel(channel):
+        try await dataStore.setChannelPinned(channel.id, isPinned: isPinned)
+      case let .room(session):
+        try await dataStore.setSessionPinned(session.id, isPinned: isPinned)
+      }
+    } catch {
+      if isListed {
+        applyPinUpdate(current, isPinned: original, disableAnimation: disableAnimation)
+      }
+      logger.error("Failed to save chat pin: \(error)")
+      throw error
+    }
+  }
+
+  private func applyPinUpdate(_ conversation: Conversation, isPinned: Bool, disableAnimation: Bool) {
+    let update = {
+      self.updateConversationPinState(conversation, isPinned: isPinned)
+    }
+    if disableAnimation {
+      var transaction = Transaction()
+      transaction.disablesAnimations = true
+      withTransaction(transaction) {
+        update()
+      }
+    } else {
+      update()
+    }
+  }
+
+  /// Updates the pin in the local buffers. `recomputeSnapshot()` runs synchronously
+  /// after the mutation so it stays inside any `disablesAnimations` transaction the caller opens.
+  private func updateConversationPinState(_ conversation: Conversation, isPinned: Bool) {
+    updateConversation(
+      conversation,
+      direct: { $0.with(isPinned: isPinned) },
+      channel: { $0.with(isPinned: isPinned) },
+      room: { $0.with(isPinned: isPinned) }
+    )
+  }
+
+  /// Locates the element backing `conversation` in its list, replaces it with the mapped value,
+  /// and republishes the snapshot. Collapses the per-list `firstIndex` lookup the optimistic
+  /// mutators would otherwise each repeat; each caller supplies only the differing transform.
+  private func updateConversation(
+    _ conversation: Conversation,
+    direct mapDirect: (ContactDTO) -> ContactDTO,
+    channel mapChannel: (ChannelDTO) -> ChannelDTO,
+    room mapRoom: (RemoteNodeSessionDTO) -> RemoteNodeSessionDTO
+  ) {
+    switch conversation {
+    case let .direct(contact):
+      if let index = conversations.firstIndex(where: { $0.id == contact.id }) {
+        conversations[index] = mapDirect(conversations[index])
+      }
+    case let .channel(channel):
+      if let index = channels.firstIndex(where: { $0.id == channel.id }) {
+        channels[index] = mapChannel(channels[index])
+      }
+    case let .room(session):
+      if let index = roomSessions.firstIndex(where: { $0.id == session.id }) {
+        roomSessions[index] = mapRoom(roomSessions[index])
+      }
+    }
+    recomputeSnapshot()
+  }
+
+  // MARK: - Conversation List
+
+  /// Clears all conversation data from the view model.
+  /// Called when the device is forgotten or removed so the list doesn't show stale entries.
+  func clearConversations() {
+    conversations = []
+    channels = []
+    roomSessions = []
+    pendingRemovalIDs = []
+    deletingIDs = []
+    allContacts = []
+    nicknamesByLoweredName = [:]
+    channelSenders = []
+    channelSenderNames = []
+    channelSenderOrder = [:]
+    contactNameSet = []
+    lastMessageCache = [:]
+    // Invalidates in-flight indicator refreshes; the list event task is not `reloadTask`.
+    failedSendRefreshGeneration &+= 1
+    failedSendConversationIDs = []
+    retainingDirectContactIDs = nil
+    recomputeSnapshot()
+  }
+
+  /// True while an optimistic hide or a confirmation-gated radio delete is in flight for
+  /// `id`. Gates the delete action so a rapid re-tap can't double-fire the same removal.
+  func isDeletePending(_ id: UUID) -> Bool {
+    pendingRemovalIDs.contains(id) || deletingIDs.contains(id)
+  }
+
+  /// Hides a conversation, recording the id in `pendingRemovalIDs` so a racing reload can't
+  /// resurrect it; `reconcilePendingRemovals()` drops the id once the fetch confirms it's gone.
+  func removeConversation(_ conversation: Conversation) {
+    pendingRemovalIDs.insert(conversation.id)
+    withAnimation(.snappy) {
+      switch conversation {
+      case let .direct(contact):
+        conversations = conversations.filter { $0.id != contact.id }
+      case let .channel(channel):
+        channels = channels.filter { $0.id != channel.id }
+      case let .room(session):
+        roomSessions = roomSessions.filter { $0.id != session.id }
+      }
+      recomputeSnapshot()
+    }
+  }
+
+  /// Re-admits a row after its delete failed: drops the mask and re-inserts the caller-held DTO.
+  /// Reusing the held DTO rather than re-fetching keeps the rollback independent of reload timing.
+  func restoreConversation(_ conversation: Conversation) {
+    pendingRemovalIDs.remove(conversation.id)
+    withAnimation(.snappy) {
+      switch conversation {
+      case let .direct(contact):
+        if !conversations.contains(where: { $0.id == contact.id }) {
+          conversations.append(contact)
+        }
+      case let .channel(channel):
+        if !channels.contains(where: { $0.id == channel.id }) {
+          channels.append(channel)
+        }
+      case let .room(session):
+        if !roomSessions.contains(where: { $0.id == session.id }) {
+          roomSessions.append(session)
+        }
+      }
+      recomputeSnapshot()
+    }
+  }
+
+  /// Confirms a direct conversation's local clear: drops the mask and purges the fetch buffer
+  /// together. Purging matters because a stale reload could have re-added the contact while it
+  /// was masked, and a later recompute would then republish it; a re-created row still returns
+  /// via the next reload's fetch.
+  func confirmDirectRemoval(_ contact: ContactDTO) {
+    pendingRemovalIDs.remove(contact.id)
+    conversations.removeAll { $0.id == contact.id }
+    recomputeSnapshot()
+  }
+
+  private func fetchRetainingDirectContactIDs(radioID: UUID) async -> Set<UUID>? {
+    guard let dataStore else { return nil }
+    do {
+      return try await dataStore.fetchContactIDs(radioID: radioID)
+    } catch {
+      logger.error("fetchContactIDs failed: \(error.localizedDescription)")
+      return nil
+    }
+  }
+
+  /// Load conversations for a device
+  func loadConversations(radioID: UUID) async {
+    guard let dataStore else { return }
+
+    isLoading = true
+    errorBannerMessage = nil
+
+    do {
+      let fetchedConversations = try await dataStore.fetchConversations(radioID: radioID)
+      let contactIDs = await fetchRetainingDirectContactIDs(radioID: radioID)
+      conversations = fetchedConversations
+      retainingDirectContactIDs = contactIDs
+      recomputeSnapshot()
+    } catch {
+      errorBannerMessage = L10n.Chats.Chats.Error.loadConversationsFailed
+      logger.error("loadConversations failed: \(error.localizedDescription)")
+    }
+
+    hasLoadedOnce = true
+    isLoading = false
+  }
+
+  /// Single entry point for every list reload. Cancel-and-replaces any in-flight reload so the
+  /// latest request wins and a superseded one returns at an `isCancelled` gate before committing.
+  /// Returns the new task so a caller that needs ordering (initial load) can await `.value`.
+  @discardableResult
+  func requestConversationReload() -> Task<Void, Never>? {
+    reloadTask?.cancel()
+    guard let radioID = currentRadioIDProvider() else {
+      reloadTask = nil
+      clearConversations()
+      return nil
+    }
+    let task = Task { @MainActor [weak self] in
+      guard let self else { return }
+      await performConversationReload(radioID: radioID)
+    }
+    reloadTask = task
+    return task
+  }
+
+  /// Fetches contacts, channels, and rooms into locals, then commits one consistent snapshot.
+  /// No `await` may sit between the last `isCancelled` check and the assignment, so no other
+  /// reload can interleave a mismatched commit on the main actor.
+  private func performConversationReload(radioID: UUID) async {
+    guard let dataStore else { return }
+    isLoading = true
+    defer { isLoading = false }
+
+    // Only fetchConversations sets the error banner; channel/room failures stay silent.
+    var banner: String?
+    let fetchedConversations: [ContactDTO]?
+    do {
+      fetchedConversations = try await dataStore.fetchConversations(radioID: radioID)
+    } catch {
+      fetchedConversations = nil
+      banner = L10n.Chats.Chats.Error.loadConversationsFailed
+      logger.error("performConversationReload fetchConversations failed: \(error.localizedDescription)")
+    }
+    if Task.isCancelled { return }
+    #if DEBUG
+      await reloadInterleaveHook?()
+      if Task.isCancelled { return }
+    #endif
+
+    let fetchedChannels = try? await dataStore.fetchChannels(radioID: radioID)
+    if Task.isCancelled { return }
+    let fetchedRooms = await (try? dataStore.fetchRemoteNodeSessions(radioID: radioID))?
+      .filter(\.isRoom)
+    if Task.isCancelled { return }
+    let fetchedContactIDs = await fetchRetainingDirectContactIDs(radioID: radioID)
+    if Task.isCancelled { return }
+
+    if let fetchedConversations { conversations = fetchedConversations }
+    if let fetchedChannels { channels = fetchedChannels }
+    if let fetchedRooms { roomSessions = fetchedRooms }
+    retainingDirectContactIDs = fetchedContactIDs
+    errorBannerMessage = banner
+    reconcilePendingRemovals()
+    recomputeSnapshot()
+    hasLoadedOnce = true
+
+    // Skip the trailing preview load if this reload was superseded.
+    if Task.isCancelled { return }
+    await loadLastMessagePreviews()
+    if Task.isCancelled { return }
+    await refreshFailedSendIndicators()
+  }
+
+  // MARK: - Message Previews
+
+  /// Get the cached last-message preview text for a conversation, keyed by its id.
+  func lastMessagePreview(id: UUID) -> String? {
+    lastMessageCache[id]?.text
+  }
+
+  /// Load last message previews for all conversations.
+  /// Uses batch fetch methods to minimize actor hops (2 hops instead of N).
+  func loadLastMessagePreviews() async {
+    guard let dataStore else { return }
+
+    // Batch fetch contact message previews (single actor hop)
+    if !conversations.isEmpty {
+      do {
+        let contactMessages = try await dataStore.fetchLastMessages(contactIDs: conversations.map(\.id), limit: 10)
+        for contact in conversations {
+          // Find the last non-reaction message (skip outgoing reactions unless failed)
+          let lastMessage = contactMessages[contact.id]?.last { message in
+            guard message.direction == .outgoing,
+                  ReactionParser.parseDM(message.text) != nil else {
+              return true
+            }
+            return message.status == .failed
+          }
+
+          // Evict the cached preview only when no messages remain, so a cleared DM
+          // (still listed via lastMessageDate) shows "No messages"; a contact whose
+          // recent messages are all filtered-out reactions keeps its prior preview.
+          if let lastMessage {
+            lastMessageCache[contact.id] = lastMessage
+          } else if contactMessages[contact.id]?.isEmpty ?? true {
+            lastMessageCache.removeValue(forKey: contact.id)
+          }
+        }
+      } catch {
+        logger.warning("Failed to load contact message previews: \(error)")
+      }
+    }
+
+    // Batch fetch channel message previews (single actor hop)
+    if !channels.isEmpty {
+      do {
+        let channelParams = channels.map { (radioID: $0.radioID, channelIndex: $0.index, id: $0.id) }
+        let channelMessages = try await dataStore.fetchLastChannelMessages(channels: channelParams, limit: 20)
+        for channel in channels {
+          guard let messages = channelMessages[channel.id] else { continue }
+
+          // Filter out outgoing reactions (keep failed ones visible)
+          let lastMessage = messages.last { message in
+            if message.direction == .outgoing,
+               ReactionParser.parse(message.text) != nil,
+               message.status != .failed {
+              return false
+            }
+            return true
+          }
+
+          if let lastMessage {
+            lastMessageCache[channel.id] = lastMessage
+          } else {
+            lastMessageCache.removeValue(forKey: channel.id)
+          }
+        }
+      } catch {
+        logger.warning("Failed to load channel message previews: \(error)")
+      }
+    }
+  }
+
+  // MARK: - Failed-send indicators
+
+  /// True when the conversation row for `id` should show the failed-send badge.
+  func conversationHasFailedSend(_ id: UUID) -> Bool {
+    failedSendConversationIDs.contains(id)
+  }
+
+  /// Replaces `failedSendConversationIDs` with the union of the store's list ids.
+  func applyFailedSendKeys(_ keys: FailedSendConversationKeys) {
+    failedSendConversationIDs = keys.contactIDs
+      .union(keys.channelIDs)
+      .union(keys.roomSessionIDs)
+  }
+
+  /// Re-runs the failed-send query and applies the keys. Does not reload
+  /// contacts, channels, or rooms.
+  func refreshFailedSendIndicators() async {
+    failedSendRefreshGeneration &+= 1
+    let generation = failedSendRefreshGeneration
+    guard let dataStore, let radioID = currentRadioIDProvider() else {
+      failedSendConversationIDs = []
+      return
+    }
+    do {
+      #if DEBUG
+        try failedSendRefreshFaultInjection?()
+      #endif
+      let keys = try await dataStore.fetchFailedSendConversationKeys(radioID: radioID)
+      #if DEBUG
+        await failedSendRefreshInterleaveHook?()
+      #endif
+      guard generation == failedSendRefreshGeneration, !Task.isCancelled else { return }
+      applyFailedSendKeys(keys)
+    } catch is CancellationError {
+      return
+    } catch {
+      guard generation == failedSendRefreshGeneration, !Task.isCancelled else { return }
+      logger.warning("Failed to load failed-send indicators: \(error)")
+    }
+  }
+
+  /// Whether a list `MessageEvent` should trigger `refreshFailedSendIndicators()`.
+  /// Status-resolved ACKs (DM and room) only requery when a badge is already
+  /// showing, so a retry success can drop it without hitting the store on every ACK.
+  func shouldRefreshFailedSendIndicators(for event: MessageEvent) -> Bool {
+    switch event {
+    case .messageFailed, .messageResent, .roomMessageFailed:
+      true
+    case .messageStatusResolved, .roomMessageStatusUpdated:
+      !failedSendConversationIDs.isEmpty
+    case .directMessageReceived, .channelMessageReceived, .roomMessageReceived,
+         .messageRetrying, .heardRepeatRecorded, .reactionReceived,
+         .messagesRegionUpdated, .routingChanged:
+      false
+    }
+  }
+}

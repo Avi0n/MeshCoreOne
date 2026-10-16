@@ -1,0 +1,85 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+
+  push:
+    branches:
+      - main
+      - dev
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  linting:
+    name: Formatting and Linting
+    runs-on: xcode-27
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: command -v swiftlint >/dev/null 2>&1 || brew install swiftlint
+
+      - name: Install SwiftFormat
+        env:
+          SWIFTFORMAT_VERSION: 0.63.0
+        run: |
+          # Pinned rather than using the runner image's preinstalled build, so an
+          # image update cannot change the lint result without a commit here.
+          curl -sSL --fail -o /tmp/swiftformat.zip \
+            "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat.zip"
+          unzip -o -q /tmp/swiftformat.zip -d /tmp/swiftformat-bin
+          chmod +x /tmp/swiftformat-bin/swiftformat
+          echo "/tmp/swiftformat-bin" >> "$GITHUB_PATH"
+
+      - name: Lint
+        run: swiftlint lint --strict
+
+      - name: Format
+        run: |
+          swiftformat --version
+          swiftformat --lint --strict .
+
+  codegen:
+    name: Code Generation Checks
+    runs-on: xcode-27
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: command -v swiftgen >/dev/null 2>&1 || brew install swiftgen
+
+      - name: Regenerate
+        run: swiftgen config run --config swiftgen.yml
+
+      - name: Verify no changes
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Generated files are out of date. Run 'swiftgen config run --config swiftgen.yml' and commit the result."
+            exit 1
+          fi
+
+  parity:
+    name: iOS vs Kotlin parity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check strings, Swift/Kotlin DTOs, Room columns, and JNI envelope
+        run: |
+          python3 -m unittest discover -s multiplatform/scripts -q
+          python3 multiplatform/scripts/check-parity.py

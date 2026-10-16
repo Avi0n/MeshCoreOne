@@ -1,0 +1,144 @@
+import MapKit
+import MapLibre
+import MC1Services
+import SwiftUI
+
+/// Canvas wrapping the map content with an offline badge and floating controls.
+struct MapCanvasView: View {
+  @Environment(\.appState) private var appState
+  @Bindable var viewModel: MapViewModel
+  @Binding var mapStyleSelection: MapStyleSelection
+  @Binding var showLabels: Bool
+  @Binding var clusteringEnabled: Bool
+  @Binding var isNorthLocked: Bool
+  @Binding var selectedCallout: MapCalloutSelection?
+  @Binding var selectedPointScreenPosition: CGPoint?
+  @Binding var isStyleLoaded: Bool
+  let isAddingDiscovered: Bool
+  var filter: MapFilterControl
+  let onShowContactDetail: (ContactDTO) -> Void
+  let onNavigateToChat: (ContactDTO) -> Void
+  let onShowDiscoveredDetail: (DiscoveredNodeDTO) -> Void
+  let onAddDiscovered: (DiscoveredNodeDTO) -> Void
+  let onCenterOnUser: () -> Bool
+  let onClearSelection: () -> Void
+  let onPersistCamera: (MKCoordinateRegion) -> Void
+
+  @State private var isCenteredOnUser = false
+
+  var body: some View {
+    ZStack {
+      MapContentView(
+        viewModel: viewModel,
+        mapStyleSelection: mapStyleSelection,
+        showLabels: showLabels,
+        clusteringEnabled: clusteringEnabled,
+        isNorthLocked: isNorthLocked,
+        selectedCallout: $selectedCallout,
+        selectedPointScreenPosition: $selectedPointScreenPosition,
+        isStyleLoaded: $isStyleLoaded,
+        isCenteredOnUser: $isCenteredOnUser,
+        isAddingDiscovered: isAddingDiscovered,
+        onShowContactDetail: onShowContactDetail,
+        onNavigateToChat: onNavigateToChat,
+        onShowDiscoveredDetail: onShowDiscoveredDetail,
+        onAddDiscovered: onAddDiscovered,
+        onPersistCamera: onPersistCamera
+      )
+      .ignoresSafeArea()
+
+      // Offline badge and active filter chips
+      VStack(alignment: .trailing, spacing: 8) {
+        if !appState.offlineMapService.isNetworkAvailable {
+          OfflineBadge()
+            .padding(.trailing)
+        }
+        MapActiveFiltersBar(
+          host: filter.host,
+          state: filter.state,
+          onEdit: { filter.onShowAdvancedFilters?() }
+        )
+      }
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+      .padding(.top)
+
+      // Floating controls
+      VStack {
+        Spacer()
+        MapCanvasControls(
+          isNorthLocked: $isNorthLocked,
+          showLabels: $showLabels,
+          clusteringEnabled: $clusteringEnabled,
+          mapStyleSelection: $mapStyleSelection,
+          isCenteredOnUser: isCenteredOnUser,
+          viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds(),
+          centerAllEmpty: !viewModel.hasPinsForCenterAll,
+          filter: filter,
+          onLocationTap: {
+            isCenteredOnUser = onCenterOnUser()
+          },
+          onClearSelection: onClearSelection,
+          onCenterAll: {
+            isCenteredOnUser = false
+            viewModel.centerOnAllContacts()
+          }
+        )
+      }
+    }
+  }
+}
+
+// MARK: - Map Controls
+
+private struct MapCanvasControls: View {
+  @Binding var isNorthLocked: Bool
+  @Binding var showLabels: Bool
+  @Binding var clusteringEnabled: Bool
+  @Binding var mapStyleSelection: MapStyleSelection
+  let isCenteredOnUser: Bool
+  let viewportBounds: MLNCoordinateBounds?
+  let centerAllEmpty: Bool
+  var filter: MapFilterControl
+  let onLocationTap: () -> Void
+  let onClearSelection: () -> Void
+  let onCenterAll: () -> Void
+
+  var body: some View {
+    HStack {
+      Spacer()
+      MapControlsToolbar(
+        onLocationTap: onLocationTap,
+        isCenteredOnUser: isCenteredOnUser,
+        isNorthLocked: $isNorthLocked,
+        showLabels: $showLabels,
+        clusteringEnabled: $clusteringEnabled,
+        mapStyleSelection: $mapStyleSelection,
+        viewportBounds: viewportBounds,
+        filter: filter
+      ) {
+        CenterAllButton(
+          isEmpty: centerAllEmpty,
+          onClearSelection: onClearSelection,
+          onCenterAll: onCenterAll
+        )
+      }
+    }
+  }
+}
+
+// MARK: - Control Buttons
+
+private struct CenterAllButton: View {
+  let isEmpty: Bool
+  let onClearSelection: () -> Void
+  let onCenterAll: () -> Void
+
+  var body: some View {
+    Button(L10n.Map.Map.Controls.centerAll, systemImage: "arrow.up.left.and.arrow.down.right") {
+      onClearSelection()
+      onCenterAll()
+    }
+    .mapControlButton(tint: isEmpty ? .secondary : .primary)
+    .disabled(isEmpty)
+  }
+}

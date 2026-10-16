@@ -1,0 +1,8 @@
+/* Widget localization — Polish */
+
+"Disconnected" = "Rozłączono";
+"%lld packets per minute" = "%lld pakietów na minutę";
+"Battery %lld percent" = "Bateria %lld procent";
+
+/* Control Center button: opens the app */
+"Open MeshCore One" = "Otwórz MeshCore One";

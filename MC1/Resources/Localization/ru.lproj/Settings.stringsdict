@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Settings.stringsdict
+  PocketMesh
+
+  Russian pluralization rules for danger zone removal strings.
+  Russian uses Slavic plural rules: one (1, 21, 31...), few (2-4, 22-24...), many (0, 5-20, 25-30...), other (fractions).
+  AI-translated - please verify with native speakers.
+-->
+<plist version="1.0">
+<dict>
+    <key>dangerZone.alert.removeUnfavorited.message</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@nodeCount@</string>
+        <key>nodeCount</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Это безвозвратно удалит %d узел, не отмеченный как избранный, с устройства и из приложения, а также его сообщения.</string>
+            <key>few</key>
+            <string>Это безвозвратно удалит %d узла, не отмеченных как избранные, с устройства и из приложения, а также их сообщения.</string>
+            <key>many</key>
+            <string>Это безвозвратно удалит %d узлов, не отмеченных как избранные, с устройства и из приложения, а также их сообщения.</string>
+            <key>other</key>
+            <string>Это безвозвратно удалит %d узла, не отмеченных как избранные, с устройства и из приложения, а также их сообщения.</string>
+        </dict>
+    </dict>
+    <key>dangerZone.alert.removeUnfavorited.partial</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%2$#@totalNodes@</string>
+        <key>totalNodes</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Удалено %1$d из %2$d узла. Соединение было прервано — нажмите кнопку ещё раз, чтобы удалить оставшийся узел.</string>
+            <key>few</key>
+            <string>Удалено %1$d из %2$d узлов. Соединение было прервано — нажмите кнопку ещё раз, чтобы удалить оставшиеся узлы.</string>
+            <key>many</key>
+            <string>Удалено %1$d из %2$d узлов. Соединение было прервано — нажмите кнопку ещё раз, чтобы удалить оставшиеся узлы.</string>
+            <key>other</key>
+            <string>Удалено %1$d из %2$d узла. Соединение было прервано — нажмите кнопку ещё раз, чтобы удалить оставшиеся узлы.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_added</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Добавлен %d элемент.</string>
+            <key>few</key>
+            <string>Добавлено %d элемента.</string>
+            <key>many</key>
+            <string>Добавлено %d элементов.</string>
+            <key>other</key>
+            <string>Добавлено %d элемента.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.subtitle_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Обновлён %d существующий элемент.</string>
+            <key>few</key>
+            <string>Обновлено %d существующих элемента.</string>
+            <key>many</key>
+            <string>Обновлено %d существующих элементов.</string>
+            <key>other</key>
+            <string>Обновлено %d существующих элемента.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d элемент уже здесь</string>
+            <key>few</key>
+            <string>%d элемента уже здесь</string>
+            <key>many</key>
+            <string>%d элементов уже здесь</string>
+            <key>other</key>
+            <string>%d элемента уже здесь</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.already_here_refreshed</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>%d из них был обновлён новой информацией из резервной копии.</string>
+            <key>few</key>
+            <string>%d из них были обновлены новой информацией из резервной копии.</string>
+            <key>many</key>
+            <string>%d из них было обновлено новой информацией из резервной копии.</string>
+            <key>other</key>
+            <string>%d из них было обновлено новой информацией из резервной копии.</string>
+        </dict>
+    </dict>
+    <key>settings.backup.import.success.dropped_summary</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@count@</string>
+        <key>count</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Не удалось восстановить %d элемент</string>
+            <key>few</key>
+            <string>Не удалось восстановить %d элемента</string>
+            <key>many</key>
+            <string>Не удалось восстановить %d элементов</string>
+            <key>other</key>
+            <string>Не удалось восстановить %d элемента</string>
+        </dict>
+    </dict>
+</dict>
+</plist>

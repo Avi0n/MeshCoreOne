@@ -1,0 +1,56 @@
+# SwiftFormat configuration — mirrors the conventions already in the codebase.
+# Run: swiftformat .    (lint-only: swiftformat --lint .)
+
+--swiftversion 6.4
+
+# Match .swiftlint.yml exclusions
+--exclude .build,.worktrees,build,tmp,apple/MC1.xcodeproj,apple/MC1/Resources/Generated,MeshCore/.build,MeshCoreBridge/.build,MeshCore-references,mc-ref,apple/MC1Services/.build,apple/fastlane,scripts
+
+# Indentation — 2 spaces, no tabs
+--indent 2
+--tabwidth 2
+--smarttabs enabled
+--indentcase false          # switch cases align with switch (switch_case_alignment disabled in SwiftLint)
+
+# Line width — aligned with SwiftLint line_length warning
+--maxwidth 250
+
+# Imports — alphabetized within a single group
+--importgrouping alpha
+
+# Self — codebase omits redundant self; keep only where required
+--self remove
+
+# Braces / control flow — K&R, else & catch on the same line as the brace
+--allman false
+--elseposition same-line
+--guardelse auto
+
+# Wrapping — preserve author's line breaks; only balance the closing paren
+--wraparguments preserve
+--wrapparameters preserve
+--wrapcollections preserve
+--wrapconditions preserve
+--closingparen balanced
+
+# Spacing / misc conventions observed in the code
+--voidtype void
+--stripunusedargs closure-only
+--commas inline            # no trailing commas (trailing_comma disabled in SwiftLint)
+--emptybraces no-space
+--ranges no-space
+--operatorfunc spaced
+--nospaceoperators ..<,...
+
+# Rules that would introduce churn against the existing style
+--disable markTypes        # code does not MARK every type declaration
+--disable docComments      # manifest rationale and implementation notes are not API documentation
+--disable trailingCommas   # matches SwiftLint disabling trailing_comma
+--disable wrapMultilineStatementBraces
+--disable redundantSelf    # bugged: https://github.com/nicklockwood/SwiftFormat/issues/1732
+--disable wrapIfStatementBodies   # single-line early returns and `if case` checks stay on one line
+--disable wrapIfExpressionBodies  # same, for if-expression branches
+--disable redundantSwiftUIGroup   # mis-parses Group(subviews:) into uncompilable code, and strips Groups whose modifiers must not reapply per-child
+
+# Leave file headers untouched
+--header ignore

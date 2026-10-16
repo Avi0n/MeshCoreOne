@@ -1,0 +1,91 @@
+{
+  "valid": [
+    {
+      "label": "chat",
+      "name": "AVN2",
+      "expectedName": "AVN2",
+      "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+      "type": 1,
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:1:AVN2>"
+    },
+    {
+      "label": "repeater",
+      "name": "Bob",
+      "expectedName": "Bob",
+      "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+      "type": 2,
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:2:Bob>"
+    },
+    {
+      "label": "room",
+      "name": "Ops Room",
+      "expectedName": "Ops Room",
+      "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+      "type": 3,
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:3:Ops Room>"
+    },
+    {
+      "label": "colon-in-name",
+      "name": "Base:Camp:1",
+      "expectedName": "Base:Camp:1",
+      "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+      "type": 1,
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:1:Base:Camp:1>"
+    },
+    {
+      "label": "gt-stripped-on-emit",
+      "name": "AV>N2",
+      "expectedName": "AVN2",
+      "publicKeyHex": "A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D",
+      "type": 1,
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:1:AVN2>"
+    }
+  ],
+  "invalid": [
+    {
+      "label": "type-256-out-of-uint8",
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:256:x>",
+      "reason": "type exceeds the UInt8 range"
+    },
+    {
+      "label": "type-300-out-of-uint8",
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:300:x>",
+      "reason": "type exceeds the UInt8 range"
+    },
+    {
+      "label": "type-overflow",
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:99999999999999999999:x>",
+      "reason": "type overflows integer parse"
+    },
+    {
+      "label": "type-zero-not-a-contact-type",
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:0:x>",
+      "reason": "0 is not a valid ContactType raw value"
+    },
+    {
+      "label": "type-four-not-a-contact-type",
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:4:x>",
+      "reason": "4 is not a valid ContactType raw value"
+    },
+    {
+      "label": "short-63-char-key",
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654:1:Node>",
+      "reason": "public key is 63 hex chars, not 64"
+    },
+    {
+      "label": "non-hex-key",
+      "token": "<G1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:1:Node>",
+      "reason": "public key contains a non-hex character"
+    },
+    {
+      "label": "missing-name-field",
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:1>",
+      "reason": "name field is absent"
+    },
+    {
+      "label": "empty-name",
+      "token": "<A1432C142E1615EAB6414856F58C90CD61E7C5901650142E5EFE4D2F1332654D:1:>",
+      "reason": "name field is empty"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "comment": "DeviceIdentity.deriveUuid / DeviceIdentity.deriveUUID: first 16 bytes of SHA-256(publicKey), no version or variant bits. Kotlin and Swift must match byte-for-byte.",
+  "vectors": [
+    {
+      "publicKeyHex": "0101010101010101010101010101010101010101010101010101010101010101",
+      "uuid": "72CD6E84-22C4-07FB-6D09-8690F1130B7D"
+    },
+    {
+      "publicKeyHex": "0202020202020202020202020202020202020202020202020202020202020202",
+      "uuid": "75877BB4-1D39-3B5F-B845-5CE60ECD8DDA"
+    }
+  ]
+}

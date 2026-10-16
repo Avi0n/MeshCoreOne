@@ -1,0 +1,26 @@
+{
+  "decode": [
+    { "label": "mode0-zero-hops", "encoded": 0, "hashSize": 1, "hopCount": 0, "byteLength": 0 },
+    { "label": "mode0-five-hops", "encoded": 5, "hashSize": 1, "hopCount": 5, "byteLength": 5 },
+    { "label": "mode0-max-hops", "encoded": 63, "hashSize": 1, "hopCount": 63, "byteLength": 63 },
+    { "label": "mode1-zero-hops", "encoded": 64, "hashSize": 2, "hopCount": 0, "byteLength": 0 },
+    { "label": "mode1-three-hops", "encoded": 67, "hashSize": 2, "hopCount": 3, "byteLength": 6 },
+    { "label": "mode1-max-hops", "encoded": 127, "hashSize": 2, "hopCount": 63, "byteLength": 126 },
+    { "label": "mode2-two-hops", "encoded": 130, "hashSize": 3, "hopCount": 2, "byteLength": 6 },
+    { "label": "mode2-max-hops", "encoded": 191, "hashSize": 3, "hopCount": 63, "byteLength": 189 },
+    { "label": "reserved-mode-zero-hops", "encoded": 192 },
+    { "label": "reserved-mode-mid", "encoded": 200 },
+    { "label": "flood-sentinel", "encoded": 255 }
+  ],
+  "encode": [
+    { "label": "mode0-zero-hops", "hashSize": 1, "hopCount": 0, "encoded": 0 },
+    { "label": "mode0-five-hops", "hashSize": 1, "hopCount": 5, "encoded": 5 },
+    { "label": "mode0-max-hops", "hashSize": 1, "hopCount": 63, "encoded": 63 },
+    { "label": "mode1-three-hops", "hashSize": 2, "hopCount": 3, "encoded": 67 },
+    { "label": "mode2-two-hops", "hashSize": 3, "hopCount": 2, "encoded": 130 },
+    { "label": "mode2-max-hops", "hashSize": 3, "hopCount": 63, "encoded": 191 },
+    { "label": "clamp-one-over", "hashSize": 1, "hopCount": 64, "encoded": 63 },
+    { "label": "clamp-far-over", "hashSize": 2, "hopCount": 100, "encoded": 127 },
+    { "label": "clamp-mode2", "hashSize": 3, "hopCount": 255, "encoded": 191 }
+  ]
+}

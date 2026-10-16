@@ -1,0 +1,37 @@
+import MC1Services
+import SwiftUI
+
+/// Floating mention suggestions overlay for the chat input.
+struct ChatConversationMentionOverlay: View {
+  /// Clearance above the compose bar when the keyboard is down (bar ~height).
+  private static let composeBarClearance: CGFloat = 60
+
+  let suggestions: [ContactDTO]
+  let onSelectMention: (ContactDTO) -> Void
+
+  var body: some View {
+    if !suggestions.isEmpty {
+      VStack(spacing: 0) {
+        Spacer()
+        MentionSuggestionView(contacts: suggestions) { contact in
+          onSelectMention(contact)
+        }
+        .padding(.horizontal)
+        // Clearance above the compose bar, then `chatKeyboardLift` for the keyboard.
+        .padding(.bottom, Self.composeBarClearance)
+        .chatKeyboardLiftPadding()
+        .transition(
+          .asymmetric(
+            insertion: .move(edge: .bottom)
+              .combined(with: .opacity)
+              .combined(with: .scale(scale: 0.95, anchor: .bottom)),
+            removal: .move(edge: .bottom).combined(with: .opacity)
+          )
+        )
+        // `ChatWindowBottomInset` keeps suggestions above the bar once the container inset is ignored.
+        ChatWindowBottomInset()
+      }
+      .animation(.spring(response: 0.3, dampingFraction: 0.8), value: suggestions.isEmpty)
+    }
+  }
+}

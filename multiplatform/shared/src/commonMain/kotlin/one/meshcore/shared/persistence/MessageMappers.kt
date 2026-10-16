@@ -1,0 +1,96 @@
+package one.meshcore.shared.persistence
+
+import one.meshcore.shared.backup.MessageDto
+
+/**
+ * [MessageEntity] <-> [MessageDto] conversion for the Room-backed chat stores. Raw enum columns forward
+ * verbatim (via the typed [MessageEntity] accessors and each `.raw`), so a row round-trips without
+ * passing through a normalizing accessor. The `-1` route-type sentinel maps to a null [MessageDto.routeType]
+ * and back, matching the entity's uncorrelated default.
+ */
+fun MessageEntity.toDto(): MessageDto = MessageDto(
+    id = id,
+    radioID = radioID,
+    text = text,
+    timestamp = timestamp,
+    createdAt = createdAt,
+    direction = direction,
+    status = status,
+    textType = textType,
+    pathLength = pathLength,
+    isRead = isRead,
+    heardRepeats = heardRepeats,
+    sendCount = sendCount,
+    retryAttempt = retryAttempt,
+    maxRetryAttempts = maxRetryAttempts,
+    linkPreviewFetched = linkPreviewFetched,
+    containsSelfMention = containsSelfMention,
+    mentionSeen = mentionSeen,
+    failureSeen = failureSeen,
+    timestampCorrected = timestampCorrected,
+    contactID = contactID,
+    channelIndex = channelIndex,
+    sortDateRaw = sortDate,
+    ackCode = ackCode,
+    snr = snr,
+    pathNodes = pathNodes,
+    senderKeyPrefix = senderKeyPrefix,
+    senderNodeName = senderNodeName,
+    replyToID = replyToID,
+    roundTripTime = roundTripTime,
+    deduplicationKey = deduplicationKey,
+    linkPreviewURL = linkPreviewURL,
+    linkPreviewTitle = linkPreviewTitle,
+    linkPreviewImageData = linkPreviewImageData,
+    linkPreviewIconData = linkPreviewIconData,
+    senderTimestamp = senderTimestamp,
+    reactionSummary = reactionSummary,
+    routeType = routeType,
+    regionScope = regionScope,
+    regionScopeMatches = regionScopeMatches,
+)
+
+fun MessageDto.toEntity(): MessageEntity = MessageEntity(
+    id = id,
+    radioID = radioID,
+    text = text,
+    timestamp = timestamp,
+    createdAt = createdAt,
+    sortDate = sortDate,
+    directionRawValue = direction.raw,
+    statusRawValue = status.raw,
+    textTypeRawValue = textType.raw,
+    pathLength = pathLength,
+    isRead = isRead,
+    heardRepeats = heardRepeats,
+    sendCount = sendCount,
+    retryAttempt = retryAttempt,
+    maxRetryAttempts = maxRetryAttempts,
+    linkPreviewFetched = linkPreviewFetched,
+    containsSelfMention = containsSelfMention,
+    mentionSeen = mentionSeen,
+    failureSeen = failureSeen,
+    timestampCorrected = timestampCorrected,
+    routeTypeRawValue = routeType?.raw ?: ROUTE_TYPE_UNCORRELATED,
+    contactID = contactID,
+    channelIndex = channelIndex,
+    ackCode = ackCode,
+    snr = snr,
+    pathNodes = pathNodes,
+    senderKeyPrefix = senderKeyPrefix,
+    senderNodeName = senderNodeName,
+    replyToID = replyToID,
+    roundTripTime = roundTripTime,
+    deduplicationKey = deduplicationKey,
+    linkPreviewURL = linkPreviewURL,
+    linkPreviewTitle = linkPreviewTitle,
+    linkPreviewImageData = linkPreviewImageData,
+    linkPreviewIconData = linkPreviewIconData,
+    senderTimestamp = senderTimestamp,
+    reactionSummary = reactionSummary,
+    regionScope = regionScope,
+    regionScopeMatches = regionScopeMatches,
+)
+
+/** The route-type column's uncorrelated sentinel; a `-1` decodes to a null [MessageDto.routeType]. */
+private const val ROUTE_TYPE_UNCORRELATED = -1

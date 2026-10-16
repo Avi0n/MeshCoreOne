@@ -1,0 +1,152 @@
+# Makefile: local developer shortcuts.
+# Release and CI automation (certs, TestFlight, App Store) live in fastlane/Fastfile.
+
+# The pipefail wiring below relies on .SHELLFLAGS, which GNU Make honors only at 3.82+. Stock
+# macOS /usr/bin/make is 3.81 and ignores .SHELLFLAGS silently, which would let a failed
+# xcodebuild exit through xcsift's 0 status undetected. Refuse to run on such a make rather than
+# build without the guard; install a newer make (Homebrew `make`) and put it ahead on PATH.
+MIN_MAKE_VERSION := 3.82
+ifneq ($(MIN_MAKE_VERSION),$(firstword $(sort $(MAKE_VERSION) $(MIN_MAKE_VERSION))))
+$(error GNU Make $(MIN_MAKE_VERSION)+ required for pipefail support; found $(MAKE_VERSION). Install a newer make, e.g. Homebrew make)
+endif
+
+# `pipefail` makes a `cmd | xcsift` recipe exit with xcodebuild's status, not xcsift's, so a
+# failed build/test isn't masked when xcsift's summary exits 0. Requires bash, not /bin/sh.
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
+
+SCHEME  := MC1
+PROJECT := MC1.xcodeproj
+
+# The full app suite runs on the project-standard iOS 27 simulator. Override SIM to retarget.
+SIM ?= platform=iOS Simulator,name=iPhone 17e,OS=27.0
+
+# StoreKit (SKTestSession) suites must run on an iOS 18.x simulator. Under `xcodebuild
+# test`, iOS 26.x simulators deliver 0 products to storekitd (Apple regression
+# FB22237318 / FB22774836), so every product-dependent test falsely fails. A method-level
+# `-only-testing` selector also silently runs 0 tests for Swift Testing suites, so the target
+# below pins iOS 18.x and uses suite-level (type-level) filters. These same suites gate on
+# `StoreKitTestAvailability.servesProducts`, so they auto-skip on iOS 26.x. `test-store`
+# is how you actually exercise them. Override STORE_SIM if your machine
+# has a different iOS 18.x simulator.
+STORE_SIM ?= platform=iOS Simulator,name=iPhone 16e,OS=18.6
+
+# Every suite that constructs an SKTestSession. Keep in sync with the `.enabled(if:)`
+# gates in MC1Tests; a suite missing here is never exercised on a products-serving runtime.
+STORE_SUITES := \
+	-only-testing:MC1Tests/StoreServiceTests \
+	-only-testing:MC1Tests/StoreStatePurchaseTests \
+	-only-testing:MC1Tests/AppearanceSelectionTests \
+	-only-testing:MC1Tests/RefundLinkSectionTests \
+	-only-testing:MC1Tests/ThemeServiceOwnershipTests
+
+# Concurrent `xcodebuild test` runs against the same simulator fight over its single
+# test-manager connection and hang ("test runner hung before establishing connection"), the
+# usual cause of a stuck run when several agent/worktree sessions share one Mac. SIM_LOCK takes
+# a per-simulator host lock so same-sim runs serialize while runs on different sims still
+# proceed in parallel. The lock is an atomic O_EXCL create (shell noclobber); if the holding
+# process is gone (killed run) the stale lock is reclaimed after `ps -p` confirms it is dead,
+# and it is released on exit. Skipped under $CI; runners are single-tenant. macOS `shlock` is
+# deliberately avoided here: it does not reclaim a dead-owner lock, so a SIGKILLed run would
+# wedge every later run. The calling recipe sets `dest` first.
+SIM_LOCK = if [ -z "$$CI" ]; then \
+		lock="/tmp/mc1-xcodebuild-$$(printf '%s' "$$dest" | tr -c 'A-Za-z0-9' '-').lock"; \
+		waited=0; \
+		while :; do \
+			if ( set -C; echo $$$$ > "$$lock" ) 2>/dev/null; then break; fi; \
+			owner=$$(cat "$$lock" 2>/dev/null); \
+			if [ -z "$$owner" ] || ! ps -p "$$owner" >/dev/null 2>&1; then rm -f "$$lock"; continue; fi; \
+			echo "==> waiting for simulator lock ($$dest), held by pid $$owner, $${waited}s elapsed"; sleep 2; \
+			waited=$$((waited + 2)); \
+		done; \
+		trap 'rm -f "$$lock"' EXIT INT TERM HUP; \
+	fi
+
+# Heartbeat runs in the pipe consumer so its trap cannot replace SIM_LOCK's
+# lock-release trap. Kill it after xcsift; macOS bash skips pipeline exit traps.
+XCODEBUILD_HEARTBEAT_SEC ?= 30
+XCSIFT_WITH_HEARTBEAT = { \
+		echo "==> xcodebuild test ($$dest); xcsift summary at EOF" >&2; \
+		SECONDS=0; \
+		( while sleep $(XCODEBUILD_HEARTBEAT_SEC); do echo "==> still running $${SECONDS}s" >&2; done ) & \
+		hb=$$!; \
+		trap 'kill $$hb 2>/dev/null || true' EXIT; \
+		xcsift -f toon; \
+		sift=$$?; \
+		kill $$hb 2>/dev/null || true; \
+		wait $$hb 2>/dev/null || true; \
+		exit $$sift; \
+	}
+
+.DEFAULT_GOAL := help
+.PHONY: help generate test test-app test-store check-parity swift-java-local generate-bridge-envelope
+# `make test` runs two xcodebuild passes because a single invocation targets one OS: the full
+# app suite on iOS 27 and the StoreKit suites on iOS 18.x (where SKTestSession actually serves
+# products; iOS 26.x auto-skips those suites). .NOTPARALLEL keeps `make -j` from running
+# both passes at once and colliding on the shared build.
+.NOTPARALLEL:
+
+help: ## List available targets
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  %-14s %s\n", $$1, $$2}'
+
+define DEV_YML_STUB
+settings:
+  base:
+    DEVELOPMENT_TEAM: ""
+endef
+export DEV_YML_STUB
+
+dev.yml:
+	@echo "dev.yml not found, creating empty stub (set DEVELOPMENT_TEAM for local signing)"
+	@echo "$$DEV_YML_STUB" > dev.yml
+
+generate: dev.yml ## Regenerate MC1.xcodeproj from project.yml (xcodegen)
+	xcodegen generate
+
+test: test-app test-store ## Run everything: full app suite (iOS 27) + StoreKit suites (iOS 18)
+
+# Skip sysdiagnose collection. xcodebuild can spawn simctl diagnose after the
+# suite and block the recipe for minutes even when every test passed.
+test-app: generate ## Run the full app suite on iOS 27
+	@dest='$(SIM)'; $(SIM_LOCK); \
+		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
+		-destination "$$dest" \
+		-collect-test-diagnostics never \
+		2>&1 | $(XCSIFT_WITH_HEARTBEAT)
+
+test-store: generate ## Run every StoreKit/IAP SKTestSession suite on iOS 18.x
+	@dest='$(STORE_SIM)'; $(SIM_LOCK); \
+		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
+		-destination "$$dest" $(STORE_SUITES) \
+		-collect-test-diagnostics never \
+		2>&1 | $(XCSIFT_WITH_HEARTBEAT)
+
+# origin/dev is the iOS source of truth. These targets gate the Kotlin port, not a second iOS tree.
+PYTHON ?= python3
+SWIFT_JAVA_REV := 3555583ad6ed9cc14461087b4b088dcdcf510cf0
+SWIFT_JAVA_DIR ?= $(CURDIR)/tmp/swift-java
+JDK25 ?= $(CURDIR)/tmp/jdks/jdk-25.0.3+9/Contents/Home
+
+check-parity: ## Fail if iOS strings, Swift/Kotlin DTOs, Room columns, or the JNI envelope lag
+	$(PYTHON) -m unittest discover -s multiplatform/scripts -q
+	$(PYTHON) multiplatform/scripts/check-parity.py
+
+generate-bridge-envelope: ## Regenerate fixtures/bridge/schema.json and GeneratedBridgeKinds.kt
+	$(PYTHON) multiplatform/scripts/generate-bridge-envelope.py --write --check
+
+swift-java-local: ## Publish pinned swift-java SwiftKitCore to mavenLocal (needs JDK 25)
+	@jdk="$(JDK25)"; \
+	if [ ! -x "$$jdk/bin/java" ]; then jdk="$(CURDIR)/tmp/jdks/jdk-25.0.3+9/Contents/Home"; fi; \
+	if [ ! -x "$$jdk/bin/java" ]; then jdk="$(CURDIR)/tmp/jdks/jdk-25.0.3+9"; fi; \
+	if [ ! -x "$$jdk/bin/java" ]; then \
+		echo "Set JDK25 to a real JDK 25 home (Homebrew openjdk@25 is not enough)."; \
+		exit 1; \
+	fi; \
+	if [ ! -d "$(SWIFT_JAVA_DIR)/.git" ]; then \
+		git clone https://github.com/swiftlang/swift-java "$(SWIFT_JAVA_DIR)"; \
+	fi; \
+	git -C "$(SWIFT_JAVA_DIR)" fetch origin $(SWIFT_JAVA_REV); \
+	git -C "$(SWIFT_JAVA_DIR)" checkout --detach $(SWIFT_JAVA_REV); \
+	cd "$(SWIFT_JAVA_DIR)" && ./gradlew :SwiftKitCore:publishToMavenLocal \
+		-Porg.gradle.java.installations.paths="$$jdk"

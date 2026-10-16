@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>%lld unread</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld непрочитане</string>
+			<key>few</key>
+			<string>%lld непрочитаних</string>
+			<key>many</key>
+			<string>%lld непрочитаних</string>
+			<key>other</key>
+			<string>%lld непрочитаних</string>
+		</dict>
+	</dict>
+	<key>%lld unread messages</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld непрочитане повідомлення</string>
+			<key>few</key>
+			<string>%lld непрочитаних повідомлення</string>
+			<key>many</key>
+			<string>%lld непрочитаних повідомлень</string>
+			<key>other</key>
+			<string>%lld непрочитаних повідомлень</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

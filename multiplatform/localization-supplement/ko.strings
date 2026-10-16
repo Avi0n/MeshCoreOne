@@ -1,0 +1,174 @@
+// English fallback for Android-only strings pending Korean translation.
+// Android/Compose-only string supplement. Merged after the iOS .strings families by
+// scripts/strings-to-compose.py. Keys are FINAL Compose resource names (no family
+// derivation). These are strings the iOS app no longer ships but the Kotlin UI still needs.
+
+"chats_channel_info_title" = "Channel Info";
+"chats_error_delete_conversation_failed" = "Failed to delete conversation.";
+"chats_error_delete_message_failed" = "Failed to delete message.";
+"chats_error_delete_timed_out" = "The radio did not respond. Please try again.";
+"chats_error_load_messages_failed" = "Failed to load messages";
+"chats_message_actions_title" = "Message";
+"chats_message_info_adjusted_accessibility" = "Sent time adjusted due to sender clock error";
+"chats_message_path_hops_plural" = "%d hops";
+"chats_message_path_hops_singular" = "1 hop";
+"chats_new_chat_contact_type_room" = "Room";
+"chats_scroll_button_scroll_to_divider_accessibility_hint" = "Double-tap to scroll to the new messages divider";
+"chats_scroll_button_scroll_to_divider_accessibility_label" = "Scroll to new messages";
+"chats_scroll_button_scroll_to_mention_accessibility_hint" = "Double-tap to navigate to the message";
+"chats_scroll_button_scroll_to_mention_accessibility_label" = "Scroll to your oldest unread mention";
+"chats_scroll_button_scroll_to_mention_accessibility_value" = "%d unread mentions";
+"chats_thread_back_accessibility" = "Back";
+"chats_timestamp_today" = "Today";
+"chats_timestamp_yesterday" = "Yesterday";
+"localizable_common_close" = "Close";
+"map_empty_no_locations" = "No contacts with locations yet. Nodes with coordinates appear here as map pins once MapLibre is mounted.";
+"remotenodes_remote_nodes_history_days_ago" = "%dd ago";
+"remotenodes_remote_nodes_room_telemetry" = "Telemetry";
+"remotenodes_remote_nodes_settings_password_changed_success" = "Password changed successfully";
+"remotenodes_remote_nodes_settings_regions_allow_flood" = "Allow Flood Traffic";
+"remotenodes_remote_nodes_settings_regions_save_success" = "Regions saved to device";
+"settings_advanced_settings_footer" = "Radio tuning, telemetry, contact settings, and device management";
+"settings_blocking_channel_senders_unblock" = "Unblock";
+"settings_demo_mode_screenshot" = "Screenshot Mode";
+"settings_device_info_identity_header" = "Identity";
+"settings_device_selection_accessibility_select_action" = "Connect";
+"settings_device_selection_select_to_reconnect" = "Select a device to reconnect";
+"settings_messages_show_incoming_send_time" = "Incoming Send Time";
+"settings_nodes_auto_add_types_header" = "Auto-Add Types";
+"settings_notifications_footer" = "Message alerts, contact discoveries, and low battery warnings.";
+"settings_offline_maps_delete" = "Delete";
+"settings_regenerate_identity_generate_another" = "Generate Another";
+"settings_regenerate_identity_prefix_error_invalid_length" = "Prefix must be 1–4 hex characters";
+"settings_wifi_edit_ip_placeholder" = "IP Address";
+"settings_wifi_edit_port_placeholder" = "Port";
+// Support Development tip tiers. Fallback names shown when Play Billing product details are unavailable.
+"settings_support_tip_1" = "Coffee";
+"settings_support_tip_2" = "Lunch";
+"settings_support_tip_3" = "Dinner";
+"settings_support_tip_4" = "Generous Tip";
+"settings_support_tip_5" = "Massive Tip";
+"settings_support_tip_6" = "Epic Tip";
+"tools_cli_clear" = "Clear";
+// Android-only onboarding Bluetooth-permission card, path-editor hop actions, and Settings/Tools hub
+// subtitles. No iOS counterpart: iOS grants BLE through AccessorySetupKit and has no hub subtitles.
+"android_onboarding_permissions_bluetooth_title" = "블루투스";
+"android_onboarding_permissions_bluetooth_description" = "블루투스로 MeshCore 무전기를 찾고 연결하는 데 필요합니다.";
+"android_onboarding_permissions_title" = "몇 가지 권한";
+"android_onboarding_permissions_subtitle" = "연결하려면 블루투스가 필요합니다. 알림과 위치 권한은 선택 사항이며 설정에서 언제든 변경할 수 있습니다.";
+"android_ble_scan_allow" = "허용";
+"android_radio_tile_label" = "MeshCore 무전기";
+"android_path_edit_move_hop_up" = "홉 위로 이동";
+"android_path_edit_move_hop_down" = "홉 아래로 이동";
+"android_path_edit_remove_hop" = "홉 제거";
+"android_overflow_menu" = "옵션 더보기";
+"android_block_sender_no_matches" = "일치하는 연락처가 없습니다";
+"chats_input_placeholder_message" = "Message";
+"android_path_edit_reorder_hint" = "화살표로 순서를 바꾸고 닫기를 눌러 제거하세요";
+"android_settings_hub_device_info_subtitle" = "이름, 펌웨어 및 공개 키";
+"android_settings_hub_location_subtitle" = "기기 위치 공유 및 업데이트";
+"android_settings_hub_maps_subtitle" = "기본 지도 모양 및 오프라인 지도";
+"android_settings_hub_radio_subtitle" = "지역 프리셋 및 무선 매개변수";
+"android_settings_hub_connection_subtitle" = "블루투스 및 Wi-Fi 연결 정보";
+"android_settings_hub_advanced_subtitle" = "무선 조정, 텔레메트리 및 노드 관리";
+"android_settings_hub_notifications_subtitle" = "메시지 및 검색 알림";
+"android_settings_hub_offline_maps_subtitle" = "오프라인에서 사용할 지도 영역 다운로드";
+"android_settings_hub_danger_subtitle" = "무전기 페어링 해제 또는 초기화";
+"android_settings_hub_diagnostics_subtitle" = "디버그 로그 내보내기 및 삭제";
+"android_settings_hub_trusted_contacts_subtitle" = "관리 작업을 허용한 연락처";
+"android_settings_hub_chats_subtitle" = "메시지 표시, 미리보기 및 경로 정보";
+"android_settings_hub_appearance_subtitle" = "테마 및 밝은 모드 또는 어두운 모드";
+// Default theme card caption when the platform derives Material You colors from wallpaper.
+"android_appearance_default_uses_wallpaper" = "배경화면 색상 사용";
+"android_settings_hub_backup_subtitle" = "앱 데이터 내보내기 또는 복원";
+"android_settings_hub_support_subtitle" = "팁 및 개발 후원";
+"android_settings_hub_language_subtitle" = "앱 언어 변경";
+"android_settings_hub_requires_radio" = "이 설정을 변경하려면 무전기를 연결하세요";
+
+// Compact relative-age row labels (Nodes, Chats, Discover, contact detail). No iOS counterpart:
+// iOS renders these through the system RelativeDateTimeFormatter.
+"android_relative_age_minutes" = "%d분";
+"android_relative_age_hours" = "%d시간";
+"android_relative_age_days" = "%d일";
+"android_relative_age_weeks" = "%d주";
+"android_relative_age_seconds" = "%d초";
+"android_tools_hub_trace_path_subtitle" = "연락처까지의 경로 품질 측정";
+"android_tools_hub_line_of_sight_subtitle" = "두 지점 사이의 무선 신호 범위 추정";
+"android_tools_hub_rx_log_subtitle" = "수신되는 무선 패킷 보기";
+"android_tools_hub_noise_floor_subtitle" = "주변 채널 잡음 측정";
+"android_tools_hub_node_discovery_subtitle" = "근처 메시 노드 찾기";
+"android_tools_hub_cli_subtitle" = "원격 관리 명령 보내기";
+"android_tools_hub_requires_radio" = "이 도구를 사용하려면 메시 무전기를 연결하세요";
+
+// Node-config import: the picked file failed to decode. No iOS counterpart: iOS shows the
+// Foundation decoding error, which the system already localizes.
+"android_settings_config_import_error_invalid_file" = "유효한 MeshCore 설정 파일이 아닙니다.";
+"settings_maps_show_discovered" = "Show Discovered Nodes";
+"settings_maps_show_discovered_footer" = "When enabled, nodes from Discover that share a location appear on the map alongside saved nodes.";
+"tools_intent_advert_confirm" = "Send a %s advert?";
+
+// Fresh-pair PIN copy: iOS names AccessorySetupKit confirmation; Android forgets the saved row and reopens the picker.
+"android_onboarding_device_scan_error_pin_rejected" = "PIN이 승인되지 않았습니다. 기기에 표시된 PIN을 확인한 후 다시 시도하세요. 페어링을 삭제하려면 제거 후 다시 시도를 누른 다음 무전기에 표시된 PIN을 입력하세요.";
+// Auth copy when Companion Device Manager cannot drop the OS Bluetooth bond (API < 36). iOS Mac authenticationFailedMac analog.
+"android_onboarding_device_scan_error_authentication_failed_settings" = "이 무전기에 저장된 페어링이 더 이상 작동하지 않습니다. 블루투스 설정에서 무전기 등록을 해제한 다음 제거 후 다시 시도를 누르세요.";
+
+// Unrestricted battery: iOS bluetooth-central has no analog; Android needs an exemption so Doze cannot kill the connection service.
+"android_settings_connection_unrestricted_battery_title" = "배터리 사용 제한 없음";
+"android_settings_connection_unrestricted_battery_footer" = "Android가 백그라운드 작업을 중지하더라도 무전기 연결을 유지할 수 있습니다.";
+"android_settings_connection_unrestricted_battery_accessibility_hint" = "배터리 최적화 설정 열기";
+
+// Millisecond duration shown on ping and Trace Path (iOS hardcodes the unit).
+"android_duration_ms" = "%d밀리초";
+
+// Empty preference values (Wi‑Fi host/port, node settings). Missing telemetry still uses an em dash.
+"android_value_not_set" = "설정되지 않음";
+
+// Unsupported date/time outside the platform calendar range; the imported date is unchanged.
+// TODO(translate)
+"android_timestamp_unavailable" = "Unavailable";
+
+// Abbreviated length units (iOS Measurement .abbreviated). Latin locales keep SI tokens.
+"android_unit_kilometer" = "km";
+"android_unit_meter" = "m";
+"android_unit_mile" = "mi";
+"android_unit_foot" = "ft";
+// Foreground-service and launcher-shortcut host strings. No iOS counterpart (Live Activity / ASK).
+"android_shortcut_open_chats_long" = "채팅 열기";
+"android_notification_packet_rate" = "%d/분";
+"android_notification_channel_discovery" = "새 노드 발견";
+"android_notification_action_speak_status" = "상태 읽어 주기";
+
+// TalkBack custom action on reaction badges. iOS uses the badge hint; Android needs an explicit action name.
+"chats_reactions_view_details" = "View reaction details";
+// Search field placeholder. iOS uses the system Search prompt; Compose TextField needs a resource.
+"localizable_common_search" = "Search";
+// PIN rejection when Companion Device Manager cannot drop the OS bond (API < 36). iOS pinRejectedMac analog, Bluetooth settings not System Settings.
+"android_onboarding_device_scan_error_pin_rejected_settings" = "PIN이 승인되지 않았습니다. 기기에 표시된 PIN을 확인한 후 다시 시도하세요. 블루투스 설정에서 실패한 페어링을 먼저 해제해야 할 수 있습니다.";
+// Factory-reset pairing leftover. iOS names iOS/Settings; Android names Bluetooth settings.
+"android_onboarding_troubleshooting_factory_reset_explanation" = "MeshCore 기기를 초기화해도 시스템에 이전 페어링이 남아 있을 수 있습니다. 블루투스 설정에서 페어링을 삭제하면 기기가 다시 표시됩니다.";
+// Troubleshooting Bluetooth section title. iOS System Settings; Android Bluetooth.
+"android_onboarding_troubleshooting_system_settings_header" = "블루투스";
+// Troubleshooting manage-devices line. iOS accessories; Android paired Bluetooth devices.
+"android_onboarding_troubleshooting_system_settings_manage_accessories" = "페어링된 블루투스 기기는 다음 위치에서도 관리할 수 있습니다:";
+// Path to Bluetooth settings. iOS Privacy & Security → Accessories; Android Connected devices → Bluetooth.
+"android_onboarding_troubleshooting_system_settings_path" = "설정 → 연결된 기기 → 블루투스";
+// CDM leftover pairing. iOS names iPhone; Android names this phone.
+"android_settings_device_selection_setup_message" = "이 기기는 휴대전화와 페어링되어 있습니다. MeshCore One에 추가하기 전에 페어링을 해제해야 합니다.";
+// CDM leftover pairing, plural.
+"android_settings_device_selection_setup_message_plural" = "이 기기들은 휴대전화와 페어링되어 있습니다. MeshCore One에 무전기를 추가하기 전에 페어링을 해제해야 합니다.";
+// TalkBack for a leftover CDM association row.
+"android_settings_device_selection_accessibility_setup_label" = "%1$s, 이 휴대전화와 페어링됨";
+// Language row TalkBack. iOS names iOS Settings.
+"android_settings_language_app_language_accessibility_hint" = "언어 설정 열기";
+// Translate-into footer. iOS names Translate / iOS Settings.
+"android_settings_language_default_translation_app_footer" = "기기의 번역 앱 또는 설정에서 선택한 다른 앱을 사용합니다.";
+
+// QR camera permission. iOS names Settings; Android names Camera in system Settings.
+"android_scan_camera_permission_message" = "QR 코드를 스캔하려면 시스템 설정에서 카메라 권한을 허용하세요.";
+
+// Conversation search empty. iOS per-filter empty is wrong while searching.
+"android_chats_search_no_results_title" = "결과 없음";
+"android_chats_search_no_results_description" = "'%s'와(과) 일치하는 대화가 없습니다";
+// LoS caption without iOS middot; chart uses a Slider instead of a drag-hint overlay.
+"android_tools_line_of_sight_indirect_route" = "R을 경유하는 간접 경로입니다. 지도에서 위치를 옮겨 조정하세요.";
+"android_tools_line_of_sight_repeater_position" = "중계기 위치";
