@@ -124,19 +124,28 @@ fun ChatTimeline(
         callbacks.onInitialAnchorConsumed()
     }
     LaunchedEffect(listState, visualRows) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo.map { it.index } }.collect { visible ->
+        var previousVisibleIndices: List<Int>? = null
+        snapshotFlow {
+            Triple(
+                listState.layoutInfo.visibleItemsInfo.map { it.index },
+                listState.firstVisibleItemIndex,
+                listState.firstVisibleItemScrollOffset,
+            )
+        }.collect { (visible, firstVisibleIndex, firstVisibleOffset) ->
             val atLatest = visible.any { it == 0 } || visualRows.isEmpty()
-            val anchor = listState.firstVisibleItemIndex.let { visualIndex ->
-                (visualRows.getOrNull(visualIndex) as? TimelineRow.Message)?.message?.id
-            }?.let { TimelineScrollAnchor(it, listState.firstVisibleItemScrollOffset) }
+            val anchor = (visualRows.getOrNull(firstVisibleIndex) as? TimelineRow.Message)
+                ?.message?.id?.let { TimelineScrollAnchor(it, firstVisibleOffset) }
             if (anchor != null) {
                 savedViewportOffset = anchor.offset
                 savedViewportMessageId = anchor.messageId.toString()
             }
             callbacks.onScrollPositionChanged(anchor, atLatest)
-            if (visible.any { it >= visualRows.lastIndex - 3 } && state.hasMoreMessages && !state.isLoadingOlder) {
+            if (visible != previousVisibleIndices &&
+                visible.any { it >= visualRows.lastIndex - 3 } && state.hasMoreMessages && !state.isLoadingOlder
+            ) {
                 callbacks.onLoadOlder()
             }
+            previousVisibleIndices = visible
         }
     }
 
