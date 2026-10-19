@@ -7,6 +7,21 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Published f75 hosted failure: dependency and report-retention blockers
+
+Exact hosted39300338554 is terminal **FAILURE** at publishedf75d4e4f;
+App host/Robolectric task reports800 completed/4 failed. Only two
+unqualified method identities survive the runner's12000-character failure
+tail: offline discovery leaves1 progress node instead of0; Reset Path is
+not displayed. Exact source maps these to missing WP311 disconnected-cache
+and wrapping-path-action repairs on still-open PR233/fd9, not demonstrated
+audit-harness defects. The other two occurrences/SDK-qualified identities
+are unavailable: no published XML/report artifact or useful check annotation.
+Do not infer both SDK variants as the four observed failures.
+[Source diagnosis, exact report gap and dependency stop](publication-failure-diagnosis.md).
+This narrative links the authoritative job; it is not a copied CI bundle.
+No rerun/import/API37 action or assertion change is performed.
+
 ## Owned-only publication boundary
 
 PR205 publishes owned WP503 audits/native evidence/documentation plus the
