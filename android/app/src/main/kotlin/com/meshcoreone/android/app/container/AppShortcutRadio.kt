@@ -1,6 +1,7 @@
 // AndroidOnly: WP-407 Shortcuts use the same process store and connection owner; only confirmed operations enqueue.
 // ReferenceInput: MC1/Intents/SendMessageIntent.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Intents/SendMessageIntent+Routing.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Intents/SendAdvertIntent.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.app.state.MessageEvent
@@ -11,6 +12,8 @@ import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueService
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
 import com.meshcoreone.android.core.model.*
+import com.meshcoreone.android.core.protocol.config.MeshCoreException
+import com.meshcoreone.android.core.services.contacts.AdvertisementError
 import com.meshcoreone.android.core.services.contacts.ChannelServiceError
 import com.meshcoreone.android.core.ui.isBatteryPresent
 import com.meshcoreone.android.core.ui.percentage
@@ -105,8 +108,21 @@ internal class AppShortcutRadio(private val container: AppContainer) : ShortcutR
         catch (cancelled: CancellationException) { throw cancelled }
         catch (failure: ShortcutException) { throw failure }
         catch (failure: Exception) {
-            Logger.getLogger("com.mc1.Shortcuts").log(Level.WARNING, "Shortcut advertisement failed", failure)
-            throw ShortcutException(ShortcutError.ADVERT_FAILED, failure)
+            throw advertFailure(failure)
         }
+    }
+    internal fun advertFailure(failure: Exception): ShortcutException {
+        if (failure is ShortcutException) return failure
+        Logger.getLogger("com.mc1.Shortcuts").log(Level.WARNING, "Shortcut advertisement failed", failure)
+        val error = when (failure) {
+            is AdvertisementError -> when (failure) {
+                is AdvertisementError.NotConnected -> ShortcutError.NOT_CONNECTED
+                is AdvertisementError.SessionError -> ShortcutError.SessionError(failure.error)
+                is AdvertisementError.SendFailed, is AdvertisementError.InvalidResponse -> ShortcutError.ADVERT_FAILED
+            }
+            is MeshCoreException -> ShortcutError.SessionError(failure)
+            else -> ShortcutError.ADVERT_FAILED
+        }
+        return ShortcutException(error, failure)
     }
 }

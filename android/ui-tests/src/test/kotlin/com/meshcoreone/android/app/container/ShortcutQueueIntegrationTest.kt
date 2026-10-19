@@ -198,6 +198,23 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         }
     }
 
+    @Test fun rawAdvertSessionPayloadAndExistingShortcutFailureRetainIdentity() = runTest {
+        val h = connected(this)
+        try {
+            val adapter = AppShortcutRadio(h.container)
+            for (underlying in listOf(MeshCoreException.Timeout(), MeshCoreException.NotConnected())) {
+                // The actual AdvertisementService wraps these; this separately covers the source's raw-error route.
+                val mapped = adapter.advertFailure(underlying)
+                assertSame(underlying, mapped.cause)
+                assertSame(underlying, assertIs<ShortcutError.SessionError>(mapped.error).underlying)
+                assertSame(mapped, adapter.advertFailure(mapped))
+            }
+            val existing = ShortcutException(ShortcutError.DENIED)
+            assertSame(existing, adapter.advertFailure(existing))
+            assertFalse(h.links.radios.single().sent.any { it[0].toInt() == 7 })
+        } finally { h.container.close() }
+    }
+
     @Test fun queuedResultRequiresOneRealDurableDirectAndChannelEnqueueWithoutWireReceipt() = runTest {
         val h = connected(this)
         try {

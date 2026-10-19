@@ -19,7 +19,7 @@ Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-The existing typed reservation was evolved to revision 14, not replaced.
+The existing typed reservation was evolved to revision 15, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -69,6 +69,37 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Follow-up: actual advert consumer error mapping
+
+Frozen `MC1/Intents/SendAdvertIntent.swift::mapToIntentError` preserves typed
+AdvertisementError.NotConnected, wrapped session errors and raw MeshCore errors.
+The real native AdvertisementService wraps MeshCoreException, but the App
+advert branch still flattened its wrapper after the message-only correction.
+At test-only `34f801b2a5807558b1f0217930d78199874c15bb`, after integrating
+actual live main `8702db8b1b25a06eb596fb424d821bc3ce3b187b`, installed preflight
+passes. The existing declared `:app:testDebugUnitTest` with the two selectors
+`ShortcutQueueIntegrationTest.realAdvertServiceSessionErrorsReachAdapterAndExecutorForZeroHopAndFlood`
+and `ShortcutQueueIntegrationTest.realAdvertBoundaryPreservesTypedNotConnectedFallbackAndCancellationForBothReaches`
+(fully qualified under `com.meshcoreone.android.app.container`) discovers two
+and fails both (1m21s), zero passes. The actual assertions report expected
+NOT_CONNECTED versus ADVERT_FAILED and expected SessionError versus ADVERT_FAILED.
+Those failures remain failures, not old hosted/device evidence.
+
+The admitted App correction preserves the exact wrapped/raw session payload
+and outer cause, exhaustive typed advert categories, existing ShortcutException,
+generic fallback and cancellation. Actual independent firmware ERR bytes1/6
+exercise real MeshCoreSession/AdvertisementService through AppShortcutRadio and
+the executor for both reach values, then OK bytes0 prove ordinary recovery.
+Typed/fallback/cancellation faults are injected at the existing transport-write
+seam through that same service path, with a fresh generation per uncertain
+write rather than suppressing correlation policy. The raw conversion case is
+explicitly separate because this service normally wraps MeshCoreException.
+No premapped FakeRadio error substitutes for these boundary tests.
+
+The exact successor's declared regression result must be recorded in PR206;
+prior458/62 native observations remain historical. No new device observation,
+approved golden, hardware pass or whole-WP acceptance is claimed.
 
 At published `62b601c58472ce9fbe150f8ee2340c723866d234`, the declared five-selector
 App cohort passes 35/35, zero failures/errors/skips (2m12s), with preflight,
