@@ -1,0 +1,559 @@
+{
+  "generator": "session wp503-finalnodes-executed-evidence.py; actual native execution, not hosted CI",
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 6,
+  "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+  "executed_combined_head": "a0d4306f5de85b84962b2a9aee18a9a9608ba515",
+  "executed_android_tree": "3814b5e0e183e46bb6258ce8edd589fe2d7e05ae",
+  "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+  "source_import_head": "b3c09f18cf199bc922feb4cbcbfd6910570a0bf8",
+  "exact_producer_files": [
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/build.gradle.kts",
+      "before_blob": "deef6fb56a33f25b03322fda6c1b8d8ef1864b4d",
+      "producer_blob": "852ca05b1f425d8a813d33cae42ba3a31b0c191d",
+      "matching_producer_ancestor": "21ac36c724f8b91e180864ba1963da784a5b42bf",
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryStateHolder.kt",
+      "before_blob": "0f5bb57e737156b3210b0d3e36607d7dd9f0f020",
+      "producer_blob": "825b8815468c318c8c95717f379d85850223fe70",
+      "matching_producer_ancestor": "fe67497f4de3b7223aa94860d582fc7b5261394d",
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/ContactDetailScreen.kt",
+      "before_blob": "84b6da7bcdd5569446687669a067d20e9baf724f",
+      "producer_blob": "84b6da7bcdd5569446687669a067d20e9baf724f",
+      "matching_producer_ancestor": "b6225590ff61884ea4dc6836ae2e3323f520593e",
+      "already_exact": true
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+      "before_blob": "b79941e1e4a01b3a59d12d670bcf714a6b1933a5",
+      "producer_blob": "6e34c414ede1772598e3597f924dcb8005b3beb3",
+      "matching_producer_ancestor": "34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67",
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryNativeTest.kt",
+      "before_blob": "78ca21071600940f96c39bd7cf93b8ddf4399c68",
+      "producer_blob": "b6c1302c3f56578daa098aa56511ec7ff318b6c0",
+      "matching_producer_ancestor": "fe67497f4de3b7223aa94860d582fc7b5261394d",
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesScreensComposeTest.kt",
+      "before_blob": null,
+      "producer_blob": "0de08c2cf4ebde03d3da81cc8e280c13ad1d3202",
+      "matching_producer_ancestor": null,
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/gradle/dependency-locks/feature-nodes.lockfile",
+      "before_blob": "9b9cf17327508be1a24c8d2b01c861ae7993b428",
+      "producer_blob": "f1b6d9d22218b8d8d0233ef3704eb1f7e23627e0",
+      "matching_producer_ancestor": "21ac36c724f8b91e180864ba1963da784a5b42bf",
+      "already_exact": false
+    }
+  ],
+  "audit_fixture_blobs": {
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest.kt": "3f50d6c80dab380e0e7883016295a16510604921",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt": "29a0f83dd33c57e1304e822b5a394cfc05db3b3e",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/OfflineNodesAudit.kt": "5fd9340c847780b0a4cb1df4b0fc4dd7fae36f45",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt": "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt": "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"
+  },
+  "original7_selection": [
+    {
+      "class": "NativeNodesFlowAccessibilityTest",
+      "blob": "3f50d6c80dab380e0e7883016295a16510604921",
+      "methods": [
+        "offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable",
+        "offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable",
+        "actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable",
+        "offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting",
+        "offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction",
+        "actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200",
+        "offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail"
+      ]
+    }
+  ],
+  "previous_blocked_preparation_record_preserved": "docs/android/evidence/WP-503/device-finalnodes-integration.json",
+  "apk_binding": {
+    "head": "a0d4306f5de85b84962b2a9aee18a9a9608ba515",
+    "apks": {
+      "wp503-reviewedrepairs-a0d4306f5de85b84962b2a9aee18a9a9608ba515-app.apk": {
+        "size": 104051224,
+        "sha256": "ef28c755f162ae1edb872d6ccd8b188db2e00eb5c82629f3db6034f8fb579a33"
+      },
+      "wp503-reviewedrepairs-a0d4306f5de85b84962b2a9aee18a9a9608ba515-test.apk": {
+        "size": 3414158,
+        "sha256": "2b4aa325afca621184ed70dd2950cadc6c9537e3d892a2cd477481e3813b7f66"
+      }
+    },
+    "android_tree": "3814b5e0e183e46bb6258ce8edd589fe2d7e05ae"
+  },
+  "dex_class_definitions": {
+    "wp503-reviewedrepairs-a0d4306f5de85b84962b2a9aee18a9a9608ba515-app.apk": {
+      "Lcom/meshcoreone/android/feature/nodes/ui/NodesListScreenKt;": [
+        "classes10.dex"
+      ],
+      "Lcom/meshcoreone/android/feature/nodes/discovery/DiscoveryStateHolder;": [
+        "classes3.dex"
+      ],
+      "Lcom/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest;": []
+    },
+    "wp503-reviewedrepairs-a0d4306f5de85b84962b2a9aee18a9a9608ba515-test.apk": {
+      "Lcom/meshcoreone/android/feature/nodes/ui/NodesListScreenKt;": [],
+      "Lcom/meshcoreone/android/feature/nodes/discovery/DiscoveryStateHolder;": [],
+      "Lcom/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest;": [
+        "classes3.dex"
+      ]
+    }
+  },
+  "build": {
+    "command": "/home/cbattagler/meshcoreone-work/local-checks/repos/6231c00c163c73f7/android/gradlew -p /home/cbattagler/meshcoreone-work/local-checks/repos/6231c00c163c73f7/android :app:assembleDebug :app:assembleDebugAndroidTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m --no-daemon -Pkotlin.compiler.execution.strategy=in-process",
+    "exit": 0,
+    "seconds": 75,
+    "tasks": 446,
+    "executed": 206,
+    "from_cache": 240,
+    "nonblocking_exclusive_fd9_acquired": true,
+    "jvm_or_full_native_suite": false
+  },
+  "native31": {
+    "actual_api": 31,
+    "discovered": 7,
+    "started": 7,
+    "matching_outcomes": 7,
+    "passed": 7,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 14.11,
+    "test_outcomes": [
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200",
+        "status": 0
+      }
+    ],
+    "runner_exit": 0,
+    "device_profiles": [
+      "WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0",
+      "WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0",
+      "WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0",
+      "WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0",
+      "WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0",
+      "WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0",
+      "WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0"
+    ],
+    "qr_share_observation": [
+      "WP503_NATIVE_QR_SHARE|sdk=31|uriExports=1|copyWaits=1|copiedKeyBytes=32|chooserIntentCaptured=true|realChooser=false|realRadio=false"
+    ],
+    "filter_sort_observation": [
+      "WP503_NODES_FILTER_SORT|sdk=31|autoFavorite=true|searchCrossesSegments=true|nameSort=true|clearingRetainsRoom=true|realRadio=false"
+    ],
+    "offline_role_observations": [
+      "WP503_OFFLINE_ROLE_ACTIONS|sdk=31|type=CHAT|disabled=3|historyCallback=true|realRadio=false",
+      "WP503_OFFLINE_ROLE_ACTIONS|sdk=31|type=REPEATER|disabled=4|historyCallback=true|realRadio=false",
+      "WP503_OFFLINE_ROLE_ACTIONS|sdk=31|type=ROOM|disabled=5|historyCallback=true|realRadio=false"
+    ],
+    "observed_fully_visible_targets": [
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "234.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "234.0",
+        "height": "54.0"
+      },
+      {
+        "width": "189.0",
+        "height": "54.0"
+      },
+      {
+        "width": "84.0",
+        "height": "54.0"
+      },
+      {
+        "width": "84.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "234.0",
+        "height": "54.0"
+      },
+      {
+        "width": "189.0",
+        "height": "54.0"
+      },
+      {
+        "width": "84.0",
+        "height": "54.0"
+      },
+      {
+        "width": "84.0",
+        "height": "54.0"
+      },
+      {
+        "width": "336.0",
+        "height": "88.0"
+      },
+      {
+        "width": "140.0",
+        "height": "48.0"
+      },
+      {
+        "width": "137.0",
+        "height": "48.0"
+      },
+      {
+        "width": "150.0",
+        "height": "54.0"
+      },
+      {
+        "width": "193.0",
+        "height": "54.0"
+      },
+      {
+        "width": "360.0",
+        "height": "128.0"
+      },
+      {
+        "width": "48.0",
+        "height": "54.0"
+      },
+      {
+        "width": "336.0",
+        "height": "88.0"
+      },
+      {
+        "width": "150.0",
+        "height": "48.0"
+      },
+      {
+        "width": "114.0",
+        "height": "48.0"
+      },
+      {
+        "width": "186.0",
+        "height": "54.0"
+      },
+      {
+        "width": "98.0",
+        "height": "54.0"
+      },
+      {
+        "width": "360.0",
+        "height": "128.0"
+      },
+      {
+        "width": "48.0",
+        "height": "54.0"
+      },
+      {
+        "width": "360.0",
+        "height": "128.0"
+      },
+      {
+        "width": "48.0",
+        "height": "54.0"
+      },
+      {
+        "width": "360.0",
+        "height": "128.0"
+      },
+      {
+        "width": "48.0",
+        "height": "54.0"
+      },
+      {
+        "width": "184.0",
+        "height": "48.0"
+      },
+      {
+        "width": "184.0",
+        "height": "48.0"
+      },
+      {
+        "width": "336.0",
+        "height": "88.0"
+      },
+      {
+        "width": "150.0",
+        "height": "48.0"
+      },
+      {
+        "width": "114.0",
+        "height": "48.0"
+      },
+      {
+        "width": "186.0",
+        "height": "54.0"
+      },
+      {
+        "width": "98.0",
+        "height": "54.0"
+      },
+      {
+        "width": "360.0",
+        "height": "128.0"
+      },
+      {
+        "width": "48.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "234.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "54.0"
+      },
+      {
+        "width": "296.0",
+        "height": "88.0"
+      },
+      {
+        "width": "105.0",
+        "height": "54.0"
+      },
+      {
+        "width": "104.0",
+        "height": "54.0"
+      }
+    ],
+    "original_partial_target_observations": [
+      "WP503_PARTIAL_TARGET|position=Offset(-91.0, 167.0)|size=150 x 48",
+      "WP503_PARTIAL_TARGET|position=Offset(280.0, 167.0)|size=137 x 48",
+      "WP503_PARTIAL_TARGET|position=Offset(0.0, 56.0)|size=184 x 48",
+      "WP503_PARTIAL_TARGET|position=Offset(280.0, 167.0)|size=137 x 48"
+    ],
+    "operations": {
+      "api": 31,
+      "head": "a0d4306f5de85b84962b2a9aee18a9a9608ba515",
+      "emulator_command": [
+        "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+        "-avd",
+        "Medium_Phone",
+        "-port",
+        "5714",
+        "-read-only",
+        "-no-snapshot",
+        "-no-window",
+        "-no-audio",
+        "-no-metrics",
+        "-gpu",
+        "swiftshader_indirect",
+        "-memory",
+        "1536",
+        "-cores",
+        "2",
+        "-data",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-finalnodes-api31-userdata.img"
+      ],
+      "scenarios": [
+        {
+          "scenario": "final-nodes",
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "31",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "final-nodes"
+          ],
+          "exit": 0
+        }
+      ],
+      "apk_input_binding": "wp503-finalnodes-apk-inputs.json",
+      "source_plan": "wp503-finalnodes-inputs.json",
+      "profile_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+        "--api",
+        "31",
+        "--expected-cpus",
+        "2"
+      ],
+      "profile_exit": 0,
+      "emulator_exit": 0,
+      "transport_exit": {
+        "serial": "emulator-5714",
+        "observations": 3,
+        "elapsed_ms": 266.0,
+        "absent": true
+      },
+      "removed_scratch_paths": [
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-finalnodes-api31-userdata.img",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-finalnodes-api31-userdata.img.qcow2"
+      ]
+    }
+  },
+  "requested37": {
+    "outcome": "BLOCKED_BEFORE_LAUNCH",
+    "started": 0,
+    "matching_outcomes": 0,
+    "actual_runtime_verified": false,
+    "new_preparation_or_auth_action": false,
+    "blocker": "No verified lane-owner authorization resolution; historical unauthorized result remains."
+  },
+  "commands": [
+    "python \"$F\\wp503-localizedcompare-build.py\" --final-nodes",
+    "python \"$F\\wp503-private-adb-native31.py\" --phase finalnodes --head a0d4306f5de85b84962b2a9aee18a9a9608ba515 --api 31 --scenario final-nodes"
+  ],
+  "first_east_fixture": {
+    "prepared_source": "55af1665db35a981e9c34b27710932d09498719a",
+    "compiled_in_actual_androidtest_task": true,
+    "los_methods_executed": 0,
+    "native_name_or_rendered_role_blockers_cleared": false
+  },
+  "lightweight_validation_not_acceptance": [
+    {
+      "command": "python tools\\android-port\\controller\\validate.py",
+      "result": "valid",
+      "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda"
+    },
+    {
+      "command": "python tools\\android-port\\portmap.py",
+      "exit": 0,
+      "actual_output_contract": "nonempty structured list",
+      "mappings": 1758
+    }
+  ],
+  "retained_native_files": {
+    "device-finalnodes-executed-api31.txt": {
+      "bytes": 5688,
+      "sha256": "0bf81892a3e0fbf602fbfe60e80926a38ba5ad12942eaba774e0f1a7562758fc"
+    },
+    "device-finalnodes-executed-metrics-api31.txt": {
+      "bytes": 18899,
+      "sha256": "03dfd355dd7703d547026e0add8ce4ecd75daa726b27885a9f2e18b3c89d3c7c"
+    },
+    "device-finalnodes-executed-runner-api31.txt": {
+      "bytes": 3467,
+      "sha256": "c4f636c6174c58879e8f8a772f5632403e70721ba6d46cd3e2cad9ab191aac92"
+    },
+    "device-finalnodes-executed-profile-api31.txt": {
+      "bytes": 2553,
+      "sha256": "578197228c0588326843ce9daccf60913351d9598af0f8c2eef0f10388a052c1"
+    },
+    "device-finalnodes-executed-operation-observations.txt": {
+      "bytes": 1630,
+      "sha256": "369031cb7a5ae4851da7a907b97b5e96851f075fc659b8bc349d3ab37ae86558"
+    },
+    "device-finalnodes-executed-operations.json": {
+      "bytes": 1949,
+      "sha256": "efe20b19b50beaf5077b3c669bff2d64fc3174953a91d308278cc5c42d7d753f"
+    },
+    "device-finalnodes-executed-inputs.json": {
+      "bytes": 524,
+      "sha256": "cf961f32628abd4e65d45eaf1afd4ecedfedcb3ec3072bbd59410c822586fe22"
+    }
+  },
+  "qualification": "One original7 API31 invocation on combined source/finalfd9, not standalone producer, physical TalkBack, full-suite or whole-WP acceptance. All original font200/RTL/48dp/full-line/QR clipboard/feedback/chooser/dismissal predicates unchanged. Chooser intent is genuinely captured by the retained ActivityMonitor; chooser UI and real radio are not exercised. The old API31 Copy84x31 is superseded only by the same current original passing check; its historical capture remains. The separate API37 search/favorite negative is not cleared. No comparator13 or LOS run/retry, threshold/oracle/product edit, SDK/auth/security/settings workaround or duplicate hosted bundle. Earlier b3 lane refusal, ba67 original23, e8 targeted2/ea0 and native83 are preserved separately.",
+  "whole_wp_acceptance": "INCOMPLETE",
+  "hosted_ci_result_bundle_retained": false
+}

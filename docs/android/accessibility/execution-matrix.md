@@ -2,21 +2,31 @@
 
 **Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips and83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; language238 and cold37 activation/restoration fail. Original237, context-bound Nodes/map and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
 
-## Executed strengthened cohort: API31 terminal, API37 not launched
+## Final Nodes7 continuation: API31 terminal, API37 blocked
 
-**Separate next Nodes7 is blocked, not executed.** Final producerfd9fa8e1
-is imported exactly atb3c09f18cf199bc922feb4cbcbfd6910570a0bf8/tree
-3814b5e0e183e46bb6258ce8edd589fe2d7e05ae through same-attempt trusted
-merge CAS5-to6; original seven entry/shared assertions and five fixture
-blobs are unchanged. One nonblocking exclusive build-lane acquisition
-returns75/outer1 before snapshot import/preflight/Gradle. No queue/retry,
-new APK or API31 device operation: **0 discovered/started/outcomes,
-0pass/fail/error/skip; BLOCKED_BEFORE_BUILD**, not a zero-test pass.
-API37 independently remains **BLOCKED_BEFORE_LAUNCH,0 new starts**.
-No old result or producer-host65/65/hosted success transfers to finalfd9;
-original Copy84x31 and search/favorite negatives remain. The first-East
-fixture follow-through below is still uncompiled/unexecuted. [Exact source,
-seven selectors, lane trace and blocker](../evidence/WP-503/README.md#final-nodes7-exact-source-imported-occupied-build-lane-blocks-execution).
+Executed **a0d4306f5de85b84962b2a9aee18a9a9608ba515**/Android tree
+**3814b5e0e183e46bb6258ce8edd589fe2d7e05ae**, same exact final
+producerfd9fa8e16c8a74043387010a192c3a9e36abd783 and unchanged original7/
+five fixture blobs as importb3c09f18. The released lane is acquired without
+queueing by the actual builder; pinned preflight/strict targeted App assembly
+passes75s,446 tasks206 executed/240 cached. One actual original7 API31 run:
+**7 discovery/7 distinct starts/7 matching outcomes,7PASS/0FAIL/0ERROR/
+0SKIP14.11s,runner0**. All original font200/RTL/48dp/full-line/clipboard/
+feedback/chooser/dismissal predicates remain. Current Copy/Done84x54dp,
+actual32-byte clipboard/URI/wait/chooser-intent capture and search/favorite/
+name-sort/lazy viewport pass. Actual chooser UI/radio are not exercised.
+
+**37 remains BLOCKED_BEFORE_LAUNCH,0 new starts/outcomes**; its separate
+search/favorite negative remains. The old API31 Copy84x31 capture is not
+rewritten; the same current original31 check now passes. No comparator13,
+LoS/full-native/JVM suite is replayed. First-East preparation55af is now
+compiled only, not a native LoS pass. [Exact seven outcomes, source/APKs/
+DEX/runtime and cleanup](../evidence/WP-503/README.md#final-nodes7-continuation-api31-passes-api37-remains-blocked).
+The earlier b3 nonblocking flock75 zero-start refusal remains separately
+[retained as history](../evidence/WP-503/README.md#final-nodes7-exact-source-imported-occupied-build-lane-blocks-execution),
+not converted into a pass. Neither result establishes full-WP acceptance.
+
+## Executed strengthened cohort: API31 terminal, API37 not launched
 
 At exact combinedba67b894766137a996cfc8c4e5e17a61e7d73533/tree
 c9249b0fd4362d5bece86845e912c5cf715fd44e, all23 prepared identities
@@ -71,8 +81,9 @@ query and node refresh. The initial native click, conditional show-on-screen
 assertion and exact elevation callback/count assertions remain intact.
 Previously the initial query followed the West state check without scrolling
 back to East. This path was not reached in the retained failed invocation;
-the correction has no new compilation/APK/native outcome and does not clear
-the post-scroll West failure or producer-owned rendered-role observation.
+the correction initially has no compilation/APK/native outcome. The later
+a0 original Nodes7 build compiles it, but executes no LoS method and does
+not clear the post-scroll West failure or producer-owned role observation.
 
 ## Prepared strengthened producer cohort: unexecuted and blocked
 

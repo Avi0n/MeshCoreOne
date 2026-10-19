@@ -7,7 +7,89 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Final Nodes7 continuation: API31 passes; API37 remains blocked
+
+Actual executed head **a0d4306f5de85b84962b2a9aee18a9a9608ba515**,
+Android tree **3814b5e0e183e46bb6258ce8edd589fe2d7e05ae**, is the
+documentation-only successor of source importb3c09f18 below. Final WP-311
+producer **fd9fa8e16c8a74043387010a192c3a9e36abd783** and all five
+original Nodes entry/shared/offline/font-target/readiness fixture blobs
+remain exact. The earlier b3 occupied-lane refusal is retained, not
+reclassified as execution or overwritten.
+
+After the user's continuation, a fresh nonblocking lane probe exits0.
+The real builder independently acquires exclusive inherited FD9 without
+queueing, passes pinned preflight and assembles only the two declared App
+APKs with strict dependency verification, no parallel projects and2 workers:
+**75s,446 tasks:206 executed/240 from cache**. No JVM/full audit is run.
+One original7 native invocation then executes once:
+
+| Original NativeNodesFlowAccessibilityTest method | API31 outcome |
+|---|---|
+|offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail|PASS|
+|offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable|PASS|
+|offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting|PASS|
+|actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable|PASS|
+|offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable|PASS|
+|offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction|PASS|
+|actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200|PASS|
+|Actual unique discovery/starts/matching outcomes|7/7/7|
+|Pass/fail/error/skip;14.11s;runner exit0|7/0/0/0|
+
+Original font200/RTL/48dp/full-line/viewport/clipboard/feedback/chooser/
+dismissal predicates are unchanged. QR key renders in6 lines/272x188px;
+Copy and Done targets are84x54dp, rather than the old84x31 observation.
+The real clipboard contains the exact32-byte key/label; one actual URI
+export, one2-second deferred feedback wait/reset, exact ACTION_CHOOSER
+payload and real dialog dismissal pass. The original ActivityMonitor
+captures that intent: **chooser UI is not launched**, and no radio is used.
+The current original API31 Copy predicate now passes; its old capture remains
+historical. API31 search/favorites/name sort and full lazy viewport assertions
+also pass. **The separate API37 search/favorite negative is not cleared.**
+
+| Actual assembled/installed artifact | Bytes | SHA256 |
+|---|---|---|
+|App|104051224|`ef28c755f162ae1edb872d6ccd8b188db2e00eb5c82629f3db6034f8fb579a33`|
+|Test|3414158|`2b4aa325afca621184ed70dd2950cadc6c9537e3d892a2cd477481e3813b7f66`|
+
+Independent DEX class-definition parsing finds NodesListScreenKt and
+DiscoveryStateHolder only in App, and the original Nodes7 test class only
+in Test. Actual runtime profile verifies API31,2 CPUs,360x900,density160,
+font2 and both installs. Emulator exits0, transport is absent266ms later,
+exactly2 scratch paths are removed; private59338 server exits0/port closed,
+shared5037 and other devices untouched.
+
+```powershell
+python "$F\wp503-localizedcompare-build.py" --final-nodes
+python "$F\wp503-private-adb-native31.py" --phase finalnodes --head a0d4306f5de85b84962b2a9aee18a9a9608ba515 --api 31 --scenario final-nodes
+```
+
+Both commands exit0. **Requested37 remains BLOCKED_BEFORE_LAUNCH,0 new
+starts/outcomes**; no preparation/auth/key/security/settings workaround.
+The first-East LoS traversal preparation55af1665 is now compiled by the
+actual AndroidTest Kotlin task, but **no LoS method executes** and neither
+the native CJK-name nor rendered-role observation gap is cleared.
+The successful comparator13, ba67 original23, e8 targeted2/ea0 and native83
+are not replayed, aggregated or relabelled. Prior APKs/bindings remain
+independently byte-verified. No producer-host65/65/hosted result is used as
+native evidence; no hosted CI bundle is retained.
+Existing`python tools\android-port\controller\validate.py` and
+`python tools\android-port\portmap.py` also pass with the unchanged manifest
+and1758 nonempty structured provenance mappings; these are not acceptance.
+
+[Exact source/seven producer/five fixture/APK/DEX/runtime/outcome binding](device-finalnodes-executed-integration.json).
+[Original instrumentation](device-finalnodes-executed-api31.txt),
+[measurements](device-finalnodes-executed-metrics-api31.txt) and
+[runner](device-finalnodes-executed-runner-api31.txt) are indexed with all
+seven byte-exact captures in that record. [Existing owner handoff](https://github.com/cbattlegear/MeshCoreOne-Android/pull/233#issuecomment-6272750883)
+is updated/read back. PR205 remains draft/local-unpushed; combined API31
+integration is not standalone producer, physical TalkBack, independent
+review, golden/matrix or full-WP acceptance.
+
 ## Final Nodes7: exact source imported; occupied build lane blocks execution
+
+**Historical b3 preparation only.** The later actual a0 API31 result above
+does not alter this source-bound zero-start refusal or its captured bytes.
 
 Final WP-311/PR233 **fd9fa8e16c8a74043387010a192c3a9e36abd783**
 is integrated at **b3c09f18cf199bc922feb4cbcbfd6910570a0bf8**,
