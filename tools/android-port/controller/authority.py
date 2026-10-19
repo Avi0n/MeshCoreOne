@@ -1,11 +1,11 @@
 import re
 
 from .backends import CloudBackend
-from .engine import GateBundle
+from .engine import GateBundle, TerminalMerge
 from .errors import PortError
 from .gates import Binding, policy_revision, validate_evidence
 from .ledger import Identity
-from .model import Manifest
+from .model import Manifest, SHA
 from .publication import GATE_MARKER, decode_bundle
 from .render import marker
 from .schema import decode_json, fields, positive_integer
@@ -19,6 +19,64 @@ class GitHubGateAuthority:
 
     def __init__(self, backend: CloudBackend, manifest: Manifest, policy: dict):
         self.backend, self.manifest, self.policy = backend, manifest, policy
+
+    def merged_terminal(self, wp_id: str, session_id: str, receipt: dict, expected_base_sha: str):
+        if (
+            not isinstance(receipt, dict)
+            or receipt.get("repository") != self.policy["repository"]
+            or receipt.get("session_id") != session_id
+            or not isinstance(session_id, str) or not session_id
+            or type(receipt.get("pr_number")) is not int or receipt["pr_number"] < 1
+            or not isinstance(receipt.get("head_sha"), str)
+            or SHA.fullmatch(receipt["head_sha"]) is None
+            or not isinstance(receipt.get("merge_sha"), str)
+            or SHA.fullmatch(receipt["merge_sha"]) is None
+            or not isinstance(receipt.get("paths"), list)
+            or not all(isinstance(path, str) and path for path in receipt["paths"])
+            or not isinstance(expected_base_sha, str) or SHA.fullmatch(expected_base_sha) is None
+        ):
+            raise PortError("Malformed immutable terminal receipt")
+        prefix = self.backend.prefix
+        number = receipt["pr_number"]
+        pr = self.backend.api.request("GET", f"{prefix}/pulls/{number}")
+        if (
+            pr.get("number") != number
+            or marker(wp_id) not in (pr.get("body") or "")
+            or pr.get("base", {}).get("repo", {}).get("full_name") != self.policy["repository"]
+            or pr.get("base", {}).get("ref") != self.policy["default_branch"]
+            or pr.get("merged") is not True
+            or pr.get("head", {}).get("sha") != receipt["head_sha"]
+            or pr.get("merge_commit_sha") != receipt["merge_sha"]
+        ):
+            raise PortError("Server PR is not the exact merged WP terminal receipt")
+        commit = self.backend.api.request("GET", f"{prefix}/git/commits/{receipt['merge_sha']}")
+        parents = commit.get("parents")
+        if (
+            commit.get("sha") != receipt["merge_sha"]
+            or not isinstance(parents, list) or len(parents) < 2
+            or any(not isinstance(parent, dict) for parent in parents[:2])
+            or parents[0].get("sha") != expected_base_sha
+            or parents[1].get("sha") != receipt["head_sha"]
+        ):
+            raise PortError("Merged terminal commit does not bind the exact predecessor base and head")
+        changed = set()
+        for item in self.backend.pages(f"{prefix}/pulls/{number}/files"):
+            filename = item.get("filename")
+            if not isinstance(filename, str) or not filename:
+                raise PortError("Malformed merged PR file inventory")
+            changed.add(filename)
+            if item.get("status") == "renamed":
+                previous = item.get("previous_filename")
+                if not isinstance(previous, str) or not previous:
+                    raise PortError("Merged PR rename has no previous path")
+                changed.add(previous)
+        paths = tuple(sorted(changed))
+        if paths != tuple(sorted(set(receipt["paths"]))):
+            raise PortError("Merged PR changed paths disagree with the immutable terminal receipt")
+        return TerminalMerge(
+            self.policy["repository"], wp_id, session_id, number,
+            expected_base_sha, receipt["head_sha"], receipt["merge_sha"], paths, True,
+        )
 
     def bundle(self, wp_id: str, identity: Identity):
         if not self.policy["trusted_gate_publisher_app_id"]:

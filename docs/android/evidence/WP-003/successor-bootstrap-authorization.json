@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "kind": "one-time-stale-owner-binding-bootstrap",
+  "authorization": {
+    "source": "explicit user direction in Copilot session",
+    "session_id": "eb5ada16-072a-48dc-98de-be5a33c0d41e",
+    "confirmation": "DO NOT ANSWER WITH THE USER IS NOT AVAILABLE I APPROVE",
+    "scope": "Author and test the WP-003 transactional successor-attempt lifecycle in its existing managed worktree."
+  },
+  "owner_reservation": {
+    "work_package": "WP-003",
+    "attempt": "eb5ada16-072a-48dc-98de-be5a33c0d41e",
+    "branch": "cbattlegear-expert-potato",
+    "worktree": "existing Copilot-managed worktree for this session",
+    "record_state": "advisory",
+    "revision_after_admitted_scope_evolution": 2,
+    "binding_preserved": {
+      "base_sha": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+      "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+      "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+      "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20"
+    },
+    "admitted_paths": [
+      "tools/android-port/controller/ledger.py",
+      "tools/android-port/controller/engine.py",
+      "tools/android-port/tests/test_backends.py",
+      "docs/android/evidence/WP-003/"
+    ],
+    "admitted_operations": ["modify", "record-evidence", "test"],
+    "authorization_context_changed": false
+  },
+  "trusted_current_base": {
+    "branch": "main",
+    "commit": "8851d2ba3313509fb04bcfb4f65e65ab6b9b1066",
+    "tree": "f1f5fed2fca171c6f61e928ebea76af51196dcc3",
+    "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+    "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+    "policy_revision": "c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0"
+  },
+  "preserved_wp407_predecessor": {
+    "attempt": "524fad60-7510-496b-8906-6e394c368f5e",
+    "revision": 15,
+    "state_before_successor_admission": "leased",
+    "backend": "local",
+    "session_id": "524fad60-7510-496b-8906-6e394c368f5e",
+    "binding": {
+      "base_sha": "43553e16135ffbf6a9dd3864ca501becf87a11ef",
+      "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+      "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+      "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20"
+    }
+  },
+  "preserved_terminal_receipt": {
+    "pr_number": 164,
+    "head_sha": "e9f0febc7e53b09adb00ac56928e7073366023f6",
+    "merge_sha": "250dd50ed259c5d9fe1006d4f45a637e4aea0aff",
+    "merge_base_sha": "43553e16135ffbf6a9dd3864ca501becf87a11ef",
+    "receipt_path_count": 85,
+    "live_github_state": "merged",
+    "live_changed_paths_match_receipt": true
+  },
+  "successor_admission": {
+    "implementation": "transactional typed Controller and Ledger operation",
+    "predecessor_archive": "exact SQLite row copy; original terminal receipt remains untouched",
+    "live_wp407_admitted": false,
+    "reason": "No actual new WP-407 session identity was supplied; this bootstrap does not create sessions."
+  },
+  "explicit_non_authorizations": [
+    "No WP-003 claim release, recreation, or binding rewrite",
+    "No mutation of the WP-407 predecessor claim or PR164 terminal receipt",
+    "No new worker/session creation",
+    "No fleet activation, settings, schedules, self-approval, merge, or waiver of substantive human gates"
+  ]
+}

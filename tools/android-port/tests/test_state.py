@@ -9,13 +9,14 @@ from pathlib import Path
 from contextlib import closing
 
 from fixtures import (
-    BASE, HEAD, NOW, FakeAuthority, FakeBackend, base_manifest, bundle,
+    BASE, HEAD, MERGE, NOW, FakeAuthority, FakeBackend, base_manifest, bundle,
     policy, settings, test_manifest,
 )
 from controller.backends import Observation
-from controller.engine import Controller
+from controller.engine import Controller, TerminalMerge
 from controller.errors import PortError, ReceiptError
 from controller.ledger import Identity, Ledger
+from controller.schema import digest
 from controller.settings import Budget, Settings, Usage
 
 
@@ -376,6 +377,171 @@ class StateTests(unittest.TestCase):
         self.assertNotEqual(current["binding"], previous)
         self.assertEqual(current["identity"], identity.as_dict())
         self.assertIsNone(current["completion"])
+
+    def prepare_successor(self):
+        self.claim()
+        previous_identity = Identity(session_id="previous-session", pr_number=123)
+        self.ledger.transition("WP-101", "attempt-1", "dispatching")
+        self.ledger.transition("WP-101", "attempt-1", "running", previous_identity)
+        self.ledger.transition("WP-101", "attempt-1", "review_wait")
+        paths = list(self.manifest.wp("WP-101")["write_paths"])
+        _, created = self.ledger.reconcile_merged_intent(
+            "previous-session", 123, HEAD, MERGE, paths, NOW,
+        )
+        self.assertTrue(created)
+        self.backend.base = HEAD
+        self.backend.observation = Observation(previous_identity, "completed", False, True)
+        authority = FakeAuthority({})
+        authority.terminal = TerminalMerge(
+            self.policy["repository"], "WP-101", "previous-session", 123,
+            BASE, HEAD, MERGE, tuple(sorted(paths)), True,
+        )
+        self.controller.authority = authority
+        return previous_identity, paths
+
+    def test_successor_admission_archives_predecessor_and_is_idempotent(self):
+        previous_identity, _ = self.prepare_successor()
+        previous = self.ledger.get("WP-101")
+        receipt_before = self.ledger.terminal_receipt("previous-session", 123)
+        with self.ledger.transaction() as connection:
+            previous_bytes = tuple(connection.execute(
+                "SELECT * FROM leases WHERE repository=? AND wp=?",
+                (self.policy["repository"], "WP-101"),
+            ).fetchone())
+            receipt_bytes = tuple(connection.execute(
+                "SELECT * FROM intent_reconciliations WHERE repository=? AND session_id=? AND pr_number=?",
+                (self.policy["repository"], "previous-session", 123),
+            ).fetchone())
+        successor_identity = Identity(session_id="successor-session")
+        first, created = self.controller.admit_successor_attempt(
+            "WP-101", "attempt-1", previous["revision"], successor_identity, NOW + 1,
+        )
+        self.assertTrue(created)
+        self.assertEqual(first["record_state"], "advisory-successor")
+        self.assertEqual(first["binding"]["base_sha"], HEAD)
+        self.assertEqual(first["binding"]["source_sha"], self.manifest.data["reference"]["commit"])
+        self.assertEqual(first["binding"], self.controller.binding("WP-101", HEAD))
+        self.assertEqual(first["backend"], self.backend.name)
+        self.assertEqual(first["identity"], successor_identity.as_dict())
+        self.assertEqual(first["predecessor_attempt"], "attempt-1")
+        self.assertEqual(first["predecessor_receipt_sha256"], digest(receipt_before))
+        self.assertEqual(self.ledger.get("WP-101")["attempt"], first["attempt"])
+        self.assertEqual(self.ledger.get_attempt("WP-101", "attempt-1"), previous)
+        self.assertEqual(self.ledger.historical_records("WP-101"), [previous])
+        self.assertEqual(
+            self.ledger.terminal_receipt("previous-session", 123), receipt_before,
+        )
+        with self.ledger.transaction() as connection:
+            archived_bytes = tuple(connection.execute(
+                "SELECT * FROM lease_history WHERE repository=? AND wp=? AND attempt=?",
+                (self.policy["repository"], "WP-101", "attempt-1"),
+            ).fetchone())
+            preserved_receipt_bytes = tuple(connection.execute(
+                "SELECT * FROM intent_reconciliations WHERE repository=? AND session_id=? AND pr_number=?",
+                (self.policy["repository"], "previous-session", 123),
+            ).fetchone())
+        self.assertEqual(archived_bytes, previous_bytes)
+        self.assertEqual(preserved_receipt_bytes, receipt_bytes)
+        replay, created = self.controller.admit_successor_attempt(
+            "WP-101", "attempt-1", previous["revision"], successor_identity, NOW + 2,
+        )
+        self.assertFalse(created)
+        self.assertEqual(replay, first)
+
+    def test_successor_admission_rejects_active_worker_stale_proof_and_identity_collisions(self):
+        previous_identity, _ = self.prepare_successor()
+        previous = self.ledger.get("WP-101")
+        successor_identity = Identity(session_id="successor-session")
+        self.backend.observation = Observation(previous_identity, "in_progress", True, True)
+        with self.assertRaisesRegex(PortError, "active"):
+            self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"], successor_identity, NOW + 1,
+            )
+        self.backend.observation = Observation(previous_identity, "completed", False, True)
+        with self.assertRaisesRegex(PortError, "stale"):
+            self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"] + 1, successor_identity, NOW + 1,
+            )
+
+        foreign = Identity(session_id="foreign-session")
+        wp = self.manifest.wp("WP-102")
+        self.ledger.claim(
+            wp, self.controller.binding("WP-102", BASE), "local", "other-attempt",
+            NOW, 1800, 5, 0, 100, 5,
+        )
+        self.ledger.transition("WP-102", "other-attempt", "dispatching")
+        self.ledger.transition("WP-102", "other-attempt", "running", foreign)
+        with self.assertRaisesRegex(PortError, "collides"):
+            self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"], foreign, NOW + 1,
+            )
+
+    def test_successor_admission_rejects_current_base_and_foreign_terminal_collisions(self):
+        previous_identity, _ = self.prepare_successor()
+        previous = self.ledger.get("WP-101")
+        identity = Identity(session_id="successor-session")
+        first, created = self.controller.admit_successor_attempt(
+            "WP-101", "attempt-1", previous["revision"], identity, NOW + 1,
+        )
+        self.assertTrue(created)
+        self.backend.base = "4" * 40
+        with self.assertRaisesRegex(PortError, "different identity or binding"):
+            self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"], identity, NOW + 1,
+            )
+        self.backend.base = HEAD
+        self.policy["repair_limit"] += 1
+        with self.assertRaisesRegex(PortError, "different identity or binding"):
+            self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"], identity, NOW + 1,
+            )
+        self.policy["repair_limit"] -= 1
+        self.controller.authority.terminal = TerminalMerge(
+            self.policy["repository"], "WP-102", "previous-session", 123,
+            BASE, HEAD, MERGE, tuple(sorted(self.manifest.wp("WP-101")["write_paths"])), True,
+        )
+        with self.assertRaisesRegex(PortError, "disagree"):
+            self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"], identity, NOW + 1,
+            )
+        self.assertEqual(self.ledger.get("WP-101"), first)
+        self.assertEqual(self.ledger.historical_records("WP-101"), [previous])
+
+    def test_successor_admission_rolls_back_archive_and_current_update_atomically(self):
+        previous_identity, _ = self.prepare_successor()
+        previous = self.ledger.get("WP-101")
+        with self.ledger.transaction() as connection:
+            connection.execute("""
+                CREATE TRIGGER reject_successor_receipt
+                BEFORE INSERT ON successor_transitions
+                BEGIN SELECT RAISE(ABORT, 'forced successor rollback'); END
+            """)
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"],
+                Identity(session_id="successor-session"), NOW + 1,
+            )
+        self.assertEqual(self.ledger.get("WP-101"), previous)
+        self.assertEqual(self.ledger.historical_records("WP-101"), [])
+        self.assertEqual(self.ledger.terminal_receipt("previous-session", 123)["merge_sha"], MERGE)
+        with self.ledger.transaction() as connection:
+            connection.execute("DROP TRIGGER reject_successor_receipt")
+
+    def test_concurrent_successor_admission_replays_one_atomic_transition(self):
+        self.prepare_successor()
+        previous = self.ledger.get("WP-101")
+        identity = Identity(session_id="successor-session")
+
+        def admit(_):
+            return self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"], identity, NOW + 1,
+            )
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            results = list(executor.map(admit, range(2)))
+        self.assertCountEqual([created for _, created in results], [True, False])
+        self.assertEqual(len(self.ledger.historical_records("WP-101")), 1)
+        self.assertEqual(self.ledger.get("WP-101")["identity"], identity.as_dict())
 
     def test_completion_requires_authoritative_bundle_actual_finished_worker_and_merged_evidence(self):
         identity = self.reviewed()
