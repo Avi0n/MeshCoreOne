@@ -1,5 +1,6 @@
 import json
 import math
+import re
 import sqlite3
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -7,7 +8,7 @@ from pathlib import Path
 
 from .errors import PortError
 from .model import SHA
-from .paths import conflicts
+from .paths import conflicts, git_path
 from .schema import decode_json, digest, nonempty, positive_integer
 
 STATES = {
@@ -111,10 +112,30 @@ class Ledger:
                 "revision": "INTEGER NOT NULL DEFAULT 1",
                 "branch": "TEXT NOT NULL DEFAULT ''",
                 "worktree": "TEXT NOT NULL DEFAULT ''",
+                "predecessor_attempt": "TEXT",
+                "predecessor_receipt_sha256": "TEXT",
             }
             for name, definition in additions.items():
                 if name not in columns:
                     connection.execute(f"ALTER TABLE leases ADD COLUMN {name} {definition}")
+            connection.execute("""
+                CREATE TABLE IF NOT EXISTS lease_history AS
+                SELECT * FROM leases WHERE 0
+            """)
+            connection.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS lease_history_attempt
+                ON lease_history(repository,wp,attempt)
+            """)
+            connection.execute("""
+                CREATE TABLE IF NOT EXISTS successor_transitions (
+                    repository TEXT NOT NULL, wp TEXT NOT NULL,
+                    predecessor_attempt TEXT NOT NULL, successor_attempt TEXT NOT NULL,
+                    payload_hash TEXT NOT NULL, successor_record TEXT NOT NULL,
+                    created_at REAL NOT NULL,
+                    PRIMARY KEY (repository,wp,predecessor_attempt),
+                    UNIQUE (repository,wp,successor_attempt)
+                )
+            """)
             connection.execute("""
                 CREATE TABLE IF NOT EXISTS hard_locks (
                     repository TEXT NOT NULL, resource TEXT NOT NULL,
@@ -171,6 +192,61 @@ class Ledger:
             return [self.unpack(row) for row in connection.execute(
                 "SELECT * FROM leases WHERE repository=? ORDER BY wp", (self.repository,)
             )]
+
+    def get_attempt(self, wp: str, attempt: str):
+        with self.transaction() as connection:
+            row = connection.execute(
+                "SELECT * FROM leases WHERE repository=? AND wp=? AND attempt=?",
+                (self.repository, wp, attempt),
+            ).fetchone()
+            if row is None:
+                row = connection.execute(
+                    "SELECT * FROM lease_history WHERE repository=? AND wp=? AND attempt=?",
+                    (self.repository, wp, attempt),
+                ).fetchone()
+            return self.unpack(row)
+
+    def historical_records(self, wp: str | None = None):
+        with self.transaction() as connection:
+            if wp is None:
+                rows = connection.execute(
+                    "SELECT * FROM lease_history WHERE repository=? ORDER BY wp,attempt",
+                    (self.repository,),
+                )
+            else:
+                rows = connection.execute(
+                    "SELECT * FROM lease_history WHERE repository=? AND wp=? ORDER BY attempt",
+                    (self.repository, wp),
+                )
+            return [self.unpack(row) for row in rows]
+
+    def terminal_receipt(self, session_id: str, pr_number: int):
+        with self.transaction() as connection:
+            row = connection.execute("""
+                SELECT * FROM intent_reconciliations
+                WHERE repository=? AND session_id=? AND pr_number=?
+            """, (self.repository, session_id, pr_number)).fetchone()
+            if row is None:
+                return None
+            receipt = dict(row)
+            receipt["paths"] = decode_json(receipt["paths"])
+            receipt["record_state"] = "advisory-terminal-merged"
+            return receipt
+
+    def terminal_receipt_for_session(self, session_id: str):
+        with self.transaction() as connection:
+            rows = list(connection.execute("""
+                SELECT * FROM intent_reconciliations
+                WHERE repository=? AND session_id=? ORDER BY pr_number
+            """, (self.repository, session_id)))
+            if len(rows) > 1:
+                raise PortError("Multiple terminal PR receipts for predecessor session are ambiguous")
+            if not rows:
+                return None
+            receipt = dict(rows[0])
+            receipt["paths"] = decode_json(receipt["paths"])
+            receipt["record_state"] = "advisory-terminal-merged"
+            return receipt
 
     def claim(self, wp: dict, binding: dict, backend: str, attempt: str, now: float,
               lease_seconds: int, max_inflight: int, used: float, limit: float, reservation: float,
@@ -366,6 +442,243 @@ class Ledger:
                 value["record_state"] = "advisory-terminal-merged"
                 result.append(value)
             return result
+
+    def admit_successor_attempt(
+        self, wp: dict, predecessor_attempt: str, predecessor_revision: int,
+        predecessor_identity: Identity, receipt: dict, terminal: dict, binding: dict,
+        backend: str, attempt: str, identity: Identity, now: float, lease_seconds: int,
+        reservation: float, capabilities: dict, operations: list[str], paths: list[str],
+        branch: str, worktree: str,
+    ):
+        """Atomically archive one terminal attempt and admit its bound successor."""
+        if (
+            not isinstance(wp, dict) or not isinstance(wp.get("id"), str) or not wp["id"]
+            or not isinstance(predecessor_attempt, str) or not predecessor_attempt
+            or type(predecessor_revision) is not int or predecessor_revision < 1
+            or not isinstance(predecessor_identity, Identity)
+            or not isinstance(identity, Identity)
+            or not isinstance(attempt, str) or not attempt
+            or attempt == predecessor_attempt
+            or backend not in ("cloud", "local")
+            or type(lease_seconds) is not int or lease_seconds < 1
+            or type(now) not in (int, float) or not math.isfinite(now)
+            or type(reservation) not in (int, float) or not math.isfinite(reservation)
+            or reservation <= 0
+            or not isinstance(paths, list) or not paths
+            or not all(isinstance(path, str) and path for path in paths)
+            or not isinstance(operations, list) or not operations
+            or not all(isinstance(operation, str) and operation for operation in operations)
+            or not isinstance(capabilities, dict)
+            or not all(isinstance(key, str) and isinstance(value, list)
+                       and all(isinstance(path, str) for path in value)
+                       for key, value in capabilities.items())
+            or not isinstance(branch, str) or not isinstance(worktree, str)
+        ):
+            raise PortError("Malformed successor-attempt admission")
+        if identity.session_id is None or identity.session_id == predecessor_identity.session_id:
+            raise PortError("Successor admission requires a distinct, actual session identity")
+        if any(
+            getattr(identity, key) is not None
+            and getattr(identity, key) == getattr(predecessor_identity, key)
+            for key in ("task_id", "session_id", "pr_number")
+        ):
+            raise PortError("Successor identity reuses a predecessor task, session, or PR identity")
+        if set(binding) != {
+            "repository", "work_package", "base_sha", "source_sha",
+            "manifest_sha256", "policy_revision",
+        }:
+            raise PortError("Malformed successor binding")
+        if (
+            binding["repository"] != self.repository
+            or binding["work_package"] != wp["id"]
+            or any(not isinstance(binding[key], str) or SHA.fullmatch(binding[key]) is None for key in
+                   ("base_sha", "source_sha"))
+            or any(not isinstance(binding[key], str)
+                   or re.fullmatch(r"[0-9a-f]{64}", binding[key]) is None for key in
+                   ("manifest_sha256", "policy_revision"))
+        ):
+            raise PortError("Successor binding is stale or belongs to another WP/repository")
+        paths = sorted({git_path(path, subtree=True) for path in paths})
+        operations = sorted(set(operations))
+        capabilities = {key: sorted(set(value)) for key, value in capabilities.items()}
+        receipt_fields = (
+            "repository", "session_id", "pr_number", "head_sha", "merge_sha", "paths",
+        )
+        if (
+            not isinstance(receipt, dict)
+            or any(key not in receipt for key in receipt_fields)
+            or receipt["repository"] != self.repository
+            or receipt["session_id"] != predecessor_identity.session_id
+            or type(receipt["pr_number"]) is not int or receipt["pr_number"] < 1
+            or not isinstance(receipt["head_sha"], str) or SHA.fullmatch(receipt["head_sha"]) is None
+            or not isinstance(receipt["merge_sha"], str) or SHA.fullmatch(receipt["merge_sha"]) is None
+            or not isinstance(receipt["paths"], list) or not receipt["paths"]
+            or not all(isinstance(path, str) and path for path in receipt["paths"])
+        ):
+            raise PortError("Missing or malformed immutable terminal merge receipt")
+        receipt = {**receipt, "paths": sorted(set(receipt["paths"]))}
+        proof_fields = {
+            "authoritative", "worker_terminal", "repository", "work_package",
+            "session_id", "pr_number", "base_sha", "head_sha", "merge_sha", "paths",
+        }
+        if not isinstance(terminal, dict) or set(terminal) != proof_fields:
+            raise PortError("Malformed authoritative terminal proof")
+        if (
+            terminal["authoritative"] is not True
+            or terminal["worker_terminal"] is not True
+            or terminal["repository"] != self.repository
+            or terminal["work_package"] != wp["id"]
+            or terminal["session_id"] != receipt["session_id"]
+            or terminal["pr_number"] != receipt["pr_number"]
+            or not isinstance(terminal["base_sha"], str)
+            or SHA.fullmatch(terminal["base_sha"]) is None
+            or terminal["head_sha"] != receipt["head_sha"]
+            or terminal["merge_sha"] != receipt["merge_sha"]
+            or not isinstance(terminal["paths"], list)
+            or not all(isinstance(path, str) and path for path in terminal["paths"])
+            or sorted(set(terminal["paths"])) != receipt["paths"]
+        ):
+            raise PortError("Terminal proof does not match the authoritative merged receipt")
+
+        payload = {
+            "predecessor_attempt": predecessor_attempt,
+            "predecessor_revision": predecessor_revision,
+            "predecessor_identity": predecessor_identity.as_dict(),
+            "receipt": receipt,
+            "terminal": terminal,
+            "binding": binding,
+            "backend": backend,
+            "attempt": attempt,
+            "identity": identity.as_dict(),
+            "capabilities": capabilities,
+            "operations": operations,
+            "paths": paths,
+            "lease_seconds": lease_seconds,
+            "reservation": float(reservation),
+            "branch": branch,
+            "worktree": worktree,
+        }
+        payload_hash = digest(payload)
+        with self.transaction() as connection:
+            transition = connection.execute("""
+                SELECT * FROM successor_transitions
+                WHERE repository=? AND wp=? AND predecessor_attempt=?
+            """, (self.repository, wp["id"], predecessor_attempt)).fetchone()
+            if transition:
+                if transition["payload_hash"] != payload_hash:
+                    raise PortError("Successor transition already admitted with different identity or binding")
+                return decode_json(transition["successor_record"]), False
+
+            previous = self.unpack(connection.execute("""
+                SELECT * FROM leases WHERE repository=? AND wp=?
+            """, (self.repository, wp["id"])).fetchone())
+            if (
+                previous is None or previous["attempt"] != predecessor_attempt
+                or previous["revision"] != predecessor_revision
+                or previous["identity"] != predecessor_identity.as_dict()
+            ):
+                raise PortError("Stale predecessor attempt; reconcile from the current ledger revision")
+            if previous["state"] not in HELD | {"completed"}:
+                raise PortError("Successor predecessor has no admitted historical attempt")
+            if terminal["base_sha"] != previous["binding"]["base_sha"]:
+                raise PortError("Terminal merge does not bind the predecessor's exact base")
+            stored_receipt = connection.execute("""
+                SELECT * FROM intent_reconciliations
+                WHERE repository=? AND session_id=? AND pr_number=?
+            """, (self.repository, receipt["session_id"], receipt["pr_number"])).fetchone()
+            if stored_receipt is None:
+                raise PortError("Authoritative merged receipt is not present in the ledger")
+            stored_receipt = dict(stored_receipt)
+            stored_receipt["paths"] = decode_json(stored_receipt["paths"])
+            if any(stored_receipt[key] != receipt[key] for key in receipt_fields):
+                raise PortError("Immutable terminal receipt differs from the admitted proof")
+
+            known_identities = []
+            for row in connection.execute(
+                "SELECT identity FROM leases WHERE repository=? AND wp<>?",
+                (self.repository, wp["id"]),
+            ):
+                known_identities.append(Identity.parse(decode_json(row["identity"])))
+            for row in connection.execute(
+                "SELECT identity FROM lease_history WHERE repository=?",
+                (self.repository,),
+            ):
+                known_identities.append(Identity.parse(decode_json(row["identity"])))
+            for known in known_identities:
+                for key in ("issue_number", "task_id", "session_id", "pr_number"):
+                    value = getattr(identity, key)
+                    if value is not None and value == getattr(known, key):
+                        raise PortError(f"Successor identity collides with another attempt: {key}")
+
+            predecessor_receipt_hash = digest(receipt)
+            overlaps = sorted({
+                row["wp"] for row in (
+                    self.unpack(value) for value in connection.execute(
+                        "SELECT * FROM leases WHERE repository=? AND wp<>?",
+                        (self.repository, wp["id"]),
+                    )
+                )
+                if row["state"] in HELD and conflicts(paths, row["paths"])
+            })
+            successor = {
+                **previous,
+                "state": "leased",
+                "attempt": attempt,
+                "binding": binding,
+                "backend": backend,
+                "paths": paths,
+                "expires": now + lease_seconds,
+                "reservation": float(reservation),
+                "identity": identity.as_dict(),
+                "repairs": 0,
+                "completion": None,
+                "record_state": "advisory-successor",
+                "capabilities": capabilities,
+                "reservation_operations": operations,
+                "overlapping_intents": overlaps,
+                "migration_revision": "successor-attempt-v1",
+                "revision": 1,
+                "branch": branch,
+                "worktree": worktree,
+                "predecessor_attempt": predecessor_attempt,
+                "predecessor_receipt_sha256": predecessor_receipt_hash,
+            }
+            connection.execute("""
+                INSERT INTO lease_history SELECT * FROM leases
+                WHERE repository=? AND wp=? AND attempt=?
+            """, (self.repository, wp["id"], predecessor_attempt))
+            if connection.execute("SELECT changes()").fetchone()[0] != 1:
+                raise PortError("Predecessor claim could not be archived atomically")
+            connection.execute("""
+                UPDATE leases SET
+                    state=?,attempt=?,binding=?,backend=?,paths=?,expires=?,reservation=?,
+                    identity=?,repairs=?,completion=?,record_state=?,capabilities=?,
+                    reservation_operations=?,overlapping_intents=?,migration_revision=?,
+                    revision=?,branch=?,worktree=?,predecessor_attempt=?,
+                    predecessor_receipt_sha256=?
+                WHERE repository=? AND wp=? AND attempt=? AND revision=?
+            """, (
+                successor["state"], successor["attempt"], json.dumps(successor["binding"]),
+                successor["backend"], json.dumps(successor["paths"]), successor["expires"],
+                successor["reservation"], json.dumps(successor["identity"]), successor["repairs"],
+                None, successor["record_state"], json.dumps(successor["capabilities"]),
+                json.dumps(successor["reservation_operations"]),
+                json.dumps(successor["overlapping_intents"]), "successor-attempt-v1",
+                successor["revision"], successor["branch"], successor["worktree"],
+                predecessor_attempt, predecessor_receipt_hash,
+                self.repository, wp["id"], predecessor_attempt, predecessor_revision,
+            ))
+            if connection.execute("SELECT changes()").fetchone()[0] != 1:
+                raise PortError("Predecessor changed during successor admission")
+            connection.execute("""
+                INSERT INTO successor_transitions
+                (repository,wp,predecessor_attempt,successor_attempt,payload_hash,successor_record,created_at)
+                VALUES (?,?,?,?,?,?,?)
+            """, (
+                self.repository, wp["id"], predecessor_attempt, attempt, payload_hash,
+                json.dumps(successor), now,
+            ))
+            return successor, True
 
     def migrate_legacy(self, capability_revision: str = "capability-reservation-v1"):
         """Upgrade old supervised receipts in place without release/recreate."""

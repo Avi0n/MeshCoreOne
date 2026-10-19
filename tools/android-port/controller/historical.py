@@ -66,7 +66,7 @@ def migration_proposal(request: dict, actual_pr: dict, actual_runs: list[dict], 
         "schema_version": 1, "request_sha256": digest(request), "state": "BLOCKED",
         "imported": False, "authoritative": False,
         "blockers": [
-            "Protected historical migration authority and independent current-policy human approval are unconfigured.",
+            "Protected historical migration authority and authorized current-policy human acceptance are unconfigured.",
             "Original evidence must be obtained by the isolated server-fact reader, not a candidate JSON/model attestation.",
             "Current gate/catalog semantics must be independently revalidated without inventing later CI at historical commits.",
         ],

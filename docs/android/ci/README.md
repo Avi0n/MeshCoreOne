@@ -1,9 +1,10 @@
 # WP-003 isolated scaffold CI
 
 **Supervised dependent draft, not accepted WP-003 or activation.** The build
-workflow runs real scaffold commands. The four trusted-duty workflows remain
-manual, deployed-default-branch-only previews and deliberately return `BLOCKED`
-for absent integrations. They do not publish `parity-review` or `gate-integrity`.
+workflow runs real scaffold commands. Dispatch, shepherd and gate-audit workflows
+remain manual previews and deliberately return `BLOCKED` for absent fleet/merge
+integrations. The manual review-publication workflow now has a supported native
+GitHub transport, described below; deploying it is not fleet activation.
 
 ## Candidate execution contract
 
@@ -175,8 +176,8 @@ files/bytes fail rather than dropping cases. A staged JSON object is not a verdi
 
 The authority reconciles real PR/check/run/review facts, exact Android Actions
 check-suite membership, isolated publisher binding/run/attempt external IDs,
-current/historical base, source/manifest/policy and actual bound independent
-formal reviews. A rebased head/base, wrong publisher/workflow/repository/attempt,
+current/historical base, source/manifest/policy and any actual bound human
+acceptance records. A rebased head/base, wrong publisher/workflow/repository/attempt,
 skipped check, malformed verdict, absent original-case family or model-written
 approval cannot complete a WP. Repairs retain the existing worker/open PR and
 bounded attempt counter; a cloud comment receipt must match that PR and feedback.
@@ -188,12 +189,171 @@ require a protected immutable-artifact reader/publisher amendment.
 [Historical revalidation](historical-revalidation.md) is a versioned **blocked
 migration interface**, not a fabricated bootstrap Android check or import.
 
-Still external: independent authenticated publisher/reviewer/native host,
+Still external: authenticated isolated publisher/reviewer/native host,
 complete live usage/shared ledger, genuine branch-rule/check identities,
-real alternate authorized reviewer for self-authored PRs, protected historical
-receipt approval, user-selected limits and separate activation. Sole maintainer
-`cbattlegear` cannot formally approve their own PR. No attestation alternative is
-approved here. Ordinary dependent drafts are not a registered native stack;
+protected historical receipt approval, user-selected limits and separate
+activation. Ordinary dependent drafts are not a registered native stack;
 later native-stack landing requires its asynchronous native API, not
 `MergeBackend`. No settings, auto-merge, stack registration, fleet, signing,
 release or downstream WP is authorized by this implementation.
+
+### User-directed WP-003 review-authority amendment
+
+This amendment supersedes the repository-created separate-person/formal GitHub
+`APPROVED` requirement for code review, including the code-review portions of the
+supervised foundation gates and ADR-006's protected-path approval wording. It does
+not rewrite original plan/ADR acceptance history or activate automation.
+
+The authenticated trusted publisher's exact-bound read-only review is the code
+review authority for ordinary and protected code changes. An authenticated
+authorized coordinator may arrange the same isolated review even when the
+coordinator is the PR author. A name alone, candidate-provided PASS, staged input
+file, or locally constructed bundle is not authority. Findings, complete
+acceptance/case validation, actual required checks, publisher provenance and
+exact repository/base/head/source/manifest/policy bindings remain mandatory.
+Current-head changes requested by an authorized reviewer still block.
+
+`review_policy` separates this code review from retained human acceptance.
+WP-001's architecture/license decisions, WP-505's physical-device outcomes,
+WP-506's signing/release acceptance, protected release/signing/legal paths and
+explicit `needs-human` labels still require actual human acceptance. Generic
+protected code paths do not require an additional person's GitHub review.
+Ordinary unprotected WPs acquire no new approval requirement. Activation,
+budgets, credentials, branch rules, hardware/legal/signing evidence and historical
+receipt import keep their existing separate controls.
+
+A new acceptance record uses `kind: human-acceptance` with the existing immutable
+binding fields and a real maintainer review in `COMMENTED` or `APPROVED` state.
+Its actual GitHub body must contain
+`<!-- android-port-acceptance:<binding.key> -->`; reviewer, commit, state and
+latest decisive review must match server facts. The sole maintainer may record
+a truthful acceptance comment on their own PR; this is not a GitHub self-approval.
+It cannot manufacture hardware/legal/signing outcomes or waive acceptance
+evidence. Historical untyped `APPROVED` records and their original stamps remain
+readable, unchanged. Neither format can substitute for authenticated code review.
+
+### Native authenticated review publication (bounded WP-003 repair)
+
+The manual path no longer requires a custom GitHub App, injected Copilot app-host
+APIs, a second human, or a formal GitHub `APPROVED` review. An authorized coordinator
+performs/arranges the trusted-profile read/search-only review and explicitly records
+its complete acceptance decision as an authenticated `COMMENTED` PR review. This
+is an accountable coordinator attestation, **not a claim that GitHub independently
+measured the reviewer's tool isolation**. The producer must not mint their own
+trusted verdict. Plain source feedback, a green build, PR prose and staged input
+are not acceptance. Existing comments on feature PRs remain source feedback only.
+
+`android-parity-review.yml` is manual, default-branch-only, ephemeral, serialized
+with the controller lane, and uses GitHub's built-in ephemeral Actions token.
+It has read-only contents/actions/PR access and **Checks write only**. No custom
+credential, signing/dispatch/merge secret, privileged cache or new service is
+installed. Candidate jobs remain entirely read-only. The publisher fetches candidate
+Git objects as data, never checks out or executes candidate scripts/instructions.
+All publishing code/profile/skills/manifest/policy come from the exact deployed
+default-branch SHA. A feature-branch dispatch is not an installation or acceptance
+test. Check output contains only receipt/binding/run references, not a second
+CI-result bundle or copied original-case catalog.
+
+Before the review, fetch the immutable candidate into the reviewer's own worktree,
+then use the existing staging command with the actual WP and current base/head:
+
+```powershell
+python .\tools\android-port\controller\gate_runtime.py stage --wp WP-xxx --trusted-base <40-hex-base> --candidate <40-hex-head> --output <private-staged-input.json>
+```
+
+The review body must start exactly with
+`<!-- android-port-native-review-v1 -->` followed by a newline and one JSON object:
+
+```json
+{
+  "schema_version": 1,
+  "binding": "<the complete staged binding object, not this placeholder>",
+  "method": "authenticated-coordinator-read-only",
+  "staging_sha256": "<controller.schema.digest of the complete staged JSON>",
+  "review": "<the existing complete parity-review schema object>",
+  "evidence": "<hosted acceptance schema v2 object described below>",
+  "approvals": []
+}
+```
+
+The placeholders above are explanatory, invalid inputs, not a ready-made PASS.
+Record a real review using GitHub's supported REST API
+`POST /repos/{owner}/{repo}/pulls/{number}/reviews` with `event: COMMENT`,
+`commit_id` equal to the exact candidate head, and that body. Do not automate
+fabrication of the verdict. The authenticated reviewer must be a human GitHub
+`User` in the trusted policy's `authorized_coordinators`; the coordinator can also
+be the PR author. The receipt must fit the complete 65,535-byte/character bound.
+Oversized receipts block; there is no unverified attachment or truncation fallback.
+
+Hosted acceptance schema v2 has `schema_version: 2`, all seven binding fields,
+`changed_paths`, `acceptance` and `source_tests` with their existing complete
+schemas, plus:
+
+```json
+{
+  "runs": [{"check": "android-ci", "run_id": 123, "run_attempt": 1}],
+  "retained_artifacts": []
+}
+```
+
+Those numbers are shape examples, **not evidence**. Every acceptance/case evidence
+reference must name the actual authoritative URL
+`https://github.com/<repository>/actions/runs/<run_id>/attempts/<attempt>` or a
+retained non-reproducible evidence file `{path, sha256}`. CI counts, results,
+checksums and output copies are deliberately not accepted in this run-reference
+schema. The actual CI implementation still fails on missing/malformed/zero/skipped/
+failed tests. The publisher reconciles successful Actions run and latest Android
+check, workflow path/ID, Actions application/check-suite, PR and exact base/head.
+Original cases/families are validated against `docs/android/test-cases.json` read
+from the trusted base, not a catalog supplied by the producer. Retained evidence
+hashes are compared with actual candidate Git blobs; they do not manufacture
+physical-device, legal, signing or human outcomes.
+
+Conditional human acceptance remains separate: retain actual bound maintainer
+reviews and the `android-port-acceptance:<binding.key>` stamp in `approvals`.
+Architecture/license, hardware, signing/release and `needs-human` still block
+without their genuine acceptance. Unresolved inline threads, current formal
+changes-requested reviews, or later authorized source feedback invalidate the
+source receipt. The publisher evaluates twice before success; subsequent edits,
+new findings, reruns and base/head movement are rejected again by the authority
+when acceptance/completion/merge is read. Renames retain both path identities.
+
+A coordinator can inspect without any write operation using their existing
+authenticated GitHub user credential in `ANDROID_PORT_GITHUB_TOKEN`:
+
+```powershell
+python .\tools\android-port\controller\native_review.py inspect --trusted-base <base> --wp WP-xxx --pr <number> --review-id <actual-review-id>
+```
+
+After **supervised review and merge of this repair**, dispatch the deployed workflow:
+
+```powershell
+gh workflow run android-parity-review.yml --ref main -f work_package=WP-xxx -f pull_request=<number> -f review_id=<actual-review-id>
+```
+
+Only this workflow may publish `parity-review` and `gate-integrity`; local
+`publish` fails before mutation. Publication creates in-progress checks first and
+records failures explicitly. Interrupted publication remains pending/failed, never
+success. A successful check is authoritative only after its real default-branch
+publisher run also completes successfully. App IDs/workflow IDs are obtained from
+authenticated GitHub server facts, never invented or taken from candidate JSON.
+The immutable Actions job identity includes the WP/PR/review ID and is reconciled
+through the exact run-attempt jobs API; another PR's successful default-branch run
+cannot be reused by changing a check's summary or `external_id`.
+Legacy custom-publisher bundles remain readable when that publisher is configured.
+`GitHubGateAuthority` and the existing completion/accounting path revalidate native
+receipts rather than bypassing them with a new success flag.
+Native completion validates the server PR's actual merged head/merge commit and
+first-parent base for both a normal merge and the existing REST adapter's squash
+strategy; it never invents a second parent for a squash commit.
+
+**Project acceptance is not GitHub enforcement, producer completion or permission
+to merge.** A source-reviewed open PR cannot complete a dependency. Current-base
+serialization, paused/off activation, budgets, actual worker reconciliation,
+protected historical foundation import and branch-rule/no-bypass proof still gate
+the existing landing controller. This repair does not merge anything, change
+repository settings, install credentials, clear failed feature CI, or enable a
+schedule/fleet. GitHub supports an authenticated author's normal merge without
+formal self-approval, but an admin merge is not evidence that project gates or
+no-bypass protection were satisfied. At dispatch, main had no legacy branch
+protection (HTTP 404); branch/ruleset proof remains explicitly unverified.
