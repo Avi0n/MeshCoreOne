@@ -70,7 +70,7 @@ class SavedEndpointSemanticsTest {
     private lateinit var host: ActivityController<ComponentActivity>
     private val radio = RadioId(UUID.fromString("00000000-0000-0000-0000-000000000315"))
     private val east = contact("East saved repeater", 1, 37.8)
-    private val west = contact("\u897f saved repeater", 2, 37.7)
+    private val west = contact("\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c", 2, 37.7)
     private val elevationReads = mutableListOf<Coordinate>()
     private val dependencies = LineOfSightFeatureDependencies(
         elevationSource = object : LineOfSightElevationSource {
@@ -168,7 +168,9 @@ class SavedEndpointSemanticsTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, host.get().getString(label)))
         if (selected) node.assertIsSelected() else node.assertIsNotSelected()
-        assertEquals(listOf(contact.displayName), node.fetchSemanticsNode().config[SemanticsProperties.Text].map { it.text })
+        val config = node.fetchSemanticsNode().config
+        assertEquals(listOf(contact.displayName), config[SemanticsProperties.Text].map { it.text })
+        assertFalse(SemanticsProperties.ContentDescription in config)
     }
 
     private fun assertRoleLabels(vararg expectedLabels: Int) {
