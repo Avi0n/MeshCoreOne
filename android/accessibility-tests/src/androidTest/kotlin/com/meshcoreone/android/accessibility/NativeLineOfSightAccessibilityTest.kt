@@ -127,8 +127,7 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
         }
         assertEndpointState(east, T.toolsLineOfSightNotSelected, selected = false)
         assertEndpointState(west, T.toolsLineOfSightNotSelected, selected = false)
-        val beforeSelection = nativeRoot(automation)
-        val selected = namedActions(namedNodes(beforeSelection, east.displayName)).first()
+        val selected = savedEndpointAction(east)
         if (!selected.isVisibleToUser) {
             assertTrue("An offscreen saved endpoint must be reachable without a map gesture",
                 selected.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.id))
@@ -157,11 +156,16 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
         assertEquals(2, elevationReads)
     }
 
-    private fun clickSavedEndpoint(contact: ContactDTO) {
+    private fun savedEndpointAction(contact: ContactDTO): AccessibilityNodeInfo {
         compose.onNode(hasText(contact.displayName) and hasClickAction()).performScrollTo().assertIsDisplayed()
         val action = namedActions(namedNodes(nativeRoot(
             InstrumentationRegistry.getInstrumentation().uiAutomation), contact.displayName)).first()
         assertTrue("Refresh the actual saved endpoint before its native action", action.refresh())
+        return action
+    }
+
+    private fun clickSavedEndpoint(contact: ContactDTO) {
+        val action = savedEndpointAction(contact)
         assertTrue(action.performAction(AccessibilityNodeInfo.ACTION_CLICK))
         compose.waitForIdle()
     }

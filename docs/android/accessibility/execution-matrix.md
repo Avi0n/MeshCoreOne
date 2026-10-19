@@ -50,6 +50,16 @@ name discovery after the added public scroll/display assertion, before state/
 role checks; it is not an observed absent painted label. No comparator/
 successful23 case is retried. [Exact measurements and separate bindings](../evidence/WP-503/README.md#targeted-observer-correction-measured-api31-offset-restoration).
 
+Preparation after that invocation also fixes the first East activation:
+it and later endpoint clicks share `savedEndpointAction`, which performs
+the public scroll/display assertion before the refreshed native exact-name
+query and node refresh. The initial native click, conditional show-on-screen
+assertion and exact elevation callback/count assertions remain intact.
+Previously the initial query followed the West state check without scrolling
+back to East. This path was not reached in the retained failed invocation;
+the correction has no new compilation/APK/native outcome and does not clear
+the post-scroll West failure or producer-owned rendered-role observation.
+
 ## Prepared strengthened producer cohort: unexecuted and blocked
 
 Historical preparation snapshot at6c81/18cc, before the actualba67 run above.
