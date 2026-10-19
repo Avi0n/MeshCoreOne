@@ -111,6 +111,13 @@ channel instead of inserting another one; exact single-row/no-message assertions
 remain and production persistence/correlation policy is unchanged. The ordinary
 push succeeded; its separate advisory exceeded180s/UNVERIFIED after also observing
 this failure, not a pass. The failed candidate is historical, not a green successor.
+At `50585778ef77a9de66f876e80b3c3268809d0bef`, preflight passes and39
+selected cases are38 pass/one fail (1m13s). Actual coroutine stack recovery copies
+the injected generic IllegalStateException, keeping its exact original cause.
+The correction asserts direct identity or that exact original recovery cause,
+and unchanged runtime type/message; the actual App-received outer failure is
+still preserved. Typed advert/session payload and cancellation semantics are
+not replaced by matching text, and neither failure is relabeled as passed.
 
 The exact successor's declared regression result must be recorded in PR206;
 prior458/62 native observations remain historical. No new device observation,

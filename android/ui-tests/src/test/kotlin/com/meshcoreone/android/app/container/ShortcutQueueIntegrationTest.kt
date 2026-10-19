@@ -187,7 +187,11 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
                     } else {
                         val actual = assertFailsWith<ShortcutException> { adapter.sendAdvert(reach.sendsFlood) }
                         assertEquals(expected, actual.error)
-                        assertSame(originalFailure, actual.cause)
+                        val cause = assertNotNull(actual.cause)
+                        // Coroutine recovery may copy a standard exception, retaining its exact original as cause.
+                        assertTrue(cause === originalFailure || cause.cause === originalFailure)
+                        assertEquals(originalFailure.javaClass, cause.javaClass)
+                        assertEquals(originalFailure.message, cause.message)
                     }
                     assertEquals(listOf(if (reach.sendsFlood) Bytes.of(7, 1) else Bytes.of(7)),
                         firmware.sent.filter { it[0].toInt() == 7 })
