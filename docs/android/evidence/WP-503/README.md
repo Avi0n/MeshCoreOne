@@ -7,6 +7,20 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Existing shared API37: authorized and booted, runtime profile still blocked
+
+Read-only inspection through the exact coordinator-specified binary/
+existing127.0.0.1:5037 verifies the user endpoint authorized, SDK37/release17,
+boot1/stopped animation, font2/animation0 and360x900/density160 overrides.
+It also verifies **4 actual CPUs versus original required2**, and
+**show_ime_with_hard_keyboard0 versus required1**. No implicit setting
+change or profile substitution is authorized. Missing37 repair cohorts
+remain blocked before launch on these observed profile mismatches, not
+current endpoint authorization.0 preparation/install/test starts; no
+emulator/server lifecycle, data/settings/logcat mutation or API31 action.
+[Exact read-only observations and original guards](shared-api37-readiness.md).
+The historical unauthorized result and f75 hosted diagnosis remain separate.
+
 ## Published f75 hosted failure: dependency and report-retention blockers
 
 Exact hosted39300338554 is terminal **FAILURE** at publishedf75d4e4f;
