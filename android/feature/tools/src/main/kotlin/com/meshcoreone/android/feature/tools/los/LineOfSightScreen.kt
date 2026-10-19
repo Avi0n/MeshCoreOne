@@ -327,13 +327,14 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
                         },
                     )
                     val buttonModifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics {
+                        contentDescription = contact.displayName
                         selected = selectedAs != null
                         stateDescription = endpointLabel
                     }
                     val label: @Composable () -> Unit = {
                         val roleLayout = remember(contact.id) { arrayOfNulls<TextLayoutResult>(1) }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(contact.displayName)
+                            Text(contact.displayName, Modifier.clearAndSetSemantics {})
                             Text(
                                 endpointLabel,
                                 Modifier.clearAndSetSemantics {

@@ -19,7 +19,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performClick
@@ -161,7 +161,8 @@ class SavedEndpointSemanticsTest {
         compose.runOnIdle { assertEquals(2, elevationReads.size) }
     }
 
-    private fun button(contact: ContactDTO) = compose.onNode(hasText(contact.displayName) and hasClickAction())
+    private fun button(contact: ContactDTO) =
+        compose.onNode(hasContentDescription(contact.displayName) and hasClickAction())
 
     private fun assertEndpoint(contact: ContactDTO, label: Int, selected: Boolean) {
         val node = button(contact).performScrollTo().assertIsDisplayed().assertHeightIsAtLeast(48.dp)
@@ -169,8 +170,8 @@ class SavedEndpointSemanticsTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, host.get().getString(label)))
         if (selected) node.assertIsSelected() else node.assertIsNotSelected()
         val config = node.fetchSemanticsNode().config
-        assertEquals(listOf(contact.displayName), config[SemanticsProperties.Text].map { it.text })
-        assertFalse(SemanticsProperties.ContentDescription in config)
+        assertEquals(listOf(contact.displayName), config[SemanticsProperties.ContentDescription])
+        assertFalse(SemanticsProperties.Text in config)
     }
 
     private fun assertRoleLabels(vararg expectedLabels: Int) {
