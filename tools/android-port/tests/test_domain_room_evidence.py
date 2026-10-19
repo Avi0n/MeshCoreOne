@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ET
 
 from fixtures import REPO
 from controller.errors import PortError
+from controller.gates import policy_revision
 from controller.model import Manifest
 from controller.schema import load_json
 from controller.verification_config import apply_content_scope, project_content_scope
@@ -183,6 +184,11 @@ class DomainRoomEvidenceTests(unittest.TestCase):
                     amended = apply_translation_scope(amended)
                 self.fixture.write("docs/android/port-manifest.json", json.dumps(amended))
                 self.fixture.commit()
+                if revision is None:
+                    policy_sha = policy_revision(
+                        self.fixture.manifest(),
+                        load_json(self.fixture.repo / "docs/android/automation-policy.json"),
+                    )
                 result = self.report()
                 self.assertEqual(result["manifest_sha256"], manifest_sha)
                 self.assertEqual(result["policy_revision"], policy_sha)

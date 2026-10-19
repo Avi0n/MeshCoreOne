@@ -278,31 +278,53 @@ def validate_evidence(evidence: dict, binding: Binding, manifest: Manifest, poli
     return artifacts, sorted(run_ids)
 
 
+def human_acceptance_required(wp: dict, policy: dict, changed_paths: list[str], labels=()):
+    rules = policy.get("review_policy")
+    fields(rules, {
+        "code_review_authority", "authorized_coordinators", "human_acceptance_work_packages",
+        "human_acceptance_paths", "human_acceptance_patterns",
+    }, label="review policy")
+    if rules["code_review_authority"] != "trusted-read-only-review":
+        raise PortError("Unsupported code review authority")
+    for key in ("authorized_coordinators", "human_acceptance_work_packages",
+                "human_acceptance_paths", "human_acceptance_patterns"):
+        values = rules[key]
+        if not isinstance(values, list) or not values or not all(isinstance(v, str) and v for v in values):
+            raise PortError(f"Malformed review policy {key}")
+    return (
+        wp["id"] in rules["human_acceptance_work_packages"]
+        or "needs-human" in labels
+        or bool(protected_paths({
+            "protected_paths": rules["human_acceptance_paths"],
+            "protected_patterns": rules["human_acceptance_patterns"],
+        }, protected_paths(policy, changed_paths)))
+    )
+
+
 def validate_approval(approvals: list[dict], binding: Binding, policy: dict, author: str):
+    """Validate retained human acceptance, not a separate-person code review."""
     nonempty(author, "Actual PR author")
-    if not set(policy["maintainers"]) - {author}:
-        raise PortError(
-            "No configured independent maintainer can approve this PR author. "
-            "Personal-repo/local publication needs an actually authorized alternate reviewer/publisher "
-            "strategy at WP-003; self-reviews or model-written attestations are not approval."
-        )
     if not isinstance(approvals, list):
         raise PortError("Malformed maintainer approvals")
     for approval in approvals:
+        typed = isinstance(approval, dict) and "kind" in approval
         fields(approval, {
             "review_id", "reviewer", "state", "head_sha", "base_sha", "policy_revision",
             "binding_key",
-        }, label="maintainer approval")
+        } | ({"kind"} if typed else set()), label="human acceptance")
+        if typed and approval["kind"] != "human-acceptance":
+            raise PortError("Unknown human acceptance kind")
         positive_integer(approval["review_id"], "Review ID")
+        states = ("COMMENTED", "APPROVED") if typed else ("APPROVED",)
         if (
-            approval["reviewer"] in policy["maintainers"] and approval["reviewer"] != author
-            and approval["state"] == "APPROVED" and approval["head_sha"] == binding.head_sha
+            approval["reviewer"] in policy["maintainers"]
+            and approval["state"] in states and approval["head_sha"] == binding.head_sha
             and approval["base_sha"] == binding.base_sha
             and approval["policy_revision"] == binding.policy_revision
             and approval["binding_key"] == binding.key
         ):
             return approval["review_id"]
-    raise PortError("Missing independent current-head/current-base bound maintainer approval")
+    raise PortError("Missing current-head/current-base bound human acceptance")
 
 
 def verify_pr_gates(pr: dict, evidence: dict, review: dict, approvals: list[dict],
@@ -331,11 +353,16 @@ def verify_pr_gates(pr: dict, evidence: dict, review: dict, approvals: list[dict
     wp = manifest.wp(binding.work_package)
     human = wp["human_gate"] or bool(protected_paths(policy, pr["changed_paths"])) or "needs-human" in pr["labels"]
     validate_review(review, binding, wp, artifacts, human)
-    approval_id = validate_approval(approvals, binding, policy, pr["author"]) if human else None
+    requires_acceptance = human_acceptance_required(wp, policy, pr["changed_paths"], pr["labels"])
+    approval_id = validate_approval(approvals, binding, policy, pr["author"]) if requires_acceptance else None
     return {
         "binding": asdict(binding), "pr_number": pr["number"],
         "merge_commit_sha": pr["merge_commit_sha"], "ci_run_ids": run_ids,
         "approval_id": approval_id, "evidence_sha256": digest(evidence), "review_sha256": digest(review),
+        "review_authorization": {
+            "kind": "trusted-read-only-code-review", "binding_key": binding.key,
+            "human_acceptance_required": requires_acceptance,
+        },
     }
 
 

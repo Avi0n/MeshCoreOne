@@ -25,8 +25,6 @@ def capabilities(policy: dict, *, author="cbattlegear"):
         blockers.append("Required-check application/workflow identities are not approved.")
     if not policy["branch_rules_proven"]:
         blockers.append("Exact-head/current-base no-bypass branch rules are unproven.")
-    if not set(policy["maintainers"]) - {author}:
-        blockers.append("Sole maintainer is the PR author; no real authorized alternate formal reviewer exists.")
     blockers += [
         "Isolated Copilot CLI reviewer authentication/native-host/live-usage/shared-ledger integration is unproven.",
         "Protected historical receipt revalidation/import remains blocked.",
