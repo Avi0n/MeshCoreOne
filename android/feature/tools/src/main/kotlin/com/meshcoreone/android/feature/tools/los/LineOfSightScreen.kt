@@ -64,12 +64,15 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -328,10 +331,25 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
                         stateDescription = endpointLabel
                     }
                     val label: @Composable () -> Unit = {
+                        val roleLayout = remember(contact.id) { arrayOfNulls<TextLayoutResult>(1) }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(contact.displayName)
-                            // Announce the role via stateDescription without changing the native contact name.
-                            Text(endpointLabel, Modifier.clearAndSetSemantics {})
+                            Text(
+                                endpointLabel,
+                                Modifier.clearAndSetSemantics {
+                                    testTag = "los-saved-endpoint-role-label"
+                                    getTextLayoutResult { results ->
+                                        val layout = roleLayout[0]
+                                        if (layout == null) {
+                                            false
+                                        } else {
+                                            results.add(layout)
+                                            true
+                                        }
+                                    }
+                                },
+                                onTextLayout = { roleLayout[0] = it },
+                            )
                         }
                     }
                     when (selectedAs) {
