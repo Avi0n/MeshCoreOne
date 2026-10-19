@@ -11,10 +11,10 @@ from .render import marker
 from .schema import decode_json, fields, positive_integer
 
 class GitHubGateAuthority:
-    """Read server facts and structured output from a separately trusted check publisher.
+    """Read server facts from native GitHub reviews/checks or a legacy trusted publisher.
 
     Never load a candidate script, model-written file, PR body verdict or closed issue
-    as authority. The publisher/runner integration itself is proven in supervised WP-003.
+    as authority. Manual native publication requires deployed default-branch code.
     """
 
     def __init__(self, backend: CloudBackend, manifest: Manifest, policy: dict):
@@ -53,10 +53,10 @@ class GitHubGateAuthority:
         parents = commit.get("parents")
         if (
             commit.get("sha") != receipt["merge_sha"]
-            or not isinstance(parents, list) or len(parents) < 2
-            or any(not isinstance(parent, dict) for parent in parents[:2])
+            or not isinstance(parents, list) or len(parents) not in (1, 2)
+            or any(not isinstance(parent, dict) for parent in parents)
             or parents[0].get("sha") != expected_base_sha
-            or parents[1].get("sha") != receipt["head_sha"]
+            or len(parents) == 2 and parents[1].get("sha") != receipt["head_sha"]
         ):
             raise PortError("Merged terminal commit does not bind the exact predecessor base and head")
         changed = set()
@@ -80,7 +80,9 @@ class GitHubGateAuthority:
 
     def bundle(self, wp_id: str, identity: Identity):
         if not self.policy["trusted_gate_publisher_app_id"]:
-            raise PortError("Trusted gate publisher is unavailable/unconfigured")
+            from .native_review import NativeReview
+
+            return NativeReview(self.backend, self.manifest, self.policy).bundle(wp_id, identity)
         number = positive_integer(identity.pr_number, "Existing implementation PR")
         prefix = self.backend.prefix
         pr = self.backend.api.request("GET", f"{prefix}/pulls/{number}")
@@ -176,9 +178,17 @@ class GitHubGateAuthority:
             "labels": [label["name"] for label in pr.get("labels", [])],
             "changed_paths": sorted(set(changed)),
         }
-        if not isinstance(payload["approvals"], list):
-            raise PortError("Malformed trusted approval records")
         reviews = self.backend.pages(f"{prefix}/pulls/{number}/reviews")
+        self.validate_server_acceptance(payload["approvals"], reviews, binding)
+        return GateBundle(
+            binding, pr_fact, evidence, payload["review"], payload["approvals"],
+            payload["catalog"], True,
+        )
+
+    def validate_server_acceptance(self, approvals, reviews, binding):
+        head = binding.head_sha
+        if not isinstance(approvals, list):
+            raise PortError("Malformed trusted approval records")
         by_id = {review["id"]: review for review in reviews}
         latest_decisive = {}
         latest_formal = {}
@@ -201,7 +211,7 @@ class GitHubGateAuthority:
             for login, item in latest_formal.items()
         ):
             raise PortError("Approval/acceptance blocked by current-head review findings")
-        for approval in payload["approvals"]:
+        for approval in approvals:
             if not isinstance(approval, dict):
                 raise PortError("Malformed trusted acceptance record")
             actual = by_id.get(approval.get("review_id"))
@@ -220,7 +230,3 @@ class GitHubGateAuthority:
                 or latest_decisive.get(approval.get("reviewer"), {}).get("id") != approval.get("review_id")
             ):
                 raise PortError("Approval/acceptance is not an actual current-head explicitly bound maintainer review")
-        return GateBundle(
-            binding, pr_fact, evidence, payload["review"], payload["approvals"],
-            payload["catalog"], True,
-        )

@@ -382,6 +382,9 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(terminal.paths, tuple(value.pr["changed_paths"]))
         self.assertFalse(any(call[0] != "GET" for call in api.calls))
 
+        api.routes[("GET", prefix + "/git/commits/" + MERGE)]["parents"] = [{"sha": BASE}]
+        self.assertTrue(authority.merged_terminal("WP-000", "session-1", receipt, BASE).authoritative)
+
         api.routes[("GET", prefix + "/pulls/123")]["merged"] = False
         with self.assertRaisesRegex(PortError, "exact merged"):
             authority.merged_terminal("WP-000", "session-1", receipt, BASE)

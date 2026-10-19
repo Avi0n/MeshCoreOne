@@ -62,7 +62,7 @@ class TerminalMerge:
 
 
 class GateAuthority(Protocol):
-    """WP-003 supplies an authenticated trusted publisher, not a candidate JSON loader."""
+    """Authenticate native review/check references or legacy publisher output, never candidate PASS files."""
 
     def bundle(self, wp_id: str, identity: Identity) -> GateBundle: ...
     def merged_terminal(
