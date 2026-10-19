@@ -1,18 +1,22 @@
 // AndroidOnly: WP-316 Foundation localizedCaseInsensitiveCompare equivalent for CLI session/login/node-list names.
 package com.meshcoreone.android.feature.tools.diagnostics.text
 
+import android.icu.lang.UCharacter
 import java.text.Collator
 import java.text.Normalizer
 import java.util.Locale
 
 /**
- * Foundation `localizedCaseInsensitiveCompare` is an ICU collation at secondary strength: case,
- * width, ligature and canonical-form differences are equal; accents and dotless/dotted i are
- * not. Compatibility decomposition is applied to comparison views, since Android's ICU bridge
- * rejects FULL_DECOMPOSITION. The collator uses supported canonical decomposition and SECONDARY
- * strength; caller-owned names retain their original spelling.
+ * Foundation's retained comparison vectors require full case folding before accent-sensitive
+ * collation: Android SECONDARY strength alone distinguishes sharp-s from ss. Default (non-Turkic)
+ * ICU folding preserves dotless i and the combining dot in dotted I. Turkish/Azeri casing is
+ * resolved by ICU before decomposition, preserving their locale-tailored I equivalences.
+ * NFKD comparison views retain
+ * width/ligature equivalence without Android's unsupported FULL_DECOMPOSITION mode.
+ * Caller-owned names retain their original spelling.
  */
 internal class LocalizedCompare(locale: Locale) {
+    private val turkicLocale = locale.takeIf { it.language == "tr" || it.language == "az" }
     private val collator: Collator = Collator.getInstance(locale).apply {
         strength = Collator.SECONDARY
         decomposition = Collator.CANONICAL_DECOMPOSITION
@@ -26,8 +30,16 @@ internal class LocalizedCompare(locale: Locale) {
 
     private fun compare(left: String, right: String): Int = synchronized(collator) {
         collator.compare(
-            Normalizer.normalize(left, Normalizer.Form.NFKD),
-            Normalizer.normalize(right, Normalizer.Form.NFKD),
+            comparisonView(left),
+            comparisonView(right),
+        )
+    }
+
+    private fun comparisonView(value: String): String {
+        val cased = turkicLocale?.let { UCharacter.toLowerCase(it, value) } ?: value
+        return Normalizer.normalize(
+            UCharacter.foldCase(Normalizer.normalize(cased, Normalizer.Form.NFKD), UCharacter.FOLD_CASE_DEFAULT),
+            Normalizer.Form.NFKD,
         )
     }
 }
