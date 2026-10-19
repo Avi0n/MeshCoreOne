@@ -53,10 +53,10 @@ class GitHubGateAuthority:
         parents = commit.get("parents")
         if (
             commit.get("sha") != receipt["merge_sha"]
-            or not isinstance(parents, list) or len(parents) < 2
-            or any(not isinstance(parent, dict) for parent in parents[:2])
+            or not isinstance(parents, list) or len(parents) not in (1, 2)
+            or any(not isinstance(parent, dict) for parent in parents)
             or parents[0].get("sha") != expected_base_sha
-            or parents[1].get("sha") != receipt["head_sha"]
+            or len(parents) == 2 and parents[1].get("sha") != receipt["head_sha"]
         ):
             raise PortError("Merged terminal commit does not bind the exact predecessor base and head")
         changed = set()

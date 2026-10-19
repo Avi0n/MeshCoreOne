@@ -88,6 +88,10 @@ class NativeReviewTests(unittest.TestCase):
             ("POST", "/graphql"): {"data": {"repository": {"pullRequest": {
                 "reviewThreads": {"nodes": [], "pageInfo": {"hasNextPage": False, "endCursor": None}},
             }}}},
+            ("GET", prefix + "/actions/runs/2/attempts/1/jobs?per_page=100&page=1"): {"jobs": [{
+                "id": 80, "name": "Native review WP-003 PR 123 receipt 90", "run_id": 2,
+                "head_sha": BASE, "status": "completed", "conclusion": "success",
+            }]},
         })
         for run_id, path, head, event in ((1, CI_PATH, HEAD, "pull_request"),
                                          (2, WORKFLOW_PATH, BASE, "workflow_dispatch")):
@@ -276,7 +280,8 @@ class NativeReviewTests(unittest.TestCase):
                 native.evaluate("WP-003", 123, 90)
 
     def test_counterfeit_checks_failed_publisher_candidate_branch_and_edited_review_are_rejected(self):
-        for kind in ("app", "external", "summary", "run", "branch", "actor", "rerun", "head", "edited"):
+        for kind in ("app", "external", "summary", "run", "branch", "actor", "rerun", "head", "edited",
+                     "another-pr-job", "failed-job"):
             native, api, prefix, _ = self.fixture()
             checks = api.routes[("GET", prefix + f"/commits/{HEAD}/check-runs?per_page=100&page=1")]["check_runs"]
             run = api.routes[("GET", prefix + "/actions/runs/2")]
@@ -294,8 +299,13 @@ class NativeReviewTests(unittest.TestCase):
                 run["actor" if kind == "actor" else "triggering_actor"]["login"] = "candidate"
             elif kind == "head":
                 run["head_sha"] = HEAD
-            else:
+            elif kind == "edited":
                 self.mutate_receipt(api, prefix, lambda p: p["review"].update(summary="Edited after publication"))
+            else:
+                job = api.routes[("GET", prefix + "/actions/runs/2/attempts/1/jobs?per_page=100&page=1")]["jobs"][0]
+                job["name" if kind == "another-pr-job" else "conclusion"] = (
+                    "Native review WP-003 PR 124 receipt 90" if kind == "another-pr-job" else "failure"
+                )
             with self.subTest(kind=kind), self.assertRaises(PortError):
                 native.bundle("WP-003", Identity(pr_number=123))
 
@@ -364,20 +374,21 @@ class NativeReviewTests(unittest.TestCase):
 
         native, api, prefix, _ = self.fixture()
         api.routes[("GET", prefix + "/pulls/123")].update(merged=True, state="closed", merge_commit_sha=MERGE)
-        api.routes[("GET", prefix + "/git/commits/" + MERGE)] = {
-            "parents": [{"sha": BASE}, {"sha": HEAD}],
-        }
-        with tempfile.TemporaryDirectory() as directory:
-            ledger = Ledger(Path(directory) / "ledger.sqlite3", native.policy["repository"])
-            authority = GitHubGateAuthority(native.backend, native.manifest, native.policy)
-            controller = Controller(native.manifest, native.policy, settings(ledger.path),
-                                    ledger, native.backend, authority)
-            proof = controller.import_supervised_completion("WP-003", Identity(pr_number=123))
-            self.assertEqual(controller.completed("WP-003"), proof)
-            self.assertEqual(ledger.get("WP-003")["state"], "completed")
-            self.mutate_receipt(api, prefix, lambda p: p["review"].update(summary="Changed"))
-            with self.assertRaises(PortError):
-                controller.completed("WP-003")
+        for parents in ([{"sha": BASE}, {"sha": HEAD}], [{"sha": BASE}]):
+            api.routes[("GET", prefix + "/git/commits/" + MERGE)] = {"sha": MERGE, "parents": parents}
+            with self.subTest(parents=parents), tempfile.TemporaryDirectory() as directory:
+                ledger = Ledger(Path(directory) / "ledger.sqlite3", native.policy["repository"])
+                authority = GitHubGateAuthority(native.backend, native.manifest, native.policy)
+                controller = Controller(native.manifest, native.policy, settings(ledger.path),
+                                        ledger, native.backend, authority)
+                proof = controller.import_supervised_completion("WP-003", Identity(pr_number=123))
+                self.assertEqual(controller.completed("WP-003"), proof)
+                self.assertEqual(ledger.get("WP-003")["state"], "completed")
+                original_body = self.reviews(api, prefix)[0]["body"]
+                self.mutate_receipt(api, prefix, lambda p: p["review"].update(summary="Changed"))
+                with self.assertRaises(PortError):
+                    controller.completed("WP-003")
+                self.reviews(api, prefix)[0]["body"] = original_body
 
     def test_native_acceptance_does_not_enable_paused_merges_or_waive_branch_rule_proof(self):
         native, _, _, _ = self.fixture()

@@ -337,9 +337,15 @@ records failures explicitly. Interrupted publication remains pending/failed, nev
 success. A successful check is authoritative only after its real default-branch
 publisher run also completes successfully. App IDs/workflow IDs are obtained from
 authenticated GitHub server facts, never invented or taken from candidate JSON.
+The immutable Actions job identity includes the WP/PR/review ID and is reconciled
+through the exact run-attempt jobs API; another PR's successful default-branch run
+cannot be reused by changing a check's summary or `external_id`.
 Legacy custom-publisher bundles remain readable when that publisher is configured.
 `GitHubGateAuthority` and the existing completion/accounting path revalidate native
 receipts rather than bypassing them with a new success flag.
+Native completion validates the server PR's actual merged head/merge commit and
+first-parent base for both a normal merge and the existing REST adapter's squash
+strategy; it never invents a second parent for a squash commit.
 
 **Project acceptance is not GitHub enforcement, producer completion or permission
 to merge.** A source-reviewed open PR cannot complete a dependency. Current-base

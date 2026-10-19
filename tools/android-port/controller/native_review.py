@@ -53,7 +53,7 @@ class NativeReview:
     def get(self, path):
         return self.backend.api.request("GET", self.prefix + path)
 
-    def workflow_run(self, run_id, attempt, path, head, events, *, completed=True):
+    def workflow_run(self, run_id, attempt, path, head, events, *, completed=True, review_identity=None):
         positive_integer(run_id, "Actions run ID")
         positive_integer(attempt, "Actions run attempt")
         run = self.get(f"/actions/runs/{run_id}")
@@ -74,6 +74,19 @@ class NativeReview:
                    for key in ("actor", "triggering_actor"))
         ):
             raise PortError("Publisher must be dispatched/rerun by an authorized coordinator on the default branch")
+        if path == WORKFLOW_PATH:
+            if review_identity is None:
+                raise PortError("Publisher requires an exact WP/PR/review identity")
+            wp_id, number, review_id = review_identity
+            jobs = self.backend.pages(
+                f"{self.prefix}/actions/runs/{run_id}/attempts/{attempt}/jobs", "jobs",
+            )
+            if len(jobs) != 1 or (
+                jobs[0].get("name") != f"Native review {wp_id} PR {number} receipt {review_id}"
+                or jobs[0].get("run_id") != run_id or jobs[0].get("head_sha") != head
+                or completed and (jobs[0].get("status") != "completed" or jobs[0].get("conclusion") != "success")
+            ):
+                raise PortError("Server Actions job does not bind this exact WP/PR/review publication")
         suite = self.get(f"/check-suites/{positive_integer(run.get('check_suite_id'), 'Check suite ID')}")
         if (
             suite.get("id") != run["check_suite_id"]
@@ -128,7 +141,10 @@ class NativeReview:
         if pr.get("merged") is True:
             commit = self.get("/git/commits/" + pr["merge_commit_sha"])
             parents = commit.get("parents", [])
-            if len(parents) < 2 or parents[1].get("sha") != pr.get("head", {}).get("sha"):
+            if (
+                commit.get("sha") != pr["merge_commit_sha"] or len(parents) not in (1, 2)
+                or len(parents) == 2 and parents[1].get("sha") != pr.get("head", {}).get("sha")
+            ):
                 raise PortError("Merged PR has no exact merge-parent provenance")
             base = parents[0].get("sha")
         elif pr.get("state") != "open" or pr.get("draft") is not False or self.backend.current_base() != base:
@@ -248,7 +264,8 @@ class NativeReview:
         if any(result[key] != item for key, item in expected.items()):
             raise PortError("Native project check has stale review/binding provenance")
         run, suite = self.workflow_run(result["publisher_run_id"], result["publisher_run_attempt"],
-                                       WORKFLOW_PATH, value.binding.base_sha, ("workflow_dispatch",))
+                                       WORKFLOW_PATH, value.binding.base_sha, ("workflow_dispatch",),
+                                       review_identity=(wp_id, number, result["review_id"]))
         for check in selected:
             if (
                 check.get("head_sha") != value.binding.head_sha or check.get("status") != "completed"
@@ -262,7 +279,8 @@ class NativeReview:
     def publish(self, wp_id, number, review_id, run_id, attempt):
         base = self.backend.current_base()
         run, _ = self.workflow_run(run_id, attempt, WORKFLOW_PATH, base,
-                                   ("workflow_dispatch",), completed=False)
+                                   ("workflow_dispatch",), completed=False,
+                                   review_identity=(wp_id, number, review_id))
         if run.get("status") != "in_progress" or git(self.manifest.repo, "rev-parse", "HEAD").decode().strip() != base:
             raise PortError("Publisher must execute the exact deployed default-branch checkout")
         pr = self.get(f"/pulls/{positive_integer(number, 'Implementation PR')}")

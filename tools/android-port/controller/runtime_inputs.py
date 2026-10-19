@@ -46,6 +46,7 @@ FIXED_INPUTS = (
     "android/build-logic/gradle/verification-metadata.xml",
     "docs/android/evidence/WP-201/collect_evidence.py",
     "tools/android-port/tests/test_domain_room_evidence.py",
+    "tools/android-port/tests/test_native_review.py",
 )
 
 

@@ -153,7 +153,8 @@ def validate_publisher(value: dict, text: str):
         raise PortError("Native publisher must be manual and contain only the trusted publication job")
     job = value["jobs"]["publish"]
     if (
-        job.get("if") != "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)"
+        job.get("name") != "Native review ${{ inputs.work_package }} PR ${{ inputs.pull_request }} receipt ${{ inputs.review_id }}"
+        or job.get("if") != "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)"
         or job.get("runs-on") != "ubuntu-24.04" or job.get("timeout-minutes") != "15"
         or value.get("concurrency") != {"group": "android-port-controller", "cancel-in-progress": "false"}
         or set(job) != {"name", "if", "runs-on", "timeout-minutes", "env", "steps"}
