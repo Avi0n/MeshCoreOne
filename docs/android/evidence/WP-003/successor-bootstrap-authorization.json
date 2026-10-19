@@ -63,7 +63,13 @@
     "implementation": "transactional typed Controller and Ledger operation",
     "predecessor_archive": "exact SQLite row copy; original terminal receipt remains untouched",
     "live_wp407_admitted": false,
-    "reason": "No actual new WP-407 session identity was supplied; this bootstrap does not create sessions."
+    "reason": "No actual new WP-407 session identity was supplied at the initial handoff; this bootstrap does not create sessions.",
+    "coordinator_follow_up": {
+      "app_session_id": "1385ef63-54ad-4c1c-a8e9-5ae1e7920237",
+      "branch": "cbattlegear-issue-238-wp-407-expose-named-app-language-select-9f1e42",
+      "canonical_execution_identity": "awaiting coordinator confirmation",
+      "live_admission_from_candidate_code": false
+    }
   },
   "explicit_non_authorizations": [
     "No WP-003 claim release, recreation, or binding rewrite",

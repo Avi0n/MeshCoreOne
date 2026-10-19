@@ -578,8 +578,8 @@ class Ledger:
                 or previous["identity"] != predecessor_identity.as_dict()
             ):
                 raise PortError("Stale predecessor attempt; reconcile from the current ledger revision")
-            if previous["state"] not in HELD:
-                raise PortError("Successor predecessor is not an active historical attempt")
+            if previous["state"] not in HELD | {"completed"}:
+                raise PortError("Successor predecessor has no admitted historical attempt")
             if terminal["base_sha"] != previous["binding"]["base_sha"]:
                 raise PortError("Terminal merge does not bind the predecessor's exact base")
             stored_receipt = connection.execute("""

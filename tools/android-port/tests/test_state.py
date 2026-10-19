@@ -400,7 +400,38 @@ class StateTests(unittest.TestCase):
         return previous_identity, paths
 
     def test_successor_admission_archives_predecessor_and_is_idempotent(self):
+        self.prepare_successor()
+        self.assert_successor_history_and_replay()
+
+    def test_completed_predecessor_successor_preserves_completion_history_and_replays(self):
         previous_identity, _ = self.prepare_successor()
+        self.controller.authority.bundles["WP-101"] = bundle(
+            self.manifest, self.policy, "WP-101",
+        )
+        proof = self.controller.record_completion("WP-101")
+        previous = self.ledger.get("WP-101")
+        self.assertEqual(previous["state"], "completed")
+        self.assertEqual(previous["completion"], proof)
+        identity = Identity(session_id="successor-session")
+        self.backend.observation = Observation(previous_identity, "in_progress", False, True)
+        with self.assertRaisesRegex(PortError, "active"):
+            self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"], identity, NOW + 1,
+            )
+        self.backend.observation = Observation(previous_identity, "completed", False, True)
+        terminal = self.controller.authority.terminal
+        self.controller.authority.terminal = replace(terminal, authoritative=False)
+        with self.assertRaisesRegex(PortError, "disagree"):
+            self.controller.admit_successor_attempt(
+                "WP-101", "attempt-1", previous["revision"], identity, NOW + 1,
+            )
+        self.controller.authority.terminal = terminal
+        self.assertEqual(self.ledger.get("WP-101"), previous)
+        self.assertEqual(self.ledger.historical_records("WP-101"), [])
+        self.assert_successor_history_and_replay()
+        self.assertEqual(self.ledger.get_attempt("WP-101", "attempt-1")["completion"], proof)
+
+    def assert_successor_history_and_replay(self):
         previous = self.ledger.get("WP-101")
         receipt_before = self.ledger.terminal_receipt("previous-session", 123)
         with self.ledger.transaction() as connection:
