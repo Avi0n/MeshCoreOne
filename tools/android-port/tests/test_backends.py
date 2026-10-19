@@ -326,10 +326,14 @@ class AuthorityTests(unittest.TestCase):
         }
         api.routes[("GET", prefix + "/pulls/123")] = {
             "number": 123, "body": marker("WP-000"), "merged": True, "merge_commit_sha": MERGE,
-            "head": {"sha": HEAD}, "base": {"sha": MERGE, "repo": {"full_name": cloud.policy["repository"]}},
+            "head": {"sha": HEAD}, "base": {
+                "sha": MERGE, "ref": "main", "repo": {"full_name": cloud.policy["repository"]},
+            },
             "user": {"login": "fixture-worker"}, "labels": [],
         }
-        api.routes[("GET", prefix + "/git/commits/" + MERGE)] = {"parents": [{"sha": BASE}]}
+        api.routes[("GET", prefix + "/git/commits/" + MERGE)] = {
+            "sha": MERGE, "parents": [{"sha": BASE}, {"sha": HEAD}],
+        }
         checks = []
         for index, run in enumerate(value.evidence["runs"], start=1):
             checks.append({
@@ -365,6 +369,31 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(result.pr["base_sha"], BASE)
         self.assertEqual(result.pr["changed_paths"], value.pr["changed_paths"])
         self.assertFalse(any(c[0] in ("POST", "PUT", "PATCH") for c in api.calls))
+
+    def test_terminal_merge_receipt_is_bound_to_real_merged_pr_and_changed_paths(self):
+        authority, api, prefix, value = self.fixture()
+        receipt = {
+            "repository": value.binding.repository, "session_id": "session-1", "pr_number": 123,
+            "head_sha": HEAD, "merge_sha": MERGE, "paths": value.pr["changed_paths"],
+        }
+        terminal = authority.merged_terminal("WP-000", "session-1", receipt, BASE)
+        self.assertTrue(terminal.authoritative)
+        self.assertEqual(terminal.base_sha, BASE)
+        self.assertEqual(terminal.paths, tuple(value.pr["changed_paths"]))
+        self.assertFalse(any(call[0] != "GET" for call in api.calls))
+
+        api.routes[("GET", prefix + "/pulls/123")]["merged"] = False
+        with self.assertRaisesRegex(PortError, "exact merged"):
+            authority.merged_terminal("WP-000", "session-1", receipt, BASE)
+
+        api.routes[("GET", prefix + "/pulls/123")]["merged"] = True
+        wrong = {**receipt, "paths": ["unrelated/path"]}
+        with self.assertRaisesRegex(PortError, "changed paths"):
+            authority.merged_terminal("WP-000", "session-1", wrong, BASE)
+
+        api.routes[("GET", prefix + "/git/commits/" + MERGE)]["parents"][0]["sha"] = "4" * 40
+        with self.assertRaisesRegex(PortError, "exact predecessor base and head"):
+            authority.merged_terminal("WP-000", "session-1", receipt, BASE)
 
     def test_candidate_model_pass_missing_publisher_stale_run_or_fake_approval_is_not_authority(self):
         for kind in ("publisher", "summary", "run", "candidate-privilege", "approval", "stamp", "base"):
