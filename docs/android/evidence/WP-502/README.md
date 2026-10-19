@@ -18,7 +18,11 @@ Branch: `cbattlegear-issue-135-wp-502-compose-flows-and-deterministic-534de7`.
 Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
-Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
+Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
+Current integrated base: `8702db8b1b25a06eb596fb424d821bc3ce3b187b`;
+trusted current policy revision:
+`c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
+The original binding is audit history, not rewritten to the newer policy.
 The existing typed reservation was evolved to revision 15, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
@@ -96,6 +100,17 @@ seam through that same service path, with a fresh generation per uncertain
 write rather than suppressing correlation policy. The raw conversion case is
 explicitly separate because this service normally wraps MeshCoreException.
 No premapped FakeRadio error substitutes for these boundary tests.
+
+At corrected-production `755e7d82f8d6665606d262cc5c06dad4b2ed3986`, preflight
+passes and the full selected App task discovers39:38 pass/one fails (1m7s).
+Session payload/executor recovery and raw conversion pass. The boundary fault
+case fails `Collection contains more than one matching element` when its repeated
+fixture connections create a new synthetic channel UUID at the same index in
+the retained process store. The fixture correction reuses an existing index0
+channel instead of inserting another one; exact single-row/no-message assertions
+remain and production persistence/correlation policy is unchanged. The ordinary
+push succeeded; its separate advisory exceeded180s/UNVERIFIED after also observing
+this failure, not a pass. The failed candidate is historical, not a green successor.
 
 The exact successor's declared regression result must be recorded in PR206;
 prior458/62 native observations remain historical. No new device observation,

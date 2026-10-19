@@ -77,9 +77,10 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         configure(h, rejectSend = rejectSend)
         h.manager.connect(h.target(target))
         h.eventually("shortcut services ready") { h.manager.connectionState == DeviceConnectionState.READY }
-        backing.saveChannel(ChannelDTO(
-            radioId = assertNotNull(h.appState.currentRadioId), index = 0u, name = "Synthetic channel",
-        ))
+        val radio = assertNotNull(h.appState.currentRadioId)
+        if (backing.fetchChannels(radio).none { it.index == 0.toUByte() }) {
+            backing.saveChannel(ChannelDTO(radioId = radio, index = 0u, name = "Synthetic channel"))
+        }
         return h
     }
 
