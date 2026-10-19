@@ -63,9 +63,8 @@ class NativePlatformCallbackDeliveryTest {
                     "|onMain=${Looper.myLooper() == Looper.getMainLooper()}" +
                     "|elapsedRealtimeMs=${SystemClock.elapsedRealtime()}")
             }
-            assertTrue("Register the real public listener",
-                manager.addTouchExplorationStateChangeListener(callback, main))
-            println("WP503_NATIVE_CALLBACK_REGISTERED|actual=true|handler=main|physicalTalkBack=false")
+            manager.addTouchExplorationStateChangeListener(callback, main)
+            println("WP503_NATIVE_CALLBACK_REGISTERED|registrationCallReturned=true|handler=main|physicalTalkBack=false")
             Closeable {
                 instrumentation.runOnMainSync {
                     assertTrue("Remove the actual registered listener",
