@@ -2,7 +2,34 @@
 
 **Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips and83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; language238 and cold37 activation/restoration fail. Original237, context-bound Nodes/map and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
 
+## Executed strengthened cohort: API31 terminal, API37 not launched
+
+At exact combinedba67b894766137a996cfc8c4e5e17a61e7d73533/tree
+c9249b0fd4362d5bece86845e912c5cf715fd44e, all23 prepared identities
+start and produce matching outcomes once: **21PASS/2FAIL,38.195s,
+0errors/skips**. Original US11/11 and supplemental tr/az2/2 pass against
+actual production8a8c6348/ICU68.2, not a host proxy. Diagnostics5, native
+LOS control1 and both38-frame contrast methods pass. Cached-chat fails
+its bottommost-visible precondition at observed12px before24px/recreation;
+saved-LOS fails initial CJK native action discovery before role/state checks.
+These are not proof of a producer offset or missing-painted-label defect.
+All assertions, original US vectors and historical failures remain intact.
+
+Only pinned preflight/App assembly and this one focused native invocation
+run; no JVM/full suite, unchanged-case retry or Nodes expansion. The
+coordinator explicitly directed execution of other31 methods without waiting
+for the producer-owned role observation; that gap is reported but no longer
+used to block the entire31 selection. Exact counts and source/APK/DEX/native
+captures are [retained here](../evidence/WP-503/README.md#corrected-combined-repair-cohort-api31-terminal-results-api37-blocked).
+Requested37 remains **BLOCKED_BEFORE_LAUNCH,0 starts/outcomes**, no new
+preparation/authentication attempt or actual runtime credit. Strict product,
+physical and independent acceptance gates remain open.
+
 ## Prepared strengthened producer cohort: unexecuted and blocked
+
+Historical preparation snapshot at6c81/18cc, before the actualba67 run above.
+The no-build/zero-start and pre-build observation qualifications below
+describe that snapshot, not the later terminal31 results.
 
 The user explicitly authorized strengthening the existing saved-LOS action
 and cached-chat recreation methods after the earlier23f4f711 preparation.

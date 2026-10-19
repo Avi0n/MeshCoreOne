@@ -7,7 +7,107 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
-## Unexecuted strengthened assertions and offline37 investigation
+## Corrected combined repair cohort: API31 terminal results, API37 blocked
+
+Executed once at **ba67b894766137a996cfc8c4e5e17a61e7d73533**,
+Android tree **c9249b0fd4362d5bece86845e912c5cf715fd44e**. All seven
+audit fixtures remain at6c81bad0, including unchanged US blob79e7e12b.
+Exact producer3074b6629ac,3153a4e9a86 and3168a8c6348 Android files
+remain bound to the13-file source import18cc3eb7/ec2tree and same
+canonical1666502a reservation5. This is **combined integration**, not
+standalone producer acceptance or a replacement for the earlier83 inventory.
+
+| Actual API31 cohort | Starts/outcomes | Pass/fail/error/skip |
+|---|---|---|
+|Independent US comparison, actual production ICU68.2.0.0|11/11|11/0/0/0|
+|Separate tr-TR/az-AZ producer preservation|2/2|2/0/0/0|
+|Unchanged diagnostics/CLI/noise-floor/RX flows|5/5|5/0/0/0|
+|Native framework LOS action control|1/1|1/0/0/0|
+|Unchanged selected Point A/B contrast,38 effective frames each|2/2|2/0/0/0|
+|Strengthened cached-chat recreation|1/1|0/1/0/0|
+|Strengthened saved-LOS action|1/1|0/1/0/0|
+|Entire focused invocation,38.195s, runner exit1|23/23|21/2/0/0|
+
+All ten unchanged independent US vectors match both equality and comparator
+zero/nonzero directions, including sharp-s, ligature, canonical accent and
+dotted/dotless i. All14 stable equal input orders are retained. The separate
+producer-specific tr/az checks each cover4 equal/3 unequal pairs in both
+directions and8 stable equal orders,16 total. They are **not independent
+Foundation results or general locale parity**. Native runtime confirms31/
+ICU68.2.0.0; actual installed production is invoked through its public JVM
+ABI/target classloader. Independent DEX class-definition parsing finds it
+only in App classes5.dex and absent from the test APK. No host-JDK/Node or
+copied implementation substitutes.
+
+The two failures remain actual failures, not accepted exclusions:
+
+- Cached target geometry reaches12px, but the new bottommost-visible
+  precondition expects history15 and observes history13 as the last entry.
+  The earlier observation is-86px; actual target row height is110px.
+  No24px offset-only step or recreation-offset assertion is reached.
+  This does **not** establish a producer offset-restoration failure.
+- LOS initial native traversal finds East1 named/actionable, CJK West0,
+  before any selected/stateDescription/rendered-role checks. No role-layout
+  measurement or selection transition is credited. The separately
+  source-inspected cleared-role Text observation gap remains; this native
+  failure is **not proof that the painted role label is absent**.
+
+Actual APK bindings (prior5bb artifacts/binding independently remain intact):
+
+| Artifact | Bytes | SHA256 |
+|---|---|---|
+|App|109723777|`9acce7551b8b090e609c6ea59d5bfce7ce48c0f93b12ed84f0933b4528db479c`|
+|Test|3495951|`7d22bd689178a37210054a23fa45254794dee13b380142daa8955943614ce3d8`|
+
+Exact commands, `$F` is the established session-files directory:
+
+```powershell
+python "$F\wp503-localizedcompare-build.py" --reviewed-repairs
+python "$F\wp503-private-adb-native31.py" --phase reviewedrepairs --head ba67b894766137a996cfc8c4e5e17a61e7d73533 --api 31 --scenario reviewed-repairs
+```
+
+Build passes pinned preflight and only`:app:assembleDebug
+:app:assembleDebugAndroidTest` with strict dependency verification,2 workers,
+no parallel projects and the existing serialized ext4 importer. Actual Gradle
+assembly74s,446 tasks:17 executed/1 cached/428 up-to-date; no JVM/full native
+suite rerun. An initial file-launcher quoting error occurs before import/
+build, then is corrected; real file-based free/occupied/invalid-path lock
+cases pass with actual inheritedFD9. This is not a native retry.
+The source plan and APK snapshot now have distinct names; new APKs are
+candidate-addressed, old artifacts verified/retained and previous metadata
+archived before atomic rebinding. Three byte-fixture retention regressions
+pass; these are not device evidence.
+
+The second command exits1 for the two failures above, with every selected
+identity reconciled. Actual31/2 CPUs/font200/360x900 profile is verified.
+Owned emulator exits0; transport absent281ms; exactly2 scratch paths removed.
+Private61487 server exits0/port closed; shared5037 and other devices untouched.
+No assertion, oracle, deadline or floor changes, no failed-case retries.
+
+**API37 is BLOCKED_BEFORE_LAUNCH for this candidate,0 starts/outcomes.**
+There is no verified lane-owner authorization resolution; no new emulator,
+preparation or instrumentation attempt. Runtime API/ICU remains unverified
+for this candidate, never borrowed from31. Historical5bb unauthorized
+preparation and old3b sharp-s failures remain at their actual sources.
+Nodesfd9 is the next serialized cohort, not part of these23. Physical
+TalkBack/matrix/goldens/admission/review and strict237/238 remain open.
+
+[Exact23 identities, all13 source/seven fixture blobs, APK/DEX bindings,
+vector observations and cleanup](device-reviewedrepairs-integration.json).
+Seven native captures are indexed with byte hashes there; no hosted
+CI-result/log bundle is retained.
+[Original instrumentation](device-reviewedrepairs-api31.txt),
+[native measurements](device-reviewedrepairs-metrics-api31.txt),
+[exact runner command and terminal status](device-reviewedrepairs-runner-api31.txt).
+[Actual WP316 owner report](https://github.com/cbattlegear/MeshCoreOne-Android/pull/239#issuecomment-6270397955)
+and [coordinator handoff](https://github.com/cbattlegear/MeshCoreOne-Android/issues/136#issuecomment-6138152290)
+are updated/read back. PR205 remains draft/published2ed; local results do not
+claim successor hosted CI, standalone producer or whole-WP acceptance.
+
+## Historical unexecuted preparation and offline37 investigation
+
+This subsection records the state before ba67's actual31 invocation above.
+Its no-build/zero-start statements apply to preparation18cc, not the later run.
 
 The user-authorized cached-chat/LOS assertion strengthening and supplemental
 tr/az producer cases have **no new build/APKs/native starts/outcomes**.

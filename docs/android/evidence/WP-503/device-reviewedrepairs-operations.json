@@ -1,0 +1,64 @@
+[
+  {
+    "api": 31,
+    "head": "ba67b894766137a996cfc8c4e5e17a61e7d73533",
+    "emulator_command": [
+      "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+      "-avd",
+      "Medium_Phone",
+      "-port",
+      "5714",
+      "-read-only",
+      "-no-snapshot",
+      "-no-window",
+      "-no-audio",
+      "-no-metrics",
+      "-gpu",
+      "swiftshader_indirect",
+      "-memory",
+      "1536",
+      "-cores",
+      "2",
+      "-data",
+      "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-reviewedrepairs-api31-userdata.img"
+    ],
+    "scenarios": [
+      {
+        "scenario": "reviewed-repairs",
+        "command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+          "--api",
+          "31",
+          "--serial",
+          "emulator-5714",
+          "--scenario",
+          "reviewed-repairs"
+        ],
+        "exit": 1
+      }
+    ],
+    "apk_input_binding": "wp503-reviewedrepairs-apk-inputs.json",
+    "source_plan": "wp503-reviewedrepairs-inputs.json",
+    "profile_command": [
+      "C:\\Python312\\python.exe",
+      "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+      "--api",
+      "31",
+      "--expected-cpus",
+      "2"
+    ],
+    "profile_exit": 0,
+    "emulator_exit": 0,
+    "transport_exit": {
+      "serial": "emulator-5714",
+      "observations": 3,
+      "elapsed_ms": 281.0,
+      "absent": true
+    },
+    "removed_scratch_paths": [
+      "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-reviewedrepairs-api31-userdata.img",
+      "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-reviewedrepairs-api31-userdata.img.qcow2"
+    ]
+  }
+]

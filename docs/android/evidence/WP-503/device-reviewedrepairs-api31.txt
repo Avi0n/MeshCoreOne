@@ -1,0 +1,377 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stack=org.junit.ComparisonFailure: The measured row must be the actual bottommost visible message expected:<Cached history 1[5] 中文> but was:<Cached history 1[3] 中文>
+	at org.junit.Assert.assertEquals(Assert.java:117)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200$lambda$0(NativeLauncherFocusAccessibilityTest.kt:425)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda4.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:1086)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(NativeLauncherFocusAccessibilityTest.kt:332)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+org.junit.ComparisonFailure: The measured row must be the actual bottommost visible message expected:<Cached history 1[5] 中文> but was:<Cached history 1[3] 中文>
+	at org.junit.Assert.assertEquals(Assert.java:117)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200$lambda$0(NativeLauncherFocusAccessibilityTest.kt:425)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda4.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:1086)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(NativeLauncherFocusAccessibilityTest.kt:332)
+
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest:
+INSTRUMENTATION_STATUS: test=frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Saved LOS repeater '中文西側中繼' must expose a named native accessibility click or non-gesture list action, independent of map tiles
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:124)
+
+INSTRUMENTATION_STATUS: stream=
+Error in savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest):
+java.lang.AssertionError: Saved LOS repeater '中文西側中繼' must expose a named native accessibility click or non-gesture list action, independent of map tiles
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:124)
+
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest:
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest:
+INSTRUMENTATION_STATUS: test=selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest:
+INSTRUMENTATION_STATUS: test=disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest:
+INSTRUMENTATION_STATUS: test=asciiCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=asciiCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=dotlessIRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=dotlessIRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=dottedIRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=dottedIRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=canonicalAccentMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=canonicalAccentMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=nodeNameCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=nodeNameCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=equalNamesKeepTheirInputOrderWithTheProductionComparator
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=equalNamesKeepTheirInputOrderWithTheProductionComparator
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=accentRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=accentRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=fullWidthMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=fullWidthMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=ligatureMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=ligatureMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=sharpSMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=sharpSMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=digraphCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=digraphCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest:
+INSTRUMENTATION_STATUS: test=azeriProducerCasesPreserveLocaleTailoringOnAndroid
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=azeriProducerCasesPreserveLocaleTailoringOnAndroid
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=turkishProducerCasesPreserveLocaleTailoringOnAndroid
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=turkishProducerCasesPreserveLocaleTailoringOnAndroid
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 38.195
+There were 2 failures:
+1) realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+org.junit.ComparisonFailure: The measured row must be the actual bottommost visible message expected:<Cached history 1[5] 中文> but was:<Cached history 1[3] 中文>
+	at org.junit.Assert.assertEquals(Assert.java:117)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200$lambda$0(NativeLauncherFocusAccessibilityTest.kt:425)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda4.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:1086)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(NativeLauncherFocusAccessibilityTest.kt:332)
+2) savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest)
+java.lang.AssertionError: Saved LOS repeater '中文西側中繼' must expose a named native accessibility click or non-gesture list action, independent of map tiles
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:124)
+
+FAILURES!!!
+Tests run: 23,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1

@@ -1,0 +1,754 @@
+{
+  "generator": "session wp503-reviewedrepairs-evidence.py; native captures, not hosted CI",
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 5,
+  "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+  "executed_combined_head": "ba67b894766137a996cfc8c4e5e17a61e7d73533",
+  "executed_android_tree": "c9249b0fd4362d5bece86845e912c5cf715fd44e",
+  "audit_fixture_head": "6c81bad084f27c1a6501e1296eec93f160fb517e",
+  "source_integration": "18cc3eb7c9bd157b69db9bcecb4f52c2983111e1",
+  "exact_producer_files": [
+    {
+      "wp": "WP-307",
+      "producer_head": "4b6629ac2bf215577ec1522530a77de61ed577fe",
+      "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+      "before_blob": null,
+      "producer_blob": "187e1a7e6fcd43c2494e0b036706d5f25cd9015f"
+    },
+    {
+      "wp": "WP-307",
+      "producer_head": "4b6629ac2bf215577ec1522530a77de61ed577fe",
+      "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+      "before_blob": "7a8073ebc137eaf04291fc122c8d27f511a6e526",
+      "producer_blob": "3b10d361363e08af68225c9fba12e378c3eaf725"
+    },
+    {
+      "wp": "WP-315",
+      "producer_head": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+      "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+      "before_blob": null,
+      "producer_blob": "0513c55748f756da621ba3a04b0a2eda7e6ae2f5"
+    },
+    {
+      "wp": "WP-315",
+      "producer_head": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+      "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+      "before_blob": "a779037080977ff7aaddb68993311b7374660ea9",
+      "producer_blob": "819a6d982c34974f3dcd1534a9577546c5d5861b"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/build.gradle.kts",
+      "before_blob": "dde3ca834ec3687d323a36ff7833ecf948ffc256",
+      "producer_blob": "1e95d1cc8a6b54b812640f84314b1301dd8d8894"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt",
+      "before_blob": "905f08c90e0c64b7e69d509886a95f4bbc91f13b",
+      "producer_blob": "213866562c54c12d1f82f9c397b5cdcac7a4907c"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCanonicalCompletionTest.kt",
+      "before_blob": "be8175d77eba394361ac45cd58aff3067d80e515",
+      "producer_blob": "6ee68cd8303c7d664c2d3dc38011a5a0cf4407f2"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalControllerTest.kt",
+      "before_blob": "e2650e5a3b33ede82c5fe5ed106c19507a43676f",
+      "producer_blob": "ab6bccdce44529b681b0f499b2d69c392d9ee4ba"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolLocalCommandsTest.kt",
+      "before_blob": "25237ef01c4be8c4572d594010c05667329c7be5",
+      "producer_blob": "7352f8e60d3bc5ce2a75e7e9f5581da79e09f604"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolSessionsTest.kt",
+      "before_blob": "47b8493825df6a29e325533fe7dc6f3fa7c4b93f",
+      "producer_blob": "5d859e10474193315726002bd99a8f063bfb67bd"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolStateHolderTest.kt",
+      "before_blob": "9509eae14b01e90fe4f9b7c36c303f6e5ad6e5d9",
+      "producer_blob": "ebfe48e4422110a1906c87dd22c196f633e2eae5"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+      "before_blob": "345cb7a6ee3cf48b2594efd471eceeed793cb27a",
+      "producer_blob": "58af4467a85422c8d53cee7001a159cf56f31642"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/gradle/dependency-locks/feature-tools.lockfile",
+      "before_blob": "65bbd5c3d118b4b9e394965058046e5292f414ff",
+      "producer_blob": "885331ce23ec8d93b4dcb5fe4c13b42d3faa1ed7"
+    }
+  ],
+  "audit_fixture_blobs": {
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLauncherFocusAccessibilityTest.kt": "37c8d2c841d9ec13c87bd7db5bf68052745d7dc3",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest.kt": "425152d1b41e14f0bf8e6b47999e83a0df4cf06d",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightContrastTest.kt": "6ad88ceada36198db31309932900c5b51a39910d",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightPointBContrastTest.kt": "32c2819ecb9834a0ed2cfba2dea996a954032943",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeDiagnosticsFlowAccessibilityTest.kt": "e31edcf50c08532465ad3254919ff13eefbd8d7f",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareParityTest.kt": "79e7e12b950f1459f006bc72942539ecf07375e0",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareLocalePreservationTest.kt": "41a1e4046f96aeb0c725a1344e7f420dfd142be4"
+  },
+  "apk_binding": {
+    "head": "ba67b894766137a996cfc8c4e5e17a61e7d73533",
+    "apks": {
+      "wp503-reviewedrepairs-ba67b894766137a996cfc8c4e5e17a61e7d73533-app.apk": {
+        "size": 109723777,
+        "sha256": "9acce7551b8b090e609c6ea59d5bfce7ce48c0f93b12ed84f0933b4528db479c"
+      },
+      "wp503-reviewedrepairs-ba67b894766137a996cfc8c4e5e17a61e7d73533-test.apk": {
+        "size": 3495951,
+        "sha256": "7d22bd689178a37210054a23fa45254794dee13b380142daa8955943614ce3d8"
+      }
+    },
+    "android_tree": "c9249b0fd4362d5bece86845e912c5cf715fd44e"
+  },
+  "production_definition_dex": {
+    "wp503-reviewedrepairs-ba67b894766137a996cfc8c4e5e17a61e7d73533-app.apk": [
+      "classes5.dex"
+    ],
+    "wp503-reviewedrepairs-ba67b894766137a996cfc8c4e5e17a61e7d73533-test.apk": []
+  },
+  "independent_oracle": {
+    "path": "docs/android/evidence/WP-316/oracle-output.txt",
+    "blob": "0064656ced61ca93fc541c3e3b070c3f2076263d"
+  },
+  "native31": {
+    "actual_api": 31,
+    "icu": "68.2.0.0",
+    "started": 23,
+    "matching_outcomes": 23,
+    "passed": 21,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 38.195,
+    "test_outcomes": [
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200",
+        "status": -2
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest#frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200",
+        "status": -2
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest#selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest#selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#asciiCaseMatchesSwiftEquality",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#dotlessIRemainsUnequalAsInSwift",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#dottedIRemainsUnequalAsInSwift",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#canonicalAccentMatchesSwiftEquality",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#nodeNameCaseMatchesSwiftEquality",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#equalNamesKeepTheirInputOrderWithTheProductionComparator",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#accentRemainsUnequalAsInSwift",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#fullWidthMatchesSwiftEquality",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#ligatureMatchesSwiftEquality",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#sharpSMatchesSwiftEquality",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#digraphCaseMatchesSwiftEquality",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest#azeriProducerCasesPreserveLocaleTailoringOnAndroid",
+        "status": 0
+      },
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest#turkishProducerCasesPreserveLocaleTailoringOnAndroid",
+        "status": 0
+      }
+    ],
+    "us_methods": 11,
+    "us_vectors": [
+      {
+        "left": "61+62+63",
+        "right": "41+42+43",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "left": "131",
+        "right": "49",
+        "expectedEqual": "false",
+        "forwardEqual": "false",
+        "reverseEqual": "false",
+        "forwardCompare": "1",
+        "reverseCompare": "-1",
+        "productionInvocation": "true"
+      },
+      {
+        "left": "130",
+        "right": "69",
+        "expectedEqual": "false",
+        "forwardEqual": "false",
+        "reverseEqual": "false",
+        "forwardCompare": "1",
+        "reverseCompare": "-1",
+        "productionInvocation": "true"
+      },
+      {
+        "left": "E9",
+        "right": "65+301",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "left": "6E+6F+64+65+20+31",
+        "right": "4E+4F+44+45+20+31",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "left": "E9",
+        "right": "65",
+        "expectedEqual": "false",
+        "forwardEqual": "false",
+        "reverseEqual": "false",
+        "forwardCompare": "1",
+        "reverseCompare": "-1",
+        "productionInvocation": "true"
+      },
+      {
+        "left": "FF21",
+        "right": "41",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "left": "FB01",
+        "right": "46+49",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "left": "73+74+72+61+DF+65",
+        "right": "53+54+52+41+53+53+45",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "left": "1C6",
+        "right": "1C4",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      }
+    ],
+    "us_stable_orders": [
+      {
+        "input": "61+62+63,41+42+43",
+        "actual": "61+62+63,41+42+43",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "41+42+43,61+62+63",
+        "actual": "41+42+43,61+62+63",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "73+74+72+61+DF+65,53+54+52+41+53+53+45",
+        "actual": "73+74+72+61+DF+65,53+54+52+41+53+53+45",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "53+54+52+41+53+53+45,73+74+72+61+DF+65",
+        "actual": "53+54+52+41+53+53+45,73+74+72+61+DF+65",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "E9,65+301",
+        "actual": "E9,65+301",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "65+301,E9",
+        "actual": "65+301,E9",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "FF21,41",
+        "actual": "FF21,41",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "41,FF21",
+        "actual": "41,FF21",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "6E+6F+64+65+20+31,4E+4F+44+45+20+31",
+        "actual": "6E+6F+64+65+20+31,4E+4F+44+45+20+31",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "4E+4F+44+45+20+31,6E+6F+64+65+20+31",
+        "actual": "4E+4F+44+45+20+31,6E+6F+64+65+20+31",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "1C6,1C4",
+        "actual": "1C6,1C4",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "1C4,1C6",
+        "actual": "1C4,1C6",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "FB01,46+49",
+        "actual": "FB01,46+49",
+        "productionInvocation": "true"
+      },
+      {
+        "input": "46+49,FB01",
+        "actual": "46+49,FB01",
+        "productionInvocation": "true"
+      }
+    ],
+    "supplemental_methods": 2,
+    "supplemental_vectors": [
+      {
+        "pair": "az-AZ:49|131",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "az-AZ:130|69",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "az-AZ:49+307|69",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "az-AZ:73+74+72+61+DF+65|53+54+52+41+53+53+45",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "az-AZ:49|69",
+        "expectedEqual": "false",
+        "forwardEqual": "false",
+        "reverseEqual": "false",
+        "forwardCompare": "-1",
+        "reverseCompare": "1",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "az-AZ:130|131",
+        "expectedEqual": "false",
+        "forwardEqual": "false",
+        "reverseEqual": "false",
+        "forwardCompare": "1",
+        "reverseCompare": "-1",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "az-AZ:E9|65",
+        "expectedEqual": "false",
+        "forwardEqual": "false",
+        "reverseEqual": "false",
+        "forwardCompare": "1",
+        "reverseCompare": "-1",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "tr-TR:49|131",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "tr-TR:130|69",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "tr-TR:49+307|69",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "tr-TR:73+74+72+61+DF+65|53+54+52+41+53+53+45",
+        "expectedEqual": "true",
+        "forwardEqual": "true",
+        "reverseEqual": "true",
+        "forwardCompare": "0",
+        "reverseCompare": "0",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "tr-TR:49|69",
+        "expectedEqual": "false",
+        "forwardEqual": "false",
+        "reverseEqual": "false",
+        "forwardCompare": "-1",
+        "reverseCompare": "1",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "tr-TR:130|131",
+        "expectedEqual": "false",
+        "forwardEqual": "false",
+        "reverseEqual": "false",
+        "forwardCompare": "1",
+        "reverseCompare": "-1",
+        "productionInvocation": "true"
+      },
+      {
+        "pair": "tr-TR:E9|65",
+        "expectedEqual": "false",
+        "forwardEqual": "false",
+        "reverseEqual": "false",
+        "forwardCompare": "1",
+        "reverseCompare": "-1",
+        "productionInvocation": "true"
+      }
+    ],
+    "supplemental_stable_orders": [
+      {
+        "locale": "az-AZ",
+        "input": "49,131",
+        "actual": "49,131"
+      },
+      {
+        "locale": "az-AZ",
+        "input": "131,49",
+        "actual": "131,49"
+      },
+      {
+        "locale": "az-AZ",
+        "input": "130,69",
+        "actual": "130,69"
+      },
+      {
+        "locale": "az-AZ",
+        "input": "69,130",
+        "actual": "69,130"
+      },
+      {
+        "locale": "az-AZ",
+        "input": "49+307,69",
+        "actual": "49+307,69"
+      },
+      {
+        "locale": "az-AZ",
+        "input": "69,49+307",
+        "actual": "69,49+307"
+      },
+      {
+        "locale": "az-AZ",
+        "input": "73+74+72+61+DF+65,53+54+52+41+53+53+45",
+        "actual": "73+74+72+61+DF+65,53+54+52+41+53+53+45"
+      },
+      {
+        "locale": "az-AZ",
+        "input": "53+54+52+41+53+53+45,73+74+72+61+DF+65",
+        "actual": "53+54+52+41+53+53+45,73+74+72+61+DF+65"
+      },
+      {
+        "locale": "tr-TR",
+        "input": "49,131",
+        "actual": "49,131"
+      },
+      {
+        "locale": "tr-TR",
+        "input": "131,49",
+        "actual": "131,49"
+      },
+      {
+        "locale": "tr-TR",
+        "input": "130,69",
+        "actual": "130,69"
+      },
+      {
+        "locale": "tr-TR",
+        "input": "69,130",
+        "actual": "69,130"
+      },
+      {
+        "locale": "tr-TR",
+        "input": "49+307,69",
+        "actual": "49+307,69"
+      },
+      {
+        "locale": "tr-TR",
+        "input": "69,49+307",
+        "actual": "69,49+307"
+      },
+      {
+        "locale": "tr-TR",
+        "input": "73+74+72+61+DF+65,53+54+52+41+53+53+45",
+        "actual": "73+74+72+61+DF+65,53+54+52+41+53+53+45"
+      },
+      {
+        "locale": "tr-TR",
+        "input": "53+54+52+41+53+53+45,73+74+72+61+DF+65",
+        "actual": "53+54+52+41+53+53+45,73+74+72+61+DF+65"
+      }
+    ],
+    "runtime_observations": [
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk\", zip file \"/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk\"],nativeLibraryDirectories=[/data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/lib/x86_64, /data/app/~~MSQFOCKkt9VBJFjm5cgBKA==/com.meshcoreone.android.debug.test-_uOuFFqh7M93zCBIraWLUQ==/base.apk!/lib/x86_64, /data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|hostJdk=false",
+      "WP503_NATIVE_LOCALE_PRESERVATION_RUNTIME|api=31|locale=az-AZ|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|producer=8a8c6348af1c98b3f11f21769800308cf302b8f9|independentFoundationOracle=false",
+      "WP503_NATIVE_LOCALE_PRESERVATION_RUNTIME|api=31|locale=tr-TR|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|targetApk=/data/app/~~kEgvJIYj9-ZYN4NAXkUfyg==/com.meshcoreone.android.debug-OOdwnkxPaVTSjh640TTzSA==/base.apk|producer=8a8c6348af1c98b3f11f21769800308cf302b8f9|independentFoundationOracle=false"
+    ],
+    "ui_failure_qualification": [
+      "Cached target reached12px, but bottommost-visible precondition failed expected history15/actual13; no24px or recreation offset evidence.",
+      "LOS initial named native CJK contact traversal found0 before selected/state/role layout checks; not a measured missing painted-label defect."
+    ],
+    "viewport_observations": [
+      "WP503_NATIVE_CHAT_VIEWPORT|sdk=31|message=00000000-0000-0000-0000-00000007ad4b|rowBottomPx=293.0|viewportBottomPx=379.0|withinRowOffsetPx=-86.0|rowHeightPx=110|visibleRows=[Cached history 15 \u4e2d\u6587, Cached history 16 \u4e2d\u6587, Cached history 14 \u4e2d\u6587]",
+      "WP503_NATIVE_CHAT_VIEWPORT|sdk=31|message=00000000-0000-0000-0000-00000007ad4b|rowBottomPx=391.0|viewportBottomPx=379.0|withinRowOffsetPx=12.0|rowHeightPx=110|visibleRows=[Cached history 14 \u4e2d\u6587, Cached history 15 \u4e2d\u6587, Cached history 13 \u4e2d\u6587]"
+    ],
+    "operations": {
+      "api": 31,
+      "head": "ba67b894766137a996cfc8c4e5e17a61e7d73533",
+      "emulator_command": [
+        "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+        "-avd",
+        "Medium_Phone",
+        "-port",
+        "5714",
+        "-read-only",
+        "-no-snapshot",
+        "-no-window",
+        "-no-audio",
+        "-no-metrics",
+        "-gpu",
+        "swiftshader_indirect",
+        "-memory",
+        "1536",
+        "-cores",
+        "2",
+        "-data",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-reviewedrepairs-api31-userdata.img"
+      ],
+      "scenarios": [
+        {
+          "scenario": "reviewed-repairs",
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "31",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "reviewed-repairs"
+          ],
+          "exit": 1
+        }
+      ],
+      "apk_input_binding": "wp503-reviewedrepairs-apk-inputs.json",
+      "source_plan": "wp503-reviewedrepairs-inputs.json",
+      "profile_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+        "--api",
+        "31",
+        "--expected-cpus",
+        "2"
+      ],
+      "profile_exit": 0,
+      "emulator_exit": 0,
+      "transport_exit": {
+        "serial": "emulator-5714",
+        "observations": 3,
+        "elapsed_ms": 281.0,
+        "absent": true
+      },
+      "removed_scratch_paths": [
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-reviewedrepairs-api31-userdata.img",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-reviewedrepairs-api31-userdata.img.qcow2"
+      ]
+    }
+  },
+  "requested37": {
+    "outcome": "BLOCKED_BEFORE_LAUNCH",
+    "started": 0,
+    "matching_outcomes": 0,
+    "actual_api_verified": false,
+    "icu_verified": false,
+    "blocker": "No verified lane-owner authorization resolution; no new emulator/preparation/instrumentation attempt."
+  },
+  "retained_native_files": {
+    "device-reviewedrepairs-api31.txt": {
+      "bytes": 22572,
+      "sha256": "e3ea049b04f9ceec36b73d5ae41145c465e5403d13e4879568dbed9d38b44c40"
+    },
+    "device-reviewedrepairs-metrics-api31.txt": {
+      "bytes": 75900,
+      "sha256": "35cdf8da96c2f795cf2c6e934805d8bcb873e1bad2ccdcd3c4711a932a326ed8"
+    },
+    "device-reviewedrepairs-runner-api31.txt": {
+      "bytes": 5930,
+      "sha256": "f2d12678ec62c4b74b2c2eb77c2017423dee73a4b5cb17af3f485a082f11561d"
+    },
+    "device-reviewedrepairs-profile-api31.txt": {
+      "bytes": 2666,
+      "sha256": "20840056c428c8a82f4da4b78aa50a2663d85bdd67ea053b8ffda7602865c3f6"
+    },
+    "device-reviewedrepairs-operation-observations.txt": {
+      "bytes": 2093,
+      "sha256": "fd5d5a638c9a3c430253574c816b11d250226977f46d25164c7e20af9a2a8e54"
+    },
+    "device-reviewedrepairs-operations.json": {
+      "bytes": 1984,
+      "sha256": "aed17d70ad2a570469f8f1ef294cf4753eaea04f068abdd9e6923178315d9292"
+    },
+    "device-reviewedrepairs-inputs.json": {
+      "bytes": 524,
+      "sha256": "ba3bacaea85929c1441bbfa4ab1e3cd6db8109891a2187658b9ce4f0dbb68695"
+    }
+  },
+  "qualification": "One combined native integration, not standalone producer/physical/whole-WP acceptance. Original US oracle and all23 assertions unchanged; no retry. Supplemental tr/az are producer-preservation cases, not Foundation/general locale parity. Historical5bb/3b mismatch and all prior native/CI failures remain source-bound. No hosted result/log bundle retained."
+}
