@@ -1,9 +1,42 @@
 # WP-503 accessibility audit
 
-**Status: owned teardown race repaired and observed on both APIs. Main-looper native-state observation does not resolve API37 readiness: launcher31 9PASS49.969s;37 6PASS/3FAIL126.395s, nine starts/matching outcomes each. Separate service-control1 PASS both. Strict original1000ms activation/restoration failures remain; no retry or deadline relaxation. Product237/238 and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Status: owned teardown race repaired; post-timeout snapshots now distinguish late server/client observations without granting late acceptance. Exactcc360 launcher37 remains6PASS/3FAIL97.426s. Initial31 invocation discovered zero tests during shared-adb failure; a separately isolated fresh31 invocation passes9/9 in44.129s. Separate control1 passes in all three device attempts. Original deadlines/assertions and all historical negatives remain. Product237/238 and physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Post-deadline native snapshots and isolated API31 transport
+
+Executed combined `cc360e7bd8797bdb0847faadec5187862c093f8e`, Android tree
+`7913dd2f335618aadc1c3c2abdfec690abebeae4`. Original launcher9/control1 bodies,
+shared237/238 assertions and product bytes equaldbf4f338. The existing public
+snapshot collector is extracted verbatim and also runs after original launcher
+state failures; the original timeout stays primary and collector errors are
+suppressed. No state writes, late acceptance or failed-assertion retries.
+
+Actual fresh two-CPU37 launcher discovers nine starts/matching outcomes:
+**6PASS/3FAIL97.426s**, zero errors/skips. Appearance and cached-window-chat
+activation fail at the original1000ms, so neither body receives credit.
+The IME method reaches actual native input focus/acceptingText but fails its
+unchanged1000ms actual-IME-visibility wait; no keyboard bounds/target credit.
+All seven touch-state restorations complete in this invocation, without erasing
+the preceding source's restoration failure.
+
+Both post-deadline dumps exit0 and report system touch explorationtrue. The
+client changesfalse-to-true during one131ms snapshot and remainsfalse throughout
+the other345ms snapshot. These are **late observations**, not proof that server
+state wastrue before the original deadline or a proven latency root cause.
+
+The initial31 launcher invocation has **zero starts/outcomes** because shared
+adb5037 is unavailable, error10060; the strict runner fails discovery. Its separate
+control1 passes2.128s. A new fresh31 device uses an owned loopback adb endpoint,
+with USB/mDNS discovery and other-emulator scanning disabled: **9/9PASS44.129s**,
+separate control1PASS1.773s. This is a separate transport attempt, not a clean
+replacement cohort or a retry of failed native assertions.37 control1PASS5.723s.
+No shared-server restart or other-device shutdown occurs. All three owned
+emulators exit0, transport removal is observed265/281/266ms, six exact scratch
+paths are removed, and the private server exits0 with its port closed.
+[Exact commands, APKs, all identities/outcomes and retained failures](../evidence/WP-503/README.md#post-deadline-native-snapshots-and-isolated-api31-transport).
 
 ## Audit-side timing and teardown acceptance
 

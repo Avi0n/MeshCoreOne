@@ -1,11 +1,129 @@
 # WP-503 attempt evidence
 
-**Latest bounded audit-side run:49691771 launcher31 9PASS49.969s,37 6PASS/3FAIL126.395s; separate control1 PASS both. Owned transport teardown race repaired/observed281ms/312ms. API37 original1000ms activation/restoration still fails with main-looper sampling. Product237/238, all historical negatives and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Latest exactcc360: launcher37 6PASS/3FAIL97.426s; initial31 zero-discovery/shared-adb failure retained, separately isolated fresh31 9PASS44.129s. Separate control1 passes all three attempts. Post-timeout snapshots add observations, not late acceptance. Teardown remains verified; product237/238 and all historical/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Post-deadline native snapshots and isolated API31 transport
+
+[Integration, all identities/outcomes and exact operations](device-timesnapshot-integration.json)
+and [rebuilt APK inputs](device-timesnapshot-inputs.json) bind executed combined
+**cc360e7bd8797bdb0847faadec5187862c093f8e**, Android tree
+**7913dd2f335618aadc1c3c2abdfec690abebeae4**, audit parent
+**dbf4f338a3c7a246619efc45c4b06fe13cfe5bd8**. Existing producer3bcb254a remains
+bound by [its combined integration](device-cli-integration.json), not standalone
+producer acceptance. Original launcher9/control1 bodies, product and shared237/238
+assertions equal parent. The public snapshot collector's body is extracted
+verbatim; launcher failures now collect it **after the original deadline** while
+keeping that timeout primary and suppressing collector errors.
+
+| Rebuilt input | Bytes | SHA-256 |
+|---|---|---|
+| App debug APK, unchanged product |109723777|`4ef5e2637bc6e825c0e9a9425d47076a2395b14afc874f63c415d4c1857cfd81`|
+| Test debug APK |3417939|`de3255d20e72d982973a2ec95c960c4d0f26a923667d81fa1102ef4782aef4b5`|
+
+Existing isolated `python "$F\wp503-messaging-check.py"` preflight, APK assembly
+and original74 JVM cases pass atcc360, zero failures/errors/skips. Native commands
+below run once per respective fresh actual two-CPU device, font2/mdpi/360x900,
+with the existing300s boot and600s instrumentation guards unchanged:
+
+```powershell
+python "$F\wp503-prepare-native.py" --api 31 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 31 --serial emulator-5714 --scenario launcher
+python "$F\wp503-run-native.py" --api 31 --serial emulator-5714 --scenario service-state-control
+python "$F\wp503-prepare-native.py" --api 37 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 37 --serial emulator-5714 --scenario launcher
+python "$F\wp503-run-native.py" --api 37 --serial emulator-5714 --scenario service-state-control
+```
+
+`$F` is `C:\Users\camer\.copilot\session-state\d2980f28-620c-408b-9947-067e2da8eedf\files`.
+The31 launcher command **fails discovery with zero starts/outcomes** because
+shared adb5037 cannot be reached (10060). No native case starts or passes.
+Its subsequent separate control1PASS2.128s does not retroactively clear that
+transport failure.37 discovers nine unique starts and matching outcomes:
+**6PASS/3FAIL97.426s**, zero errors/skips. Its separate control1PASS5.723s.
+
+**Exact37 failure boundaries:** appearance activation90 samples1000ms and
+cached-window-chat activation84 samples1001ms remainfalse; neither body receives
+credit. IME body reaches actual native focus and `isAcceptingText=true`, then
+fails original1000ms `imeVisible()` wait at line216. Zero IME bounds/target credit.
+Selected-tab native focus5, motion tab10/detailBack2 and rail/window observations
+pass; all seven restorations complete in this invocation, without erasing the
+earlier restoration failure or claiming a stable repair.
+
+Both activation-timeout dumps report actual system touch explorationtrue and
+explicit exit0. First client snapshot startsfalse and endstrue131ms later;
+second startsfalse and remainsfalse through345ms. The first also records the
+late enabled callback. **These observations occur after failure**, do not prove
+server state before the1000ms deadline, and establish no causal framework fix.
+Snapshot collection performs no flags/settings writes. No deadline extension
+or failed37 retries.
+
+### Separately isolated API31 transport attempt
+
+Only the zero-start31 class receives a new fresh-device invocation, using the
+existing native runner unchanged and the retained session adapter:
+
+```powershell
+python "$F\wp503-private-adb-native31.py"
+```
+
+The first listener form, `-L tcp:127.0.0.1:59324`, fails before device launch:
+Windows adb reports listening on a specified hostname unsupported. Both
+[adapter failure](device-private31-listener-failure.txt) and
+[server stderr](device-private31-listener-stderr.txt) remain. Supported loopback
+listener **without `-a`** then starts successfully:
+
+```powershell
+C:\android-sdk\platform-tools\adb.exe -L tcp:61870 --one-device wp503-no-usb server nodaemon
+```
+
+The private server and all child client/emulator processes inherit:
+`ADB_SERVER_SOCKET=tcp:127.0.0.1:61870`, `ANDROID_ADB_SERVER_PORT=61870`,
+`ADB_LOCAL_TRANSPORT_MAX_PORT=5553`, `ADB_MDNS_AUTO_CONNECT=""`. The nonexistent
+USB sentinel, disabled mDNS and scan ceiling below5554 avoid other devices;
+the adapter verifies its own server alive/responsive and its device list empty.
+The emulator explicitly registers only the owned5714 endpoint. The adapter
+executes `wp503-mainobserver-native.py --phase private31 --head cc360e7bd8797bdb0847faadec5187862c093f8e --api 31`,
+which runs the same preparation/launcher/control commands above against this
+private endpoint, on another fresh actual two-CPU31 device.
+
+**31 launcher9/9PASS44.129s**, no errors/skips; separate control1PASS1.773s.
+All30 persisted theme/scheme states, five selected/focused tabs, motion tab10/
+detailBack2, native input/actual IME and three contained48dp targets pass.
+This is a **separate transport attempt**, not a clean combined31/37 cohort or a
+retry of any failed native assertion. Initial shared-adb zero discovery remains.
+
+All three emulator processes exit0, then owned serials initiallyoffline become
+absent on observation3 at **265/281/266ms** respectively. Six exact scratch paths
+are removed afterward. Private server shutdown uses only its explicit inherited
+endpoint; exit0 and closed owned port are verified. No shared5037 restart or
+other-device shutdown occurs. Its original wrapper prints legacy "two" cleanup
+labels even though `--api31` selects one; the operation record proves **one**
+private device/two paths. Session wrapper now reports numeric selected/observed
+counts; original log is not rewritten.
+
+Raw [shared31 launcher](device-timesnapshot-launcher-api31.txt)/
+[runner](device-timesnapshot-launcher-runner-api31.txt),
+[37 launcher](device-timesnapshot-launcher-api37.txt)/
+[metrics](device-timesnapshot-launcher-metrics-api37.txt)/
+[runner](device-timesnapshot-launcher-runner-api37.txt),
+[private31 launcher](device-private31-launcher-api31.txt)/
+[metrics](device-private31-launcher-metrics-api31.txt)/
+[runner](device-private31-launcher-runner-api31.txt),
+[shared operations](device-timesnapshot-operation-observations.txt) and
+[private operations](device-private31-operation-observations.txt).
+The integration also binds the three separate controls and preparation records.
+
+Preceding exactdbf4f338 hosted run39197886449 was last observedIN_PROGRESS
+(classification/policy/Swift codec passed, Linux build in progress); this is not
+a result forcc360 or its documentation successor. Hosted logs remain sole
+reproducible CI authority. No duplicate CI bundle, successor full80,237/238
+repair, physical TalkBack, approved golden/matrix, admission, independent review
+or whole-WP acceptance. All earlier failed/cancelled/unverified records remain.
 
 ## Audit-side timing and teardown acceptance
 

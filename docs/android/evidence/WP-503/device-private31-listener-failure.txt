@@ -1,0 +1,7 @@
+WP503_OWNED_ADB_SERVER|{"command": ["C:\\android-sdk\\platform-tools\\adb.exe", "-L", "tcp:127.0.0.1:59324", "--one-device", "wp503-no-usb", "server", "nodaemon"], "port": 59324, "emulator_scan_max": 5553, "usb_filter": "wp503-no-usb", "mdns_autoconnect": [], "shared5037_stop_or_restart": false}
+WP503_OWNED_ADB_SERVER_STOPPED|pid=13264|exit=3221226505|ownedPortClosed=true|shared5037Untouched=true
+Traceback (most recent call last):
+  File "C:\Users\camer\.copilot\session-state\d2980f28-620c-408b-9947-067e2da8eedf\files\wp503-private-adb-native31.py", line 34, in <module>
+    assert server.poll() is None, "Owned adb server failed to bind"
+           ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Owned adb server failed to bind

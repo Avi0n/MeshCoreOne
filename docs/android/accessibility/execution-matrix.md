@@ -1,6 +1,35 @@
 # WP-503 native execution matrix
 
-**Latest bounded audit-side run:49691771 launcher31 9PASS49.969s,37 6PASS/3FAIL126.395s; separate control1 PASS both. Owned adb transport-exit race repaired/observed281ms/312ms. Original1000ms API37 activation/restoration remains failed despite main-looper sampling. Product237/238 and all physical/matrix/golden/admission/review gates remain; WP incomplete.**
+**Latest exactcc360: launcher37 6PASS/3FAIL97.426s; initial31 zero-discovery/shared-adb failure retained, separately isolated fresh31 9PASS44.129s. Separate control1 passes all three device attempts. Post-timeout observations do not grant late readiness. Owned teardown remains verified; product237/238 and all historical/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+
+## Post-deadline native snapshots and isolated API31 transport
+
+| Exactcc360 source/APKs, distinct attempts | API31/shared5037 | API37/shared5037 | API31/owned61870 |
+|---|---|---|---|
+| Launcher expected/actual starts/matching outcomes |9/0/0; discovery FAIL, unverified|9/9/9;6PASS/3FAIL97.426s|9/9/9;9PASS44.129s|
+| Actual native errors/skips |No native execution|0/0|0/0|
+| Appearance / cached-window-chat body |Unobserved|Unobserved: two activation failures|PASS/PASS|
+| IME native input / actual visibility/bounds |Unobserved|Focus+acceptingText; visibility wait FAIL, no bounds credit|PASS/PASS; three48dp targets|
+| Requested/activated/restored touch state |0/0/0|7/5/7|7/7/7|
+| Persisted theme/scheme / tab focus / motion-tab-detailBack |0/0/0/0|0/5/10/2|30/5/10/2|
+| Separate unchanged control1 |1PASS2.128s|1PASS5.723s|1PASS1.773s|
+| Control activation/restoration |11/11ms|284/45ms|Within original1000ms|
+| Owned transport after emulator exit0 |offline,absent observation3/265ms|offline,absent observation3/281ms|offline,absent observation3/266ms|
+
+Zero-discovery31 retains actual shared5037 error10060, not a pass or nine failed
+native cases. Only that undiscovered invocation receives a separate fresh-device
+transport attempt;37 failed cases are not retried. The private server verifies
+no other attached devices before launch and exits0 with owned port closed.
+Original private wrapper log incorrectly labels cleanup as "two"; the operation
+record proves exactly one device/two removed paths, and the session wrapper now
+reports numeric selected/observed counts without rewriting that original log.
+
+Both37 post-deadline snapshots report servertrue/exit0. Clientfalse becomestrue
+during131ms in one and remainsfalse through345ms in the other. Neither supplies
+predeadline state or repairs the original1000ms failures. All original ten
+bodies/product/shared assertions remain; public collector is extracted verbatim.
+No successor full80 or historical-negative clearance.
+[Exact commands/source/APK/raw outcomes](../evidence/WP-503/README.md#post-deadline-native-snapshots-and-isolated-api31-transport).
 
 ## Audit-side timing and teardown acceptance
 

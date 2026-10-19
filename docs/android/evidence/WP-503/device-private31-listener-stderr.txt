@@ -1,0 +1,1 @@
+10-18 23:21:48.172 13264 62112 F adb.exe : main.cpp:168 could not install *smartsocket* listener: listening on specified hostname currently unsupported
