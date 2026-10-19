@@ -19,11 +19,11 @@ Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `8702db8b1b25a06eb596fb424d821bc3ce3b187b`;
+Current integrated base: `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`;
 trusted current policy revision:
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
-The existing typed reservation was evolved to revision 15, not replaced.
+The existing typed reservation was evolved to revision 16, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -123,9 +123,34 @@ At `315085ae9`, preflight passes but the App unit-test compile rejects generic
 discovery/pass is credited. Direct Class equality fixes only that assertion's
 type inference, without casts or changed expectations.
 
-The exact successor's declared regression result must be recorded in PR206;
-prior458/62 native observations remain historical. No new device observation,
+At `29ef8bc25d0517805a9c46de3aa99e81233c60ef`, exact preflight passes.
+The declared five-selector App cohort newly executes39/39 passing, including16
+shortcut cases and all three advert methods, zero failures/errors/skips (1m7s).
+The combined owner-module task is UP-TO-DATE with retained33/33 reports, not
+freshly executed in that invocation. Portmap/controller/diff validation passes.
+Actual commands and results remain in PR206; no new device observation,
 approved golden, hardware pass or whole-WP acceptance is claimed.
+
+Authoritative [exact29 hosted run39307276156](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39307276156)
+finishes FAILURE: Linux Android118248447748, controller118247806580 and Swift
+codec118248447869 pass; mandatory SwiftData118260603856 is CANCELLED without
+acquiring a runner (runner_id0, no steps). Its actual annotation reports
+"The job was not acquired by Runner of type hosted even after multiple attempts"
+and macOS-arm64 capacity constraints. Finalandroid-ci118267809015 correctly
+fails closed on BACKUP_RESULT=abandoned. No SwiftData tests ran or failed.
+This is missing mandatory platform evidence, not a source-regression claim.
+The hosted job/log remains authoritative; no second CI-result bundle is retained.
+
+After merged PR242 advanced main, same-owner reservation16 admits
+reconcile-current-base for its15 authoritative paths. Integration
+`193f5be8ea0eda1fc0441c4385aa2b757d6cb4d1` preserves actual main
+`574d440b5b05ba6609f60d7ba0913c2d8bdaea0d` and its WP-003 producer attribution;
+all Android bytes remain identical to29. No already-running exact successor
+existed when recovery began. Source feedback at reviews5576266699/5576353165
+found no bounded advert blocker, but is COMMENTED/scoped to755/29 and is not
+transferred as an exact-current-base gate. Current successor verification
+remains required; no successful native/Android cohort is manually replayed
+solely to manufacture evidence. Historical458/62 native results stay historical.
 
 At published `62b601c58472ce9fbe150f8ee2340c723866d234`, the declared five-selector
 App cohort passes 35/35, zero failures/errors/skips (2m12s), with preflight,
