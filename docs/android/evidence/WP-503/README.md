@@ -1,11 +1,200 @@
 # WP-503 attempt evidence
 
-**Latest d2c73dd2 compatible82 inventory:31 81PASS/1FAIL;37 78PASS/4FAIL, zero errors/skips,82 distinct starts/outcomes per API. Launcher9 passes both; cold37, language238 and broad-context Nodes/offline-map negatives remain. Failed mixed82 counts and all historical failures are preserved. PR205 draft; native/producer/protected acceptance remains incomplete.**
+**Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips,83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; feature80 is79PASS/1FAIL each. Cold37 activation/restoration and language238 fail; QR237, prior context-bound Nodes/map, mixed82/mixed10 and every historical native/CI failure remain. PR205 draft; native/producer/protected acceptance remains incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Controlled primary and real cleanup failures
+
+Executed combined **b7dfd5c856d472bf967e2a92a9a24913ba9ef34f**, Android tree
+**12e37211f2a83feb2122fcd4cf687f27d37b5cd0**, adds only one separately named
+controlled method. Removing that insertion reproduces the entire earlier
+NativeLauncher source byte-for-byte: all original82 bodies and the actual
+private helper/waiter remain unchanged. The method invokes that real helper,
+requires actual activation, queues a bounded1500ms real-main latch stall,
+throws a known primary AssertionError and requires the original restoration
+waiter to fail its unchanged1000ms deadline. It then asserts identity of the
+escaping primary, exactly one actual ComposeTimeoutException suppressed, and
+real original flags/client state afterward. No fake Closeable/manager/clock,
+conditional skipping, product change or deadline/floor relaxation. Its latch
+releases on every exit. It is a harness metatest, not new user-flow coverage.
+
+| One initial mixed class10 invocation per fresh actual twoCPU profile | API31 | API37 |
+|---|---|---|
+| Starts/matching outcomes |10/10;10PASS37.083s|10/10;9PASS/1FAIL89.394s|
+| Errors/skips |0/0|0/0|
+| Actual startup-ready observations |10;0-7ms|10;0-1ms|
+| Controlled preservation method itself |PASS|PASS|
+| Actual main stall |1501ms|1501ms|
+| Original restoration wait |FAIL1500ms, one sample|FAIL1497ms, one sample|
+| State at that failing sample |flags65554/clienttrue, expectedfalse|Same|
+| Same primary / actual suppressed timeout |True / exactly1|True / exactly1|
+| Actual original flags/client state after failure |Restored, not deadline success|Same|
+| Separate original method failure |None|Default/reduced-motion activationfalse87 checks1001ms|
+| Original successful service samples, excluding timeout lines |15;max26ms|14;max753ms|
+
+The controlled method is
+`controlledPrimaryAndLateRestorationPreserveBothActualFailures`. Its PASS
+means **both actual failures are retained correctly**, not that a cleanup
+window passed or a naturally occurring dual failure/physical TalkBack was
+observed. The unrelated original motion method retains its genuine37
+activation failure; whether intentional fault context contributed is unproven.
+Do not report this class10 as unperturbed original-feature acceptance.
+
+[Exact source/APKs/all10 identities](device-servicecleanup-integration.json),
+[31 raw](device-servicecleanup-api31.txt)/[metrics](device-servicecleanup-metrics-api31.txt),
+[37 raw](device-servicecleanup-api37.txt)/[metrics](device-servicecleanup-metrics-api37.txt),
+[owned lifecycle](device-servicecleanup-operation-observations.txt).
+Original preparation/JVM74 result validation/APK assembly PASS, zero failures/
+errors/skips (cache reuse qualified). App109723777 bytes/SHA256
+`6f39299768bd62b583904c703ff9b8f6d687d3c769056c2017ace25f00d99734`;
+test3459267 bytes/SHA256
+`a068ecbe6547229fc2b12e9b0e2d48ef4a9f931edd76902e780b2e18a7ca1200`.
+The two owned emulators exit0; transports disappear266/265ms, four exact
+scratch paths removed, private54369 server exit0/port closed, shared5037 and
+other devices untouched.
+
+The candidate **d977bce7658a83c5df7d7dcc88b20eeaaeecf85d**, Android tree
+**6fa46e5fe419b79a053f13e8e0db2386230b5bf3**, retains the identical App/test
+APK bytes and original82 methods/helper. It separates the complete83 roster
+as four fresh cohorts: feature80, cold platform1, callback1, controlled1.
+Standard `notClass` class#method exclusion keeps the intentional fault out
+of feature80/original launcher9; its own direct class#method selector requires
+the separate1, not a dropped test or relaxed predicate. Actual discovery and
+identity reconciliation proves80+1+1+1 at one source/APK binding. Earlier
+D2's82 reconciliation and B7's mixed10 never substitute for this current83.
+Positive-service extraction now anchors the complete successful observer line;
+`result=TIMEOUT_NOT_PASS` can never be counted as positive because it happens
+to contain `ready=true`. No native waiter or threshold changes.
+
+### Exact current83 outcomes and timing
+
+| d977bce7, four fresh owned cohorts/API, actual twoCPUs; zero errors/skips throughout | API31 | API37 |
+|---|---|---|
+| Feature80 starts/matching outcomes |80/80;79PASS/1FAIL174.969s|80/80;79PASS/1FAIL310.385s|
+| Actual feature startup prerequisites |80;0-4ms|80;0-3ms|
+| Original service-positive samples, no intentional fault |14;max39ms|14;max68ms|
+| Cold platform1, zero initial Activities/events |1/1;PASS0.820s|1/1;FAIL6.776s|
+| Cold platform activation/restoration |55/143ms, actual true then false|false90 checks1001ms;alreadyfalse0ms restoration|
+| Cold callback1, zero initial Activities/events |1/1;PASS0.939s|1/1;FAIL5.509s|
+| Callback activation/restoration |306/403ms|activation388ms;restorationtrue67 checks1045ms|
+| Separate controlled preservation1 |1/1;PASS3.849s|1/1;PASS11.813s|
+| Controlled actual activation / startup alreadycomplete |2ms /1ms|47ms /2ms|
+| Actual real-main fault duration |1501ms|1500ms|
+| Actual original cleanup timeout / observed ready |FAIL1485ms /true, late|FAIL1500ms /false|
+| Same primary / actual timeout suppressed |True /1|True /1|
+| Real flags/client state after failed deadline |Restored, no deadline credit|Same|
+| Reconciled unique starts/matching outcomes |83/83;82PASS/1FAIL|83/83;80PASS/3FAIL|
+
+This is83 identities/API across **four invocations, not a single83 run**.
+[Exact identity/input reconciliation](device-cleanupmatrix-reconciliation.json)
+proves no duplicate/drop/borrowed prior-source control. Standard runner
+class#method exclusion actually discovers80, and separate direct selection
+discovers1. The additional method is explicitly a metatest, not another
+product flow. Its31 ready=true1485ms observation exercises actual late-success
+rejection and is excluded from service positives; the original1000ms waiter
+correctly fails despite the desired state eventually appearing. The real
+primary assertion and real restoration timeout both survive. This is the
+previously missing controlled-path proof, not a natural dual failure,
+cleanup-deadline pass or physical TalkBack observation.
+
+Current exact nonpassing methods are:
+
+- Both APIs:
+  `NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions`.
+- API37:
+  `NativePlatformServiceControlTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule`.
+- API37:
+  `NativePlatformCallbackDeliveryTest.actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations`.
+
+The original launcher9 passes within feature80 without the intentional fault.
+The broader current Nodes/map methods also pass, but they do **not** clear the
+isolated31 Copy84x31dp or preceding37 missing/cropped favorite/Download findings.
+No failing original fixture, public scroll, keyboard action, visibility/font/
+48dp predicate or service window changes. These are one new83 assembly after
+separating deliberate faults, not failed-case retries until green.
+
+The cold controls intentionally do not use the process-ready feature harness.
+37 callback's214-217ms public sample locates AppChatMapPreviews construction
+under AppChatContent/factory148; restoration106-112ms locates AppBackupService
+construction under factory222, with heartbeat pending. Actual collection3/6ms
+counts in the same original windows. Restoration remains actuallytrue at67
+checks/1045ms and fails; no heartbeat completes within that restoration window.
+31's cold callback remains successful despite its own Room/onboarding main
+work. These observations establish application work/delivery delay, not an
+OS-only cause, an exclusive explanation or a verified production repair.
+
+[Feature80 exact source/APKs/outcomes](device-cleanupfeatures-integration.json),
+[31 raw](device-cleanupfeatures-api31.txt)/[metrics](device-cleanupfeatures-metrics-api31.txt),
+[37 raw](device-cleanupfeatures-api37.txt)/[metrics](device-cleanupfeatures-metrics-api37.txt);
+[cold platform1](device-cleanupplatform-integration.json),
+[31 metrics](device-cleanupplatform-metrics-api31.txt)/[37 metrics](device-cleanupplatform-metrics-api37.txt);
+[cold callback1](device-cleanupcallbacks-integration.json),
+[31 metrics](device-cleanupcallbacks-metrics-api31.txt)/[37 metrics](device-cleanupcallbacks-metrics-api37.txt);
+[separate controlled1](device-isolatedcleanup-integration.json),
+[31 raw](device-isolatedcleanup-api31.txt)/[metrics](device-isolatedcleanup-metrics-api31.txt),
+[37 raw](device-isolatedcleanup-api37.txt)/[metrics](device-isolatedcleanup-metrics-api37.txt).
+
+Exact original builder command at committed d977 is
+`python "$F\wp503-messaging-check.py"`: real preflight/APK assembly and74
+declared JVM results PASS, zero failures/errors/skips; cache reuse is not74
+new uncached executions. `$F` is the existing session-files directory
+`C:\Users\camer\.copilot\session-state\d2980f28-620c-408b-9947-067e2da8eedf\files`.
+The executed native commands and result/integrity steps were:
+
+```powershell
+python "$F\wp503-private-adb-native31.py" --phase cleanupfeatures --head d977bce7658a83c5df7d7dcc88b20eeaaeecf85d --both-apis --scenario feature-matrix
+python "$F\wp503-processready-evidence.py" --phase cleanupfeatures --head d977bce7658a83c5df7d7dcc88b20eeaaeecf85d
+python "$F\wp503-private-adb-native31.py" --phase cleanupplatform --head d977bce7658a83c5df7d7dcc88b20eeaaeecf85d --both-apis --scenario platform-service-control
+python "$F\wp503-processready-evidence.py" --phase cleanupplatform --head d977bce7658a83c5df7d7dcc88b20eeaaeecf85d
+python "$F\wp503-private-adb-native31.py" --phase cleanupcallbacks --head d977bce7658a83c5df7d7dcc88b20eeaaeecf85d --both-apis --scenario platform-callback-control
+python "$F\wp503-processready-evidence.py" --phase cleanupcallbacks --head d977bce7658a83c5df7d7dcc88b20eeaaeecf85d
+python "$F\wp503-private-adb-native31.py" --phase isolatedcleanup --head d977bce7658a83c5df7d7dcc88b20eeaaeecf85d --both-apis --scenario cleanup-preservation
+python "$F\wp503-processready-evidence.py" --phase isolatedcleanup --head d977bce7658a83c5df7d7dcc88b20eeaaeecf85d
+python "$F\wp503-reconcile-native-cohorts.py" --cleanup --head d977bce7658a83c5df7d7dcc88b20eeaaeecf85d
+```
+
+Adapters: feature/platform/callback exit1, retaining genuine native failures;
+isolatedcleanup exit0. All four evidence-integrity steps and exact83
+reconciliation exit0; parent matrix exit1 is expected negative acceptance,
+not integrity failure or green. Each source/profile/APK/case identity is
+recorded, with original300s boot/600s instrumentation/1000ms service guards.
+Actual API31/37 are available and finish; do not report their timing failures
+as absent tools/devices.
+
+All eight current emulators exit0; their specific transports disappear in
+265-281ms,16 exact scratch paths removed. Private ports52449/62428/64561/54706
+were verified responsive/empty before use and closed after server exit0;
+shared5037/other devices untouched. The narrowly scoped archive attributes
+cover these56 additional actual-native files (mixed10 plus four current
+cohorts and83 reconciliation), alongside the earlier100:156 total/28 raw
+reports at their distinct sources, not156 observations at d977. Original
+captured bytes must match staged and committed blobs; no normalization,
+regeneration or hosted-CI result bundle substitutes for that proof.
+
+Declared cleanup helper command
+`python -m unittest discover -s android\accessibility-tests -p test_native_device_cleanup.py -v`
+passes8/8, including exact/late deadline and command/malformed-output failures;
+`python tools\android-port\controller\validate.py` and
+`python tools\android-port\portmap.py` pass. Prior published148886af exact
+[run39216641325](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39216641325)
+is independently verifiedCOMPLETED/SUCCESS/all6; prior2d39205783488 stays
+SUCCESS only at2d, and46df38577688498 failure/cancelled predecessors remain.
+Candidate CI only, never d977 native or whole-WP acceptance. Hosted run/log
+remain the sole reproducible CI authority; no duplicate CI bundle.
+
+New current source changes only the bounded fault method/declared isolation,
+not product behavior. Current WP311 producer remains34a20d96; new strict
+Nodes37 and reproduced237 results were actually routed to
+[its existing PR233](https://github.com/cbattlegear/MeshCoreOne-Android/pull/233#issuecomment-6262284771).
+The context-sensitive map result was routed to
+[existing WP312 PR229](https://github.com/cbattlegear/MeshCoreOne-Android/pull/229#issuecomment-6262285104);
+actual MapEntry blob271acdb7461eead2fd5956beda8f0a7a0d4c9dff matches producercee2,
+and newer ebb6 changes only WP312 docs. No standalone producer-head acceptance,
+new worker, product edit, merge/self-approval or whole-WP acceptance follows.
 
 ## Process startup ordering and isolated inventory
 

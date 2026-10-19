@@ -1,0 +1,37 @@
+WP503_EXECUTED_INPUT|b7dfd5c856d472bf967e2a92a9a24913ba9ef34f
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "b7dfd5c856d472bf967e2a92a9a24913ba9ef34f", "scenario": "launcher", "discovered": 10, "statuses": {"0": 9, "-2": 1}, "time": ["Time: 89.394"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest', 'realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable')|-2
+: stream=.
+INSTRUMENTATION_STATUS: test=actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 89.394
+There was 1 failure:
+1) realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Native accessibility state did not become ready within1000ms
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.waitForNativeAccessibilityState(NativeLauncherFocusAccessibilityTest.kt:1057)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:1011)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable(NativeLauncherFocusAccessibilityTest.kt:462)
+
+FAILURES!!!
+Tests run: 10,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
+

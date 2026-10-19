@@ -1,9 +1,48 @@
 # WP-503 accessibility audit
 
-**Status: owned setup now requires the actual process graph before feature/service work. Exact d2c73dd2 compatible82 inventory:31 81PASS/1FAIL;37 78PASS/4FAIL, zero errors/skips,82 distinct starts/outcomes per API across fresh80+1+1 cohorts. Unchanged launcher9 passes both; cold37, language238 and new broad-context Nodes/offline-map negatives remain. QR237, earlier native/CI and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Status: exact d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips,83 distinct starts/outcomes per API across four fresh80+1+1+1 cohorts. Controlled primary/real-cleanup preservation passes both; original feature80 is79PASS/1FAIL each. Cold37 activation/restoration and language238 fail; QR237, earlier native/CI and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Controlled cleanup-error preservation
+
+One additional, explicitly controlled harness regression now exercises the
+actual unchanged private service helper, not a fake Closeable or simulated
+AccessibilityManager. It requires real activation, injects a known primary
+AssertionError and a bounded1500ms real-main latch stall, then requires the
+actual original1000ms restoration timeout suppressed onto that same primary.
+Original flags/client state must be restored afterward; that post-deadline
+safety observation is not cleanup-deadline success or a naturally occurring
+dual failure. Every original82 body/helper/predicate remains unchanged.
+
+Initial b7dfd5c8 class10:31 10PASS37.083s;37 9PASS/1FAIL89.394s, zero errors/
+skips,10 matching outcomes each. The controlled method passes both, recording
+main1501ms and real cleanup failures1500/1497ms.37's separate original motion
+flow fails activationfalse87 checks1001ms. All are retained; the injected fault
+must not be treated as unperturbed feature acceptance or an established cause.
+
+The83 runnable methods therefore require four fresh compatible cohorts:
+original feature80, cold platform1, cold callback1 and isolated controlled1.
+The public runner class#method exclusion keeps the new fault out of feature80
+and original launcher9; it is separately required, not silently dropped.
+At exact d977bce7658a83c5df7d7dcc88b20eeaaeecf85d, all83 identities now
+reconcile once per API. Feature80 is79PASS/1FAIL174.969s on31 and
+79PASS/1FAIL310.385s on37, language238 only; original launcher9 passes both
+without an injected fault. Fresh platform1 passes31 0.820s/fails37 6.776s,
+actualfalse90 checks1001ms. Fresh callback1 passes31 0.939s/fails37 5.509s:
+37 activates388ms but restoration remainstrue67 checks1045ms. Zero Activities
+are observed in each cold cohort; target Application initialization remains.
+
+The separate preservation1 passes31 3.849s/37 11.813s: real main1501/1500ms,
+real cleanup deadline failures1485/1500ms, same primary/exactly one actual
+timeout suppressed, real original flags/client state restored afterward.
+31's late sample is actually **ready=true1485ms and correctly fails**; it is
+not counted as service success.37's late sample isfalse. This verifies the
+controlled path, not stable cold readiness or a natural/physical fault.
+Current broader Nodes/map positives do not clear the retained context-bound
+failures or original isolated31 QR237. No original test is retried for green.
+[Source/APK-bound native proof and qualifications](../evidence/WP-503/README.md#controlled-primary-and-real-cleanup-failures).
 
 ## Process startup ordering and isolated inventory
 
@@ -37,7 +76,7 @@ crop128px allocation/71px visible. The two guard failures per API remain.
 control1 on fresh owned devices preserves every82 identity and every assertion;
 there is no80-case relabeling of the failed82 invocation.
 
-Current d2c73dd2 reconciliation proves all82 distinct identities once per API
+Historical d2c73dd2 reconciliation proves all82 distinct identities once per API
 at one source/tree/APK binding. Feature80:31 79PASS/1FAIL165.028s,37
 77PASS/3FAIL300.260s. Fresh platform1:31 PASS0.779s;37 FAIL4.886s, actualfalse91
 checks1001ms with zero Activity events. Callback1 passes31 0.978s/37 4.329s.

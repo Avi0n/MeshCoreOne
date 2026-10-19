@@ -1,6 +1,47 @@
 # WP-503 native execution matrix
 
-**Latest d2c73dd2 compatible82 inventory:31 81PASS/1FAIL;37 78PASS/4FAIL, zero errors/skips and82 distinct starts/outcomes per API. Launcher9 passes both; cold37 and language238 remain, with strict broad-context Nodes/offline-map negatives. Failed mixed82 counts and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
+**Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips and83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; language238 and cold37 activation/restoration fail. Original237, context-bound Nodes/map and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
+
+## Controlled primary and real cleanup failures
+
+| Initial mixed b7dfd5c8 class10, actual twoCPUs,10 starts/outcomes | API31 | API37 |
+|---|---|---|
+| Actual native method outcomes |10PASS37.083s|9PASS/1FAIL89.394s|
+| Explicit controlled error-preservation method |PASS|PASS|
+| Real main latch stall |1501ms|1501ms|
+| Original1000ms cleanup waiter |FAIL1500ms, flags65554/clienttrue vs expectedfalse|FAIL1497ms, same state mismatch|
+| Same primary/suppressed actual timeout |True/1|True/1|
+| Real original flags/client state afterward |Restored, not deadline credit|Restored, not deadline credit|
+| Separate genuine original-flow failure |None|Default/reduced-motion activationfalse87 checks1001ms|
+| Errors/skips |0/0|0/0|
+
+This closes the previously unexercised **controlled simultaneous-error path**,
+not a claim that a natural product/physical TalkBack dual failure occurred.
+The initial class10 mixes an intentional real-main fault with feature tests;
+do not attribute or clear its separate37 activation failure. The current83
+roster requires four fresh80+1+1+1 cohorts. Original launcher9/feature80 exclude
+only the separately executed new fault method by public class#method selection.
+Every original82 body/helper/deadline and strict237/238 assertion remains.
+[Exact source, APKs, metrics and outcomes](../evidence/WP-503/README.md#controlled-primary-and-real-cleanup-failures).
+
+| Current d977bce7 four fresh cohorts, zero errors/skips throughout | API31 | API37 |
+|---|---|---|
+| Original feature80 starts/matching outcomes |80/80;79PASS/1FAIL174.969s|80/80;79PASS/1FAIL310.385s|
+| Current original feature failure |Language238 only|Language238 only|
+| Actual startup-ready observations / original service positives |80,0-4ms /14,max39ms|80,0-3ms /14,max68ms|
+| No-Activity platform1 |1/1;PASS0.820s,55/143ms activation/restoration|1/1;FAIL6.776s,false90 checks1001ms;restoration alreadyfalse0ms|
+| No-Activity callback1 |1/1;PASS0.939s,306/403ms|1/1;FAIL5.509s,activation388ms;restorationtrue67 checks1045ms|
+| Separate controlled preservation1 |1/1;PASS3.849s|1/1;PASS11.813s|
+| Actual controlled main stall / failed cleanup waiter |1501ms /1485ms,ready=true but late|1500ms /1500ms,ready=false|
+| Same primary / actual timeout suppressed / real state afterward |True /1 /restored after failure|True /1 /restored after failure|
+| Reconciled distinct starts/outcomes, not one invocation |83/83;82PASS/1FAIL|83/83;80PASS/3FAIL|
+
+Actual31 late-ready rejection proves the strict1000ms boundary, not cleanup
+success. The intentional fault is absent from feature80 and present only in
+its separate1. Current Nodes/map positives do not clear earlier context-bound
+failures. Cold controls deliberately do not await the feature graph;37's
+restoration106-112ms public sample observes real AppBackupService construction
+on main, heartbeat pending, not an OS-only cause or a proven production repair.
 
 ## Process startup ordering and isolated inventory
 

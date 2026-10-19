@@ -1,0 +1,165 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_CALLBACK_ACTIVITY|phase=start|actualCount=0
+WP503_NATIVE_CALLBACK_REGISTERED|registrationCallReturned=true|handler=main|physicalTalkBack=false
+WP503_NATIVE_CALLBACK_CONTROL|originalFlags=65554|originalEnabled=false|expectedRestored=false|composeRule=false|testDispatcher=false
+WP503_NATIVE_CALLBACK_WAIT_START|phase=activation|elapsedRealtimeMs=157438|originalDeadlineMs=1000
+WP503_NATIVE_MAIN_PENDING_SAMPLE|phase=activation|startedMs=214|finishedMs=217|durationMs=3|pendingAfter=true|afterOriginalDeadline=false|threadState=RUNNABLE|stack=com.meshcoreone.android.app.container.AppChatMapPreviews.refreshNetwork(AppChatMapPreviews.kt:92) <- com.meshcoreone.android.app.container.AppChatMapPreviews.<init>(AppChatMapPreviews.kt:79) <- com.meshcoreone.android.app.container.AppChatMapPreviews.<init>(AppChatMapPreviews.kt:31) <- com.meshcoreone.android.app.container.AppChatContent.<init>(AppChatContent.kt:35) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory.create(AndroidAppContainerFactory.kt:148) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory$create$1.invokeSuspend(AndroidAppContainerFactory.kt:15) <- kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34) <- kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100) <- android.os.Handler.handleCallback(Handler.java:1080) <- android.os.Handler.dispatchMessageImpl(Handler.java:135) <- android.os.Handler.dispatchMessage(Handler.java:126) <- android.os.Looper.loopOnce(Looper.java:285) <- android.os.Looper.loop(Looper.java:390) <- android.app.ActivityThread.main(ActivityThread.java:9884) <- java.lang.reflect.Method.invoke(Native Method) <- com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575) <- com.android.internal.os.ZygoteInit.main(ZygoteInit.java:906)
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|Looper (main, tid 2) {d456473}
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|  (MessageQueue is using DeliQueue implementation)
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|  Message 0: { when=-114ms callback=com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest$$ExternalSyntheticLambda9 obj=java.lang.Object@f18ff30 target=android.os.Handler async=false heapIndex=-1 }
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|  Message 1: { when=+1s767ms callback=androidx.profileinstaller.ProfileInstallerInitializer$$ExternalSyntheticLambda1 target=android.os.Handler async=true heapIndex=0 }
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|  (Total messages: 2, polling=false, quitting=false)
+WP503_NATIVE_CALLBACK_READY|phase=activation|enabled=true|expected=true|checks=35|elapsedMs=388|originalDeadlineMs=1000
+WP503_NATIVE_MAIN_HEARTBEAT|phase=activation|postedMs=2|ranMs=70|latencyMs=68|withinOriginalDeadline=true
+WP503_NATIVE_MAIN_HEARTBEAT|phase=activation|postedMs=103|ranMs=380|latencyMs=277|withinOriginalDeadline=true
+WP503_NATIVE_MAIN_HEARTBEAT_COUNT|phase=activation|observed=2|withinOriginalDeadline=2|maxObservedLatencyMs=277|callbackObservationOnly=true
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-activated|afterOriginalDeadline=false|managerEnabled=true|flags=65558
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|ACCESSIBILITY MANAGER (dumpsys accessibility)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|currentUserId=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|hasMagnificationConnection=false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Magnification on display#0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    MagnificationConfig[mode: 1, activated: false, scale: 1.0, centerX: 0.0, centerY: 0.0] 
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Magnification region=SkRegion((0,0,360,876))
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    IdOfLastServiceToMagnify=-1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    SupportWindowMagnification=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    WindowMagnificationConnectionState=DISCONNECTED
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Magnification preferences:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    magnificationCursorFollowingMode=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    magnificationFollowTypingEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    magnificationFollowKeyboardEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    alwaysOnMagnificationEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    magnificationPanelButtonEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|User state[
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     button mode: 1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     shortcut key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     button:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     button target:{null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     gesture:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     qs shortcut targets:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     a11y tiles in QS panel:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     top row key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     quick access dialog:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     keyboard shortcuts targets:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Installed services:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|      0 : {com.android.systemui.accessibility.accessibilitymenu/com.android.systemui.accessibility.accessibilitymenu.AccessibilityMenuService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|      1 : {com.google.android.accessibility.switchaccess/com.android.switchaccess.SwitchAccessService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|      2 : {com.google.android.apps.accessibility.voiceaccess/com.google.android.apps.accessibility.voiceaccess.JustSpeakService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|      3 : {com.google.android.marvin.talkback/com.google.android.accessibility.selecttospeak.SelectToSpeakService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|      4 : {com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     }
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Bound services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Enabled services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Binding services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Crashed services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|          Client list callbacks: 6
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|          Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|          Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|          Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|[com.google.android.inputmethod.latin][com.meshcoreone.android.debug][com.google.android.apps.nexuslauncher][com.google.android.apps.photos][com.google.android.apps.wellbeing][com.google.android.as]}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Ui Automation[eventTypes=TYPES_ALL_MASK, notificationTimeout=0]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|User Info [ userId=0 ]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Top focused display Id = 0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Active Window Id = 6
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Top Focused Window Id = 6
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Accessibility Focused Window Id = -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Window attributes:[{0=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 1=AccessibilityWindowAttributes{mAccessibilityWindowTitle=Navigation bar Edge PanelmLocales=[en_US]}, 2=AccessibilityWindowAttributes{mAccessibilityWindowTitle=NotificationShademLocales=[en_US]}, 3=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 4=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 5=AccessibilityWindowAttributes{mAccessibilityWindowTitle=Navigation barmLocales=[en_US]}, 6=AccessibilityWindowAttributes{mAccessibilityWindowTitle=HomemLocales=[en_US]}, 7=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 8=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Global client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Client list callbacks: 5
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|[android, com.android.location.fused, com.android.server.telecom, com.android.keychain, com.android.DeviceAsWebcam, com.android.emulator.multidisplay, com.android.settings, com.android.dynsystem, com.android.providers.settings, com.android.inputdevices, com.android.localtransport][com.android.systemui][com.google.android.googlesdksetup][com.google.android.gms][com.google.android.permissioncontroller]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Proxy manager state:
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Number of proxy connections: 0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Registered proxy connections:
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Accessibility Display Listener:
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    SystemUI uid: 10195
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    1 valid display: 0
+WP503_NATIVE_SERVICE_DUMP_MARKERS|phase=callback-activated|actual=1|expected=1
+WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-activated|WP503_NATIVE_SERVICE_DUMP_EXIT=0
+WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-activated|managerEnabled=true|flags=65558|durationMs=126|physicalTalkBack=false
+WP503_NATIVE_CALLBACK_WAIT_START|phase=restoration|elapsedRealtimeMs=157975|originalDeadlineMs=1000
+WP503_NATIVE_MAIN_PENDING_SAMPLE|phase=restoration|startedMs=106|finishedMs=112|durationMs=6|pendingAfter=true|afterOriginalDeadline=false|threadState=RUNNABLE|stack=com.meshcoreone.android.core.data.backup.AppBackupService.<init>(AppBackupService.kt:58) <- com.meshcoreone.android.core.data.backup.AppBackupService.<init>(AppBackupService.kt:53) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory.create(AndroidAppContainerFactory.kt:222) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory$create$1.invokeSuspend(AndroidAppContainerFactory.kt:15) <- kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34) <- kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100) <- android.os.Handler.handleCallback(Handler.java:1080) <- android.os.Handler.dispatchMessageImpl(Handler.java:135) <- android.os.Handler.dispatchMessage(Handler.java:126) <- android.os.Looper.loopOnce(Looper.java:285) <- android.os.Looper.loop(Looper.java:390) <- android.app.ActivityThread.main(ActivityThread.java:9884) <- java.lang.reflect.Method.invoke(Native Method) <- com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575) <- com.android.internal.os.ZygoteInit.main(ZygoteInit.java:906)
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|Looper (main, tid 2) {d456473}
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|  (MessageQueue is using DeliQueue implementation)
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|  Message 0: { when=-81ms what=1 arg1=1 target=android.os.Handler async=false heapIndex=-1 }
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|  Message 1: { when=-112ms callback=com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest$$ExternalSyntheticLambda9 obj=java.lang.Object@2535c1d target=android.os.Handler async=false heapIndex=-1 }
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|  Message 2: { when=+1s335ms callback=androidx.profileinstaller.ProfileInstallerInitializer$$ExternalSyntheticLambda1 target=android.os.Handler async=true heapIndex=0 }
+WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|  (Total messages: 3, polling=false, quitting=false)
+WP503_NATIVE_CALLBACK_TIMEOUT|phase=restoration|enabled=true|expected=false|accessibilityEnabled=true|checks=67|elapsedMs=1045|originalDeadlineMs=1000
+WP503_NATIVE_CALLBACK_MAIN_STACK|afterOriginalDeadline=true|state=RUNNABLE|stack=com.meshcoreone.android.app.container.AppContainer.<init>(AppContainer.kt:189) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory.create(AndroidAppContainerFactory.kt:180) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory$create$1.invokeSuspend(AndroidAppContainerFactory.kt:15) <- kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34) <- kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100) <- android.os.Handler.handleCallback(Handler.java:1080) <- android.os.Handler.dispatchMessageImpl(Handler.java:135) <- android.os.Handler.dispatchMessage(Handler.java:126) <- android.os.Looper.loopOnce(Looper.java:285) <- android.os.Looper.loop(Looper.java:390) <- android.app.ActivityThread.main(ActivityThread.java:9884) <- java.lang.reflect.Method.invoke(Native Method) <- com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575) <- com.android.internal.os.ZygoteInit.main(ZygoteInit.java:906)
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-restoration-timeout|afterOriginalDeadline=true|managerEnabled=true|flags=65554
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|ACCESSIBILITY MANAGER (dumpsys accessibility)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|currentUserId=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|hasMagnificationConnection=false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|Magnification on display#0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    MagnificationConfig[mode: 1, activated: false, scale: 1.0, centerX: 180.0, centerY: 438.0] 
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    Magnification region=SkRegion((0,0,360,876))
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    IdOfLastServiceToMagnify=-1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    SupportWindowMagnification=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    WindowMagnificationConnectionState=DISCONNECTED
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|Magnification preferences:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    magnificationCursorFollowingMode=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    magnificationFollowTypingEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    magnificationFollowKeyboardEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    alwaysOnMagnificationEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    magnificationPanelButtonEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|User state[
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     button mode: 1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     shortcut key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     button:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     button target:{null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     gesture:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     qs shortcut targets:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     a11y tiles in QS panel:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     top row key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     quick access dialog:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     keyboard shortcuts targets:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     Installed services:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|      0 : {com.android.systemui.accessibility.accessibilitymenu/com.android.systemui.accessibility.accessibilitymenu.AccessibilityMenuService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|      1 : {com.google.android.accessibility.switchaccess/com.android.switchaccess.SwitchAccessService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|      2 : {com.google.android.apps.accessibility.voiceaccess/com.google.android.apps.accessibility.voiceaccess.JustSpeakService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|      3 : {com.google.android.marvin.talkback/com.google.android.accessibility.selecttospeak.SelectToSpeakService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|      4 : {com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     }
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     Bound services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     Enabled services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     Binding services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     Crashed services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     Client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|          Client list callbacks: 6
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|          Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|          Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|          Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|[com.google.android.inputmethod.latin][com.meshcoreone.android.debug][com.google.android.apps.nexuslauncher][com.google.android.apps.photos][com.google.android.apps.wellbeing][com.google.android.as]}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|Ui Automation[eventTypes=TYPES_ALL_MASK, notificationTimeout=0]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|User Info [ userId=0 ]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|Top focused display Id = 0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     Active Window Id = 6
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     Top Focused Window Id = 6
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|     Accessibility Focused Window Id = -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|Window attributes:[{0=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 1=AccessibilityWindowAttributes{mAccessibilityWindowTitle=Navigation bar Edge PanelmLocales=[en_US]}, 2=AccessibilityWindowAttributes{mAccessibilityWindowTitle=NotificationShademLocales=[en_US]}, 3=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 4=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 5=AccessibilityWindowAttributes{mAccessibilityWindowTitle=Navigation barmLocales=[en_US]}, 6=AccessibilityWindowAttributes{mAccessibilityWindowTitle=HomemLocales=[en_US]}, 7=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 8=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|Global client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    Client list callbacks: 5
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|[android, com.android.location.fused, com.android.server.telecom, com.android.keychain, com.android.DeviceAsWebcam, com.android.emulator.multidisplay, com.android.settings, com.android.dynsystem, com.android.providers.settings, com.android.inputdevices, com.android.localtransport][com.android.systemui][com.google.android.googlesdksetup][com.google.android.gms][com.google.android.permissioncontroller]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|Proxy manager state:
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    Number of proxy connections: 0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    Registered proxy connections:
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|Accessibility Display Listener:
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    SystemUI uid: 10195
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restoration-timeout|    1 valid display: 0
+WP503_NATIVE_SERVICE_DUMP_MARKERS|phase=callback-restoration-timeout|actual=1|expected=1
+WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-restoration-timeout|WP503_NATIVE_SERVICE_DUMP_EXIT=0
+WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-restoration-timeout|managerEnabled=true|flags=65554|durationMs=373|physicalTalkBack=false
+WP503_NATIVE_MAIN_HEARTBEAT_COUNT|phase=restoration|observed=0|withinOriginalDeadline=0|maxObservedLatencyMs=null|callbackObservationOnly=true
+WP503_NATIVE_CALLBACK_EVENT|phase=activation|enabled=true|actualManager=true|onMain=true|elapsedRealtimeMs=157818
+WP503_NATIVE_CALLBACK_COUNT|actual=1
+WP503_NATIVE_CALLBACK_ACTIVITY|phase=end|actualEvents=0

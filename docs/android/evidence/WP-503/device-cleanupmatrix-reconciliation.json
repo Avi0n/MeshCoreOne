@@ -1,0 +1,76 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "generated_by": "session wp503-reconcile-native-cohorts.py from actual per-cohort native records",
+  "executed_combined_head": "d977bce7658a83c5df7d7dcc88b20eeaaeecf85d",
+  "executed_android_tree": "6fa46e5fe419b79a053f13e8e0db2386230b5bf3",
+  "apk_binding": "device-cleanupfeatures-inputs.json",
+  "cohorts": {
+    "cleanupfeatures": "device-cleanupfeatures-integration.json",
+    "cleanupplatform": "device-cleanupplatform-integration.json",
+    "cleanupcallbacks": "device-cleanupcallbacks-integration.json",
+    "isolatedcleanup": "device-isolatedcleanup-integration.json"
+  },
+  "distinct_declared_case_inventory": 83,
+  "fresh_devices_per_api": 4,
+  "same_context_full_namespace_used": false,
+  "native_results": {
+    "31": {
+      "distinct_starts_and_matching_outcomes": 83,
+      "passed": 82,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "cohort_seconds": {
+        "cleanupfeatures": 174.969,
+        "cleanupplatform": 0.82,
+        "cleanupcallbacks": 0.939,
+        "isolatedcleanup": 3.849
+      },
+      "sum_of_separate_cohort_junit_seconds_not_one_invocation": 180.577,
+      "nonpassing_outcomes": [
+        {
+          "cohort": "cleanupfeatures",
+          "class": "com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest",
+          "test": "actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+          "status": -2
+        }
+      ]
+    },
+    "37": {
+      "distinct_starts_and_matching_outcomes": 83,
+      "passed": 80,
+      "failed": 3,
+      "errors": 0,
+      "skipped": 0,
+      "cohort_seconds": {
+        "cleanupfeatures": 310.385,
+        "cleanupplatform": 6.776,
+        "cleanupcallbacks": 5.509,
+        "isolatedcleanup": 11.813
+      },
+      "sum_of_separate_cohort_junit_seconds_not_one_invocation": 334.483,
+      "nonpassing_outcomes": [
+        {
+          "cohort": "cleanupfeatures",
+          "class": "com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest",
+          "test": "actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+          "status": -2
+        },
+        {
+          "cohort": "cleanupplatform",
+          "class": "com.meshcoreone.android.accessibility.NativePlatformServiceControlTest",
+          "test": "actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule",
+          "status": -2
+        },
+        {
+          "cohort": "cleanupcallbacks",
+          "class": "com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest",
+          "test": "actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations",
+          "status": -2
+        }
+      ]
+    }
+  },
+  "qualification": "Exactly80+1+1+1 distinct methods per API, same source/Android tree/app/testAPK, 4 fresh owned device/process cohorts. No prior-source control substituted, no duplicated/dropped case, no mixed-context isolation guard relaxed and no original1000ms service window extended. Native failures remain failures. Process-ready feature positives do not clear cold-start activation, earlier native/CI negatives, isolated QR237, language238 or other producer findings. No physical TalkBack/radio, approved screenshot golden, whole matrix, admission or independent review acceptance, merge or self-approval follows. Original82 bodies/helpers unchanged; additional1 is explicitly controlled primary/real-restoration fault injection, not new user-flow coverage, natural dual failure or cleanup-deadline success."
+}
