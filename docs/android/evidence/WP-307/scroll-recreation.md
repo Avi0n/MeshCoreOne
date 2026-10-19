@@ -3,12 +3,39 @@
 - Repository: `cbattlegear/MeshCoreOne-Android`
 - Work package / owner: `WP-307` / `chats-ui-engineer`
 - Issue: #230, preserve cached chat scroll across native window recreation
-- Base: `d8181418614a5acaa46f4acde54b741b492ac4b0`
+- Current base: `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`
+- Original implementation base: `d8181418614a5acaa46f4acde54b741b492ac4b0`
 - Frozen source: `db14559b39d32322b06477c6ae676112f583db50`
 - Manifest SHA-256: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`
 - Acceptance: `WP-307-behavior`, `WP-307-boundaries`
 - Scope: `ChatTimeline.kt`, `TimelineStateTest.kt`, mounted App
   `ChatTimelineRestorationTest.kt`, this evidence and the WP-307 deviation
+
+## Current-main reconciliation
+
+The feature branch was reconciled with authoritative `main`
+`574d440b5b05ba6609f60d7ba0913c2d8bdaea0d` by merge commit
+`10b66790659c1c710b4e712aff2c54470b6467a6` (first parent: prior WP-307
+candidate `2b6159726223c69708522247db7a6eb6850c0f1b`; second parent: exact
+current main). The typed WP-307 reservation evolved to revision 12 with
+`reconcile-current-base` under the trusted `merge-integration` capability.
+The deterministic merge preview had no conflicts. It incorporated the
+disjoint current-main WP-003 controller/review infrastructure without
+rewriting or modifying WP-307's product and test files.
+
+Verified at the reconciled tree:
+
+- `ChatTimeline.kt`: `3b10d361363e08af68225c9fba12e378c3eaf725`
+- `TimelineStateTest.kt`: `00e0f7de91641e209d9e60febf98afb6b8f68cb4`
+- `ChatTimelineRestorationTest.kt`: `187e1a7e6fcd43c2494e0b036706d5f25cd9015f`
+
+The frozen source remains `db14559b39d32322b06477c6ae676112f583db50`;
+manifest SHA-256 remains
+`39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
+Current automation-policy revision after the main integration is
+`c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
+This is source/base reconciliation only: no device/native execution was
+replayed or inferred from the merge.
 
 ## Change and behavior
 
@@ -203,18 +230,21 @@ The original target/bottommost and offset assertions now pass. The other
 selected method, an unrelated saved-Line-of-Sight native-name case, fails;
 this is **not a green two-test cohort** or full-suite pass.
 
-The owner’s API37 entry is explicitly `BLOCKED_BEFORE_LAUNCH`; no API37 device
-was started in this evidence. The remaining native criterion for this WP is
-the same unchanged cached-chat offset/recreation test passing on API37 with its
-source, APK and device profile bound to the result. The existing WP-503 owner
-is assigned that missing API37 execution; no API31 replay or broader 23-case
-rerun is needed for this bounded criterion. The API31 result is combined
-execution with WP-503's corrected observer, **not standalone PR #235** or
-then-current-main execution. The prior `ba67` 23-case result remains 21/23
-with two failures; this two-method follow-up does not retry, replace or
-reclassify it. No physical-device/TalkBack result or independent approval is
-claimed. No product change, owner-fixture edit, new worker, or extra
-CI/result bundle was made by WP-307.
+The e8 API37 attempt was `BLOCKED_BEFORE_LAUNCH`; it did not start an API37
+chat test. The remaining native criterion for this WP is the same unchanged
+cached-chat offset/recreation test passing on API37 with its source, APK and
+device profile bound to the result. The existing WP-503 owner is assigned
+that missing API37 execution and now has bounded authorization for its
+required device profile and temporary hardware-keyboard IME setting. The
+authorization is not test evidence; the required 2-CPU profile and
+`show_ime_with_hard_keyboard=1` must be verified in the run binding. No API31
+replay or broader 23-case rerun is needed for this bounded criterion. The
+API31 result is combined execution with WP-503's corrected observer, **not
+standalone PR #235** or current-main native execution. The prior `ba67`
+23-case result remains 21/23 with two failures; this two-method follow-up
+does not retry, replace or reclassify it. No physical-device/TalkBack result
+or independent approval is claimed. No product change, owner-fixture edit,
+new worker, or extra CI/result bundle was made by WP-307.
 
 The initial failure is now explained by the test observer mixing the target's
 layout-coordinate geometry with visible rows' separately fetched/clipped
@@ -287,12 +317,18 @@ python tools\android-port\local\reserve.py evolve --wp WP-307 --expected-revisio
 python tools\android-port\local\reserve.py status
 ```
 
-**PASS:** exit 0; revisions 10 then 11. The mounted App test maps to trusted
-`app-build-launcher`; evidence maps to `wp-owned`. Status confirms revision 11
-and preserves immutable authorization/identity/bindings. There is **no missing
-capability/path/operation** for this bounded repair. No manual ledger edit,
+**PASS:** exit 0; revisions 10 and 11 admitted the App test and WP-owned
+evidence; revision 12 admitted current-base reconciliation through
+`merge-integration`. The mounted App test maps to `app-build-launcher`;
+evidence maps to `wp-owned`. Status preserves immutable
+authorization/identity/bindings. There is **no missing
+capability/path/operation** for this bounded work. No manual ledger edit,
 release/recreate or identity impersonation was performed. WP-503 retains
 `android/accessibility-tests/`; its fixture was not copied or edited.
+
+PR #235 is **ready for review** by the user-directed state change. This
+reconciliation does not constitute trusted review, merge approval, or
+acceptance of a native/API37 result.
 
 No raw logs, device identifiers, candidate CI bundles, or reproducible CI
 result bundles are retained here.
