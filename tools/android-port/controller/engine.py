@@ -7,10 +7,10 @@ from .capabilities import CapabilityEngine
 from .errors import PortError, ReceiptError
 from .gates import Binding, merge_decision, policy_revision, verify_completion
 from .ledger import Identity, Ledger
-from .model import Manifest
+from .model import Manifest, SHA
 from .render import issue_payload
 from .settings import Settings
-from .schema import positive_integer
+from .schema import digest, positive_integer
 
 
 @dataclass(frozen=True)
@@ -32,10 +32,42 @@ class GateBundle:
             raise PortError("Malformed gate approval/catalog data")
 
 
+@dataclass(frozen=True)
+class TerminalMerge:
+    repository: str
+    work_package: str
+    session_id: str
+    pr_number: int
+    base_sha: str
+    head_sha: str
+    merge_sha: str
+    paths: tuple[str, ...]
+    authoritative: bool
+
+    def __post_init__(self):
+        if (
+            not all(isinstance(value, str) and value for value in (
+                self.repository, self.work_package, self.session_id,
+            ))
+            or type(self.pr_number) is not int or self.pr_number < 1
+            or SHA.fullmatch(self.base_sha) is None
+            or SHA.fullmatch(self.head_sha) is None
+            or SHA.fullmatch(self.merge_sha) is None
+            or not isinstance(self.paths, tuple)
+            or not self.paths or not all(isinstance(path, str) and path for path in self.paths)
+            or tuple(sorted(set(self.paths))) != self.paths
+            or type(self.authoritative) is not bool
+        ):
+            raise PortError("Malformed authoritative terminal merge")
+
+
 class GateAuthority(Protocol):
-    """WP-003 supplies an authenticated trusted publisher, not a candidate JSON loader."""
+    """Authenticate native review/check references or legacy publisher output, never candidate PASS files."""
 
     def bundle(self, wp_id: str, identity: Identity) -> GateBundle: ...
+    def merged_terminal(
+        self, wp_id: str, session_id: str, receipt: dict, expected_base_sha: str,
+    ) -> TerminalMerge: ...
 
 
 class Controller:
@@ -137,6 +169,93 @@ class Controller:
         return self.ledger.evolve_scope(
             wp_id, record["attempt"], expected_revision, capabilities, operations, paths,
             overlap_intents, record["authorization_context"],
+        )
+
+    def admit_successor_attempt(
+        self, wp_id: str, predecessor_attempt: str, predecessor_revision: int,
+        identity: Identity, now: float,
+    ):
+        """Admit one current-base attempt only after server and worker terminal reconciliation."""
+        if (
+            not isinstance(identity, Identity) or identity.session_id is None
+            or self.backend.name != self.settings.mode
+        ):
+            raise PortError("Successor requires the configured backend and an actual new session identity")
+        predecessor = self.ledger.get_attempt(wp_id, predecessor_attempt)
+        if predecessor is None or predecessor["revision"] != predecessor_revision:
+            raise PortError("Missing or stale predecessor attempt")
+        if self.authority is None:
+            raise PortError("Successor admission requires authenticated merged-PR authority")
+        previous_identity = Identity.parse(predecessor["identity"])
+        if previous_identity.session_id is None:
+            raise PortError("Successor predecessor has no actual session identity")
+        receipt = self.ledger.terminal_receipt_for_session(previous_identity.session_id)
+        if receipt is None:
+            raise PortError("Successor admission requires an immutable terminal merge receipt")
+        observation = self.backend.reconcile(wp_id, previous_identity)
+        if (
+            not observation.authoritative or observation.ambiguous or observation.pr_open
+            or observation.identity.session_id != previous_identity.session_id
+            or any(
+                getattr(previous_identity, key) is not None
+                and getattr(observation.identity, key) != getattr(previous_identity, key)
+                for key in ("issue_number", "task_id", "pr_number")
+            )
+            or observation.worker_state not in {"completed", "failed", "timed_out", "cancelled"}
+        ):
+            raise PortError("Successor predecessor worker is active, ambiguous, or not authoritatively terminal")
+        terminal = self.authority.merged_terminal(
+            wp_id, previous_identity.session_id, receipt, predecessor["binding"]["base_sha"],
+        )
+        if (
+            not isinstance(terminal, TerminalMerge) or not terminal.authoritative
+            or terminal.repository != self.policy["repository"]
+            or terminal.work_package != wp_id
+            or terminal.session_id != previous_identity.session_id
+            or terminal.pr_number != receipt["pr_number"]
+            or terminal.base_sha != predecessor["binding"]["base_sha"]
+            or terminal.head_sha != receipt["head_sha"]
+            or terminal.merge_sha != receipt["merge_sha"]
+            or list(terminal.paths) != receipt["paths"]
+        ):
+            raise PortError("Server-side merged terminal facts disagree with the immutable receipt")
+        wp = self.manifest.wp(wp_id)
+        base = self.backend.current_base()
+        if SHA.fullmatch(base) is None:
+            raise PortError("Successor current base is not an immutable commit")
+        self.backend.preflight(wp_id, base)
+        binding = self.binding(wp_id, base)
+        admissions = self.capabilities.admit_scope(
+            wp_id, wp["write_paths"], wp["write_paths"], ["modify"]
+        )
+        capabilities = {}
+        for admission in admissions:
+            capabilities.setdefault(admission.capability_id, set()).add(admission.path)
+        successor_attempt = "successor-" + digest({
+            "predecessor_attempt": predecessor_attempt,
+            "binding": binding,
+            "backend": self.backend.name,
+            "identity": identity.as_dict(),
+        })
+        terminal_proof = {
+            "authoritative": terminal.authoritative,
+            "worker_terminal": True,
+            "repository": terminal.repository,
+            "work_package": terminal.work_package,
+            "session_id": terminal.session_id,
+            "pr_number": terminal.pr_number,
+            "base_sha": terminal.base_sha,
+            "head_sha": terminal.head_sha,
+            "merge_sha": terminal.merge_sha,
+            "paths": list(terminal.paths),
+        }
+        return self.ledger.admit_successor_attempt(
+            wp, predecessor_attempt, predecessor_revision, previous_identity,
+            receipt, terminal_proof, binding, self.backend.name, successor_attempt,
+            identity, now, self.settings.lease_seconds, self.settings.budget.reserve_per_launch,
+            {key: sorted(value) for key, value in capabilities.items()},
+            ["modify"], wp["write_paths"],
+            getattr(self.backend, "branch", ""), getattr(self.backend, "worktree", ""),
         )
 
     def launch(self, wp_id: str, now: float):

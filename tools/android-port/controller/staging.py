@@ -131,12 +131,15 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str):
     }
 
 
-def require_reviewer(policy: dict, *, cli_authenticated=False, independent_human_reviewer=None, author=None):
-    alternate = (
-        isinstance(author, str) and bool(author)
-        and isinstance(independent_human_reviewer, str)
-        and independent_human_reviewer in policy["maintainers"] and independent_human_reviewer != author
+def require_reviewer(policy: dict, *, cli_authenticated=False, coordinator=None,
+                     coordinator_authenticated=False, independent_human_reviewer=None, author=None):
+    # The legacy keyword remains an identity alias, never proof of authentication.
+    reviewer = coordinator if coordinator is not None else independent_human_reviewer
+    authorized = (
+        coordinator_authenticated is True
+        and isinstance(reviewer, str)
+        and reviewer in policy["review_policy"]["authorized_coordinators"]
     )
-    if cli_authenticated is not True and not alternate:
-        raise PortError("BLOCKED: isolated Copilot CLI credential or real authorized alternate human reviewer is absent")
+    if cli_authenticated is not True and not authorized:
+        raise PortError("BLOCKED: authenticated isolated reviewer or authorized coordinator is absent")
     return True
