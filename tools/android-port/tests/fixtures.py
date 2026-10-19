@@ -8,7 +8,7 @@ sys.path.insert(0, str(PORT_TOOLS))
 REPO = PORT_TOOLS.parents[1]
 
 from controller.backends import Observation
-from controller.engine import GateBundle
+from controller.engine import GateBundle, TerminalMerge
 from controller.gates import Binding, policy_revision, protected_paths
 from controller.ledger import Identity
 from controller.model import Manifest, REFERENCE_SHA, load_manifest
@@ -178,6 +178,12 @@ class FakeBackend:
 class FakeAuthority:
     def __init__(self, bundles):
         self.bundles = bundles
+        self.terminal = None
 
     def bundle(self, wp_id, identity):
         return self.bundles[wp_id]
+
+    def merged_terminal(self, wp_id, session_id, receipt, expected_base_sha):
+        if self.terminal is None:
+            raise AssertionError("Unconfigured terminal merge fixture")
+        return self.terminal

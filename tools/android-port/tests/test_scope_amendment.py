@@ -7,7 +7,7 @@ from unittest.mock import patch
 from fixtures import REPO, base_manifest
 from bootstrap import build_inventory
 from controller.errors import PortError
-from controller.gates import validate_cases
+from controller.gates import policy_revision, validate_cases
 from controller.model import HUMAN_GATES, REFERENCE_SHA, validate_manifest
 from controller.render import render
 from controller.runtime_inputs import required_inputs, verify_tree_entries
@@ -15,6 +15,7 @@ from controller.schema import digest, load_json
 from controller.scope_amendment import (
     AMENDMENT_PATH, amendment, apply_translation_scope, project_translation_scope,
     project_translation_exclusions,
+    review_policy_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -153,7 +154,9 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         policy = load_json(REPO / "docs/android/automation-policy.json")
         revisions = content_scope_revisions(manifest, policy)
         self.assertEqual(revisions, {"manifest_sha256": manifest.sha256,
-                                    "policy_revision": amendment()["current_policy_revision"]})
+                                    "policy_revision": policy_revision(manifest, policy)})
+        self.assertEqual(policy_revision(manifest, review_policy_predecessor(policy)),
+                         amendment()["current_policy_revision"])
         self.assertEqual(content_scope_manifest_revision(manifest), manifest.sha256)
         self.assertNotEqual(revisions["manifest_sha256"], amendment()["revisions"]["final"]["previous"])
         self.assertEqual(digest(project_content_scope(manifest.data)),
@@ -162,6 +165,30 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         changed["trusted_check_app_ids"] = [999999]
         with self.assertRaises(PortError):
             content_scope_revisions(manifest, changed)
+
+    def test_review_amendment_preserves_history_and_rejects_unrelated_policy_drift(self):
+        policy = load_json(REPO / "docs/android/automation-policy.json")
+        before = copy.deepcopy(policy)
+        previous = review_policy_predecessor(policy)
+        self.assertEqual(policy, before)
+        self.assertNotIn("review_policy", previous)
+        self.assertTrue(previous["merge_gate_policy"]["protected_paths_require_human_approval_for_main_merge"])
+        self.assertNotEqual(policy_revision(base_manifest(), policy),
+                            policy_revision(base_manifest(), previous))
+        for mode in ("reviewer", "hardware", "merge", "publisher", "pin"):
+            changed = copy.deepcopy(policy)
+            if mode == "reviewer":
+                changed["review_policy"]["authorized_coordinators"].append("unregistered")
+            elif mode == "hardware":
+                changed["review_policy"]["human_acceptance_work_packages"].remove("WP-505")
+            elif mode == "merge":
+                changed["merge_gate_policy"]["human_hardware_legal_signing_acceptance_required"] = False
+            elif mode == "publisher":
+                changed["trusted_gate_publisher_app_id"] = 999
+            else:
+                changed["read_only_paths"] = []
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                content_scope_revisions(base_manifest(), changed)
 
     def test_fake_or_broadened_translation_exclusions_fail_closed(self):
         manifest = base_manifest()
