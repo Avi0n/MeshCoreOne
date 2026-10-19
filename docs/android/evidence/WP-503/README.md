@@ -7,13 +7,43 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
-## Existing shared API37: authorized and booted, runtime profile still blocked
+## Actual missing-only shared API37 attempt: package identity blocks installation
+
+[Source/profile admission](shared-api37-profile-admission.md) traces2CPU/IME1 to
+the broad fresh-device wrapper, not selected case requirements. The new
+user-authorized adapter truthfully admits actual4CPU/unchangedIME0, preserving
+every original assertion,1000ms/600s deadline and geometry threshold.
+Exact final3f composite/fixture/producer/App/Test checks and native-lane/runtime
+guards passed. The **first App install** was refused with
+`INSTALL_FAILED_UPDATE_INCOMPATIBLE`: existing target public debug certificate
+000be798 differs from retained App/Test891462f4. No instrumentation occurred:
+US11/traz2/diagnostics5/Nodes7/LoS1/chat1 each have0 discovery/start/outcome/
+pass/fail/error/skip, and there is1 shared setup failure.
+[Exact existing outcome, certificates, bindings and cleanup](device-shared37-integration.json).
+
+The user's original target APK digest and runtime profile were verified unchanged;
+test package remains absent, native lock released. No auth/key/settings/wipe/
+server/emulator action, successful31 replay or duplicate test invocation.
+An authorized compatible source-bound debug App+Test artifact is required;
+external signing-key access/re-signing/security bypass is not admitted to WP503.
+The adapter now checks public certificates before any install;5 adapter-only
+unit tests pass, not Android acceptance.
+[Ordinary actual-result handoff](https://github.com/cbattlegear/MeshCoreOne-Android/pull/205#issuecomment-6276341384).
+
+PR233/fd9 is now ready, still unmerged; current227/235 docs successors preserve
+the finalc6/4b production blobs. Exact f75 hosted800/4FAILED and its missing
+two original identities remain separate. No producer code was re-imported.
+
+## Historical shared API37 readiness: wrapper profile mismatch
+
+This earlier snapshot is superseded by the provenance/admission and actual
+zero-start install outcome above; its actual4CPU/IME0 observations are preserved.
 
 Read-only inspection through the exact coordinator-specified binary/
 existing127.0.0.1:5037 verifies the user endpoint authorized, SDK37/release17,
 boot1/stopped animation, font2/animation0 and360x900/density160 overrides.
-It also verifies **4 actual CPUs versus original required2**, and
-**show_ime_with_hard_keyboard0 versus required1**. No implicit setting
+It also verifies **4 actual CPUs versus old-wrapper expected2**, and
+**show_ime_with_hard_keyboard0 versus old-wrapper1**. No implicit setting
 change or profile substitution is authorized. Missing37 repair cohorts
 remain blocked before launch on these observed profile mismatches, not
 current endpoint authorization.0 preparation/install/test starts; no
@@ -34,7 +64,7 @@ are unavailable: no published XML/report artifact or useful check annotation.
 Do not infer both SDK variants as the four observed failures.
 [Source diagnosis, exact report gap and dependency stop](publication-failure-diagnosis.md).
 This narrative links the authoritative job; it is not a copied CI bundle.
-No rerun/import/API37 action or assertion change is performed.
+That diagnosis performed no rerun/import/API37 action or assertion change.
 
 ## Owned-only publication boundary
 

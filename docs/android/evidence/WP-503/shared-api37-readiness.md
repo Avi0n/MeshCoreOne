@@ -1,5 +1,13 @@
 # Existing user API37 endpoint: boot ready, required profile unmet
 
+**Historical guard-assessment snapshot.** Later user-authorized provenance
+review establishes that2CPU/IME1 are broad-wrapper defaults, not requirements of
+the selected original missing cases. See
+[truthful4CPU/unchangedIME0 admission](shared-api37-profile-admission.md) and
+[actual zero-start package-identity failure](device-shared37-integration.json).
+The original observations and stop below are retained, not current blockers
+or execution credit.
+
 Following the coordinator's2026-10-19T13:45 handoff, read-only inspection
 uses exactly
 `C:\Users\camer\AppData\Local\Android\Sdk\platform-tools\adb.exe`,

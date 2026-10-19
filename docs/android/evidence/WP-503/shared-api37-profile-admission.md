@@ -67,7 +67,9 @@ Preserve any pre-existing target APK before temporary same-version `install -r`,
 verify its bytes and the unchanged exported Room schema identity, never wipe
 target data, and restore/read back the original target APK in cleanup. Refuse to
 overwrite any existing test package; remove only this adapter's newly installed
-test package. Fixture-created data and original temporary window changes retain
+test package. Verify existing and candidate App/Test public signing certificates
+**before installing**; a mismatch requires a compatible source-bound artifact,
+not key access, re-signing, uninstall or a security bypass. Fixture-created data and original temporary window changes retain
 their existing cleanup. Surface primary and cleanup failures together.
 
 No CPU changes or IME setting changes are admitted or needed by this adapter.
@@ -98,3 +100,58 @@ Results, profile and cleanup must be observed, not inferred from this admission.
 WP503 acceptance remains unconfigured; physical TalkBack and protected/human
 gates remain separate. Exact f75 hosted800/4FAILED and its two unavailable failure
 identities remain unchanged, not rerun to repair missing hosted evidence.
+
+## Actual attempted execution
+
+Committed adapter17eb attempted this admitted profile once. Resource/readiness,
+immutable source/fixture/APK and exclusive-lane checks passed. Android
+PackageManager refused the **first App install**, before any instrumentation:
+`INSTALL_FAILED_UPDATE_INCOMPATIBLE` for the existing target's different signing
+identity. The exact error and original observation are retained in
+[device-shared37-integration.json](device-shared37-integration.json); this is
+one setup failure, not27 failed/skipped tests. All six cohorts have0 actual
+discovery/start/outcome/pass/fail/error/skip.
+
+Read-only APK signature verification identifies existing public certificate
+`000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7`
+versus retained App/Test
+`891462f47d1f534cfcc0e755f7a938510282d35de2ff933542b643f338a9f21d`.
+The original target APK SHA256
+`6d98b22de0d99a0e3a017f579bc068011bcba34c0ab527392cc63bfb1b613748`
+and complete original profile were read back unchanged; no target replacement,
+test-package installation, settings/key/auth/data/lifecycle action or native
+test occurred. The native lock was released. A follow-up adapter correction
+checks those public certificates before installation and recognizes the actual
+streamed-install success format;5 adapter unit tests pass, not Android tests.
+
+The actionable provider requirement is an unchanged-source/fixture-bound
+compatible debug App+Test pair for that existing public identity, through an
+authorized native build/artifact capability. External signing-key access,
+re-signing retained artifacts, user-app uninstall/wipe and a new emulator are
+not admitted by this WP. This is a concrete install-identity blocker, **not**
+the obsolete two-CPU/IME/default-device-authorization blocker.
+
+The coordinator subsequently confirms the user's approval covers **ordinary
+standard Gradle DEBUG packaging with the already-configured local identity**.
+That is not release signing. It must build a new truthful source/toolchain/App/
+Test binding, not silently re-sign or reuse the old c2b/af38 hash claims.
+No agent may read/export/copy private key bytes or change the existing key.
+
+The existing typed `app-build-launcher` rule covers `android/app/**` and
+manifest/container wiring, with operations `add-direct-support-wiring`,
+`update-build-or-manifest`, `update-launcher-or-composition`. It does not admit
+the required supporting adapter operation. Actual `CapabilityEngine.admit` for
+WP503, proposed support path `tools/android-port/local/debug_packaging.py`,
+operation `build-debug-test-apks-with-existing-local-identity` returns:
+
+```text
+Capability admission blocked: WP WP-503, path tools/android-port/local/debug_packaging.py, operation build-debug-test-apks-with-existing-local-identity; no trusted path+operation rule
+```
+
+No external key operation was attempted. Existing WP003 owner06d49 is receiving
+this bounded support amendment through the coordinator. Its trusted adapter
+should constrain existing-key consumption to standard debug Gradle assembly
+without private-key export/copy/change, require the public certificate to match
+installed000be798, retain exact original3f source/fixture/Room/package continuity,
+and produce new source/build/APK bindings. Unknown support admission, not a
+broad release-signing/unauthorized-device claim, is the current executable gate.

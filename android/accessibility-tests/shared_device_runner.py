@@ -17,6 +17,7 @@ HEAD = "3f39a777376e322e2bc533f1d1caf92a87a44ed8"
 TREE = "7a9dd08e005e1e9cad79405dafecf325158d8b0c"
 OWNER = "1666502a-0420-46ef-930f-e78651ba8b9f"
 ADB = r"C:\Users\camer\AppData\Local\Android\Sdk\platform-tools\adb.exe"
+SIGNER = Path(ADB).parents[1] / "build-tools" / "37.0.0" / "apksigner.bat"
 SERIAL = "emulator-5556"
 APP = "com.meshcoreone.android.debug"
 TEST = APP + ".test"
@@ -45,6 +46,21 @@ def sha256(path):
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def certificate(apk):
+    output = subprocess.check_output(
+        [str(SIGNER), "verify", "--print-certs", str(apk)], text=True, stderr=subprocess.STDOUT,
+    )
+    digests = re.findall(r"certificate SHA-256 digest: ([0-9a-f]{64})", output)
+    require(len(digests) == 1, "Require one verified actual APK signing identity")
+    return digests[0]
+
+
+def install_succeeded(output):
+    lines = output.splitlines()
+    require(lines in (["Success"], ["Performing Streamed Install", "Success"]),
+            "APK install did not succeed: " + output)
 
 
 def git(*args):
@@ -145,7 +161,7 @@ class Device:
         return values
 
     def install(self, path):
-        require(self.run("install", "-r", str(path), timeout=120) == "Success", "APK install did not succeed")
+        install_succeeded(self.run("install", "-r", str(path), timeout=120))
 
 
 def verify_binding(apk_directory):
@@ -265,6 +281,14 @@ def main():
         require(sha256(backup) == before["sha256"], "Original target APK preservation failed")
         require(has_original_schema(backup) and has_original_schema(paths["app"]),
                 "Original/retained target Room schema compatibility is unverified")
+        result["public_debug_certificates"] = signatures = {
+            name: certificate(apk) for name, apk in
+            (("original_target", backup), ("retained_app", paths["app"]), ("retained_test", paths["test"]))
+        }
+        (args.output / "operations.json").write_text(json.dumps(result, indent=2) + "\n")
+        require(len(set(signatures.values())) == 1,
+                "Existing target and retained App/Test debug identities differ: " + repr(signatures) +
+                "; no uninstall, key access, re-signing or security bypass is admitted")
         app_changed = test_changed = False
         try:
             device.install(paths["app"])

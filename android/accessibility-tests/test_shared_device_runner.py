@@ -1,7 +1,7 @@
 """AndroidOnly: WP-503 Fail-closed discovery for the missing-only shared-device adapter."""
 import unittest
 
-from shared_device_runner import parse_outcomes, selected_methods
+from shared_device_runner import install_succeeded, parse_outcomes, selected_methods
 
 
 def record(identity, status, count=1):
@@ -13,6 +13,13 @@ def record(identity, status, count=1):
 
 
 class SharedDeviceDiscoveryTest(unittest.TestCase):
+    def test_exact_installer_success_forms_and_failures(self):
+        install_succeeded("Success")
+        install_succeeded("Performing Streamed Install\nSuccess")
+        for text in ("", "Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE]", "Success\nFailure"):
+            with self.subTest(text=text), self.assertRaises(RuntimeError):
+                install_succeeded(text)
+
     def test_exact_missing_selector_families(self):
         from shared_device_runner import COHORTS
         self.assertEqual([11, 2, 5, 7, 1, 1], [len(selected_methods(name)) for name in COHORTS])
