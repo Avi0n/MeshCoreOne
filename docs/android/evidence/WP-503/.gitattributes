@@ -8,4 +8,5 @@ device-matrixplatform-* -text
 device-matrixcallbacks-* -text
 device-processreadynodes-* -text
 device-processreadymaps-* -text
+device-servicecleanup-* -text
 device-isolatedmatrix-reconciliation.json -text

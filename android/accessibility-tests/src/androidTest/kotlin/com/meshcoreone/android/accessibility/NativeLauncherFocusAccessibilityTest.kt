@@ -886,6 +886,62 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
         return bounds
     }
 
+    @Test fun controlledPrimaryAndLateRestorationPreserveBothActualFailures() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val manager = requireNotNull(activity.getSystemService(AccessibilityManager::class.java))
+        val originalFlags = automation().serviceInfo.flags
+        var originalEnabled = false
+        instrumentation.runOnMainSync { originalEnabled = manager.isTouchExplorationEnabled }
+        val primary = AssertionError("WP503 controlled primary assertion")
+        val entered = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val finished = java.util.concurrent.CountDownLatch(1)
+        val blockElapsed = java.util.concurrent.atomic.AtomicLong()
+        var observed: AssertionError? = null
+        println("WP503_NATIVE_CLEANUP_FAULT_ARM|requestedMainBlockMs=1500|originalDeadlineMs=1000" +
+            "|faultInjectionOnly=true|physicalTalkBack=false")
+        try {
+            try {
+                withTouchExploration {
+                    assertTrue(android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        val start = android.os.SystemClock.elapsedRealtime()
+                        entered.countDown()
+                        try {
+                            release.await(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
+                        } finally {
+                            blockElapsed.set(android.os.SystemClock.elapsedRealtime() - start)
+                            finished.countDown()
+                        }
+                    })
+                    assertTrue("The controlled main fault must actually begin",
+                        entered.await(1000, java.util.concurrent.TimeUnit.MILLISECONDS))
+                    throw primary
+                }
+            } catch (failure: AssertionError) {
+                observed = failure
+            }
+            org.junit.Assert.assertSame("Cleanup must not replace the primary assertion", primary, observed)
+            assertEquals(1, primary.suppressed.size)
+            val cleanup = primary.suppressed.single()
+            assertTrue("The unchanged real restoration waiter must time out",
+                cleanup is ComposeTimeoutException)
+            assertEquals("Native accessibility state did not become ready within1000ms", cleanup.message)
+            assertTrue("The real main fault must be finished before the safety observation",
+                finished.await(1000, java.util.concurrent.TimeUnit.MILLISECONDS))
+            assertTrue("Fault injection must exceed, not extend, the original deadline", blockElapsed.get() >= 1000L)
+            instrumentation.runOnMainSync {
+                assertEquals(originalFlags, automation().serviceInfo.flags)
+                assertEquals(originalEnabled, manager.isTouchExplorationEnabled)
+            }
+            println("WP503_NATIVE_CLEANUP_PRESERVED|primarySame=true|suppressed=1" +
+                "|cleanup=${cleanup.javaClass.simpleName}|mainBlockMs=${blockElapsed.get()}" +
+                "|flagsRestored=true|stateRestored=true|afterFailedDeadline=true" +
+                "|faultInjectionOnly=true|physicalTalkBack=false")
+        } finally {
+            release.countDown()
+        }
+    }
+
     private fun withTouchExploration(block: () -> Unit) {
         val manager = activity.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
         val info = automation().serviceInfo

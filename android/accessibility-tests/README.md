@@ -4,8 +4,9 @@ The existing App AndroidJUnitRunner hosts the native accessibility fixtures.
 The declared session `wp503-prepare-native.py` and `wp503-run-native.py` entries
 retain API31/37, font200, actual guest CPU verification, positive discovery and
 the existing 300s boot/600s instrumentation limits. `--scenario launcher` expects
-nine distinct starts and matching terminal outcomes. The82-method inventory
-requires three distinct cohorts: `feature-matrix`80, `platform-service-control`1
+ten distinct starts and matching terminal outcomes: nine original flows and one
+explicit controlled-cleanup regression. The83-method runnable inventory
+requires three distinct cohorts: `feature-matrix`81, `platform-service-control`1
 and `platform-callback-control`1. Each cohort requires its own fresh owned device
 and instrumentation process; do not combine them into one package invocation.
 The former `full` package selection is blocked, not relabeled as an80-case pass:
@@ -25,7 +26,7 @@ python "$F\wp503-private-adb-native31.py" --phase matrixcallbacks --head EXECUTE
 ```
 
 `$F` is the existing session-files directory. Record each actual source/APK
-binding and80+1+1 unique identities per API; never substitute a prior-source
+binding and81+1+1 unique identities per API; never substitute a prior-source
 control or a full-context positive for standalone cold-start evidence.
 
 `DeviceAccessibilityHarness` awaits the real `MeshCoreApplication.container`
@@ -68,7 +69,8 @@ Compose rule, test dispatcher, fake clock or service-state writes beyond the
 original request/restoration exist. All preceding81 methods/helpers remain
 unchanged. This is a different diagnostic treatment, not a retry or causal fix
 of their failures. The inventory becomes82; acceptance requires all three
-cohorts above, not a shared-context package pass.
+cohorts above, not a shared-context package pass. The additional controlled
+cleanup regression below brings the current runnable inventory to83.
 
 `NativeLauncherFocusAccessibilityTest` samples AccessibilityManager state through
 the actual main looper, where Android applies its binder-delivered state updates.
@@ -79,6 +81,24 @@ On timeout, the original exception remains primary while the existing public
 system/client snapshot collector runs as a close operation. Snapshot failures
 are suppressed onto that exception, not substituted for it. Collection is
 explicitly after the original deadline: late state changes never earn a pass.
+
+## Controlled primary/cleanup failure regression
+
+The tenth launcher method explicitly injects a primary AssertionError after
+actual activation and a bounded1500ms real-main latch stall. The unchanged
+restoration waiter must fail its original1000ms deadline, even if its first
+late sample observes the desired state. The same primary object must escape,
+with exactly the actual ComposeTimeoutException suppressed. Real original
+flags/client state must be restored after the failed window; that safety
+observation is not a cleanup-deadline pass. The main latch releases on every
+exit. No original82 method body, waiter, deadline, product or237/238 assertion
+changes. This is explicit harness fault injection, not a naturally occurring
+dual failure, physical TalkBack observation or new user-flow acceptance.
+
+`--scenario launcher` now requires all10 starts/outcomes. Earlier82-case
+reconciliation stays bound to its original source/APKs; it is not a current83
+run. Do not report full83 acceptance without all three compatible current-source
+cohorts and exact identity/input reconciliation.
 
 ## Owned emulator teardown
 
