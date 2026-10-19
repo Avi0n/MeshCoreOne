@@ -1,0 +1,250 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 4,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "audit_parent": "2876ef2a0b3615ad23dae5d692da46ca58263bb0",
+  "executed_combined_head": "25e6aa2e5f8ffd5f2c1522cff276593ddb69d127",
+  "executed_android_tree": "b4de8c66dda6a529f6ccf42795c38cd8fac3599e",
+  "capability": {
+    "id": "wp-owned",
+    "path": "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativePlatformServiceControlTest.kt",
+    "operation": "create"
+  },
+  "apk_binding": "device-platformcontrol-inputs.json",
+  "all_original80_test_files_helpers_assertions_product_build_locks_unchanged": true,
+  "expanded_native_inventory": 81,
+  "full81_executed": false,
+  "no_activity_compose_rule_test_dispatcher_in_this_control": true,
+  "target_application_still_initializes": true,
+  "native_results": {
+    "31": {
+      "started": 1,
+      "matching_outcomes": 1,
+      "actual_guest_cpus": 2,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.88,
+      "test_outcomes": [
+        {
+          "test": "actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule",
+          "status": 0
+        }
+      ],
+      "initial_activity_count": 0,
+      "observed_activity_lifecycle_events": 0,
+      "ready_observations": [
+        {
+          "phase": "activation",
+          "enabled": "true",
+          "expected": "true",
+          "checks": 2,
+          "elapsed_ms": 11
+        },
+        {
+          "phase": "restoration",
+          "enabled": "false",
+          "expected": "false",
+          "checks": 2,
+          "elapsed_ms": 11
+        }
+      ],
+      "diagnostic_lines": [
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=platform-activated|afterOriginalDeadline=false|managerEnabled=true|flags=65558",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=platform-activated|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=platform-activated|managerEnabled=true|flags=65558|durationMs=56|physicalTalkBack=false",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=platform-restored|afterOriginalDeadline=false|managerEnabled=false|flags=65554",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=platform-restored|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=platform-restored|managerEnabled=false|flags=65554|durationMs=40|physicalTalkBack=false"
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativePlatformServiceControlTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 31,
+        "head": "25e6aa2e5f8ffd5f2c1522cff276593ddb69d127",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Medium_Phone",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-platformcontrol-api31-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "platform-service-control",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "31",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "platform-service-control"
+            ],
+            "exit": 0
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "31",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 265.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-platformcontrol-api31-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-platformcontrol-api31-userdata.img.qcow2"
+        ]
+      }
+    },
+    "37": {
+      "started": 1,
+      "matching_outcomes": 1,
+      "actual_guest_cpus": 2,
+      "passed": 0,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 4.084,
+      "test_outcomes": [
+        {
+          "test": "actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule",
+          "status": -2
+        }
+      ],
+      "initial_activity_count": 0,
+      "observed_activity_lifecycle_events": 0,
+      "ready_observations": [
+        {
+          "phase": "restoration",
+          "enabled": "false",
+          "expected": "false",
+          "checks": 1,
+          "elapsed_ms": 0
+        }
+      ],
+      "diagnostic_lines": [
+        "WP503_NATIVE_PLATFORM_SERVICE_TIMEOUT|phase=activation|enabled=false|expected=true|checks=82|elapsedMs=1000|originalDeadlineMs=1000",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=platform-activation-timeout|afterOriginalDeadline=true|managerEnabled=false|flags=65558",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activation-timeout|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=platform-activation-timeout|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=platform-activation-timeout|managerEnabled=false|flags=65558|durationMs=210|physicalTalkBack=false",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=platform-restored|afterOriginalDeadline=false|managerEnabled=false|flags=65554",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=platform-restored|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=platform-restored|managerEnabled=false|flags=65554|durationMs=250|physicalTalkBack=false"
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativePlatformServiceControlTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 37,
+        "head": "25e6aa2e5f8ffd5f2c1522cff276593ddb69d127",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Pixel_10_Pro_XL",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-platformcontrol-api37-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "platform-service-control",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "37",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "platform-service-control"
+            ],
+            "exit": 1
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "37",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 265.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-platformcontrol-api37-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-platformcontrol-api37-userdata.img.qcow2"
+        ]
+      }
+    }
+  },
+  "private_adb_server": {
+    "command": [
+      "C:\\android-sdk\\platform-tools\\adb.exe",
+      "-L",
+      "tcp:61587",
+      "--one-device",
+      "wp503-no-usb",
+      "server",
+      "nodaemon"
+    ],
+    "port": 61587,
+    "emulator_scan_max": 5553,
+    "usb_filter": "wp503-no-usb",
+    "mdns_autoconnect": [],
+    "shared5037_stop_or_restart": false,
+    "server_ready_no_other_devices_attached": true,
+    "server_exit": 0,
+    "owned_port_closed": true
+  },
+  "qualification": "One new independent platform-control invocation per fresh actual two-CPU API31/37, private adb, original1000ms windows and real manager/flags/public snapshots. No Activity at start or lifecycle events during control, no Compose rule/test dispatcher. Target Application still initializes; this is not a framework-only OS bug proof or complete causal diagnosis. API37 restoration predicate matches an alreadyfalse client; it does not demonstrate a clienttrue-to-false transition. No UI, decorRTL, glyph/target, screen-reader speech or physical TalkBack acceptance follows. All original80 fixtures/helpers/product bytes remain; none of their failed assertions retried. Full inventory81 is declared but full81 not executed. Keep QR237/language238, all native launcher/IME/cleanup/CI negatives and physical/golden/admission/review gates. No merge or whole-WP completion."
+}

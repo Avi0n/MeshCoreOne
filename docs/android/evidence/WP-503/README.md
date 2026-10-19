@@ -1,11 +1,103 @@
 # WP-503 attempt evidence
 
-**Latest combinedc24f9ae1 / genuine producer34a20d96: nodes31 6PASS/1FAIL18.455s;37 7PASS57.445s, seven unique starts/matching outcomes each. QR237 still fails31: enabled target84x31dp.37 QR original flow passes. No fixture/deadline changes. Private-adb/teardown verified; prior API37 launcher activation/restoration/IME, language238 and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Latest25e6aa2e new platform-only control:31 1PASS0.880s,37 1FAIL4.084s, one unique start/outcome each.37 actualfalse82 checks1000ms despite zero Activities/lifecycle events and no Compose rule/test dispatcher. All original80 fixtures/helpers/product bytes unchanged; expanded full81 not executed. QR237/language238, prior native/CI negatives and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Activity/Compose-rule-free native control
+
+[Execution integration and exact identity/outcomes](device-platformcontrol-integration.json)
+and [rebuilt APK binding](device-platformcontrol-inputs.json) bind executed
+combined **25e6aa2e5f8ffd5f2c1522cff276593ddb69d127**, Android tree
+**b4de8c66dda6a529f6ccf42795c38cd8fac3599e**, audit parent
+**2876ef2a0b3615ad23dae5d692da46ca58263bb0**.
+
+The previous independent service diagnostic still inherits the Activity/Compose
+rule. One new wp-owned AndroidJUnit4-only class removes that confound, checks
+zero initial Activities and monitors lifecycle callbacks throughout its actual
+activation/restoration. No Compose rule, test dispatcher, Activity launch or
+fake service-state/clock exists in this control. All original80 test files,
+helpers, assertions/deadlines, product, build and lock bytes remain unchanged.
+The actual target Application still initializes; this is **not an isolated
+framework-only process or proof of an OS bug**.
+
+| Rebuilt input | Bytes | SHA-256 |
+|---|---|---|
+| App debug APK, unchanged product |109723777|`6f39299768bd62b583904c703ff9b8f6d687d3c769056c2017ace25f00d99734`|
+| Test debug APK, one new native control |3428367|`90d48745e3e4599ab2e408c7201d4c123eb8516f3eb173cab667e14f13ee4e62`|
+
+Existing isolated `python "$F\wp503-messaging-check.py"` preflight/APK assembly
+and original74 JVM cases **PASS**, zero failures/errors/skips. Existing native
+adapter/runner, one new1-method invocation per fresh actual two-CPU API:
+
+```powershell
+python "$F\wp503-private-adb-native31.py" --phase platformcontrol --head 25e6aa2e5f8ffd5f2c1522cff276593ddb69d127 --both-apis --scenario platform-service-control
+```
+
+The adapter executes these commands once, not extra duplicate invocations:
+
+```powershell
+python "$F\wp503-prepare-native.py" --api 31 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 31 --serial emulator-5714 --scenario platform-service-control
+python "$F\wp503-prepare-native.py" --api 37 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 37 --serial emulator-5714 --scenario platform-service-control
+```
+
+Both profiles require actual API/CPU2, native system/resource font2 and mdpi,
+existing300s boot/600s instrumentation guards. Global360x900 is prepared, but
+there is no Activity/decor in this control: no decorRTL or glyph/target UI credit.
+New selector expects exactly one start and its matching original declared name.
+The full package inventory is now81; **no full81 invocation has occurred**.
+Existing original80 methods/helpers are unchanged and none of their failed
+assertions is retried here.
+
+| New native platform control | Actual API31 | Actual API37 |
+|---|---|---|
+| Unique starts/matching outcomes |1/1;1PASS0.880s|1/1;1FAIL4.084s|
+| Errors/skips |0/0|0/0|
+| Measured initial Activities / lifecycle events |0/0|0/0|
+| Original actual flags/manager |65554/false|65554/false|
+| Acknowledged requested flags |65558|65558|
+| Activation, original1000ms |PASS11ms/2 samples|FAILfalse82 samples1000ms|
+| Actual activated snapshot |Servertrue/clienttrue;exit0;56ms|After deadline:servertrue/clientfalse throughout210ms;exit0|
+| Restoration predicate, original1000ms |PASS11ms/2 samples|Alreadyfalse client matches0ms/1 sample; no observed clienttrue-to-false transition|
+| Actual restored snapshot |Serverfalse/clientfalse;exit0;40ms|Serverfalse/clientfalse;exit0;250ms|
+| Owned transport after emulator exit0 |offline -> absent observation3/265ms|Same|
+
+37's original `AssertionError` at new control106/body76 remains the sole failed
+JUnit outcome, not a diagnostic-success substitute. Public snapshot occurs after
+failure; servertrue then does not prove predeadline server state. Client remains
+false during that210ms collection. This is a real counterexample to an
+**exclusively Activity/Compose-rule/test-dispatcher explanation**, not a stable
+readiness fix, full causal diagnosis, or clearance of previous negatives.
+
+Raw [31 output](device-platformcontrol-api31.txt)/
+[metrics](device-platformcontrol-metrics-api31.txt)/
+[runner](device-platformcontrol-runner-api31.txt),
+[37 output](device-platformcontrol-api37.txt)/
+[metrics](device-platformcontrol-metrics-api37.txt)/
+[runner](device-platformcontrol-runner-api37.txt),
+[31 preparation](device-platformcontrol-profile-api31.txt)/
+[37 preparation](device-platformcontrol-profile-api37.txt) and
+[owned lifecycle observations](device-platformcontrol-operation-observations.txt).
+
+Foreground private adb61587 is verified responsive/empty before launch, with
+USB sentinel, mDNS disabled and other-emulator scan ceiling5553. Both emulator
+processes exit0, specific serials disappear before four exact scratch paths are
+removed. Private server exits0, owned port closed; shared5037 is not restarted
+and no other device is shut down. Original cleanup8-case regression remains.
+
+Preceding exact2876ef2a hosted [39201648291](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39201648291)
+is independently verifiedCOMPLETED/SUCCESS/all6, including SwiftData and final
+android-ci; not transferred to this successor. Hosted run/log remain sole
+reproducible CI authority; no duplicate bundle. QR237 producer31 target failure,
+language238 producer lifecycle gate, all historical launcher/IME/cleanup/CI
+negatives, physical TalkBack/radio, remaining matrix, approved goldens,
+WP-specific admission and independent review remain. No merge/self-approval,
+issue closure or whole-WP acceptance.
 
 ## Published QR Copy repair re-audit
 

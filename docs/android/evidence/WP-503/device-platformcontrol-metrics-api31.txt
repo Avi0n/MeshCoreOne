@@ -1,0 +1,68 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_PLATFORM_ACTIVITY|phase=start|actualCount=0|composeRule=false|testDispatcher=false
+WP503_NATIVE_PLATFORM_SERVICE_CONTROL|sdk=31|originalFlags=65554|originalEnabled=false|expectedRestored=false|composeRule=false|testDispatcher=false|physicalTalkBack=false
+WP503_NATIVE_PLATFORM_SERVICE_OBSERVATION|phase=activation|enabled=false|expected=true|checks=1|elapsedMs=0|composePolling=false
+WP503_NATIVE_PLATFORM_SERVICE_OBSERVATION|phase=activation|enabled=true|expected=true|checks=2|elapsedMs=11|composePolling=false
+WP503_NATIVE_PLATFORM_SERVICE_READY|phase=activation|enabled=true|expected=true|checks=2|elapsedMs=11|originalDeadlineMs=1000
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=platform-activated|afterOriginalDeadline=false|managerEnabled=true|flags=65558
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|ACCESSIBILITY MANAGER (dumpsys accessibility)
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|currentUserId=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|hasWindowMagnificationConnection=false
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|User state[
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     shortcut key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     button:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     button target:{null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     Bound services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     Enabled services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     Binding services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     Crashed services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|     Client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|          Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|          Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|          Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|          Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|[com.android.launcher3][com.android.inputmethod.latin][com.meshcoreone.android.debug]}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|Ui Automation[eventTypes=TYPES_ALL_MASK, notificationTimeout=0]
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|Global client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|    Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|    Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|    Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|    Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-activated|[com.android.wallpaperbackup, com.android.emulator.multidisplay, com.android.localtransport, com.android.inputdevices, com.android.keychain, com.android.providers.settings, com.android.settings, com.android.location.fused, com.android.server.telecom, android, com.android.dynsystem][com.android.wallpaperbackup, com.android.emulator.multidisplay, com.android.localtransport, com.android.inputdevices, com.android.keychain, com.android.providers.settings, com.android.settings, com.android.location.fused, com.android.server.telecom, android, com.android.dynsystem][com.android.systemui]
+WP503_NATIVE_SERVICE_DUMP_MARKERS|phase=platform-activated|actual=1|expected=1
+WP503_NATIVE_SERVICE_DUMP_RESULT|phase=platform-activated|WP503_NATIVE_SERVICE_DUMP_EXIT=0
+WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=platform-activated|managerEnabled=true|flags=65558|durationMs=56|physicalTalkBack=false
+WP503_NATIVE_PLATFORM_SERVICE_OBSERVATION|phase=restoration|enabled=true|expected=false|checks=1|elapsedMs=0|composePolling=false
+WP503_NATIVE_PLATFORM_SERVICE_OBSERVATION|phase=restoration|enabled=false|expected=false|checks=2|elapsedMs=11|composePolling=false
+WP503_NATIVE_PLATFORM_SERVICE_READY|phase=restoration|enabled=false|expected=false|checks=2|elapsedMs=11|originalDeadlineMs=1000
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=platform-restored|afterOriginalDeadline=false|managerEnabled=false|flags=65554
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|ACCESSIBILITY MANAGER (dumpsys accessibility)
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|currentUserId=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|hasWindowMagnificationConnection=false
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|User state[
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     shortcut key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     button:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     button target:{null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     Bound services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     Enabled services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     Binding services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     Crashed services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|     Client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|          Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|          Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|          Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|          Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|[com.android.launcher3][com.android.inputmethod.latin][com.meshcoreone.android.debug]}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|Ui Automation[eventTypes=TYPES_ALL_MASK, notificationTimeout=0]
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|Global client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|    Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|    Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|    Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|    Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=platform-restored|[com.android.wallpaperbackup, com.android.emulator.multidisplay, com.android.localtransport, com.android.inputdevices, com.android.keychain, com.android.providers.settings, com.android.settings, com.android.location.fused, com.android.server.telecom, android, com.android.dynsystem][com.android.wallpaperbackup, com.android.emulator.multidisplay, com.android.localtransport, com.android.inputdevices, com.android.keychain, com.android.providers.settings, com.android.settings, com.android.location.fused, com.android.server.telecom, android, com.android.dynsystem][com.android.systemui]
+WP503_NATIVE_SERVICE_DUMP_MARKERS|phase=platform-restored|actual=1|expected=1
+WP503_NATIVE_SERVICE_DUMP_RESULT|phase=platform-restored|WP503_NATIVE_SERVICE_DUMP_EXIT=0
+WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=platform-restored|managerEnabled=false|flags=65554|durationMs=40|physicalTalkBack=false
+WP503_NATIVE_PLATFORM_ACTIVITY|phase=end|actualEvents=0|composeRule=false|testDispatcher=false

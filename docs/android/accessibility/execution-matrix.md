@@ -1,6 +1,28 @@
 # WP-503 native execution matrix
 
-**Latest exact combinedc24f9ae1 / producer34a20d96: nodes31 6PASS/1FAIL18.455s;37 7PASS57.445s, seven unique starts/outcomes each. QR237 still fails31 at enabled target84x31dp;37 original QR flow passes. All fixtures unchanged. Private-adb/teardown verified; earlier launcher37, language238 and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Latest exact25e6aa2e Activity/Compose-rule-free native control:31 1PASS0.880s,37 1FAIL4.084s, one start/outcome each.37 managerfalse82 checks1000ms despite zero Activities/lifecycle events and no test dispatcher. All original80 fixtures/helpers/product bytes unchanged; full81 not executed. QR237/language238, earlier native and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+
+## Activity/Compose-rule-free native control
+
+| Exact25e6aa2e new platform-only method, once per fresh device | Actual API31/twoCPUs | Actual API37/twoCPUs |
+|---|---|---|
+| Unique starts/matching outcomes |1/1;1PASS0.880s|1/1;1FAIL4.084s|
+| Errors/skips |0/0|0/0|
+| Initial Activities / lifecycle events throughout control |0/0|0/0|
+| Compose rule / test dispatcher |Absent/absent|Absent/absent|
+| Original1000ms activation |PASS11ms|FAIL, actualfalse82 checks1000ms|
+| Original flags/initial manager -> acknowledged request |65554/false ->65558|Same|
+| Actual activation snapshot |Servertrue/clienttrue;exit0;56ms|After deadline:servertrue/clientfalse throughout210ms;exit0|
+| Restoration predicate / actual restored snapshot |PASS11ms;serverfalse/clientfalse,exit0;40ms|Alreadyfalse client matches0ms;serverfalse/clientfalse,exit0;250ms|
+| Owned transport after emulator exit0 |offline -> absent observation3/265ms|Same|
+
+The target Application still initializes, so this removes Activity/Compose-rule/
+test-dispatcher necessity, not every application/environment confound or proof of
+a framework-only cause. No original failed feature case is retried. All original80
+files/helpers/assertions/product bytes remain; new full81 is declared but has no
+full81 execution credit. No UI/decorRTL, font-glyph,48dp, speech or physical
+TalkBack acceptance follows from this platform control.
+[Exact commands/source/APK/lifecycle/raw outcomes](../evidence/WP-503/README.md#activitycompose-rule-free-native-control).
 
 ## Published QR Copy repair re-audit
 

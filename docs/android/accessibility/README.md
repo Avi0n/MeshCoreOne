@@ -1,9 +1,38 @@
 # WP-503 accessibility audit
 
-**Status: genuine WP-311 QR repair34a20d96 re-audited without fixture changes. Exact combinedc24f9ae1 nodes31 6PASS/1FAIL18.455s;37 7PASS57.445s, seven unique starts/matching outcomes each. Strict QR237 still fails31: enabled target84x31dp;37 QR flow passes. Owned private-adb/teardown verified. Earlier API37 launcher activation/restoration/IME, language238 and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Status: native37 readiness failure now reproduces without an Activity, Compose rule or test dispatcher. Exact25e6aa2e platform control31 1PASS0.880s;37 1FAIL4.084s, one start/matching outcome each.37 managerfalse82 checks1000ms; zero initial Activities/lifecycle events both APIs. All original80 fixtures/helpers/product bytes unchanged; expanded full81 not executed. QR237/language238, earlier native negatives and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Activity/Compose-rule-free native control
+
+Executed combined `25e6aa2e5f8ffd5f2c1522cff276593ddb69d127`, Android tree
+`b4de8c66dda6a529f6ccf42795c38cd8fac3599e`, audit parent2876ef2a.
+The preceding independent service control still inherited the Activity/Compose
+rule. One new AndroidJUnit4-only control removes those facilities and any test
+dispatcher, verifies zero initial Activities and records zero lifecycle events
+through its actual activation/restoration. All original80 test files, helpers,
+assertions/deadlines and product/build/lock bytes remain unchanged. Native
+inventory becomes81; no full81 invocation or acceptance is claimed.
+
+Once per fresh actual two-CPU API31/37 through private adb61587:
+**31 1PASS0.880s;37 1FAIL4.084s**, one unique start/matching outcome each, no
+errors/skips.31 activation/restoration11/11ms, actual server/client states agree.
+37 actual manager remainsfalse82 checks through1000ms with requested flags65558
+acknowledged. Original timeout remains primary. Its after-deadline dump exits0,
+reports servertrue while client remainsfalse throughout210ms; the restoration
+predicate matches that alreadyfalse client at0ms with original flags65554 and
+matching false server state, not an observed clienttrue-to-false transition.
+
+This is a counterexample to an exclusively Activity/Compose-rule/dispatcher
+explanation, **not a causal repair or proof of an Android framework-only bug**:
+the real target Application still initializes. No UI/decorRTL, glyph/target or
+screen-reader-speech credit follows. Both emulator exits0, owned transport
+absence265ms each, four exact scratch paths removed, private server exit0/port
+closed. Original74 JVM cases and APK tasks pass; product APK remains unchanged.
+Preceding exact2876 hosted39201648291 passes all six jobs, candidate CI only.
+[Exact source/APK/lifecycle/state/raw records](../evidence/WP-503/README.md#activitycompose-rule-free-native-control).
 
 ## Published QR Copy repair re-audit
 
