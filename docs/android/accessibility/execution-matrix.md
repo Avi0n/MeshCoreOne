@@ -40,9 +40,15 @@ No public rendered-label seam is fabricated.
 The follow-up selector contains only these two existing methods. Original
 US11, supplemental tr/az2 and all other product/fixture bytes are unchanged;
 the completed23 result is immutable and not retried or reclassified.
-API37 remains independently blocked before build/device actions. These
-observer corrections are not native acceptance until separately executed
-and source/APK bound.
+API37 remains independently blocked before build/device actions.
+Separate sourcee8fa6b2994177e09931925800ed7696222a65af7/tree
+654b489482ac6ec3833650cdd9bd4a6be759f78a now executes only these two:
+**2 starts/outcomes,1PASS/1FAIL12.816s,0errors/skips**. Cached offset
+is measured12px then24px with the same visible rows and restored24px
+after both actual900/360 recreations. Saved-LOS still fails exact CJK native
+name discovery after the added public scroll/display assertion, before state/
+role checks; it is not an observed absent painted label. No comparator/
+successful23 case is retried. [Exact measurements and separate bindings](../evidence/WP-503/README.md#targeted-observer-correction-measured-api31-offset-restoration).
 
 ## Prepared strengthened producer cohort: unexecuted and blocked
 

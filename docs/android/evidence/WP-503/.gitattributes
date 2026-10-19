@@ -17,3 +17,4 @@ device-cleanupmatrix-reconciliation.json -text
 device-isolatedmatrix-reconciliation.json -text
 device-localizedcompare-* -text
 device-reviewedrepairs-* -text
+device-uipreconditions-* -text

@@ -1,0 +1,14 @@
+{
+  "head": "e8fa6b2994177e09931925800ed7696222a65af7",
+  "apks": {
+    "wp503-reviewedrepairs-e8fa6b2994177e09931925800ed7696222a65af7-app.apk": {
+      "size": 109723777,
+      "sha256": "9acce7551b8b090e609c6ea59d5bfce7ce48c0f93b12ed84f0933b4528db479c"
+    },
+    "wp503-reviewedrepairs-e8fa6b2994177e09931925800ed7696222a65af7-test.apk": {
+      "size": 3500371,
+      "sha256": "fabb4ba69919d334752ce8a1c05313494389216a0e87f3710a7cd4008469a033"
+    }
+  },
+  "android_tree": "654b489482ac6ec3833650cdd9bd4a6be759f78a"
+}

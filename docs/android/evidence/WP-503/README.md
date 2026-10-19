@@ -104,6 +104,71 @@ and [coordinator handoff](https://github.com/cbattlegear/MeshCoreOne-Android/iss
 are updated/read back. PR205 remains draft/published2ed; local results do not
 claim successor hosted CI, standalone producer or whole-WP acceptance.
 
+## Targeted observer correction: measured API31 offset restoration
+
+Separate executed source **e8fa6b2994177e09931925800ed7696222a65af7**,
+Android tree **654b489482ac6ec3833650cdd9bd4a6be759f78a**, changes
+only the two owned UI observers; all product bytes and the other five cohort
+fixture blobs are unchanged. The previous23 invocation above is not retried,
+combined into a false25-method suite or reclassified.
+
+The cached observer uses one actual main-thread idle snapshot and consistent
+layout coordinates for target and all visible rows. Its observed sequence
+is **-86px,12px,24px,24px,24px**. The12px-to24px step retains the
+complete actual visible message set `[history14,history15]`. Actual target
+row height110px contains the boundary, rather than merely preserving an ID.
+The24px offset survives both900x900 and360x900 recreations:
+row/viewport bottoms **663/639px** and **666/642px**, respectively.
+Draft, entry/selected-route/stacks, visibility/font and native composer
+assertions also pass. Original0.5px coordinate allowance and all other
+assertions remain. This closes this bounded **API31** measurement gap,
+not API37, physical or standalone producer acceptance.
+
+The saved-LOS observer first scrolls each actual named public button into
+view and refreshes the native hierarchy. The original strict native name
+assertion still fails for the CJK contact: East1 named/actionable, West0,
+despite the public button's displayed assertion. This is now a retained
+**post-scroll native name-discovery failure**. It occurs before selection,
+stateDescription or rendered-role assertions; no missing-painted-label or
+causal production diagnosis is inferred. The producer-owned role Text
+observation request remains independently open.
+
+| Only the two revised UI methods, actual API31 | Starts/outcomes | Pass/fail/error/skip |
+|---|---|---|
+|Cached-chat pixel-offset recreation|1/1|1/0/0/0|
+|Saved-LOS native named action|1/1|0/1/0/0|
+|Invocation12.816s, runner exit1|2/2|1/1/0/0|
+
+No US comparator, supplemental locale, other successful method, full
+inventory or Nodes case executes again. API37 is rejected before launch;
+no authorization/preparation retry or SDK/security setting change.
+
+```powershell
+python "$F\wp503-localizedcompare-build.py" --ui-preconditions
+python "$F\wp503-private-adb-native31.py" --phase uipreconditions --head e8fa6b2994177e09931925800ed7696222a65af7 --api 31 --scenario ui-preconditions
+```
+
+First command passes pinned preflight/only App assembly86s,
+446 tasks:9 executed/437 up-to-date. Second exits1 with the exact two
+outcomes above. App remains byte-identical to ba67's independently inspected
+production APK:109723777bytes SHA256
+`9acce7551b8b090e609c6ea59d5bfce7ce48c0f93b12ed84f0933b4528db479c`.
+New test APK3500371bytes SHA256
+`fabb4ba69919d334752ce8a1c05313494389216a0e87f3710a7cd4008469a033`.
+Both prior candidates' artifacts and bindings remain intact.
+Actual31/two CPUs/font200 verified; emulator exits0/transport absent281ms,
+exactly2 scratch paths removed, private63289 server exit0/port closed;
+shared5037 and other devices untouched.
+
+[Exact source, two changed/five unchanged fixture blobs,13 unchanged product
+bindings, all five viewport samples,16 measured row rectangles and cleanup](device-uipreconditions-integration.json).
+[Original terminal report](device-uipreconditions-api31.txt) and
+[native measurements](device-uipreconditions-metrics-api31.txt) remain byte
+preserved with five other native captures indexed there. No reproducible
+hosted CI bundle is created. Earlier23, API37 authorization, strict237/238,
+physical/matrix/goldens/admission/review and all historical negatives remain
+source-bound; whole-WP acceptance is incomplete.
+
 ## Historical unexecuted preparation and offline37 investigation
 
 This subsection records the state before ba67's actual31 invocation above.
