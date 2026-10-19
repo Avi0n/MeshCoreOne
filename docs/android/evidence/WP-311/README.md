@@ -229,3 +229,58 @@ weaken the check or a hosted readiness claim. The actual Gradle test/lint comman
 must run against this repair on actual API31/API37. The candidate-owned Robolectric tests are
 supporting evidence, not a substitute for that gate. No WP-503 fixture is copied, edited, hidden
 or relaxed, and no device/radio verification or independent approval is claimed here.
+
+## Bounded review repair: truthful offline Add and reserved QR actions
+
+Increment parent: `34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67`; original base, frozen source,
+manifest and policy bindings are unchanged. The bounded PR233 review identified an enabled
+offline Add whose missing-service return had no outcome. The same `wp-owned` reservation was
+evolved with the supported CLI from revision 3 to 4 for DiscoveryStateHolder and to 5 for
+DiscoveryScreen investigation; the exploratory screen layout change was discarded, so no
+DiscoveryScreen production change remains. Original authorization context and identities are
+unchanged. No other producer checkout or WP-503 fixture was modified.
+
+Add now checks actual READY state and service availability at activation, showing the existing
+localized not-connected dialog if either is unavailable. It does not use a retained service
+while disconnected. This is the review's explicit recovery-policy option; no radio snapshot is
+presented as a reliable reactive enabled state. Connected Add still uses the original frame
+conversion, updates the store through the service and reloads Added state. Offline Remove/Clear
+are unchanged and covered as persistence-only actions.
+
+WP-503's published `2876ef2a0b3615ad23dae5d692da46ca58263bb0`, executed combined
+`c24f9ae191f7fb0a0484dc7aa6cf473d339b8074`, integrated the exact parent producer. Its actual
+API31 original Nodes7 run was 6 pass/1 fail (Copy 84x31dp), API37 7/7 pass, zero errors/skips.
+The later process-ready integration `148886af2f27a0fb95e4e7aba8ffd1109da225b0` retained the same
+API31 Copy failure. These owner-reported device results supersede earlier pending-only wording
+and do not grant native acceptance to this revision. Authoritative source/device bindings:
+https://github.com/cbattlegear/MeshCoreOne-Android/pull/233#issuecomment-6259966748 and
+https://github.com/cbattlegear/MeshCoreOne-Android/pull/233#issuecomment-6262284771.
+
+Copy is now outside the QR content scroller, in the dialog's reserved action area with Share.
+The QR/key retain scrolling; Copy retains >=48dp minimum height, exact clipboard bytes, disabled
+Copied feedback/reset, chooser payload and dismissal. Owned QR tests require Copy to be visible
+without a preceding scroll, have no scrolling ancestor, and retain contained >=48dp bounds and
+fully allocated text/key.
+
+The first mounted connected-action run found newly composed Added semantics with zero bounds on
+API31 in this manual Robolectric harness. A speculative row-layout change did not fix it and was
+discarded. Completing the existing root's pending measure/layout traversal at its unchanged bounds
+made the connected-state assertion pass. This is harness-only; no viewport enlargement, relaxed
+assertion or WP-503 fixture change is used.
+
+Final combined command (from `android/`, existing SDK environment):
+
+`.\gradlew.bat :feature:nodes:testDebugUnitTest --tests '*DiscoveryNativeTest' --tests '*DiscoveryViewModelTest' --tests '*ContactDetailNativeTest' --tests '*PathManagementNativeTest' --tests '*ContactPathActionsApi31ComposeTest' --tests '*ContactPathActionsApi37ComposeTest' --tests '*DiscoveryUiApi31ComposeTest' --tests '*DiscoveryUiApi37ComposeTest' --tests '*ContactShareApi31ComposeTest' --tests '*ContactShareApi37ComposeTest' --tests '*ContactShareContentTest' :feature:nodes:lintDebug --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"`
+
+Result: exit 0; **65 discovered, 65 passed, 0 failures/errors/skips** across 11 suites;
+nodes lint passed. DiscoveryNativeTest contributes 12 cases; each mounted Discovery API class
+contributes 3; each QR API class contributes 1. The final assertions ran against the candidate's
+production bytes, not the historical WP-503 fixture. `python tools\android-port\portmap.py`,
+`python tools\android-port\controller\validate.py` and scoped `git diff --check` passed.
+`ci.py preflight` with explicit session-local state/output remains blocked by missing local SDK
+`build-tools\37.0.0\package.xml`; actual module tests/lint worked without changing dependencies.
+
+Actual unchanged WP-503 native API31/API37 acceptance is still required against the new published
+producer. The unrelated Nodes search/favorite negative in the later owner report is not repaired
+or attributed by this bounded Add/QR increment. PR233 stays draft; no independent approval,
+current-base merge verification, device execution or merge is claimed.

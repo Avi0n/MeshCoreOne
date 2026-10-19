@@ -2,6 +2,7 @@
 // PortedFrom: MC1/Views/Contacts/DiscoveryView.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.feature.nodes.discovery
 
+import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.core.model.ContactFrame
@@ -137,8 +138,14 @@ class DiscoveryStateHolder(
 
     /** Adds a discovered node as a contact, then reloads (`DiscoveryView.addNode`). */
     suspend fun addNode(node: DiscoveredNodeDTO) {
-        val contactService = session.contactService() ?: return
-        mutableState.update { it.copy(addingNodeId = node.id) }
+        val contactService = session.contactService()
+        if (session.connectionState() != DeviceConnectionState.READY || contactService == null) {
+            mutableState.update {
+                it.copy(errorMessage = NodesMessage.res(R.string.l10n_app_contacts_contacts_add_error_notconnected))
+            }
+            return
+        }
+        mutableState.update { it.copy(addingNodeId = node.id, errorMessage = null) }
         try {
             contactService.addOrUpdateContact(node.radioId, node.contactFrame(dependencies.clock.wallNow.epochSecond.toUInt()))
             loadDiscoveredNodes()

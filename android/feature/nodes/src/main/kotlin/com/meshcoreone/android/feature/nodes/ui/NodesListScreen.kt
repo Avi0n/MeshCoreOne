@@ -465,18 +465,29 @@ internal fun ContactShareDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = {
-                val payload = holder.sharePayload(holder.contactName)
-                context.startActivity(
-                    Intent.createChooser(
-                        Intent(Intent.ACTION_SEND)
-                            .setType(payload.mimeType)
-                            .putExtra(Intent.EXTRA_TEXT, payload.text)
-                            .putExtra(Intent.EXTRA_SUBJECT, payload.subject),
-                        holder.contactName,
-                    ),
-                )
-            }) { Text(stringResource(C.contactsDetailShareContact)) }
+            Column(horizontalAlignment = Alignment.End) {
+                TextButton(
+                    modifier = Modifier.heightIn(min = 48.dp),
+                    enabled = !copied,
+                    onClick = {
+                        val text = holder.copyPublicKey()
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(ClipData.newPlainText(holder.contactName, text))
+                    },
+                ) { Text(if (copied) stringResource(C.contactsQrCopied) else stringResource(C.contactsQrCopy)) }
+                TextButton(onClick = {
+                    val payload = holder.sharePayload(holder.contactName)
+                    context.startActivity(
+                        Intent.createChooser(
+                            Intent(Intent.ACTION_SEND)
+                                .setType(payload.mimeType)
+                                .putExtra(Intent.EXTRA_TEXT, payload.text)
+                                .putExtra(Intent.EXTRA_SUBJECT, payload.subject),
+                            holder.contactName,
+                        ),
+                    )
+                }) { Text(stringResource(C.contactsDetailShareContact)) }
+            }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(C.contactsCommonDone)) } },
         title = { Text(holder.contactName) },
@@ -488,15 +499,6 @@ internal fun ContactShareDialog(
             ) {
                 ContactQrCode(holder.qrSpec, holder.contactName)
                 Text(holder.publicKeyText, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
-                TextButton(
-                    modifier = Modifier.heightIn(min = 48.dp),
-                    enabled = !copied,
-                    onClick = {
-                        val text = holder.copyPublicKey()
-                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        clipboard.setPrimaryClip(ClipData.newPlainText(holder.contactName, text))
-                    },
-                ) { Text(if (copied) stringResource(C.contactsQrCopied) else stringResource(C.contactsQrCopy)) }
             }
         },
     )

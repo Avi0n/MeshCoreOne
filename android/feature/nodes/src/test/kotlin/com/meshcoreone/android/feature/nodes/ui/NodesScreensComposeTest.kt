@@ -151,7 +151,7 @@ abstract class NodesScreensComposeTestBase {
         repeat(100) {
             Thread.sleep(10)
             advanceFrames()
-            allSemanticsNodes().firstOrNull { nodeText(it).contains(text) }?.let { return it }
+            allSemanticsNodes().firstOrNull { nodeText(it).contains(text) && isDisplayed(it) }?.let { return it }
         }
         error(
             "Timed out waiting for '$text': " +
@@ -221,6 +221,24 @@ abstract class NodesScreensComposeTestBase {
     protected fun advanceFrames() {
         controller.get().runOnUiThread { Snapshot.sendApplyNotifications() }
         idleMainLooper()
+        controller.get().runOnUiThread {
+            val view = findComposeView(rootView())
+            if (view.width > 0 && view.height > 0) {
+                view.forceLayout()
+                view.measure(
+                    View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(view.height, View.MeasureSpec.EXACTLY),
+                )
+                view.layout(view.left, view.top, view.right, view.bottom)
+            }
+        }
+    }
+
+    protected fun click(node: SemanticsNode) {
+        val action = node.config[SemanticsActions.OnClick].action
+        assertNotNull(action)
+        controller.get().runOnUiThread { assertTrue(action.invoke()) }
+        advanceFrames()
     }
 
     private fun idleMainLooper() {
@@ -292,6 +310,9 @@ abstract class NodesScreensComposeTestBase {
     }
 
     abstract class DiscoveryScreenComposeTestBase : NodesScreensComposeTestBase() {
+        override fun rootView(): View =
+            ShadowDialog.getLatestDialog()?.takeIf { it.isShowing }?.window?.decorView ?: super.rootView()
+
         @Test
         fun disconnectedDiscoveryShowsCachedOfflineResultInsteadOfProgress() {
             val harness = Harness().connect()
@@ -316,6 +337,61 @@ abstract class NodesScreensComposeTestBase {
                 assertTrue(isDisplayed(action), "$label must remain visible at 200% font scale")
                 assertTrue(action.boundsInRoot.height / currentDensity() >= 48f, "$label must retain a 48dp target")
             }
+            val add = awaitAction(context.getString(C.contactsDiscoveryAdd))
+            assertFalse(add.config.contains(SemanticsProperties.Disabled))
+            click(add)
+            assertTrue(
+                isDisplayed(awaitText(context.getString(C.contactsAddErrorNotConnected))),
+                "Offline Add must explain recovery instead of silently succeeding",
+            )
+            assertTrue(harness.contactService.calls.isEmpty())
+            assertTrue(harness.store.contacts.isEmpty())
+            assertEquals(listOf("Cached offline node"), harness.store.discovered.map { it.name })
+            click(awaitAction(context.getString(C.contactsCommonOk)))
+            val remove = awaitAction(context.getString(C.contactsDiscoveryRemove))
+            assertFalse(remove.config.contains(SemanticsProperties.Disabled))
+            click(remove)
+            assertTrue(isDisplayed(awaitText(context.getString(C.contactsDiscoveryEmptyTitle))))
+            assertTrue(harness.store.discovered.isEmpty())
+            assertTrue(harness.contactService.calls.isEmpty())
+        }
+
+        @Test
+        fun connectedDiscoveryAddUsesTheLiveServiceAndReloadsAddedState() {
+            val harness = Harness().connect()
+            val radio = checkNotNull(harness.session.radioId)
+            val node = Fixtures.node(radioId = radio, name = "Ready relay")
+            harness.store.discovered += node
+            mount { DiscoveryScreen(harness.dependencies) }
+            val context = controller.get()
+            val add = awaitAction(context.getString(C.contactsDiscoveryAdd))
+            assertFalse(add.config.contains(SemanticsProperties.Disabled))
+            assertTrue(isDisplayed(add))
+            assertTrue(add.boundsInRoot.height / currentDensity() >= 48f)
+            click(add)
+            assertTrue(isDisplayed(awaitText(context.getString(C.contactsDiscoveryAdded))))
+            assertEquals(listOf("add:Ready relay"), harness.contactService.calls)
+            assertEquals(node.publicKey, harness.store.contacts.single().publicKey)
+            assertEquals(radio, harness.store.contacts.single().radioId)
+            assertTrue(harness.adverts.syncingFlags.isEmpty())
+            assertTrue(harness.trace.sent.isEmpty())
+        }
+
+        @Test
+        fun disconnectAfterMountRechecksAddCapabilityBeforeAnyRadioCall() {
+            val harness = Harness().connect()
+            val radio = checkNotNull(harness.session.radioId)
+            harness.store.discovered += Fixtures.node(radioId = radio, name = "Was ready")
+            mount { DiscoveryScreen(harness.dependencies) }
+            val context = controller.get()
+            val add = awaitAction(context.getString(C.contactsDiscoveryAdd))
+            harness.session.contacts = null
+            harness.session.device = null
+            harness.session.state = DeviceConnectionState.DISCONNECTED
+            click(add)
+            assertTrue(isDisplayed(awaitText(context.getString(C.contactsAddErrorNotConnected))))
+            assertTrue(harness.contactService.calls.isEmpty())
+            assertTrue(harness.store.contacts.isEmpty())
         }
     }
 
@@ -344,13 +420,20 @@ abstract class NodesScreensComposeTestBase {
                     ContactShareDialog(holder) { showing.value = false }
                 }
             }
-            val copy = scrollToAction(context.getString(C.contactsQrCopy))
+            val copy = awaitAction(context.getString(C.contactsQrCopy))
             assertEquals(2f, context.resources.configuration.fontScale)
             assertEquals(View.LAYOUT_DIRECTION_RTL, context.resources.configuration.layoutDirection)
             assertTrue(
                 allSemanticsNodes().any { it.config.contains(SemanticsActions.ScrollBy) },
                 "QR content must expose non-gesture scroll recovery when the window is constrained",
             )
+            assertTrue(
+                generateSequence(copy.parent) { it.parent }.none { it.config.contains(SemanticsActions.ScrollBy) },
+                "Copy must not be clipped by the QR content scroll viewport",
+            )
+            val publicKey = awaitText(holder.publicKeyText)
+            assertEquals(publicKey.size.height.toFloat(), publicKey.boundsInRoot.height, "Public key must be fully visible")
+            assertEquals(publicKey.size.width.toFloat(), publicKey.boundsInRoot.width, "Public key must not clip horizontally")
             assertTrue(copy.boundsInRoot.height / currentDensity() >= 48f, "Copy must retain a 48dp height: ${copy.boundsInRoot}")
             assertTrue(copy.boundsInRoot.width / currentDensity() >= 48f, "Copy must retain a 48dp width: ${copy.boundsInRoot}")
             assertTrue(copy.boundsInRoot.top >= 0f && copy.boundsInRoot.bottom <= rootView().height)
@@ -394,11 +477,5 @@ abstract class NodesScreensComposeTestBase {
             assertFalse(showing.value)
         }
 
-        private fun click(node: SemanticsNode) {
-            val action = node.config[SemanticsActions.OnClick].action
-            assertNotNull(action)
-            controller.get().runOnUiThread { assertTrue(action.invoke()) }
-            advanceFrames()
-        }
     }
 }
