@@ -74,20 +74,22 @@ internal class AppShortcutRadio(private val container: AppContainer) : ShortcutR
         }
         app.refreshConversations()
     }
-    private fun sendFailure(failure: Exception): ShortcutException {
+    internal fun sendFailure(failure: Exception): ShortcutException {
         if (failure is ShortcutException) return failure
         Logger.getLogger("com.mc1.Shortcuts").log(Level.WARNING, "Shortcut enqueue failed", failure)
         val error = when (failure) {
-            is MessageServiceException -> when (failure.error) {
+            is MessageServiceException -> when (val serviceError = failure.error) {
                 MessageServiceError.NotConnected -> ShortcutError.NOT_CONNECTED
                 MessageServiceError.ContactNotFound, MessageServiceError.ChannelNotFound,
                 MessageServiceError.InvalidRecipient -> ShortcutError.INVALID_RECIPIENT
                 MessageServiceError.MessageTooLong -> ShortcutError.MESSAGE_TOO_LONG
+                is MessageServiceError.SessionError -> ShortcutError.SessionError(serviceError.underlying)
                 else -> ShortcutError.SEND_FAILED
             }
             is ChannelServiceError -> when (failure) {
                 is ChannelServiceError.NotConnected -> ShortcutError.NOT_CONNECTED
                 is ChannelServiceError.ChannelNotFound, is ChannelServiceError.InvalidChannelIndex -> ShortcutError.INVALID_RECIPIENT
+                is ChannelServiceError.SessionError -> ShortcutError.SessionError(failure.error)
                 else -> ShortcutError.SEND_FAILED
             }
             is ChatSendQueueServiceException -> when (failure.error) {

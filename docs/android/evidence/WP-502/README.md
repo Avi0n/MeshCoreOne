@@ -19,7 +19,7 @@ Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-The existing typed reservation was evolved to revision 13, not replaced.
+The existing typed reservation was evolved to revision 14, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -48,7 +48,7 @@ coordinator integration.
 | `ConversationScreenCases` | Production `ChatTimeline`/`ComposerBar`, fixed synthetic identities/time, original CJK/Hebrew/ZWJ text; focus/draft retention, accessible retry, offline send rejection, exact UTF-8 boundary, distinct loading/empty/error recovery and 48dp send target. Mounted Enter/NumPadEnter with/without Shift exercises 24 connection/overflow/blank/cooldown/sending/enabled families at controlled 200% font. Consumer assertions informed by frozen `ChatInputBar.swift` and `ChatConversationMessagesContent.swift`; not a claim to port every Swift test. |
 | `ConnectedConversationComposeTest` | Actual AppContainer/Room/service graph and existing protocol-speaking firmware harness. Reference `RESP_CODE_ERR=1`, direct `ErrorCode.notFound=2` and channel terminal `ErrorCode.illegalArgument=6` reject real sends. Separate mounted direct/channel cases click Retry and require the same saved message, original text/FAILED persistence, visible failure/recovery after both attempts, one terminal event per attempt, durable envelope metadata, queue cleanup, consumed draft and one connection owner. Channel notFound is intentionally retryable and is not substituted for the terminal reference error. New assertions require their own positive execution before credit. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
-| `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. Newly extended drain assertions require their own positive execution. |
+| `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
@@ -69,6 +69,40 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+At published `62b601c58472ce9fbe150f8ee2340c723866d234`, the declared five-selector
+App cohort passes 35/35, zero failures/errors/skips (2m12s), with preflight,
+portmap and controller validation passing. Authoritative
+[exact hosted run39197404487](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39197404487)
+passes all six jobs; its actual log, not a second CI-result bundle, remains
+authoritative. Separate declared target/instrumentation assembly passes24s.
+Fresh matching-current APK observations pass12/12 on API31 (113.541s) and
+full37.2 (167.426s), plus2/2 on33/34/36 (0.055s/0.485s/0.100s).
+31/37 observe OS font2/no default network and retain60 PNGs each;33/34/36
+observe noGMS/4KiB/no default network. Source/APK-bound native observations,
+logs and captures remain private session artifacts, with exact commands and
+hashes in PR206. These are native emulator observations, not physical-radio,
+folding, approved-golden or spoken-TalkBack certification.
+
+The existing WP-404 producer published the primary shared error-contract repair
+at `2a0aa08afb4d84b1e82b6ba52d0b90c9caab9730`, based on `d81814186`.
+All eight files are integrated byte-identically, with original ownership and
+commit attribution retained. Reservation14 admits that exact disjoint
+integration, not original WP-502 editing of shared shortcut model/text/ports.
+Its `ShortcutError.SessionError(underlying: MeshCoreException)` contract is
+consumer-confirmed. The admitted App mapping unwraps actual
+`MessageServiceError.SessionError.underlying` and
+`ChannelServiceError.SessionError.error`, retaining the outer exception as cause.
+The separate conversion/presentation regression expects the pinned
+`IntentError.swift` and `MeshCoreError+UserFacingMessage.swift` resource mappings:
+timeout, not-connected, Bluetooth unauthorized, CJK/RTL invalid-input detail,
+nested timeout connection loss and unknown device code255. Each is checked with
+both service wrappers and English/Simplified-Chinese contexts (24 combinations).
+The mapper is internal so the conversion contract can be asserted without
+pretending the real queue produced these injected faults. This new preparation
+requires its **own combined-candidate execution**; the 35-case62 result and62
+native runs above do not apply to its changed production bytes. The owner's
+reported 33-case module result is not substituted for that combined execution.
 
 At `cabbde6ad003eb3f830ca269b0942de6e961945e`, the declared App unit-test task
 with the five selectors below discovered and passed 33 cases, zero failures,

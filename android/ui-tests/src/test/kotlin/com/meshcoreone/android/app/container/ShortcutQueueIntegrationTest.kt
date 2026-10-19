@@ -1,9 +1,13 @@
 // AndroidOnly: WP-502 Verify the real shortcut flow and AppContainer durable queue over Room.
 // ReferenceInput: MC1/Intents/SendMessageIntent.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Intents/IntentError.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Extensions/Errors/MeshCoreError+UserFacingMessage.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MeshCore/Sources/MeshCore/Protocol/Parsers+Channels.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.app.container
 
 import android.content.Context
+import android.content.res.Configuration
+import android.os.LocaleList
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.meshcoreone.android.app.state.MessageEvent
@@ -13,14 +17,20 @@ import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.contracts.domain.PersistenceStoreException
 import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceException
+import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
+import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
 import com.meshcoreone.android.core.data.repository.RoomPersistenceStore
 import com.meshcoreone.android.core.database.MeshCoreDatabase
 import com.meshcoreone.android.core.model.*
+import com.meshcoreone.android.core.l10n.R as L10nR
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.config.MeshCoreException
 import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
+import com.meshcoreone.android.core.services.contacts.ChannelServiceError
 import com.meshcoreone.android.platform.shortcuts.*
 import java.util.Collections
+import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.Executor
 import java.util.logging.Handler
@@ -223,6 +233,74 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
                 radio.queueMessage(recipient, original)
             }.error)
             assertTrue(messages(store, recipient).isEmpty())
+        } finally { h.container.close() }
+    }
+
+    @Test fun appSessionFailurePayloadAndOuterCauseSurviveLocalizedShortcutPresentation() = runTest {
+        val h = connected(this)
+        val adapter = AppShortcutRadio(h.container)
+        val base = ApplicationProvider.getApplicationContext<Context>()
+        val detail = "Invalid \u6d4b\u8bd5 \u0645\u0631\u062d\u0628\u0627"
+        try {
+            val recipients = recipients(h)
+            for (locale in listOf("en", "zh-Hans")) {
+                val configuration = Configuration(base.resources.configuration).apply {
+                    setLocales(LocaleList(Locale.forLanguageTag(locale)))
+                }
+                val context = base.createConfigurationContext(configuration)
+                val localized = AndroidShortcutText(context)
+                val timeout = MeshCoreException.Timeout()
+                val failures = listOf(
+                    timeout to context.getString(L10nR.string.l10n_app_localizable_error_meshcore_timeout),
+                    MeshCoreException.NotConnected() to context.getString(L10nR.string.l10n_app_localizable_error_meshcore_notconnected),
+                    MeshCoreException.BluetoothUnauthorized() to context.getString(L10nR.string.l10n_app_localizable_error_meshcore_bluetoothunauthorized),
+                    MeshCoreException.InvalidInput(detail) to context.getString(L10nR.string.l10n_app_localizable_error_meshcore_invalidinput, detail),
+                    MeshCoreException.ConnectionLost(timeout) to context.getString(
+                        L10nR.string.l10n_app_localizable_error_meshcore_connectionlost,
+                        context.getString(L10nR.string.l10n_app_localizable_error_meshcore_timeout),
+                    ),
+                    MeshCoreException.DeviceError(255u) to context.getString(L10nR.string.l10n_app_localizable_error_device_unknown, 255),
+                )
+                for ((underlying, expected) in failures) {
+                    val wrappers = listOf(
+                        MessageServiceException(MessageServiceError.SessionError(underlying)) to recipients.first(),
+                        ChannelServiceError.SessionError(underlying) to recipients.last(),
+                    )
+                    for ((outer, recipient) in wrappers) {
+                        val mapped = adapter.sendFailure(outer)
+                        assertSame(outer, mapped.cause)
+                        assertSame(underlying, assertIs<ShortcutError.SessionError>(mapped.error).underlying)
+                        assertSame(mapped, adapter.sendFailure(mapped))
+                        assertEquals(expected, localized.error(mapped.error))
+                        assertNotEquals(localized.error(ShortcutError.SEND_FAILED), expected)
+                        val shown = mutableListOf<String>()
+                        // Synthetic fault injection checks presentation; real durable acceptance is tested separately.
+                        val failingPort = object : ShortcutRadioPort by adapter {
+                            override suspend fun queueMessage(recipient: ShortcutRecipient, text: String) {
+                                throw mapped
+                            }
+                        }
+                        val executor = ShortcutRequestExecutor(
+                            failingPort,
+                            object : ShortcutConfirmationPort {
+                                override suspend fun confirm(request: ConfirmationRequest) = true
+                            },
+                            localized,
+                            object : ShortcutPresenter {
+                                override fun show(message: String) { shown += message }
+                                override fun openApp(request: ShortcutRequest) {
+                                    fail("A typed session error must not escalate or claim acceptance")
+                                }
+                            },
+                        )
+                        executor.run(ShortcutRequest.Send(id(recipient), original))
+                        assertEquals(listOf(expected), shown)
+                        assertTrue(messages(store, recipient).isEmpty())
+                        assertTrue(store.fetchPendingSends(recipient.radioId).isEmpty())
+                    }
+                }
+            }
+            assertFalse(h.links.radios.single().sent.any { it[0].toInt() in 2..3 })
         } finally { h.container.close() }
     }
 
