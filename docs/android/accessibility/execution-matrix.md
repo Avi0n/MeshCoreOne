@@ -79,6 +79,19 @@ emulator/adb while the actual combined source is unbound or the public LOS
 role observation is missing. API37 remains separately hard-blocked pending
 verified lane-owner authorization resolution and guard review.
 
+The session adapter's APK snapshot is now
+`wp503-reviewedrepairs-apk-inputs.json`, distinct from the source/selection
+plan `wp503-reviewedrepairs-inputs.json`. Previously the generic phase naming
+would overwrite that plan with the APK binding before the instrumentation
+runner rechecked it, preventing discovery. The actual assignment/copy logic
+was exercised against isolated temporary files for all21 existing phases:
+the source plan survives unchanged, the APK snapshot matches the binding,
+and older phase names retain their existing destinations. This is an
+audit-runner correction, not a changed product/assertion or native result.
+At the lane-readiness inspection, nonblocking acquisition of the
+existing `local-checks/gradle.lock` reported occupied. No build was queued,
+APK input replaced, emulator started or API37 authorization retried.
+
 Preparation-only command (`$F` is the established session-files directory):
 
 ```powershell
