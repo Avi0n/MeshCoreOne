@@ -230,21 +230,38 @@ The original target/bottommost and offset assertions now pass. The other
 selected method, an unrelated saved-Line-of-Sight native-name case, fails;
 this is **not a green two-test cohort** or full-suite pass.
 
-The e8 API37 attempt was `BLOCKED_BEFORE_LAUNCH`; it did not start an API37
-chat test. The remaining native criterion for this WP is the same unchanged
-cached-chat offset/recreation test passing on API37 with its source, APK and
-device profile bound to the result. The existing WP-503 owner is assigned
-that missing API37 execution and now has bounded authorization for its
-required device profile and temporary hardware-keyboard IME setting. The
-authorization is not test evidence; the required 2-CPU profile and
-`show_ime_with_hard_keyboard=1` must be verified in the run binding. No API31
-replay or broader 23-case rerun is needed for this bounded criterion. The
-API31 result is combined execution with WP-503's corrected observer, **not
-standalone PR #235** or current-main native execution. The prior `ba67`
-23-case result remains 21/23 with two failures; this two-method follow-up
-does not retry, replace or reclassify it. No physical-device/TalkBack result
-or independent approval is claimed. No product change, owner-fixture edit,
-new worker, or extra CI/result bundle was made by WP-307.
+The e8 API37 attempt did not start an API37 chat test. The remaining native
+criterion for this WP is the same unchanged cached-chat offset/recreation test
+passing on API37 with its source, APK and device profile bound to the result.
+The existing WP-503 owner is assigned that missing execution. The later
+profile handoff records actual 4-CPU count as an admitted diagnostic resource
+identity, not a 2-CPU test requirement. The selected cached-chat case does not
+assert visible-IME behavior; `show_ime_with_hard_keyboard=0` is admitted, and
+the separate keyboard-visible test is not selected. These values do not relax
+or change the 12px-to-24px, 0.5px geometry, full-visible-set or recreation
+assertions.
+
+The most recent missing-only API37 attempt is documented by WP-503 at
+[profile admission](https://github.com/cbattlegear/MeshCoreOne-Android/pull/205#issuecomment-6276271523)
+and [installation outcome](https://github.com/cbattlegear/MeshCoreOne-Android/pull/205#issuecomment-6276341384).
+It passed the admitted device/profile and source/APK continuity guards, but
+the temporary App install failed before instrumentation with
+`INSTALL_FAILED_UPDATE_INCOMPATIBLE`: the existing debug App and source-bound
+App/Test APK pair use different public signing certificates. The chat method
+therefore remains at **0 starts/outcomes** in that invocation; the install
+failure is not a test failure or pass. Compatible DEBUG packaging support is
+routed through the existing WP-003/WP-503 owners. This is not release signing:
+no key/security bypass, uninstall, data wipe, re-signing or release waiver is
+authorized or claimed. The next acceptance is the unchanged API37 chat test
+after that exact debug-package identity blocker is resolved. No API31 replay or
+broader 23-case rerun is needed for this bounded criterion.
+
+The API31 result is combined execution with WP-503's corrected observer,
+**not standalone PR #235** or current-main native execution. The prior `ba67`
+23-case result remains 21/23 with two failures; the targeted observer
+follow-up does not retry, replace or reclassify it. No physical-device/TalkBack
+result or independent approval is claimed. No product change, owner-fixture
+edit, new worker, or extra CI/result bundle was made by WP-307.
 
 The initial failure is now explained by the test observer mixing the target's
 layout-coordinate geometry with visible rows' separately fetched/clipped
