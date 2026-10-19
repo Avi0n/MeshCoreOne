@@ -4,8 +4,29 @@ The existing App AndroidJUnitRunner hosts the native accessibility fixtures.
 The declared session `wp503-prepare-native.py` and `wp503-run-native.py` entries
 retain API31/37, font200, actual guest CPU verification, positive discovery and
 the existing 300s boot/600s instrumentation limits. `--scenario launcher` expects
-nine distinct starts and matching terminal outcomes; `--scenario full` now expects82.
+nine distinct starts and matching terminal outcomes. The82-method inventory
+requires three distinct cohorts: `feature-matrix`80, `platform-service-control`1
+and `platform-callback-control`1. Each cohort requires its own fresh owned device
+and instrumentation process; do not combine them into one package invocation.
+The former `full` package selection is blocked, not relabeled as an80-case pass:
+actual82-case runs retained historical Activities and correctly failed both
+zero-Activity guards. Their failures remain evidence. `feature-matrix` explicitly
+excludes only those two separately required classes with AndroidJUnitRunner's
+`notClass` argument. No method, assertion or count is dropped from the inventory.
 Do not retry failed cases until green or reduce these counts.
+
+The existing private-adb adapter executes the three declared cohorts with fresh
+scratch images per API/cohort and unchanged300s boot/600s instrumentation guards:
+
+```powershell
+python "$F\wp503-private-adb-native31.py" --phase matrixfeatures --head EXECUTED_HEAD --both-apis --scenario feature-matrix
+python "$F\wp503-private-adb-native31.py" --phase matrixplatform --head EXECUTED_HEAD --both-apis --scenario platform-service-control
+python "$F\wp503-private-adb-native31.py" --phase matrixcallbacks --head EXECUTED_HEAD --both-apis --scenario platform-callback-control
+```
+
+`$F` is the existing session-files directory. Record each actual source/APK
+binding and80+1+1 unique identities per API; never substitute a prior-source
+control or a full-context positive for standalone cold-start evidence.
 
 `DeviceAccessibilityHarness` awaits the real `MeshCoreApplication.container`
 startup contract on the instrumentation thread before feature setup or service
@@ -29,7 +50,7 @@ manager state, acknowledged flags, original1000ms activation/restoration windows
 late-success rejection and public snapshots remain. The original80 test bodies,
 helpers and assertions are unchanged. This isolates another harness confound;
 a passing control cannot clear historical feature failures or prove their cause.
-That control introduced inventory81; no full81 invocation has occurred. The
+That control introduced inventory81; no full81 invocation occurred. The
 additional callback diagnostic below expands the current inventory again.
 
 `--scenario platform-callback-control` selects one new
@@ -46,7 +67,8 @@ window; a probe can affect timing and is not a causal readiness fix. No Activity
 Compose rule, test dispatcher, fake clock or service-state writes beyond the
 original request/restoration exist. All preceding81 methods/helpers remain
 unchanged. This is a different diagnostic treatment, not a retry or causal fix
-of their failures. The inventory becomes82; no full82 credit without execution.
+of their failures. The inventory becomes82; acceptance requires all three
+cohorts above, not a shared-context package pass.
 
 `NativeLauncherFocusAccessibilityTest` samples AccessibilityManager state through
 the actual main looper, where Android applies its binder-delivered state updates.
