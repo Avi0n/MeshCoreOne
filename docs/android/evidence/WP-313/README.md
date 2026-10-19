@@ -261,6 +261,22 @@ exports the JVM access Robolectric needs, and aligns Espresso with the existing 
 `3.7.0`. The `dependency-resolution-metadata` capability admits the module Gradle file and owned
 dependency lock. The follow-up candidate must still pass its exact-head hosted Android check.
 
+## Current-main reconciliation for issue #218
+
+The existing PR branch was merged forward from main `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`.
+This reconciles the current WP-003 trusted-review/controller changes without changing the
+WP-313-owned Android tree: the Android tree is identical to the preceding PR candidate, and
+the six WP-313-owned changed paths remain the remote-nodes module/build wiring, its dependency
+lock, and this evidence file. No new device execution is claimed from this reconciliation.
+The combined WP-503 native record remains scoped to its recorded source/APK/test/device tree;
+it is not relabeled as execution of the reconciled PR head or whole-WP-313 acceptance.
+
+The repository's local publication fast check ran during the successor push but could not start
+the local WSL verification lane; it returned an explicit `UNVERIFIED CANDIDATE` result and did
+not block publication. Exact current-base verification must come from the declared hosted
+change-scoped workflow for the final successor SHA. Do not transfer the prior exact-head CI
+result to this successor or create a second CI-result bundle.
+
 ## Not claimed
 
 Original-case counts are source-case parity for the logic layer only. They do not establish UI
