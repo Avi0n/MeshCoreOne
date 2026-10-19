@@ -25,6 +25,25 @@ Requested37 remains **BLOCKED_BEFORE_LAUNCH,0 starts/outcomes**, no new
 preparation/authentication attempt or actual runtime credit. Strict product,
 physical and independent acceptance gates remain open.
 
+### Bounded observer follow-up: separate from the terminal23 invocation
+
+Only the two failing UI observers change. Cached-chat now samples every
+visible row's actual layout coordinates and the target in one main-thread
+idle snapshot, rather than ordering semantics-coordinator positions against
+an inner-layout target offset. It records each observed row rectangle;
+the complete-identity, bottommost-row,12px/24px and recreation assertions
+and0.5px allowance remain. Saved-LOS scrolls each actual named button into
+view before refreshing and searching its native hierarchy, retaining the
+original named-action assertions and every selected/state/visual-role check.
+No public rendered-label seam is fabricated.
+
+The follow-up selector contains only these two existing methods. Original
+US11, supplemental tr/az2 and all other product/fixture bytes are unchanged;
+the completed23 result is immutable and not retried or reclassified.
+API37 remains independently blocked before build/device actions. These
+observer corrections are not native acceptance until separately executed
+and source/APK bound.
+
 ## Prepared strengthened producer cohort: unexecuted and blocked
 
 Historical preparation snapshot at6c81/18cc, before the actualba67 run above.

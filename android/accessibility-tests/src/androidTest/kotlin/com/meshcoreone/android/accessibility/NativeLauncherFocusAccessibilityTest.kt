@@ -393,27 +393,45 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             fun captureViewport(): Pair<Float, List<String>> {
                 val viewport = list.fetchSemanticsNode()
                 val row = compose.onNodeWithContentDescription(target.text, useUnmergedTree = true).fetchSemanticsNode()
-                val coordinates = row.layoutInfo.coordinates
-                assertTrue("The actual row layout must remain placed and attached",
-                    row.layoutInfo.isPlaced && coordinates.isAttached)
-                val rowBottom = coordinates.positionInRoot().y + coordinates.size.height
-                val offset = rowBottom - viewport.boundsInRoot.bottom
-                val visibleMessages = compose.onAllNodes(SemanticsMatcher("An actual cached message row") {
+                val messages = compose.onAllNodes(SemanticsMatcher("An actual cached message row") {
                     it.config.getOrNull(SemanticsProperties.ContentDescription)?.singleOrNull()
                         ?.let { body -> body in historyBodies } == true
-                }, useUnmergedTree = true).fetchSemanticsNodes().filter { node ->
-                    generateSequence(node.parent) { it.parent }.any { it.id == viewport.id } &&
-                        node.boundsInRoot.width > 0f && node.boundsInRoot.height > 0f &&
-                        node.boundsInRoot.overlaps(viewport.boundsInRoot)
-                }.sortedBy { it.positionInRoot.y }.map {
-                    it.config[SemanticsProperties.ContentDescription].single()
+                }, useUnmergedTree = true).fetchSemanticsNodes()
+                return compose.runOnIdle {
+                    val coordinates = row.layoutInfo.coordinates
+                    assertTrue("The actual row layout must remain placed and attached",
+                        row.layoutInfo.isPlaced && coordinates.isAttached)
+                    val viewportBounds = viewport.boundsInRoot
+                    val rowBottom = coordinates.positionInRoot().y + coordinates.size.height
+                    val offset = rowBottom - viewportBounds.bottom
+                    val visibleMessages = messages.filter { node ->
+                        generateSequence(node.parent) { it.parent }.any { it.id == viewport.id } &&
+                            node.layoutInfo.isPlaced && node.layoutInfo.coordinates.isAttached
+                    }.map { node ->
+                        val actual = node.layoutInfo.coordinates
+                        val position = actual.positionInRoot()
+                        val bounds = androidx.compose.ui.geometry.Rect(
+                            position.x, position.y,
+                            position.x + actual.size.width, position.y + actual.size.height,
+                        )
+                        assertTrue("Observed row geometry must be finite",
+                            listOf(bounds.left, bounds.top, bounds.right, bounds.bottom).all { it.isFinite() })
+                        node.config[SemanticsProperties.ContentDescription].single() to bounds
+                    }.filter { (_, bounds) ->
+                        bounds.width > 0f && bounds.height > 0f && bounds.overlaps(viewportBounds)
+                    }.sortedBy { (_, bounds) -> bounds.top }
+                    for ((body, bounds) in visibleMessages) {
+                        println("WP503_NATIVE_CHAT_ROW_GEOMETRY|body=$body|bounds=$bounds" +
+                            "|viewport=$viewportBounds|coordinateSource=actualLayout|mainThreadSnapshot=true")
+                    }
+                    val identities = visibleMessages.map { it.first }
+                    assertTrue("Actual visible rows must be observed, not inferred from the target identity", identities.isNotEmpty())
+                    assertEquals("Observe each actual visible message once", identities.size, identities.distinct().size)
+                    println("WP503_NATIVE_CHAT_VIEWPORT|sdk=${android.os.Build.VERSION.SDK_INT}|message=${target.id}" +
+                        "|rowBottomPx=$rowBottom|viewportBottomPx=${viewportBounds.bottom}" +
+                        "|withinRowOffsetPx=$offset|rowHeightPx=${coordinates.size.height}|visibleRows=$identities")
+                    offset to identities
                 }
-                assertTrue("Actual visible rows must be observed, not inferred from the target identity", visibleMessages.isNotEmpty())
-                assertEquals("Observe each actual visible message once", visibleMessages.size, visibleMessages.distinct().size)
-                println("WP503_NATIVE_CHAT_VIEWPORT|sdk=${android.os.Build.VERSION.SDK_INT}|message=${target.id}" +
-                    "|rowBottomPx=$rowBottom|viewportBottomPx=${viewport.boundsInRoot.bottom}" +
-                    "|withinRowOffsetPx=$offset|rowHeightPx=${coordinates.size.height}|visibleRows=$visibleMessages")
-                return offset to visibleMessages
             }
             val axis = list.fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
             assertTrue("This actual production timeline must expose its reverse-layout scroll direction", axis.reverseScrolling)

@@ -117,7 +117,8 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
         assertTrue("The actual platform hierarchy must contain this mounted feature, not a stale app window",
             namedNodes(root, activity.getString(T.toolsLineOfSight)).isNotEmpty())
         for (contact in listOf(east, west)) {
-            val named = namedNodes(root, contact.displayName)
+            compose.onNode(hasText(contact.displayName) and hasClickAction()).performScrollTo().assertIsDisplayed()
+            val named = namedNodes(nativeRoot(automation), contact.displayName)
             val actionable = namedActions(named)
             println("WP503_LOS_PLATFORM_ACTIONS|label=${contact.displayName}|matches=${named.size}|clickable=${actionable.size}" +
                 "|catalogReads=$catalogReads|elevationReads=$elevationReads|realRadio=false")
