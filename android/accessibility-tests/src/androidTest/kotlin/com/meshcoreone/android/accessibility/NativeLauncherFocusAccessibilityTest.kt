@@ -932,7 +932,9 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                         "|checks=$checks|lastCheckElapsedMs=$lastCheckElapsedMs" +
                         "|waitElapsedMs=${android.os.SystemClock.elapsedRealtime() - restorationStart}" +
                         "|originalDeadlineMs=1000|physicalTalkBack=false")
-                    throw failure
+                    java.io.Closeable {
+                        snapshotNativeServiceState(manager, "launcher-restoration-timeout", afterOriginalDeadline = true)
+                    }.use { throw failure }
                 }
                 println("WP503_NATIVE_TOUCH_RESTORED|flags=$original|enabled=${manager.isTouchExplorationEnabled}" +
                     "|elapsedMs=${android.os.SystemClock.elapsedRealtime() - start}|beforeNextFixture=true")
@@ -967,7 +969,9 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                     "|currentEnabled=${manager.isTouchExplorationEnabled}|checks=$checks|lastCheckElapsedMs=$lastCheckElapsedMs" +
                     "|waitElapsedMs=${android.os.SystemClock.elapsedRealtime() - activationStart}" +
                     "|originalDeadlineMs=1000|physicalTalkBack=false")
-                throw failure
+                java.io.Closeable {
+                    snapshotNativeServiceState(manager, "launcher-activation-timeout", afterOriginalDeadline = true)
+                }.use { throw failure }
             }
             println("WP503_NATIVE_TOUCH_READY|sdk=${android.os.Build.VERSION.SDK_INT}|checks=$checks" +
                 "|waitElapsedMs=${android.os.SystemClock.elapsedRealtime() - activationStart}|physicalTalkBack=false")

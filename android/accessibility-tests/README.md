@@ -12,6 +12,10 @@ the actual main looper, where Android applies its binder-delivered state updates
 The same predicates and original1000ms activation/restoration deadline remain;
 time spent waiting for the main looper counts, and a late true sample fails.
 Main-thread sampling is not a service readiness guarantee or physical TalkBack.
+On timeout, the original exception remains primary while the existing public
+system/client snapshot collector runs as a close operation. Snapshot failures
+are suppressed onto that exception, not substituted for it. Collection is
+explicitly after the original deadline: late state changes never earn a pass.
 
 ## Owned emulator teardown
 
