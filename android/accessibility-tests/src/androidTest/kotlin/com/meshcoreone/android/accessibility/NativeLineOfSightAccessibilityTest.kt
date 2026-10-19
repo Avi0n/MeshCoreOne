@@ -10,10 +10,12 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.performScrollTo
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.espresso.Espresso.onView
@@ -32,6 +34,7 @@ import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.feature.tools.los.*
 import java.util.UUID
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,13 +120,15 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
         assertTrue("The actual platform hierarchy must contain this mounted feature, not a stale app window",
             namedNodes(root, activity.getString(T.toolsLineOfSight)).isNotEmpty())
         for (contact in listOf(east, west)) {
-            compose.onNode(hasText(contact.displayName) and hasClickAction()).performScrollTo().assertIsDisplayed()
+            compose.onNode(savedEndpointMatcher(contact)).performScrollTo().assertIsDisplayed()
             val named = namedNodes(nativeRoot(automation), contact.displayName)
             val actionable = namedActions(named)
             println("WP503_LOS_PLATFORM_ACTIONS|label=${contact.displayName}|matches=${named.size}|clickable=${actionable.size}" +
                 "|catalogReads=$catalogReads|elevationReads=$elevationReads|realRadio=false")
             assertTrue("Saved LOS repeater '${contact.displayName}' must expose a named native accessibility click " +
                 "or non-gesture list action, independent of map tiles", actionable.isNotEmpty())
+            assertEquals("A saved endpoint must have exactly one native spoken name", 1, named.size)
+            assertEquals("A saved endpoint must have exactly one named native action", 1, actionable.size)
         }
         assertEndpointState(east, T.toolsLineOfSightNotSelected, selected = false)
         assertEndpointState(west, T.toolsLineOfSightNotSelected, selected = false)
@@ -134,8 +139,8 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
         }
         assertTrue(selected.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.id))
         compose.waitUntil { elevationReads == 1 }
-        assertScrollableFont200Unclipped(compose.onNode(hasText(east.displayName) and
-            !SemanticsMatcher.keyIsDefined(SemanticsActions.OnClick)))
+        assertScrollableFont200Unclipped(savedEndpointText(
+            east, "los-saved-endpoint-contact-name", east.displayName))
         assertVisibleClickTargetsAtLeast48Dp()
         assertEquals(1, catalogReads)
         assertEquals(1, elevationReads)
@@ -157,9 +162,8 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
     }
 
     private fun savedEndpointAction(contact: ContactDTO): AccessibilityNodeInfo {
-        compose.onNode(hasText(contact.displayName) and hasClickAction()).performScrollTo().assertIsDisplayed()
-        val action = namedActions(namedNodes(nativeRoot(
-            InstrumentationRegistry.getInstrumentation().uiAutomation), contact.displayName)).first()
+        compose.onNode(savedEndpointMatcher(contact)).performScrollTo().assertIsDisplayed()
+        val action = nativeSavedEndpoint(contact)
         assertTrue("Refresh the actual saved endpoint before its native action", action.refresh())
         return action
     }
@@ -172,31 +176,61 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
 
     private fun assertEndpointState(contact: ContactDTO, label: Int, selected: Boolean) {
         val role = activity.getString(label)
-        val buttonMatcher = hasText(contact.displayName) and hasClickAction()
+        val buttonMatcher = savedEndpointMatcher(contact)
         val button = compose.onNode(buttonMatcher).performScrollTo().assertIsDisplayed()
         val config = button.fetchSemanticsNode().config
         assertEquals(Role.Button, config[SemanticsProperties.Role])
         assertEquals(selected, config[SemanticsProperties.Selected])
         assertEquals(role, config[SemanticsProperties.StateDescription])
         assertEquals("The contact name must not absorb or duplicate its state announcement",
-            listOf(contact.displayName), config[SemanticsProperties.Text].map { it.text })
-        val native = namedActions(namedNodes(nativeRoot(
-            InstrumentationRegistry.getInstrumentation().uiAutomation), contact.displayName)).first()
+            listOf(contact.displayName), config[SemanticsProperties.ContentDescription])
+        assertFalse("The button must not also announce merged Text", SemanticsProperties.Text in config)
+        val native = nativeSavedEndpoint(contact)
         assertTrue("Refresh the actual native endpoint state", native.refresh())
         assertTrue("Compose maps non-tab Selected to the native checkable/checked state", native.isCheckable)
         assertEquals(selected, native.isChecked)
         assertEquals(role, AccessibilityNodeInfoCompat.wrap(native).stateDescription?.toString())
-        val visibleRoleMatcher = hasText(role) and hasAnyAncestor(buttonMatcher) and
-            SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult)
-        assertEquals("Observe the actual visible role Text through public semantics; a stateDescription " +
-            "or cleared/unobservable label is not visual text evidence for '${contact.displayName}'",
-            1, compose.onAllNodes(visibleRoleMatcher, useUnmergedTree = true).fetchSemanticsNodes().size)
-        val visibleRole = compose.onNode(visibleRoleMatcher, useUnmergedTree = true).assertIsDisplayed()
+        assertEquals(contact.displayName, native.contentDescription?.toString())
+        assertTrue("The native button must have only its sole content description", native.text.isNullOrEmpty())
+        val visibleName = savedEndpointText(contact, "los-saved-endpoint-contact-name", contact.displayName)
+        assertFont200Unclipped(visibleName)
+        assertFontPaintContainsInk(visibleName)
+        val visibleRole = savedEndpointText(contact, "los-saved-endpoint-role-label", role)
         assertFont200Unclipped(visibleRole)
         assertFontPaintContainsInk(visibleRole)
         println("WP503_LOS_SELECTION_STATE|contact=${contact.displayName}|selected=$selected" +
             "|localizedState=$role|nativeChecked=${native.isChecked}|nativeSelected=${native.isSelected}|visibleRoleMeasured=true" +
             "|realRadio=false|physicalTalkBack=false")
+    }
+
+    private fun savedEndpointMatcher(contact: ContactDTO) =
+        SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(contact.displayName)) and hasClickAction()
+
+    private fun nativeSavedEndpoint(contact: ContactDTO): AccessibilityNodeInfo {
+        val nodes = namedNodes(nativeRoot(
+            InstrumentationRegistry.getInstrumentation().uiAutomation), contact.displayName)
+            .filter { it.contentDescription?.toString() == contact.displayName && it.isClickable }
+        assertEquals("A saved endpoint must expose exactly one actual named native button", 1, nodes.size)
+        return nodes.single()
+    }
+
+    private fun savedEndpointText(contact: ContactDTO, tag: String, expected: String): SemanticsNodeInteraction {
+        val matcher = hasTestTag(tag) and hasAnyAncestor(savedEndpointMatcher(contact)) and
+            SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult)
+        assertEquals("Observe the actual visible role Text through public semantics; a stateDescription " +
+            "or cleared/unobservable label is not visual text evidence for '${contact.displayName}'",
+            1, compose.onAllNodes(matcher, useUnmergedTree = true).fetchSemanticsNodes().size)
+        val node = compose.onNode(matcher, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
+        val layout = textLayout(node)
+        assertEquals("The scoped getter must return the actual rendered name or role, not model text",
+            expected, layout.layoutInput.text.text)
+        val config = node.fetchSemanticsNode().config
+        assertFalse("Rendered layout observation must not duplicate spoken Text", SemanticsProperties.Text in config)
+        assertFalse("Rendered layout observation must not duplicate the spoken name", SemanticsProperties.ContentDescription in config)
+        println("WP503_LOS_RENDERED_TEXT|contact=${contact.displayName}|tag=$tag|actualText=${layout.layoutInput.text.text}" +
+            "|source=actualGetTextLayoutResult|fontScale=${layout.layoutInput.density.fontScale}" +
+            "|layoutDirection=${layout.layoutInput.layoutDirection}|duplicateSpokenText=false")
+        return node
     }
 
     private fun nativeRoot(automation: UiAutomation): AccessibilityNodeInfo {

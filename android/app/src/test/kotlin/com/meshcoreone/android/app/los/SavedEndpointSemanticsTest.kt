@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -18,10 +19,13 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.designsystem.ThemeRegistry
@@ -42,6 +46,8 @@ import com.meshcoreone.android.feature.tools.los.PathAnalysisResult
 import java.util.UUID
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -64,7 +70,7 @@ class SavedEndpointSemanticsTest {
     private lateinit var host: ActivityController<ComponentActivity>
     private val radio = RadioId(UUID.fromString("00000000-0000-0000-0000-000000000315"))
     private val east = contact("East saved repeater", 1, 37.8)
-    private val west = contact("\u897f saved repeater", 2, 37.7)
+    private val west = contact("\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c", 2, 37.7)
     private val elevationReads = mutableListOf<Coordinate>()
     private val dependencies = LineOfSightFeatureDependencies(
         elevationSource = object : LineOfSightElevationSource {
@@ -135,29 +141,69 @@ class SavedEndpointSemanticsTest {
         assertEquals(2f, host.get().resources.configuration.fontScale, 0f)
         assertEndpoint(east, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
+        assertContactNameLayouts(east, west)
+        assertRoleLabels(AppToolsStrings.toolsLineOfSightNotSelected, AppToolsStrings.toolsLineOfSightNotSelected)
         button(east).performScrollTo().performClick()
         assertEndpoint(east, AppToolsStrings.toolsLineOfSightPointA, selected = true)
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
+        assertContactNameLayouts(east, west)
+        assertRoleLabels(AppToolsStrings.toolsLineOfSightPointA, AppToolsStrings.toolsLineOfSightNotSelected)
         button(west).performScrollTo().performClick()
         assertEndpoint(east, AppToolsStrings.toolsLineOfSightPointA, selected = true)
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightPointB, selected = true)
+        assertContactNameLayouts(east, west)
+        assertRoleLabels(AppToolsStrings.toolsLineOfSightPointA, AppToolsStrings.toolsLineOfSightPointB)
         compose.runOnIdle { assertEquals(listOf(Coordinate(37.8, -122.4), Coordinate(37.7, -122.4)), elevationReads) }
         button(east).performScrollTo().performClick()
         assertEndpoint(east, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightPointB, selected = true)
+        assertContactNameLayouts(east, west)
+        assertRoleLabels(AppToolsStrings.toolsLineOfSightNotSelected, AppToolsStrings.toolsLineOfSightPointB)
         button(west).performScrollTo().performClick()
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
+        assertContactNameLayouts(east, west)
+        assertRoleLabels(AppToolsStrings.toolsLineOfSightNotSelected, AppToolsStrings.toolsLineOfSightNotSelected)
         compose.runOnIdle { assertEquals(2, elevationReads.size) }
     }
 
-    private fun button(contact: ContactDTO) = compose.onNode(hasText(contact.displayName) and hasClickAction())
+    private fun button(contact: ContactDTO) =
+        compose.onNode(hasContentDescription(contact.displayName) and hasClickAction())
 
     private fun assertEndpoint(contact: ContactDTO, label: Int, selected: Boolean) {
         val node = button(contact).performScrollTo().assertIsDisplayed().assertHeightIsAtLeast(48.dp)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, host.get().getString(label)))
         if (selected) node.assertIsSelected() else node.assertIsNotSelected()
-        assertEquals(listOf(contact.displayName), node.fetchSemanticsNode().config[SemanticsProperties.Text].map { it.text })
+        val config = node.fetchSemanticsNode().config
+        assertEquals(listOf(contact.displayName), config[SemanticsProperties.ContentDescription])
+        assertFalse(SemanticsProperties.Text in config)
+    }
+
+    private fun assertContactNameLayouts(vararg contacts: ContactDTO) =
+        assertRenderedTextLayouts("los-saved-endpoint-contact-name", contacts.map { it.displayName })
+
+    private fun assertRoleLabels(vararg expectedLabels: Int) =
+        assertRenderedTextLayouts(
+            "los-saved-endpoint-role-label",
+            expectedLabels.map { host.get().getString(it) },
+        )
+
+    private fun assertRenderedTextLayouts(tag: String, expectedTexts: List<String>) {
+        val labels = compose.onAllNodesWithTag(tag, useUnmergedTree = true)
+        assertEquals(expectedTexts.size, labels.fetchSemanticsNodes().size)
+        expectedTexts.forEachIndexed { index, expectedText ->
+            val layouts = mutableListOf<TextLayoutResult>()
+            labels[index].performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action ->
+                assertTrue("Actual rendered Text layout must be available for $tag", action(layouts))
+            }
+            val layout = layouts.single()
+            assertEquals(expectedText, layout.layoutInput.text.text)
+            assertEquals(2f, layout.layoutInput.density.fontScale, 0f)
+            assertTrue(layout.size.width > 0)
+            assertTrue(layout.size.height > 0)
+            assertTrue(layout.lineCount > 0)
+            assertFalse(layout.hasVisualOverflow)
+        }
     }
 
     private fun contact(name: String, key: Int, latitude: Double) = ContactDTO(
