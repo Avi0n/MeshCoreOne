@@ -18,8 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsSelected
@@ -34,6 +36,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -386,6 +389,51 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
             val text = compose.onNodeWithText(target.text, useUnmergedTree = true).assertIsDisplayed()
             assertFont200Unclipped(text)
             assertTrue(descendants(root()).any { it.contentDescription?.toString()?.contains(target.text) == true })
+            val historyBodies = history.map { it.text }.toSet()
+            fun captureViewport(): Pair<Float, List<String>> {
+                val viewport = list.fetchSemanticsNode()
+                val row = compose.onNodeWithContentDescription(target.text, useUnmergedTree = true).fetchSemanticsNode()
+                val coordinates = row.layoutInfo.coordinates
+                assertTrue("The actual row layout must remain placed and attached",
+                    row.layoutInfo.isPlaced && coordinates.isAttached)
+                val rowBottom = coordinates.positionInRoot().y + coordinates.size.height
+                val offset = rowBottom - viewport.boundsInRoot.bottom
+                val visibleMessages = compose.onAllNodes(SemanticsMatcher("An actual cached message row") {
+                    it.config.getOrNull(SemanticsProperties.ContentDescription)?.singleOrNull()
+                        ?.let { body -> body in historyBodies } == true
+                }, useUnmergedTree = true).fetchSemanticsNodes().filter { node ->
+                    generateSequence(node.parent) { it.parent }.any { it.id == viewport.id } &&
+                        node.boundsInRoot.width > 0f && node.boundsInRoot.height > 0f &&
+                        node.boundsInRoot.overlaps(viewport.boundsInRoot)
+                }.sortedBy { it.positionInRoot.y }.map {
+                    it.config[SemanticsProperties.ContentDescription].single()
+                }
+                assertTrue("Actual visible rows must be observed, not inferred from the target identity", visibleMessages.isNotEmpty())
+                assertEquals("Observe each actual visible message once", visibleMessages.size, visibleMessages.distinct().size)
+                println("WP503_NATIVE_CHAT_VIEWPORT|sdk=${android.os.Build.VERSION.SDK_INT}|message=${target.id}" +
+                    "|rowBottomPx=$rowBottom|viewportBottomPx=${viewport.boundsInRoot.bottom}" +
+                    "|withinRowOffsetPx=$offset|rowHeightPx=${coordinates.size.height}|visibleRows=$visibleMessages")
+                return offset to visibleMessages
+            }
+            val axis = list.fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
+            assertTrue("This actual production timeline must expose its reverse-layout scroll direction", axis.reverseScrolling)
+            val alignDelta = 12f - captureViewport().first
+            list.performSemanticsAction(SemanticsActions.ScrollBy) { assertTrue(it(0f, alignDelta)) }
+            compose.waitForIdle()
+            val firstOffset = captureViewport()
+            assertEquals("Observe the first actual within-row position in pixels", 12f, firstOffset.first, 0.5f)
+            assertEquals("The measured row must be the actual bottommost visible message", target.text, firstOffset.second.last())
+            list.performSemanticsAction(SemanticsActions.ScrollBy) { assertTrue(it(0f, 12f)) }
+            compose.waitForIdle()
+            val offsetOnly = captureViewport()
+            assertEquals("An offset-only scroll must retain the complete observed visible message set",
+                firstOffset.second, offsetOnly.second)
+            assertEquals("The actual row must move a further12px without relying on message identity",
+                24f, offsetOnly.first, 0.5f)
+            assertTrue("The captured viewport boundary must lie inside this actual row",
+                offsetOnly.first > 0f && offsetOnly.first <
+                    compose.onNodeWithContentDescription(target.text, useUnmergedTree = true)
+                        .fetchSemanticsNode().layoutInfo.coordinates.size.height)
             val selected = container.navigation.state.value.chatsSelectedRoute
             val entry = container.navigation.state.value.activeStack.last()
             val stacks = container.navigation.state.value.stacks
@@ -414,6 +462,8 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
                     "|entry=${entry.id}|draftSaved=true|timelineLoaded=true|realStore=true|realGraph=true|physicalTalkBack=false")
                 retained.assertIsDisplayed()
                 assertFont200Unclipped(retained)
+                assertEquals("Recreation at $size must preserve the measured within-row pixel offset, not just its identity",
+                    offsetOnly.first, captureViewport().first, 0.5f)
             }
         } finally {
             shell("wm size ${override ?: "reset"}")

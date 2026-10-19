@@ -7,6 +7,22 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Unexecuted strengthened assertions and offline37 investigation
+
+The user-authorized cached-chat/LOS assertion strengthening and supplemental
+tr/az producer cases have **no new build/APKs/native starts/outcomes**.
+The next bounded selector is21 existing plus2 supplemental identities; the
+unchanged US fixture remains10 independent vectors/11 methods. Published
+WP3168a8c6348 is inspected, not yet integrated or natively accepted here.
+Public LOS role-Text observation, exact combined source/APKs and lane release
+remain pre-build gates; API37 authorization is independently unresolved.
+The offline comparison found matching host-key advertisement/home wiring,
+fresh/no-snapshot commands and expected AVD/system paths, but no verified
+trust-preserving repair or guest accepted-key observation. No probe/retry,
+key/security/settings change or new native acceptance occurred.
+[Exact strengthened observations, source bindings and concrete gates](../../accessibility/execution-matrix.md#prepared-strengthened-producer-cohort-unexecuted-and-blocked).
+All results below retain their original source/APKs and failure classifications.
+
 ## Focused native production LocalizedCompare parity
 
 This is a separate bounded follow-up for existing WP-316 PR239, not a rerun

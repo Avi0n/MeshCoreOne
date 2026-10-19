@@ -2,64 +2,88 @@
 
 **Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips and83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; language238 and cold37 activation/restoration fail. Original237, context-bound Nodes/map and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
 
-## Prepared next combined producer cohort: not executed
+## Prepared strengthened producer cohort: unexecuted and blocked
 
-The next bounded selection reuses 21 existing methods at audit fixture source
-**889d31ba040276b7993cf06ebfb5d359a98989e4**, with no fixture/assertion edits.
-It will use one source-bound integration and one freshly assembled App/test
-APK pair for all three producers, not separate rebuilds or successor credit
-from earlier native results.
+The user explicitly authorized strengthening the existing saved-LOS action
+and cached-chat recreation methods after the earlier23f4f711 preparation.
+Every original action/assertion remains, including the first east-only
+elevation assertion/count before the new west/clear transitions. Two separate
+tr/az producer-preservation methods are additionally authorized. The focused
+selection is now **21 existing identities plus2 supplemental identities**,
+not a new independent Swift oracle family or a full native suite.
+No build/native execution has occurred for these changed assertions.
+The LOS selected property is asserted directly in Compose. For Role.Button,
+the pinned Compose delegate maps it to Android's checkable/checked state,
+not the Tab-only selected flag; the native check follows that actual mapping
+and independently requires the localized stateDescription.
 
 | Corrected producer binding | Required product blob | Current state |
 |---|---|---|
 |WP307 PR235 **4b6629ac2bf215577ec1522530a77de61ed577fe**|ChatTimeline.kt **3b10d361363e08af68225c9fba12e378c3eaf725**|Published/inspected; not yet integrated here|
 |WP315 PR227 **3a4e9a869f7c81014fb6aed245273e5838883ae2**|LineOfSightScreen.kt **819a6d982c34974f3dcd1534a9577546c5d5861b**|Published/inspected; not yet integrated here|
-|WP316 corrected Android-ICU-folding successor to3bcb254a|Not yet published/bound|BLOCKED; do not build with the old producer|
+|WP316 PR239 **8a8c6348af1c98b3f11f21769800308cf302b8f9**|LocalizedCompare.kt **213866562c54c12d1f82f9c397b5cdcac7a4907c**|Published/inspected; not yet integrated here|
 
-The prepared native selector is deliberately limited to these existing cases:
+The prepared selector is limited to these cases:
 
 | Existing class/method family | Distinct methods | Preserved coverage and limits |
 |---|---|---|
-|NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200|1|Real middle-message visibility, draft, selected route/entry/stacks and actual900/360dp recreation; original1000ms service windows|
-|NativeLineOfSightAccessibilityTest|2|Framework named native action control plus saved repeater non-gesture click/elevation callback, font200/48dp|
+|NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200|1|Original visibility/draft/navigation and real900/360dp recreation, plus observed12px then24px within-row offsets, same visible rows and restored pixel offset|
+|NativeLineOfSightAccessibilityTest|2|Original framework/named native actions plus localized selected/stateDescription and visible role Text/layout/ink through initial/A/B/clear transitions|
 |NativeLineOfSightContrastTest|1|Selected Point A text in all38 effective theme/scheme/contrast frames, unchanged4.5:1|
 |NativeLineOfSightPointBContrastTest|1|Selected Point B text in all38 effective frames, unchanged4.5:1|
 |NativeDiagnosticsFlowAccessibilityTest|5|Unchanged actual diagnostics/CLI/RX/noise-floor flows including600dp short viewport|
 |NativeLocalizedCompareParityTest|11|All10 independent Swift vectors/both equality and comparator directions plus14 stable equal-pair input orders|
-|Total selected existing identities|21|Prepared count only, not discovered/executed/passed tests|
+|NativeLocalizedCompareLocalePreservationTest|2|Separate tr-TR/az-AZ producer-specific7 pairs each, both equality/comparator directions and both stable orders for4 equal pairs|
+|Total prepared identities|23|21 existing plus2 supplemental; not native discovery/outcomes|
 
-Important scope limits: the existing native cached-chat case checks retained
-message visibility, **not exact 24px versus 12px offset capture**. That mounted
-negative witness belongs to the producer's source-bound evidence, not a native
-result. Existing LOS cases check actual named actions, callbacks, typography/
-targets and A/B label contrast; they **do not assert the newly added native
-selected/stateDescription or visible role-label text**. Their eventual PASS
-cannot be relabeled as proof of those unasserted properties. No new test,
-oracle, threshold, deadline or full-audit expansion is authorized by this
-preparation.
+The cached-chat observation uses the actual message row's public
+`layoutInfo.coordinates` bottom relative to the actual list viewport bottom.
+It verifies a measured12px position, a further12px public non-gesture scroll,
+unchanged complete visible message identities, a boundary inside the row,
+then the same24px physical offset after both real window recreations.
+The new0.5px allowance is subpixel-coordinate rounding, not a changed existing
+target/contrast/font/deadline threshold. This measures actual rendered row
+geometry, not a copied state value, inferred identity or claimed internal
+LazyListState offset. Native verification is still pending; no pixel PASS
+or old-producer negative witness is claimed from source inspection.
 
-The session-local `wp503-reviewedrepairs-inputs.json` binds each of six
-fixture blobs and every selected method. The same existing native adapter
-now has a `reviewed-repairs` selector with exact identity reconciliation.
-`wp503-reviewedrepairs-guard.py` checks21 original identities/known producer
-blobs without SDK, Gradle or adb. Execution is rejected before private-server/
-emulator/adb startup while the exact WP316 head/product blob and combined
-head remain unbound. API37 additionally stays hard-blocked pending verified
-lane-owner authorization resolution and guard review; a self-set boolean is
-not enough. No blind retry of its prior unauthorized300s failure.
+**Concrete pre-build observation blocker:** WP315's exact published source
+uses `Text(endpointLabel, Modifier.clearAndSetSemantics {})`. The actual
+painted role Text therefore has no public Text/GetTextLayoutResult observation
+in the test semantics. The new strict assertion is scoped to the real named
+button and requires displayed actual role Text, font200 layout and native
+ink; button stateDescription alone is deliberately insufficient. A producer
+must supply a public observation of that actual rendered label while retaining
+contact-only native names/no duplicate announcement. No private-field access,
+test screen copy, fabricated Text or expected-string stand-in is introduced.
+This is a source-inspected observation gap, **not native proof of missing
+visible labels**. It is reported to the current owner:
+[PR227 comment6271090330](https://github.com/cbattlegear/MeshCoreOne-Android/pull/227#issuecomment-6271090330).
 
-Preparation command (`$F` is the established session-files directory):
+The unchanged independent US fixture stays at blob
+**79e7e12b950f1459f006bc72942539ecf07375e0**: seven equal/three unequal
+vectors,11 methods including stable ordering. Supplemental locale pairs are
+read from published WP316 SwiftTextParityTest blob
+**58af4467a85422c8d53cee7001a159cf56f31642**: equal `I/dotless-i`,
+`dotted-I/i`, `I+combining-dot/i`, `sharp-s/STRASSE`; unequal `I/i`,
+`dotted-I/dotless-i`, `accent/e`. Each locale is a separate method with7
+vector observations. These are producer-preservation cases, **not new
+independent Foundation results or general locale parity**.
+
+Session-local `wp503-reviewedrepairs-inputs.json` binds seven fixture blobs
+and all23 selected identities; the existing `reviewed-repairs` selector
+reconciles exact starts/outcomes, not just matching counts. The prior source
+binding889d31ba remains historical, not the new assertion source. Static
+guard validation is not native discovery. Execution rejects before server/
+emulator/adb while the actual combined source is unbound or the public LOS
+role observation is missing. API37 remains separately hard-blocked pending
+verified lane-owner authorization resolution and guard review.
+
+Preparation-only command (`$F` is the established session-files directory):
 
 ```powershell
 python "$F\wp503-reviewedrepairs-guard.py"
 ```
-
-Result: all 21 selected source identities and six original fixture blobs
-match; both available producer blobs match their exact heads. This is
-preparation validation, **not native test discovery**. Execution-gate probes
-for31 and37 both exit2 before any adb/build operation: missing WP316/combined
-binding on31, unresolved lane-owner authorization on37. The private-runner
-entry point also rejects before starting its server or emulator.
 
 Future selector shape, **not executed or presently admitted**:
 
@@ -67,12 +91,14 @@ Future selector shape, **not executed or presently admitted**:
 python "$F\wp503-private-adb-native31.py" --phase reviewedrepairs --head COMBINED_HEAD --api 31 --scenario reviewed-repairs
 ```
 
-Only after the corrected WP316 producer is published, its Tools test-build
-ownership handoff is respected, the real integration is admitted/bound and
-the active owner's Gradle lane is released may the existing focused APK
-builder run once. Record all three producer SHAs/blobs, actual combined
-commit/Android tree, unchanged six fixture blobs, freshly assembled APK
-sizes/hashes and actual per-API21 identity/outcome counts. Every outcome is
+Before the single combined build: resolve the public LOS observation through
+its producer, respect WP316 Tools test-build ownership/release, and admit/bind
+the real integration. Record all producer SHAs/blobs (including any required
+LOS successor), actual combined commit/Android tree, seven audit fixture
+blobs, newly assembled APK sizes/hashes and actual per-API23 identity/outcome
+counts, separately retaining the original US11/supplemental locale2 counts.
+No build is launched merely because WP316 publication is now available.
+Every eventual outcome is
 **combined integration**, not standalone acceptance of any producer. Do not
 start a37 command until its independent authorization gate is resolved.
 
@@ -80,6 +106,46 @@ No producer imports, builds, Gradle-lane acquisition, emulator/adb execution,
 SDK/settings changes, physical observations, merge or new worker occurred
 for this preparation. Prior83 totals, native31 collation9PASS/2FAIL and the
 requested37 zero-start unauthorized gate remain at their original sources.
+Trusted declared `python tools\android-port\controller\validate.py` and
+`python tools\android-port\portmap.py` pass; they do not compile or execute
+the strengthened Kotlin assertions.
+
+## API37 authorization: bounded offline investigation, no verified fix
+
+The retained localizedcompare operations/logs bind both requested API runs
+to5bbef0b2 and the same owned private adb server, with the same inherited
+home/key-selection wiring. The adapter changes only its private adb socket/
+port, scan ceiling and mDNS autoconnect. It does not select different homes
+or vendor keys for31 and37. Both emulator logs advertised the same public
+key, compared only in memory; no key bytes/fingerprint are reproduced.
+The default key files exist under the expected user profile with unchanged
+recorded2024 metadata. Current home/vendor-key override variables are unset;
+current environment inspection is not a captured historical server-home dump.
+The generic `$ADB_VENDOR_KEYS is not set` error does not itself prove a
+misconfiguration: the default user key path is valid. AOSP31 success also
+does not prove that37's secure adbd has accepted that key.
+
+Both actual retained commands use `-read-only -no-snapshot` and distinct
+fresh scratch data paths; entry assertions forbid pre-existing scratch
+files and recorded cleanup removes both images/overlays. Current AVD
+pointers resolve Medium_Phone to `Medium_Phone_2.avd`/AOSP31 and
+Pixel_10_Pro_XL to its PlayStore37.2/16KiB image, matching retained startup
+system paths. Both configs default to fast boot, no chosen snapshot or
+explicit data-partition path; the commands explicitly request no snapshot.
+Logs show no snapshot-loading event and both contain the same brief
+`Saving snapshot 'default_boot'` callback. This callback is not proof of a
+persisted-snapshot mismatch or permission to wipe/change either AVD.
+
+No offline evidence identifies a wrong key/home or snapshot-selection repair
+that is verified to resolve37 without changing trust. The exact surviving
+blocker is37's **unauthorized adbd after boot**, before any runtime/API/ICU
+query or instrumentation. Historical server-loaded-key/guest accepted-key
+state is not available from these captures; do not infer an external
+confirmation completed or blindly repeat the300s guard. A lane owner must
+resolve/verify the actual authorization before this audit can proceed on37.
+No key-file content was read/copied/generated, auth reset/disabled, settings
+edited, probe device launched or retry performed. This is offline diagnosis, not
+new native acceptance or a successful environment repair.
 
 ## Separate focused production collation audit
 

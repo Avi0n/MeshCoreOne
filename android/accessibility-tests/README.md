@@ -1,5 +1,32 @@
 # WP-503 native audit helpers
 
+## Bounded strengthened repair cohort: not executed
+
+The existing saved-LOS action method now retains its original actions and
+checks native localized selected/stateDescription and measured visible role
+Text/layout/ink through unselected/A/B/clear states. The cached-chat recreation
+method retains all original assertions and compares actual public row/list
+pixel offsets after a12px-to24px offset-only scroll with unchanged visible rows.
+These assertions have not yet been compiled or executed on a native device.
+
+`NativeLocalizedCompareLocalePreservationTest` separately retains WP316
+producer8a8c6348's explicit tr-TR/az-AZ cases: four equal/three unequal pairs
+per locale, both equality/comparator directions and stable equal ordering.
+It invokes the installed production public JVM ABI, not copied comparison
+logic. These2 methods are supplemental producer-preservation evidence, not
+new independent Swift oracle results. The original US fixture/vector bytes
+remain unchanged at10 vectors/11 methods.
+
+The session's `reviewed-repairs` selector expects23 exact identities:
+21 existing repair-audit methods plus2 supplemental locale methods. Broad
+`feature-matrix`80 excludes both independently selected comparator classes.
+Do not call the changed assertions a rerun/pass of the original83 inventory.
+Before the single combined build, the producer must expose an actual public
+observation for LOS role Text currently cleared by `clearAndSetSemantics`.
+Combined source/APKs, WP316 lane release and separate37 authorization are
+still required; no blind retry or stand-in stateDescription evidence.
+[Bindings, commands and exact blockers](../../docs/android/accessibility/execution-matrix.md#prepared-strengthened-producer-cohort-unexecuted-and-blocked).
+
 ## Focused production collation parity
 
 `NativeLocalizedCompareParityTest` runs the retained independent Swift vectors
@@ -40,8 +67,9 @@ and instrumentation process; do not combine them into one package invocation.
 The former `full` package selection is blocked, not relabeled as an80-case pass:
 actual82-case runs retained historical Activities and correctly failed both
 zero-Activity guards. Their failures remain evidence. `feature-matrix` explicitly
-excludes only those two separately required classes with AndroidJUnitRunner's
-`notClass` argument, plus the separately required fault-injection method by its
+excludes those two separately required controls and both separately selected
+comparator classes with AndroidJUnitRunner's `notClass` argument, plus the
+separately required fault-injection method by its
 class#method identity. No method, assertion or count is dropped from the inventory.
 Do not retry failed cases until green or reduce these counts.
 
