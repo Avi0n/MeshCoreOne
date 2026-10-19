@@ -7,7 +7,89 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Final LoS API31: actual endpoint states and rendered name/role pass
+
+Corrected owned consumer **3f39a777376e322e2bc533f1d1caf92a87a44ed8**,
+Android tree **7a9dd08e005e1e9cad79405dafecf325158d8b0c**, consumes
+exact final producer **c6cdac39e89081647ea6475e6bcae800f2531109**.
+Both producer Android blobs are exact; producer documentation, shared
+font/ink helpers, original framework-control body and all earlier successful
+fixtures are unchanged. Existing canonical1666502a/actual CLI aliasd298/
+reservation6 identity and authorization history remain intact; both support
+paths were already capability-admitted, so no reservation rewrite occurs.
+
+Only`savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200`
+runs: **1 discovery/1 start/1 matching terminal outcome,
+1PASS/0FAIL/0ERROR/0SKIP9.563s,runner0**. No successful method/cohort is
+replayed. Original native actions/callbacks, selected/checkable/checked/
+stateDescription and font200/RTL/full-line/clipping/ink assertions remain.
+The name is a sole-content-description native child; its real clickable,
+checkable ancestor owns the action/state. Original `namedActions` ancestry
+is used, not an invented requirement that both occupy one virtual node.
+
+| Stage, both actual endpoints measured | East | CJK West |
+|---|---|---|
+|Initial|Not selected / unchecked|Not selected / unchecked|
+|Native East click|Point A / checked|Not selected / unchecked|
+|Native West click|Point A / checked|Point B / checked|
+|Native East clear|Not selected / unchecked|Point B / checked|
+|Native West clear|Not selected / unchecked|Not selected / unchecked|
+
+All10 actual endpoint-state observations match. Both exact native names/
+ancestor actions initially occur once; all14 native action-link observations
+are actually clickable/checkable.21 actual scoped layouts (11 name,10 role)
+come from each Text's public GetTextLayoutResult/onTextLayout and match exact
+`layoutInput.text`, with actual font2/RTL and no duplicate spoken Text.
+All20 nonzero native ink checks and original full-line/clipping assertions
+pass, with no tolerance/threshold change or model-text substitution.
+The first-East scroll-before-native traversal is exercised, not merely
+compiled. Original final assertions verify1 catalog read/2 elevation
+callbacks after all four native select/clear clicks; no terrain analysis
+or real radio is requested.
+
+| Assembled/installed artifact | Bytes | SHA256 |
+|---|---|---|
+|App, identical to first c5 attempt|105509157|`c2b9865c65bf3f47b02bc6281fd4e31d19be751bb85d1c07306194d0eeada0fd`|
+|Corrected observer test|4530035|`af3808bff51daf4e7e8c1b02e8070f9f087ea67260f04e69c2afebd2af8c4bb0`|
+
+Independent DEX class definitions place production`LineOfSightScreenKt`
+only in App classes3.dex and the audit only in Test classes3.dex; neither is
+defined in the other APK. This executes production, not a copied screen.
+
+```powershell
+python "$F\wp503-localizedcompare-build.py" --los-endpoints
+python "$F\wp503-private-adb-native31.py" --phase losendpoints --head 3f39a777376e322e2bc533f1d1caf92a87a44ed8 --api 31 --scenario los-endpoints
+```
+
+Build exits0: actual nonblocking exclusive inherited FD9, pinned preflight,
+only strict`:app:assembleDebug :app:assembleDebugAndroidTest`, no parallel
+projects/2 workers;49s/446 tasks9 executed/437 up-to-date. Native command
+exits0. Actual API31/2 CPUs/360x900/density160/font2 and two installs are
+verified; emulator exits0/transport absent266ms/exactly2 scratch paths
+removed, private65429 server exits0/port closed/shared5037 untouched.
+Prior APKs/captures remain retained under their original bindings.
+
+The earlier c5 observer failure below remains **0PASS/1FAIL4.536s**;
+it is not erased, relabelled a product defect or aggregated into this pass.
+The corrected code restores the original ancestor-action interpretation
+without removing any original state/layout assertion. Nodes7 evidence87fb,
+ba67 original23/e8 targeted2/ea0/native83 and both prior contrast methods
+remain source-bound and unreplayed; no successor all-theme result is inferred.
+**API37 remains BLOCKED_BEFORE_LAUNCH,0 new starts/outcomes**, no
+preparation/auth/key/security/settings workaround. Physical TalkBack,
+golden/matrix, acceptance admission and independent/full-WP review remain
+open. No hosted acceptance, CI-result bundle, merge or self-approval.
+
+[Exact producer/consumer/preserved fixtures/APK/DEX/runtime/outcome record](device-losendpoints-traversal-integration.json),
+[instrumentation](device-losendpoints-traversal-api31.txt),
+[state/layout/ink observations](device-losendpoints-traversal-metrics-api31.txt)
+and [runner](device-losendpoints-traversal-runner-api31.txt).
+[Existing WP315 owner observation](https://github.com/cbattlegear/MeshCoreOne-Android/pull/227#issuecomment-6271090330)
+is updated/read back. PR205 remains draft; these commits are local/unpushed.
+
 ## Final LoS consumer: first API31 attempt retains an owned observation failure
+
+**Historical c5 attempt only, before the corrected-source run above.**
 
 Final WP315 **c6cdac39e89081647ea6475e6bcae800f2531109** imports two
 exact Android files under existing revision6 capabilities; producer docs,
@@ -30,11 +112,11 @@ ancestor, which the original `namedActions` helper already supports.
 It is not a measured missing-name/painted-label product defect; no
 state/getter measurement or elevation callback is reached.
 
-The owned follow-through restores that original ancestry traversal, retains
+The owned follow-through subsequently restores that original ancestry traversal, retains
 unique exact name/action checks and every original native checkable/checked/
 stateDescription assertion, and records both actual nodes' states. No shared
 helper, product code, threshold or oracle changes. This correction has no
-new native credit until executed separately; the c5 failure and seven raw
+new native credit at this historical snapshot; the c5 failure and seven raw
 captures remain immutable. Owned emulator/private server exit0, transport
 absent266ms,2 scratch files removed/shared5037 untouched.
 API37 stays blocked before launch/0 new starts/no auth action.

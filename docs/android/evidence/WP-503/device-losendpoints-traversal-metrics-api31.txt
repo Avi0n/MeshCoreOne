@@ -1,0 +1,646 @@
+WP503_NATIVE_PROCESS_STARTUP|phase=await|alreadyCompleted=true
+WP503_NATIVE_PROCESS_STARTUP|phase=ready|actualCompleted=true|elapsedMs=12|serviceDeadlineUnchangedMs=1000|startupPrerequisiteNotServiceWindow=true
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=Line of Sight|size=201 x 48|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x48.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Line of Sight|line=0|left=0.0|right=201.0|top=0.0|bottom=48.0
+WP503_SCROLL_LINE|text=Line of Sight|line=0|position=Offset(143.0, 371.0)->Offset(143.0, 371.0)|viewport=Rect.fromLTRB(0.0, 355.0, 360.0, 774.0)
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=7
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=7
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Line of Sight|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_PLATFORM_ACTIONS|label=East saved repeater|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=6
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_PLATFORM_ACTIONS|label=中文西側中繼|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=6
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=East saved repeater|size=230 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=230.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=East saved repeater|line=0|left=0.6015625|right=230.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(65.0, 590.0, 295.0, 628.0)|colors=182|nonBackgroundPixels=2230
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Not selected|size=148 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=148.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Not selected|line=0|left=0.0|right=148.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(106.0, 628.0, 254.0, 666.0)|colors=181|nonBackgroundPixels=1494
+WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=6
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=中文西側中繼|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-contact-name|actualText=中文西側中繼|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=中文西側中繼|size=156 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=156.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文西側中繼|line=0|left=0.0|right=156.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(102.0, 690.0, 258.0, 728.0)|colors=213|nonBackgroundPixels=1812
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Not selected|size=148 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=148.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Not selected|line=0|left=0.0|right=148.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(106.0, 728.0, 254.0, 766.0)|colors=181|nonBackgroundPixels=1494
+WP503_LOS_SELECTION_STATE|contact=中文西側中繼|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=6
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Points|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=East saved repeater|size=230 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=230.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=East saved repeater|line=0|left=0.6015625|right=230.0|top=0.0|bottom=38.0
+WP503_SCROLL_LINE|text=East saved repeater|line=0|position=Offset(65.0, 736.0)->Offset(65.0, 736.0)|viewport=Rect.fromLTRB(0.0, 355.0, 360.0, 774.0)
+WP503_TARGET|width=48.0|height=48.0|role=Button
+WP503_TARGET|width=48.0|height=48.0|role=Button
+WP503_TARGET|width=48.0|height=48.0|role=Button
+WP503_TARGET|width=48.0|height=48.0|role=Button
+WP503_TARGET|width=48.0|height=48.0|role=Button
+WP503_PARTIAL_TARGET|position=Offset(16.0, 728.0)|size=328 x 92
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=5
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point A|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=East saved repeater|size=230 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=230.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=East saved repeater|line=0|left=0.6015625|right=230.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(65.0, 690.0, 295.0, 728.0)|colors=182|nonBackgroundPixels=2230
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Point A|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Point A|size=85 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=85.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Point A|line=0|left=0.16796875|right=85.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(138.0, 728.0, 223.0, 766.0)|colors=159|nonBackgroundPixels=766
+WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=true|localizedState=Point A|nativeChecked=true|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=5
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=中文西側中繼|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-contact-name|actualText=中文西側中繼|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=中文西側中繼|size=156 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=156.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文西側中繼|line=0|left=0.0|right=156.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(102.0, 690.0, 258.0, 728.0)|colors=213|nonBackgroundPixels=1812
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Not selected|size=148 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=148.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Not selected|line=0|left=0.0|right=148.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(106.0, 728.0, 254.0, 766.0)|colors=181|nonBackgroundPixels=1494
+WP503_LOS_SELECTION_STATE|contact=中文西側中繼|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=5
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=A|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=中文西側中繼|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point A|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=East saved repeater|size=230 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=230.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=East saved repeater|line=0|left=0.6015625|right=230.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(65.0, 690.0, 295.0, 728.0)|colors=182|nonBackgroundPixels=2230
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Point A|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Point A|size=85 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=85.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Point A|line=0|left=0.16796875|right=85.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(138.0, 728.0, 223.0, 766.0)|colors=159|nonBackgroundPixels=766
+WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=true|localizedState=Point A|nativeChecked=true|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=5
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=中文西側中繼|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point B|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-contact-name|actualText=中文西側中繼|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=中文西側中繼|size=156 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=156.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文西側中繼|line=0|left=0.0|right=156.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(102.0, 690.0, 258.0, 728.0)|colors=175|nonBackgroundPixels=1812
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-role-label|actualText=Point B|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Point B|size=84 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=84.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Point B|line=0|left=0.16796875|right=84.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(138.0, 728.0, 222.0, 766.0)|colors=123|nonBackgroundPixels=819
+WP503_LOS_SELECTION_STATE|contact=中文西側中繼|selected=true|localizedState=Point B|nativeChecked=true|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=5
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point A|actualAncestorAction=true
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=5
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=East saved repeater|size=230 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=230.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=East saved repeater|line=0|left=0.6015625|right=230.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(65.0, 506.0, 295.0, 544.0)|colors=182|nonBackgroundPixels=2230
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Not selected|size=148 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=148.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Not selected|line=0|left=0.0|right=148.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(106.0, 544.0, 254.0, 582.0)|colors=181|nonBackgroundPixels=1494
+WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=5
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=中文西側中繼|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point B|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-contact-name|actualText=中文西側中繼|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=中文西側中繼|size=156 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=156.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文西側中繼|line=0|left=0.0|right=156.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(102.0, 606.0, 258.0, 644.0)|colors=175|nonBackgroundPixels=1812
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-role-label|actualText=Point B|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Point B|size=84 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=84.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Point B|line=0|left=0.16796875|right=84.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(138.0, 644.0, 222.0, 682.0)|colors=123|nonBackgroundPixels=819
+WP503_LOS_SELECTION_STATE|contact=中文西側中繼|selected=true|localizedState=Point B|nativeChecked=true|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=5
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=中文西側中繼|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point B|actualAncestorAction=true
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=6
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=East saved repeater|size=230 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=230.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=East saved repeater|line=0|left=0.6015625|right=230.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(65.0, 506.0, 295.0, 544.0)|colors=182|nonBackgroundPixels=2230
+WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Not selected|size=148 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=148.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Not selected|line=0|left=0.0|right=148.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(106.0, 544.0, 254.0, 582.0)|colors=181|nonBackgroundPixels=1494
+WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=androidx.compose.ui.platform.ComposeView|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=androidx.compose.ui.viewinterop.ViewFactoryHolder|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.FrameLayout|text=null|description=Line of Sight|clickable=true|children=1
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.ScrollView|text=null|description=null|clickable=false|children=6
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=2
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=1
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=B|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Not selected|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Repeaters|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=East saved repeater|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=true|children=4
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=中文西側中繼|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.Button|text=null|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.widget.TextView|text=Long press on the map to add a location|description=null|clickable=false|children=0
+WP503_PLATFORM_NODE|class=android.view.View|text=null|description=null|clickable=false|children=0
+WP503_LOS_NATIVE_ACTION_LINK|contact=中文西側中繼|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-contact-name|actualText=中文西側中繼|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=中文西側中繼|size=156 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=156.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文西側中繼|line=0|left=0.0|right=156.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(102.0, 606.0, 258.0, 644.0)|colors=213|nonBackgroundPixels=1812
+WP503_LOS_RENDERED_TEXT|contact=中文西側中繼|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false
+WP503_FONT|text=Not selected|size=148 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=148.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Not selected|line=0|left=0.0|right=148.0|top=0.0|bottom=38.0
+WP503_FONT_PAINT|label=|bounds=Rect.fromLTRB(106.0, 644.0, 254.0, 682.0)|colors=181|nonBackgroundPixels=1494
+WP503_LOS_SELECTION_STATE|contact=中文西側中繼|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false
+WP503_TARGET|width=328.0|height=92.0|role=Button
+WP503_TARGET|width=328.0|height=92.0|role=Button

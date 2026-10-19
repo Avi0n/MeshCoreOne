@@ -2,6 +2,33 @@
 
 **Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips and83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; language238 and cold37 activation/restoration fail. Original237, context-bound Nodes/map and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
 
+## Final LoS consumer: API31 saved-endpoint transitions pass
+
+Only the previously failing saved-endpoint method runs against final
+producer315c6cdac39e89081647ea6475e6bcae800f2531109, corrected owned
+consumer **3f39a777376e322e2bc533f1d1caf92a87a44ed8**/Android tree
+**7a9dd08e005e1e9cad79405dafecf325158d8b0c**:
+**1 discovery/1 start/1 matching outcome,1PASS/0FAIL/0ERROR/0SKIP9.563s,
+runner0**. All10 initial/A/B/clear native states,21 real scoped name/role
+layout inputs at actual font2/RTL,20 ink checks and original full-line/
+clipping/48dp/callback predicates pass. Native names are sole-description
+children of actual clickable/checkable ancestors; original action ancestry
+is retained, not a same-node assumption. First-East scroll/traversal is now
+actually exercised;1 catalog/2 elevation callbacks after four native clicks.
+No model text, duplicate speech or shared-helper/oracle/floor change.
+
+An initial owned same-node observer assumption remains a separate actual
+c5 source failure:1 start/outcome,0PASS/1FAIL4.536s, before state/getters/
+callbacks. The actual native tree proves that assumption invalid; correcting
+only that owned observation restores the existing ancestor-action path.
+Its seven raw captures are retained unchanged, not converted into this pass.
+Pinned strict targeted App assembly passes49s/446 tasks9 executed437
+up-to-date; private emulator/server/scratch cleanup completes.
+**API37 remains blocked before launch/0 new starts**, with no auth attempt.
+Nodes7 evidence87fb and all prior successful cohorts/contrast methods are
+untouched/unreplayed; no new all-theme/physical/full-WP acceptance.
+[Exact commands, states, source/APKs/runtime and both attempts](../evidence/WP-503/README.md#final-los-api31-actual-endpoint-states-and-rendered-namerole-pass).
+
 ## Final Nodes7 continuation: API31 terminal, API37 blocked
 
 Executed **a0d4306f5de85b84962b2a9aee18a9a9608ba515**/Android tree
