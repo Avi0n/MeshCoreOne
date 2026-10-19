@@ -38,6 +38,6 @@ jobs:
       - name: Audit candidate data without executing it or approving a human gate
         if: inputs.candidate_sha != ''
         run: python tools/android-port/controller/validate.py --gate-base "$GITHUB_SHA" --gate-candidate "$CANDIDATE_SHA"
-      - name: Missing real current-head independent approval/publisher is BLOCKED
+      - name: Missing authenticated review publisher or required human acceptance is BLOCKED
         if: ${{ always() }}
         run: python tools/android-port/controller/gate_runtime.py capabilities

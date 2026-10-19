@@ -123,21 +123,45 @@ class GitHubGateAuthority:
         reviews = self.backend.pages(f"{prefix}/pulls/{number}/reviews")
         by_id = {review["id"]: review for review in reviews}
         latest_decisive = {}
+        latest_formal = {}
         for item in reviews:
+            body = item.get("body") or ""
+            acceptance = f"<!-- android-port-acceptance:{binding.key} -->"
             if item.get("state") in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED"):
+                login = item.get("user", {}).get("login")
+                if login not in latest_formal or item["id"] > latest_formal[login]["id"]:
+                    latest_formal[login] = item
+            if item.get("state") in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED") or (
+                item.get("state") == "COMMENTED" and acceptance in body
+            ):
                 login = item.get("user", {}).get("login")
                 if login not in latest_decisive or item["id"] > latest_decisive[login]["id"]:
                     latest_decisive[login] = item
+        if any(
+            login in set(self.policy["maintainers"]) | set(self.policy["review_policy"]["authorized_coordinators"])
+            and item.get("state") == "CHANGES_REQUESTED" and item.get("commit_id") == head
+            for login, item in latest_formal.items()
+        ):
+            raise PortError("Approval/acceptance blocked by current-head review findings")
         for approval in payload["approvals"]:
+            if not isinstance(approval, dict):
+                raise PortError("Malformed trusted acceptance record")
             actual = by_id.get(approval.get("review_id"))
-            stamp = f"<!-- android-port-approval:{binding.key} -->"
+            typed = "kind" in approval
+            if typed and approval["kind"] != "human-acceptance":
+                raise PortError("Unknown human acceptance kind")
+            stamp_kind = "acceptance" if typed else "approval"
+            stamp = f"<!-- android-port-{stamp_kind}:{binding.key} -->"
+            states = ("COMMENTED", "APPROVED") if typed else ("APPROVED",)
             if actual is None or (
-                actual.get("state") != "APPROVED" or actual.get("commit_id") != head
+                actual.get("state") not in states or actual.get("state") != approval.get("state")
+                or actual.get("commit_id") != head
                 or actual.get("user", {}).get("login") != approval.get("reviewer")
+                or approval.get("reviewer") not in self.policy["maintainers"]
                 or stamp not in (actual.get("body") or "")
                 or latest_decisive.get(approval.get("reviewer"), {}).get("id") != approval.get("review_id")
             ):
-                raise PortError("Approval is not an actual current-head explicitly bound maintainer review")
+                raise PortError("Approval/acceptance is not an actual current-head explicitly bound maintainer review")
         return GateBundle(
             binding, pr_fact, evidence, payload["review"], payload["approvals"],
             payload["catalog"], True,

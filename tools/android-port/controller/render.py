@@ -102,9 +102,11 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
         f"Record deviations/evidence only under docs/android/deviations/{wp_id}.md and "
         f"docs/android/evidence/{wp_id}/.",
         "Candidate builds have read-only credentials, no signing/dispatch/merge secrets.",
-        "Independent review comes from the trusted read/search-only parity-reviewer; do not self-approve.",
+        "Code review comes from the authenticated trusted read/search-only reviewer or authorized coordinator; "
+        "the PR author may coordinate. Never fabricate a GitHub APPROVED review or human acceptance.",
         "Return the actual task/session/PR/head, commands/discovered counts, evidence and blockers.",
-        "Stop at a human/protected-path gate or oversized macro-WP; propose a reviewed subdivision, "
+        "Stop at missing required human acceptance or an oversized macro-WP; protected code still requires trusted review. "
+        "Propose a reviewed subdivision for oversized work, "
         "never silently amend policy.",
     ])
     text = "\n".join(lines) + "\n"
