@@ -4,6 +4,20 @@
 
 ## Executed strengthened cohort: API31 terminal, API37 not launched
 
+**Separate next Nodes7 is blocked, not executed.** Final producerfd9fa8e1
+is imported exactly atb3c09f18cf199bc922feb4cbcbfd6910570a0bf8/tree
+3814b5e0e183e46bb6258ce8edd589fe2d7e05ae through same-attempt trusted
+merge CAS5-to6; original seven entry/shared assertions and five fixture
+blobs are unchanged. One nonblocking exclusive build-lane acquisition
+returns75/outer1 before snapshot import/preflight/Gradle. No queue/retry,
+new APK or API31 device operation: **0 discovered/started/outcomes,
+0pass/fail/error/skip; BLOCKED_BEFORE_BUILD**, not a zero-test pass.
+API37 independently remains **BLOCKED_BEFORE_LAUNCH,0 new starts**.
+No old result or producer-host65/65/hosted success transfers to finalfd9;
+original Copy84x31 and search/favorite negatives remain. The first-East
+fixture follow-through below is still uncompiled/unexecuted. [Exact source,
+seven selectors, lane trace and blocker](../evidence/WP-503/README.md#final-nodes7-exact-source-imported-occupied-build-lane-blocks-execution).
+
 At exact combinedba67b894766137a996cfc8c4e5e17a61e7d73533/tree
 c9249b0fd4362d5bece86845e912c5cf715fd44e, all23 prepared identities
 start and produce matching outcomes once: **21PASS/2FAIL,38.195s,

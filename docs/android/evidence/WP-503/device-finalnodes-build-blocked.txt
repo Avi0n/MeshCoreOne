@@ -1,0 +1,13 @@
+FINAL_FD9_SOURCE_AND_ORIGINAL7_FIXTURE_BLOBS_BOUND|CAS5TO6|NO_NATIVE_OUTCOME_YET
+/usr/bin/git
+/usr/bin/flock
+BLOCKED: serialized Gradle lane occupied; no build queued
+Traceback (most recent call last):
+  File "C:\Users\camer\.copilot\session-state\d2980f28-620c-408b-9947-067e2da8eedf\files\wp503-localizedcompare-build.py", line 181, in <module>
+    windows() if os.name == "nt" else native()
+    ^^^^^^^^^
+  File "C:\Users\camer\.copilot\session-state\d2980f28-620c-408b-9947-067e2da8eedf\files\wp503-localizedcompare-build.py", line 173, in windows
+    subprocess.run([
+  File "C:\Python312\Lib\subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['C:\\Windows\\system32\\wsl.exe', '--distribution', 'Ubuntu-22.04', '--', 'bash', '/mnt/c/Users/camer/AppData/Local/Temp/wp503-localizedcompare-61402754/owned-lane.sh', 'bash', '/mnt/c/Users/camer/AppData/Local/Temp/wp503-localizedcompare-61402754/run.sh', '/mnt/c/Users/camer/AppData/Local/Temp/wp503-localizedcompare-61402754/candidate.bundle', 'b3c09f18cf199bc922feb4cbcbfd6910570a0bf8', '6231c00c163c73f7', '/mnt/c/Users/camer/AppData/Local/Temp/wp503-localizedcompare-61402754', 'preflight', '', 'owned-lock']' returned non-zero exit status 75.

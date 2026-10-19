@@ -7,6 +7,65 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Final Nodes7: exact source imported; occupied build lane blocks execution
+
+Final WP-311/PR233 **fd9fa8e16c8a74043387010a192c3a9e36abd783**
+is integrated at **b3c09f18cf199bc922feb4cbcbfd6910570a0bf8**,
+Android tree **3814b5e0e183e46bb6258ce8edd589fe2d7e05ae**.
+All seven producer Android blobs are exact: six changes and an already-exact
+ContactDetailScreen. Each prior blob matches an actual producer ancestor/base,
+or an absent-before-addition file. Trusted same-attempt merge capability
+CAS5-to6 preserves canonical1666502a, CLI aliasd298, immutable identity,
+binding and authorization history. No producer documentation or WP503-authored
+production behavior is imported/changed.
+
+The original seven Nodes methods and their shared consumer, offline ports,
+font/48dp assertions and readiness harness are byte-identical to ba67.
+All original font200/RTL/full-line/viewport/QR clipboard-feedback-chooser/
+dismissal predicates remain. Parsing seven source declarations is **not
+instrumentation discovery**.
+
+```powershell
+python "$F\wp503-localizedcompare-build.py" --final-nodes
+```
+
+**BLOCKED:** one actual nonblocking exclusive FD9 lane acquisition returns
+`flock`75, `BLOCKED: serialized Gradle lane occupied; no build queued`;
+the outer builder exits1. This happens before candidate snapshot import,
+pinned preflight or either intended App assembly task. No queue, overlap,
+retry, new APK, private adb server, emulator or instrumentation command.
+The earlier invocation with unsupported`--head` exits2 at argument parsing;
+it is not a build/native attempt. No current compilation credit applies
+to the separately prepared first-East LoS traversal change at55af1665.
+
+| Requested API | Terminal preparation status | Native discovery/starts/outcomes | Pass/fail/error/skip |
+|---|---|---|---|
+|31|BLOCKED_BEFORE_BUILD: occupied Gradle lane|0/0/0 of7 declared|0/0/0/0; not a pass|
+|37|BLOCKED_BEFORE_LAUNCH: unresolved authorization|0/0/0 of7 declared|0/0/0/0; not a skip/pass|
+
+There is **no source/APK/runtime binding for execution of finalfd9**.
+The prior e8 APKs and their metadata remain independently byte-verified;
+they are not rebound to b3c09f18. The existing API31 Copy84x31 and separate
+API37 search/favorite negatives remain unresolved at their actual sources.
+Producer-host65/65 and reported hosted39279838465 success are not native
+evidence. No thirteen successful comparator methods, LoS methods, full suite
+or API37 preparation/authentication action is executed.
+
+[Exact seven selectors, five unchanged fixture blobs, seven producer blobs,
+ancestor proof, typed receipt and zero-start status](device-finalnodes-integration.json).
+[Original lane refusal](device-finalnodes-build-blocked.txt).
+Ba67's23 and e8's2/ea0 evidence remain separate and unchanged. Existing lane
+release is required before the single targeted build/original7 API31 run;
+API37 independently needs a verified authorization resolution. PR205 remains
+draft, local integration is unpushed, and full WP acceptance is incomplete.
+
+The existing lightweight commands`python tools\android-port\controller\validate.py`
+and`python tools\android-port\portmap.py` pass: unchanged manifest,1758
+nonempty structured provenance mappings. An initial wrapper wrongly expects
+a result object from portmap's actual list output and asserts after the
+command exits0; the corrected wrapper validates the real nonempty list
+contract. No additional Gradle/native lane attempt is made.
+
 ## Corrected combined repair cohort: API31 terminal results, API37 blocked
 
 Executed once at **ba67b894766137a996cfc8c4e5e17a61e7d73533**,

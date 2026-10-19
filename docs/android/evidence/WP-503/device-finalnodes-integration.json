@@ -1,0 +1,477 @@
+{
+  "kind": "source-bound-final-nodes-audit-BLOCKED-not-acceptance",
+  "recorded_at_utc": "2026-10-19T17:04:57.197602+00:00",
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "wp": "WP-503",
+  "issue": 136,
+  "draft_pr": 205,
+  "combined_head": "b3c09f18cf199bc922feb4cbcbfd6910570a0bf8",
+  "combined_android_tree": "3814b5e0e183e46bb6258ce8edd589fe2d7e05ae",
+  "exact_producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+  "producer_pr": 233,
+  "source_import": {
+    "kind": "exact-final-nodes-source-integration-not-acceptance",
+    "generator": "session wp503-import-final-nodes.py",
+    "audit_parent": "55af1665db35a981e9c34b27710932d09498719a",
+    "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+    "producer_base": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+    "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+    "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+    "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+    "reservation_revision_before": 5,
+    "reservation_revision_after": 6,
+    "immutable_identity_binding_authorization_preserved": true,
+    "typed_evolution_receipt": {
+      "repository": "cbattlegear/MeshCoreOne-Android",
+      "wp": "WP-503",
+      "state": "leased",
+      "attempt": "1666502a-0420-46ef-930f-e78651ba8b9f",
+      "binding": {
+        "repository": "cbattlegear/MeshCoreOne-Android",
+        "work_package": "WP-503",
+        "base_sha": "d958471ab4835813881a5e7af36e8249a8b273a4",
+        "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+        "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+        "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20"
+      },
+      "backend": "local",
+      "paths": [
+        "android/accessibility-tests/",
+        "android/app/build.gradle.kts",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+        "android/feature/nodes/build.gradle.kts",
+        "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryStateHolder.kt",
+        "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/ContactDetailScreen.kt",
+        "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryNativeTest.kt",
+        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesScreensComposeTest.kt",
+        "android/feature/tools/build.gradle.kts",
+        "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt",
+        "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCanonicalCompletionTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalControllerTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolLocalCommandsTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolSessionsTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolStateHolderTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+        "android/gradle/dependency-locks/feature-nodes.lockfile",
+        "android/gradle/dependency-locks/feature-tools.lockfile",
+        "docs/android/accessibility/",
+        "docs/android/deviations/WP-503.md",
+        "docs/android/evidence/WP-503/"
+      ],
+      "expires": 3939297106.6939173,
+      "reservation": 1.0,
+      "identity": {
+        "issue_number": null,
+        "task_id": null,
+        "session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+        "pr_number": null
+      },
+      "repairs": 0,
+      "completion": null,
+      "record_state": "advisory",
+      "capabilities": {
+        "wp-owned": [
+          "android/accessibility-tests/",
+          "docs/android/accessibility/",
+          "docs/android/deviations/WP-503.md",
+          "docs/android/evidence/WP-503/"
+        ],
+        "merge-integration": [
+          "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+          "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+          "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+          "android/feature/nodes/build.gradle.kts",
+          "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryStateHolder.kt",
+          "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/ContactDetailScreen.kt",
+          "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+          "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryNativeTest.kt",
+          "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesScreensComposeTest.kt",
+          "android/feature/tools/build.gradle.kts",
+          "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt",
+          "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+          "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCanonicalCompletionTest.kt",
+          "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalControllerTest.kt",
+          "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolLocalCommandsTest.kt",
+          "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolSessionsTest.kt",
+          "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolStateHolderTest.kt",
+          "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+          "android/gradle/dependency-locks/feature-nodes.lockfile",
+          "android/gradle/dependency-locks/feature-tools.lockfile"
+        ],
+        "dependency-resolution-metadata": [
+          "android/app/build.gradle.kts"
+        ]
+      },
+      "reservation_operations": [
+        "create",
+        "merge-disjoint-semantic-edits",
+        "modify",
+        "update-directly-required-build-wiring"
+      ],
+      "overlapping_intents": [
+        "WP-000"
+      ],
+      "authorization_context": {
+        "authorization": "User-directed dedicated WP-503 producer for issue136; approved accessibility audit scope and trusted capability-admitted necessary support; preserve frozen source and current producer ownership."
+      },
+      "migration_revision": "capability-reservation-v1",
+      "revision": 6,
+      "branch": "cbattlegear-issue-136-wp-503-accessibility-audit-807238",
+      "worktree": "C:\\Users\\camer\\source\\repos\\copilot-worktrees\\MeshCoreOne-Android\\cbattlegear-issue-136-wp-503-accessibility-audit-807238",
+      "predecessor_attempt": null,
+      "predecessor_receipt_sha256": null
+    },
+    "admissions": [
+      {
+        "capability": "merge-integration",
+        "path": "android/feature/nodes/build.gradle.kts",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      },
+      {
+        "capability": "merge-integration",
+        "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryStateHolder.kt",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      },
+      {
+        "capability": "merge-integration",
+        "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/ContactDetailScreen.kt",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      },
+      {
+        "capability": "merge-integration",
+        "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      },
+      {
+        "capability": "merge-integration",
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryNativeTest.kt",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      },
+      {
+        "capability": "merge-integration",
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesScreensComposeTest.kt",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      },
+      {
+        "capability": "merge-integration",
+        "path": "android/gradle/dependency-locks/feature-nodes.lockfile",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      }
+    ],
+    "exact_producer_files": [
+      {
+        "wp": "WP-311",
+        "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+        "path": "android/feature/nodes/build.gradle.kts",
+        "before_blob": "deef6fb56a33f25b03322fda6c1b8d8ef1864b4d",
+        "producer_blob": "852ca05b1f425d8a813d33cae42ba3a31b0c191d",
+        "matching_producer_ancestor": "21ac36c724f8b91e180864ba1963da784a5b42bf",
+        "already_exact": false
+      },
+      {
+        "wp": "WP-311",
+        "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+        "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryStateHolder.kt",
+        "before_blob": "0f5bb57e737156b3210b0d3e36607d7dd9f0f020",
+        "producer_blob": "825b8815468c318c8c95717f379d85850223fe70",
+        "matching_producer_ancestor": "fe67497f4de3b7223aa94860d582fc7b5261394d",
+        "already_exact": false
+      },
+      {
+        "wp": "WP-311",
+        "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+        "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/ContactDetailScreen.kt",
+        "before_blob": "84b6da7bcdd5569446687669a067d20e9baf724f",
+        "producer_blob": "84b6da7bcdd5569446687669a067d20e9baf724f",
+        "matching_producer_ancestor": "b6225590ff61884ea4dc6836ae2e3323f520593e",
+        "already_exact": true
+      },
+      {
+        "wp": "WP-311",
+        "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+        "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+        "before_blob": "b79941e1e4a01b3a59d12d670bcf714a6b1933a5",
+        "producer_blob": "6e34c414ede1772598e3597f924dcb8005b3beb3",
+        "matching_producer_ancestor": "34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67",
+        "already_exact": false
+      },
+      {
+        "wp": "WP-311",
+        "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryNativeTest.kt",
+        "before_blob": "78ca21071600940f96c39bd7cf93b8ddf4399c68",
+        "producer_blob": "b6c1302c3f56578daa098aa56511ec7ff318b6c0",
+        "matching_producer_ancestor": "fe67497f4de3b7223aa94860d582fc7b5261394d",
+        "already_exact": false
+      },
+      {
+        "wp": "WP-311",
+        "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesScreensComposeTest.kt",
+        "before_blob": null,
+        "producer_blob": "0de08c2cf4ebde03d3da81cc8e280c13ad1d3202",
+        "matching_producer_ancestor": null,
+        "already_exact": false
+      },
+      {
+        "wp": "WP-311",
+        "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+        "path": "android/gradle/dependency-locks/feature-nodes.lockfile",
+        "before_blob": "9b9cf17327508be1a24c8d2b01c861ae7993b428",
+        "producer_blob": "f1b6d9d22218b8d8d0233ef3704eb1f7e23627e0",
+        "matching_producer_ancestor": "21ac36c724f8b91e180864ba1963da784a5b42bf",
+        "already_exact": false
+      }
+    ],
+    "producer_documentation_imported": false,
+    "wp503_authored_production_behavior_changes": false,
+    "build_executed": false,
+    "native_instrumentation_starts": 0,
+    "acceptance": "UNVERIFIED_NOT_PASS"
+  },
+  "original7_selection": [
+    {
+      "class": "NativeNodesFlowAccessibilityTest",
+      "blob": "3f50d6c80dab380e0e7883016295a16510604921",
+      "methods": [
+        "offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable",
+        "offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable",
+        "actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable",
+        "offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting",
+        "offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction",
+        "actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200",
+        "offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail"
+      ]
+    }
+  ],
+  "audit_fixture_blobs": {
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest.kt": "3f50d6c80dab380e0e7883016295a16510604921",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt": "29a0f83dd33c57e1304e822b5a394cfc05db3b3e",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/OfflineNodesAudit.kt": "5fd9340c847780b0a4cb1df4b0fc4dd7fae36f45",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt": "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt": "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"
+  },
+  "source_parsed_method_count": 7,
+  "source_parsing_is_not_native_discovery": true,
+  "build": {
+    "command": "python \"$F\\wp503-localizedcompare-build.py\" --final-nodes",
+    "result": "BLOCKED_BEFORE_IMPORT_PREFLIGHT_GRADLE",
+    "outer_exit_code": 1,
+    "nonblocking_flock_exit_code": 75,
+    "lane_acquisition_attempts": 1,
+    "lock": "/home/cbattagler/meshcoreone-work/local-checks/gradle.lock",
+    "lock_protocol": "exclusive inherited FD9; flock -n -E 75; no queue/overlap/retry",
+    "candidate_snapshot_imported": false,
+    "pinned_preflight_executed": false,
+    "gradle_tasks_executed": [],
+    "new_apks": [],
+    "intended_tasks_if_lane_available": [
+      ":app:assembleDebug",
+      ":app:assembleDebugAndroidTest"
+    ],
+    "intended_strict_flags": [
+      "--dependency-verification",
+      "strict",
+      "--no-parallel",
+      "--max-workers=2"
+    ]
+  },
+  "native31": {
+    "status": "BLOCKED_BEFORE_BUILD",
+    "declared_original_methods": 7,
+    "instrumentation_discovered": 0,
+    "started": 0,
+    "outcomes": 0,
+    "pass": 0,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "instrumentation_command_executed": false,
+    "runtime_observed": false,
+    "private_adb_server_started": false,
+    "emulator_started": false,
+    "device_preparation_executed": false
+  },
+  "native37": {
+    "status": "BLOCKED_BEFORE_LAUNCH",
+    "declared_original_methods": 7,
+    "instrumentation_discovered": 0,
+    "started": 0,
+    "outcomes": 0,
+    "pass": 0,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "instrumentation_command_executed": false,
+    "runtime_observed": false,
+    "reason": "No verified lane-owner resolution of the retained unauthorized result.",
+    "private_adb_server_started": false,
+    "emulator_started": false,
+    "device_preparation_executed": false,
+    "authentication_key_security_or_settings_action": false
+  },
+  "prior_apk_binding_verified_unchanged": {
+    "head": "e8fa6b2994177e09931925800ed7696222a65af7",
+    "apks": {
+      "wp503-reviewedrepairs-e8fa6b2994177e09931925800ed7696222a65af7-app.apk": {
+        "size": 109723777,
+        "sha256": "9acce7551b8b090e609c6ea59d5bfce7ce48c0f93b12ed84f0933b4528db479c"
+      },
+      "wp503-reviewedrepairs-e8fa6b2994177e09931925800ed7696222a65af7-test.apk": {
+        "size": 3500371,
+        "sha256": "fabb4ba69919d334752ce8a1c05313494389216a0e87f3710a7cd4008469a033"
+      }
+    },
+    "android_tree": "654b489482ac6ec3833650cdd9bd4a6be759f78a"
+  },
+  "prior_binding_is_not_an_apk_binding_for_this_candidate": true,
+  "prior_evidence_preserved": {
+    "original23": {
+      "head": "ba67b894766137a996cfc8c4e5e17a61e7d73533",
+      "starts": 23,
+      "pass": 21,
+      "fail": 2
+    },
+    "targeted2": {
+      "head": "e8fa6b2994177e09931925800ed7696222a65af7",
+      "starts": 2,
+      "pass": 1,
+      "fail": 1
+    },
+    "evidence_commit": "ea0ce80d999bb55d20dd4929656fcd88e60ed0f5",
+    "comparator_methods_replayed": 0,
+    "existing_nodes_copy_api31_and_search_favorite_api37_negatives_cleared": false
+  },
+  "first_east_scroll_before_native_query": {
+    "source_commit": "55af1665db35a981e9c34b27710932d09498719a",
+    "current_compile_or_native_evidence": false,
+    "los_methods_executed": 0,
+    "retained_west_native_name_and_rendered_role_blockers_cleared": false
+  },
+  "operator_invocation_diagnostics_not_native_or_build_attempts": [
+    {
+      "command": "python \"$F\\wp503-localizedcompare-build.py\" --final-nodes --head b3c09f18cf199bc922feb4cbcbfd6910570a0bf8",
+      "exit_code": 2,
+      "reason": "Unsupported --head; parser rejects before source guard/WSL/build. Corrected invocation recorded above."
+    },
+    {
+      "command": "python tools\\android-port\\validate.py --help",
+      "exit_code": 2,
+      "reason": "Wrong nonexistent entry point; no validation/platform operation. Existing documented controller/validate.py used instead."
+    }
+  ],
+  "auxiliary_checks_not_acceptance": {
+    "python_syntax_and_source_binding": "PASS",
+    "original7_entry_shared_offline_font_target_readiness_fixtures_unchanged_from_ba67": "PASS",
+    "artifact_retention_synthetic_helper_tests": {
+      "tests": 3,
+      "pass": 3,
+      "fail": 0
+    },
+    "both_outer_runners_api37_guard_rejection_before_platform_operations": "PASS",
+    "documented_controller_validator": {
+      "command": "python tools\\android-port\\controller\\validate.py",
+      "result": "valid",
+      "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda"
+    },
+    "documented_portmap_validator": {
+      "command": "python tools\\android-port\\portmap.py",
+      "exit_code": 0,
+      "actual_output_contract": "nonempty list of structured provenance mappings",
+      "mapping_count": 1758,
+      "wrapper_diagnostic": "Initial wrapper incorrectly expected a result object and asserted after command exit0; corrected to actual list contract."
+    }
+  },
+  "raw_captures": [
+    {
+      "path": "docs/android/evidence/WP-503/device-finalnodes-build-blocked.txt",
+      "bytes": 1287,
+      "sha256": "bd9aa995413f45c488904a89ba070df2cc259088372556e1c5a4a2388f21185d"
+    }
+  ],
+  "whole_wp_acceptance": "INCOMPLETE",
+  "physical_talkback_goldens_independent_review_or_successor_ci_claimed": false,
+  "hosted_ci_result_bundle_retained": false,
+  "next_required_action": "Existing lane owner releases the exclusive Gradle lane; then one authorized pinned assembly and original Nodes7 API31 run. No API37 retry without verified authorization resolution."
+}
