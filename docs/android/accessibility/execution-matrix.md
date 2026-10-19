@@ -1,6 +1,28 @@
 # WP-503 native execution matrix
 
-**Latest bounded re-audit: exact WP-316 repair3bcb254a plus audit55f7c666, combined e680a2b0 diagnostics5 PASS on API31/37. Earlier40cb full80 remains31 77PASS/3FAIL and37 78PASS/2FAIL, not rerun at this successor. Language238, QR237/API31 and historical activation/restoration negatives remain. Product/physical/matrix/golden/admission/review gates remain; WP incomplete.**
+**Latest bounded audit-side run:49691771 launcher31 9PASS49.969s,37 6PASS/3FAIL126.395s; separate control1 PASS both. Owned adb transport-exit race repaired/observed281ms/312ms. Original1000ms API37 activation/restoration remains failed despite main-looper sampling. Product237/238 and all physical/matrix/golden/admission/review gates remain; WP incomplete.**
+
+## Audit-side timing and teardown acceptance
+
+| Exact49691771 source/APKs, once per fresh device | Actual API31/twoCPUs | Actual API37/twoCPUs |
+|---|---|---|
+| Original launcher9 starts/matching outcomes |9/9;9PASS49.969s|9/9;6PASS/3FAIL126.395s|
+| Errors/skips |0/0|0/0|
+| Appearance / actual default-reduced-motion flow |PASS/PASS|Both activationfail before body, no credit|
+| Actual rail/resize method |PASS|Body observations complete; restorationfail, method FAIL|
+| Requested/activated/restored touch state |7/7/7|7/5/6|
+| Main-observer original1000ms deadline failures |0|2activation/1restoration|
+| Persisted theme/scheme / tab focus / IME targets |30/5/3|0/5/3|
+| Separate unchanged service-control1 |1PASS2.522s|1PASS8.836s|
+| Owned transport after emulator exit0 |offline,absent observation3/281ms|offline,absent observation3/312ms|
+
+Launcher bodies/shared237/238/product bytes remain31bea871; only the owned
+native-state helper samples through main. The two activation failures still
+readfalse at1002/1000ms; restoration reads flags65554/managertrue at1002ms.
+Independent control positives are not launcher or stable framework acceptance.
+The owned cleanup observer passes all eight deterministic cases and both actual
+teardowns, without restarting adb or affecting other devices.
+[Exact commands/source/APK/raw outcomes](../evidence/WP-503/README.md#audit-side-timing-and-teardown-acceptance).
 
 ## Published WP-316 CLI repair re-audit
 

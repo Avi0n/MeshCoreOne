@@ -1,0 +1,44 @@
+WP503_EXECUTED_INPUT|496917719aba81cd2f5f3a1c4b0e613a10137b1d
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 31, "head": "496917719aba81cd2f5f3a1c4b0e613a10137b1d", "scenario": "launcher", "discovered": 9, "statuses": {"0": 9}, "time": ["Time: 49.969"]}
+TATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 49.969
+
+OK (9 tests)
+
+
+INSTRUMENTATION_CODE: -1
+

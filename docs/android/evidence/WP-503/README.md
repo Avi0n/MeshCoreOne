@@ -1,11 +1,108 @@
 # WP-503 attempt evidence
 
-**Latest bounded re-audit: exact WP-316 repair3bcb254a plus audit55f7c666, combined e680a2b0 diagnostics5 PASS on API31/37,10.327s/42.043s. CLI236 regression passes only in this combined integration. Historical40cb full80 remains31 77PASS/3FAIL and37 78PASS/2FAIL, not rerun at successor. Language238, QR237/API31 and historical activation/restoration negatives remain. Product/physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
+**Latest bounded audit-side run:49691771 launcher31 9PASS49.969s,37 6PASS/3FAIL126.395s; separate control1 PASS both. Owned transport teardown race repaired/observed281ms/312ms. API37 original1000ms activation/restoration still fails with main-looper sampling. Product237/238, all historical negatives and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Audit-side timing and teardown acceptance
+
+[Integration and all identities/outcomes](device-mainobserver-integration.json)
+and [rebuilt APK binding](device-mainobserver-inputs.json) bind executed combined
+**496917719aba81cd2f5f3a1c4b0e613a10137b1d**, Android tree
+**d5628af3792e59f9b432e92ee4d25938f7604187**, parent
+**31bea871de75700a43b91fcca5b3b73d6ed12f28**. All product bytes, shared237/238
+assertions, nine launcher bodies and all other existing native helpers remain
+identical to parent. Existing producer3bcb254a integration remains bound by
+[the preceding record](device-cli-integration.json), not standalone acceptance.
+
+| Rebuilt input | Bytes | SHA-256 |
+|---|---|---|
+| App debug APK, unchanged product |109723777|`4ef5e2637bc6e825c0e9a9425d47076a2395b14afc874f63c415d4c1857cfd81`|
+| Test debug APK |3415531|`f4680173ae9203752ce63c84d6af8b3cdeaf1b4285561e56b79a13859cf3b94d`|
+
+The one native-state helper uses `Instrumentation.runOnMainSync` for the same
+condition. Android's installed SDK source shows manager binder updates queued
+to its handler and `isTouchExplorationEnabled()` returning cached state; this is
+a sampling-domain rationale, not proof that SDK sources equal the running37.2
+system or that the historical failure was caused by worker sampling.
+Main-looper waiting counts against the unchanged1000ms deadline; late true fails.
+
+Existing isolated `python "$F\wp503-messaging-check.py"` preflight/APK assembly
+and original74 JVM cases PASS, zero failures/errors/skips. On each fresh actual
+two-CPU API31/37, the following existing commands execute once, sequentially:
+
+```powershell
+python "$F\wp503-prepare-native.py" --api 31 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 31 --serial emulator-5714 --scenario launcher
+python "$F\wp503-run-native.py" --api 31 --serial emulator-5714 --scenario service-state-control
+python "$F\wp503-prepare-native.py" --api 37 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 37 --serial emulator-5714 --scenario launcher
+python "$F\wp503-run-native.py" --api 37 --serial emulator-5714 --scenario service-state-control
+```
+
+`$F` is the existing d298 session `files` directory. Full exact adb commands,
+all test identities and outcome codes are in the integration and runner records.
+
+| Original native selection | API31 | API37 |
+|---|---|---|
+| Launcher9 unique starts/matching outcomes |9/9;9PASS49.969s|9/9;6PASS/3FAIL126.395s|
+| Errors/skips |0/0|0/0|
+| Requested/activated/restored touch state |7/7/7|7/5/6|
+| Appearance30 / motion tab10-detailBack2 |PASS/PASS|No body credit: two activation failures|
+| Selected five-tab native focus / IME three48dp targets |PASS/PASS|PASS/PASS|
+| Cached900/360 scroll/draft/entry/stacks |PASS|PASS|
+| Rail/resize method |PASS|Restoration FAIL despite completed body observations|
+| Separate unchanged control1 |1/1PASS2.522s|1/1PASS8.836s|
+| Control activation/restoration timing |13/11ms|398/321ms|
+| Control actual snapshot durations activated/restored |44/24ms|91/108ms|
+
+**API37 remains blocked, not fixed:** appearance activation samplesfalse78 checks
+at1002ms; default/reduced-motion flow samplesfalse85 checks at1000ms. The original
+1000ms assertions fail before these bodies. Rail/resize restoration has actual
+flags65554 matchingoriginal but managertrue instead of expectedfalse through54
+main samples/1002ms; its entire method fails. Callback-domain sampling therefore
+does not establish a causal or stable readiness repair. Other main samples reach
+true within3-726ms, but those positives and the separate control cannot erase
+three failed methods or earlier native negatives. No retry until green.
+
+Raw [launcher31](device-mainobserver-launcher-api31.txt)/
+[launcher37](device-mainobserver-launcher-api37.txt),
+[launcher metrics31](device-mainobserver-launcher-metrics-api31.txt)/
+[metrics37](device-mainobserver-launcher-metrics-api37.txt),
+[runner31](device-mainobserver-launcher-runner-api31.txt)/
+[runner37](device-mainobserver-launcher-runner-api37.txt),
+[control31](device-mainobserver-service-state-control-api31.txt)/
+[control37](device-mainobserver-service-state-control-api37.txt),
+[control metrics31](device-mainobserver-service-state-control-metrics-api31.txt)/
+[metrics37](device-mainobserver-service-state-control-metrics-api37.txt),
+[control runner31](device-mainobserver-service-state-control-runner-api31.txt)/
+[runner37](device-mainobserver-service-state-control-runner-api37.txt),
+[profile31](device-mainobserver-profile-api31.txt)/
+[profile37](device-mainobserver-profile-api37.txt).
+
+**Cleanup race resolved separately:** the new owned helper
+`android\accessibility-tests\native_device_cleanup.py` observes only the owned
+serial, with a10s deadline including adb command time; late absence, command
+errors, missing headers and duplicate owned registrations fail. Other users'
+devices need not disappear. `python -m unittest discover -s android\accessibility-tests -p test_native_device_cleanup.py -v`
+PASS, **8 discovered/8 passed**, including exact/late deadline, offline-to-absent
+and unrelated-device controls. Both actual emulator wrappers exit0; their
+transport initially remainsoffline and disappears on observation3 at281ms/312ms.
+Only then are the exact two scratch paths per API removed. The
+[actual operation observations](device-mainobserver-operation-observations.txt)
+and integration retain these transitions. No shared adb restart or AVD mutation.
+The old immediate-empty assertion failure remains valid at its earlier source.
+
+Trusted `python tools\android-port\controller\validate.py` and
+`python tools\android-port\portmap.py` PASS; no manifest refresh or source-pin change.
+Preceding exact31bea hosted run38616836160 is independently observed
+COMPLETED/SUCCESS/all6, candidate CI only at31bea, not this successor's result.
+No duplicate hosted bundle. No successor full80,237/238 repair, connected-radio,
+physical TalkBack, approved golden/matrix, admission, independent review or
+whole-WP acceptance. Keep205draft and136open.
 
 ## Published WP-316 CLI repair re-audit
 

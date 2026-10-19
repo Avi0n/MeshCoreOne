@@ -1,9 +1,33 @@
 # WP-503 accessibility audit
 
-**Status: exact WP-316 repair3bcb254a plus audit55f7c666, combined e680a2b0: unchanged diagnostics5 PASS on API31/37,10.327s/42.043s. CLI236 regression passes in this combined integration only. Earlier full80 at40cb remains31 77PASS/3FAIL and37 78PASS/2FAIL; language238, QR237/API31, activation/restoration and all historical negatives remain. No successor full80, physical/matrix/golden/admission/review acceptance. PR205 draft, WP incomplete.**
+**Status: owned teardown race repaired and observed on both APIs. Main-looper native-state observation does not resolve API37 readiness: launcher31 9PASS49.969s;37 6PASS/3FAIL126.395s, nine starts/matching outcomes each. Separate service-control1 PASS both. Strict original1000ms activation/restoration failures remain; no retry or deadline relaxation. Product237/238 and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Audit-side timing and teardown acceptance
+
+Executed combined `496917719aba81cd2f5f3a1c4b0e613a10137b1d`, Android tree
+`d5628af3792e59f9b432e92ee4d25938f7604187`; all nine launcher bodies, other
+existing helpers, shared237/238 assertions and product bytes equal31bea871.
+Only the native-state helper samples the same manager/flags condition on the
+main looper, where Android applies binder-delivered state changes. Main waiting
+counts against the original1000ms; late true remains failure.
+
+One original launcher9 invocation per fresh actual two-CPU device yields
+**31 9PASS49.969s;37 6PASS/3FAIL126.395s**, no errors/skips.37 appearance and
+motion-flow activation remainfalse at1002/1000ms; resize restoration has original
+flags but managertrue at1002ms instead of expectedfalse. Reading through main
+therefore is **not a causal/stable readiness repair**. Separate unchanged control1
+passes31/37,2.522s/8.836s, without clearing the launcher failures.
+
+The previous immediate adb-empty assertion confused successful emulator-process
+exit with asynchronous transport removal. A tested, bounded10s owned-serial
+observer now requires actual removal before exact scratch deletion, without
+requiring anyone else's devices to exit. Both real runs initially observe the
+owned serialoffline and then absent on observation3,281ms/312ms; wrapper cleanup
+exits successfully. All eight deterministic teardown tests pass.
+[Exact source/APK/native records and remaining blocker](../evidence/WP-503/README.md#audit-side-timing-and-teardown-acceptance).
 
 ## Published WP-316 CLI repair re-audit
 
