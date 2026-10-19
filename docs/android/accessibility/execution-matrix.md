@@ -1,6 +1,28 @@
 # WP-503 native execution matrix
 
-**Latest exactcc360: launcher37 6PASS/3FAIL97.426s; initial31 zero-discovery/shared-adb failure retained, separately isolated fresh31 9PASS44.129s. Separate control1 passes all three device attempts. Post-timeout observations do not grant late readiness. Owned teardown remains verified; product237/238 and all historical/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Latest exact combinedc24f9ae1 / producer34a20d96: nodes31 6PASS/1FAIL18.455s;37 7PASS57.445s, seven unique starts/outcomes each. QR237 still fails31 at enabled target84x31dp;37 original QR flow passes. All fixtures unchanged. Private-adb/teardown verified; earlier launcher37, language238 and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+
+## Published QR Copy repair re-audit
+
+| Exactc24f9ae1 source/APKs, original nodes7 once each | Actual API31/twoCPUs | Actual API37/twoCPUs |
+|---|---|---|
+| Unique starts/matching outcomes |7/7;6PASS/1FAIL18.455s|7/7;7PASS57.445s|
+| Errors/skips |0/0|0/0|
+| Original QR237 method |FAIL, enabled target84x31dp <48dp at shared audit172|PASS all original assertions|
+| Copy text allocation |60x38px; actual line bottom38px|60x38px; same complete line|
+| QR clipboard/feedback/reset/chooser/dismissal |Unobserved after target failure; no credit|Exact original assertions PASS|
+| Other six original Nodes methods |6PASS|6PASS|
+| Actual system font/density/viewport/decor direction |2.0/1.0/360x900/RTL|Same|
+| Owned transport after emulator exit0 |offline,absent observation3/281ms|offline,absent observation3/281ms|
+| Private server after both devices |Exit0, owned49537 closed, shared5037 untouched|Same single owned server|
+
+Entire accessibility-tests subtree equals auditedec4ae3b8, including all helpers,
+assertions, fixtures and deadlines. Imported NodesListScreen blob equals exact
+producer34a20d96; other product, producer tests/build/locks remain audit parent.
+Trusted same-attempt merge-integration CAS3->4 preserves immutable canonical
+identity; no product authorship takeover, failed-case retry or31 clearance.
+Producer CI39198213055 is successful only at its own exact head.
+[Exact commands/source/admission/APK/raw outcomes](../evidence/WP-503/README.md#published-qr-copy-repair-re-audit).
 
 ## Post-deadline native snapshots and isolated API31 transport
 

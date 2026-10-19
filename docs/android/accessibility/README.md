@@ -1,9 +1,35 @@
 # WP-503 accessibility audit
 
-**Status: owned teardown race repaired; post-timeout snapshots now distinguish late server/client observations without granting late acceptance. Exactcc360 launcher37 remains6PASS/3FAIL97.426s. Initial31 invocation discovered zero tests during shared-adb failure; a separately isolated fresh31 invocation passes9/9 in44.129s. Separate control1 passes in all three device attempts. Original deadlines/assertions and all historical negatives remain. Product237/238 and physical/matrix/golden/admission/review gates remain; PR205 draft, WP incomplete.**
+**Status: genuine WP-311 QR repair34a20d96 re-audited without fixture changes. Exact combinedc24f9ae1 nodes31 6PASS/1FAIL18.455s;37 7PASS57.445s, seven unique starts/matching outcomes each. Strict QR237 still fails31: enabled target84x31dp;37 QR flow passes. Owned private-adb/teardown verified. Earlier API37 launcher activation/restoration/IME, language238 and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Published QR Copy repair re-audit
+
+Exact WP-311 PR233 producer `34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67`
+is integrated into audit `ec4ae3b8a06eae65d0493e783701b2b13f5bcc66` as combined
+`c24f9ae191f7fb0a0484dc7aa6cf473d339b8074`, Android tree
+`6c3855335294bee30ec185686385381953b4300f`. Only its exact `NodesListScreen.kt`
+blob is imported; no producer tests/build/locks or audit fixture/helper/deadline
+changes. Trusted merge-integration admission and same-attempt CAS3->4 preserve
+canonical1666502a/actualCLIaliasd298 and immutable authorization/binding.
+
+One unchanged declared nodes7 invocation per fresh actual two-CPU API31/37,
+private adb49537, original360x900/mdpi/font200/RTL profile:
+**31 6PASS/1FAIL18.455s;37 7PASS57.445s**, seven matching outcomes each,
+zero errors/skips. QR31 still fails the original enabled-target assertion at
+NodesAccessibilityAudit172: **84x31dp**, below48dp. Copy now has a fully allocated
+38px text line, but this is not whole visible-target acceptance. No31 copy/
+feedback/chooser/dismissal completion credit. QR37 passes all original exact
+clipboard/feedback/reset/chooser/dismissal assertions. Neither clears31.
+
+Both emulator exits0, transport removals on observation3/281ms, four exact
+scratch paths removed, private server exit0/port closed; no shared-adb restart.
+Original74 JVM cases and both rebuilt APK tasks pass; test APK is byte-identical
+to unchanged prior audit input, product APK differs. Exact producer hosted
+run39198213055 passes all six jobs, candidate CI only, not native acceptance.
+[Exact source/admission/APK/raw evidence](../evidence/WP-503/README.md#published-qr-copy-repair-re-audit).
 
 ## Post-deadline native snapshots and isolated API31 transport
 

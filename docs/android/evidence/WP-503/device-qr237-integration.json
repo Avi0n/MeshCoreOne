@@ -1,0 +1,246 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 4,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "producer_wp": "WP-311",
+  "producer_pr": 233,
+  "producer_head": "34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67",
+  "audit_parent": "ec4ae3b8a06eae65d0493e783701b2b13f5bcc66",
+  "executed_combined_head": "c24f9ae191f7fb0a0484dc7aa6cf473d339b8074",
+  "executed_android_tree": "6c3855335294bee30ec185686385381953b4300f",
+  "exact_producer_admission_and_reconciliation": "device-qr237-producer-import.json",
+  "apk_binding": "device-qr237-inputs.json",
+  "all_original_native_fixtures_helpers_thresholds_deadlines_unchanged": true,
+  "newly_built_test_apk_byte_identical_to_prior_unchanged_audit_input": true,
+  "native_results": {
+    "31": {
+      "started": 7,
+      "matching_outcomes": 7,
+      "actual_guest_cpus": 2,
+      "passed": 6,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 18.455,
+      "test_outcomes": [
+        {
+          "test": "offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail",
+          "status": 0
+        },
+        {
+          "test": "offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable",
+          "status": -2
+        },
+        {
+          "test": "offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting",
+          "status": 0
+        },
+        {
+          "test": "actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable",
+          "status": 0
+        },
+        {
+          "test": "offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable",
+          "status": 0
+        },
+        {
+          "test": "offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction",
+          "status": 0
+        },
+        {
+          "test": "actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200",
+          "status": 0
+        }
+      ],
+      "qr_original_method_status": -2,
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 31,
+        "head": "c24f9ae191f7fb0a0484dc7aa6cf473d339b8074",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Medium_Phone",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-qr237-api31-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "nodes",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "31",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "nodes"
+            ],
+            "exit": 1
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "31",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 281.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-qr237-api31-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-qr237-api31-userdata.img.qcow2"
+        ]
+      }
+    },
+    "37": {
+      "started": 7,
+      "matching_outcomes": 7,
+      "actual_guest_cpus": 2,
+      "passed": 7,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 57.445,
+      "test_outcomes": [
+        {
+          "test": "offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail",
+          "status": 0
+        },
+        {
+          "test": "offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable",
+          "status": 0
+        },
+        {
+          "test": "offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting",
+          "status": 0
+        },
+        {
+          "test": "actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable",
+          "status": 0
+        },
+        {
+          "test": "offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable",
+          "status": 0
+        },
+        {
+          "test": "offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction",
+          "status": 0
+        },
+        {
+          "test": "actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200",
+          "status": 0
+        }
+      ],
+      "qr_original_method_status": 0,
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 37,
+        "head": "c24f9ae191f7fb0a0484dc7aa6cf473d339b8074",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Pixel_10_Pro_XL",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-qr237-api37-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "nodes",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "37",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "nodes"
+            ],
+            "exit": 0
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "37",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 281.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-qr237-api37-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-qr237-api37-userdata.img.qcow2"
+        ]
+      }
+    }
+  },
+  "private_adb_server": {
+    "command": [
+      "C:\\android-sdk\\platform-tools\\adb.exe",
+      "-L",
+      "tcp:49537",
+      "--one-device",
+      "wp503-no-usb",
+      "server",
+      "nodaemon"
+    ],
+    "port": 49537,
+    "emulator_scan_max": 5553,
+    "usb_filter": "wp503-no-usb",
+    "mdns_autoconnect": [],
+    "shared5037_stop_or_restart": false,
+    "server_ready_no_other_devices_attached": true,
+    "server_exit": 0,
+    "owned_port_closed": true
+  },
+  "qualification": "One unchanged declared nodes7 invocation per fresh actual two-CPU API31/37, owned private adb, primary360x900/mdpi/font200/RTL profile. No failed-case retries or assertion/fixture/deadline edits. Exact one producer file import, not all producer tests/build/locks or standalone producer-head acceptance. Preserve all historical failures, API37 launcher activation/restoration/IME negatives, language238, physical TalkBack/connected-radio, full matrix/goldens/admission/review gates. No main merge or whole-WP acceptance."
+}

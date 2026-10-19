@@ -1,11 +1,109 @@
 # WP-503 attempt evidence
 
-**Latest exactcc360: launcher37 6PASS/3FAIL97.426s; initial31 zero-discovery/shared-adb failure retained, separately isolated fresh31 9PASS44.129s. Separate control1 passes all three attempts. Post-timeout snapshots add observations, not late acceptance. Teardown remains verified; product237/238 and all historical/physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Latest combinedc24f9ae1 / genuine producer34a20d96: nodes31 6PASS/1FAIL18.455s;37 7PASS57.445s, seven unique starts/matching outcomes each. QR237 still fails31: enabled target84x31dp.37 QR original flow passes. No fixture/deadline changes. Private-adb/teardown verified; prior API37 launcher activation/restoration/IME, language238 and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Published QR Copy repair re-audit
+
+[Producer import/admission/reconciliation](device-qr237-producer-import.json),
+[execution integration and all seven identities/outcomes](device-qr237-integration.json)
+and [rebuilt APK binding](device-qr237-inputs.json) bind exact WP-311 PR233
+producer **34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67**, audit parent
+**ec4ae3b8a06eae65d0493e783701b2b13f5bcc66**, combined execution
+**c24f9ae191f7fb0a0484dc7aa6cf473d339b8074**, Android tree
+**6c3855335294bee30ec185686385381953b4300f**.
+
+Only producer's exact `NodesListScreen.kt` blob
+`b79941e1e4a01b3a59d12d670bcf714a6b1933a5` is imported. Audit original blob equals
+producer's parent, proving no overlapping file delta. Trusted `merge-integration`
+`merge-disjoint-semantic-edits` admission and same-attempt CAS3->4 preserve the
+immutable canonical1666502a/actualCLIaliasd298 relationship, authorization and
+source/base/manifest/policy binding. Deterministic reconciliation retains producer
+authorship; no main merge/protected approval is exercised. Entire accessibility
+subtree, all helpers/assertions/deadlines, other product bytes, producer tests,
+build metadata and locks remain audit parent.
+
+| Rebuilt input | Bytes | SHA-256 |
+|---|---|---|
+| App debug APK, genuine producer repair |109723777|`6f39299768bd62b583904c703ff9b8f6d687d3c769056c2017ace25f00d99734`|
+| Test debug APK, byte-identical unchanged audit input |3417939|`de3255d20e72d982973a2ec95c960c4d0f26a923667d81fa1102ef4782aef4b5`|
+
+Existing isolated `python "$F\wp503-messaging-check.py"` preflight/APK assembly
+and original74 JVM cases **PASS**, zero failures/errors/skips. `$F` is the existing
+d298 session files directory documented below. Actual native command:
+
+```powershell
+python "$F\wp503-private-adb-native31.py" --phase qr237 --head c24f9ae191f7fb0a0484dc7aa6cf473d339b8074 --both-apis --scenario nodes
+```
+
+It uses the unchanged declared preparation and test runner once per fresh device:
+
+```powershell
+python "$F\wp503-prepare-native.py" --api 31 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 31 --serial emulator-5714 --scenario nodes
+python "$F\wp503-prepare-native.py" --api 37 --expected-cpus 2
+python "$F\wp503-run-native.py" --api 37 --serial emulator-5714 --scenario nodes
+```
+
+Both actual APIs independently require guest CPU2,360x900/mdpi/font2/decorRTL,
+existing300s boot/600s instrumentation guards, original fixture thresholds and
+positive seven starts/matching outcomes. Single foreground server command:
+`C:\android-sdk\platform-tools\adb.exe -L tcp:49537 --one-device wp503-no-usb server nodaemon`.
+Child client/emulator endpoint variables select49537; emulator scan ceiling5553,
+USB sentinel and disabled mDNS prevent attaching other devices. Empty private
+device list/server responsiveness are verified before launch, not assumed.
+
+| Original native selection | Actual API31 | Actual API37 |
+|---|---|---|
+| Nodes7 unique starts/matching outcomes |7/7;6PASS/1FAIL18.455s|7/7;7PASS57.445s|
+| Errors/skips |0/0|0/0|
+| Original QR237 case |FAIL, enabled target84x31dp <48dp|PASS all original assertions|
+| Actual Copy text allocation |60x38px; line bottom38px|Same|
+| Exact clipboard/disabled Copied/one2s reset |No completion credit after target failure|PASS|
+| Actual captured chooser payload/dismissal |No completion credit|PASS; real chooser blocked as originally specified|
+| Other six original Nodes cases |6PASS|6PASS|
+| Owned transport after emulator exit0 |offline -> absent observation3/281ms|offline -> absent observation3/281ms|
+
+**API31 is still a real product acceptance failure**, not an audit relaxation:
+`assertVisibleClickTargetsAtLeast48Dp` at `NodesAccessibilityAudit.kt:172` measures
+an enabled target84x31dp after Copy font checks. The layout's new unbounded text
+height allocates its complete38px line, but that does not prove an unclipped48dp
+visible target. Raw failure window is360x900, actual IME hidden/bottom0; failure
+tree retains dialog scroll range47px and actual Copy/dialog geometry. No extra
+scroll, minimum relaxation, oracle change or failed-case retry is introduced.
+QR37's final marker confirms one URI export, one feedback wait, exact32-byte key
+and captured chooser intent; all original assertions through dismissal pass.
+This is combined integration, not standalone producer-head native acceptance.
+
+Raw [31 output](device-qr237-nodes-api31.txt)/
+[metrics/failure tree](device-qr237-nodes-metrics-api31.txt)/
+[runner](device-qr237-nodes-runner-api31.txt),
+[37 output](device-qr237-nodes-api37.txt)/
+[metrics](device-qr237-nodes-metrics-api37.txt)/
+[runner](device-qr237-nodes-runner-api37.txt),
+[31 profile](device-qr237-profile-api31.txt)/
+[37 profile](device-qr237-profile-api37.txt) and
+[owned process/transport/server observations](device-qr237-operation-observations.txt).
+
+Both emulator processes exit0, owned transport absence is observed before four
+exact scratch paths are removed. Private server exits0 and owned49537 is verified
+closed. Correct numeric wrapper summary reports selectedDevices2/emulatorExit02/
+ownedTransportsAbsent2. No shared5037 restart or other-device shutdown.
+
+Exact producer hosted [run39198213055](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39198213055)
+is independently observedCOMPLETED/SUCCESS/all6 at34a20d96, candidate CI only.
+Preceding audit ec4ae3b8 run39199832100 remainsIN_PROGRESS at observation, not a
+result for this integration. Hosted logs remain sole reproducible CI authority;
+no duplicate bundle. Strict237 remains producer-owned/unresolved31; language238
+has no published repair and its fresh WP-407 follow-up reports a trusted
+reservation lifecycle blocker with the terminal merged claim. Earlier launcher37
+activation/restoration/IME and all historical negatives, full matrix, physical
+TalkBack/radio, approved goldens, acceptance admission and independent review
+remain. No merge/self-approval, issue closure or whole-WP acceptance.
 
 ## Post-deadline native snapshots and isolated API31 transport
 
