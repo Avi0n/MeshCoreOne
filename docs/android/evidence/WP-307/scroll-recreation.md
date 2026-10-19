@@ -143,8 +143,50 @@ desired offset manually or relying on `LazyListState.Saver`.
 `python tools\android-port\controller\validate.py` and `git diff --check` also
 pass for this follow-up. The unchanged WP-503 device record below binds the
 earlier `2396ac64` producer, **not this offset-capture follow-up**. No new
-current-base/native run, fixture change, physical-device result, independent
+current-base native run, fixture change, physical-device result, independent
 review or merge approval is claimed.
+
+### Subsequent WP-503 API31 attempt: prerequisite failure before restoration
+
+The existing WP-503 owner reports an additional API31 run against the exact
+product producer `4b6629ac2bf215577ec1522530a77de61ed577fe`, imported at
+integration/execution commit
+`ba67b894766137a996cfc8c4e5e17a61e7d73533`. The reported AndroidJUnitRunner
+cohort discovered 23 tests: 21 passed and 2 failed. One failure is the
+unchanged `realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200`
+fixture at `NativeLauncherFocusAccessibilityTest.kt:425`:
+“The measured row must be the actual bottommost visible message” expected
+`Cached history 15` but observed `Cached history 13`.
+
+The assertion sequence at the bound source first checks that the target's
+measured within-row offset is 12px (line 424), then independently checks that
+the target is the bottommost visible message (line 425). Thus the reported run
+reaches the initial 12px condition but stops before the subsequent offset-only
+scroll, unchanged-visible-set assertion, Activity recreation and restored
+24px assertion. It is **not** a positive or negative result for offset capture
+or restoration. This later attempt supersedes any implication that the earlier
+combined identity test was the only new native observation, but it does not
+replace that historical evidence or turn it into acceptance of this follow-up.
+
+I read the exact fixture at the reported integration commit and verified its
+`ChatTimeline.kt` blob matches this PR's production blob
+`3b10d361363e08af68225c9fba12e378c3eaf725`. The currently published WP-503
+evidence tree contains earlier chat-window transcripts, but no raw
+`WP503_NATIVE_CHAT_VIEWPORT` line, failing run transcript, or per-row geometry
+record bound to `ba67b894`. A bounded diagnosis request was posted to the
+existing [WP-503 PR #205 handoff](https://github.com/cbattlegear/MeshCoreOne-Android/pull/205#issuecomment-6272191085),
+asking its fixture owner to provide the retained run output and compare target,
+visible rows and viewport in the same coordinate sample. In particular, the
+reported result alone does not distinguish a native placement/clipping/viewport
+change from visible-row semantics/ordering or a fixture-selection mismatch.
+These remain hypotheses, not findings.
+
+No production change, fixture edit, assertion relaxation, new worker, or
+unconditional rerun was made. **Native exact-offset acceptance is blocked**
+until the existing owner supplies enough retained geometry evidence to
+establish whether this is a product defect or a fixture measurement/selection
+defect; if a product defect is established, this WP's existing branch is the
+producer. No current-base API31/API37 offset-restoration result is claimed.
 
 ## Native regression: combined producer integration
 
