@@ -424,7 +424,7 @@ class AuthorityTests(unittest.TestCase):
 
     def test_human_acceptance_comment_is_real_bound_and_revocable_even_for_author(self):
         for kind in ("valid", "wrong-state", "wrong-kind", "wrong-author", "missing-stamp", "revoked",
-                     "revoked-without-record"):
+                     "revoked-without-record", "comment-after-findings"):
             authority, api, prefix, value = self.fixture()
             api.routes[("GET", prefix + "/pulls/123")]["user"]["login"] = "cbattlegear"
             checks = api.routes[("GET", prefix + f"/commits/{HEAD}/check-runs?per_page=100&page=1")]["check_runs"]
@@ -445,6 +445,9 @@ class AuthorityTests(unittest.TestCase):
                                 "user": {"login": "cbattlegear"}, "body": "not accepted"})
                 if kind == "revoked-without-record":
                     payload["approvals"] = []
+            elif kind == "comment-after-findings":
+                reviews.append({"id": 98, "state": "CHANGES_REQUESTED", "commit_id": HEAD,
+                                "user": {"login": "cbattlegear"}, "body": "unresolved code finding"})
             checks[-1]["output"]["summary"] = GATE_MARKER + json.dumps(payload)
             with self.subTest(kind=kind):
                 if kind == "valid":

@@ -123,9 +123,14 @@ class GitHubGateAuthority:
         reviews = self.backend.pages(f"{prefix}/pulls/{number}/reviews")
         by_id = {review["id"]: review for review in reviews}
         latest_decisive = {}
+        latest_formal = {}
         for item in reviews:
             body = item.get("body") or ""
             acceptance = f"<!-- android-port-acceptance:{binding.key} -->"
+            if item.get("state") in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED"):
+                login = item.get("user", {}).get("login")
+                if login not in latest_formal or item["id"] > latest_formal[login]["id"]:
+                    latest_formal[login] = item
             if item.get("state") in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED") or (
                 item.get("state") == "COMMENTED" and acceptance in body
             ):
@@ -135,7 +140,7 @@ class GitHubGateAuthority:
         if any(
             login in set(self.policy["maintainers"]) | set(self.policy["review_policy"]["authorized_coordinators"])
             and item.get("state") == "CHANGES_REQUESTED" and item.get("commit_id") == head
-            for login, item in latest_decisive.items()
+            for login, item in latest_formal.items()
         ):
             raise PortError("Approval/acceptance blocked by current-head review findings")
         for approval in payload["approvals"]:
