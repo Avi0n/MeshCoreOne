@@ -96,6 +96,7 @@ class ConnectedConversationComposeTest : RoomProcessTest() {
             val failed = compose.activity.getString(C.chatsMessageStatusFailed)
             val retry = compose.activity.getString(C.chatsMessageStatusRetry)
             var messageID: UUID? = null
+            var retryTimestamp: UInt? = null
             repeat(2) { attempt ->
                 h.eventually("mounted queue attempt ${attempt + 1} persists and broadcasts its terminal failure") {
                     failures.size == attempt + 1 && runBlocking {
@@ -116,7 +117,8 @@ class ConnectedConversationComposeTest : RoomProcessTest() {
                 assertEquals(channel && attempt == 1, pending.isResend)
                 if (channel) {
                     assertEquals(original, pending.messageText)
-                    assertEquals(persisted.timestamp, pending.messageTimestamp)
+                    // A resend may update the row timestamp after enqueue captured its previous value.
+                    assertEquals(if (attempt == 0) persisted.timestamp else requireNotNull(retryTimestamp), pending.messageTimestamp)
                     assertEquals("TestNode", pending.localNodeName)
                 }
                 h.settle()
@@ -129,7 +131,10 @@ class ConnectedConversationComposeTest : RoomProcessTest() {
                 compose.onNodeWithText(retry).assertIsDisplayed()
                 assertNull(h.draftStore.draft(if (channel) ChatConversationID.channel(radio, channelDTO.index)
                     else ChatConversationID.dm(radio, contact.id)))
-                if (attempt == 0) compose.onNodeWithText(retry).performClick()
+                if (attempt == 0) {
+                    retryTimestamp = requireNotNull(store.fetchMessage(EntityKey(radio, persisted.id))).timestamp
+                    compose.onNodeWithText(retry).performClick()
+                }
             }
             assertEquals(listOf(messageID, messageID), failures.toList())
             assertEquals(2, accepted.size)

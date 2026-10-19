@@ -92,6 +92,14 @@ expect one wire command total despite a legitimate unacknowledged first-generati
 attempt followed by reconnect recovery. The correction explicitly waits for that
 first attempt, asserts its persisted attempt count, and requires one command per
 generation plus one terminal event/message; it does not suppress durable retry.
+The full `f902926d0ef2984a86eead5aca474a7c665b904d` cohort discovers 35:
+34 pass, one mounted channel test fails (1m37s), while all 12 shortcut cases pass.
+That fixture compared the captured enqueue timestamp to the later resend-updated
+message row; a one-second boundary exposed the invalid comparison. Frozen
+`MessageService+SendChannel.swift::resendChannelMessage` deliberately updates the
+row timestamp before a resend. The corrected assertion captures the real row
+timestamp before clicking Retry and compares that exact value to the envelope,
+without tolerance, clock-dependent equality or a product change.
 The native session-error category/payload remains blocked by the existing
 WP-404 ownership/admission gap; these tests do not resolve that category.
 
