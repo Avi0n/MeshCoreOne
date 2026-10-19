@@ -8,6 +8,9 @@ Text/layout/ink through unselected/A/B/clear states. The cached-chat recreation
 method retains all original assertions and compares actual public row/list
 pixel offsets after a12px-to24px offset-only scroll with unchanged visible rows.
 These assertions have not yet been compiled or executed on a native device.
+Combined source18cc3eb7 imports the exact reviewed307/315/316 Android bytes
+and their directly related producer test/build/lock wiring without changing
+any audit fixture. No build or new APK has been created for that source.
 
 `NativeLocalizedCompareLocalePreservationTest` separately retains WP316
 producer8a8c6348's explicit tr-TR/az-AZ cases: four equal/three unequal pairs

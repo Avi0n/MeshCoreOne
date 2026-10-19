@@ -19,9 +19,9 @@ and independently requires the localized stateDescription.
 
 | Corrected producer binding | Required product blob | Current state |
 |---|---|---|
-|WP307 PR235 **4b6629ac2bf215577ec1522530a77de61ed577fe**|ChatTimeline.kt **3b10d361363e08af68225c9fba12e378c3eaf725**|Published/inspected; not yet integrated here|
-|WP315 PR227 **3a4e9a869f7c81014fb6aed245273e5838883ae2**|LineOfSightScreen.kt **819a6d982c34974f3dcd1534a9577546c5d5861b**|Published/inspected; not yet integrated here|
-|WP316 PR239 **8a8c6348af1c98b3f11f21769800308cf302b8f9**|LocalizedCompare.kt **213866562c54c12d1f82f9c397b5cdcac7a4907c**|Published/inspected; not yet integrated here|
+|WP307 PR235 **4b6629ac2bf215577ec1522530a77de61ed577fe**|ChatTimeline.kt **3b10d361363e08af68225c9fba12e378c3eaf725**|Imported exactly at combined source18cc3eb7; unexecuted|
+|WP315 PR227 **3a4e9a869f7c81014fb6aed245273e5838883ae2**|LineOfSightScreen.kt **819a6d982c34974f3dcd1534a9577546c5d5861b**|Imported exactly at combined source18cc3eb7; public visual observation still blocked|
+|WP316 PR239 **8a8c6348af1c98b3f11f21769800308cf302b8f9**|LocalizedCompare.kt **213866562c54c12d1f82f9c397b5cdcac7a4907c**|Imported exactly with producer test/build/lock wiring; unexecuted|
 
 The prepared selector is limited to these cases:
 
@@ -102,13 +102,46 @@ Every eventual outcome is
 **combined integration**, not standalone acceptance of any producer. Do not
 start a37 command until its independent authorization gate is resolved.
 
-No producer imports, builds, Gradle-lane acquisition, emulator/adb execution,
-SDK/settings changes, physical observations, merge or new worker occurred
-for this preparation. Prior83 totals, native31 collation9PASS/2FAIL and the
+At assertion source6c81bad0 there were no producer imports or builds. The
+subsequent exact source integration below still performs no Gradle-lane
+acquisition, build, emulator/adb execution, SDK/settings change, physical
+observation, PR merge or new worker. Prior83 totals, native31 collation9PASS/2FAIL and the
 requested37 zero-start unauthorized gate remain at their original sources.
 Trusted declared `python tools\android-port\controller\validate.py` and
 `python tools\android-port\portmap.py` pass; they do not compile or execute
 the strengthened Kotlin assertions.
+
+## Exact reviewed source integration: not build or acceptance
+
+Combined source **18cc3eb7c9bd157b69db9bcecb4f52c2983111e1**,
+Android tree **ec2dbbcab061ee9b019b0ae7caacc47d9c19eada**, integrates the
+three producer heads above over audit6c81bad0. All13 imported Android files
+exactly match their producer Git blobs. The imports include the producer307/
+315 mounted tests and producer316's actual Robolectric annotations, Tools
+plugin and dependency lock, rather than changing/copying their behavior in
+the audit. Existing App/build/release wiring and all seven audit fixtures
+remain untouched by that integration. No producer documentation is overwritten:
+existing307 evidence differs semantically and stays with its owner.
+
+The trusted operation is **merge-integration /
+merge-disjoint-semantic-edits**, not direct WP503 production `modify`.
+Each Android path matched its producer's exact parent before import; all
+source attributions remain bound to their published SHA. Same-attempt CAS
+evolves reservation4 to5 while preserving canonical1666502a, advisory CLI
+aliasd298, original authorization, source/base/manifest/policy and history.
+No identity reconciliation/replacement, lease recreation or main-merge
+approval occurs.
+[Actual13-file bindings and typed evolution receipt](../evidence/WP-503/reviewed-repair-source-binding.json).
+This is source/admission metadata, **not a CI result bundle**.
+
+There are **no new APKs or native instrumentation starts/outcomes**.
+The public inspector alternative was inspected offline: the pinned
+TextStringSimpleElement exposes no text inspector properties, and BasicText
+adds no public inspector bridge that recovers this cleared Text/layout.
+Private/internal node traversal or a test-only selection/style wrapper is
+not substituted. The exact315 visual observation and separate37 authorization
+gates therefore still block execution. No one-source-build request is spent
+on an already known unobservable assertion.
 
 ## API37 authorization: bounded offline investigation, no verified fix
 

@@ -13,9 +13,16 @@ The user-authorized cached-chat/LOS assertion strengthening and supplemental
 tr/az producer cases have **no new build/APKs/native starts/outcomes**.
 The next bounded selector is21 existing plus2 supplemental identities; the
 unchanged US fixture remains10 independent vectors/11 methods. Published
-WP3168a8c6348 is inspected, not yet integrated or natively accepted here.
-Public LOS role-Text observation, exact combined source/APKs and lane release
-remain pre-build gates; API37 authorization is independently unresolved.
+WP3168a8c6348 is now imported with the307/315 producers at combined source
+**18cc3eb7c9bd157b69db9bcecb4f52c2983111e1**, Android tree
+**ec2dbbcab061ee9b019b0ae7caacc47d9c19eada**. All13 producer Android
+blobs are exact, including actual316 unit-test/build/lock wiring and307/315
+mounted cases; all audit fixtures remain at6c81bad0. Same-attempt typed
+merge-integration CAS4to5 preserves canonical identity/source/authorization.
+[Source/admission-only record](reviewed-repair-source-binding.json).
+No new build/APKs or native starts/outcomes; no producer/native acceptance.
+Public LOS role-Text observation and lane release remain pre-build gates;
+API37 authorization is independently unresolved.
 The offline comparison found matching host-key advertisement/home wiring,
 fresh/no-snapshot commands and expected AVD/system paths, but no verified
 trust-preserving repair or guest accepted-key observation. No probe/retry,
@@ -32,7 +39,7 @@ or relabeling of the preceding83 inventory. Executed combined source
 **2edba239fc90616a8d8b4919499e91dc07ccd210**. Exact producer
 **3bcb254a31e3c4d51b81b74d19f043199a824905** was previously integrated
 by e680a2b0, not merged as an ancestor/standalone acceptance candidate.
-Current production LocalizedCompare blob
+At that executed source, production LocalizedCompare blob
 **905f08c90e0c64b7e69d509886a95f4bbc91f13b** and retained
 SwiftTextParityTest blob **345cb7a6ee3cf48b2594efd471eceeed793cb27a**
 equal that producer byte-for-byte. No product edits.
