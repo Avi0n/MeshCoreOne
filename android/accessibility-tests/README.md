@@ -7,6 +7,20 @@ the existing 300s boot/600s instrumentation limits. `--scenario launcher` expect
 nine distinct starts and matching terminal outcomes; `--scenario full` now expects82.
 Do not retry failed cases until green or reduce these counts.
 
+`DeviceAccessibilityHarness` awaits the real `MeshCoreApplication.container`
+startup contract on the instrumentation thread before feature setup or service
+requests. Public in-window stack/Looper observations found real process graph
+construction occupying the main thread while client-state messages and the
+heartbeat queued overdue. Existing launcher bodies already await this same
+container, but formerly only after requesting touch exploration. Awaiting the
+actual prerequisite before that request changes ordering, not a deadline: no
+sleep, synthetic readiness, Compose-clock advancement, extra resources or
+production change is introduced. Startup exceptions propagate; the existing600s
+instrumentation guard still bounds execution. This audits process-ready feature
+flows, not cold-start latency or touch-exploration delivery during initialization.
+The independent cold platform controls do not inherit this prerequisite; all
+their recorded failures remain.
+
 `--scenario platform-service-control` selects one new
 `NativePlatformServiceControlTest` method. Unlike the preceding service control,
 it has no Activity/Compose rule or test dispatcher. It verifies zero initial

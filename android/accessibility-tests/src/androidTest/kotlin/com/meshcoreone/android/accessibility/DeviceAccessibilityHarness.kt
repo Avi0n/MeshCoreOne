@@ -2,6 +2,8 @@
 package com.meshcoreone.android.accessibility
 
 import android.os.Build
+import android.os.Looper
+import android.os.SystemClock
 import android.provider.Settings
 import android.view.View
 import androidx.activity.compose.setContent
@@ -18,6 +20,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.meshcoreone.android.MainActivity
+import com.meshcoreone.android.app.MeshCoreApplication
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -40,6 +44,15 @@ abstract class DeviceAccessibilityHarness : NativeAccessibilityAssertions() {
         assertEquals(2f, Settings.System.getFloat(activity.contentResolver, Settings.System.FONT_SCALE), 0f)
         assertEquals(2f, activity.resources.configuration.fontScale, 0f)
         assertEquals(0f, Settings.Global.getFloat(activity.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE), 0f)
+        check(Looper.myLooper() != Looper.getMainLooper()) { "Await process startup off the actual main thread" }
+        val application = activity.application
+        check(application is MeshCoreApplication) { "Native fixtures require the real MeshCoreApplication" }
+        val startupStart = SystemClock.elapsedRealtime()
+        println("WP503_NATIVE_PROCESS_STARTUP|phase=await|alreadyCompleted=${application.container.isCompleted}")
+        runBlocking { application.container.await() }
+        println("WP503_NATIVE_PROCESS_STARTUP|phase=ready|actualCompleted=${application.container.isCompleted}" +
+            "|elapsedMs=${SystemClock.elapsedRealtime() - startupStart}|serviceDeadlineUnchangedMs=1000" +
+            "|startupPrerequisiteNotServiceWindow=true")
         compose.runOnUiThread { activity.window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL }
         println("WP503_DEVICE_PROFILE|sdk=${Build.VERSION.SDK_INT}|fontScale=2.0|density=${activity.resources.displayMetrics.density}")
     }
