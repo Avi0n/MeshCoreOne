@@ -2,6 +2,85 @@
 
 **Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips and83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; language238 and cold37 activation/restoration fail. Original237, context-bound Nodes/map and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
 
+## Prepared next combined producer cohort: not executed
+
+The next bounded selection reuses 21 existing methods at audit fixture source
+**889d31ba040276b7993cf06ebfb5d359a98989e4**, with no fixture/assertion edits.
+It will use one source-bound integration and one freshly assembled App/test
+APK pair for all three producers, not separate rebuilds or successor credit
+from earlier native results.
+
+| Corrected producer binding | Required product blob | Current state |
+|---|---|---|
+|WP307 PR235 **4b6629ac2bf215577ec1522530a77de61ed577fe**|ChatTimeline.kt **3b10d361363e08af68225c9fba12e378c3eaf725**|Published/inspected; not yet integrated here|
+|WP315 PR227 **3a4e9a869f7c81014fb6aed245273e5838883ae2**|LineOfSightScreen.kt **819a6d982c34974f3dcd1534a9577546c5d5861b**|Published/inspected; not yet integrated here|
+|WP316 corrected Android-ICU-folding successor to3bcb254a|Not yet published/bound|BLOCKED; do not build with the old producer|
+
+The prepared native selector is deliberately limited to these existing cases:
+
+| Existing class/method family | Distinct methods | Preserved coverage and limits |
+|---|---|---|
+|NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200|1|Real middle-message visibility, draft, selected route/entry/stacks and actual900/360dp recreation; original1000ms service windows|
+|NativeLineOfSightAccessibilityTest|2|Framework named native action control plus saved repeater non-gesture click/elevation callback, font200/48dp|
+|NativeLineOfSightContrastTest|1|Selected Point A text in all38 effective theme/scheme/contrast frames, unchanged4.5:1|
+|NativeLineOfSightPointBContrastTest|1|Selected Point B text in all38 effective frames, unchanged4.5:1|
+|NativeDiagnosticsFlowAccessibilityTest|5|Unchanged actual diagnostics/CLI/RX/noise-floor flows including600dp short viewport|
+|NativeLocalizedCompareParityTest|11|All10 independent Swift vectors/both equality and comparator directions plus14 stable equal-pair input orders|
+|Total selected existing identities|21|Prepared count only, not discovered/executed/passed tests|
+
+Important scope limits: the existing native cached-chat case checks retained
+message visibility, **not exact 24px versus 12px offset capture**. That mounted
+negative witness belongs to the producer's source-bound evidence, not a native
+result. Existing LOS cases check actual named actions, callbacks, typography/
+targets and A/B label contrast; they **do not assert the newly added native
+selected/stateDescription or visible role-label text**. Their eventual PASS
+cannot be relabeled as proof of those unasserted properties. No new test,
+oracle, threshold, deadline or full-audit expansion is authorized by this
+preparation.
+
+The session-local `wp503-reviewedrepairs-inputs.json` binds each of six
+fixture blobs and every selected method. The same existing native adapter
+now has a `reviewed-repairs` selector with exact identity reconciliation.
+`wp503-reviewedrepairs-guard.py` checks21 original identities/known producer
+blobs without SDK, Gradle or adb. Execution is rejected before private-server/
+emulator/adb startup while the exact WP316 head/product blob and combined
+head remain unbound. API37 additionally stays hard-blocked pending verified
+lane-owner authorization resolution and guard review; a self-set boolean is
+not enough. No blind retry of its prior unauthorized300s failure.
+
+Preparation command (`$F` is the established session-files directory):
+
+```powershell
+python "$F\wp503-reviewedrepairs-guard.py"
+```
+
+Result: all 21 selected source identities and six original fixture blobs
+match; both available producer blobs match their exact heads. This is
+preparation validation, **not native test discovery**. Execution-gate probes
+for31 and37 both exit2 before any adb/build operation: missing WP316/combined
+binding on31, unresolved lane-owner authorization on37. The private-runner
+entry point also rejects before starting its server or emulator.
+
+Future selector shape, **not executed or presently admitted**:
+
+```powershell
+python "$F\wp503-private-adb-native31.py" --phase reviewedrepairs --head COMBINED_HEAD --api 31 --scenario reviewed-repairs
+```
+
+Only after the corrected WP316 producer is published, its Tools test-build
+ownership handoff is respected, the real integration is admitted/bound and
+the active owner's Gradle lane is released may the existing focused APK
+builder run once. Record all three producer SHAs/blobs, actual combined
+commit/Android tree, unchanged six fixture blobs, freshly assembled APK
+sizes/hashes and actual per-API21 identity/outcome counts. Every outcome is
+**combined integration**, not standalone acceptance of any producer. Do not
+start a37 command until its independent authorization gate is resolved.
+
+No producer imports, builds, Gradle-lane acquisition, emulator/adb execution,
+SDK/settings changes, physical observations, merge or new worker occurred
+for this preparation. Prior83 totals, native31 collation9PASS/2FAIL and the
+requested37 zero-start unauthorized gate remain at their original sources.
+
 ## Separate focused production collation audit
 
 | Combined5bbef0b2, unchanged producer3bcb254a/Swift vectors, not a new full inventory | API31 | Requested API37 |
