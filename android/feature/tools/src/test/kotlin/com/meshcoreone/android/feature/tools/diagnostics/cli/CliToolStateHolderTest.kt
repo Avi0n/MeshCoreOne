@@ -10,6 +10,9 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 internal fun dependencies(
     repeaterAdminService: () -> CliRepeaterAdminPort? = { null },
@@ -23,6 +26,8 @@ internal fun dependencies(
     repeaterAdminService, remoteNodeService, settingsService, dataStore, radioId, connectedDevice, sendSelfAdvert,
 )
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [31])
 class CliToolStateHolderTest {
     private val scheduler = TestScheduler()
     private val holder = CliToolStateHolder(scheduler.scope, XmlDiagnosticsText(), scheduler.clock, FAKE_ERRORS)

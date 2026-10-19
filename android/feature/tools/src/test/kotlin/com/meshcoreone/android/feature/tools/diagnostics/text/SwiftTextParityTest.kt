@@ -7,7 +7,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [31])
 class SwiftTextParityTest {
     @Test
     fun `CharacterSet whitespaces and whitespacesAndNewlines membership`() {
@@ -111,5 +116,28 @@ class SwiftTextParityTest {
         assertEquals(pairs.flatMap { (a, b) -> listOf(a, b) }, pairs.flatMap { (a, b) ->
             listOf(a, b).sortedWith(compare.comparator)
         })
+        val interleaved = listOf("straße", "z", "STRASSE", "a")
+        assertEquals(listOf("a", "straße", "STRASSE", "z"), interleaved.sortedWith(compare.comparator))
+        assertEquals(listOf("straße", "z", "STRASSE", "a"), interleaved)
+    }
+
+    @Test
+    fun `Turkish and Azeri comparisons retain locale-tailored I distinctions`() {
+        for (tag in listOf("tr-TR", "az-AZ")) {
+            val compare = LocalizedCompare(Locale.forLanguageTag(tag))
+            for ((a, b) in listOf("I" to "ı", "İ" to "i", "I\u0307" to "i", "straße" to "STRASSE")) {
+                assertTrue(compare.equal(a, b), "$tag: $a|$b")
+                assertTrue(compare.equal(b, a), "$tag: $b|$a")
+                assertEquals(0, compare.comparator.compare(a, b), "$tag: $a|$b ordering")
+                assertEquals(0, compare.comparator.compare(b, a), "$tag: $b|$a ordering")
+                assertEquals(listOf(a, b), listOf(a, b).sortedWith(compare.comparator), tag)
+            }
+            for ((a, b) in listOf("I" to "i", "İ" to "ı", "é" to "e")) {
+                assertFalse(compare.equal(a, b), "$tag: $a|$b")
+                assertFalse(compare.equal(b, a), "$tag: $b|$a")
+                assertTrue(compare.comparator.compare(a, b) != 0, "$tag: $a|$b ordering")
+                assertTrue(compare.comparator.compare(b, a) != 0, "$tag: $b|$a ordering")
+            }
+        }
     }
 }

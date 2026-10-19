@@ -64,9 +64,12 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -313,6 +316,24 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
                 )
                 state.repeatersWithLocation.forEach { contact ->
                     val selectedAs = state.selectionState[contact.id]?.selectedAs
+                    val endpointLabel = stringResource(
+                        when (selectedAs) {
+                            PointID.POINT_A -> AppToolsStrings.toolsLineOfSightPointA
+                            PointID.POINT_B -> AppToolsStrings.toolsLineOfSightPointB
+                            else -> AppToolsStrings.toolsLineOfSightNotSelected
+                        },
+                    )
+                    val buttonModifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics {
+                        selected = selectedAs != null
+                        stateDescription = endpointLabel
+                    }
+                    val label: @Composable () -> Unit = {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(contact.displayName)
+                            // Announce the role via stateDescription without changing the native contact name.
+                            Text(endpointLabel, Modifier.clearAndSetSemantics {})
+                        }
+                    }
                     when (selectedAs) {
                         PointID.POINT_A -> {
                             Button(
@@ -321,9 +342,9 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
                                     containerColor = ColorBlue,
                                     contentColor = androidx.compose.ui.graphics.Color.Black,
                                 ),
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                modifier = buttonModifier,
                             ) {
-                                Text(contact.displayName)
+                                label()
                             }
                         }
                         PointID.POINT_B -> {
@@ -333,17 +354,17 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
                                     containerColor = ColorGreen,
                                     contentColor = androidx.compose.ui.graphics.Color.Black,
                                 ),
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                modifier = buttonModifier,
                             ) {
-                                Text(contact.displayName)
+                                label()
                             }
                         }
                         else -> {
                             OutlinedButton(
                                 onClick = { holder.toggleContact(contact) },
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                modifier = buttonModifier,
                             ) {
-                                Text(contact.displayName)
+                                label()
                             }
                         }
                     }
