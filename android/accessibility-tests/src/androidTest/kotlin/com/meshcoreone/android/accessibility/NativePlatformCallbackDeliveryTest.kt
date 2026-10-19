@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
+import android.util.Printer
 import android.view.accessibility.AccessibilityManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -110,7 +111,10 @@ class NativePlatformCallbackDeliveryTest {
         val pending = AtomicBoolean(false)
         val heartbeats = ConcurrentLinkedQueue<Heartbeat>()
         var nextHeartbeatMs = 0L
+        var pendingPostedMs: Long? = null
+        var sampledPendingMain = false
         var checks = 0
+        println("WP503_NATIVE_CALLBACK_WAIT_START|phase=$phase|elapsedRealtimeMs=$start|originalDeadlineMs=1000")
         Closeable {
             main.removeCallbacksAndMessages(token)
             val observed = heartbeats.toList()
@@ -128,12 +132,29 @@ class NativePlatformCallbackDeliveryTest {
                 val before = SystemClock.elapsedRealtime() - start
                 if (before < 1000L && before >= nextHeartbeatMs && pending.compareAndSet(false, true)) {
                     val posted = SystemClock.elapsedRealtime() - start
+                    pendingPostedMs = posted
                     assertTrue("Post an actual main-looper heartbeat",
                         main.postAtTime({
                             heartbeats.add(Heartbeat(posted, SystemClock.elapsedRealtime() - start))
                             pending.set(false)
                         }, token, SystemClock.uptimeMillis()))
                     nextHeartbeatMs = before + 100L
+                }
+                val posted = pendingPostedMs
+                if (!sampledPendingMain && pending.get() && posted != null && before - posted >= 100L) {
+                    sampledPendingMain = true
+                    val sampleStart = SystemClock.elapsedRealtime() - start
+                    val thread = main.looper.thread
+                    val state = thread.state
+                    val stack = thread.stackTrace.joinToString(" <- ")
+                    val queue = mutableListOf<String>()
+                    main.looper.dump(Printer { queue.add(it) }, "")
+                    val sampleEnd = SystemClock.elapsedRealtime() - start
+                    println("WP503_NATIVE_MAIN_PENDING_SAMPLE|phase=$phase|startedMs=$sampleStart" +
+                        "|finishedMs=$sampleEnd|durationMs=${sampleEnd - sampleStart}" +
+                        "|pendingAfter=${pending.get()}|afterOriginalDeadline=${sampleEnd > 1000L}" +
+                        "|threadState=$state|stack=$stack")
+                    queue.forEach { println("WP503_NATIVE_MAIN_PENDING_QUEUE|phase=$phase|$it") }
                 }
                 val enabled = manager.isTouchExplorationEnabled
                 val elapsed = SystemClock.elapsedRealtime() - start

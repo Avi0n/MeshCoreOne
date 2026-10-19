@@ -24,7 +24,11 @@ acknowledged flags and original1000ms activation/restoration predicates, while
 registering a public touch-exploration listener and sampling actual main-looper
 progress through nonblocking, at-most-one-pending heartbeats every100ms.
 Heartbeat times, public callback times and a post-timeout public Java thread
-stack are diagnostic observations, never readiness substitutes. No Activity,
+stack are diagnostic observations, never readiness substitutes. When a main
+heartbeat remains pending100ms, one public Java stack/Looper.dump sample per
+phase records actual queue/dispatch state, collection duration and whether the
+heartbeat remains pending. Collection time counts against the unchanged1000ms
+window; a probe can affect timing and is not a causal readiness fix. No Activity,
 Compose rule, test dispatcher, fake clock or service-state writes beyond the
 original request/restoration exist. All preceding81 methods/helpers remain
 unchanged. This is a different diagnostic treatment, not a retry or causal fix
