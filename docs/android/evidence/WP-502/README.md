@@ -86,6 +86,12 @@ Accepted-send cancellation/generation replacement is now defined for channel
 as well as direct messages, retaining the exact cancellation or recovery cause,
 one message and one terminal queue attempt after reconnect. These new assertions
 require their own positive execution; cabb's 33-case result is not their pass.
+The first new 12-case run at `61258e41fc2934a3999048c3bcb2a97104f9c74b`
+discovers 12: ten pass, two fail (1m18s). Both cancellation cases incorrectly
+expect one wire command total despite a legitimate unacknowledged first-generation
+attempt followed by reconnect recovery. The correction explicitly waits for that
+first attempt, asserts its persisted attempt count, and requires one command per
+generation plus one terminal event/message; it does not suppress durable retry.
 The native session-error category/payload remains blocked by the existing
 WP-404 ownership/admission gap; these tests do not resolve that category.
 

@@ -362,6 +362,11 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
             assertEquals(cancellation.message, actual.message)
             assertTrue(assertNotNull(caller).isCancelled)
             val key = EntityKey(recipient.radioId, pendingID.await())
+            val opcode = if (channel) 3 else 2
+            h.eventually("accepted send starts one unacknowledged attempt before disconnect", virtualBudgetMillis = 0) {
+                h.links.radios.single().sent.count { it[0].toInt() == opcode } == 1
+            }
+            assertEquals(1L, store.fetchPendingSendsForMessage(key).single().attemptCount)
             assertNotEquals(MessageStatus.FAILED, assertNotNull(store.fetchMessage(key)).status)
             assertEquals(0, failures)
             val old = assertNotNull(h.sessions.current)
@@ -380,8 +385,9 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
             assertEquals(2, h.lifecycle.created.size)
             assertEquals(original, assertNotNull(store.fetchMessage(key)).text)
             assertEquals(1, messages(store, recipient).size)
-            assertEquals(1, h.links.radios.sumOf { firmware ->
-                firmware.sent.count { it[0].toInt() == if (channel) 3 else 2 }
+            // The first generation received no wire result; durable recovery legitimately retries once.
+            assertEquals(listOf(1, 1), h.links.radios.map { firmware ->
+                firmware.sent.count { it[0].toInt() == opcode }
             })
         } finally {
             caller?.cancelAndJoin()
