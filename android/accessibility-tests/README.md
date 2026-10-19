@@ -4,29 +4,31 @@ The existing App AndroidJUnitRunner hosts the native accessibility fixtures.
 The declared session `wp503-prepare-native.py` and `wp503-run-native.py` entries
 retain API31/37, font200, actual guest CPU verification, positive discovery and
 the existing 300s boot/600s instrumentation limits. `--scenario launcher` expects
-ten distinct starts and matching terminal outcomes: nine original flows and one
-explicit controlled-cleanup regression. The83-method runnable inventory
-requires three distinct cohorts: `feature-matrix`81, `platform-service-control`1
-and `platform-callback-control`1. Each cohort requires its own fresh owned device
+nine distinct starts and matching terminal outcomes, explicitly excluding the
+separately required controlled-cleanup method. The83-method runnable inventory
+requires four distinct cohorts: `feature-matrix`80, `platform-service-control`1,
+`platform-callback-control`1 and `cleanup-preservation`1. Each requires its own fresh owned device
 and instrumentation process; do not combine them into one package invocation.
 The former `full` package selection is blocked, not relabeled as an80-case pass:
 actual82-case runs retained historical Activities and correctly failed both
 zero-Activity guards. Their failures remain evidence. `feature-matrix` explicitly
 excludes only those two separately required classes with AndroidJUnitRunner's
-`notClass` argument. No method, assertion or count is dropped from the inventory.
+`notClass` argument, plus the separately required fault-injection method by its
+class#method identity. No method, assertion or count is dropped from the inventory.
 Do not retry failed cases until green or reduce these counts.
 
-The existing private-adb adapter executes the three declared cohorts with fresh
+The existing private-adb adapter executes the four declared cohorts with fresh
 scratch images per API/cohort and unchanged300s boot/600s instrumentation guards:
 
 ```powershell
-python "$F\wp503-private-adb-native31.py" --phase matrixfeatures --head EXECUTED_HEAD --both-apis --scenario feature-matrix
-python "$F\wp503-private-adb-native31.py" --phase matrixplatform --head EXECUTED_HEAD --both-apis --scenario platform-service-control
-python "$F\wp503-private-adb-native31.py" --phase matrixcallbacks --head EXECUTED_HEAD --both-apis --scenario platform-callback-control
+python "$F\wp503-private-adb-native31.py" --phase cleanupfeatures --head EXECUTED_HEAD --both-apis --scenario feature-matrix
+python "$F\wp503-private-adb-native31.py" --phase cleanupplatform --head EXECUTED_HEAD --both-apis --scenario platform-service-control
+python "$F\wp503-private-adb-native31.py" --phase cleanupcallbacks --head EXECUTED_HEAD --both-apis --scenario platform-callback-control
+python "$F\wp503-private-adb-native31.py" --phase isolatedcleanup --head EXECUTED_HEAD --both-apis --scenario cleanup-preservation
 ```
 
 `$F` is the existing session-files directory. Record each actual source/APK
-binding and81+1+1 unique identities per API; never substitute a prior-source
+binding and80+1+1+1 unique identities per API; never substitute a prior-source
 control or a full-context positive for standalone cold-start evidence.
 
 `DeviceAccessibilityHarness` awaits the real `MeshCoreApplication.container`
@@ -68,8 +70,8 @@ window; a probe can affect timing and is not a causal readiness fix. No Activity
 Compose rule, test dispatcher, fake clock or service-state writes beyond the
 original request/restoration exist. All preceding81 methods/helpers remain
 unchanged. This is a different diagnostic treatment, not a retry or causal fix
-of their failures. The inventory becomes82; acceptance requires all three
-cohorts above, not a shared-context package pass. The additional controlled
+of their failures. That82 inventory requires its three compatible cohorts,
+not a shared-context package pass. The additional controlled
 cleanup regression below brings the current runnable inventory to83.
 
 `NativeLauncherFocusAccessibilityTest` samples AccessibilityManager state through
@@ -84,7 +86,7 @@ explicitly after the original deadline: late state changes never earn a pass.
 
 ## Controlled primary/cleanup failure regression
 
-The tenth launcher method explicitly injects a primary AssertionError after
+The additional launcher-class method explicitly injects a primary AssertionError after
 actual activation and a bounded1500ms real-main latch stall. The unchanged
 restoration waiter must fail its original1000ms deadline, even if its first
 late sample observes the desired state. The same primary object must escape,
@@ -95,9 +97,18 @@ exit. No original82 method body, waiter, deadline, product or237/238 assertion
 changes. This is explicit harness fault injection, not a naturally occurring
 dual failure, physical TalkBack observation or new user-flow acceptance.
 
-`--scenario launcher` now requires all10 starts/outcomes. Earlier82-case
+The initial mixed launcher10 invocation atb7 is retained:31 10PASS37.083s,
+37 9PASS/1FAIL89.394s, original motion-flow activationfalse87 checks1001ms.
+The controlled preservation method itself passes both. This does not establish
+that the fault caused the later activation failure; neither may it be treated
+as an unperturbed feature-only invocation.
+
+`--scenario launcher` therefore selects the original9 only, using the public
+AndroidJUnitRunner class#method exclusion; `cleanup-preservation` explicitly
+selects the one fault method on its own fresh device/process. Do not mix an
+intentional real-main fault into normal feature acceptance. Earlier82-case
 reconciliation stays bound to its original source/APKs; it is not a current83
-run. Do not report full83 acceptance without all three compatible current-source
+run. Do not report full83 acceptance without all four compatible current-source
 cohorts and exact identity/input reconciliation.
 
 ## Owned emulator teardown

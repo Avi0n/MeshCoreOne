@@ -9,4 +9,9 @@ device-matrixcallbacks-* -text
 device-processreadynodes-* -text
 device-processreadymaps-* -text
 device-servicecleanup-* -text
+device-cleanupfeatures-* -text
+device-cleanupplatform-* -text
+device-cleanupcallbacks-* -text
+device-isolatedcleanup-* -text
+device-cleanupmatrix-reconciliation.json -text
 device-isolatedmatrix-reconciliation.json -text
