@@ -219,6 +219,8 @@ def validate_cases(evidence: dict, manifest: Manifest, wp: dict, catalog: dict |
 
 
 def validate_evidence(evidence: dict, binding: Binding, manifest: Manifest, policy: dict, catalog=None):
+    if isinstance(evidence, dict) and evidence.get("schema_version") == 2:
+        return validate_hosted_evidence(evidence, binding, manifest, catalog)
     fields(evidence, set(asdict(binding)) | {
         "schema_version", "runs", "acceptance", "source_tests", "changed_paths",
     }, label="acceptance evidence")
@@ -276,6 +278,42 @@ def validate_evidence(evidence: dict, binding: Binding, manifest: Manifest, poli
     _acceptance(evidence["acceptance"], wp, artifacts, "implementation acceptance")
     validate_cases(evidence, manifest, wp, catalog, artifacts)
     return artifacts, sorted(run_ids)
+
+
+def validate_hosted_evidence(evidence: dict, binding: Binding, manifest: Manifest, catalog):
+    """Hosted results stay on GitHub; acceptance retains references, never a second CI bundle."""
+    fields(evidence, set(asdict(binding)) | {
+        "schema_version", "runs", "acceptance", "source_tests", "changed_paths", "retained_artifacts",
+    }, label="hosted acceptance evidence")
+    if type(evidence["schema_version"]) is not int or evidence["schema_version"] != 2:
+        raise PortError("Unsupported hosted acceptance schema")
+    _binding(evidence, binding, "hosted acceptance evidence")
+    wp = manifest.wp(binding.work_package)
+    if not wp["verification"]["configured"] or not wp["verification"]["commands"]:
+        raise PortError("Verification commands are not configured")
+    validate_writes(wp["write_paths"], evidence["changed_paths"])
+    if not isinstance(evidence["runs"], list) or len(evidence["runs"]) != 1:
+        raise PortError("Exactly one authoritative Android CI run reference is required")
+    run = evidence["runs"][0]
+    fields(run, {"check", "run_id", "run_attempt"}, label="hosted run reference")
+    if run["check"] != "android-ci":
+        raise PortError("Unknown hosted CI check")
+    positive_integer(run["run_id"], "Hosted run ID")
+    positive_integer(run["run_attempt"], "Hosted run attempt")
+    artifacts = {
+        f"https://github.com/{binding.repository}/actions/runs/{run['run_id']}/attempts/{run['run_attempt']}"
+    }
+    if not isinstance(evidence["retained_artifacts"], list):
+        raise PortError("Malformed retained non-reproducible evidence")
+    for item in evidence["retained_artifacts"]:
+        fields(item, {"path", "sha256"}, label="retained evidence")
+        path = git_path(item["path"])
+        if path in artifacts or re.fullmatch(r"[0-9a-f]{64}", item["sha256"]) is None:
+            raise PortError("Duplicate or malformed retained evidence")
+        artifacts.add(path)
+    _acceptance(evidence["acceptance"], wp, artifacts, "implementation acceptance")
+    validate_cases(evidence, manifest, wp, catalog, artifacts)
+    return artifacts, [run["run_id"]]
 
 
 def human_acceptance_required(wp: dict, policy: dict, changed_paths: list[str], labels=()):
