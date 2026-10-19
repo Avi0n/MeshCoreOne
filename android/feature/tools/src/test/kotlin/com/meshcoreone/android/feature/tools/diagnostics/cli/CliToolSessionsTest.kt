@@ -13,12 +13,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [31])
 class CliToolSessionsTest {
     private val scheduler = TestScheduler()
     private val holder = CliToolStateHolder(scheduler.scope, XmlDiagnosticsText(), scheduler.clock, FAKE_ERRORS)
@@ -73,20 +68,6 @@ class CliToolSessionsTest {
         val session = assertNotNull(holder.state.value.activeSession)
         assertFalse(session.isLocal)
         assertEquals("@Hilltop> ", holder.promptText)
-    }
-
-    @Test
-    fun `sharp-s login and session lookup retain the original contact name`() {
-        directory.contacts = listOf(contact("straße", type = 2u))
-        remote.storedPassword = "secret"
-        connect()
-        run("login STRASSE")
-        assertEquals("Logged in to @straße", lastText)
-        assertEquals("@straße> ", holder.promptText)
-        run("session local")
-        run("session STRASSE")
-        assertEquals("Switched to @straße", lastText)
-        assertEquals("straße", holder.state.value.activeSession?.name)
     }
 
     @Test

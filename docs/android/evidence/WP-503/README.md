@@ -7,6 +7,43 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Owned-only publication boundary
+
+PR205 publishes owned WP503 audits/native evidence/documentation plus the
+six existing capability-admitted App test-source registration lines.
+39 other-owner execution-only paths are restored to exact verified
+main`8702db8b1b25a06eb596fb424d821bc3ce3b187b`/original PR-base blobs;
+they contribute no final PR product/test/build/lock/docs diff. Only this
+worker's imported execution copies are reconciled, never producer branches.
+WP501 test-only App additions and WP504 release/R8 base remain unchanged.
+
+The owned Kotlin source tree and every existing raw/native result record
+remain byte-identical to37bc. Exact composite execution commits remain in
+branch history: LoS3f39/c6, Nodesa0/fd9, offsete8 and comparatorba67/8a8c.
+Those configurations include producer repairs not present in the publication
+tip. Results must not be transferred to that tip, aggregated into a new
+whole-suite pass, or called standalone corrected-product acceptance.
+The existing producers retain ownership and must land their repairs normally.
+No native/37 run, auth/settings action or assertion relaxation is performed.
+
+The supported same-attempt CAS6-to7 evolution admits only current-base
+reconciliation, preserving canonical1666502a/actual CLI aliasd298 and all
+immutable reservation/authorization/source history. Current-main capability
+rules are unchanged; its newer review-policy amendment is not rewritten
+or borrowed as historical approval. Ordinary feature publication remains
+independent of local fast-check availability; missing/failed local checks
+are explicitly unverified, never successful acceptance. Exact-published-tip
+hosted job results/logs remain authoritative; no second CI bundle is retained.
+[Prepared scope, actual base/path/blob comparisons and admissions](publication-scope.json).
+Actual remote-head/readback status is reported separately on existing PR205
+and coordinator136; the prepared contract is not a push-success receipt.
+Older local/unpushed statements describe their historical snapshots, not
+the current remote publication status.
+The publication configuration has1753 structured implementation mappings
+versus1758 in the execution composite: exactly five imported other-owner
+Kotlin test files are absent from base. No WP503 source/test case is removed;
+this structural file count is not an acceptance-test denominator.
+
 ## Final LoS API31: actual endpoint states and rendered name/role pass
 
 Corrected owned consumer **3f39a777376e322e2bc533f1d1caf92a87a44ed8**,

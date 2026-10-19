@@ -9,8 +9,6 @@ import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -79,7 +77,6 @@ import com.meshcoreone.android.feature.nodes.share.ContactQrShareStateHolder
 import java.util.UUID
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun ContactDetailScreen(
     initialContact: ContactDTO,
@@ -160,11 +157,7 @@ internal fun ContactDetailScreen(
                     if (ContactDetailPresentation.showsHopsAway(contact)) {
                         DetailValue(stringResource(C.contactsDetailHopsAway), contact.pathHopCount.toString())
                     }
-                    // Wraps so every path action keeps a measurable bounds at narrow widths and large fonts.
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
                             onClick = { holder.path.discoverPath(contact) },
                             enabled = radioReady(dependencies) && !pathState.isDiscovering,

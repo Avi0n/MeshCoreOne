@@ -2,6 +2,17 @@
 
 **Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips and83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; language238 and cold37 activation/restoration fail. Original237, context-bound Nodes/map and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
 
+## Publication boundary
+
+All rows below remain bound to their recorded execution composites, not the
+owned-only publication tip.39 other-owner execution paths are restored to
+exact main8702db8b/base bytes; only WP503 audit/evidence/docs and six admitted
+App test-source lines remain in the PR diff. No native/CI result transfers
+across that production-source change; producer repairs must land through
+their existing owners before standalone corrected native acceptance.
+No cohort replay/API37 action or acceptance relaxation occurs.
+[Exact path/blob and same-attempt CAS6-to7 contract](../evidence/WP-503/publication-scope.json).
+
 ## Final LoS consumer: API31 saved-endpoint transitions pass
 
 Only the previously failing saved-endpoint method runs against final

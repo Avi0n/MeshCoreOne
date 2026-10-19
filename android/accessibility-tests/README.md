@@ -1,6 +1,24 @@
 # WP-503 native audit helpers
 
-## Bounded strengthened repair cohort: not executed
+## Publication and execution are different source configurations
+
+PR205 publishes this owned audit surface, WP503 documentation/native evidence
+and the existing six-line App test-source registration only.39 execution-only
+producer paths are restored to exact current-main8702db8b/base bytes in the
+final PR diff; their owner-attributed integration commits remain in history.
+WP501 test wiring and WP504 release/R8 configuration are unchanged.
+The corrected producer repairs must land through their existing owners;
+they are not WP503 product changes or implicit dependencies declared complete.
+
+All native outcomes retain their original composite source/fixture/APK/runtime
+bindings. In particular, LoS1PASS9.563s executes3f39/final315c6, Nodes7PASS14.11s
+executesa0/final311fd9, and original US11 plus supplemental tr/az2 pass atba67/
+final3168a8c. Those production blobs differ from the publication configuration.
+No native result, hosted success or standalone acceptance transfers to its tip.
+No successful cohort is rerun and API37 remains blocked before launch.
+[Exact separation and source paths](../../docs/android/evidence/WP-503/publication-scope.json).
+
+## Historical preparation: bounded strengthened repair cohort, then unexecuted
 
 The existing saved-LOS action method now retains its original actions and
 checks native localized selected/stateDescription and measured visible role

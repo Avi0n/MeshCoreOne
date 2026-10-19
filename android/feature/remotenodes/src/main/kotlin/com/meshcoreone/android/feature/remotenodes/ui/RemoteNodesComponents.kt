@@ -13,9 +13,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.semantics
@@ -73,14 +71,10 @@ internal fun RemoteValue(label: String, value: String) {
 }
 
 @Composable
-internal fun RemoteToggle(label: Int, checked: Boolean, onChange: (Boolean) -> Unit, enabled: Boolean = true, role: Role = Role.Checkbox, accessibilityLabel: String? = null, accessibilityHint: String? = null) {
+internal fun RemoteToggle(label: Int, checked: Boolean, onChange: (Boolean) -> Unit, enabled: Boolean = true, role: Role = Role.Checkbox) {
     Row(
         Modifier.fillMaxWidth().heightIn(min = 48.dp)
-            .toggleable(checked, enabled = enabled, role = role, onValueChange = onChange)
-            .semantics(mergeDescendants = true) {
-                accessibilityLabel?.let { contentDescription = it }
-                accessibilityHint?.let { onClick(label = it, action = null) }
-            },
+            .toggleable(checked, enabled = enabled, role = role, onValueChange = onChange),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {

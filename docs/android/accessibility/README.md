@@ -5,6 +5,25 @@ This is not accessibility acceptance, a completed WP, or permission to close iss
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
+## Owned-only publication, not standalone corrected-product acceptance
+
+PR205's final diff contains WP503 audits/documentation/native evidence and
+the admitted six App test-source registration lines.39 execution-only
+producer paths are reconciled to exact main8702db8b/base bytes, not published
+as WP503 product changes. Composite commits/native records remain unchanged
+in history; corrected producer repairs still belong to their existing owners.
+WP501 test-only build additions and WP504 release/R8 code are preserved.
+
+Later source-bound API31 results remain separate: original comparator US11
+and supplemental tr/az2 pass atba67/3168a8c; offset restoration passes ate8;
+original Nodes7 pass14.11s ata0/311fd9; saved LoS1 passes9.563s at3f39/315c6.
+They do not transfer to a publication tip with restored production bytes,
+replace native83, or prove standalone/full-WP acceptance. API37 has0 new
+starts and no auth/settings attempt. Exact-tip hosted checks remain the
+authority for reproducible checks; no duplicate CI bundle is retained.
+[Publication scope contract](../evidence/WP-503/publication-scope.json) and
+[native evidence timeline](../evidence/WP-503/README.md).
+
 ## Focused native production comparison finding
 
 A separate11-method audit at combined5bbef0b2 invokes the actual unchanged
