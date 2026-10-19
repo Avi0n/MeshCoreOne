@@ -122,6 +122,14 @@
         "validation": ["workflow trust-boundary tests", "required-check identity validation"]
       },
       {
+        "id": "debug-test-packaging",
+        "work_packages": ["WP-003", "WP-503"],
+        "path_rules": ["tools/android-port/local/debug_packaging.py", "tools/android-port/tests/test_debug_packaging.py"],
+        "operations": ["implement-debug-packaging-adapter", "build-debug-test-apks-with-existing-local-identity"],
+        "invariants": ["WP-503-execution-only", "exact-clean-source-and-fixtures", "existing-native-and-exclusive-gradle-lanes", "existing-local-default-debug-identity-only", "public-app-test-installed-certificate-match", "no-private-key-read-export-copy-or-change", "no-retained-apk-resign", "no-install-uninstall-wipe-or-release-task"],
+        "validation": ["debug-packaging regression tests", "actual source-build-output hashes", "public certificate verification before any separately guarded install"]
+      },
+      {
         "id": "merge-integration",
         "path_rules": ["**"],
         "operations": ["reconcile-current-base", "merge-disjoint-semantic-edits", "transfer-current-producer"],

@@ -24,7 +24,7 @@ from controller.ci_evidence import PYTHON_MINIMUMS, collect_lint, collect_suites
 from controller.errors import PortError
 from controller.gates import Binding, policy_revision
 from controller.model import git, load_manifest
-from controller.module_junit import check_module_tests
+from controller.module_junit import check_module_tests, module_method_inventory
 from controller.provision import provision
 from controller.runtime_inputs import verify_committed_inputs
 from controller.schema import decode_json, fields, load_json, positive_integer
@@ -102,12 +102,27 @@ def execution_identity():
         "run_id": positive_integer(int(os.environ["GITHUB_RUN_ID"]), "Workflow run ID"),
         "run_attempt": positive_integer(int(os.environ["GITHUB_RUN_ATTEMPT"]), "Workflow run attempt"),
     }
-def execute(command: list[str], environment: dict | None, log: Path, *, timeout=1800):
+def execute(command: list[str], environment: dict | None, log: Path, *, timeout=1800, failure_reports=None):
     log.parent.mkdir(parents=True, exist_ok=True)
     print("Executing " + " ".join(str(item) for item in command[:5]), flush=True)
     with log.open("w", encoding="utf-8") as stream:
         result = subprocess.run(command, cwd=REPO, env=environment, stdout=stream, stderr=subprocess.STDOUT, timeout=timeout)
     if result.returncode:
+        if failure_reports is not None:
+            from controller.ci_evidence import failed_case_report
+
+            totals, problems = {}, []
+            for directory in failure_reports():
+                try:
+                    observed = failed_case_report([directory])
+                    print(json.dumps(observed, indent=2), file=sys.stderr)
+                    for name, count in observed["counts"].items():
+                        totals[name] = totals.get(name, 0) + count
+                except (PortError, OSError, ETError) as error:
+                    problems.append(str(error))
+                    print("BLOCKED: failed-command JUnit evidence: " + str(error), file=sys.stderr)
+            print(json.dumps({"failed_command_report_totals": totals,
+                              "evidence_complete": not problems, "problems": problems}), file=sys.stderr)
         tail = log.read_text(encoding="utf-8", errors="replace")[-12000:]
         print(tail, file=sys.stderr)
         raise PortError(f"Declared command failed with exit {result.returncode}; log: {log.name}")
@@ -225,7 +240,27 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
             shell, "-NoLogo", "-NoProfile", "-NonInteractive", "-File",
             str(Path(__file__).with_name("gradle_windows.ps1")), "-InvocationFile", str(invocation),
         ]
-    execute(command, environment, output / f"gradle-{stage}.log")
+    from controller.ci_evidence import SUITES
+    from controller.module_junit import REPORT_LOCATIONS, module_sources
+
+    def report_directories():
+        directories = set()
+        if "scaffold" in selected:
+            directories.update(REPO / "android" / relative for relative, _ in SUITES.values())
+            for module in module_sources(REPO):
+                locations = [REPO / "android" / module / relative for relative in REPORT_LOCATIONS]
+                directories.add(next((path for path in locations if any(path.glob("TEST-*.xml"))), locations[-1]))
+        for scope, modules in (("protocol", ("core/protocol",)), ("backup", ("core/data", "core/database")),
+                               ("external-oracle", ("core/testing",))):
+            if scope in selected:
+                directories.update(
+                    REPO / "android" / module / "build/test-results" / ("test" if module == "core/protocol" else "testDebugUnitTest")
+                    for module in modules
+                )
+        return sorted(directories)
+
+    execute(command, environment, output / f"gradle-{stage}.log",
+            failure_reports=report_directories if selected else None)
     graph = validate_candidate_task_graph(task_graph, tasks)
     if stage == "benchmark":
         from controller.performance import verify_build
@@ -237,6 +272,7 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
     if "scaffold" in selected:
         report["suites"] = collect_suites(REPO / "android")
         report["module_unit_tests"] = check_module_tests(REPO)
+        report["unit_test_methods"] = module_method_inventory(REPO, report["module_unit_tests"])
         report["reports"] = collect_lint(REPO / "android")
         validate_graph_runtime(REPO / "android" / "build" / "reports" / "scaffold")
     if "protocol" in selected:
