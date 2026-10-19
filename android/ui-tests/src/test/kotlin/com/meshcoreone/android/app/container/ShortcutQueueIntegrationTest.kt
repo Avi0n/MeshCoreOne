@@ -1,5 +1,6 @@
 // AndroidOnly: WP-502 Verify the real shortcut flow and AppContainer durable queue over Room.
 // ReferenceInput: MC1/Intents/SendMessageIntent.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Intents/SendAdvertIntent.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Intents/IntentError.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Extensions/Errors/MeshCoreError+UserFacingMessage.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MeshCore/Sources/MeshCore/Protocol/Parsers+Channels.swift@db14559b39d32322b06477c6ae676112f583db50
@@ -28,6 +29,7 @@ import com.meshcoreone.android.core.protocol.config.MeshCoreException
 import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
 import com.meshcoreone.android.core.services.contacts.ChannelServiceError
+import com.meshcoreone.android.core.services.contacts.AdvertisementError
 import com.meshcoreone.android.platform.shortcuts.*
 import java.util.Collections
 import java.util.Locale
@@ -103,6 +105,98 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         SendMessageFlow(AppShortcutRadio(h.container), object : ShortcutConfirmationPort {
             override suspend fun confirm(request: ConfirmationRequest) = confirmAction(request)
         }, text)
+
+    @Test fun realAdvertServiceSessionErrorsReachAdapterAndExecutorForZeroHopAndFlood() = runTest {
+        val h = connected(this)
+        val adapter = AppShortcutRadio(h.container)
+        val firmware = h.links.radios.single()
+        val originalResponse = firmware.respond
+        var reject = true
+        firmware.respond = { frame ->
+            if (frame[0].toInt() == 7) listOf(if (reject) Bytes.of(1, 6) else Bytes.of(0))
+            else originalResponse(frame)
+        }
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val expected = context.getString(L10nR.string.l10n_app_localizable_error_device_invalidparameter)
+        try {
+            for (reach in AdvertReach.entries) {
+                reject = true
+                val failure = assertFailsWith<ShortcutException> { adapter.sendAdvert(reach.sendsFlood) }
+                val outer = assertIs<AdvertisementError.SessionError>(failure.cause)
+                val payload = assertIs<MeshCoreException.DeviceError>(outer.error)
+                assertEquals(6.toUByte(), payload.code)
+                assertSame(payload, assertIs<ShortcutError.SessionError>(failure.error).underlying)
+                assertEquals(expected, text.error(failure.error))
+                val shown = mutableListOf<String>()
+                val confirmations = mutableListOf<ConfirmationRequest>()
+                val executor = ShortcutRequestExecutor(
+                    adapter,
+                    object : ShortcutConfirmationPort {
+                        override suspend fun confirm(request: ConfirmationRequest): Boolean {
+                            confirmations += request
+                            return true
+                        }
+                    },
+                    text,
+                    object : ShortcutPresenter {
+                        override fun show(message: String) { shown += message }
+                        override fun openApp(request: ShortcutRequest) { fail("Advert failure must not escalate") }
+                    },
+                )
+                executor.run(ShortcutRequest.Advert(reach))
+                assertEquals(listOf(expected), shown)
+                assertEquals(if (reach.sendsFlood) 1 else 0, confirmations.size)
+                reject = false
+                executor.run(ShortcutRequest.Advert(reach))
+                assertEquals(listOf(expected, text.advertSent(reach)), shown)
+            }
+            assertEquals(
+                List(3) { Bytes.of(7) } + List(3) { Bytes.of(7, 1) },
+                firmware.sent.filter { it[0].toInt() == 7 },
+            )
+            assertTrue(store.fetchPendingSends(assertNotNull(h.appState.currentRadioId)).isEmpty())
+            for (recipient in recipients(h)) assertTrue(messages(store, recipient).isEmpty())
+            assertEquals(1, h.lifecycle.created.size)
+        } finally { h.container.close() }
+    }
+
+    @Test fun realAdvertBoundaryPreservesTypedNotConnectedFallbackAndCancellationForBothReaches() = runTest {
+        for (reach in AdvertReach.entries) {
+            val cancellation = CancellationException("cancel actual advert boundary")
+            val failures = listOf(
+                AdvertisementError.NotConnected() to ShortcutError.NOT_CONNECTED,
+                AdvertisementError.SendFailed() to ShortcutError.ADVERT_FAILED,
+                AdvertisementError.InvalidResponse() to ShortcutError.ADVERT_FAILED,
+                IllegalStateException("synthetic transport failure") to ShortcutError.ADVERT_FAILED,
+                cancellation to null,
+            )
+            for ((originalFailure, expected) in failures) {
+                // Each injected transport-write failure leaves correlation uncertain; use a new real generation.
+                val h = connected(this)
+                val firmware = h.links.radios.single()
+                val originalResponse = firmware.respond
+                firmware.respond = { frame ->
+                    if (frame[0].toInt() == 7) throw originalFailure else originalResponse(frame)
+                }
+                try {
+                    val adapter = AppShortcutRadio(h.container)
+                    if (originalFailure === cancellation) {
+                        val actual = assertFailsWith<CancellationException> { adapter.sendAdvert(reach.sendsFlood) }
+                        assertTrue(actual === cancellation || actual.cause === cancellation)
+                    } else {
+                        val actual = assertFailsWith<ShortcutException> { adapter.sendAdvert(reach.sendsFlood) }
+                        assertEquals(expected, actual.error)
+                        assertSame(originalFailure, actual.cause)
+                    }
+                    assertEquals(listOf(if (reach.sendsFlood) Bytes.of(7, 1) else Bytes.of(7)),
+                        firmware.sent.filter { it[0].toInt() == 7 })
+                    assertTrue(store.fetchPendingSends(assertNotNull(h.appState.currentRadioId)).isEmpty())
+                    for (recipient in recipients(h)) assertTrue(messages(store, recipient).isEmpty())
+                    assertEquals(1, h.lifecycle.created.size)
+                } finally { h.container.close() }
+            }
+        }
+    }
 
     @Test fun queuedResultRequiresOneRealDurableDirectAndChannelEnqueueWithoutWireReceipt() = runTest {
         val h = connected(this)
