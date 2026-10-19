@@ -14,6 +14,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -456,6 +458,7 @@ private fun AddContactDialog(
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 internal fun ContactShareDialog(
     holder: ContactQrShareStateHolder,
     onDismiss: () -> Unit,
@@ -465,7 +468,24 @@ internal fun ContactShareDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Column(horizontalAlignment = Alignment.End) {
+            TextButton(onClick = {
+                val payload = holder.sharePayload(holder.contactName)
+                context.startActivity(
+                    Intent.createChooser(
+                        Intent(Intent.ACTION_SEND)
+                            .setType(payload.mimeType)
+                            .putExtra(Intent.EXTRA_TEXT, payload.text)
+                            .putExtra(Intent.EXTRA_SUBJECT, payload.subject),
+                        holder.contactName,
+                    ),
+                )
+            }) { Text(stringResource(C.contactsDetailShareContact)) }
+        },
+        dismissButton = {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 TextButton(
                     modifier = Modifier.heightIn(min = 48.dp),
                     enabled = !copied,
@@ -475,21 +495,9 @@ internal fun ContactShareDialog(
                         clipboard.setPrimaryClip(ClipData.newPlainText(holder.contactName, text))
                     },
                 ) { Text(if (copied) stringResource(C.contactsQrCopied) else stringResource(C.contactsQrCopy)) }
-                TextButton(onClick = {
-                    val payload = holder.sharePayload(holder.contactName)
-                    context.startActivity(
-                        Intent.createChooser(
-                            Intent(Intent.ACTION_SEND)
-                                .setType(payload.mimeType)
-                                .putExtra(Intent.EXTRA_TEXT, payload.text)
-                                .putExtra(Intent.EXTRA_SUBJECT, payload.subject),
-                            holder.contactName,
-                        ),
-                    )
-                }) { Text(stringResource(C.contactsDetailShareContact)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(C.contactsCommonDone)) }
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(C.contactsCommonDone)) } },
         title = { Text(holder.contactName) },
         text = {
             Column(

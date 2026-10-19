@@ -257,6 +257,9 @@ https://github.com/cbattlegear/MeshCoreOne-Android/pull/233#issuecomment-6259966
 https://github.com/cbattlegear/MeshCoreOne-Android/pull/233#issuecomment-6262284771.
 
 Copy is now outside the QR content scroller, in the dialog's reserved action area with Share.
+Its final arrangement groups Copy and Done with FlowRow and retains Share as the confirm action,
+so Copy does not force an additional fixed-height row at narrow/large-text widths. This final
+arrangement supersedes the interim stacked-Copy/Share arrangement in `62d503decbd67cf5a06a1368beb77ec9c2e0af75`.
 The QR/key retain scrolling; Copy retains >=48dp minimum height, exact clipboard bytes, disabled
 Copied feedback/reset, chooser payload and dismissal. Owned QR tests require Copy to be visible
 without a preceding scroll, have no scrolling ancestor, and retain contained >=48dp bounds and
