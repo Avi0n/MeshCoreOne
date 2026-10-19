@@ -2,6 +2,24 @@
 
 **Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips and83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; language238 and cold37 activation/restoration fail. Original237, context-bound Nodes/map and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
 
+## Separate focused production collation audit
+
+| Combined5bbef0b2, unchanged producer3bcb254a/Swift vectors, not a new full inventory | API31 | Requested API37 |
+|---|---|---|
+| Actual runtime |API31,ICU68.2.0.0,Locale.US|Unverified: adb authorization prevents preparation|
+| Focused starts/matching outcomes |11/11;9PASS/2FAIL0.314s,0 errors/skips|0/0;BLOCKED_BEFORE_INSTRUMENTATION, not pass/skip|
+| Sharp-s/STRASSE equality and comparator, both directions |false/false,compare+1/-1; expectedtrue/true,0/0|Not executed|
+| Other six equal and three unequal vectors |All expected equality/ordering results match both directions|Not executed|
+| Stable ordering for seven oracle-equal pairs, both input orders |13/14 input orders retained; sharp-s-first pair reordered|Not executed|
+| Owned emulator exit / transport absent / exact scratch paths removed |0 /297ms /2|0 /328ms /2|
+
+Two failed methods are `sharpSMatchesSwiftEquality` and
+`equalNamesKeepTheirInputOrderWithTheProductionComparator`; JUnit expands
+their five assertion failures, not five failed methods. Actual production
+definition is in App classes5.dex only, absent from test DEX. No original
+vector/expectation, producer implementation, SDK/settings or deadline changes.
+[Exact native evidence and concrete37 gate](../evidence/WP-503/README.md#focused-native-production-localizedcompare-parity).
+
 ## Controlled primary and real cleanup failures
 
 | Initial mixed b7dfd5c8 class10, actual twoCPUs,10 starts/outcomes | API31 | API37 |

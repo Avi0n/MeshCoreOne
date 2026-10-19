@@ -1,0 +1,413 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 4,
+  "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+  "audit_parent": "2edba239fc90616a8d8b4919499e91dc07ccd210",
+  "exact_producer": "3bcb254a31e3c4d51b81b74d19f043199a824905",
+  "executed_combined_head": "5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5",
+  "executed_android_tree": "0e5d0e9687d47ad637c3b80292e7c6b30a2be614",
+  "standalone_producer_acceptance": false,
+  "unchanged_producer_blobs": {
+    "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt": "905f08c90e0c64b7e69d509886a95f4bbc91f13b",
+    "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt": "345cb7a6ee3cf48b2594efd471eceeed793cb27a"
+  },
+  "independent_oracle": {
+    "path": "docs/android/evidence/WP-316/oracle-output.txt",
+    "blob": "0064656ced61ca93fc541c3e3b070c3f2076263d"
+  },
+  "native_fixture": {
+    "path": "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareParityTest.kt",
+    "blob": "79e7e12b950f1459f006bc72942539ecf07375e0"
+  },
+  "apk_binding": "device-localizedcompare-inputs.json",
+  "production_definition_in_app_dex_only": {
+    "wp503-device-app.apk": [
+      "classes5.dex"
+    ],
+    "wp503-device-test.apk": []
+  },
+  "capability": {
+    "id": "wp-owned",
+    "path": "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareParityTest.kt",
+    "operation": "create"
+  },
+  "private_adb_server": {
+    "command": [
+      "C:\\android-sdk\\platform-tools\\adb.exe",
+      "-L",
+      "tcp:56918",
+      "--one-device",
+      "wp503-no-usb",
+      "server",
+      "nodaemon"
+    ],
+    "port": 56918,
+    "emulator_scan_max": 5553,
+    "usb_filter": "wp503-no-usb",
+    "mdns_autoconnect": [],
+    "shared5037_stop_or_restart": false
+  },
+  "native_results": {
+    "31": {
+      "started": 11,
+      "matching_outcomes": 11,
+      "passed": 9,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.314,
+      "test_outcomes": [
+        {
+          "test": "asciiCaseMatchesSwiftEquality",
+          "status": 0
+        },
+        {
+          "test": "dotlessIRemainsUnequalAsInSwift",
+          "status": 0
+        },
+        {
+          "test": "dottedIRemainsUnequalAsInSwift",
+          "status": 0
+        },
+        {
+          "test": "canonicalAccentMatchesSwiftEquality",
+          "status": 0
+        },
+        {
+          "test": "nodeNameCaseMatchesSwiftEquality",
+          "status": 0
+        },
+        {
+          "test": "equalNamesKeepTheirInputOrderWithTheProductionComparator",
+          "status": -2
+        },
+        {
+          "test": "accentRemainsUnequalAsInSwift",
+          "status": 0
+        },
+        {
+          "test": "fullWidthMatchesSwiftEquality",
+          "status": 0
+        },
+        {
+          "test": "ligatureMatchesSwiftEquality",
+          "status": 0
+        },
+        {
+          "test": "sharpSMatchesSwiftEquality",
+          "status": -2
+        },
+        {
+          "test": "digraphCaseMatchesSwiftEquality",
+          "status": 0
+        }
+      ],
+      "vector_observations": [
+        {
+          "left": "61+62+63",
+          "right": "41+42+43",
+          "expectedEqual": "true",
+          "forwardEqual": "true",
+          "reverseEqual": "true",
+          "forwardCompare": "0",
+          "reverseCompare": "0",
+          "productionInvocation": "true"
+        },
+        {
+          "left": "131",
+          "right": "49",
+          "expectedEqual": "false",
+          "forwardEqual": "false",
+          "reverseEqual": "false",
+          "forwardCompare": "1",
+          "reverseCompare": "-1",
+          "productionInvocation": "true"
+        },
+        {
+          "left": "130",
+          "right": "69",
+          "expectedEqual": "false",
+          "forwardEqual": "false",
+          "reverseEqual": "false",
+          "forwardCompare": "1",
+          "reverseCompare": "-1",
+          "productionInvocation": "true"
+        },
+        {
+          "left": "E9",
+          "right": "65+301",
+          "expectedEqual": "true",
+          "forwardEqual": "true",
+          "reverseEqual": "true",
+          "forwardCompare": "0",
+          "reverseCompare": "0",
+          "productionInvocation": "true"
+        },
+        {
+          "left": "6E+6F+64+65+20+31",
+          "right": "4E+4F+44+45+20+31",
+          "expectedEqual": "true",
+          "forwardEqual": "true",
+          "reverseEqual": "true",
+          "forwardCompare": "0",
+          "reverseCompare": "0",
+          "productionInvocation": "true"
+        },
+        {
+          "left": "E9",
+          "right": "65",
+          "expectedEqual": "false",
+          "forwardEqual": "false",
+          "reverseEqual": "false",
+          "forwardCompare": "1",
+          "reverseCompare": "-1",
+          "productionInvocation": "true"
+        },
+        {
+          "left": "FF21",
+          "right": "41",
+          "expectedEqual": "true",
+          "forwardEqual": "true",
+          "reverseEqual": "true",
+          "forwardCompare": "0",
+          "reverseCompare": "0",
+          "productionInvocation": "true"
+        },
+        {
+          "left": "FB01",
+          "right": "46+49",
+          "expectedEqual": "true",
+          "forwardEqual": "true",
+          "reverseEqual": "true",
+          "forwardCompare": "0",
+          "reverseCompare": "0",
+          "productionInvocation": "true"
+        },
+        {
+          "left": "73+74+72+61+DF+65",
+          "right": "53+54+52+41+53+53+45",
+          "expectedEqual": "true",
+          "forwardEqual": "false",
+          "reverseEqual": "false",
+          "forwardCompare": "1",
+          "reverseCompare": "-1",
+          "productionInvocation": "true"
+        },
+        {
+          "left": "1C6",
+          "right": "1C4",
+          "expectedEqual": "true",
+          "forwardEqual": "true",
+          "reverseEqual": "true",
+          "forwardCompare": "0",
+          "reverseCompare": "0",
+          "productionInvocation": "true"
+        }
+      ],
+      "stable_order_observations": [
+        {
+          "input": "61+62+63,41+42+43",
+          "actual": "61+62+63,41+42+43",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "41+42+43,61+62+63",
+          "actual": "41+42+43,61+62+63",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "73+74+72+61+DF+65,53+54+52+41+53+53+45",
+          "actual": "53+54+52+41+53+53+45,73+74+72+61+DF+65",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "53+54+52+41+53+53+45,73+74+72+61+DF+65",
+          "actual": "53+54+52+41+53+53+45,73+74+72+61+DF+65",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "E9,65+301",
+          "actual": "E9,65+301",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "65+301,E9",
+          "actual": "65+301,E9",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "FF21,41",
+          "actual": "FF21,41",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "41,FF21",
+          "actual": "41,FF21",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "6E+6F+64+65+20+31,4E+4F+44+45+20+31",
+          "actual": "6E+6F+64+65+20+31,4E+4F+44+45+20+31",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "4E+4F+44+45+20+31,6E+6F+64+65+20+31",
+          "actual": "4E+4F+44+45+20+31,6E+6F+64+65+20+31",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "1C6,1C4",
+          "actual": "1C6,1C4",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "1C4,1C6",
+          "actual": "1C4,1C6",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "FB01,46+49",
+          "actual": "FB01,46+49",
+          "productionInvocation": "true"
+        },
+        {
+          "input": "46+49,FB01",
+          "actual": "46+49,FB01",
+          "productionInvocation": "true"
+        }
+      ],
+      "runtime_observations": [
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false",
+        "WP503_NATIVE_COLLATION_RUNTIME|api=31|locale=en_US|icu=68.2.0.0|production=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare|loader=dalvik.system.PathClassLoader[DexPathList[[zip file \"/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk\", zip file \"/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk\"],nativeLibraryDirectories=[/data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/lib/x86_64, /data/app/~~k6A5fyP0gZq-Gva0RQ_-cg==/com.meshcoreone.android.debug.test-d22JS7JvT6Plx5nEf-GI4Q==/base.apk!/lib/x86_64, /data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]]|comparator=com.meshcoreone.android.feature.tools.diagnostics.text.LocalizedCompare$$ExternalSyntheticLambda0|targetApk=/data/app/~~2_dJIl8fPrgsMod7j4httg==/com.meshcoreone.android.debug-E4saXW7EpXbSmcx0cLAktQ==/base.apk|hostJdk=false"
+      ],
+      "operations": {
+        "api": 31,
+        "head": "5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Medium_Phone",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-localizedcompare-api31-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "localized-compare",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "31",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "localized-compare"
+            ],
+            "exit": 1
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "31",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 297.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-localizedcompare-api31-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-localizedcompare-api31-userdata.img.qcow2"
+        ]
+      }
+    },
+    "37": {
+      "outcome": "BLOCKED_BEFORE_INSTRUMENTATION",
+      "requested_api": 37,
+      "actual_api_verified": false,
+      "started": 0,
+      "matching_outcomes": 0,
+      "native_acceptance": "UNVERIFIED_NOT_PASS",
+      "blocker": "Fresh requested API37 AVD remained adb offline then unauthorized through the unchanged300s preparation guard; no instrumentation was started.",
+      "profile_exit": 1,
+      "operations": {
+        "api": 37,
+        "head": "5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Pixel_10_Pro_XL",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-localizedcompare-api37-userdata.img"
+        ],
+        "scenarios": [],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "37",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 1,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 328.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-localizedcompare-api37-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-localizedcompare-api37-userdata.img.qcow2"
+        ]
+      }
+    }
+  },
+  "qualification": "API31 discovers11 focused native methods: ten unchanged independent Swift vectors with both production equality/comparator directions and fourteen stable equal-pair input orders. Requested API37 is BLOCKED before instrumentation by actual adb authorization/preparation failure; zero starts is explicitly UNVERIFIED_NOT_PASS, never a pass or borrowed API31/host result. Production class defined only in target app DEX; target classloader/public JVM ABI reflection, no algorithm copy, host JDK/Node substitution or product change. Genuine failures stay failures; not standalone producer/native-user-flow/whole-WP/physical acceptance. No broader-suite rerun."
+}

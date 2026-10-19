@@ -5,6 +5,24 @@ This is not accessibility acceptance, a completed WP, or permission to close iss
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
+## Focused native production comparison finding
+
+A separate11-method audit at combined5bbef0b2 invokes the actual unchanged
+WP-316 candidate3bcb254a LocalizedCompare against the retained independent
+Swift vectors, not a copied algorithm or host JDK. Actual API31/ICU68.2
+has11 starts/matching outcomes,9PASS/2FAIL0.314s, zero errors/skips.
+Sharp-s versusSTRASSE is incorrectly unequal in both directions and has
+nonzero production ordering; sorting that oracle-equal pair changes input
+order. The other six equal and three unequal vectors match both ways.
+
+Requested API37 is **BLOCKED before instrumentation**, zero starts/outcomes:
+the fresh owned AVD stays adb offline then unauthorized through the original
+300s preparation guard. Its runtime API/ICU is not verified. Both owned
+emulators exit0, transports disappear297/328ms and scratch/private server
+cleanup completes. No authorization/settings/deadline change or retry.
+This does not replace the earlier83 results or clear any gate.
+[Exact vectors, production DEX/source/APKs, commands and blocker](../evidence/WP-503/README.md#focused-native-production-localizedcompare-parity).
+
 ## Controlled cleanup-error preservation
 
 One additional, explicitly controlled harness regression now exercises the

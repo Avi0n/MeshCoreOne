@@ -7,6 +7,142 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Focused native production LocalizedCompare parity
+
+This is a separate bounded follow-up for existing WP-316 PR239, not a rerun
+or relabeling of the preceding83 inventory. Executed combined source
+**5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5**, Android tree
+**0e5d0e9687d47ad637c3b80292e7c6b30a2be614**; audit parent
+**2edba239fc90616a8d8b4919499e91dc07ccd210**. Exact producer
+**3bcb254a31e3c4d51b81b74d19f043199a824905** was previously integrated
+by e680a2b0, not merged as an ancestor/standalone acceptance candidate.
+Current production LocalizedCompare blob
+**905f08c90e0c64b7e69d509886a95f4bbc91f13b** and retained
+SwiftTextParityTest blob **345cb7a6ee3cf48b2594efd471eceeed793cb27a**
+equal that producer byte-for-byte. No product edits.
+
+Independent expected values are read-only retained
+`docs/android/evidence/WP-316/oracle-output.txt`,
+blob **0064656ced61ca93fc541c3e3b070c3f2076263d**, matching its retained
+`oracle.swift.txt` and producer SwiftTextParityTest. No Swift oracle was
+rerun in this follow-up; no Node/host-JDK result substitutes for Android.
+Frozen source db14559b39d32322b06477c6ae676112f583db50 remains unchanged.
+Canonical1666502a/actualCLIaliasd2980f28/reservation4 remains unchanged;
+trusted `wp-owned/create` capability admitted the additional fixture.
+
+The new `NativeLocalizedCompareParityTest` calls the actual target-context
+classloader's Kotlin-internal production class through its public JVM ABI.
+It invokes real `equal`, `getComparator` and `Comparator.compare`, never
+normalizes/folds text or constructs/copies a collator in the test. No private
+field/method accessibility change or production visibility seam is added.
+Independent DEX class-definition parsing finds the implementation **only
+in app classes5.dex**, absent from every test DEX. Instrumentation combines
+app/test classloader paths; absence of a test definition, not an assumed
+isolated classloader, rules out testing a copied class.
+
+| Focused invocation once per fresh owned profile | Actual API31 | Requested API37 |
+|---|---|---|
+| Verified runtime API / ICU / locale |31 /68.2.0.0 /en_US|Not verified; no authorized shell|
+| Distinct starts/matching outcomes |11/11|0/0;instrumentation not started|
+| Native outcomes |9PASS/2FAIL0.314s,0 errors/skips|BLOCKED_BEFORE_INSTRUMENTATION;UNVERIFIED_NOT_PASS|
+| Equality vectors actually observed |10;both equality/comparator directions each|0,not inferred from31|
+| Stable equal-pair input orders actually observed |14;13 retained/1 reordered|0,not skipped/passed|
+| Owned emulator exit / transport absence |0 /297ms|0 /328ms|
+| Exact scratch paths removed |2|2|
+
+All unchanged vector expectations are retained at Locale.US:
+
+| Independent Swift vector | Expected equality both ways / comparator | Actual31 equality forward/reverse / comparator forward/reverse |
+|---|---|---|
+|abc /ABC|true /0|true,true /0,0|
+|stra\u00dfe /STRASSE (U+00DF sharp-s)|true /0|**false,false /+1,-1**|
+|U+00E9 /e+U+0301 canonical accent|true /0|true,true /0,0|
+|U+FF21 full-width A /A|true /0|true,true /0,0|
+|node 1 /NODE 1|true /0|true,true /0,0|
+|U+01C6 /U+01C4 digraph|true /0|true,true /0,0|
+|U+FB01 ligature /FI|true /0|true,true /0,0|
+|U+00E9 /e|false /nonzero|false,false /+1,-1|
+|U+0131 dotless i /I|false /nonzero|false,false /+1,-1|
+|U+0130 dotted I /i|false /nonzero|false,false /+1,-1|
+
+Actual failed methods are `sharpSMatchesSwiftEquality` (four unchanged
+equality/comparator checks) and
+`equalNamesKeepTheirInputOrderWithTheProductionComparator` (one of14
+unchanged input-order checks). Native31 sorts sharp-s-first
+`[stra\u00dfe, STRASSE]` to `[STRASSE, stra\u00dfe]` despite oracle equality.
+JUnit's five expanded assertion failures are **two failed methods**, not
+five cases. The other six equal/three unequal vectors pass all directions,
+and13/14 stable input orders remain. This is a genuine owner finding, not
+a reason to change expectations, accept host-JDK parity or repair product
+behavior inside WP-503.
+
+The actual finding and concrete37 gate were delivered to
+[existing producer PR239](https://github.com/cbattlegear/MeshCoreOne-Android/pull/239#issuecomment-6270397955);
+no new defect worker/issue or production repair was created by this audit.
+
+**Concrete37 blocker:** the fresh requested Pixel_10_Pro_XL AVD remains
+adb offline until approximately268s, then reports
+`adb.exe: device unauthorized. This adb server's $ADB_VENDOR_KEYS is not set`
+through elapsed298s. Original preparation throws
+`Owned emulator did not become boot-ready within300s`; profile exit1,
+no runner command/instrumentation starts, no actual runtime API/ICU
+verification. The emulator's own boot-complete observation268218ms is not
+authorized-shell readiness. No extra wait, changed deadline, key/confirmation
+dialog/SDK/settings change or retry was attempted. This authentication/tool
+gate requires the lane owner to restore authorized device access before the
+unchanged focused37 selection can run;31 evidence never fills it.
+
+Exact executed commands, `$F` =
+`C:\Users\camer\.copilot\session-state\d2980f28-620c-408b-9947-067e2da8eedf\files`:
+
+```powershell
+python "$F\wp503-localizedcompare-build.py"
+python "$F\wp503-private-adb-native31.py" --phase localizedcompare --head 5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5 --both-apis --scenario localized-compare
+python "$F\wp503-localizedcompare-evidence.py"
+```
+
+Builder uses the existing serialized ext4 importer and actual scaffold
+preflight; after initial shared-lane queueing, both pass. Only declared
+`:app:assembleDebug :app:assembleDebugAndroidTest`, strict dependency
+verification/build cache/workers2/512MiB, are executed: build PASS1m1s,
+446 tasks9 executed/437 up-to-date. No JVM/native full suite is rerun.
+The31 actual runner command is:
+
+```powershell
+C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Do not claim the corresponding37 instrumentation command was executed.
+Native adapter/parent exit1 retains31 failures and37 preparation failure;
+evidence-integrity exit0 only verifies actual evidence/bindings, never
+native acceptance or a zero-test success. No failed-case retry.
+
+App APK **109723777 bytes**, SHA256
+**6f39299768bd62b583904c703ff9b8f6d687d3c769056c2017ace25f00d99734**;
+test APK **3472643 bytes**, SHA256
+**9633feb00a87c6eb219e14625dff339b573d996cdc046878a093da7ffbdf2dfa**.
+[Source/product/DEX/APK/case binding](device-localizedcompare-integration.json),
+[APK inputs](device-localizedcompare-inputs.json),
+[31 raw outcomes](device-localizedcompare-api31.txt),
+[31 actual vector/stability/runtime observations](device-localizedcompare-metrics-api31.txt),
+[31 runner/discovery](device-localizedcompare-runner-api31.txt),
+[31 profile](device-localizedcompare-profile-api31.txt),
+[37 failed preparation](device-localizedcompare-profile-api37.txt),
+[owned operations/server shutdown](device-localizedcompare-operation-observations.txt).
+The private56918 server was responsive/empty before launch, exits0/port
+closed afterward; shared5037/other devices untouched. Both owned emulators
+exit0/transports absent and all four exact scratch files are removed.
+The scoped `device-localizedcompare-* -text` rule preserves captures.
+
+Trusted controller and portmap checks pass. No hosted CI was rerun or
+duplicated; published2edba239 exact39224241370 remainsSUCCESS/all6 only
+at that earlier candidate. The focused source/evidence is initially retained
+locally; no push/full-suite pre-push rerun is performed for this bounded
+request. Existing PR205 remains draft/published2edba239, original83 totals
+82/1 and80/3 remain atd977, and all old failures/physical/matrix/golden/
+admission/review gates remain. No standalone producer/full-WP acceptance,
+merge, self-approval, worker or environment reconfiguration.
+
 ## Controlled primary and real cleanup failures
 
 Executed combined **b7dfd5c856d472bf967e2a92a9a24913ba9ef34f**, Android tree

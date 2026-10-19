@@ -1,0 +1,36 @@
+WP503_EXECUTED_INPUT|5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 31, "head": "5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5", "scenario": "localized-compare", "discovered": 11, "statuses": {"0": 9, "-2": 2}, "time": ["Time: 0.314"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest', 'equalNamesKeepTheirInputOrderWithTheProductionComparator')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest', 'sharpSMatchesSwiftEquality')|-2
+tyTest.kt:63)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.sharpSMatchesSwiftEquality(NativeLocalizedCompareParityTest.kt:72)
+4) sharpSMatchesSwiftEquality(com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest)
+java.lang.AssertionError: stra\xdfe|STRASSE comparator zero
+Expected: <true>
+     but: was <false>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.assertPair(NativeLocalizedCompareParityTest.kt:64)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.sharpSMatchesSwiftEquality(NativeLocalizedCompareParityTest.kt:72)
+5) sharpSMatchesSwiftEquality(com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest)
+java.lang.AssertionError: STRASSE|stra\xdfe comparator zero
+Expected: <true>
+     but: was <false>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.assertPair(NativeLocalizedCompareParityTest.kt:65)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.sharpSMatchesSwiftEquality(NativeLocalizedCompareParityTest.kt:72)
+
+FAILURES!!!
+Tests run: 11,  Failures: 5
+
+
+INSTRUMENTATION_CODE: -1
+
