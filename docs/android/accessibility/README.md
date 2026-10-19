@@ -12,7 +12,7 @@ Executed combined `25e6aa2e5f8ffd5f2c1522cff276593ddb69d127`, Android tree
 The preceding independent service control still inherited the Activity/Compose
 rule. One new AndroidJUnit4-only control removes those facilities and any test
 dispatcher, verifies zero initial Activities and records zero lifecycle events
-through its actual activation/restoration. All original80 test files, helpers,
+through its actual activation/restoration. All original80 methods, their source files, helpers,
 assertions/deadlines and product/build/lock bytes remain unchanged. Native
 inventory becomes81; no full81 invocation or acceptance is claimed.
 

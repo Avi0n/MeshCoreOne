@@ -19,7 +19,7 @@ The previous independent service diagnostic still inherits the Activity/Compose
 rule. One new wp-owned AndroidJUnit4-only class removes that confound, checks
 zero initial Activities and monitors lifecycle callbacks throughout its actual
 activation/restoration. No Compose rule, test dispatcher, Activity launch or
-fake service-state/clock exists in this control. All original80 test files,
+fake service-state/clock exists in this control. All original80 methods, their source files,
 helpers, assertions/deadlines, product, build and lock bytes remain unchanged.
 The actual target Application still initializes; this is **not an isolated
 framework-only process or proof of an OS bug**.
