@@ -261,25 +261,93 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
         } finally { h.container.close() }
     }
 
-    @Test fun cancellationAfterPendingPublicationPropagatesButAcceptedQueueSurvivesGenerationReplacement() = runTest {
+    @Test fun declinedOrCancelledConfirmationNeverPersistsOrPublishesDirectOrChannelSends() = runTest {
         val h = connected(this)
-        val recipient = recipients(h).first()
+        val published = Collections.synchronizedList(mutableListOf<MessageEvent>())
+        val observer = backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            h.appState.messageEventStream.events().collect { event ->
+                if (event is MessageEvent.DirectMessageReceived ||
+                    event is MessageEvent.ChannelMessageReceived || event is MessageEvent.MessageFailed) {
+                    published += event
+                }
+            }
+        }
+        try {
+            for (recipient in recipients(h)) {
+                for (cancel in listOf(false, true)) {
+                    val requested = CompletableDeferred<ConfirmationRequest.SendMessage>()
+                    val decision = CompletableDeferred<Boolean>()
+                    val caller = backgroundScope.async {
+                        flow(h) { request ->
+                            requested.complete(assertIs<ConfirmationRequest.SendMessage>(request))
+                            decision.await()
+                        }.execute(id(recipient), original)
+                    }
+                    try {
+                        h.eventually("actual shortcut awaits confirmation without accepting a send") { requested.isCompleted }
+                        assertEquals(original, requested.await().message)
+                        assertFalse(caller.isCompleted)
+                        assertTrue(messages(store, recipient).isEmpty())
+                        assertTrue(store.fetchPendingSends(recipient.radioId).isEmpty())
+                        assertTrue(published.isEmpty())
+                        assertFalse(h.links.radios.single().sent.any { it[0].toInt() in 2..3 })
+                        if (cancel) {
+                            val cancellation = CancellationException("cancel unconfirmed shortcut")
+                            caller.cancel(cancellation)
+                            val actual = assertFailsWith<CancellationException> { caller.await() }
+                            assertTrue(actual === cancellation || actual.cause === cancellation)
+                            assertTrue(caller.isCancelled)
+                        } else {
+                            decision.complete(false)
+                            assertEquals(SendResult.Declined, caller.await())
+                        }
+                        h.scheduler.runCurrent()
+                        assertTrue(messages(store, recipient).isEmpty())
+                        assertTrue(store.fetchPendingSends(recipient.radioId).isEmpty())
+                        assertTrue(published.isEmpty())
+                        assertFalse(h.links.radios.single().sent.any { it[0].toInt() in 2..3 })
+                    } finally { caller.cancelAndJoin() }
+                }
+            }
+            assertEquals(1, h.lifecycle.created.size)
+        } finally {
+            observer.cancelAndJoin()
+            h.container.close()
+        }
+    }
+
+    @Test fun cancellationAfterPendingPublicationPropagatesButAcceptedQueueSurvivesGenerationReplacement() = runTest {
+        cancelledAcceptedSend(this, channel = false)
+    }
+
+    @Test fun cancelledAcceptedChannelSendSurvivesGenerationReplacementWithoutDuplicateFailure() = runTest {
+        cancelledAcceptedSend(this, channel = true)
+    }
+
+    private suspend fun cancelledAcceptedSend(test: TestScope, channel: Boolean) {
+        val h = connected(test)
+        val recipient = recipients(h).let { if (channel) it.last() else it.first() }
         val pendingID = CompletableDeferred<UUID>()
         val cancellation = CancellationException("cancel shortcut observer after pending creation")
         var caller: Job? = null
         var observed: CancellationException? = null
         var failures = 0
-        backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
+        val observer = test.backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
             h.appState.messageEventStream.events().collect { event ->
-                if (event is MessageEvent.DirectMessageReceived && event.message.text == original) {
-                    pendingID.complete(event.message.id)
+                val message = when (event) {
+                    is MessageEvent.DirectMessageReceived -> if (!channel) event.message else null
+                    is MessageEvent.ChannelMessageReceived -> if (channel) event.message else null
+                    else -> null
+                }
+                if (message?.text == original) {
+                    pendingID.complete(message.id)
                     assertNotNull(caller).cancel(cancellation)
                 }
                 if (event is MessageEvent.MessageFailed) failures++
             }
         }
         try {
-            caller = backgroundScope.launch {
+            caller = test.backgroundScope.launch {
                 try { flow(h).execute(id(recipient), original) }
                 catch (failure: CancellationException) { observed = failure; throw failure }
             }
@@ -303,7 +371,7 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
             configure(h, rejectSend = true)
             h.manager.connect(h.target(target))
             h.eventually("replacement generation terminal status") {
-                failures == 1 && runBlocking {
+                failures == 1 && h.sessions.current?.chatSendQueueService?.queuedEnvelopeCount == 0 && runBlocking {
                     store.fetchPendingSendsForMessage(key).isEmpty() &&
                         store.fetchMessage(key)?.status == MessageStatus.FAILED
                 }
@@ -311,8 +379,13 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
             assertNotEquals(old.token, assertNotNull(h.sessions.current).token)
             assertEquals(2, h.lifecycle.created.size)
             assertEquals(original, assertNotNull(store.fetchMessage(key)).text)
+            assertEquals(1, messages(store, recipient).size)
+            assertEquals(1, h.links.radios.sumOf { firmware ->
+                firmware.sent.count { it[0].toInt() == if (channel) 3 else 2 }
+            })
         } finally {
-            caller?.cancel()
+            caller?.cancelAndJoin()
+            observer.cancelAndJoin()
             h.container.close()
         }
     }

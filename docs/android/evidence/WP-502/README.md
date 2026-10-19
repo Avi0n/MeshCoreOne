@@ -70,6 +70,25 @@ height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
 
+At `cabbde6ad003eb3f830ca269b0942de6e961945e`, the declared App unit-test task
+with the five selectors below discovered and passed 33 cases, zero failures,
+errors or skips (1m15s). This includes both mounted direct/channel initial-send
+and actual Retry interactions, and real file-store reopen followed by fresh
+AppContainer reconnect/drain. The authoritative exact-head
+[hosted run 38409696559](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38409696559)
+passes all six jobs; it is not current-successor or device evidence.
+No duplicate CI-result bundle is retained.
+
+The resumed shortcut assertions add held-confirmation decline/cancellation
+checks for both recipient kinds: before and after refusal/cancellation there
+must be no message, PendingSend, optimistic/terminal event or wire send.
+Accepted-send cancellation/generation replacement is now defined for channel
+as well as direct messages, retaining the exact cancellation or recovery cause,
+one message and one terminal queue attempt after reconnect. These new assertions
+require their own positive execution; cabb's 33-case result is not their pass.
+The native session-error category/payload remains blocked by the existing
+WP-404 ownership/admission gap; these tests do not resolve that category.
+
 The fault-boundary candidate `66102ee7fd382c91be6cfcdd5bc9e14f86b66b35`
 runs the declared `:app:testDebugUnitTest` with only
 `com.meshcoreone.android.app.container.ShortcutQueueIntegrationTest`:
@@ -83,7 +102,7 @@ failure, not successful cleanup. The owned App adapter now logs that narrow
 typed cleanup failure while retaining the original enqueue error and leaving
 cancellation untouched. Its successor results are not inferred from older passes.
 
-Current functional check at `fdbcc3472`: the installed serialized ext4 lane ran
+Historical functional check at `fdbcc3472`: the installed serialized ext4 lane ran
 `:app:testDebugUnitTest` with `ConversationComposeTest`,
 `ConnectedConversationComposeTest`, `QueuedComposerIntegrationTest`,
 `ShortcutQueueIntegrationTest` and the existing `DurableRetryIntegrationTest`.
