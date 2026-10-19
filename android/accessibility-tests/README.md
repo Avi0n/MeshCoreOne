@@ -4,7 +4,7 @@ The existing App AndroidJUnitRunner hosts the native accessibility fixtures.
 The declared session `wp503-prepare-native.py` and `wp503-run-native.py` entries
 retain API31/37, font200, actual guest CPU verification, positive discovery and
 the existing 300s boot/600s instrumentation limits. `--scenario launcher` expects
-nine distinct starts and matching terminal outcomes; `--scenario full` now expects81.
+nine distinct starts and matching terminal outcomes; `--scenario full` now expects82.
 Do not retry failed cases until green or reduce these counts.
 
 `--scenario platform-service-control` selects one new
@@ -15,8 +15,20 @@ manager state, acknowledged flags, original1000ms activation/restoration windows
 late-success rejection and public snapshots remain. The original80 test bodies,
 helpers and assertions are unchanged. This isolates another harness confound;
 a passing control cannot clear historical feature failures or prove their cause.
-The expanded full81 inventory requires a new full invocation before any full81
-acceptance claim.
+That control introduced inventory81; no full81 invocation has occurred. The
+additional callback diagnostic below expands the current inventory again.
+
+`--scenario platform-callback-control` selects one new
+`NativePlatformCallbackDeliveryTest` method. It retains the same real manager,
+acknowledged flags and original1000ms activation/restoration predicates, while
+registering a public touch-exploration listener and sampling actual main-looper
+progress through nonblocking, at-most-one-pending heartbeats every100ms.
+Heartbeat times, public callback times and a post-timeout public Java thread
+stack are diagnostic observations, never readiness substitutes. No Activity,
+Compose rule, test dispatcher, fake clock or service-state writes beyond the
+original request/restoration exist. All preceding81 methods/helpers remain
+unchanged. This is a different diagnostic treatment, not a retry or causal fix
+of their failures. The inventory becomes82; no full82 credit without execution.
 
 `NativeLauncherFocusAccessibilityTest` samples AccessibilityManager state through
 the actual main looper, where Android applies its binder-delivered state updates.
