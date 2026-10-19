@@ -1,5 +1,33 @@
 # WP-503 native audit helpers
 
+## Focused production collation parity
+
+`NativeLocalizedCompareParityTest` runs the retained independent Swift vectors
+from WP-316's `oracle-output.txt` and `SwiftTextParityTest` on actual API31/37,
+not host-JDK or copied collation logic. Its ten vector methods require both
+production equality directions and both production comparator zero/nonzero
+results at Locale.US; one additional method requires stable ordering for all
+seven equal pairs in both input orders. Test-only reflection loads the actual
+installed target class through its target classloader and invokes the public
+JVM ABI of the Kotlin-internal implementation. There is no production
+visibility/API change, fake collator, normalization or fallback in the audit.
+
+The existing runner's focused `localized-compare` selector expects exactly11
+distinct starts/matching outcomes on each fresh owned API31/37 profile:
+
+```powershell
+python "$F\wp503-private-adb-native31.py" --phase localizedcompare --head EXECUTED_HEAD --both-apis --scenario localized-compare
+```
+
+This focused cohort has no Activity/Compose rule or service readiness guard.
+It proves only the retained comparison vectors and stable equal ordering,
+not native user-flow, physical TalkBack or whole-WP acceptance. The earlier
+83 inventory and every negative stay bound to their earlier source/APKs;
+this addition is not an84/94-case full-suite result. Broad `feature-matrix`
+selection must exclude this independently selected audit class.
+
+## Existing feature and service cohorts
+
 The existing App AndroidJUnitRunner hosts the native accessibility fixtures.
 The declared session `wp503-prepare-native.py` and `wp503-run-native.py` entries
 retain API31/37, font200, actual guest CPU verification, positive discovery and
