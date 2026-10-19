@@ -141,22 +141,27 @@ class SavedEndpointSemanticsTest {
         assertEquals(2f, host.get().resources.configuration.fontScale, 0f)
         assertEndpoint(east, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
+        assertContactNameLayouts(east, west)
         assertRoleLabels(AppToolsStrings.toolsLineOfSightNotSelected, AppToolsStrings.toolsLineOfSightNotSelected)
         button(east).performScrollTo().performClick()
         assertEndpoint(east, AppToolsStrings.toolsLineOfSightPointA, selected = true)
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
+        assertContactNameLayouts(east, west)
         assertRoleLabels(AppToolsStrings.toolsLineOfSightPointA, AppToolsStrings.toolsLineOfSightNotSelected)
         button(west).performScrollTo().performClick()
         assertEndpoint(east, AppToolsStrings.toolsLineOfSightPointA, selected = true)
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightPointB, selected = true)
+        assertContactNameLayouts(east, west)
         assertRoleLabels(AppToolsStrings.toolsLineOfSightPointA, AppToolsStrings.toolsLineOfSightPointB)
         compose.runOnIdle { assertEquals(listOf(Coordinate(37.8, -122.4), Coordinate(37.7, -122.4)), elevationReads) }
         button(east).performScrollTo().performClick()
         assertEndpoint(east, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightPointB, selected = true)
+        assertContactNameLayouts(east, west)
         assertRoleLabels(AppToolsStrings.toolsLineOfSightNotSelected, AppToolsStrings.toolsLineOfSightPointB)
         button(west).performScrollTo().performClick()
         assertEndpoint(west, AppToolsStrings.toolsLineOfSightNotSelected, selected = false)
+        assertContactNameLayouts(east, west)
         assertRoleLabels(AppToolsStrings.toolsLineOfSightNotSelected, AppToolsStrings.toolsLineOfSightNotSelected)
         compose.runOnIdle { assertEquals(2, elevationReads.size) }
     }
@@ -174,16 +179,28 @@ class SavedEndpointSemanticsTest {
         assertFalse(SemanticsProperties.Text in config)
     }
 
-    private fun assertRoleLabels(vararg expectedLabels: Int) {
-        val labels = compose.onAllNodesWithTag("los-saved-endpoint-role-label", useUnmergedTree = true)
-        assertEquals(expectedLabels.size, labels.fetchSemanticsNodes().size)
-        expectedLabels.forEachIndexed { index, expectedLabel ->
+    private fun assertContactNameLayouts(vararg contacts: ContactDTO) =
+        assertRenderedTextLayouts("los-saved-endpoint-contact-name", contacts.map { it.displayName })
+
+    private fun assertRoleLabels(vararg expectedLabels: Int) =
+        assertRenderedTextLayouts(
+            "los-saved-endpoint-role-label",
+            expectedLabels.map { host.get().getString(it) },
+        )
+
+    private fun assertRenderedTextLayouts(tag: String, expectedTexts: List<String>) {
+        val labels = compose.onAllNodesWithTag(tag, useUnmergedTree = true)
+        assertEquals(expectedTexts.size, labels.fetchSemanticsNodes().size)
+        expectedTexts.forEachIndexed { index, expectedText ->
             val layouts = mutableListOf<TextLayoutResult>()
             labels[index].performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action ->
-                assertTrue("Actual role Text layout must be available", action(layouts))
+                assertTrue("Actual rendered Text layout must be available for $tag", action(layouts))
             }
             val layout = layouts.single()
-            assertEquals(host.get().getString(expectedLabel), layout.layoutInput.text.text)
+            assertEquals(expectedText, layout.layoutInput.text.text)
+            assertEquals(2f, layout.layoutInput.density.fontScale, 0f)
+            assertTrue(layout.size.width > 0)
+            assertTrue(layout.size.height > 0)
             assertTrue(layout.lineCount > 0)
             assertFalse(layout.hasVisualOverflow)
         }

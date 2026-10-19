@@ -332,9 +332,25 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
                         stateDescription = endpointLabel
                     }
                     val label: @Composable () -> Unit = {
+                        val nameLayout = remember(contact.id) { arrayOfNulls<TextLayoutResult>(1) }
                         val roleLayout = remember(contact.id) { arrayOfNulls<TextLayoutResult>(1) }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(contact.displayName, Modifier.clearAndSetSemantics {})
+                            Text(
+                                contact.displayName,
+                                Modifier.clearAndSetSemantics {
+                                    testTag = "los-saved-endpoint-contact-name"
+                                    getTextLayoutResult { results ->
+                                        val layout = nameLayout[0]
+                                        if (layout == null) {
+                                            false
+                                        } else {
+                                            results.add(layout)
+                                            true
+                                        }
+                                    }
+                                },
+                                onTextLayout = { nameLayout[0] = it },
+                            )
                             Text(
                                 endpointLabel,
                                 Modifier.clearAndSetSemantics {
