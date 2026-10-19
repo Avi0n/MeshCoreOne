@@ -185,10 +185,10 @@ class WorkflowTests(unittest.TestCase):
                 validate_setup(value, text)
 
     def test_trusted_duties_never_run_candidate_workflows_or_publish_preview_pass(self):
-        original, text = self.read("android-parity-review.yml")
+        original, text = self.read("android-gate-integrity.yml")
         for kind in ("event", "name", "checkout", "ref", "schedule"):
             value = copy.deepcopy(original)
-            job = value["jobs"]["staging"]
+            job = value["jobs"]["audit"]
             if kind in ("event", "schedule"):
                 value["on"]["workflow_run" if kind == "event" else "schedule"] = {}
             elif kind == "name":
