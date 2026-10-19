@@ -247,14 +247,21 @@ and [installation outcome](https://github.com/cbattlegear/MeshCoreOne-Android/pu
 It passed the admitted device/profile and source/APK continuity guards, but
 the temporary App install failed before instrumentation with
 `INSTALL_FAILED_UPDATE_INCOMPATIBLE`: the existing debug App and source-bound
-App/Test APK pair use different public signing certificates. The chat method
-therefore remains at **0 starts/outcomes** in that invocation; the install
-failure is not a test failure or pass. Compatible DEBUG packaging support is
-routed through the existing WP-003/WP-503 owners. This is not release signing:
-no key/security bypass, uninstall, data wipe, re-signing or release waiver is
-authorized or claimed. The next acceptance is the unchanged API37 chat test
-after that exact debug-package identity blocker is resolved. No API31 replay or
-broader 23-case rerun is needed for this bounded criterion.
+App/Test APK pair use different public signing certificates. The preserved
+installed debug APK certificate is SHA-256
+`000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7`;
+the source-bound App and Test APK certificate is
+`891462f47d1f534cfcc0e755f7a938510282d35de2ff933542b643f338a9f21d`.
+The missing-only invocation selected 27 method identities across its bounded
+scopes; each has 0 discovered/started/pass/fail/error/skip, with one shared
+package-install failure before instrumentation. The chat method therefore has
+**0 starts/outcomes**; the install failure is not a test failure or pass.
+Compatible DEBUG packaging support is routed through existing WP-003/WP-503
+owners. This is not release signing: no key/security bypass, uninstall, data
+wipe, re-signing or release waiver is authorized or claimed. The next
+acceptance is the unchanged API37 chat test after that exact debug-package
+identity blocker is resolved. No API31 replay or broader 23-case rerun is
+needed for this bounded criterion.
 
 The API31 result is combined execution with WP-503's corrected observer,
 **not standalone PR #235** or current-main native execution. The prior `ba67`
