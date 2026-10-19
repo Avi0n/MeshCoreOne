@@ -7,6 +7,41 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Final LoS consumer: first API31 attempt retains an owned observation failure
+
+Final WP315 **c6cdac39e89081647ea6475e6bcae800f2531109** imports two
+exact Android files under existing revision6 capabilities; producer docs,
+shared assertions and successful fixtures remain untouched. Owned consumer
+source **c5f24f231580438d134a11be23784bcf98ffef93**/Android tree
+**d0ef6d13c5db8ff4d85fc2ac20e216f353453923** selects only the existing
+saved-endpoint method, not the successful framework control or contrast/
+Nodes/comparator cohorts. Actual name/role getter consumers assert their
+own layoutInput.text and retain all font200/RTL/full-line/ink/state/callback
+predicates and first-East scroll-before-native traversal.
+
+Pinned strict targeted App assembly passes54s,446 tasks14 executed/
+432 up-to-date. One actual API31 invocation has **1 discovery/start/
+matching outcome,0PASS/1FAIL/0ERROR/0SKIP4.536s,runner1**. Both initial
+exact native names and ancestor actions are observed1/1, including CJK.
+Failure is an **owned added same-node assumption**: the observer incorrectly
+requires the name-bearing native node itself to be clickable. Actual trees
+show a nonclickable sole-content-description child and its real clickable
+ancestor, which the original `namedActions` helper already supports.
+It is not a measured missing-name/painted-label product defect; no
+state/getter measurement or elevation callback is reached.
+
+The owned follow-through restores that original ancestry traversal, retains
+unique exact name/action checks and every original native checkable/checked/
+stateDescription assertion, and records both actual nodes' states. No shared
+helper, product code, threshold or oracle changes. This correction has no
+new native credit until executed separately; the c5 failure and seven raw
+captures remain immutable. Owned emulator/private server exit0, transport
+absent266ms,2 scratch files removed/shared5037 untouched.
+API37 stays blocked before launch/0 new starts/no auth action.
+[Exact failed source/APK/runtime/cleanup record](device-losendpoints-assumption-integration.json)
+and [original instrumentation](device-losendpoints-assumption-api31.txt).
+The existing Nodes7 evidence87fb05cb and every earlier cohort remain separate.
+
 ## Final Nodes7 continuation: API31 passes; API37 remains blocked
 
 Actual executed head **a0d4306f5de85b84962b2a9aee18a9a9608ba515**,

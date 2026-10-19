@@ -1,0 +1,245 @@
+{
+  "generator": "session wp503-losendpoints-evidence.py; actual native observations, not hosted CI",
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 6,
+  "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+  "executed_combined_head": "c5f24f231580438d134a11be23784bcf98ffef93",
+  "executed_android_tree": "d0ef6d13c5db8ff4d85fc2ac20e216f353453923",
+  "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+  "source_import": {
+    "kind": "exact-final-los-source-integration-not-acceptance",
+    "audit_parent": "87fb05cb18ba84f4252e065e6fe83d32e952e15e",
+    "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+    "producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+    "reservation_revision": 6,
+    "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+    "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+    "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+    "reservation_identity_binding_authorization_history_unchanged": true,
+    "already_admitted_paths_no_evolution_needed": true,
+    "admissions": [
+      {
+        "capability": "merge-integration",
+        "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      },
+      {
+        "capability": "merge-integration",
+        "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      }
+    ],
+    "exact_producer_files": [
+      {
+        "wp": "WP-315",
+        "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+        "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+        "before_blob": "0513c55748f756da621ba3a04b0a2eda7e6ae2f5",
+        "matching_producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+        "producer_blob": "e6bac5fc92755ca3a104928e6969586af3c2709b"
+      },
+      {
+        "wp": "WP-315",
+        "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+        "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+        "before_blob": "819a6d982c34974f3dcd1534a9577546c5d5861b",
+        "matching_producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+        "producer_blob": "e1eeebc4967dbf1db140ba1397338e3242202daf"
+      }
+    ],
+    "producer_documentation_imported": false,
+    "wp503_authored_product_behavior_changes": false,
+    "native_starts": 0
+  },
+  "audit_fixture_blobs": {
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest.kt": "ac4b03fa2b96d0b93ed1161e865dd9a221d908b6"
+  },
+  "preserved_fixture_blobs": {
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest.kt": "3f50d6c80dab380e0e7883016295a16510604921",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt": "29a0f83dd33c57e1304e822b5a394cfc05db3b3e",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/OfflineNodesAudit.kt": "5fd9340c847780b0a4cb1df4b0fc4dd7fae36f45",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt": "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt": "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareParityTest.kt": "79e7e12b950f1459f006bc72942539ecf07375e0",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareLocalePreservationTest.kt": "41a1e4046f96aeb0c725a1344e7f420dfd142be4",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLauncherFocusAccessibilityTest.kt": "698d649b230b7d7945a5d901d37f748427508986",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightContrastTest.kt": "6ad88ceada36198db31309932900c5b51a39910d",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightPointBContrastTest.kt": "32c2819ecb9834a0ed2cfba2dea996a954032943",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeDiagnosticsFlowAccessibilityTest.kt": "e31edcf50c08532465ad3254919ff13eefbd8d7f"
+  },
+  "selection": [
+    {
+      "class": "NativeLineOfSightAccessibilityTest",
+      "blob": "ac4b03fa2b96d0b93ed1161e865dd9a221d908b6",
+      "methods": [
+        "savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200"
+      ]
+    }
+  ],
+  "apk_binding": {
+    "head": "c5f24f231580438d134a11be23784bcf98ffef93",
+    "apks": {
+      "wp503-reviewedrepairs-c5f24f231580438d134a11be23784bcf98ffef93-app.apk": {
+        "size": 105509157,
+        "sha256": "c2b9865c65bf3f47b02bc6281fd4e31d19be751bb85d1c07306194d0eeada0fd"
+      },
+      "wp503-reviewedrepairs-c5f24f231580438d134a11be23784bcf98ffef93-test.apk": {
+        "size": 4529375,
+        "sha256": "1e2110bb0f60942b9ab0687ca931983309bf53385f6228a377bbf99f0387b553"
+      }
+    },
+    "android_tree": "d0ef6d13c5db8ff4d85fc2ac20e216f353453923"
+  },
+  "native31": {
+    "actual_api": 31,
+    "discovered": 1,
+    "started": 1,
+    "matching_outcomes": 1,
+    "passed": 0,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 4.536,
+    "test_outcomes": [
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200",
+        "status": -2
+      }
+    ],
+    "observations": [
+      "WP503_LOS_PLATFORM_ACTIONS|label=East saved repeater|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false",
+      "WP503_LOS_PLATFORM_ACTIONS|label=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false"
+    ],
+    "operations": {
+      "api": 31,
+      "head": "c5f24f231580438d134a11be23784bcf98ffef93",
+      "emulator_command": [
+        "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+        "-avd",
+        "Medium_Phone",
+        "-port",
+        "5714",
+        "-read-only",
+        "-no-snapshot",
+        "-no-window",
+        "-no-audio",
+        "-no-metrics",
+        "-gpu",
+        "swiftshader_indirect",
+        "-memory",
+        "1536",
+        "-cores",
+        "2",
+        "-data",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-losendpoints-api31-userdata.img"
+      ],
+      "scenarios": [
+        {
+          "scenario": "los-endpoints",
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "31",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "los-endpoints"
+          ],
+          "exit": 1
+        }
+      ],
+      "apk_input_binding": "wp503-losendpoints-apk-inputs.json",
+      "source_plan": "wp503-losendpoints-inputs.json",
+      "profile_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+        "--api",
+        "31",
+        "--expected-cpus",
+        "2"
+      ],
+      "profile_exit": 0,
+      "emulator_exit": 0,
+      "transport_exit": {
+        "serial": "emulator-5714",
+        "observations": 3,
+        "elapsed_ms": 266.0,
+        "absent": true
+      },
+      "removed_scratch_paths": [
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-losendpoints-api31-userdata.img",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-losendpoints-api31-userdata.img.qcow2"
+      ]
+    },
+    "runner_exit": 1
+  },
+  "requested37": {
+    "outcome": "BLOCKED_BEFORE_LAUNCH",
+    "started": 0,
+    "matching_outcomes": 0,
+    "blocker": "No verified authorization resolution; no new preparation/emulator/auth/settings attempt."
+  },
+  "diagnosis": "Owned observer added an unsupported same-node name+isClickable assumption. Both actual exact native names and ancestor actions are observed1/1; the name-bearing node is a nonclickable child of its real clickable ancestor, as supported by the original namedActions helper. Failure precedes state/getter checks and every elevation callback. Not a measured missing native name or painted-label product defect. Restore original actual ancestor-action traversal, retaining exact sole name/unique action and original state assertions; no assertion floor or shared-helper change.",
+  "retained_native_files": {
+    "device-losendpoints-assumption-api31.txt": {
+      "bytes": 3609,
+      "sha256": "11d6b21adcd9a62fb5f75e85309833377ba1a1c203875e9f461a853c59cc9f0e"
+    },
+    "device-losendpoints-assumption-metrics-api31.txt": {
+      "bytes": 14656,
+      "sha256": "614855ebed4697c17067bfd86643cc4f5c5f1a60bee9d0637d90f2c092506d2d"
+    },
+    "device-losendpoints-assumption-runner-api31.txt": {
+      "bytes": 2793,
+      "sha256": "ae1b3ce1a652bc1518b56b27a12a9ccaa8fb296ecc07495c94c3b0dac9edde33"
+    },
+    "device-losendpoints-assumption-profile-api31.txt": {
+      "bytes": 2598,
+      "sha256": "aaeda043d34bc70454fe36069d54ee6d545ea3e25a53fecfe83a6bcf6ede5ed1"
+    },
+    "device-losendpoints-assumption-operation-observations.txt": {
+      "bytes": 1737,
+      "sha256": "3d34a8af7825fd397d19c654393c12cb25e4315df6df75bb5d7d42a05a94a9ce"
+    },
+    "device-losendpoints-assumption-operations.json": {
+      "bytes": 1963,
+      "sha256": "b14cef3ac1515ac4c5148f5540c79af9e30c19c1c85d7b910228c5bcb690e688"
+    },
+    "device-losendpoints-assumption-inputs.json": {
+      "bytes": 524,
+      "sha256": "b82687837dcc430a3978a307f00ad35882c00ef92d19117ed627563335524291"
+    }
+  },
+  "commands": [
+    "python \"$F\\wp503-localizedcompare-build.py\" --los-endpoints",
+    "python \"$F\\wp503-private-adb-native31.py\" --phase losendpoints --head c5f24f231580438d134a11be23784bcf98ffef93 --api 31 --scenario los-endpoints"
+  ],
+  "whole_wp_acceptance": "INCOMPLETE",
+  "physical_talkback_or_hosted_acceptance_claimed": false
+}

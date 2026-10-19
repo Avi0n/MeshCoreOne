@@ -190,8 +190,6 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
         assertTrue("Compose maps non-tab Selected to the native checkable/checked state", native.isCheckable)
         assertEquals(selected, native.isChecked)
         assertEquals(role, AccessibilityNodeInfoCompat.wrap(native).stateDescription?.toString())
-        assertEquals(contact.displayName, native.contentDescription?.toString())
-        assertTrue("The native button must have only its sole content description", native.text.isNullOrEmpty())
         val visibleName = savedEndpointText(contact, "los-saved-endpoint-contact-name", contact.displayName)
         assertFont200Unclipped(visibleName)
         assertFontPaintContainsInk(visibleName)
@@ -209,9 +207,19 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
     private fun nativeSavedEndpoint(contact: ContactDTO): AccessibilityNodeInfo {
         val nodes = namedNodes(nativeRoot(
             InstrumentationRegistry.getInstrumentation().uiAutomation), contact.displayName)
-            .filter { it.contentDescription?.toString() == contact.displayName && it.isClickable }
-        assertEquals("A saved endpoint must expose exactly one actual named native button", 1, nodes.size)
-        return nodes.single()
+            .filter { it.contentDescription?.toString() == contact.displayName }
+        assertEquals("A saved endpoint must expose exactly one actual native name", 1, nodes.size)
+        val name = nodes.single()
+        assertTrue("The native name must have only its sole content description", name.text.isNullOrEmpty())
+        val actions = namedActions(nodes)
+        assertEquals("The native name must resolve to exactly one actual ancestor action", 1, actions.size)
+        val action = actions.single()
+        println("WP503_LOS_NATIVE_ACTION_LINK|contact=${contact.displayName}|nameClickable=${name.isClickable}" +
+            "|nameCheckable=${name.isCheckable}|nameChecked=${name.isChecked}" +
+            "|nameState=${AccessibilityNodeInfoCompat.wrap(name).stateDescription}" +
+            "|actionClickable=${action.isClickable}|actionCheckable=${action.isCheckable}|actionChecked=${action.isChecked}" +
+            "|actionState=${AccessibilityNodeInfoCompat.wrap(action).stateDescription}|actualAncestorAction=true")
+        return action
     }
 
     private fun savedEndpointText(contact: ContactDTO, tag: String, expected: String): SemanticsNodeInteraction {
