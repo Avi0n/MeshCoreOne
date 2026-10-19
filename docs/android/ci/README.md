@@ -175,8 +175,8 @@ files/bytes fail rather than dropping cases. A staged JSON object is not a verdi
 
 The authority reconciles real PR/check/run/review facts, exact Android Actions
 check-suite membership, isolated publisher binding/run/attempt external IDs,
-current/historical base, source/manifest/policy and actual bound independent
-formal reviews. A rebased head/base, wrong publisher/workflow/repository/attempt,
+current/historical base, source/manifest/policy and any actual bound human
+acceptance records. A rebased head/base, wrong publisher/workflow/repository/attempt,
 skipped check, malformed verdict, absent original-case family or model-written
 approval cannot complete a WP. Repairs retain the existing worker/open PR and
 bounded attempt counter; a cloud comment receipt must match that PR and feedback.
@@ -188,12 +188,45 @@ require a protected immutable-artifact reader/publisher amendment.
 [Historical revalidation](historical-revalidation.md) is a versioned **blocked
 migration interface**, not a fabricated bootstrap Android check or import.
 
-Still external: independent authenticated publisher/reviewer/native host,
+Still external: authenticated isolated publisher/reviewer/native host,
 complete live usage/shared ledger, genuine branch-rule/check identities,
-real alternate authorized reviewer for self-authored PRs, protected historical
-receipt approval, user-selected limits and separate activation. Sole maintainer
-`cbattlegear` cannot formally approve their own PR. No attestation alternative is
-approved here. Ordinary dependent drafts are not a registered native stack;
+protected historical receipt approval, user-selected limits and separate
+activation. Ordinary dependent drafts are not a registered native stack;
 later native-stack landing requires its asynchronous native API, not
 `MergeBackend`. No settings, auto-merge, stack registration, fleet, signing,
 release or downstream WP is authorized by this implementation.
+
+### User-directed WP-003 review-authority amendment
+
+This amendment supersedes the repository-created separate-person/formal GitHub
+`APPROVED` requirement for code review, including the code-review portions of the
+supervised foundation gates and ADR-006's protected-path approval wording. It does
+not rewrite original plan/ADR acceptance history or activate automation.
+
+The authenticated trusted publisher's exact-bound read-only review is the code
+review authority for ordinary and protected code changes. An authenticated
+authorized coordinator may arrange the same isolated review even when the
+coordinator is the PR author. A name alone, candidate-provided PASS, staged input
+file, or locally constructed bundle is not authority. Findings, complete
+acceptance/case validation, actual required checks, publisher provenance and
+exact repository/base/head/source/manifest/policy bindings remain mandatory.
+Current-head changes requested by an authorized reviewer still block.
+
+`review_policy` separates this code review from retained human acceptance.
+WP-001's architecture/license decisions, WP-505's physical-device outcomes,
+WP-506's signing/release acceptance, protected release/signing/legal paths and
+explicit `needs-human` labels still require actual human acceptance. Generic
+protected code paths do not require an additional person's GitHub review.
+Ordinary unprotected WPs acquire no new approval requirement. Activation,
+budgets, credentials, branch rules, hardware/legal/signing evidence and historical
+receipt import keep their existing separate controls.
+
+A new acceptance record uses `kind: human-acceptance` with the existing immutable
+binding fields and a real maintainer review in `COMMENTED` or `APPROVED` state.
+Its actual GitHub body must contain
+`<!-- android-port-acceptance:<binding.key> -->`; reviewer, commit, state and
+latest decisive review must match server facts. The sole maintainer may record
+a truthful acceptance comment on their own PR; this is not a GitHub self-approval.
+It cannot manufacture hardware/legal/signing outcomes or waive acceptance
+evidence. Historical untyped `APPROVED` records and their original stamps remain
+readable, unchanged. Neither format can substitute for authenticated code review.

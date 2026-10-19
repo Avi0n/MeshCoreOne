@@ -326,10 +326,14 @@ class AuthorityTests(unittest.TestCase):
         }
         api.routes[("GET", prefix + "/pulls/123")] = {
             "number": 123, "body": marker("WP-000"), "merged": True, "merge_commit_sha": MERGE,
-            "head": {"sha": HEAD}, "base": {"sha": MERGE, "repo": {"full_name": cloud.policy["repository"]}},
+            "head": {"sha": HEAD}, "base": {
+                "sha": MERGE, "ref": "main", "repo": {"full_name": cloud.policy["repository"]},
+            },
             "user": {"login": "fixture-worker"}, "labels": [],
         }
-        api.routes[("GET", prefix + "/git/commits/" + MERGE)] = {"parents": [{"sha": BASE}]}
+        api.routes[("GET", prefix + "/git/commits/" + MERGE)] = {
+            "sha": MERGE, "parents": [{"sha": BASE}, {"sha": HEAD}],
+        }
         checks = []
         for index, run in enumerate(value.evidence["runs"], start=1):
             checks.append({
@@ -365,6 +369,31 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(result.pr["base_sha"], BASE)
         self.assertEqual(result.pr["changed_paths"], value.pr["changed_paths"])
         self.assertFalse(any(c[0] in ("POST", "PUT", "PATCH") for c in api.calls))
+
+    def test_terminal_merge_receipt_is_bound_to_real_merged_pr_and_changed_paths(self):
+        authority, api, prefix, value = self.fixture()
+        receipt = {
+            "repository": value.binding.repository, "session_id": "session-1", "pr_number": 123,
+            "head_sha": HEAD, "merge_sha": MERGE, "paths": value.pr["changed_paths"],
+        }
+        terminal = authority.merged_terminal("WP-000", "session-1", receipt, BASE)
+        self.assertTrue(terminal.authoritative)
+        self.assertEqual(terminal.base_sha, BASE)
+        self.assertEqual(terminal.paths, tuple(value.pr["changed_paths"]))
+        self.assertFalse(any(call[0] != "GET" for call in api.calls))
+
+        api.routes[("GET", prefix + "/pulls/123")]["merged"] = False
+        with self.assertRaisesRegex(PortError, "exact merged"):
+            authority.merged_terminal("WP-000", "session-1", receipt, BASE)
+
+        api.routes[("GET", prefix + "/pulls/123")]["merged"] = True
+        wrong = {**receipt, "paths": ["unrelated/path"]}
+        with self.assertRaisesRegex(PortError, "changed paths"):
+            authority.merged_terminal("WP-000", "session-1", wrong, BASE)
+
+        api.routes[("GET", prefix + "/git/commits/" + MERGE)]["parents"][0]["sha"] = "4" * 40
+        with self.assertRaisesRegex(PortError, "exact predecessor base and head"):
+            authority.merged_terminal("WP-000", "session-1", receipt, BASE)
 
     def test_candidate_model_pass_missing_publisher_stale_run_or_fake_approval_is_not_authority(self):
         for kind in ("publisher", "summary", "run", "candidate-privilege", "approval", "stamp", "base"):
@@ -405,3 +434,53 @@ class AuthorityTests(unittest.TestCase):
         })
         with self.assertRaisesRegex(PortError, "Approval"):
             authority.bundle("WP-000", Identity(pr_number=123))
+
+    def test_sole_author_code_review_uses_authenticated_check_without_formal_review(self):
+        authority, api, prefix, value = self.fixture()
+        api.routes[("GET", prefix + "/pulls/123")]["user"]["login"] = "cbattlegear"
+        api.routes[("GET", prefix + "/pulls/123/reviews?per_page=100&page=1")] = []
+        checks = api.routes[("GET", prefix + f"/commits/{HEAD}/check-runs?per_page=100&page=1")]["check_runs"]
+        payload = json.loads(checks[-1]["output"]["summary"][len(GATE_MARKER):])
+        payload["approvals"] = []
+        checks[-1]["output"]["summary"] = GATE_MARKER + json.dumps(payload)
+        result = authority.bundle("WP-000", Identity(pr_number=123))
+        self.assertTrue(result.authoritative)
+        from controller.gates import verify_completion
+
+        proof = verify_completion(result.pr, result.evidence, result.review, result.approvals,
+                                  result.binding, authority.manifest, authority.policy, result.catalog)
+        self.assertIsNone(proof["approval_id"])
+
+    def test_human_acceptance_comment_is_real_bound_and_revocable_even_for_author(self):
+        for kind in ("valid", "wrong-state", "wrong-kind", "wrong-author", "missing-stamp", "revoked",
+                     "revoked-without-record", "comment-after-findings"):
+            authority, api, prefix, value = self.fixture()
+            api.routes[("GET", prefix + "/pulls/123")]["user"]["login"] = "cbattlegear"
+            checks = api.routes[("GET", prefix + f"/commits/{HEAD}/check-runs?per_page=100&page=1")]["check_runs"]
+            payload = json.loads(checks[-1]["output"]["summary"][len(GATE_MARKER):])
+            payload["approvals"][0].update(kind="human-acceptance", state="COMMENTED")
+            reviews = api.routes[("GET", prefix + "/pulls/123/reviews?per_page=100&page=1")]
+            reviews[0].update(state="COMMENTED", body=f"<!-- android-port-acceptance:{value.binding.key} -->")
+            if kind == "wrong-state":
+                reviews[0]["state"] = "APPROVED"
+            elif kind == "wrong-kind":
+                payload["approvals"][0]["kind"] = "fabricated-acceptance"
+            elif kind == "wrong-author":
+                reviews[0]["user"]["login"] = "unregistered"
+            elif kind == "missing-stamp":
+                reviews[0]["body"] = "looks good"
+            elif kind in ("revoked", "revoked-without-record"):
+                reviews.append({"id": 100, "state": "CHANGES_REQUESTED", "commit_id": HEAD,
+                                "user": {"login": "cbattlegear"}, "body": "not accepted"})
+                if kind == "revoked-without-record":
+                    payload["approvals"] = []
+            elif kind == "comment-after-findings":
+                reviews.append({"id": 98, "state": "CHANGES_REQUESTED", "commit_id": HEAD,
+                                "user": {"login": "cbattlegear"}, "body": "unresolved code finding"})
+            checks[-1]["output"]["summary"] = GATE_MARKER + json.dumps(payload)
+            with self.subTest(kind=kind):
+                if kind == "valid":
+                    self.assertTrue(authority.bundle("WP-000", Identity(pr_number=123)).authoritative)
+                else:
+                    with self.assertRaises(PortError):
+                        authority.bundle("WP-000", Identity(pr_number=123))
