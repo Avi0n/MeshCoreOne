@@ -178,16 +178,20 @@ is byte-identical to the previous verified production APK. The separate test
 APK is 3,500,371 bytes, SHA-256
 `fabb4ba69919d334752ce8a1c05313494389216a0e87f3710a7cd4008469a033`.
 
-I read the exact integration record, APK/input binding, test-source delta and
-retained API31 runner/transcript/metrics at the owner's local evidence commit
-`ea0ce80d999bb55d20dd4929656fcd88e60ed0f5`. That record is not yet present
-on the published WP-503 PR head; the owner’s [report](https://github.com/cbattlegear/MeshCoreOne-Android/pull/205#issuecomment-6271090330)
-links the local evidence identity and findings. In the fixture, the correction
-changes only geometry observation: it now samples the target, visible rows and
-viewport on the UI thread using actual placed/attached layout coordinates,
-then calculates row bounds from the same coordinate source. The offset,
-bottommost-row, unchanged-visible-set, message-identity and recreation
-assertions remain unchanged. No WP-307 product or test bytes changed.
+WP-503 subsequently committed the executed integration, APK/input binding,
+runner transcript, metrics and viewport/row measurements in its published
+evidence tree at
+[`f75d4e4`](https://github.com/cbattlegear/MeshCoreOne-Android/tree/f75d4e4f2c78cc93a3c055c8b69a8b0b38fe25ab/docs/android/evidence/WP-503).
+The [integration binding](https://github.com/cbattlegear/MeshCoreOne-Android/blob/f75d4e4f2c78cc93a3c055c8b69a8b0b38fe25ab/docs/android/evidence/WP-503/device-uipreconditions-integration.json),
+[API31 runner transcript](https://github.com/cbattlegear/MeshCoreOne-Android/blob/f75d4e4f2c78cc93a3c055c8b69a8b0b38fe25ab/docs/android/evidence/WP-503/device-uipreconditions-api31.txt),
+[native measurements](https://github.com/cbattlegear/MeshCoreOne-Android/blob/f75d4e4f2c78cc93a3c055c8b69a8b0b38fe25ab/docs/android/evidence/WP-503/device-uipreconditions-metrics-api31.txt),
+and [published evidence section](https://github.com/cbattlegear/MeshCoreOne-Android/blob/f75d4e4f2c78cc93a3c055c8b69a8b0b38fe25ab/docs/android/evidence/WP-503/README.md#targeted-observer-correction-measured-api31-offset-restoration)
+are now directly reviewable. The binding confirms the same product and test
+APK hashes documented above. The fixture-only correction samples the target,
+visible rows and viewport on the UI thread using actual placed/attached layout
+coordinates; offset, bottommost-row, unchanged-visible-set, message-identity
+and recreation assertions remain unchanged. No WP-307 product or test bytes
+changed.
 
 **Actual API31 targeted AndroidJUnitRunner result:** 2 methods started, 2
 matching outcomes, 1 passed / 1 failed, 0 errors / 0 skips, 12.816 seconds.
@@ -199,14 +203,18 @@ The original target/bottommost and offset assertions now pass. The other
 selected method, an unrelated saved-Line-of-Sight native-name case, fails;
 this is **not a green two-test cohort** or full-suite pass.
 
-The owner’s API37 entry is explicitly `BLOCKED_BEFORE_LAUNCH` due to unresolved
-authorization; no API37 device was started. This is combined execution with
-WP-503's corrected observer, **not standalone PR #235**, not then-current-main
-execution, and not whole-WP acceptance. The prior `ba67` 23-case result remains
-21/23 with two failures; this two-method follow-up does not retry, replace or
+The owner’s API37 entry is explicitly `BLOCKED_BEFORE_LAUNCH`; no API37 device
+was started in this evidence. The remaining native criterion for this WP is
+the same unchanged cached-chat offset/recreation test passing on API37 with its
+source, APK and device profile bound to the result. The existing WP-503 owner
+is assigned that missing API37 execution; no API31 replay or broader 23-case
+rerun is needed for this bounded criterion. The API31 result is combined
+execution with WP-503's corrected observer, **not standalone PR #235** or
+then-current-main execution. The prior `ba67` 23-case result remains 21/23
+with two failures; this two-method follow-up does not retry, replace or
 reclassify it. No physical-device/TalkBack result or independent approval is
-claimed. No product change, owner-fixture edit, new worker, current-base run or
-extra CI/result bundle was made by WP-307.
+claimed. No product change, owner-fixture edit, new worker, or extra
+CI/result bundle was made by WP-307.
 
 The initial failure is now explained by the test observer mixing the target's
 layout-coordinate geometry with visible rows' separately fetched/clipped
@@ -216,7 +224,10 @@ executes the observation on the UI thread; the unchanged strict chat case
 passes. This identifies the observed prerequisite failure as a fixture
 measurement issue, not evidence of a product geometry or restoration defect.
 The exact-offset product behavior has a **qualified combined API31 native
-pass**. API37 and current-base/standalone confirmation remain outstanding.
+pass**. The remaining native acceptance is the exact unchanged chat
+offset/recreation test on API37, owned by the existing WP-503 assignment.
+The combined API31 result is not standalone PR #235 device execution or
+then-current-main execution.
 
 ## Native regression: combined producer integration
 
