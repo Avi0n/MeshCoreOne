@@ -51,7 +51,7 @@ emulator/server lifecycle, data/settings/logcat mutation or API31 action.
 [Exact read-only observations and original guards](shared-api37-readiness.md).
 The historical unauthorized result and f75 hosted diagnosis remain separate.
 
-## Published f75 hosted failure: dependency and report-retention blockers
+## Published f75 hosted failure: dependency and historical report loss
 
 Exact hosted39300338554 is terminal **FAILURE** at publishedf75d4e4f;
 App host/Robolectric task reports800 completed/4 failed. Only two
@@ -65,6 +65,9 @@ Do not infer both SDK variants as the four observed failures.
 [Source diagnosis, exact report gap and dependency stop](publication-failure-diagnosis.md).
 This narrative links the authoritative job; it is not a copied CI bundle.
 That diagnosis performed no rerun/import/API37 action or assertion change.
+The unavailable original report limits historical attribution; it is not a
+permanent independent prerequisite to a new corrected candidate's acceptance.
+That candidate must establish its own complete declared discovery/results.
 
 ## Owned-only publication boundary
 

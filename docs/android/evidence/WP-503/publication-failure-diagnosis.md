@@ -105,15 +105,22 @@ are justified by the retained evidence.
 
 ## Exact dependency, ownership and stop
 
+This is the **historical exact-f75 diagnosis**, not a permanent requirement to
+recover an ephemeral original report. A future corrected candidate with complete
+declared discovery/results establishes its own outcome. Keep f75's800/4FAILED and
+the two unavailable original identities unresolved without inventing their causes
+or rerunning f75 solely to reconstruct history.
+
 At inspection PR233 is **OPEN/draft**, exact fd9, `mergedAt=null`;
 main remains`8702db8b1b25a06eb596fb424d821bc3ce3b187b`.
 [Source review5576016559](https://github.com/cbattlegear/MeshCoreOne-Android/pull/233#pullrequestreview-5576016559)
 is `COMMENTED`, bound to fd9, not merge approval or proof the dependency
 has landed. The publication intentionally restored both producer paths to
 base bytes; [publication-scope.json](publication-scope.json) retains that
-separation. **WP503 is blocked on the existing WP311 producer's ordinary
-merge/current-base integration for these two visible failures**, plus
-original-report availability for the other two identities. This is an
+separation. **WP503 requires the existing WP311 producer's ordinary
+merge/current-base integration for these two visible failures**. Original-report
+unavailability limits attribution of the other two historical identities; it is
+not an independent blocker to a new candidate's declared verification. This is an
 implementation dependency found by the audit, not an invented manifest
 prerequisite or permission to re-import other-owner work.
 
@@ -126,6 +133,8 @@ to an unexecuted two-case successor or any host run.
 All audit assertions and exact native source/fixture/APK/result records
 remain unchanged. No device work, successful-cohort replay, producer import,
 test exclusion, duplicate CI, new session, CI-result bundle or standalone/
-whole-WP acceptance occurs. API37 remains **BLOCKED_BEFORE_LAUNCH with0
-new starts**; the user's separately started endpoint is unconfirmed and is
-not inspected, authorized, or used by this diagnosis.
+whole-WP acceptance occurred during this historical diagnosis. At that time API37
+was **BLOCKED_BEFORE_LAUNCH with0 new starts** and the user's separately started
+endpoint was unconfirmed. Newer profile admission and the actual package-identity
+setup failure are recorded separately in
+[shared-api37-profile-admission.md](shared-api37-profile-admission.md).

@@ -155,3 +155,39 @@ without private-key export/copy/change, require the public certificate to match
 installed000be798, retain exact original3f source/fixture/Room/package continuity,
 and produce new source/build/APK bindings. Unknown support admission, not a
 broad release-signing/unauthorized-device claim, is the current executable gate.
+
+## Pre-execution source-review safety corrections
+
+The coordinator withheld source review of dd259 pending three bounded adapter
+corrections. These alter no Kotlin fixture, product, threshold or old capture:
+
+- Persist each install attempt **before** calling the installer. Cleanup
+  reconciles actual target/test presence and digests, restoring the preserved
+  target even after successful installation followed by timeout/rejected output,
+  and removing only this run's originally absent, exact-bound test package.
+  Foreign package identities are never overwritten or removed.
+- Require one actual terminal `INSTRUMENTATION_CODE: -1`, result stream/time and
+  matching JUnit success summary for all-positive outcomes. Complete method
+  statuses followed by runner crash/failure/shortMsg or missing completion fail.
+- A timed-out host client is not proof the guest finished. Before restoring any
+  APK, finish only this empty-before-run lane's exact owned instrumentation,
+  with matching target/test digests, and verify actual guest quiescence. Never
+  stop a foreign instrumentation component. If quiescence cannot be established,
+  retain the exclusive native lane and surface both primary and cleanup failures
+  rather than replacing APKs or releasing the lane under an active guest. Also
+  retain the lane if the preserved target/test package state is unresolved.
+
+Adapter failure-injection tests cover uncertain App and partial Test installs,
+foreign packages/instrumentation, terminal accounting, successful owned-guest
+cleanup after host timeout, and retained-lane primary-plus-cleanup failures.
+These are host unit tests only. No API31 replay, additional API37 install,
+instrumentation, key operation or successful cohort replay accompanies this
+source correction. The original first-install failure and unchanged-user-target
+observation remain immutable.
+
+Validation: `python -m unittest discover -s android\accessibility-tests -p
+test_shared_device_runner.py` discovers **14 tests,14PASS/0FAIL/0ERROR/0SKIP**.
+Offline parsing of the existing final LoS1 and Nodes7 reports accepts their
+actual terminal `INSTRUMENTATION_CODE: -1`; this is parser compatibility only,
+not a device replay or new native credit. Controller validator is valid and
+`git diff --check` passes. Independent source review is still required.

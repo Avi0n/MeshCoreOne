@@ -1,6 +1,7 @@
 """AndroidOnly: WP-503 Missing-only API37 audit on an already running, source-bound device."""
 import argparse
 from collections import Counter
+from contextlib import contextmanager
 import hashlib
 import json
 from pathlib import Path
@@ -63,6 +64,12 @@ def install_succeeded(output):
             "APK install did not succeed: " + output)
 
 
+def install_pair(device, paths, record_attempt):
+    for package, kind in ((APP, "app"), (TEST, "test")):
+        record_attempt(package)
+        device.install(paths[kind])
+
+
 def git(*args):
     return subprocess.check_output(["git", "-C", str(ROOT), *args], text=True).strip()
 
@@ -78,6 +85,13 @@ def selected_methods(cohort):
 
 
 def parse_outcomes(text, expected):
+    require(not re.search(r"INSTRUMENTATION_(?:FAILED|ABORTED)|INSTRUMENTATION_RESULT: (?:shortMsg|longMsg)="
+                          r"|INSTRUMENTATION_STATUS: Error=|Process crashed", text),
+            "Instrumentation runner failed or crashed after/before method outcomes")
+    require(re.findall(r"^INSTRUMENTATION_CODE: (-?\d+)$", text, re.M) == ["-1"] and
+            text.rstrip().endswith("INSTRUMENTATION_CODE: -1") and
+            "INSTRUMENTATION_RESULT: stream=" in text and re.search(r"Time: [\d.]+", text),
+            "Missing or unsuccessful terminal instrumentation completion")
     starts, ends = [], []
     for match in re.finditer(r"(.*?)INSTRUMENTATION_STATUS_CODE: (-?\d+)", text, re.S):
         fields = dict(re.findall(r"^INSTRUMENTATION_STATUS: (class|test|numtests)=(.*)$", match[1], re.M))
@@ -97,11 +111,15 @@ def parse_outcomes(text, expected):
     require(len({identity for identity, _ in ends}) == len(ends), "Duplicate outcomes")
     require(all(code in (0, -1, -2, -3, -4) for _, code in ends), "Unknown AndroidJUnit status")
     statuses = Counter(code for _, code in ends)
+    if statuses[0] == len(expected):
+        require(re.findall(r"OK \((\d+) tests?\)", text) == [str(len(expected))],
+                "Terminal JUnit success summary does not match actual selected outcomes")
     return {
         "discovered": len(starts), "started": len(starts), "matching_outcomes": len(ends),
         "passed": statuses[0], "failed": statuses[-2], "errors": statuses[-1],
         "skipped": statuses[-3] + statuses[-4], "outcomes": ends,
         "seconds": re.findall(r"Time: ([\d.]+)", text),
+        "runner_completed": True, "terminal_instrumentation_code": -1,
     }
 
 
@@ -156,12 +174,93 @@ class Device:
         for key in ("animator_duration_scale", "window_animation_scale", "transition_animation_scale"):
             values[key] = self.shell("settings get global " + key)
             require(float(values[key]) == 0, "Original reduced-motion profile is not present: " + key)
-        activity_dump = self.shell("dumpsys activity")
-        require("ActiveInstrumentation{" not in activity_dump, "Another actual instrumentation consumer is active")
+        require(not self.active_instrumentations(), "Another actual instrumentation consumer is active")
         return values
 
     def install(self, path):
         install_succeeded(self.run("install", "-r", str(path), timeout=120))
+
+    def active_instrumentations(self):
+        output = self.shell("dumpsys activity")
+        entries = re.findall(r"ActiveInstrumentation\{[^\n]*\}", output)
+        require(entries or not re.search(r"active instrumentation:", output, re.I),
+                "Unrecognized active instrumentation inventory; do not restore APK or release lane")
+        return entries
+
+    def finish_owned_instrumentation(self, app_digest, test_digest):
+        active = self.active_instrumentations()
+        if not active:
+            return "verified-quiescent"
+        component = TEST + "/androidx.test.runner.AndroidJUnitRunner"
+        require(all(re.search(r"\s" + re.escape(component) + r"(?:\s|\})", entry) for entry in active),
+                "Foreign instrumentation observed; no unrelated guest process will be stopped")
+        require(self.installed(APP)["sha256"] == app_digest and self.installed(TEST)["sha256"] == test_digest,
+                "Active guest no longer matches this lane's exact owned App/Test APKs")
+        # The lane was empty before our invocation; stop only its verified instrumented target.
+        self.shell("am force-stop " + APP)
+        deadline = time.monotonic() + 10
+        while self.active_instrumentations():
+            require(time.monotonic() < deadline, "Owned guest instrumentation did not terminate; retain native lane")
+            time.sleep(0.1)
+        return "owned-guest-finished-and-verified-quiescent"
+
+
+@contextmanager
+def native_lane(ledger, device):
+    ledger.acquire_hard_lock("native-execution", OWNER, {
+        "endpoint": "127.0.0.1:5037/" + SERIAL, "purpose": "missing-only27", "source": HEAD,
+    }, time.time())
+    try:
+        yield
+    finally:
+        primary = sys.exception()
+        try:
+            require(not device.active_instrumentations(),
+                    "Guest instrumentation unresolved: native lane retained, not released")
+            original = getattr(device, "original_target_digest", None)
+            if original is not None:
+                actual = device.installed(APP)
+                require(actual is not None and actual["sha256"] == original and device.installed(TEST) is None,
+                        "Preserved package state unresolved: native lane retained, not released")
+        except (RuntimeError, subprocess.SubprocessError, OSError) as cleanup:
+            raise BaseExceptionGroup("Native lane retained pending verified guest cleanup",
+                                     ([primary] if primary else []) + [cleanup])
+        ledger.release_hard_lock("native-execution", OWNER)
+
+
+def restore_packages(device, backup, original_digest, app_digest, test_digest):
+    require(not device.active_instrumentations(), "Never replace APKs while guest instrumentation is active")
+    states, errors = {}, []
+    for label, action in (
+        ("original_target_apk", lambda: restore_target(device, backup, original_digest, app_digest)),
+        ("owned_new_test_package", lambda: remove_owned_test(device, test_digest)),
+        ("original_target_digest", lambda: require(device.installed(APP)["sha256"] == original_digest,
+                                                  "Original target APK was not restored")),
+    ):
+        try:
+            action()
+            states[label] = "verified"
+        except (RuntimeError, subprocess.SubprocessError, OSError) as failure:
+            states[label] = repr(failure)
+            errors.append(failure)
+    return states, errors
+
+
+def restore_target(device, backup, original_digest, app_digest):
+    actual = device.installed(APP)
+    if actual is not None and actual["sha256"] == original_digest:
+        return
+    require(actual is None or actual["sha256"] == app_digest,
+            "Unexpected target identity: do not overwrite another consumer's APK")
+    device.install(backup)
+
+
+def remove_owned_test(device, test_digest):
+    actual = device.installed(TEST)
+    if actual is None:
+        return
+    require(actual["sha256"] == test_digest, "Unexpected test identity: do not remove another consumer's package")
+    require(device.run("uninstall", TEST) == "Success", "Owned new test-package cleanup failed")
 
 
 def verify_binding(apk_directory):
@@ -229,8 +328,19 @@ def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
                 raise TimeoutError("Original600s outer deadline exceeded; partial output retained, no retry")
             require(stream.poll() is None, "Scoped log consumer exited during instrumentation")
         finally:
-            stream.terminate()
-            stream.wait(timeout=15)
+            primary = sys.exception()
+            errors = []
+            for action in (
+                lambda: (stream.terminate(), stream.wait(timeout=15)),
+                lambda: device.finish_owned_instrumentation(app_digest, test_digest),
+            ):
+                try:
+                    action()
+                except (RuntimeError, subprocess.SubprocessError, OSError) as cleanup:
+                    errors.append(cleanup)
+            if errors:
+                raise BaseExceptionGroup("Instrumentation/log-consumer cleanup failed",
+                                         ([primary] if primary else []) + errors)
     raw = stem.with_suffix(".txt").read_text(encoding="utf-8")
     summary = parse_outcomes(raw, expected)
     summary.update({"cohort": cohort, "command": command, "process_exit": code})
@@ -270,12 +380,12 @@ def main():
               "runner_sha256": sha256(Path(__file__)), "audit_publication_parent": git("rev-parse", "HEAD"),
               "profile_adaptation": "actual4CPU/IME0; no assertion/deadline/settings/source change"}
     device = Device()
-    with ledger.hard_lock("native-execution", OWNER, {"endpoint": "127.0.0.1:5037/" + SERIAL,
-                                                    "purpose": "missing-only27", "source": HEAD}, time.time()):
+    with native_lane(ledger, device):
         result["profile_before"] = profile = device.profile()
         result["installed_before"] = before = device.installed(APP)
         require(before is not None, "Existing user target APK needs an explicit preservation plan")
         require(device.installed(TEST) is None, "Existing user test package must not be overwritten")
+        device.original_target_digest = before["sha256"]
         backup = args.output / "original-target.apk"
         device.run("pull", before["path"], str(backup), timeout=120)
         require(sha256(backup) == before["sha256"], "Original target APK preservation failed")
@@ -289,12 +399,16 @@ def main():
         require(len(set(signatures.values())) == 1,
                 "Existing target and retained App/Test debug identities differ: " + repr(signatures) +
                 "; no uninstall, key access, re-signing or security bypass is admitted")
-        app_changed = test_changed = False
+        app_digest = binding["apks"][paths["app"].name]["sha256"]
+        test_digest = binding["apks"][paths["test"].name]["sha256"]
+        result["mutation_attempts"] = []
+
+        def record_attempt(package):
+            result["mutation_attempts"].append(package)
+            (args.output / "operations.json").write_text(json.dumps(result, indent=2) + "\n")
+
         try:
-            device.install(paths["app"])
-            app_changed = True
-            device.install(paths["test"])
-            test_changed = True
+            install_pair(device, paths, record_attempt)
             require(device.installed(APP)["sha256"] == binding["apks"][paths["app"].name]["sha256"],
                     "Actual installed target APK differs from retained source binding")
             for cohort in COHORTS:
@@ -310,24 +424,19 @@ def main():
             if primary is not None:
                 result["execution_error"] = repr(primary)
             cleanup_errors = []
-            for label, action in (
-                ("original_target_apk", lambda: device.install(backup) if app_changed else None),
-                ("owned_new_test_package", lambda: require(device.run("uninstall", TEST) == "Success",
-                                                          "Owned test-package cleanup failed") if test_changed else None),
-                ("original_target_digest", lambda: require(device.installed(APP)["sha256"] == before["sha256"],
-                                                          "Original target APK was not restored")),
-                ("original_profile", lambda: require(device.profile() == profile,
-                                                    "Original shared runtime profile was not restored")),
-            ):
-                try:
-                    action()
-                    result.setdefault("cleanup", {})[label] = "verified"
-                except (RuntimeError, subprocess.SubprocessError, OSError) as failure:
-                    cleanup_errors.append(failure)
-                    result.setdefault("cleanup", {})[label] = repr(failure)
+            try:
+                result["guest_cleanup"] = device.finish_owned_instrumentation(app_digest, test_digest)
+                states, errors = restore_packages(device, backup, before["sha256"], app_digest, test_digest)
+                result["cleanup"] = states
+                cleanup_errors.extend(errors)
+                require(device.profile() == profile, "Original shared runtime profile was not restored")
+                result["cleanup"]["original_profile"] = "verified"
+            except (RuntimeError, subprocess.SubprocessError, OSError) as failure:
+                cleanup_errors.append(failure)
+                result.setdefault("cleanup", {})["guest_or_profile"] = repr(failure)
             (args.output / "operations.json").write_text(json.dumps(result, indent=2) + "\n")
             if cleanup_errors:
-                raise ExceptionGroup("Shared-device cleanup failures", ([primary] if primary else []) + cleanup_errors)
+                raise BaseExceptionGroup("Shared-device cleanup failures", ([primary] if primary else []) + cleanup_errors)
     require(all(row["process_exit"] == 0 and row["passed"] == len(selections[row["cohort"]])
                 for row in result["cohorts"]), "Native failures retained; no successful cohort replay")
 
