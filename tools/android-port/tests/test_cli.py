@@ -266,8 +266,12 @@ class CliTests(unittest.TestCase):
                 self.assertIn("github.event.repository.default_branch", content)
                 self.assertIn("ref: ${{ github.sha }}", content)
                 self.assertIn("android-port-controller", content)
-                if filename != "android-gate-integrity.yml":
+                if filename in ("android-port-dispatch.yml", "android-pr-shepherd.yml"):
                     self.assertIn("--dry-run", content)
+                elif filename == "android-parity-review.yml":
+                    from controller.workflows import parse_yaml, validate_publisher
+
+                    validate_publisher(parse_yaml(content), content)
         candidate = (directory / "android-ci.yml").read_text(encoding="utf-8")
         self.assertIn("pull_request:", candidate)
         self.assertIn("merge_group:", candidate)
