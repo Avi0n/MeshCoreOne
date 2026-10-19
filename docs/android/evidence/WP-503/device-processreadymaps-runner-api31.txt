@@ -1,0 +1,43 @@
+WP503_EXECUTED_INPUT|d2c73dd2f855bd038a82e904bce7f481285cbd84
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 31, "head": "d2c73dd2f855bd038a82e904bce7f481285cbd84", "scenario": "offline-map", "discovered": 3, "statuses": {"0": 3}, "time": ["Time: 12.734"]}
+.
+INSTRUMENTATION_STATUS: test=downloadingPackHasTextAndMeasuredProgressWithPauseResumeAndConfirmedDeleteCancellation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=completedPackKeepsItsTextAndFullProgressWithoutPauseOrResumeAndDoneDoesNotDelete
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=completedPackKeepsItsTextAndFullProgressWithoutPauseOrResumeAndDoneDoesNotDelete
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 12.734
+
+OK (3 tests)
+
+
+INSTRUMENTATION_CODE: -1
+

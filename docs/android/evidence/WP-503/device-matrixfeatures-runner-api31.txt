@@ -1,0 +1,25 @@
+WP503_EXECUTED_INPUT|d2c73dd2f855bd038a82e904bce7f481285cbd84
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e notClass com.meshcoreone.android.accessibility.NativePlatformServiceControlTest,com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 31, "head": "d2c73dd2f855bd038a82e904bce7f481285cbd84", "scenario": "feature-matrix", "discovered": 80, "statuses": {"0": 79, "-2": 1}, "time": ["Time: 165.028"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest', 'actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions')|-2
+ainedFont200Actions(NativeAppLanguageAccessibilityTest.kt:53)
+12) actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions(com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest)
+java.lang.AssertionError: Each native language selection must expose its own name and selected state: zh-Hans expected:<1> but was:<0>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions$lambda$0$2(NativeAppLanguageAccessibilityTest.kt:71)
+	at com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest.$r8$lambda$1svCP439Hg-hsLhKRbVElBXx_Tg(Unknown Source:0)
+	at com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest$$ExternalSyntheticLambda1.call(D8$$SyntheticClass:0)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions$lambda$0(NativeAppLanguageAccessibilityTest.kt:70)
+	at com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest$$ExternalSyntheticLambda8.invoke(D8$$SyntheticClass:0)
+	at com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest.withLanguage(NativeAppLanguageAccessibilityTest.kt:124)
+	at com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions(NativeAppLanguageAccessibilityTest.kt:53)
+
+FAILURES!!!
+Tests run: 80,  Failures: 12
+
+
+INSTRUMENTATION_CODE: -1
+

@@ -1,0 +1,72 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_CALLBACK_ACTIVITY|phase=start|actualCount=0
+WP503_NATIVE_CALLBACK_REGISTERED|registrationCallReturned=true|handler=main|physicalTalkBack=false
+WP503_NATIVE_CALLBACK_CONTROL|originalFlags=65554|originalEnabled=false|expectedRestored=false|composeRule=false|testDispatcher=false
+WP503_NATIVE_CALLBACK_READY|phase=activation|enabled=true|expected=true|checks=11|elapsedMs=112|originalDeadlineMs=1000
+WP503_NATIVE_MAIN_HEARTBEAT|phase=activation|postedMs=0|ranMs=110|latencyMs=110|withinOriginalDeadline=true
+WP503_NATIVE_MAIN_HEARTBEAT_COUNT|phase=activation|observed=1|withinOriginalDeadline=1|maxObservedLatencyMs=110|callbackObservationOnly=true
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-activated|afterOriginalDeadline=false|managerEnabled=true|flags=65558
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|ACCESSIBILITY MANAGER (dumpsys accessibility)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|currentUserId=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|hasWindowMagnificationConnection=false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|User state[
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     shortcut key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     button:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     button target:{null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Bound services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Enabled services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Binding services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Crashed services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     Client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|          Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|          Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|          Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|          Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|[com.meshcoreone.android.debug][com.android.inputmethod.latin][com.android.launcher3]}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Ui Automation[eventTypes=TYPES_ALL_MASK, notificationTimeout=0]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|Global client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|    Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|[com.android.systemui][com.android.server.telecom, com.android.emulator.multidisplay, com.android.settings, com.android.providers.settings, android, com.android.localtransport, com.android.wallpaperbackup, com.android.dynsystem, com.android.location.fused, com.android.inputdevices, com.android.keychain][com.android.server.telecom, com.android.emulator.multidisplay, com.android.settings, com.android.providers.settings, android, com.android.localtransport, com.android.wallpaperbackup, com.android.dynsystem, com.android.location.fused, com.android.inputdevices, com.android.keychain]
+WP503_NATIVE_SERVICE_DUMP_MARKERS|phase=callback-activated|actual=1|expected=1
+WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-activated|WP503_NATIVE_SERVICE_DUMP_EXIT=0
+WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-activated|managerEnabled=true|flags=65558|durationMs=61|physicalTalkBack=false
+WP503_NATIVE_CALLBACK_READY|phase=restoration|enabled=false|expected=false|checks=22|elapsedMs=232|originalDeadlineMs=1000
+WP503_NATIVE_MAIN_HEARTBEAT|phase=restoration|postedMs=0|ranMs=222|latencyMs=222|withinOriginalDeadline=true
+WP503_NATIVE_MAIN_HEARTBEAT_COUNT|phase=restoration|observed=1|withinOriginalDeadline=1|maxObservedLatencyMs=222|callbackObservationOnly=true
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-restored|afterOriginalDeadline=false|managerEnabled=false|flags=65554
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|ACCESSIBILITY MANAGER (dumpsys accessibility)
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|currentUserId=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|hasWindowMagnificationConnection=false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|User state[
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     shortcut key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     button:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     button target:{null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     Bound services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     Enabled services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     Binding services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     Crashed services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     Client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|          Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|          Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|          Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|          Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|[com.meshcoreone.android.debug][com.android.inputmethod.latin][com.android.launcher3]}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|Ui Automation[eventTypes=TYPES_ALL_MASK, notificationTimeout=0]
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|Global client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|    Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|    Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|    Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|    Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|[com.android.systemui][com.android.server.telecom, com.android.emulator.multidisplay, com.android.settings, com.android.providers.settings, android, com.android.localtransport, com.android.wallpaperbackup, com.android.dynsystem, com.android.location.fused, com.android.inputdevices, com.android.keychain][com.android.server.telecom, com.android.emulator.multidisplay, com.android.settings, com.android.providers.settings, android, com.android.localtransport, com.android.wallpaperbackup, com.android.dynsystem, com.android.location.fused, com.android.inputdevices, com.android.keychain]
+WP503_NATIVE_SERVICE_DUMP_MARKERS|phase=callback-restored|actual=1|expected=1
+WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-restored|WP503_NATIVE_SERVICE_DUMP_EXIT=0
+WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-restored|managerEnabled=false|flags=65554|durationMs=31|physicalTalkBack=false
+WP503_NATIVE_CALLBACK_EVENT|phase=restoration|enabled=true|actualManager=true|onMain=true|elapsedRealtimeMs=45759
+WP503_NATIVE_CALLBACK_EVENT|phase=restoration|enabled=false|actualManager=false|onMain=true|elapsedRealtimeMs=45759
+WP503_NATIVE_CALLBACK_COUNT|actual=2
+WP503_NATIVE_CALLBACK_ACTIVITY|phase=end|actualEvents=0

@@ -1,0 +1,51 @@
+WP503_BOOT|37|elapsed=0|exit=1|out=|error=adb.exe: device 'emulator-5714' not found
+WP503_BOOT|37|elapsed=5|exit=1|out=|error=adb.exe: device 'emulator-5714' not found
+WP503_BOOT|37|elapsed=10|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=15|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=20|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=25|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=30|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=35|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=40|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=45|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=50|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=55|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=60|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=65|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=70|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=75|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=81|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=86|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=91|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=96|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=101|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=106|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=111|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=116|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=121|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=126|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=131|exit=0|out=1|error=
+WP503_PROFILE|command=('shell', 'getprop', 'ro.build.version.sdk')|exit=0|out=37|error=
+WP503_PROFILE|command=('shell', 'getconf', '_NPROCESSORS_ONLN')|exit=0|out=2|error=
+WP503_GUEST_CPU_COUNT|actual=2|diagnosticProfileOnly=true
+WP503_PROFILE|command=('emu', 'avd', 'name')|exit=0|out=Pixel_10_Pro_XL
+
+OK|error=
+WP503_PROFILE|command=('shell', 'wm', 'size', '360x900')|exit=0|out=|error=
+WP503_PROFILE|command=('shell', 'wm', 'density', '160')|exit=0|out=|error=
+WP503_PROFILE|command=('shell', 'settings', 'put', 'system', 'font_scale', '2.0')|exit=0|out=|error=
+WP503_PROFILE|command=('shell', 'settings', 'put', 'global', 'window_animation_scale', '0')|exit=0|out=|error=
+WP503_PROFILE|command=('shell', 'settings', 'put', 'global', 'transition_animation_scale', '0')|exit=0|out=|error=
+WP503_PROFILE|command=('shell', 'settings', 'put', 'global', 'animator_duration_scale', '0')|exit=0|out=|error=
+WP503_PROFILE|command=('shell', 'settings', 'put', 'secure', 'show_ime_with_hard_keyboard', '1')|exit=0|out=|error=
+WP503_PROFILE|command=('shell', 'input', 'keyevent', '82')|exit=0|out=|error=
+WP503_PROFILE|command=('shell', 'settings', 'get', 'system', 'font_scale')|exit=0|out=2.0|error=
+WP503_PROFILE|command=('shell', 'wm', 'size')|exit=0|out=Physical size: 1344x2992
+Override size: 360x900|error=
+WP503_PROFILE|command=('shell', 'wm', 'density')|exit=0|out=Physical density: 480
+Override density: 160|error=
+WP503_PROFILE|command=('install', '-r', 'C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-device-app.apk')|exit=0|out=Performing Streamed Install
+Success|error=
+WP503_PROFILE|command=('install', '-r', 'C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-device-test.apk')|exit=0|out=Performing Streamed Install
+Success|error=
+WP503_READY|api=37|head=426b166b06c9b93d0c3c6e152de56dfc5ebb0584

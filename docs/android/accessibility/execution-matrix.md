@@ -1,6 +1,45 @@
 # WP-503 native execution matrix
 
-**Latest exact25e6aa2e Activity/Compose-rule-free native control:31 1PASS0.880s,37 1FAIL4.084s, one start/outcome each.37 managerfalse82 checks1000ms despite zero Activities/lifecycle events and no test dispatcher. All original80 fixtures/helpers/product bytes unchanged; full81 not executed. QR237/language238, earlier native and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Latest d2c73dd2 compatible82 inventory:31 81PASS/1FAIL;37 78PASS/4FAIL, zero errors/skips and82 distinct starts/outcomes per API. Launcher9 passes both; cold37 and language238 remain, with strict broad-context Nodes/offline-map negatives. Failed mixed82 counts and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
+
+## Process startup ordering and isolated inventory
+
+| Distinct source-bound native invocations, twoCPUs | Actual API31 | Actual API37 |
+|---|---|---|
+|24d949cc callback/heartbeat control, one start/outcome |1PASS0.784s;112/232ms activation/restoration|1PASS6.252s;960/825ms|
+|24d949cc actual main heartbeat delays |110/222ms|955ms activation;391/415ms restoration|
+|426b166b public pending-main stack/queue control, one start/outcome |1PASS0.743s;79/190ms|1FAIL4.421s;false90 checks1001ms|
+|426b166b in-window pending-main sample |AppState/AppContainer construction;1ms collection|105-106ms, Room construction on main; overdue state/heartbeat messages;1ms collection|
+|7f24b57c unchanged original launcher9 |9/9PASS33.730s|9/9PASS96.941s|
+|7f24b57c actual completed startup prerequisites |9/9;0-2ms|9/9;0-1ms|
+|7f24b57c original native service samples |14 positive samples,max31ms|14 positive samples,max576ms|
+|7f24b57c mixed namespace82 attempt |82 starts/outcomes;79PASS/3FAIL170.335s|82 starts/outcomes;78PASS/4FAIL319.726s|
+|7f24b57c mixed82 unique failures |Language238 plus two isolation guards|Same plus favorite-name128px/71px visible after public scroll|
+|d2c73dd2 fresh feature80 |80 starts/outcomes;79PASS/1FAIL165.028s|80 starts/outcomes;77PASS/3FAIL300.260s|
+|d2c73dd2 fresh feature80 failures |Language238|Language238, favorite node missing after public scroll, offline Download target28px cropped|
+|d2c73dd2 actual feature startup/service samples |80 startup-ready;14 service positives,max22ms|80 startup-ready;14 service positives,max639ms|
+|d2c73dd2 fresh zero-Activity platform1 |1PASS0.779s;activation0/restoration12ms|1FAIL4.886s;actualfalse91 checks1001ms;restoration0ms matches alreadyfalse|
+|d2c73dd2 fresh callback1 |1PASS0.978s|1PASS4.329s;activation634/restoration895ms|
+|d2c73dd2 complete compatible inventory, not one invocation |82 distinct starts/outcomes;81PASS/1FAIL|82 distinct starts/outcomes;78PASS/4FAIL|
+|d2c73dd2 fresh focused original Nodes7 comparison |7 starts/outcomes;6PASS/1FAIL14.217s, Copy84x31dp|7 starts/outcomes;6PASS/1FAIL55.942s, favorite128px/71px visible|
+|d2c73dd2 fresh focused original offline-map3 comparison |3/3PASS12.734s|3/3PASS42.886s; broader80's target crop remains context-sensitive|
+
+Every row has zero error/skip statuses. JUnit expands the mixed82 language
+collector's12 assertions into14/15 failure entries; those are3/4 distinct failed
+methods, not14/15 failed cases. The graph was already complete in the focused9
+setup observations, so successful samples do not prove a causal/stable readiness
+repair. The cold control still measures actual startup; no historical negative
+is reclassified.
+
+The shared82 selection violates cold-control isolation after features retain
+Activities. The declared runner now rejects it with exit2 before adb/native
+execution, never a zero-test success. Correct inventory assembly is the
+explicit80-case feature cohort plus each1-method cold control on its own fresh
+owned profile/process. All82 bodies, original1000ms windows and strict product
+assertions remain. The focused7+3 comparisons use fresh devices to distinguish
+context effects, not additional unique cases or failed-case retries until green.
+Their positives do not override broad-context or prior-source negatives.
+[Exact bindings, commands and raw outcomes](../evidence/WP-503/README.md#process-startup-ordering-and-isolated-inventory).
 
 ## Activity/Compose-rule-free native control
 

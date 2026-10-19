@@ -1,9 +1,59 @@
 # WP-503 accessibility audit
 
-**Status: native37 readiness failure now reproduces without an Activity, Compose rule or test dispatcher. Exact25e6aa2e platform control31 1PASS0.880s;37 1FAIL4.084s, one start/matching outcome each.37 managerfalse82 checks1000ms; zero initial Activities/lifecycle events both APIs. All original80 fixtures/helpers/product bytes unchanged; expanded full81 not executed. QR237/language238, earlier native negatives and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Status: owned setup now requires the actual process graph before feature/service work. Exact d2c73dd2 compatible82 inventory:31 81PASS/1FAIL;37 78PASS/4FAIL, zero errors/skips,82 distinct starts/outcomes per API across fresh80+1+1 cohorts. Unchanged launcher9 passes both; cold37, language238 and new broad-context Nodes/offline-map negatives remain. QR237, earlier native/CI and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+
+## Process startup ordering and isolated inventory
+
+Public native stack/Looper observations at426b166b locate actual process graph
+construction on main while a client-state message and a heartbeat queue overdue.
+37's105-106ms sample is in Room type-converter validation under
+AndroidAppContainerFactory; after its unchanged1000ms activation failure, main
+is still constructing RoomPersistenceStore. No Activity/Compose rule/test
+dispatcher exists in that control. This is observed application work, not an
+Android-framework-only diagnosis or a production performance repair.
+
+The real MeshCoreApplication.container Deferred already occurs in launcher
+bodies, but previously only after requesting touch exploration. The owned
+DeviceAccessibilityHarness now awaits it on the instrumentation thread before
+feature/service setup. Startup failures propagate. No sleep, synthetic readiness,
+Compose-clock advancement, extra resources, product change or service deadline
+extension is introduced. This audits process-ready flows, not startup latency.
+
+At7f24b57c, original launcher9 has9 starts/matching outcomes and9PASS each:
+31 33.730s,37 96.941s, no errors/skips. Actual service samples remain under
+the original1000ms:31 max31ms,37 max576ms. All nine startup observations per API
+are already completed, taking0-2ms; these positives therefore **do not prove
+causal stabilization or erase earlier activation/restoration/IME failures**.
+
+A full82 package attempt exposed a separate assembly problem: both zero-Activity
+controls correctly reject retained lifecycle entries after the Activity-backed
+features.31 has79PASS/3FAIL170.335s;37 has78PASS/4FAIL319.726s,82 starts/outcomes
+each. Language238 fails both;37 also has a new full-context Nodes favorite-name
+crop128px allocation/71px visible. The two guard failures per API remain.
+`full` now fails closed before launch. `feature-matrix`80 plus each cold
+control1 on fresh owned devices preserves every82 identity and every assertion;
+there is no80-case relabeling of the failed82 invocation.
+
+Current d2c73dd2 reconciliation proves all82 distinct identities once per API
+at one source/tree/APK binding. Feature80:31 79PASS/1FAIL165.028s,37
+77PASS/3FAIL300.260s. Fresh platform1:31 PASS0.779s;37 FAIL4.886s, actualfalse91
+checks1001ms with zero Activity events. Callback1 passes31 0.978s/37 4.329s.
+Language238 fails both.37 also loses the favorite node after public scroll
+and clips an offline Download target28px below its actual viewport. These
+strict findings remain, not a pass of the completed inventory. Focused original
+launcher service samples all pass within1000ms in the broader80 context too.
+
+One fresh-context comparison per API at that same d2 source/APKs retains
+Nodes7:31 6PASS/1FAIL14.217s, Copy84x31dp;37 6PASS/1FAIL55.942s, favorite
+128px allocated/71px visible. Offline-map3 passes31 12.734s and37 42.886s.
+Those isolated positives do not erase the broader37 map failure, and QR
+positives in the80 context do not erase its isolated31 failure. No assertion
+or native case is edited or retried until green.
+
+[Exact native cohorts, source/APK bindings and qualifications](../evidence/WP-503/README.md#process-startup-ordering-and-isolated-inventory).
 
 ## Activity/Compose-rule-free native control
 

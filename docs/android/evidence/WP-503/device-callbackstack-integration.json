@@ -1,0 +1,290 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 4,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "audit_baseline": "2d354b1a2b11b839f873ca3928dbf030284c2799",
+  "executed_combined_head": "426b166b06c9b93d0c3c6e152de56dfc5ebb0584",
+  "execution_source_parent": "24d949cc7ba254b9efe959b3fc82d930cc081824",
+  "executed_android_tree": "57b6b31b1703524156de893206c5092511879680",
+  "capability": {
+    "id": "wp-owned",
+    "path": "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativePlatformCallbackDeliveryTest.kt",
+    "operation": "create"
+  },
+  "apk_binding": "device-callbackstack-inputs.json",
+  "all_preceding81_methods_source_files_helpers_assertions_product_build_locks_unchanged": true,
+  "native_inventory": 82,
+  "full82_executed": false,
+  "no_activity_compose_rule_test_dispatcher": true,
+  "real_target_application_still_initializes": true,
+  "native_results": {
+    "31": {
+      "started": 1,
+      "matching_outcomes": 1,
+      "actual_guest_cpus": 2,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.743,
+      "test_outcomes": [
+        {
+          "test": "actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations",
+          "status": 0
+        }
+      ],
+      "ready_observations": [
+        {
+          "phase": "activation",
+          "enabled": "true",
+          "expected": "true",
+          "checks": 8,
+          "elapsed_ms": 79
+        },
+        {
+          "phase": "restoration",
+          "enabled": "false",
+          "expected": "false",
+          "checks": 18,
+          "elapsed_ms": 190
+        }
+      ],
+      "observed_heartbeats": [
+        {
+          "phase": "activation",
+          "posted_ms": 1,
+          "ran_ms": 3,
+          "latency_ms": 2,
+          "within_original_deadline": true
+        },
+        {
+          "phase": "restoration",
+          "posted_ms": 0,
+          "ran_ms": 185,
+          "latency_ms": 185,
+          "within_original_deadline": true
+        }
+      ],
+      "observed_callback_and_stack_lines": [
+        "WP503_NATIVE_CALLBACK_WAIT_START|phase=activation|elapsedRealtimeMs=47392|originalDeadlineMs=1000",
+        "WP503_NATIVE_CALLBACK_WAIT_START|phase=restoration|elapsedRealtimeMs=47529|originalDeadlineMs=1000",
+        "WP503_NATIVE_MAIN_PENDING_SAMPLE|phase=restoration|startedMs=110|finishedMs=111|durationMs=1|pendingAfter=true|afterOriginalDeadline=false|threadState=RUNNABLE|stack=com.meshcoreone.android.app.state.AppState.<init>(AppState.kt:108) <- com.meshcoreone.android.app.container.AppContainer.<init>(AppContainer.kt:228) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory.create(AndroidAppContainerFactory.kt:180) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory$create$1.invokeSuspend(Unknown Source:15) <- kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34) <- kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100) <- android.os.Handler.handleCallback(Handler.java:938) <- android.os.Handler.dispatchMessage(Handler.java:99) <- android.os.Looper.loopOnce(Looper.java:201) <- android.os.Looper.loop(Looper.java:288) <- android.app.ActivityThread.main(ActivityThread.java:7839) <- java.lang.reflect.Method.invoke(Native Method) <- com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548) <- com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1003)",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|Looper (main, tid 2) {926b3b9}",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|  Message 0: { when=-110ms callback=com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest$$ExternalSyntheticLambda9 obj=java.lang.Object@a5313fe target=android.os.Handler }",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|  Message 1: { when=-109ms what=1 arg1=1 target=android.os.Handler }",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|  Message 2: { when=+4s502ms callback=androidx.profileinstaller.ProfileInstallerInitializer$$ExternalSyntheticLambda1 target=android.os.Handler }",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=restoration|  (Total messages: 3, polling=false, quitting=false)",
+        "WP503_NATIVE_CALLBACK_EVENT|phase=activation|enabled=true|actualManager=true|onMain=true|elapsedRealtimeMs=47464",
+        "WP503_NATIVE_CALLBACK_EVENT|phase=restoration|enabled=false|actualManager=false|onMain=true|elapsedRealtimeMs=47720",
+        "WP503_NATIVE_CALLBACK_COUNT|actual=2"
+      ],
+      "public_snapshot_lines": [
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-activated|afterOriginalDeadline=false|managerEnabled=true|flags=65558",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-activated|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-activated|managerEnabled=true|flags=65558|durationMs=53|physicalTalkBack=false",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-restored|afterOriginalDeadline=false|managerEnabled=false|flags=65554",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-restored|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-restored|managerEnabled=false|flags=65554|durationMs=31|physicalTalkBack=false"
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 31,
+        "head": "426b166b06c9b93d0c3c6e152de56dfc5ebb0584",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Medium_Phone",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackstack-api31-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "platform-callback-control",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "31",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "platform-callback-control"
+            ],
+            "exit": 0
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "31",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 266.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackstack-api31-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackstack-api31-userdata.img.qcow2"
+        ]
+      }
+    },
+    "37": {
+      "started": 1,
+      "matching_outcomes": 1,
+      "actual_guest_cpus": 2,
+      "passed": 0,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 4.421,
+      "test_outcomes": [
+        {
+          "test": "actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations",
+          "status": -2
+        }
+      ],
+      "ready_observations": [
+        {
+          "phase": "restoration",
+          "enabled": "false",
+          "expected": "false",
+          "checks": 1,
+          "elapsed_ms": 0
+        }
+      ],
+      "observed_heartbeats": [],
+      "observed_callback_and_stack_lines": [
+        "WP503_NATIVE_CALLBACK_WAIT_START|phase=activation|elapsedRealtimeMs=154566|originalDeadlineMs=1000",
+        "WP503_NATIVE_MAIN_PENDING_SAMPLE|phase=activation|startedMs=105|finishedMs=106|durationMs=1|pendingAfter=true|afterOriginalDeadline=false|threadState=RUNNABLE|stack=com.meshcoreone.android.core.database.MeshCoreDatabase_Impl.getRequiredTypeConverterClasses(MeshCoreDatabase_Impl.kt:787) <- androidx.room.RoomDatabase.getRequiredTypeConverterClassesMap$room_runtime(RoomDatabase.android.kt:481) <- androidx.room.RoomDatabaseKt__RoomDatabaseKt.validateTypeConverters(RoomDatabase.kt:580) <- androidx.room.RoomDatabaseKt.validateTypeConverters(dex-id-4026785ff458c72d7cff87bb7b78417d27c33168-24003:1) <- androidx.room.RoomDatabase.init(RoomDatabase.android.kt:247) <- androidx.room.RoomDatabase$Builder.build(RoomDatabase.android.kt:1812) <- com.meshcoreone.android.core.database.MeshCoreDatabase$Companion.open(MeshCoreDatabase.kt:45) <- com.meshcoreone.android.core.database.MeshCoreDatabase$Companion.open$default(MeshCoreDatabase.kt:44) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory.create(AndroidAppContainerFactory.kt:88) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory$create$1.invokeSuspend(AndroidAppContainerFactory.kt:15) <- kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34) <- kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100) <- android.os.Handler.handleCallback(Handler.java:1080) <- android.os.Handler.dispatchMessageImpl(Handler.java:135) <- android.os.Handler.dispatchMessage(Handler.java:126) <- android.os.Looper.loopOnce(Looper.java:285) <- android.os.Looper.loop(Looper.java:390) <- android.app.ActivityThread.main(ActivityThread.java:9884) <- java.lang.reflect.Method.invoke(Native Method) <- com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575) <- com.android.internal.os.ZygoteInit.main(ZygoteInit.java:906)",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|Looper (main, tid 2) {f81f70b}",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|  (MessageQueue is using DeliQueue implementation)",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|  Message 0: { when=-103ms what=1 arg1=27 target=android.os.Handler async=false heapIndex=-1 }",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|  Message 1: { when=-103ms callback=com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest$$ExternalSyntheticLambda9 obj=java.lang.Object@11db9e8 target=android.os.Handler async=false heapIndex=-1 }",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|  Message 2: { when=+4s949ms callback=androidx.profileinstaller.ProfileInstallerInitializer$$ExternalSyntheticLambda1 target=android.os.Handler async=true heapIndex=0 }",
+        "WP503_NATIVE_MAIN_PENDING_QUEUE|phase=activation|  (Total messages: 3, polling=false, quitting=false)",
+        "WP503_NATIVE_CALLBACK_TIMEOUT|phase=activation|enabled=false|expected=true|accessibilityEnabled=true|checks=90|elapsedMs=1001|originalDeadlineMs=1000",
+        "WP503_NATIVE_CALLBACK_MAIN_STACK|afterOriginalDeadline=true|state=RUNNABLE|stack=com.meshcoreone.android.core.data.repository.RoomPersistenceStore.<init>(RoomPersistenceStore.kt:21) <- com.meshcoreone.android.core.data.repository.RoomPersistenceStore.<init>(RoomPersistenceStore.kt:38) <- com.meshcoreone.android.core.data.repository.RoomPersistenceStore.<init>(RoomPersistenceStore.kt:33) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory.create(AndroidAppContainerFactory.kt:89) <- com.meshcoreone.android.app.container.AndroidAppContainerFactory$create$1.invokeSuspend(AndroidAppContainerFactory.kt:15) <- kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34) <- kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100) <- android.os.Handler.handleCallback(Handler.java:1080) <- android.os.Handler.dispatchMessageImpl(Handler.java:135) <- android.os.Handler.dispatchMessage(Handler.java:126) <- android.os.Looper.loopOnce(Looper.java:285) <- android.os.Looper.loop(Looper.java:390) <- android.app.ActivityThread.main(ActivityThread.java:9884) <- java.lang.reflect.Method.invoke(Native Method) <- com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575) <- com.android.internal.os.ZygoteInit.main(ZygoteInit.java:906)",
+        "WP503_NATIVE_CALLBACK_WAIT_START|phase=restoration|elapsedRealtimeMs=155793|originalDeadlineMs=1000",
+        "WP503_NATIVE_CALLBACK_COUNT|actual=0"
+      ],
+      "public_snapshot_lines": [
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-activation-timeout|afterOriginalDeadline=true|managerEnabled=false|flags=65558",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activation-timeout|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-activation-timeout|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-activation-timeout|managerEnabled=false|flags=65558|durationMs=207|physicalTalkBack=false",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-restored|afterOriginalDeadline=false|managerEnabled=false|flags=65554",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-restored|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-restored|managerEnabled=false|flags=65554|durationMs=204|physicalTalkBack=false"
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 37,
+        "head": "426b166b06c9b93d0c3c6e152de56dfc5ebb0584",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Pixel_10_Pro_XL",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackstack-api37-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "platform-callback-control",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "37",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "platform-callback-control"
+            ],
+            "exit": 1
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "37",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 266.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackstack-api37-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackstack-api37-userdata.img.qcow2"
+        ]
+      }
+    }
+  },
+  "private_adb_server": {
+    "command": [
+      "C:\\android-sdk\\platform-tools\\adb.exe",
+      "-L",
+      "tcp:50393",
+      "--one-device",
+      "wp503-no-usb",
+      "server",
+      "nodaemon"
+    ],
+    "port": 50393,
+    "emulator_scan_max": 5553,
+    "usb_filter": "wp503-no-usb",
+    "mdns_autoconnect": [],
+    "shared5037_stop_or_restart": false,
+    "exit": 0,
+    "owned_port_closed": true,
+    "no_other_devices_attached": true
+  },
+  "qualification": "One distinct diagnostic invocation per fresh approved actual twoCPU API31/37, not a retry of preceding81 methods. Real manager/acknowledged flags/original1000ms windows and late-success rejection remain. Main heartbeat and public callbacks are observations, never readiness substitutes; callbacks' phase is the current phase at delivery, not a causal request attribution. The real Application initializes. No framework-only/OS-root-cause, stable-readiness, UI/decorRTL/glyph/48dp, physical TalkBack or full82 acceptance follows. Preserve all prior native/CI negatives, QR237/language238 and protected gates."
+}

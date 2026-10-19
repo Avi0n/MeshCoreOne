@@ -1,0 +1,256 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 4,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "diagnostic_baseline": "426b166b06c9b93d0c3c6e152de56dfc5ebb0584",
+  "executed_combined_head": "d2c73dd2f855bd038a82e904bce7f481285cbd84",
+  "executed_android_tree": "1b5ecdae3d545fd3aaedddf255e84010f1940e38",
+  "capability": {
+    "id": "wp-owned",
+    "operation": "modify",
+    "path": "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt"
+  },
+  "apk_binding": "device-processreadymaps-inputs.json",
+  "all82_test_bodies_service_waiter_product_build_and_locks_unchanged_from_diagnostic_baseline": true,
+  "setup_change": "Await actual MeshCoreApplication.container on instrumentation thread before feature/service work; startup errors propagate.",
+  "no_new_sleep_clock_resource_profile_service_deadline_or_production_change": true,
+  "scenario": "offline-map",
+  "expected_unique_cases": 3,
+  "complete_native_inventory": 82,
+  "expected_process_ready_cases": 3,
+  "native_results": {
+    "31": {
+      "started": 3,
+      "matching_outcomes": 3,
+      "actual_guest_cpus": 2,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 12.734,
+      "test_outcomes": [
+        {
+          "class": "com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest",
+          "test": "downloadingPackHasTextAndMeasuredProgressWithPauseResumeAndConfirmedDeleteCancellation",
+          "status": 0
+        },
+        {
+          "class": "com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest",
+          "test": "completedPackKeepsItsTextAndFullProgressWithoutPauseOrResumeAndDoneDoesNotDelete",
+          "status": 0
+        },
+        {
+          "class": "com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest",
+          "test": "emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion",
+          "status": 0
+        }
+      ],
+      "startup_ready_observations": 3,
+      "all_expected_startup_prerequisites_observed": true,
+      "startup_elapsed_ms": [
+        2,
+        1,
+        0
+      ],
+      "native_service_ready_sample_ms": [],
+      "startup_service_window_and_failure_lines": [
+        "WP503_NATIVE_PROCESS_STARTUP|phase=await|alreadyCompleted=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=ready|actualCompleted=true|elapsedMs=2|serviceDeadlineUnchangedMs=1000|startupPrerequisiteNotServiceWindow=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=await|alreadyCompleted=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=ready|actualCompleted=true|elapsedMs=1|serviceDeadlineUnchangedMs=1000|startupPrerequisiteNotServiceWindow=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=await|alreadyCompleted=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=ready|actualCompleted=true|elapsedMs=0|serviceDeadlineUnchangedMs=1000|startupPrerequisiteNotServiceWindow=true"
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 31,
+        "head": "d2c73dd2f855bd038a82e904bce7f481285cbd84",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Medium_Phone",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-processreadymaps-api31-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "offline-map",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "31",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "offline-map"
+            ],
+            "exit": 0
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "31",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 265.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-processreadymaps-api31-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-processreadymaps-api31-userdata.img.qcow2"
+        ]
+      }
+    },
+    "37": {
+      "started": 3,
+      "matching_outcomes": 3,
+      "actual_guest_cpus": 2,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 42.886,
+      "test_outcomes": [
+        {
+          "class": "com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest",
+          "test": "downloadingPackHasTextAndMeasuredProgressWithPauseResumeAndConfirmedDeleteCancellation",
+          "status": 0
+        },
+        {
+          "class": "com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest",
+          "test": "completedPackKeepsItsTextAndFullProgressWithoutPauseOrResumeAndDoneDoesNotDelete",
+          "status": 0
+        },
+        {
+          "class": "com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest",
+          "test": "emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion",
+          "status": 0
+        }
+      ],
+      "startup_ready_observations": 3,
+      "all_expected_startup_prerequisites_observed": true,
+      "startup_elapsed_ms": [
+        1,
+        1,
+        0
+      ],
+      "native_service_ready_sample_ms": [],
+      "startup_service_window_and_failure_lines": [
+        "WP503_NATIVE_PROCESS_STARTUP|phase=await|alreadyCompleted=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=ready|actualCompleted=true|elapsedMs=1|serviceDeadlineUnchangedMs=1000|startupPrerequisiteNotServiceWindow=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=await|alreadyCompleted=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=ready|actualCompleted=true|elapsedMs=1|serviceDeadlineUnchangedMs=1000|startupPrerequisiteNotServiceWindow=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=await|alreadyCompleted=true",
+        "WP503_NATIVE_PROCESS_STARTUP|phase=ready|actualCompleted=true|elapsedMs=0|serviceDeadlineUnchangedMs=1000|startupPrerequisiteNotServiceWindow=true"
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 37,
+        "head": "d2c73dd2f855bd038a82e904bce7f481285cbd84",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Pixel_10_Pro_XL",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-processreadymaps-api37-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "offline-map",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "37",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "offline-map"
+            ],
+            "exit": 0
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "37",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 266.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-processreadymaps-api37-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-processreadymaps-api37-userdata.img.qcow2"
+        ]
+      }
+    }
+  },
+  "private_adb_server": {
+    "command": [
+      "C:\\android-sdk\\platform-tools\\adb.exe",
+      "-L",
+      "tcp:49741",
+      "--one-device",
+      "wp503-no-usb",
+      "server",
+      "nodaemon"
+    ],
+    "port": 49741,
+    "emulator_scan_max": 5553,
+    "usb_filter": "wp503-no-usb",
+    "mdns_autoconnect": [],
+    "shared5037_stop_or_restart": false,
+    "exit": 0,
+    "owned_port_closed": true,
+    "no_other_devices_attached": true
+  },
+  "qualification": "One exact-source actual invocation per fresh approved twoCPU API31/37. Real process graph prerequisite precedes feature/service setup; this does not verify cold-start latency or accessibility delivery while graph construction is in flight. Original82 method bodies, flags/manager predicates, original1000ms service windows, strict48dp/font/visibility/state assertions, product/build/locks remain. Count every failure/error/skip at this source; preceding cold/launcher/IME/cleanup/CI negatives are not reclassified. Combined integration, not standalone producer/native whole-WP acceptance. QR237/language238 owner repairs, physical TalkBack/radio, approved goldens, admission/review remain gated."
+}

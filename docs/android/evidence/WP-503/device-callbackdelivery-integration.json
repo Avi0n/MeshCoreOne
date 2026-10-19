@@ -1,0 +1,302 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 4,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "audit_baseline": "2d354b1a2b11b839f873ca3928dbf030284c2799",
+  "executed_combined_head": "24d949cc7ba254b9efe959b3fc82d930cc081824",
+  "execution_source_parent": "ea59014adc7a6e295acb493f6b3c7a17caef3d5a",
+  "executed_android_tree": "0ccee6554b67bfd2d93968f5bd031bb401f0d391",
+  "capability": {
+    "id": "wp-owned",
+    "path": "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativePlatformCallbackDeliveryTest.kt",
+    "operation": "create"
+  },
+  "apk_binding": "device-callbackdelivery-inputs.json",
+  "all_preceding81_methods_source_files_helpers_assertions_product_build_locks_unchanged": true,
+  "native_inventory": 82,
+  "full82_executed": false,
+  "no_activity_compose_rule_test_dispatcher": true,
+  "real_target_application_still_initializes": true,
+  "native_results": {
+    "31": {
+      "started": 1,
+      "matching_outcomes": 1,
+      "actual_guest_cpus": 2,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.784,
+      "test_outcomes": [
+        {
+          "test": "actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations",
+          "status": 0
+        }
+      ],
+      "ready_observations": [
+        {
+          "phase": "activation",
+          "enabled": "true",
+          "expected": "true",
+          "checks": 11,
+          "elapsed_ms": 112
+        },
+        {
+          "phase": "restoration",
+          "enabled": "false",
+          "expected": "false",
+          "checks": 22,
+          "elapsed_ms": 232
+        }
+      ],
+      "observed_heartbeats": [
+        {
+          "phase": "activation",
+          "posted_ms": 0,
+          "ran_ms": 110,
+          "latency_ms": 110,
+          "within_original_deadline": true
+        },
+        {
+          "phase": "restoration",
+          "posted_ms": 0,
+          "ran_ms": 222,
+          "latency_ms": 222,
+          "within_original_deadline": true
+        }
+      ],
+      "observed_callback_and_stack_lines": [
+        "WP503_NATIVE_CALLBACK_EVENT|phase=restoration|enabled=true|actualManager=true|onMain=true|elapsedRealtimeMs=45759",
+        "WP503_NATIVE_CALLBACK_EVENT|phase=restoration|enabled=false|actualManager=false|onMain=true|elapsedRealtimeMs=45759",
+        "WP503_NATIVE_CALLBACK_COUNT|actual=2"
+      ],
+      "public_snapshot_lines": [
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-activated|afterOriginalDeadline=false|managerEnabled=true|flags=65558",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-activated|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-activated|managerEnabled=true|flags=65558|durationMs=61|physicalTalkBack=false",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-restored|afterOriginalDeadline=false|managerEnabled=false|flags=65554",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-restored|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-restored|managerEnabled=false|flags=65554|durationMs=31|physicalTalkBack=false"
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 31,
+        "head": "24d949cc7ba254b9efe959b3fc82d930cc081824",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Medium_Phone",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackdelivery-api31-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "platform-callback-control",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "31",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "platform-callback-control"
+            ],
+            "exit": 0
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "31",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 265.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackdelivery-api31-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackdelivery-api31-userdata.img.qcow2"
+        ]
+      }
+    },
+    "37": {
+      "started": 1,
+      "matching_outcomes": 1,
+      "actual_guest_cpus": 2,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 6.252,
+      "test_outcomes": [
+        {
+          "test": "actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations",
+          "status": 0
+        }
+      ],
+      "ready_observations": [
+        {
+          "phase": "activation",
+          "enabled": "true",
+          "expected": "true",
+          "checks": 86,
+          "elapsed_ms": 960
+        },
+        {
+          "phase": "restoration",
+          "enabled": "false",
+          "expected": "false",
+          "checks": 75,
+          "elapsed_ms": 825
+        }
+      ],
+      "observed_heartbeats": [
+        {
+          "phase": "activation",
+          "posted_ms": 0,
+          "ran_ms": 955,
+          "latency_ms": 955,
+          "within_original_deadline": true
+        },
+        {
+          "phase": "restoration",
+          "posted_ms": 1,
+          "ran_ms": 392,
+          "latency_ms": 391,
+          "within_original_deadline": true
+        },
+        {
+          "phase": "restoration",
+          "posted_ms": 402,
+          "ran_ms": 817,
+          "latency_ms": 415,
+          "within_original_deadline": true
+        }
+      ],
+      "observed_callback_and_stack_lines": [
+        "WP503_NATIVE_CALLBACK_EVENT|phase=activation|enabled=true|actualManager=true|onMain=true|elapsedRealtimeMs=164047",
+        "WP503_NATIVE_CALLBACK_EVENT|phase=restoration|enabled=false|actualManager=false|onMain=true|elapsedRealtimeMs=165482",
+        "WP503_NATIVE_CALLBACK_COUNT|actual=2"
+      ],
+      "public_snapshot_lines": [
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-activated|afterOriginalDeadline=false|managerEnabled=true|flags=65558",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=callback-activated|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-activated|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-activated|managerEnabled=true|flags=65558|durationMs=584|physicalTalkBack=false",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=callback-restored|afterOriginalDeadline=false|managerEnabled=false|flags=65554",
+        "WP503_NATIVE_SERVICE_SYSTEM|phase=callback-restored|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}",
+        "WP503_NATIVE_SERVICE_DUMP_RESULT|phase=callback-restored|WP503_NATIVE_SERVICE_DUMP_EXIT=0",
+        "WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=callback-restored|managerEnabled=false|flags=65554|durationMs=84|physicalTalkBack=false"
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "operations": {
+        "api": 37,
+        "head": "24d949cc7ba254b9efe959b3fc82d930cc081824",
+        "emulator_command": [
+          "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+          "-avd",
+          "Pixel_10_Pro_XL",
+          "-port",
+          "5714",
+          "-read-only",
+          "-no-snapshot",
+          "-no-window",
+          "-no-audio",
+          "-no-metrics",
+          "-gpu",
+          "swiftshader_indirect",
+          "-memory",
+          "1536",
+          "-cores",
+          "2",
+          "-data",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackdelivery-api37-userdata.img"
+        ],
+        "scenarios": [
+          {
+            "scenario": "platform-callback-control",
+            "command": [
+              "C:\\Python312\\python.exe",
+              "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+              "--api",
+              "37",
+              "--serial",
+              "emulator-5714",
+              "--scenario",
+              "platform-callback-control"
+            ],
+            "exit": 0
+          }
+        ],
+        "profile_command": [
+          "C:\\Python312\\python.exe",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+          "--api",
+          "37",
+          "--expected-cpus",
+          "2"
+        ],
+        "profile_exit": 0,
+        "emulator_exit": 0,
+        "transport_exit": {
+          "serial": "emulator-5714",
+          "observations": 3,
+          "elapsed_ms": 266.0,
+          "absent": true
+        },
+        "removed_scratch_paths": [
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackdelivery-api37-userdata.img",
+          "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-callbackdelivery-api37-userdata.img.qcow2"
+        ]
+      }
+    }
+  },
+  "private_adb_server": {
+    "command": [
+      "C:\\android-sdk\\platform-tools\\adb.exe",
+      "-L",
+      "tcp:62493",
+      "--one-device",
+      "wp503-no-usb",
+      "server",
+      "nodaemon"
+    ],
+    "port": 62493,
+    "emulator_scan_max": 5553,
+    "usb_filter": "wp503-no-usb",
+    "mdns_autoconnect": [],
+    "shared5037_stop_or_restart": false,
+    "exit": 0,
+    "owned_port_closed": true,
+    "no_other_devices_attached": true
+  },
+  "qualification": "One distinct diagnostic invocation per fresh approved actual twoCPU API31/37, not a retry of preceding81 methods. Real manager/acknowledged flags/original1000ms windows and late-success rejection remain. Main heartbeat and public callbacks are observations, never readiness substitutes; callbacks' phase is the current phase at delivery, not a causal request attribution. The real Application initializes. No framework-only/OS-root-cause, stable-readiness, UI/decorRTL/glyph/48dp, physical TalkBack or full82 acceptance follows. Preserve all prior native/CI negatives, QR237/language238 and protected gates."
+}

@@ -1,11 +1,253 @@
 # WP-503 attempt evidence
 
-**Latest25e6aa2e new platform-only control:31 1PASS0.880s,37 1FAIL4.084s, one unique start/outcome each.37 actualfalse82 checks1000ms despite zero Activities/lifecycle events and no Compose rule/test dispatcher. All original80 fixtures/helpers/product bytes unchanged; expanded full81 not executed. QR237/language238, prior native/CI negatives and physical/matrix/golden/admission/review gates remain. PR205 draft, WP incomplete.**
+**Latest d2c73dd2 compatible82 inventory:31 81PASS/1FAIL;37 78PASS/4FAIL, zero errors/skips,82 distinct starts/outcomes per API. Launcher9 passes both; cold37, language238 and broad-context Nodes/offline-map negatives remain. Failed mixed82 counts and all historical failures are preserved. PR205 draft; native/producer/protected acceptance remains incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Process startup ordering and isolated inventory
+
+### Observed main work and the owned setup correction
+
+The real target Application is not an inert framework-only context. A separate
+callback/heartbeat control at **24d949cc7ba254b9efe959b3fc82d930cc081824**,
+Android tree **0ccee6554b67bfd2d93968f5bd031bb401f0d391**, records two actual
+touch callbacks on main per API.31 passes1/1 in0.784s, activation112ms and
+restoration232ms;37 passes1/1 in6.252s, activation960ms and restoration825ms.
+Actual heartbeat delays are110/222ms on31 and955/391/415ms on37.
+Callback phase is the current phase at delivery, not request attribution:
+both31 callbacks arrive while phase is restoration.
+[Exact source/APKs/outcomes](device-callbackdelivery-integration.json),
+[31 metrics](device-callbackdelivery-metrics-api31.txt),
+[37 metrics](device-callbackdelivery-metrics-api37.txt).
+
+The next distinct treatment at **426b166b06c9b93d0c3c6e152de56dfc5ebb0584**,
+Android tree **57b6b31b1703524156de893206c5092511879680**, adds at most one
+public Java stack/Looper.dump sample per phase when a heartbeat is pending100ms.
+Actual collection is1ms and counts against the unchanged1000ms window.
+31 passes1/1 in0.743s, activation79ms/restoration190ms.37 fails1/1 in4.421s:
+actualfalse90 checks1001ms, no heartbeat completes during that activation.
+Its105-106ms stack is Room type-converter validation under
+AndroidAppContainerFactory.create:88, with state and heartbeat messages overdue.
+The post-deadline stack is RoomPersistenceStore construction under factory:89.
+31's restoration sample instead observes AppState/AppContainer construction.
+These are observed application work and delivery delay, not a proven OS-only
+cause or explanation of every historical failure.
+[Exact source/APKs/outcomes](device-callbackstack-integration.json),
+[31 metrics](device-callbackstack-metrics-api31.txt),
+[37 metrics including public queue/stack](device-callbackstack-metrics-api37.txt).
+
+The existing launcher bodies already await the real Application.container
+Deferred, but only after requesting touch exploration. At
+**7f24b57c1ab06437435b8938d166a5254fec0894**, Android tree
+**e38e120db4f7a8596cc8b1a0c6150f7878de2d26**, DeviceAccessibilityHarness awaits
+that prerequisite on the instrumentation thread before feature/service setup.
+The real Application/factory is untouched; errors propagate. There is no
+sleep, synthetic-ready flag, Compose-clock advancement, extra CPU/resource
+profile or change to the original1000ms activation/restoration predicates.
+This is process-ready feature evidence, not startup-latency acceptance.
+
+| Unchanged original launcher9, once per fresh actual twoCPU device | API31 | API37 |
+|---|---|---|
+| Unique starts/matching outcomes |9/9;9PASS33.730s|9/9;9PASS96.941s|
+| Errors/skips |0/0|0/0|
+| Actual completed process prerequisites |9;0-2ms|9;0-1ms|
+| Original native service positive samples |14;max31ms|14;max576ms|
+| Owned transport absence after emulator exit0 |250ms|266ms|
+
+All startup observations in these focused runs are already completed. Thus
+the invariant is now explicit and current flows pass, but **no observed startup
+suspension or causal stabilization is proven**, and no earlier activation,
+restoration, actualIME or cold-control failure is erased.
+[Exact source/APKs/all identities](device-processready-integration.json),
+[31 raw](device-processready-api31.txt)/[metrics](device-processready-metrics-api31.txt),
+[37 raw](device-processready-api37.txt)/[metrics](device-processready-metrics-api37.txt),
+[lifecycle](device-processready-operation-observations.txt).
+
+### Failed mixed namespace and compatible cohort assembly
+
+The first whole-package82 run at that same7f source/APKs discovers every method:
+
+| Actual mixed82 invocation | API31 | API37 |
+|---|---|---|
+| Unique starts/matching outcomes |82/82;79PASS/3FAIL170.335s|82/82;78PASS/4FAIL319.726s|
+| Errors/skips |0/0|0/0|
+| Actual completed startup prerequisites |80|80|
+| Genuine language238 failure |12 collected named/selected checks, one failed method|Same|
+| New full-context Nodes failure |None|Favorite allocation128px/visible71px after public scroll, audit260|
+| Both no-Activity diagnostic guards |FAIL, retained lifecycle entries6|FAIL, retained lifecycle entries6|
+| Strict QR Copy case |PASS in this context only|PASS in this context only|
+| Raw JUnit expanded failure entries |14|15|
+
+The14/15 JUnit entries are3/4 distinct failing methods, not14/15 failed cases.
+The two diagnostic guards correctly reject mixed-context execution, rather than
+pretend no Activity had been involved. Neither is a product regression, and no
+guard is relaxed. The broad QR positive does not clear the genuine isolated31
+84x31dp failure atc24f9ae1. The additional37 Nodes failure remains a real strict
+full-context observation, not a reason to lower the allocation/viewport oracle.
+[Exact82 identities/outcomes](device-processreadyfull-integration.json),
+[31 raw](device-processreadyfull-api31.txt)/[metrics](device-processreadyfull-metrics-api31.txt),
+[37 raw](device-processreadyfull-api37.txt)/[metrics](device-processreadyfull-metrics-api37.txt).
+
+The runner now rejects the former `--scenario full` with explicit exit2 before
+adb/native execution: **blocked assembly, not zero-test success**. The full
+inventory remains82: `feature-matrix` selects80 with explicit `notClass`
+exclusion of only the two independent classes, each separately required1 on its
+own fresh owned profile/process. The actual corrected-cohort candidate is
+**d2c73dd2f855bd038a82e904bce7f481285cbd84**, Android tree
+**1b5ecdae3d545fd3aaedddf255e84010f1940e38**. No method body, state/visibility/
+font/48dp assertion, service window, product/build/lock byte or source pin changes
+in this assembly correction. Its actual cohort records are retained separately;
+no prior-source standalone control is borrowed to manufacture82-case acceptance.
+
+### Exact compatible82 inventory outcomes
+
+| d2c73dd2, one invocation per fresh compatible cohort/API | Actual API31 | Actual API37 |
+|---|---|---|
+| Feature80 starts/matching outcomes |80/80;79PASS/1FAIL165.028s|80/80;77PASS/3FAIL300.260s|
+| Actual startup-ready observations |80;0-5ms|80;0-18ms|
+| Original service-ready samples in feature context |14;max22ms|14;max639ms|
+| Cold platform1, zero initial Activities/events |1/1;1PASS0.779s|1/1;1FAIL4.886s|
+| Cold platform activation/restoration |0/12ms, actual true then false|actualfalse91 checks1001ms;alreadyfalse0ms restoration|
+| Cold callback1, zero initial Activities/events |1/1;1PASS0.978s|1/1;1PASS4.329s|
+| Callback actual activation/restoration |315/11ms|634/895ms;heartbeat630/878ms|
+| Reconciled distinct starts/matching outcomes |82/82;81PASS/1FAIL|82/82;78PASS/4FAIL|
+| Errors/skips in every cohort |0/0|0/0|
+
+This is82 per API across three invocations, **not** a single82 run. Every
+identity occurs once at the same executed head/Android tree/App APK/test APK;
+[reconciliation](device-isolatedmatrix-reconciliation.json) verifies the exact
+set, uniqueness, counts and inputs. The two cold isolation guards now pass;
+the failed mixed-context invocations remain above.
+
+The feature80 failures are
+`NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions`
+on both APIs; on37 also
+`NativeNodesFlowAccessibilityTest.actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable`
+and
+`NativeOfflineMapAccessibilityTest.emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion`.
+The Nodes target is missing at audit257 after the original public scroll,
+not the previous mixed-context128/71px failure at260. The map target after
+typed disk-error dismissal has bounds(46,449)-(314,503), viewport
+(46,291)-(314,475), so28px extends below the actual viewport; native audit90/216
+retains full48dp/containment. No keyboard dismissal, extra scroll, assertion
+relaxation or native-case edit is added to manufacture a pass.
+
+37's fresh platform control independently preserves the original1000ms
+failure; its restoration0ms matches an alreadyfalse client rather than
+observing a true-to-false transition. The separate callback positive does not
+clear it: main is still constructing AppChatContent/NativeLinkMetadataFetching
+at104-160ms and AppContainer/ConnectionManager at231-240ms of restoration.
+Those public collections take56/9ms in this invocation and count against the
+same original windows; observer cost is not silently excluded.
+There is no Activity lifecycle event, Compose rule or test dispatcher in either
+cold cohort. No physical TalkBack service is activated/observed.
+
+[Feature exact inputs/all80 outcomes](device-matrixfeatures-integration.json),
+[31 raw](device-matrixfeatures-api31.txt)/[metrics](device-matrixfeatures-metrics-api31.txt),
+[37 raw](device-matrixfeatures-api37.txt)/[metrics](device-matrixfeatures-metrics-api37.txt).
+[Cold platform exact inputs/outcomes](device-matrixplatform-integration.json),
+[31 raw](device-matrixplatform-api31.txt)/[37 raw](device-matrixplatform-api37.txt).
+[Callback exact inputs/outcomes](device-matrixcallbacks-integration.json),
+[31 raw](device-matrixcallbacks-api31.txt)/[37 raw](device-matrixcallbacks-api37.txt).
+
+Exact existing isolated commands, `$F` being this session's `files` directory;
+each `--both-apis` adapter run serializes31 then37 on owned5714 with a responsive
+private adb server and fresh images, never the shared5037 endpoint:
+
+```powershell
+python "$F\wp503-messaging-check.py"
+python "$F\wp503-private-adb-native31.py" --phase matrixfeatures --head d2c73dd2f855bd038a82e904bce7f481285cbd84 --both-apis --scenario feature-matrix
+python "$F\wp503-processready-evidence.py" --phase matrixfeatures --head d2c73dd2f855bd038a82e904bce7f481285cbd84
+python "$F\wp503-private-adb-native31.py" --phase matrixplatform --head d2c73dd2f855bd038a82e904bce7f481285cbd84 --both-apis --scenario platform-service-control
+python "$F\wp503-processready-evidence.py" --phase matrixplatform --head d2c73dd2f855bd038a82e904bce7f481285cbd84
+python "$F\wp503-private-adb-native31.py" --phase matrixcallbacks --head d2c73dd2f855bd038a82e904bce7f481285cbd84 --both-apis --scenario platform-callback-control
+python "$F\wp503-processready-evidence.py" --phase matrixcallbacks --head d2c73dd2f855bd038a82e904bce7f481285cbd84
+python "$F\wp503-reconcile-native-cohorts.py"
+```
+
+Results: builder/preflight/APK/result validation exit0, six JVM families74
+PASS with zero failures/errors/skips (cache reuse is not74 fresh uncached
+executions). Native feature/platform adapter exit1 retains actual failures;
+callback exit0. All three native record generators and exact82 reconciliation
+exit0, verifying discovery/identity/source/APK/clock/profile/cleanup integrity,
+**not** overriding the native failures. Six owned emulator processes exit0 and
+all six owned transports are observed absent in265-266ms; all three private adb
+processes exit0/ports closed, shared5037/other devices untouched. The cleanup
+unit8 remains PASS; the historical immediate-empty assertion failure remains.
+
+### Fresh-context original Nodes7 and offline-map3 comparisons
+
+One invocation per API/class selection, same d2c73dd2/tree/APKs/profile as
+the82 inventory, fresh owned device/process each:
+
+| Strict original class selection | Actual API31 | Actual API37 |
+|---|---|---|
+| Nodes7 starts/matching outcomes |7/7;6PASS/1FAIL14.217s|7/7;6PASS/1FAIL55.942s|
+| Actual completed startup prerequisites |7;0-4ms|7;0-3ms|
+| Exact failure |QR enabled Copy84x31dp, assertions155/audit172|Favorite128px allocated/71px visible, audit260|
+| Offline-map3 starts/matching outcomes |3/3;3PASS12.734s|3/3;3PASS42.886s|
+| Actual completed startup prerequisites |3;0-2ms|3;0-1ms|
+| Errors/skips in both selections |0/0|0/0|
+
+The Nodes37 search/sort/favorite failure therefore reproduces in a fresh7
+context, not just the failed mixed82 or compatible80 package.31's original237
+Copy failure also survives process-ready setup; its broad-context positives
+are not a clearance. The native map3 positive on both APIs qualifies its
+new broad-context37 negative as context-sensitive, not erased or proven a
+particular product/harness cause. The actual OfflineMapsPanel is an in-Activity
+Card/LazyColumn; typed-error AlertDialogs alone use the separate dialog host.
+No foreign-window substitution, automatic keyboard dismissal, extra scroll,
+test case/fixture/assertion edit, floor change or retry-until-green is added.
+
+These7+3 are already in the82 inventory, so are explicitly separate context
+comparisons, **not20 additional unique identities or a replacement for failed
+cohort outcomes**. All original state/coordinate/favorite/clipboard/chooser and
+typed-disk/network/trimmed-name/exact-backend assertions remain.
+[Nodes exact inputs/all7 identities](device-processreadynodes-integration.json),
+[31 raw](device-processreadynodes-api31.txt)/[metrics](device-processreadynodes-metrics-api31.txt),
+[37 raw](device-processreadynodes-api37.txt)/[metrics](device-processreadynodes-metrics-api37.txt).
+[Map exact inputs/all3 identities](device-processreadymaps-integration.json),
+[31 raw](device-processreadymaps-api31.txt)/[metrics](device-processreadymaps-metrics-api31.txt),
+[37 raw](device-processreadymaps-api37.txt)/[metrics](device-processreadymaps-metrics-api37.txt).
+
+```powershell
+python "$F\wp503-private-adb-native31.py" --phase processreadynodes --head d2c73dd2f855bd038a82e904bce7f481285cbd84 --both-apis --scenario nodes
+python "$F\wp503-processready-evidence.py" --phase processreadynodes --head d2c73dd2f855bd038a82e904bce7f481285cbd84
+python "$F\wp503-private-adb-native31.py" --phase processreadymaps --head d2c73dd2f855bd038a82e904bce7f481285cbd84 --both-apis --scenario offline-map
+python "$F\wp503-processready-evidence.py" --phase processreadymaps --head d2c73dd2f855bd038a82e904bce7f481285cbd84
+```
+
+Nodes adapter exit1, map adapter exit0; both evidence-integrity commands exit0.
+Four owned emulator processes exit0 and transports disappear265-266ms;
+both private servers exit0/ports closed and eight exact scratch paths removed.
+The real original237/238, cold readiness, new Nodes and context-sensitive map
+findings require their actual owning repair/readiness acceptance; no production
+edits, new workers, merge/self-approval or whole-WP completion.
+
+| Actual rebuilt input |24d949cc bytes / SHA256|426b166b bytes / SHA256|7f24b57c and d2c73dd2 bytes / SHA256|
+|---|---|---|---|
+| App APK, unchanged product |109723777 / `6f39299768bd62b583904c703ff9b8f6d687d3c769056c2017ace25f00d99734`|Same|Same|
+| Test APK |3449087 / `472b5d1600f90c89af157b3ea62240a2c6d9f26e7f8681f5b74845f94eec1408`|3451779 / `9692e75a38fe077b012b86c1049f5d4d70f30ec8dabcd5d56baf09ae958e8c7f`|3453699 / `0e88f7f279cd2dd7d2105804ff7806be77156162bb90ad9dbaaf6df56ab9b060`|
+
+Existing isolated preflight/APK tasks and74 JVM results validate at each
+compiled source, with zero failures/errors/skips. An initial ea59014 diagnostic
+compile fails because the explicit-Handler public listener overload returns
+Unit, not Boolean;24d949cc fixes that typed contract before any native run.
+No native acceptance is attributed to the failed compile. The UTF-8 native
+evidence reader is corrected for real CJK logs; raw bytes are copied unchanged.
+
+`python -m unittest discover -s android\accessibility-tests -p test_native_device_cleanup.py -v`
+has8/8PASS; `python tools\android-port\controller\validate.py` and
+`python tools\android-port\portmap.py` PASS. Reproducible hosted predecessor
+[39205783488](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39205783488)
+is independently verifiedSUCCESS/all6 only at2d354b1a, not transferred to a
+successor. Hosted log/run remain the sole CI authority; no duplicate bundle.
+All native/CI negatives, producer repairs, physical TalkBack/radio, remaining
+matrix, WP502goldens, WP-specific admission and independent review remain
+qualified and unaccepted. No merge, self-approval, issue closure or full-WP claim.
 
 ## Activity/Compose-rule-free native control
 

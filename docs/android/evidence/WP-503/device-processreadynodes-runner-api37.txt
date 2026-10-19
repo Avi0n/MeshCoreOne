@@ -1,0 +1,39 @@
+WP503_EXECUTED_INPUT|d2c73dd2f855bd038a82e904bce7f481285cbd84
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "d2c73dd2f855bd038a82e904bce7f481285cbd84", "scenario": "nodes", "discovered": 7, "statuses": {"0": 6, "-2": 1}, "time": ["Time: 55.942"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest', 'actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable')|-2
+US: test=offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 55.942
+There was 1 failure:
+1) actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable(com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest)
+java.lang.AssertionError: expected:<128.0> but was:<71.0>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:577)
+	at org.junit.Assert.assertEquals(Assert.java:701)
+	at com.meshcoreone.android.accessibility.NodesAccessibilityAudit.actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable(NodesAccessibilityAudit.kt:260)
+	at com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable(NativeNodesFlowAccessibilityTest.kt:68)
+
+FAILURES!!!
+Tests run: 7,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
+

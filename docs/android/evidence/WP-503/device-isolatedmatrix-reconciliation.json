@@ -1,0 +1,79 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "generated_by": "session wp503-reconcile-native-cohorts.py from actual per-cohort native records",
+  "executed_combined_head": "d2c73dd2f855bd038a82e904bce7f481285cbd84",
+  "executed_android_tree": "1b5ecdae3d545fd3aaedddf255e84010f1940e38",
+  "apk_binding": "device-matrixfeatures-inputs.json",
+  "cohorts": {
+    "matrixfeatures": "device-matrixfeatures-integration.json",
+    "matrixplatform": "device-matrixplatform-integration.json",
+    "matrixcallbacks": "device-matrixcallbacks-integration.json"
+  },
+  "distinct_declared_case_inventory": 82,
+  "fresh_devices_per_api": 3,
+  "same_context_82_case_namespace_used": false,
+  "native_results": {
+    "31": {
+      "distinct_starts_and_matching_outcomes": 82,
+      "passed": 81,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "cohort_seconds": {
+        "matrixfeatures": 165.028,
+        "matrixplatform": 0.779,
+        "matrixcallbacks": 0.978
+      },
+      "sum_of_separate_cohort_junit_seconds_not_one_invocation": 166.785,
+      "nonpassing_outcomes": [
+        {
+          "cohort": "matrixfeatures",
+          "class": "com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest",
+          "test": "actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+          "status": -2
+        }
+      ]
+    },
+    "37": {
+      "distinct_starts_and_matching_outcomes": 82,
+      "passed": 78,
+      "failed": 4,
+      "errors": 0,
+      "skipped": 0,
+      "cohort_seconds": {
+        "matrixfeatures": 300.26,
+        "matrixplatform": 4.886,
+        "matrixcallbacks": 4.329
+      },
+      "sum_of_separate_cohort_junit_seconds_not_one_invocation": 309.47499999999997,
+      "nonpassing_outcomes": [
+        {
+          "cohort": "matrixfeatures",
+          "class": "com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest",
+          "test": "actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+          "status": -2
+        },
+        {
+          "cohort": "matrixfeatures",
+          "class": "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest",
+          "test": "actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable",
+          "status": -2
+        },
+        {
+          "cohort": "matrixfeatures",
+          "class": "com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest",
+          "test": "emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion",
+          "status": -2
+        },
+        {
+          "cohort": "matrixplatform",
+          "class": "com.meshcoreone.android.accessibility.NativePlatformServiceControlTest",
+          "test": "actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule",
+          "status": -2
+        }
+      ]
+    }
+  },
+  "qualification": "Exactly80+1+1 distinct unchanged methods per API, same source/Android tree/app/testAPK, three fresh owned device/process cohorts. No prior-source control substituted, no duplicated/dropped case, no mixed-context isolation guard relaxed and no original1000ms service window extended. Native failures remain failures. Process-ready feature positives do not clear cold-start activation, earlier native/CI negatives, isolated QR237, language238 or other producer findings. No physical TalkBack/radio, approved screenshot golden, whole matrix, admission or independent review acceptance, merge or self-approval follows."
+}
