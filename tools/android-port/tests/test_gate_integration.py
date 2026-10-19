@@ -131,15 +131,21 @@ class StagingTests(unittest.TestCase):
         with patch("controller.staging.MAX_STAGE_BYTES", 1), self.assertRaisesRegex(PortError, "never truncate"):
             stage_review(REPO, "WP-003", head, head)
 
-    def test_missing_cli_and_self_approval_are_blocked_not_reviewer_readiness(self):
+    def test_authenticated_author_coordinator_is_ready_but_name_alone_is_not_authority(self):
         rules = policy()
         for arguments in ({}, {"author": "cbattlegear", "independent_human_reviewer": "cbattlegear"},
                           {"author": "cbattlegear", "independent_human_reviewer": "unregistered"}):
             with self.subTest(arguments=arguments), self.assertRaises(PortError):
                 require_reviewer(rules, **arguments)
         self.assertTrue(require_reviewer(rules, cli_authenticated=True))
-        rules["maintainers"].append("fixture-independent-maintainer")
-        self.assertTrue(require_reviewer(rules, author="cbattlegear", independent_human_reviewer="fixture-independent-maintainer"))
+        self.assertTrue(require_reviewer(rules, author="cbattlegear", coordinator="cbattlegear",
+                                         coordinator_authenticated=True))
+        self.assertTrue(require_reviewer(rules, author="cbattlegear", independent_human_reviewer="cbattlegear",
+                                         coordinator_authenticated=True))
+        with self.assertRaises(PortError):
+            require_reviewer(rules, coordinator="unregistered", coordinator_authenticated=True)
+        with self.assertRaises(PortError):
+            require_reviewer(rules, coordinator="cbattlegear", coordinator_authenticated="true")
 
     def test_committed_runtime_switches_credentials_and_foundation_import_remain_blocked(self):
         from controller.schema import load_json
@@ -153,7 +159,9 @@ class StagingTests(unittest.TestCase):
         result = capabilities(rules)
         self.assertEqual(result["state"], "BLOCKED")
         self.assertFalse(result["authoritative"])
-        self.assertTrue(any("Sole maintainer" in reason for reason in result["blockers"]))
+        self.assertFalse(any("Sole maintainer" in reason for reason in result["blockers"]))
+        self.assertTrue(any("publisher" in reason for reason in result["blockers"]))
+        self.assertTrue(any("activation" in reason for reason in result["blockers"]))
 
 
 class HistoricalTests(unittest.TestCase):

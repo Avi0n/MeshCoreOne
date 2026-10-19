@@ -24,7 +24,7 @@ Those pure fixtures are not the server-fact reader or approval. Before a live
 migration, a separately authenticated trusted default-branch controller must
 obtain historical PR/merge/run/check facts and the original trusted policy/catalog,
 then independently revalidate the actual accepted behavior under the current
-protected semantics. A real independent human must approve the exact original
+protected semantics. A real authorized human must accept the exact original
 and current bindings and complete request digest. That approval authority and
 transition/ledger schema must be introduced by a separately protected amendment;
 candidate/model-written approval flags are rejected.
