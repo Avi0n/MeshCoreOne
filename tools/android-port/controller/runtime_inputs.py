@@ -15,11 +15,12 @@ from controller.model import SHA, git, tree
 CONTROLLER_MODULES = (
     "__init__", "apk_alignment", "authority", "backends", "capabilities", "ci", "ci_environment", "ci_evidence",
     "dispatch", "engine", "errors", "gate_runtime", "gates", "historical", "ledger", "model", "module_junit",
-    "paths", "performance", "publication", "provision", "render", "runtime_inputs", "schema", "scope_amendment", "settings",
+    "native_review", "paths", "performance", "publication", "provision", "render", "runtime_inputs", "schema", "scope_amendment", "settings",
     "staging", "test_runner", "validate", "verification_config", "workflows",
 )
 FIXED_INPUTS = (
     ".github/workflows/android-ci.yml", ".github/workflows/copilot-setup-steps.yml",
+    ".github/workflows/android-parity-review.yml",
     "tools/android-port/controller/toolchain-pins.json",
     "tools/android-port/controller/requirements-ci.txt",
     "tools/android-port/controller/gradle_windows.ps1",
@@ -45,6 +46,7 @@ FIXED_INPUTS = (
     "android/build-logic/gradle/verification-metadata.xml",
     "docs/android/evidence/WP-201/collect_evidence.py",
     "tools/android-port/tests/test_domain_room_evidence.py",
+    "tools/android-port/tests/test_native_review.py",
 )
 
 

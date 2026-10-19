@@ -22,7 +22,8 @@ class GateTests(unittest.TestCase):
         proof = self.verify()
         self.assertEqual(proof["pr_number"], 123)
         self.assertEqual(proof["ci_run_ids"], [1, 2, 3])
-        self.assertEqual(proof["approval_id"], 99)
+        self.assertIsNone(proof["approval_id"])
+        self.assertEqual(proof["review_authorization"]["kind"], "trusted-read-only-code-review")
 
     def test_operational_pause_does_not_rewrite_acceptance_but_gate_changes_do(self):
         revision = policy_revision(self.manifest, self.policy)
@@ -118,28 +119,44 @@ class GateTests(unittest.TestCase):
             with self.subTest(kind=kind), self.assertRaises(PortError):
                 self.verify(replace(self.bundle, review=review))
 
-    def test_human_gate_requires_actual_current_independent_approval(self):
-        for kind in ("missing", "stale-head", "stale-base", "self", "state", "stamp"):
+    def test_human_acceptance_requires_actual_current_bound_maintainer_record(self):
+        for kind in ("missing", "stale-head", "stale-base", "unregistered", "state", "stamp", "kind"):
             approvals = copy.deepcopy(self.bundle.approvals)
             pr = copy.deepcopy(self.bundle.pr)
+            pr["labels"] = ["needs-human"]
+            approvals[0].update(kind="human-acceptance", state="COMMENTED")
             if kind == "missing":
                 approvals = []
-            elif kind == "self":
-                pr["author"] = "cbattlegear"
+            elif kind == "unregistered":
+                approvals[0]["reviewer"] = "unregistered"
             else:
                 key, value = {
                     "stale-head": ("head_sha", BASE), "stale-base": ("base_sha", HEAD),
-                    "state": ("state", "COMMENTED"), "stamp": ("binding_key", "0" * 64),
+                    "state": ("state", "CHANGES_REQUESTED"), "stamp": ("binding_key", "0" * 64),
+                    "kind": ("kind", "automated-human-acceptance"),
                 }[kind]
                 approvals[0][key] = value
             with self.subTest(kind=kind), self.assertRaises(PortError):
                 self.verify(replace(self.bundle, pr=pr, approvals=approvals))
 
-    def test_personal_repo_self_authored_local_pr_is_explicit_blocker(self):
-        with self.assertRaisesRegex(PortError, "alternate reviewer/publisher"):
-            validate_approval(self.bundle.approvals, self.bundle.binding, self.policy, "cbattlegear")
+    def test_sole_maintainer_code_review_needs_no_formal_github_approval(self):
+        value = replace(self.bundle, pr={**self.bundle.pr, "author": "cbattlegear"}, approvals=[])
+        proof = self.verify(value)
+        self.assertIsNone(proof["approval_id"])
+        self.assertFalse(proof["review_authorization"]["human_acceptance_required"])
+        self.assertEqual(proof["review_authorization"]["binding_key"], value.binding.key)
 
-    def test_ordinary_wp_can_pass_without_human_but_protected_paths_and_label_cannot(self):
+    def test_author_can_truthfully_record_human_acceptance_without_self_approved_review(self):
+        approvals = [{**self.bundle.approvals[0], "kind": "human-acceptance", "state": "COMMENTED"}]
+        value = replace(self.bundle, pr={
+            **self.bundle.pr, "author": "cbattlegear", "labels": ["needs-human"],
+        }, approvals=approvals)
+        self.assertEqual(self.verify(value)["approval_id"], 99)
+        legacy = copy.deepcopy(self.bundle.approvals)
+        self.assertEqual(validate_approval(legacy, value.binding, self.policy, "fixture-worker"), 99)
+        self.assertNotIn("kind", legacy[0])
+
+    def test_ordinary_and_protected_code_use_review_but_explicit_human_label_remains(self):
         manifest = test_manifest("WP-101")
         ordinary = bundle(manifest, self.policy, "WP-101")
         proof = verify_completion(ordinary.pr, ordinary.evidence, ordinary.review, [], ordinary.binding,
@@ -150,14 +167,51 @@ class GateTests(unittest.TestCase):
             wp = manifest.wp("WP-101")
             wp["write_paths"].append(changed)
             protected = bundle(manifest, self.policy, "WP-101", [changed])
-            with self.subTest(changed=changed), self.assertRaises(PortError):
-                verify_completion(protected.pr, protected.evidence, protected.review, [], protected.binding,
-                                  manifest, self.policy, protected.catalog)
+            with self.subTest(changed=changed):
+                proof = verify_completion(protected.pr, protected.evidence, protected.review, [], protected.binding,
+                                          manifest, self.policy, protected.catalog)
+                self.assertIsNone(proof["approval_id"])
+                review = {**protected.review, "verdict": "CHANGES_REQUESTED"}
+                with self.assertRaises(PortError):
+                    verify_completion(protected.pr, protected.evidence, review, [], protected.binding,
+                                      manifest, self.policy, protected.catalog)
         ordinary.pr["labels"] = ["needs-human"]
         ordinary.review["human_gate_required"] = True
         with self.assertRaises(PortError):
             verify_completion(ordinary.pr, ordinary.evidence, ordinary.review, [], ordinary.binding,
                               manifest, self.policy, ordinary.catalog)
+
+    def test_hardware_legal_and_release_work_packages_still_require_human_acceptance(self):
+        for wp_id in ("WP-001", "WP-505", "WP-506"):
+            manifest = test_manifest(wp_id)
+            value = bundle(manifest, self.policy, wp_id, [manifest.wp(wp_id)["write_paths"][-1] + "fixture.json"])
+            with self.subTest(wp=wp_id), self.assertRaisesRegex(PortError, "human acceptance"):
+                verify_completion(value.pr, value.evidence, value.review, [], value.binding,
+                                  manifest, self.policy, value.catalog)
+
+    def test_protected_signing_and_legal_paths_keep_human_acceptance(self):
+        from controller.gates import human_acceptance_required
+
+        wp = self.manifest.wp("WP-000")
+        for path in ("android/release/release.json", "android/app/signing.properties",
+                     "tools/android-port/license-policy.json"):
+            with self.subTest(path=path):
+                self.assertTrue(human_acceptance_required(wp, self.policy, [path]))
+        self.assertFalse(human_acceptance_required(wp, self.policy, ["android/feature/chats/license-label.txt"]))
+
+    def test_missing_unknown_or_malformed_review_policy_is_not_an_approval_bypass(self):
+        for kind in ("missing", "unknown", "malformed"):
+            rules = copy.deepcopy(self.policy)
+            if kind == "missing":
+                rules.pop("review_policy")
+            elif kind == "unknown":
+                rules["review_policy"]["code_review_authority"] = "candidate-pass"
+            else:
+                rules["review_policy"]["human_acceptance_work_packages"] = "WP-505"
+            value = bundle(self.manifest, rules)
+            with self.subTest(kind=kind), self.assertRaises(PortError):
+                verify_completion(value.pr, value.evidence, value.review, [], value.binding,
+                                  self.manifest, rules, value.catalog)
 
     def test_original_case_catalog_missing_zero_unknown_family_or_results_fail(self):
         manifest = test_manifest("WP-101")

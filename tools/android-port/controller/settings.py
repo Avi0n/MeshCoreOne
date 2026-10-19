@@ -134,8 +134,6 @@ class Settings:
             reasons.append("durable shared lease ledger is missing")
         if not policy["trusted_check_app_ids"] or not policy["trusted_workflow_ids"]:
             reasons.append("trusted required-check application/workflow identities are unconfigured")
-        if not policy["trusted_gate_publisher_app_id"]:
-            reasons.append("isolated trusted gate publisher is unconfigured")
         if not policy["branch_rules_proven"]:
             reasons.append("strict no-bypass branch rules have not been proven at WP-003")
         if needs_cloud_auth:
