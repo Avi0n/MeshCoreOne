@@ -14,6 +14,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -456,6 +458,7 @@ private fun AddContactDialog(
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 internal fun ContactShareDialog(
     holder: ContactQrShareStateHolder,
     onDismiss: () -> Unit,
@@ -478,16 +481,11 @@ internal fun ContactShareDialog(
                 )
             }) { Text(stringResource(C.contactsDetailShareContact)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(C.contactsCommonDone)) } },
-        title = { Text(holder.contactName) },
-        text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
+        dismissButton = {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                ContactQrCode(holder.qrSpec, holder.contactName)
-                Text(holder.publicKeyText, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
                 TextButton(
                     modifier = Modifier.heightIn(min = 48.dp),
                     enabled = !copied,
@@ -497,6 +495,18 @@ internal fun ContactShareDialog(
                         clipboard.setPrimaryClip(ClipData.newPlainText(holder.contactName, text))
                     },
                 ) { Text(if (copied) stringResource(C.contactsQrCopied) else stringResource(C.contactsQrCopy)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(C.contactsCommonDone)) }
+            }
+        },
+        title = { Text(holder.contactName) },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ContactQrCode(holder.qrSpec, holder.contactName)
+                Text(holder.publicKeyText, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
             }
         },
     )

@@ -1,6 +1,7 @@
 // AndroidOnly: WP-311 Native coverage of discovery add/clear, coalesced reloads and blocked-contact loading.
 package com.meshcoreone.android.feature.nodes.discovery
 
+import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.feature.nodes.contacts.BlockedContactsStateHolder
 import com.meshcoreone.android.feature.nodes.deps.NodesContactFailure
@@ -31,6 +32,74 @@ class DiscoveryNativeTest {
         assertEquals(listOf("add:Relay"), harness.contactService.calls)
         assertTrue(holder.isAdded(relay))
         assertNull(holder.state.value.addingNodeId)
+    }
+
+    @Test
+    fun `every non-ready connection rejects add without using even a retained service`() = scenario {
+        val harness = Harness(clock).connect()
+        val radio = checkNotNull(harness.session.radioId)
+        val relay = node(radioId = radio, name = "Cached")
+        harness.store.discovered += relay
+        val holder = DiscoveryStateHolder(harness.dependencies, scope)
+        holder.loadDiscoveredNodes()
+        for (state in DeviceConnectionState.entries.filterNot { it == DeviceConnectionState.READY }) {
+            harness.session.state = state
+            holder.clearError()
+            holder.addNode(relay)
+            assertEquals(
+                NodesMessage.res(R.string.l10n_app_contacts_contacts_add_error_notconnected),
+                holder.state.value.errorMessage,
+                "State $state must explain why Add cannot run",
+            )
+            assertNull(holder.state.value.addingNodeId)
+            assertEquals(listOf(relay), holder.state.value.discoveredNodes)
+            assertFalse(holder.isAdded(relay))
+            assertTrue(harness.contactService.calls.isEmpty())
+        }
+    }
+
+    @Test
+    fun `ready connection without a contact service reports recovery then adds after service returns`() = scenario {
+        val harness = Harness(clock).connect()
+        val radio = checkNotNull(harness.session.radioId)
+        val relay = node(radioId = radio, name = "Cached")
+        harness.store.discovered += relay
+        val holder = DiscoveryStateHolder(harness.dependencies, scope)
+        holder.loadDiscoveredNodes()
+        harness.session.contacts = null
+        holder.addNode(relay)
+        assertEquals(
+            NodesMessage.res(R.string.l10n_app_contacts_contacts_add_error_notconnected),
+            holder.state.value.errorMessage,
+        )
+        assertNull(holder.state.value.addingNodeId)
+        assertTrue(harness.contactService.calls.isEmpty())
+        harness.session.contacts = harness.contactService
+        holder.addNode(relay)
+        assertEquals(listOf("add:Cached"), harness.contactService.calls)
+        assertTrue(holder.isAdded(relay))
+        assertNull(holder.state.value.errorMessage)
+    }
+
+    @Test
+    fun `offline remove and clear remain persistence actions without radio calls`() = scenario {
+        val harness = Harness(clock).connect()
+        val radio = checkNotNull(harness.session.radioId)
+        val first = node(radioId = radio, name = "First")
+        val second = node(radioId = radio, name = "Second")
+        harness.store.discovered += listOf(first, second)
+        harness.session.state = DeviceConnectionState.DISCONNECTED
+        harness.session.device = null
+        harness.session.contacts = null
+        val holder = DiscoveryStateHolder(harness.dependencies, scope)
+        holder.loadDiscoveredNodes()
+        holder.deleteDiscoveredNode(first)
+        assertEquals(listOf(second), holder.state.value.visibleNodes)
+        assertEquals(listOf(second), harness.store.discovered)
+        assertTrue(holder.clearAllDiscoveredNodes())
+        assertTrue(holder.state.value.visibleNodes.isEmpty())
+        assertTrue(harness.store.discovered.isEmpty())
+        assertTrue(harness.contactService.calls.isEmpty())
     }
 
     @Test
