@@ -190,7 +190,7 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
                         val cause = assertNotNull(actual.cause)
                         // Coroutine recovery may copy a standard exception, retaining its exact original as cause.
                         assertTrue(cause === originalFailure || cause.cause === originalFailure)
-                        assertEquals(originalFailure.javaClass, cause.javaClass)
+                        assertTrue(originalFailure.javaClass == cause.javaClass)
                         assertEquals(originalFailure.message, cause.message)
                     }
                     assertEquals(listOf(if (reach.sendsFlood) Bytes.of(7, 1) else Bytes.of(7)),

@@ -118,6 +118,10 @@ The correction asserts direct identity or that exact original recovery cause,
 and unchanged runtime type/message; the actual App-received outer failure is
 still preserved. Typed advert/session payload and cancellation semantics are
 not replaced by matching text, and neither failure is relabeled as passed.
+At `315085ae9`, preflight passes but the App unit-test compile rejects generic
+`assertEquals` inference between exception Class bounds (20s); no App test
+discovery/pass is credited. Direct Class equality fixes only that assertion's
+type inference, without casts or changed expectations.
 
 The exact successor's declared regression result must be recorded in PR206;
 prior458/62 native observations remain historical. No new device observation,
