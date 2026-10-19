@@ -4,8 +4,19 @@ The existing App AndroidJUnitRunner hosts the native accessibility fixtures.
 The declared session `wp503-prepare-native.py` and `wp503-run-native.py` entries
 retain API31/37, font200, actual guest CPU verification, positive discovery and
 the existing 300s boot/600s instrumentation limits. `--scenario launcher` expects
-nine distinct starts and matching terminal outcomes; `--scenario full` expects80.
+nine distinct starts and matching terminal outcomes; `--scenario full` now expects81.
 Do not retry failed cases until green or reduce these counts.
+
+`--scenario platform-service-control` selects one new
+`NativePlatformServiceControlTest` method. Unlike the preceding service control,
+it has no Activity/Compose rule or test dispatcher. It verifies zero initial
+Activities and observes lifecycle callbacks throughout the control. Actual
+manager state, acknowledged flags, original1000ms activation/restoration windows,
+late-success rejection and public snapshots remain. The original80 test bodies,
+helpers and assertions are unchanged. This isolates another harness confound;
+a passing control cannot clear historical feature failures or prove their cause.
+The expanded full81 inventory requires a new full invocation before any full81
+acceptance claim.
 
 `NativeLauncherFocusAccessibilityTest` samples AccessibilityManager state through
 the actual main looper, where Android applies its binder-delivered state updates.
