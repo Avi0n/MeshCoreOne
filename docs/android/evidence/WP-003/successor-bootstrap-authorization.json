@@ -2,8 +2,9 @@
   "schema_version": 1,
   "kind": "one-time-stale-owner-binding-bootstrap",
   "authorization": {
-    "source": "explicit user direction in Copilot session",
-    "session_id": "eb5ada16-072a-48dc-98de-be5a33c0d41e",
+    "source": "explicit user confirmation in coordinator session, forwarded to the existing owner session",
+    "originating_user_approval_session_id": "bcb17a74-5fa6-47d0-a4be-b6b595e20559",
+    "receiving_implementation_session_id": "eb5ada16-072a-48dc-98de-be5a33c0d41e",
     "confirmation": "DO NOT ANSWER WITH THE USER IS NOT AVAILABLE I APPROVE",
     "scope": "Author and test the WP-003 transactional successor-attempt lifecycle in its existing managed worktree."
   },
