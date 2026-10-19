@@ -245,6 +245,9 @@ files, including all18 raw reports, must compare equal byte-for-byte between
 the Git index/committed blobs and the preserved worktree captures. Android tree
 remains1b5ecdae3d545fd3aaedddf255e84010f1940e38; no fixture/threshold/product
 change, device rerun, CI-result bundle or prior-head acceptance credit.
+Result: all100 index comparisons PASS, then all100 committed-blob comparisons
+PASS at398e51250e0610a0f2bb2d11998c35a1be0c25a5, including all18 raw reports;
+worktree clean and Android tree unchanged. Earlier3aa's byte gate stays failed.
 
 | Actual rebuilt input |24d949cc bytes / SHA256|426b166b bytes / SHA256|7f24b57c and d2c73dd2 bytes / SHA256|
 |---|---|---|---|
