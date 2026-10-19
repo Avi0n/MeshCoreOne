@@ -1,6 +1,10 @@
 // AndroidOnly: WP-311 Native API31/37 Compose semantics and narrow-window regressions.
 package com.meshcoreone.android.feature.nodes.ui
 
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +13,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalDensity
@@ -17,6 +24,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -25,11 +33,15 @@ import com.meshcoreone.android.core.l10n.generated.AppContactsStrings as C
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.feature.nodes.NodesNavigation
+import com.meshcoreone.android.feature.nodes.share.ContactQrShareStateHolder
 import com.meshcoreone.android.feature.nodes.support.Fixtures
 import com.meshcoreone.android.feature.nodes.support.Harness
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -40,6 +52,7 @@ import org.robolectric.Shadows
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowDialog
 import java.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
@@ -61,6 +74,16 @@ class DiscoveryUiApi31ComposeTest : NodesScreensComposeTestBase.DiscoveryScreenC
 @Config(sdk = [37], qualifiers = "w360dp-h900dp-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class DiscoveryUiApi37ComposeTest : NodesScreensComposeTestBase.DiscoveryScreenComposeTestBase()
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [31], qualifiers = "w360dp-h900dp-mdpi")
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+class ContactShareApi31ComposeTest : NodesScreensComposeTestBase.ContactShareComposeTestBase()
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [37], qualifiers = "w360dp-h900dp-mdpi")
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+class ContactShareApi37ComposeTest : NodesScreensComposeTestBase.ContactShareComposeTestBase()
 
 abstract class NodesScreensComposeTestBase {
     protected lateinit var controller: ActivityController<ComponentActivity>
@@ -111,7 +134,7 @@ abstract class NodesScreensComposeTestBase {
             assertNotNull(scroll, "A scroll action must remain available to reveal $label")
             controller.get().runOnUiThread { lastScrollResult = scroll.invoke(0f, 600f) }
         }
-        val root = findComposeView(controller.get().window.decorView)
+        val root = findComposeView(rootView())
         val scrollState = allSemanticsNodes()
             .filter { it.config.contains(SemanticsProperties.VerticalScrollAxisRange) }
             .mapNotNull { it.config.getOrElseNullable(SemanticsProperties.VerticalScrollAxisRange) { null } }
@@ -148,7 +171,7 @@ abstract class NodesScreensComposeTestBase {
         )
     }
 
-    private fun actionNode(label: String): SemanticsNode? =
+    protected fun actionNode(label: String): SemanticsNode? =
         allSemanticsNodes().firstOrNull { node ->
             node.config.contains(SemanticsActions.OnClick) && nodeText(node).any { it == label }
         }
@@ -157,7 +180,7 @@ abstract class NodesScreensComposeTestBase {
         node.config.getOrElse(SemanticsProperties.Text) { emptyList() }.map { it.text }
 
     protected fun allSemanticsNodes(): List<SemanticsNode> {
-        val view = findComposeView(controller.get().window.decorView)
+        val view = findComposeView(rootView())
         val owner = view.javaClass.getMethod("getSemanticsOwner").invoke(view) as SemanticsOwner
         val result = mutableListOf<SemanticsNode>()
         fun visit(node: SemanticsNode) {
@@ -184,7 +207,7 @@ abstract class NodesScreensComposeTestBase {
     }
 
     protected fun isDisplayed(node: SemanticsNode): Boolean {
-        val root = findComposeView(controller.get().window.decorView)
+        val root = findComposeView(rootView())
         val bounds: Rect = node.boundsInRoot
         return bounds.width > 0f && bounds.height > 0f &&
             bounds.right > 0f && bounds.bottom > 0f &&
@@ -193,7 +216,9 @@ abstract class NodesScreensComposeTestBase {
 
     protected fun currentDensity() = controller.get().resources.displayMetrics.density
 
-    private fun advanceFrames() {
+    protected open fun rootView(): View = controller.get().window.decorView
+
+    protected fun advanceFrames() {
         controller.get().runOnUiThread { Snapshot.sendApplyNotifications() }
         idleMainLooper()
     }
@@ -291,6 +316,89 @@ abstract class NodesScreensComposeTestBase {
                 assertTrue(isDisplayed(action), "$label must remain visible at 200% font scale")
                 assertTrue(action.boundsInRoot.height / currentDensity() >= 48f, "$label must retain a 48dp target")
             }
+        }
+    }
+
+    abstract class ContactShareComposeTestBase : NodesScreensComposeTestBase() {
+        override fun rootView(): View = checkNotNull(ShadowDialog.getLatestDialog().window).decorView
+
+        @Test
+        fun qrCopyKeepsFullTextTargetFeedbackClipboardChooserAndDismissal() {
+            val context = controller.get()
+            val configuration = Configuration(context.resources.configuration).apply {
+                fontScale = 2f
+                setLayoutDirection(java.util.Locale.forLanguageTag("ar"))
+            }
+            @Suppress("DEPRECATION")
+            context.resources.updateConfiguration(configuration, context.resources.displayMetrics)
+            val harness = Harness()
+            val key = Fixtures.repeated(0xAB)
+            val showing = mutableStateOf(true)
+            lateinit var holder: ContactQrShareStateHolder
+            mount {
+                val scope = rememberCoroutineScope()
+                if (showing.value) {
+                    holder = remember {
+                        ContactQrShareStateHolder("Offline relay", key, ContactType.REPEATER, harness.dependencies, scope)
+                    }
+                    ContactShareDialog(holder) { showing.value = false }
+                }
+            }
+            val copy = scrollToAction(context.getString(C.contactsQrCopy))
+            assertEquals(2f, context.resources.configuration.fontScale)
+            assertEquals(View.LAYOUT_DIRECTION_RTL, context.resources.configuration.layoutDirection)
+            assertTrue(
+                allSemanticsNodes().any { it.config.contains(SemanticsActions.ScrollBy) },
+                "QR content must expose non-gesture scroll recovery when the window is constrained",
+            )
+            assertTrue(copy.boundsInRoot.height / currentDensity() >= 48f, "Copy must retain a 48dp height: ${copy.boundsInRoot}")
+            assertTrue(copy.boundsInRoot.width / currentDensity() >= 48f, "Copy must retain a 48dp width: ${copy.boundsInRoot}")
+            assertTrue(copy.boundsInRoot.top >= 0f && copy.boundsInRoot.bottom <= rootView().height)
+            assertTrue(copy.boundsInRoot.left >= 0f && copy.boundsInRoot.right <= rootView().width)
+            val layouts = mutableListOf<TextLayoutResult>()
+            val textLayout = copy.config.getOrElseNullable(SemanticsActions.GetTextLayoutResult) { null }?.action
+            assertNotNull(textLayout, "Copy must retain measurable text")
+            context.runOnUiThread { textLayout.invoke(layouts) }
+            assertTrue(layouts.isNotEmpty())
+            layouts.forEach {
+                repeat(it.lineCount) { line ->
+                    assertTrue(it.getLineTop(line) >= 0f)
+                    assertTrue(it.getLineBottom(line) <= it.size.height, "Copy line $line must be fully allocated")
+                    assertTrue(
+                        it.getLineRight(line) - it.getLineLeft(line) <= copy.boundsInRoot.width,
+                        "Copy line $line must fit within the action",
+                    )
+                }
+            }
+            click(copy)
+            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            assertEquals(key.hexString.uppercase(), clipboard.primaryClip?.getItemAt(0)?.text?.toString())
+            val copied = awaitAction(context.getString(C.contactsQrCopied))
+            assertTrue(copied.config.contains(SemanticsProperties.Disabled))
+            runBlocking { harness.clock.advanceBy(1.seconds) }
+            advanceFrames()
+            assertNotNull(actionNode(context.getString(C.contactsQrCopied)))
+            runBlocking { harness.clock.advanceBy(1.seconds) }
+            val reset = awaitAction(context.getString(C.contactsQrCopy))
+            assertFalse(reset.config.contains(SemanticsProperties.Disabled))
+            click(scrollToAction(context.getString(C.contactsDetailShareContact)))
+            val chooser = Shadows.shadowOf(context).nextStartedActivity
+            assertEquals(Intent.ACTION_CHOOSER, chooser.action)
+            val send = chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
+            assertNotNull(send)
+            assertEquals(Intent.ACTION_SEND, send.action)
+            assertEquals("text/plain", send.type)
+            assertEquals(holder.contactUri, send.getStringExtra(Intent.EXTRA_TEXT))
+            assertEquals(holder.contactName, send.getStringExtra(Intent.EXTRA_SUBJECT))
+            click(scrollToAction(context.getString(C.contactsCommonDone)))
+            assertFalse(showing.value)
+        }
+
+        private fun click(node: SemanticsNode) {
+            val action = node.config[SemanticsActions.OnClick].action
+            assertNotNull(action)
+            controller.get().runOnUiThread { assertTrue(action.invoke()) }
+            advanceFrames()
         }
     }
 }

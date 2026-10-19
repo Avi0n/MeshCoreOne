@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -480,10 +481,15 @@ internal fun ContactShareDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(C.contactsCommonDone)) } },
         title = { Text(holder.contactName) },
         text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 ContactQrCode(holder.qrSpec, holder.contactName)
                 Text(holder.publicKeyText, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
                 TextButton(
+                    modifier = Modifier.heightIn(min = 48.dp),
                     enabled = !copied,
                     onClick = {
                         val text = holder.copyPublicKey()

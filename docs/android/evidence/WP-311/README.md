@@ -190,3 +190,42 @@ evidence only. Exact-head hosted run `38509337209` for
 scaffold dependency resolution), candidate classification, controller/workflow policy, required
 checklist and `android-ci`; both hosted Swift oracle jobs also passed. GitHub's exact-head result and
 log are authoritative; no duplicate CI bundle is retained.
+
+## Follow-up #237: QR Copy reachability
+
+Increment parent: `bbb92b6e0a6027e2c1890feaf13bce534bac45bf`; original follow-up base and frozen
+source remain as above. The user-directed request relayed on 2026-10-18 adds #237 to this same
+WP-311 workstream. Trusted `wp-owned` admission permits `modify` on
+`android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt`.
+The existing session reservation was evolved from revision 2 to 3 with the supported `reserve.py
+evolve` operation, preserving identity, bindings and immutable authorization context. No other
+reservation claims that QR dialog path; WP-313's detail/navigation paths are not changed.
+
+The repair restores source-equivalent vertical scrolling in the QR dialog content and explicitly
+preserves a 48dp minimum Copy height. It does not change labels, QR payload/size, clipboard bytes,
+the two-second Copied state, chooser extras, radio behavior or dismissal.
+
+Command (from `android/`, PowerShell with `ANDROID_HOME` pointing to the existing local SDK):
+
+`.\gradlew.bat :feature:nodes:testDebugUnitTest --tests '*DiscoveryNativeTest' --tests '*DiscoveryViewModelTest' --tests '*ContactDetailNativeTest' --tests '*PathManagementNativeTest' --tests '*ContactPathActionsApi31ComposeTest' --tests '*ContactPathActionsApi37ComposeTest' --tests '*DiscoveryUiApi31ComposeTest' --tests '*DiscoveryUiApi37ComposeTest' --tests '*ContactShareApi31ComposeTest' --tests '*ContactShareApi37ComposeTest' --tests '*ContactShareContentTest' :feature:nodes:lintDebug --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"`
+
+Result: exit 0; **58 discovered, 58 passed, 0 failures/errors/skips** across 11 suites; nodes
+lint passed. The 51 earlier follow-up tests remain passing, five source-share tests pass, and
+two new dialog tests pass at API31/API37 with native graphics, 360x900 mdpi, resource font scale
+2.0 and RTL. The dialog tests assert scroll semantics, contained Copy bounds >=48dp in both
+dimensions, complete text-line allocation, exact compact clipboard key, disabled Copied feedback
+through one second and reset at two seconds, exact ACTION_CHOOSER/ACTION_SEND type/text/subject,
+and Done. Reports are under `android/feature/nodes/build/test-results/testDebugUnitTest/` and
+`build/reports/lint-results-debug.html`; no result bundle is committed.
+
+`python tools\android-port\portmap.py`, `python tools\android-port\controller\validate.py` and
+`git diff --check` passed. Declared `ci.py preflight` first required explicit state; after using
+`ci.py local-inputs` with the installed JDK/SDK, it failed because the local SDK lacks
+`build-tools\37.0.0\package.xml`. This is an unverified local readiness signal, not a reason to
+weaken the check or a hosted readiness claim. The actual Gradle test/lint command above passed.
+
+**Pending native acceptance:** the unchanged WP-503
+`NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable`
+must run against this repair on actual API31/API37. The candidate-owned Robolectric tests are
+supporting evidence, not a substitute for that gate. No WP-503 fixture is copied, edited, hidden
+or relaxed, and no device/radio verification or independent approval is claimed here.
