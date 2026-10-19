@@ -67,7 +67,12 @@
     "coordinator_follow_up": {
       "app_session_id": "1385ef63-54ad-4c1c-a8e9-5ae1e7920237",
       "branch": "cbattlegear-issue-238-wp-407-expose-named-app-language-select-9f1e42",
-      "canonical_execution_identity": "awaiting coordinator confirmation",
+      "canonical_execution_identity": "1385ef63-54ad-4c1c-a8e9-5ae1e7920237",
+      "workspace_alias_not_execution_identity": "71decd8b-e742-4b4b-b25d-84a1ba72a13e",
+      "binding_base_after_trusted_deployment": "then-current main; not stale producer d818",
+      "support_path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppSettingsContent.kt",
+      "support_operation": "update-launcher-or-composition",
+      "support_capability": "app-build-launcher",
       "live_admission_from_candidate_code": false
     }
   },
