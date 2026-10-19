@@ -978,11 +978,22 @@ class NativeLauncherFocusAccessibilityTest : DeviceAccessibilityHarness() {
     }
 
     private fun waitForNativeAccessibilityState(start: Long, condition: () -> Boolean) {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        var checks = 0
         while (true) {
-            val ready = condition()
+            // AccessibilityManager applies binder state changes on the main looper.
+            var ready = false
+            instrumentation.runOnMainSync { ready = condition() }
+            checks++
             val elapsed = android.os.SystemClock.elapsedRealtime() - start
-            if (ready && elapsed <= 1000L) return
+            if (ready && elapsed <= 1000L) {
+                println("WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=$checks|elapsedMs=$elapsed" +
+                    "|originalDeadlineMs=1000|physicalTalkBack=false")
+                return
+            }
             if (elapsed >= 1000L) {
+                println("WP503_NATIVE_MAIN_OBSERVER|ready=$ready|checks=$checks|elapsedMs=$elapsed" +
+                    "|originalDeadlineMs=1000|result=TIMEOUT_NOT_PASS|physicalTalkBack=false")
                 throw ComposeTimeoutException("Native accessibility state did not become ready within1000ms")
             }
             Thread.sleep(minOf(10L, 1000L - elapsed))
