@@ -1,0 +1,11 @@
+# Preserve these captured native evidence bytes, including original line endings.
+device-callbackdelivery-* -text
+device-callbackstack-* -text
+device-processready-* -text
+device-processreadyfull-* -text
+device-matrixfeatures-* -text
+device-matrixplatform-* -text
+device-matrixcallbacks-* -text
+device-processreadynodes-* -text
+device-processreadymaps-* -text
+device-isolatedmatrix-reconciliation.json -text
