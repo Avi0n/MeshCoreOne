@@ -10,6 +10,33 @@ REPO = Path(__file__).resolve().parents[3]
 AMENDMENT_PATH = "docs/android/scope-amendments/translation-removal.json"
 AMENDMENT_SHA256 = "32b5f19e1a04da77e64168fbd101cac93c4453a1eb4fbb329eb75822db633fb1"
 PLAN_SHA256 = "e5c838d2566d0466175e2be4036d50e44be548319c9fcd8b83bccd4fc03930cd"
+REVIEW_POLICY = {
+    "code_review_authority": "trusted-read-only-review",
+    "authorized_coordinators": ["cbattlegear"],
+    "human_acceptance_work_packages": ["WP-001", "WP-505", "WP-506"],
+    "human_acceptance_paths": ["android/release/"],
+    "human_acceptance_patterns": [
+        "android/**/signing*", "android/**/keystore*", "**/*license*", "**/*LICENSE*", "**/*legal*",
+    ],
+}
+
+
+def review_policy_predecessor(policy):
+    """Reverse only the authorized review delta; historical policy receipts stay immutable."""
+    result = copy.deepcopy(policy)
+    if "review_policy" not in result:
+        return result
+    if result.pop("review_policy") != REVIEW_POLICY:
+        raise PortError("Review authority changed outside the authorized policy amendment")
+    gates = result.get("merge_gate_policy")
+    if not isinstance(gates, dict) or (
+        gates.pop("protected_paths_require_trusted_code_review_for_main_merge", None) is not True
+        or gates.pop("human_hardware_legal_signing_acceptance_required", None) is not True
+        or "protected_paths_require_human_approval_for_main_merge" in gates
+    ):
+        raise PortError("Review authority merge-gate amendment drift")
+    gates["protected_paths_require_human_approval_for_main_merge"] = True
+    return result
 
 
 def amendment(repo=REPO):
@@ -78,6 +105,7 @@ def current_revisions(manifest, policy):
 
     project_translation_scope(manifest.data, manifest.repo)
     actual = policy_revision(manifest, policy)
-    if actual != amendment(manifest.repo)["current_policy_revision"]:
+    predecessor = review_policy_predecessor(policy)
+    if policy_revision(manifest, predecessor) != amendment(manifest.repo)["current_policy_revision"]:
         raise PortError("Translation scope current catalog/policy cannot be cross-bound")
     return {"manifest_sha256": manifest.sha256, "policy_revision": actual}

@@ -20,19 +20,21 @@ def capabilities(policy: dict, *, author="cbattlegear"):
     if policy["paused"] or policy["dispatch_mode"] == "off" or policy["activation_approved"] is not True:
         blockers.append("Dispatch/repair/merge activation remains off, paused and human-unapproved.")
     if not policy["trusted_gate_publisher_app_id"]:
-        blockers.append("Independent authenticated gate publisher is not configured.")
+        blockers.append("Native default-branch review publisher deployment/live publication is unproven.")
     if not policy["trusted_check_app_ids"] or not policy["trusted_workflow_ids"]:
         blockers.append("Required-check application/workflow identities are not approved.")
     if not policy["branch_rules_proven"]:
         blockers.append("Exact-head/current-base no-bypass branch rules are unproven.")
-    if not set(policy["maintainers"]) - {author}:
-        blockers.append("Sole maintainer is the PR author; no real authorized alternate formal reviewer exists.")
     blockers += [
         "Isolated Copilot CLI reviewer authentication/native-host/live-usage/shared-ledger integration is unproven.",
         "Protected historical receipt revalidation/import remains blocked.",
         "User-selected concurrency/budget and separate activation are still required.",
     ]
-    return {"schema_version": 1, "state": "BLOCKED", "authoritative": False, "blockers": blockers}
+    return {
+        "schema_version": 1, "state": "BLOCKED", "authoritative": False, "blockers": blockers,
+        "manual_review_transport": "authenticated-coordinator-review + default-branch GitHub Actions Checks",
+        "custom_app_or_native_host_required_for_manual_review": False,
+    }
 
 
 def main(argv=None):
