@@ -493,3 +493,67 @@ the automatic exact-candidate run; do not dispatch a duplicate or retain a
 second CI-result bundle. Missing native admission/API37 observations, QR237
 re-audit, protected review and acceptance remain separate. No native launch,
 replay, install/signing, merge or issue closure is performed.
+
+### Exact language repair source preparation for issue238
+
+The current replacement owner prepared the genuine WP407 repair from published
+PR247 head `59a47ac40bd2f84e7188c87a5521af9d0f16e75e` against exact
+main `9c430cb0f1666faacc443794899b68c01128a87a`. At preparation,
+PR247 is open, not merged. Its original commit and all four changed paths
+are retained unchanged in combined source
+`07bccfea10cbe8f48eaea164be625790333739c7`. This is an explicitly
+attributed execution-source preparation, not producer merge approval or
+native acceptance. No unpublished mixed tree is claimed as an accepted source.
+
+Supported canonical scope evolution advances revision12 to13 under
+`merge-integration` operations `transfer-current-producer` and
+`merge-disjoint-semantic-edits`. Canonical identity, historical bindings,
+authorization context and repairs remain unchanged, with actual replacement
+attribution in `files/wp503-language-repair-preparation.json`. The retired
+d2980f28 worker is not resumed and its old3f39 runner is not invoked.
+
+Actual deployed `debug_packaging.source_identity` accepts this exact clean
+committed Android source, and the trusted `CapabilityEngine` admits the
+existing `debug-test-packaging` helper operation:
+
+| Input | Exact binding |
+| --- | --- |
+| Combined Android Git tree | `087659de770f735d2f4715cd4e2320a08f3b9ba2` |
+| Helper's Android source-tree SHA256 | `2b98f8cd80a43aa5857b5cb0f4cd348a9c4393ef82cda08b7d97faf7ca12ae1c` |
+| `AppSettingsContent.kt` producer blob | `421fc446443a5f301085507603701d7da04d40ef` |
+| Unchanged strict `NativeAppLanguageAccessibilityTest.kt` blob | `99175354ba29a9230b7a2b03a7c17ea4153dd394` |
+| Selected native methods per API | Exactly2: naming/selection/contained-font200 actions, and Chinese/System lifecycle |
+
+The fixture matches published d38d33e04 byte-for-byte; all other audit fixtures
+and every historical native record are unchanged. The combined source contains
+PR247's real selectable-row repair, unlike d38d33e04's old Android tree.
+Final publication adds only this narrative, not Android changes. A future
+helper invocation must bind its actual then-current full source revision;
+no earlier source revision is substituted for that check.
+
+All six previously declared scoped commands pass on the committed preparation:
+runner23/23 and controller358/358, zero failures/errors/skips;
+`verification_config.py --check`, `validate.py`, `workflows.py`, `portmap.py`
+and both Git whitespace checks exit0. These are host/helper checks, not an
+execution of the producer's new App tests or of the native language fixture.
+The new publication requires its own automatic hosted verdict.
+
+**Native continuation is BLOCKED before packaging or launch.**
+The actual `python tools\android-port\controller\gate_runtime.py capabilities`
+returns exit2, `state=BLOCKED`, `authoritative=false`, including:
+`Dispatch/repair/merge activation remains off, paused and human-unapproved.`
+and unproven authenticated native-host integration. Trusted current policy is
+`paused=true`, `activation_approved=false`, `dispatch_mode=off`. The live
+shared ledger has no native-execution holder. These observations are not a
+new admission receipt or permission to acquire a lane and act on a historical
+endpoint. A fresh authenticated native-host admission for this current owner
+and exact published source is the remaining live prerequisite.
+
+No device probe, old endpoint reuse, key access, packaging build, install,
+native start, profile write or replay occurred. Therefore no compatible
+App/Test pair, installed public-certificate match, API31/API37 outcome or
+fixture cleanup is claimed. Once genuinely admitted, use the existing local
+debug identity and actual unique held operation owner, preserving the device
+and comparing App/Test/installed public certificates before any separately
+guarded replacement. Issue238 remains open; this affected2+2 selection is not
+the separate API37 missing-only27 inventory or full successful-cohort replay.
