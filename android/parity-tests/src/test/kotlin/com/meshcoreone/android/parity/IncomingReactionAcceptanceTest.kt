@@ -63,6 +63,16 @@ class IncomingReactionAcceptanceTest : RoomProcessTest() {
         assertReaction(this, direct = true, v1(), pending = false, expectedHash = v1Hash())
     }
 
+    @Test fun mountedMeshCoreOpenV3ChannelReactionIsIndependentOfTheSchedulerEpoch() = runTest {
+        testScheduler.advanceTimeBy(301_000)
+        assertReaction(this, direct = false, "r:aa61:00", pending = false, expectedHash = "aa61")
+    }
+
+    @Test fun mountedMeshCoreOpenV3DirectReactionIsIndependentOfTheSchedulerEpoch() = runTest {
+        testScheduler.advanceTimeBy(301_000)
+        assertReaction(this, direct = true, "r:92c7:00", pending = false, expectedHash = "92c7")
+    }
+
     private fun pocket(direct: Boolean = false) =
         (if (direct) "" else "@[Alice]") + thumbsUp + "\nb45pc4ek"
 
@@ -77,8 +87,10 @@ class IncomingReactionAcceptanceTest : RoomProcessTest() {
         expectedHash: String,
         requireForwarding: Boolean = true,
     ) {
+        // Room work may fast-forward virtual timers; only wire arrivals advance this fixture's wall clock.
+        var receiveTime = EPOCH
         val syncClock = object : SyncClock {
-            override fun now() = EPOCH.plusMillis(test.testScheduler.currentTime)
+            override fun now() = receiveTime
             override fun elapsed() = test.testScheduler.currentTime.milliseconds
             override suspend fun sleep(duration: Duration) = delay(duration)
         }
@@ -115,6 +127,7 @@ class IncomingReactionAcceptanceTest : RoomProcessTest() {
                 assertTrue(!saved.timestampCorrected)
             }
             suspend fun reaction() {
+                receiveTime = EPOCH.plusSeconds(1)
                 poll(harness, live, direct, if (direct) reactionText else "Bob: $reactionText", stamp + 1u)
             }
             if (pending) {
@@ -125,10 +138,16 @@ class IncomingReactionAcceptanceTest : RoomProcessTest() {
                 pollTarget()
                 reaction()
             }
+            assertEquals(EPOCH.plusSeconds(1), syncClock.now())
             val target = assertNotNull(rows().firstOrNull { it.text == "Hello" })
             val message = EntityKey(live.token.radioId, target.id)
             val reactions = store.fetchReactions(message)
-            assertEquals(1, reactions.size, "The mounted consumer must retain the actual incoming reaction")
+            assertEquals(
+                1, reactions.size,
+                "The mounted consumer must retain the actual incoming reaction " +
+                    "(wall=${syncClock.now()}, schedulerMillis=${test.testScheduler.currentTime}, " +
+                    "targetTimestamp=${target.reactionTimestamp})",
+            )
             val saved = reactions.single()
             assertEquals(target.id, saved.messageID)
             assertEquals(live.token.radioId, saved.radioId)
