@@ -46,7 +46,7 @@ The runner discovered/run1, failed1, errors0/skips0 at the unchanged visible
 text assertion. This is an observed consumer failure, not an inferred fifth
 case in the separate four no-notification originals.
 
-Production fix: `AppChatsContent` runs a composer-keyed `LaunchedEffect`;
+Initial fix: `AppChatsContent` runs a composer-keyed `LaunchedEffect`;
 `AppChatsFeature.restoreNotificationDraft` consumes only a Direct target's
 matching current-radio/contact EntityKey. It assigns through the existing real
 composer edit/persistence path. A nonempty pending reply replaces old disk;
@@ -56,14 +56,14 @@ inside the effect, with no suspension between them; cancellation before the
 effect starts does not consume. No connection-ready gate is added.
 
 The effect is not keyed to window width, list refresh, or connection state.
-A retained composer keeps user text. A pending reply arriving later remains
-available until a new composer entry rather than replacing typing on
-recomposition. Recovered text is immediately persisted through the existing
+A retained composer keeps user text on same-source updates. A pending reply
+arriving later does not replace typing on recomposition. Replacement-source
+restoration is covered separately below. Recovered text is immediately persisted through the existing
 Android per-edit policy, rather than a second Swift-style debounce, so the
 consumed value survives later owner replacement through the process store.
 The separate timeline does not consume or claim the visible field.
 
-Final software-code candidate:
+Initial expanded-isolation software-code candidate:
 `c933f03080de482e7dc9872b400cef33e04b209a`.
 
 | Path under `android/` | Git blob |
@@ -134,7 +134,7 @@ channel entry and mismatched-current-radio direct entry controls. No earlier
 result is relabeled as execution of these added assertions.
 Counts/outcomes came from actual JUnit XML testcase nodes, not method names.
 
-Exact final method identities in
+Initial three method identities in
 `com.meshcoreone.android.app.platform.NotificationDraftRestorationTest`:
 
 - `pendingNotificationReplyWinsSavedDraftOnceAndSurvivesAdaptiveRecomposition`
@@ -153,6 +153,75 @@ zero direct/channel send commands and zero queued envelopes.
 `python tools\android-port\controller\validate.py`,
 `python tools\android-port\controller\verification_config.py --check`,
 and `git diff --check` **PASS** on the implementation.
+
+## Replacement notification-source boundary
+
+This additional boundary is not proved by the earlier3/3 or144 results.
+Frozen `ChatConversationView.swift:298-299` restarts `performInitialLoad`
+on `appState.servicesVersion`; its direct-chat path calls
+`restoreComposerDraft` at line417. A retained native composer must therefore
+receive a pending reply from a replacement session, not just a new entry.
+No pending reply must leave retained typing alone, even when saved disk differs.
+
+At `11900413c24932ada0d17e10baec057ef0ab832a`, only the mounted test
+changed from published `2bfd4bd1366ae15d2d01bc06763aaba9a6ffdcca`.
+The unchanged composer-only fix **failed** the actual replacement scenario:
+expected `replacement reply`, actual editable `retained typing`, with
+1 discovered/run, 1 assertion failure, 0 errors/skips, build26s.
+Before that assertion, the real manager had torn down its first session and
+connected a new graph with a different token and advanced servicesVersion,
+while the selected navigation entry and editable semantics identity remained
+unchanged. The process store was independently `independent disk`; the new
+real NotificationService held `replacement reply`. Compose frame advancement
+was paused through disconnect/reconnect and seeding, then resumed. This is a
+real retained-consumer counterexample, not a test-only restore model.
+
+Correction at `03306ff125655f977d88c5b517ad4cab26d9e771` maps service-version
+observations to the actual current NotificationService in a StateFlow. Equal
+service identity is conflated; a version refresh with the same source does
+not restart restoration. The App effect keys composer **and source**, and
+the synchronous consume path verifies the captured source is still the
+matching current radio's service before consuming. It never reloads saved
+disk when pending is absent, so a new session alone cannot replace typing.
+No connection-state/list/window emission becomes a restoration trigger.
+
+The final two mounted methods are
+`replacementNotificationServiceRestoresPendingReplyIntoRetainedComposer`
+and `replacementNotificationServiceWithoutPendingReplyPreservesRetainedTyping`.
+Both additionally assert old text/field identity before releasing paused
+frames, then retained entry, field identity/focus, expected text, consumed
+pending map, independently expected process store, two created graphs with
+one still outstanding, zero send commands and zero envelopes. The no-pending
+replacement retains typing while leaving independently saved disk untouched.
+The existing same-source test now explicitly bumps servicesVersion with a
+later pending reply and verifies it is not consumed on that refresh/resize.
+All prior channel/contact/radio/new-entry/empty-fallback controls remain.
+
+Actual negative selector at `11900413c24932ada0d17e10baec057ef0ab832a`:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.app.platform.NotificationDraftRestorationTest.replacementNotificationServiceRestoresPendingReplyIntoRetainedComposer
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+At `03306ff125655f977d88c5b517ad4cab26d9e771`, the same full positive
+command shown above (`NotificationDraftRestorationTest`,
+`ChatTimelineRestorationTest`, `navigation.*`, `:app:lintDebug`, identical
+common options) **PASS**: 146 discovered/run/passed, 0 failures/errors/skips,
+App lint passed, build1m25s. Five are the notification methods;141 are the
+existing selected scroll/navigation methods. Both exact execution commits
+also passed the declared `local\check.py --distribution Ubuntu-22.04
+--commit <exact-commit> --stages preflight`. Actual JUnit XML testcase nodes
+were checked, not inferred from Gradle exit status. Traceability/controller/
+verification-configuration validators and `git diff --check` passed again.
+
+| Final executed path under `android/` | Git blob at `03306ff125` |
+| --- | --- |
+| `app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt` | `99ff02f5c15359e6260316d6411a5bac7a62518e` |
+| `app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatsContent.kt` | `6e191c79de3a5cebf3f8e0603956e180f97bd014` |
+| `app/src/test/kotlin/com/meshcoreone/android/app/platform/NotificationDraftRestorationTest.kt` | `f076dceef89d8f14efe9d3dad6af260e90133d98` |
 
 ## Limits and handoff
 
