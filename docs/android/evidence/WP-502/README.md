@@ -249,36 +249,37 @@ actual radio/Settings/firmware or native device evidence.
 
 Frozen `RetryAlertModifier.swift@db14559b39d32322b06477c6ae676112f583db50`
 uses `ensureConnected` at retryCount >=3, retaining the original failure
-message only below that threshold. Current `PresetStepScreen.kt` changes the
-title/buttons at the limit but **unconditionally** renders `alert.message`.
+message only below that threshold. At679/598 `PresetStepScreen.kt` changed the
+title/buttons at the limit but **unconditionally** rendered `alert.message`.
 Existing WP-305 `retryableFailureOffersRetryThenFallsBackAfterThree` checks
 counter/fallback state, not this mounted copy. WP-305 deviations preserve
 three attempts/fallback and authorize no omission of the first remedy.
-The bounded production prerequisite is **WP-305 modify
+The bounded production prerequisite was **WP-305 modify
 `android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt`**,
-retry-alert text branch; historical producer is PR72/issue113. It is routed
+retry-alert text branch; historical producer is PR72/issue113. It was routed
 to the coordinator/primary owner, not edited by WP-502. Deduplicated template
 bug [#250](https://github.com/cbattlegear/MeshCoreOne-Android/issues/250)
 tracks this exact copy defect/negative, not whole-WP closure. Producer/transfer
-admission remains required; an old closed issue is not an active-owner receipt.
+admission was still required then; an old closed issue was not an active-owner receipt.
 Earlier actual WP-303 admission rejected this foreign feature-UI modify path.
 The later **user-directed routing correction** assigns existing onboarding
 worker6e503330-9c0f-426b-86c3-fa52f404dcab the bounded **primary WP-305**
 repair through normal WP-owned admission/real initial reservation. WP-003
 support-policy work is on hold; no rule expansion/new worker is requested.
-Assignment alone is not successful admission or an already-published fix.
-WP-502 retains the negative and awaits actual producer publication before
-integration and the smallest affected method/class for negative-to-positive
-evidence; it does not make the foreign edit itself.
+Assignment alone was not successful admission or an already-published fix.
+WP-502 retained the negative pending actual producer publication. The later
+canonical integration/seven-case execution above provides that receipt and
+negative-to-positive evidence without a foreign reimplementation.
 The test's subsequent no-Retry/Cancel, OK-to-generic-fallback, budget reset,
-retained selection and final explicit success assertions remain **unexecuted**
-after this failure, not accepted.
+retained selection and final explicit success assertions were **unexecuted**
+after the679/598 failure, not accepted by those runs. They later execute/pass
+at canonical16a as recorded above.
 
 The publication hold was honored until PR244 actually merged at
 2026-10-20T19:41:40Z as **680246f7914a5b4e5bf5167a916b620f83a79dee**.
 Main680 has exactly the e317 tree. Ordinary same-owner merge10145ab50531c1af79b2c6b9416e4bc874fa839f
 integrates that landing without changing any Android bytes relative to679.
-Relative to main only this new owned test file/three owned docs differ.
+At598 relative to main only this new owned test file/three owned docs differed.
 No prior execution is rebound to main680, no CI replay/bundle is created.
 At598 this candidate was **not green/completed** pending the real primary
 repair/result. The later16a seven-case proof above resolves this bounded
