@@ -1,8 +1,10 @@
 """AndroidOnly: WP-503 Fail-closed discovery for the missing-only shared-device adapter."""
 from pathlib import Path
+import json
 import subprocess
 import tempfile
 import unittest
+import uuid
 from unittest.mock import Mock, patch
 
 from shared_device_runner import (
@@ -159,8 +161,12 @@ class SharedDeviceDiscoveryTest(unittest.TestCase):
         self.assertEqual(3, len(errors))
         self.assertEqual([], device.calls)
 
-    def test_host_timeout_finishes_only_owned_guest_before_restore_and_lane_release(self):
+    def test_seeded_chat_timeout_restores_apk_but_retains_lane_for_uncertain_user_state(self):
         device = FakeDevice()
+        device.seeded_fixture_rows = {"chat503001": ["contact503002", "message503115"]}
+        device.original_preferences = {"onboarding": False, "draft": "original draft"}
+        device.actual_preferences = {"onboarding": True, "draft": "fixture draft"}
+        device.actual_window = "900x900"
         device.packages = {APP: "candidate", TEST: "test"}
         device.active = [f"ActiveInstrumentation{{abc {TEST}/androidx.test.runner.AndroidJUnitRunner 1 procs}}"]
         stream = Mock()
@@ -171,17 +177,27 @@ class SharedDeviceDiscoveryTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, patch("shared_device_runner.subprocess.Popen",
                 side_effect=[stream, process]), patch("shared_device_runner.selected_methods",
                 return_value=["example.Test#original"]), patch("builtins.print"):
-            with self.assertRaises(TimeoutError), native_lane(ledger, device):
+            with self.assertRaises(BaseExceptionGroup) as caught, native_lane(ledger, device):
                 try:
                     execute_cohort(device, Path(directory), "chat", {}, "candidate", "test")
                 finally:
                     _, errors = restore_packages(device, Path("backup"), "original", "candidate", "test")
                     self.assertFalse(errors)
+            recovery = json.loads((Path(directory) / "device-shared37-chat-recovery.json").read_text())
+            self.assertEqual("UNCERTAIN_APPLICATION_STATE_NATIVE_LANE_RETAINED", recovery["status"])
+            self.assertFalse(recovery["fixture_preferences_and_window_restoration_verified"])
+            self.assertFalse(recovery["original_fixture_rows_and_preferences_snapshot_available"])
+            self.assertEqual(["example.Test#original"], recovery["original_identities"])
+        self.assertIsInstance(caught.exception.exceptions[0], TimeoutError)
         self.assertEqual([], device.active)
         self.assertEqual({APP: "original"}, device.packages)
         self.assertLess(device.calls.index(("shell", "am force-stop " + APP)),
                         device.calls.index(("install", Path("backup"))))
-        ledger.release_hard_lock.assert_called_once()
+        self.assertTrue(device.application_state_uncertain)
+        self.assertEqual({"chat503001": ["contact503002", "message503115"]}, device.seeded_fixture_rows)
+        self.assertNotEqual(device.original_preferences, device.actual_preferences)
+        self.assertEqual("900x900", device.actual_window)
+        ledger.release_hard_lock.assert_not_called()
         process.kill.assert_called_once()
 
     def test_foreign_guest_is_not_stopped_and_unresolved_lane_is_retained(self):
@@ -228,6 +244,190 @@ class SharedDeviceDiscoveryTest(unittest.TestCase):
         ledger = Mock()
         with self.assertRaises(BaseExceptionGroup), native_lane(ledger, device):
             pass
+        ledger.release_hard_lock.assert_not_called()
+
+    def test_new_invocation_cannot_reacquire_its_own_uncertain_lane(self):
+        class RetainedLedger:
+            owner = None
+
+            def acquire_hard_lock(self, resource, owner, payload, now):
+                if self.owner is not None and owner != self.owner:
+                    raise RuntimeError("Retained native lane collision")
+                self.owner = owner
+
+            def release_hard_lock(self, resource, owner):
+                self.owner = None
+
+        ledger = RetainedLedger()
+        first = FakeDevice()
+        first.application_state_uncertain = True
+        with self.assertRaises(BaseExceptionGroup), native_lane(ledger, first):
+            pass
+        retained = ledger.owner
+        with self.assertRaisesRegex(RuntimeError, "Retained native lane collision"):
+            with native_lane(ledger, FakeDevice()):
+                self.fail("A new invocation must not replace the prior uncertain recovery lane")
+        self.assertEqual(retained, ledger.owner)
+
+    def test_native_lane_payload_binds_wp_and_operation_owner_for_future_packaging(self):
+        from shared_device_runner import OWNER
+        device, ledger = FakeDevice(), Mock()
+        with native_lane(ledger, device):
+            args = ledger.acquire_hard_lock.call_args.args
+            self.assertEqual("native-execution", args[0])
+            self.assertEqual(device.native_lane_owner, args[1])
+            self.assertNotEqual(OWNER, device.native_lane_owner)
+            self.assertEqual(OWNER + ":shared37:", device.native_lane_owner[:-32])
+            self.assertEqual(device.native_lane_owner[-32:], uuid.UUID(device.native_lane_owner[-32:]).hex)
+            self.assertEqual("WP-503", args[2]["wp"])
+            self.assertEqual(OWNER, args[2]["canonical_session_id"])
+        ledger.release_hard_lock.assert_called_once_with("native-execution", device.native_lane_owner)
+
+    def test_receipt_write_failure_does_not_skip_owned_host_or_guest_stop(self):
+        device = FakeDevice()
+        device.packages = {APP: "candidate", TEST: "test"}
+        device.active = [f"ActiveInstrumentation{{abc {TEST}/androidx.test.runner.AndroidJUnitRunner 1 procs}}"]
+        stream, process = Mock(), Mock()
+        stream.poll.return_value = None
+        process.wait.side_effect = [subprocess.TimeoutExpired("instrument", 600), 0]
+        ledger = Mock()
+        with tempfile.TemporaryDirectory() as directory, patch("shared_device_runner.subprocess.Popen",
+                side_effect=[stream, process]), patch("shared_device_runner.selected_methods",
+                return_value=["example.Test#original"]), patch("pathlib.Path.write_text",
+                side_effect=OSError("Recovery receipt disk full")), patch("builtins.print"):
+            with self.assertRaises(BaseExceptionGroup) as caught, native_lane(ledger, device):
+                execute_cohort(device, Path(directory), "chat", {}, "candidate", "test")
+        process.kill.assert_called_once()
+        self.assertEqual(2, process.wait.call_count)
+        self.assertIn(("shell", "am force-stop " + APP), device.calls)
+        self.assertEqual([], device.active)
+        self.assertTrue(device.application_state_uncertain)
+        self.assertIn("Recovery receipt disk full", repr(caught.exception))
+        ledger.release_hard_lock.assert_not_called()
+
+    def test_completed_host_quiescent_guest_transcript_read_failure_retains_lane(self):
+        device = FakeDevice()
+        device.packages = {APP: "candidate", TEST: "test"}
+        stream, process = Mock(), Mock()
+        stream.poll.return_value = None
+        process.wait.return_value = 0
+        ledger = Mock()
+        with tempfile.TemporaryDirectory() as directory, patch("shared_device_runner.subprocess.Popen",
+                side_effect=[stream, process]), patch("shared_device_runner.selected_methods",
+                return_value=["example.Test#original"]), patch("pathlib.Path.read_text",
+                side_effect=OSError("Transcript cannot be read")), patch("builtins.print"):
+            with self.assertRaises(BaseExceptionGroup) as caught, native_lane(ledger, device):
+                execute_cohort(device, Path(directory), "chat", {}, "candidate", "test")
+        self.assertIsInstance(caught.exception.exceptions[0], OSError)
+        self.assertTrue(device.application_state_uncertain)
+        self.assertEqual([], device.active)
+        self.assertEqual([], device.calls)
+        process.kill.assert_not_called()
+        ledger.release_hard_lock.assert_not_called()
+
+    def test_normal_positive_completion_clears_uncertainty_and_releases_operation(self):
+        device, ledger = FakeDevice(), Mock()
+        device.packages = {APP: "candidate", TEST: "test"}
+        stream, process = Mock(), Mock()
+        stream.poll.return_value = None
+        process.wait.return_value = 0
+
+        def spawn(command, **kwargs):
+            if command[1] == "logcat":
+                return stream
+            self.assertTrue(device.application_state_uncertain)
+            return process
+
+        identity = "example.Test#original"
+        with tempfile.TemporaryDirectory() as directory, patch("shared_device_runner.subprocess.Popen",
+                side_effect=spawn), patch("shared_device_runner.selected_methods", return_value=[identity]), \
+                patch("pathlib.Path.read_text", return_value=completed(record(identity, 1) + record(identity, 0))), \
+                patch("builtins.print"):
+            with native_lane(ledger, device):
+                result = execute_cohort(device, Path(directory), "chat", {}, "candidate", "test")
+        self.assertEqual(1, result["passed"])
+        self.assertFalse(device.application_state_uncertain)
+        self.assertFalse(device.fixture_completion_untrusted)
+        self.assertEqual([], device.calls)
+        process.wait.assert_called_once_with(timeout=600)
+        process.kill.assert_not_called()
+        ledger.release_hard_lock.assert_called_once_with("native-execution", device.native_lane_owner)
+
+    def test_nonpositive_or_forced_completion_and_decode_failure_retain_lane(self):
+        identity = "example.Test#original"
+        positive = completed(record(identity, 1) + record(identity, 0))
+        cases = (
+            ("decode", 0, UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid"), False),
+            ("malformed", 0, "no completion proof", False),
+            ("nonzero-host", 1, positive, False),
+            ("forced-guest", 0, positive, True),
+            ("failed-test", 0, completed(record(identity, 1) + record(identity, -2)), False),
+            ("skipped-test", 0, completed(record(identity, 1) + record(identity, -3)), False),
+        )
+        for name, code, transcript, active in cases:
+            with self.subTest(name=name):
+                device, ledger = FakeDevice(), Mock()
+                device.packages = {APP: "candidate", TEST: "test"}
+                if active:
+                    device.active = [f"ActiveInstrumentation{{abc {TEST}/androidx.test.runner.AndroidJUnitRunner 1 procs}}"]
+                stream, process = Mock(), Mock()
+                stream.poll.return_value = None
+                process.wait.return_value = code
+                read = {"side_effect": transcript} if isinstance(transcript, Exception) else {"return_value": transcript}
+                with tempfile.TemporaryDirectory() as directory, patch("shared_device_runner.subprocess.Popen",
+                        side_effect=[stream, process]), patch("shared_device_runner.selected_methods",
+                        return_value=[identity]), patch("pathlib.Path.read_text", **read), patch("builtins.print"):
+                    with self.assertRaises(BaseExceptionGroup), native_lane(ledger, device):
+                        execute_cohort(device, Path(directory), "chat", {}, "candidate", "test")
+                    self.assertTrue((Path(directory) / "device-shared37-chat-recovery.json").exists())
+                self.assertTrue(device.application_state_uncertain)
+                self.assertTrue(device.fixture_completion_untrusted)
+                ledger.release_hard_lock.assert_not_called()
+
+    def test_spawn_and_preproof_interruptions_retain_uncertainty(self):
+        for failure in ("spawn", "wait", "log-consumer"):
+            with self.subTest(failure=failure):
+                device, ledger = FakeDevice(), Mock()
+                device.packages = {APP: "candidate", TEST: "test"}
+                stream, process = Mock(), Mock()
+                stream.poll.side_effect = [None, 1] if failure == "log-consumer" else None
+                stream.poll.return_value = None
+                process.wait.side_effect = KeyboardInterrupt("interrupted") if failure == "wait" else None
+                process.wait.return_value = 0
+                spawned = OSError("instrumentation spawn failed") if failure == "spawn" else process
+                with tempfile.TemporaryDirectory() as directory, patch("shared_device_runner.subprocess.Popen",
+                        side_effect=[stream, spawned]), patch("shared_device_runner.selected_methods",
+                        return_value=["example.Test#original"]), patch("builtins.print"):
+                    with self.assertRaises(BaseExceptionGroup), native_lane(ledger, device):
+                        execute_cohort(device, Path(directory), "chat", {}, "candidate", "test")
+                self.assertTrue(device.application_state_uncertain)
+                ledger.release_hard_lock.assert_not_called()
+
+    def test_uncertain_prior_fixture_blocks_subsequent_cohort_before_spawn(self):
+        device = FakeDevice()
+        device.application_state_uncertain = True
+        with tempfile.TemporaryDirectory() as directory, patch("shared_device_runner.subprocess.Popen") as spawn:
+            with self.assertRaisesRegex(RuntimeError, "Prior fixture state is uncertain"):
+                execute_cohort(device, Path(directory), "chat", {}, "candidate", "test")
+        spawn.assert_not_called()
+
+    def test_host_kill_failure_still_attempts_bounded_wait_and_owned_guest_stop(self):
+        device, ledger = FakeDevice(), Mock()
+        device.packages = {APP: "candidate", TEST: "test"}
+        device.active = [f"ActiveInstrumentation{{abc {TEST}/androidx.test.runner.AndroidJUnitRunner 1 procs}}"]
+        stream, process = Mock(), Mock()
+        stream.poll.return_value = None
+        process.wait.side_effect = [subprocess.TimeoutExpired("instrument", 600), 0]
+        process.kill.side_effect = OSError("host kill failed")
+        with tempfile.TemporaryDirectory() as directory, patch("shared_device_runner.subprocess.Popen",
+                side_effect=[stream, process]), patch("shared_device_runner.selected_methods",
+                return_value=["example.Test#original"]), patch("builtins.print"):
+            with self.assertRaises(BaseExceptionGroup) as caught, native_lane(ledger, device):
+                execute_cohort(device, Path(directory), "chat", {}, "candidate", "test")
+        self.assertIn("host kill failed", repr(caught.exception))
+        self.assertEqual([600, 15], [call.kwargs["timeout"] for call in process.wait.call_args_list])
+        self.assertIn(("shell", "am force-stop " + APP), device.calls)
+        self.assertTrue(device.application_state_uncertain)
         ledger.release_hard_lock.assert_not_called()
 
 

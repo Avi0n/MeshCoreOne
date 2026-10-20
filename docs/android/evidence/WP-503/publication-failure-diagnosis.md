@@ -1,5 +1,52 @@
 # Published f75: producer dependencies and incomplete failure identity retention
 
+## Later exact7a5 run: coordinator-retrieved original log
+
+The coordinator reports authenticated retrieval of the existing
+[run39319949170, Linux job118291990962](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39319949170/job/118291990962)
+at published **7a5caa7b9adc208234fd97c4a6958c3192852dd2**:
+`:app:testDebugUnitTest`, **800 tests completed,4 failed**. This is a distinct
+current-candidate host failure, not the old f75 run or native API37 execution.
+The retained bounded tail exposes the same two unqualified method headings:
+
+| Actual retained heading | Actual retained assertion |
+| --- | --- |
+| `NativeNodesAccessibilityTest.offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner` | `OfflineNodesAudit.kt:96`, expected0 progress nodes, actual1 |
+| `NativeNodesAccessibilityTest.offlinePathAndTransportActionsKeepDisabledStateAndFullLabelsAtFont200` | `OfflineNodesAudit.kt:73`, Reset Path not displayed |
+
+The other two failure identities/SDK variants are absent from that bounded
+tail and remain unknown, not inferred. Exact7a5 adds only the two owned Python
+adapter/test files to the Android tree compared with f75; it does not import
+the missing WP311 product fixes. The source diagnosis below therefore remains
+applicable to the two exposed methods, not a classification of all four.
+
+The coordinator also reports controller118291416275 and macOS26
+codec118291990803 PASS, SwiftData SKIPPED due to Linux, and final guard FAILURE.
+These reports are attributed to that authenticated coordinator retrieval;
+this worker's attempts to independently query the run/log were blocked before
+execution by both Windows shell startup probes timing out. No copied CI log,
+XML, result bundle, native pass or rerun is created here.
+
+The coordinator's current PR233 successor81d is reported to preserve the fd9
+Android tree with green exact-candidate CI. Preserve the original assertions
+when that existing owner's genuine dependency is admitted/integrated; do not
+replay f75/7a5 solely to reconstruct the two lost headings or claim a new
+candidate's outcome from these old runs. This new narrative is currently local
+and unpublished during the process-tool outage.
+
+The coordinator subsequently pinned both visible failures to exact7a5
+production blobs, confirming the source diagnosis below: discovery
+`6958f6d` returns before cached-radio loading, while reviewed PR23381d
+`825b881` uses the known-radio fallback and a terminal unavailable state;
+detail `f81c30c` uses a single action Row, while `84b6da7` uses FlowRow.
+This is coordinator-attributed source review, not this worker's new Git
+comparison or an API37 execution result. The existing WP003 owner is handling
+the `ci.py` last12000-character feedback-loss issue for future genuine
+candidates; no old-head rerun is requested. Neither attribution clears the
+other two unidentified failures or transfers a hosted verdict to a composite.
+
+## Historical exact-f75 diagnosis
+
 This is a source-based diagnosis, not a second CI result/log bundle, new
 execution, or acceptance receipt. The authoritative
 [run39300338554](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39300338554)

@@ -191,3 +191,107 @@ Offline parsing of the existing final LoS1 and Nodes7 reports accepts their
 actual terminal `INSTRUMENTATION_CODE: -1`; this is parser compatibility only,
 not a device replay or new native credit. Controller validator is valid and
 `git diff --check` passes. Independent source review is still required.
+
+### Subsequent application-state cleanup finding
+
+This subsection preserves the original worker's unexecuted preparation state.
+The replacement-worker verification below supersedes its host-test/tool-outage
+status, not any original device observation.
+
+The coordinator's follow-up review identifies that force-stopping owned guest
+instrumentation can skip the selected chat fixture's Kotlin `finally`, leaving
+fixture device/contact/message rows, onboarding/draft preferences or a resized
+window behind. Restoring the APK and matching package hashes cannot prove those
+user-state changes were undone.
+
+The subsequent **local, not yet validated or published** correction marks an
+incomplete/force-terminated invocation as uncertain application state, writes a
+source/cohort/endpoint-bound recovery receipt before stopping the owned guest,
+and retains the native lane even if the guest stops and both APK identities are
+restored. A receipt does not invent original preference/row snapshots: it
+explicitly records their unavailability. Only an independently verified,
+supported exact-fixture/preferences/window recovery using genuine original state
+can resolve the lane; no generic data wipe or foreign-record deletion is added.
+The adapter contains no automatic recovery or success-shaped override for this
+state.
+
+Each native lock acquisition also uses an operation-unique owner token while
+retaining the canonical session identity in its payload/receipt. A subsequent
+invocation of this same worker cannot use the ledger's same-owner re-entry to
+overwrite a prior retained uncertain-state lane. The corresponding collision
+regression is added locally, also unexecuted under the tool outage.
+
+A revised host failure-injection test seeds chat rows, changed draft/onboarding
+preferences and a resized window, times out the guest, and asserts that APK
+restoration still leaves those fixture effects uncertain with a recovery receipt
+and retained lane. These new edits **have not been executed**: current process-tool
+startup probes time out for both `pwsh.exe` and `powershell.exe` before the requested
+command runs. The previous14-test result belongs to published7a5, not this local
+correction. No additional native/install/key/settings/user-data/lifecycle
+operation or APK result is claimed.
+
+Further source-only review corrections isolate receipt I/O from bounded owned
+host/guest termination attempts, aggregate both failure paths, and establish
+in-memory uncertainty before instrumentation spawn. Transcript read/decode errors
+and pre-proof interruptions can no longer rely on an already-quiescent guest to
+release the lane. Only normal all-positive terminal proof without forced stop
+clears this conservative state. New receipt-write and transcript-read failure
+injections remain unexecuted.
+
+The native lane now includes `payload.wp=WP-503` alongside the unchanged
+canonical identity and unique operation owner. The coordinator identifies this
+as required by proposed PR243 standard-debug support. Any future deployed
+`assemble_debug_pair` call must receive `device.native_lane_owner` under that
+same held lane, not canonical `OWNER` or a second lock. This change imports or
+executes no undeployed adapter; its metadata regression is also unexecuted.
+
+### Replacement-worker runner verification
+
+The authorized replacement recovered the two actual runner/test files and
+three modified WP503 narratives byte-for-byte from the stopped worker's
+read-only checkout at `7a5caa7b9adc208234fd97c4a6958c3192852dd2`.
+The ordered source-only snapshots remain preserved; actual working bytes,
+not an assumed apply-ready patch, supplied recovery. The original checkout
+and all original non-reproducible evidence remain unchanged.
+
+Trusted policy was refreshed from main
+`574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`; its source pin is still
+`db14559b39d32322b06477c6ae676112f583db50`. The branch's older publication
+policy differs, so capability admission used the refreshed trusted policy.
+The controller capability/transfer implementation matches that trusted base.
+Typed `CapabilityEngine.transfer_intent` receipts bind each recovered path,
+the canonical origin `1666502a-0420-46ef-930f-e78651ba8b9f` and replacement
+app session `df52b3d0-81d4-49fb-b88f-a5926ed31fa5` (CLI
+`b531305a-0513-4731-896f-2b470f8879cd`). Canonical claim revision8,
+identity, bindings, authorization prose and history were not rewritten or
+released/reacquired. The attributed handoff and byte hashes are retained in
+the replacement session's `files/wp503-replacement-handoff.json`, not a
+duplicate hosted-CI result bundle.
+
+Direct `python.exe` execution in the replacement's isolated worktree succeeds
+through a documented session-local Node extension with `shell:false`, despite
+unavailable PowerShell. The recovered suite first passed18 tests. Expanded
+positive and failure-path coverage then passed **23 tests, zero failures,
+errors or skips** using the existing focused command:
+
+```powershell
+python -m unittest discover -s android\accessibility-tests -p test_shared_device_runner.py -v
+python tools\android-port\controller\validate.py
+git diff --check
+```
+
+The validator reports `valid` (64 WPs,178 dependency edges); whitespace
+validation exits0. The23 host tests include operation-owner UUID shape,
+retained-owner collision, receipt-write failure with independent bounded
+host/verified-owned guest stop, host-kill failure with subsequent bounded wait,
+transcript read/decode errors, spawn/pre-proof interruption, nonpositive or
+forced completion, prior-uncertainty rejection, and normal all-positive
+completion releasing only the actual operation owner.
+
+These are Python host regressions, not API37 results, Android compilation,
+physical TalkBack, signing compatibility or whole-WP acceptance. No successful
+native cohort was replayed, no current endpoint admission was inferred from
+the historical5037/emulator-5556 record, and no device/package/key/user-data
+operation occurred. Missing-only27 still requires a genuine trusted compatible
+exact-source App/Test pair and admitted native-host capability. Packaging
+adapter/controller changes remain with their WP003 producer.

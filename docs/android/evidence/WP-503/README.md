@@ -53,6 +53,15 @@ The historical unauthorized result and f75 hosted diagnosis remain separate.
 
 ## Published f75 hosted failure: dependency and historical report loss
 
+**Later exact7a5:** the coordinator retrieved the original authenticated
+run39319949170/Linux118291990962 log: App host800/4FAILED, same visible offline
+Discovery spinner and Reset Path failures, other2 identities absent from the
+bounded tail. No new native API37 failure is inferred. The two Python-only
+Android changes since f75 do not supply missing311 production fixes.
+[Attributed current-run diagnosis](publication-failure-diagnosis.md#later-exact7a5-run-coordinator-retrieved-original-log).
+This worker cannot independently retrieve it while both shell launchers time
+out; this local narrative is not a second CI-result bundle or an executed test.
+
 Exact hosted39300338554 is terminal **FAILURE** at publishedf75d4e4f;
 App host/Robolectric task reports800 completed/4 failed. Only two
 unqualified method identities survive the runner's12000-character failure

@@ -10,6 +10,7 @@ import socket
 import subprocess
 import sys
 import time
+import uuid
 import zipfile
 
 
@@ -187,6 +188,16 @@ class Device:
                 "Unrecognized active instrumentation inventory; do not restore APK or release lane")
         return entries
 
+    def mark_application_state_uncertain(self, reason):
+        self.application_state_uncertain = True
+        self.fixture_completion_untrusted = True
+        context = getattr(self, "fixture_recovery_context", None)
+        require(context is not None, "No bound fixture recovery receipt; retain lane without stopping guest")
+        context["status"] = "UNCERTAIN_APPLICATION_STATE_NATIVE_LANE_RETAINED"
+        context.setdefault("reasons", []).append(reason)
+        context["fixture_preferences_and_window_restoration_verified"] = False
+        self.fixture_recovery_path.write_text(json.dumps(context, indent=2) + "\n")
+
     def finish_owned_instrumentation(self, app_digest, test_digest):
         active = self.active_instrumentations()
         if not active:
@@ -196,19 +207,33 @@ class Device:
                 "Foreign instrumentation observed; no unrelated guest process will be stopped")
         require(self.installed(APP)["sha256"] == app_digest and self.installed(TEST)["sha256"] == test_digest,
                 "Active guest no longer matches this lane's exact owned App/Test APKs")
+        errors = []
+        try:
+            self.mark_application_state_uncertain(
+                "Owned guest must be force-stopped; Kotlin fixture finally may not execute")
+        except (RuntimeError, OSError) as receipt_failure:
+            errors.append(receipt_failure)
         # The lane was empty before our invocation; stop only its verified instrumented target.
-        self.shell("am force-stop " + APP)
-        deadline = time.monotonic() + 10
-        while self.active_instrumentations():
-            require(time.monotonic() < deadline, "Owned guest instrumentation did not terminate; retain native lane")
-            time.sleep(0.1)
+        try:
+            self.shell("am force-stop " + APP)
+            deadline = time.monotonic() + 10
+            while self.active_instrumentations():
+                require(time.monotonic() < deadline, "Owned guest instrumentation did not terminate; retain native lane")
+                time.sleep(0.1)
+        except (RuntimeError, subprocess.SubprocessError, OSError) as stop_failure:
+            errors.append(stop_failure)
+        if errors:
+            raise ExceptionGroup("Owned guest cleanup/uncertainty receipt failures", errors)
         return "owned-guest-finished-and-verified-quiescent"
 
 
 @contextmanager
 def native_lane(ledger, device):
-    ledger.acquire_hard_lock("native-execution", OWNER, {
-        "endpoint": "127.0.0.1:5037/" + SERIAL, "purpose": "missing-only27", "source": HEAD,
+    lock_owner = OWNER + ":shared37:" + uuid.uuid4().hex
+    device.native_lane_owner = lock_owner
+    ledger.acquire_hard_lock("native-execution", lock_owner, {
+        "wp": "WP-503", "canonical_session_id": OWNER, "endpoint": "127.0.0.1:5037/" + SERIAL,
+        "purpose": "missing-only27", "source": HEAD,
     }, time.time())
     try:
         yield
@@ -217,6 +242,9 @@ def native_lane(ledger, device):
         try:
             require(not device.active_instrumentations(),
                     "Guest instrumentation unresolved: native lane retained, not released")
+            require(not getattr(device, "application_state_uncertain", False),
+                    "Fixture/application state unresolved after incomplete or forced termination: "
+                    "retain native lane until exact fixture/preferences/window recovery is independently verified")
             original = getattr(device, "original_target_digest", None)
             if original is not None:
                 actual = device.installed(APP)
@@ -225,7 +253,7 @@ def native_lane(ledger, device):
         except (RuntimeError, subprocess.SubprocessError, OSError) as cleanup:
             raise BaseExceptionGroup("Native lane retained pending verified guest cleanup",
                                      ([primary] if primary else []) + [cleanup])
-        ledger.release_hard_lock("native-execution", OWNER)
+        ledger.release_hard_lock("native-execution", lock_owner)
 
 
 def restore_packages(device, backup, original_digest, app_digest, test_digest):
@@ -304,12 +332,32 @@ def has_original_schema(apk):
 
 
 def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
+    require(not getattr(device, "application_state_uncertain", False),
+            "Prior fixture state is uncertain; no subsequent cohort may start")
     require(device.profile() == profile, "Runtime profile changed between cohorts")
     require(device.installed(APP)["sha256"] == app_digest and device.installed(TEST)["sha256"] == test_digest,
             "Actual installed source-bound APKs changed")
     expected = selected_methods(cohort)
     stem = directory / ("device-shared37-" + cohort)
     require(not stem.with_suffix(".txt").exists(), "Existing result must not be replayed or overwritten")
+    device.fixture_recovery_path = Path(str(stem) + "-recovery.json")
+    require(not device.fixture_recovery_path.exists(), "Existing fixture recovery receipt must not be overwritten")
+    device.fixture_recovery_context = {
+        "canonical_session_id": OWNER, "source_head": HEAD, "android_tree": TREE,
+        "native_lane_operation_owner": getattr(device, "native_lane_owner", None),
+        "cohort": cohort, "original_identities": expected,
+        "endpoint": "127.0.0.1:5037/" + SERIAL,
+        "source_bound_app_sha256": app_digest, "source_bound_test_sha256": test_digest,
+        "profile_before": profile,
+        "original_target_sha256": getattr(device, "original_target_digest", None),
+        "original_fixture_rows_and_preferences_snapshot_available": False,
+        "required_recovery": (
+            "Retain native lane and uncertainty receipt. Independently verify exact owned fixture rows, "
+            "saved preferences/draft/onboarding and original window restoration through a supported "
+            "fixture-scoped recovery operation with genuine original snapshots; never wipe data or "
+            "overwrite/delete foreign records. APK restoration is not application-state restoration."
+        ),
+    }
     command = device.command("shell", "am", "instrument", "-w", "-r", "-e", "class", ",".join(expected),
                              "-e", "expectedApi", "37", TEST + "/androidx.test.runner.AndroidJUnitRunner")
     # Stream only new System.out records. Never clear the shared device log buffers.
@@ -319,13 +367,26 @@ def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
         stream = subprocess.Popen(log_command, stdout=logs, stderr=subprocess.STDOUT)
         try:
             require(stream.poll() is None, "Scoped log consumer did not start")
+            device.application_state_uncertain = True
+            device.fixture_completion_untrusted = False
             process = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT)
             try:
                 code = process.wait(timeout=600)
             except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait()
-                raise TimeoutError("Original600s outer deadline exceeded; partial output retained, no retry")
+                failures = [TimeoutError("Original600s outer deadline exceeded; partial output retained, no retry")]
+                for action in (
+                    lambda: device.mark_application_state_uncertain(
+                        "Original600s host timeout; guest completion and Kotlin fixture finally are unverified"),
+                    process.kill,
+                    lambda: process.wait(timeout=15),
+                ):
+                    try:
+                        action()
+                    except (RuntimeError, subprocess.SubprocessError, OSError) as cleanup_failure:
+                        failures.append(cleanup_failure)
+                if len(failures) > 1:
+                    raise ExceptionGroup("Native timeout and host/receipt cleanup failures", failures)
+                raise failures[0]
             require(stream.poll() is None, "Scoped log consumer exited during instrumentation")
         finally:
             primary = sys.exception()
@@ -336,13 +397,25 @@ def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
             ):
                 try:
                     action()
-                except (RuntimeError, subprocess.SubprocessError, OSError) as cleanup:
+                except (RuntimeError, subprocess.SubprocessError, OSError, ExceptionGroup) as cleanup:
                     errors.append(cleanup)
             if errors:
                 raise BaseExceptionGroup("Instrumentation/log-consumer cleanup failed",
                                          ([primary] if primary else []) + errors)
-    raw = stem.with_suffix(".txt").read_text(encoding="utf-8")
-    summary = parse_outcomes(raw, expected)
+    try:
+        raw = stem.with_suffix(".txt").read_text(encoding="utf-8")
+        summary = parse_outcomes(raw, expected)
+        require(code == 0 and summary["passed"] == len(expected) and
+                not device.fixture_completion_untrusted,
+                "Normal all-positive fixture completion is unverified; retain native lane")
+    except (OSError, RuntimeError, KeyError, ValueError) as failure:
+        try:
+            device.mark_application_state_uncertain(
+                "Native transcript/completion proof failed; fixture finally is unverified: " + str(failure))
+        except (RuntimeError, OSError) as receipt_failure:
+            raise ExceptionGroup("Native proof and uncertainty receipt failures", [failure, receipt_failure])
+        raise
+    device.application_state_uncertain = False
     summary.update({"cohort": cohort, "command": command, "process_exit": code})
     metrics = [line for line in Path(str(stem) + "-logcat.txt").read_bytes().splitlines()
                if line.startswith(b"WP503_")]
@@ -381,6 +454,7 @@ def main():
               "profile_adaptation": "actual4CPU/IME0; no assertion/deadline/settings/source change"}
     device = Device()
     with native_lane(ledger, device):
+        result["native_lane_operation_owner"] = device.native_lane_owner
         result["profile_before"] = profile = device.profile()
         result["installed_before"] = before = device.installed(APP)
         require(before is not None, "Existing user target APK needs an explicit preservation plan")
@@ -423,6 +497,9 @@ def main():
             primary = sys.exception()
             if primary is not None:
                 result["execution_error"] = repr(primary)
+            if getattr(device, "application_state_uncertain", False):
+                result["application_state"] = "UNCERTAIN_NATIVE_LANE_RETAINED"
+                result["fixture_recovery_receipt"] = str(device.fixture_recovery_path)
             cleanup_errors = []
             try:
                 result["guest_cleanup"] = device.finish_owned_instrumentation(app_digest, test_digest)
@@ -431,7 +508,7 @@ def main():
                 cleanup_errors.extend(errors)
                 require(device.profile() == profile, "Original shared runtime profile was not restored")
                 result["cleanup"]["original_profile"] = "verified"
-            except (RuntimeError, subprocess.SubprocessError, OSError) as failure:
+            except (RuntimeError, subprocess.SubprocessError, OSError, ExceptionGroup) as failure:
                 cleanup_errors.append(failure)
                 result.setdefault("cleanup", {})["guest_or_profile"] = repr(failure)
             (args.output / "operations.json").write_text(json.dumps(result, indent=2) + "\n")
