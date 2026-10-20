@@ -19,15 +19,17 @@ Branch: `cbattlegear-issue-135-wp-502-compose-flows-and-deterministic-534de7`.
 
 Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
-Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
+Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
+Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
+the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `0183a2b206b9ba655d7fea5c281b8bfbfecf8847`.
+Current integrated base: `9c430cb0f1666faacc443794899b68c01128a87a`.
 At the prior integrated base `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`,
 the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
-Current policy/controller bytes are unchanged authoritative main0183 bytes.
-The existing typed reservation was evolved to revision 18, not replaced.
+Current policy/controller bytes are unchanged authoritative main9c430cb0 bytes.
+The existing typed reservation was evolved to revision 19, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -78,6 +80,29 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Integration of deployed software verification
+
+PR246 actually merged as authoritative main
+`9c430cb0f1666faacc443794899b68c01128a87a`. Same-owner reservation19 admits
+its fifteen changed paths through `merge-integration/reconcile-current-base`;
+integration commit `4f8d53e080631221c3825618052c90613fd71698` preserves those
+owner bytes/attributions exactly. All Android bytes, including both Rooms and
+adaptive tests, are identical to published predecessor759. No producer-local
+cohort, device observation or manual hosted run is replayed for this integration.
+
+The deployed WP-003 software-verification amendment now declares the existing
+controller `preflight`, `run --stage scaffold` and `inspect` commands for WP-502.
+Full `configured:false` is intentionally retained for unfinished feature/original
+families, candidate-device observations, approved goldens and physical/human
+acceptance. It no longer says that Gradle/Android infrastructure is absent.
+This is an inherited exact-inverse manifest amendment, not a new WP-502 policy
+or catalog edit and not a dependency/acceptance unlock.
+
+Local Rooms4/57 results remain bound to code160/base0183. Hosted759 results
+remain bound to their own head/base; no pass or failure is transferred here.
+Bounded [source-only review5588526416](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5588526416)
+is COMMENTED at759, not a successor review, gate verdict or approval.
 
 ### Bounded Rooms production slice in PR244
 
@@ -135,8 +160,9 @@ instrumentation execution, physical folding, spoken TalkBack or approved
 goldens are claimed. Full Rooms server sync/history, ordering, links/actions
 and persistence/radio integration remain outside this bounded slice; broader
 feature-matrix/source-family and full WP-502 acceptance remain open.
-Existing WP-003's verification amendment in PR246 is not treated as deployed
-or as whole-WP acceptance.
+At this historical759 execution/publication, WP-003's amendment was not yet
+deployed. Its subsequent authoritative integration is recorded above, without
+turning the Rooms results into whole-WP acceptance.
 
 ### Remaining software coverage after merged PR206
 
@@ -172,8 +198,8 @@ device selectors and honest unfinished rows are in
 verification-config amendment and semantic command/inventory mapping are
 requested from the existing WP-003 producer via
 [issue135 comment6293815386](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135#issuecomment-6293815386).
-The stale unconfigured WP000 blocker is not a product-development hold or
-permission to invent a verification task or claim whole-WP acceptance.
+That historical request is fulfilled by the deployed WP-003 amendment above;
+it does not authorize invented tasks or whole-WP acceptance.
 
 ### Follow-up: actual advert consumer error mapping
 
@@ -576,9 +602,10 @@ files directory under `wp502/sdk<actual>/themes`. Do not commit a second
 reproducible CI-result/image bundle; exact-candidate hosted results/logs remain
 authoritative. Retain only actual non-reproducible device/human evidence.
 
-`verification.configured=false` and no WP-502 commands remain in the manifest.
-Existing declared App/scaffold commands can execute registered real tests, but
-do not constitute formal full-WP admission or acceptance.
+`verification.configured=false` remains in the deployed manifest with actual
+software commands now declared by the versioned WP-003 amendment. These
+App/scaffold commands execute registered real tests but do not constitute
+formal full-WP acceptance.
 `WP-502-behavior`, `WP-502-boundaries`, and `WP-502-source-test-parity` remain
 unaccepted pending complete implemented/observed coverage, exact-candidate
 checks and review. Keep #135 open/assigned; no physical radio, legal, signing,

@@ -4,7 +4,7 @@ This is a bounded command-to-behavior mapping for the existing WP-003 producer's
 verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
-`0183a2b206b9ba655d7fea5c281b8bfbfecf8847`. The same producer/reservation owns
+`9c430cb0f1666faacc443794899b68c01128a87a`. The same producer/reservation owns
 the new adaptive and Rooms regressions. Historical native observations remain untouched.
 
 ## Existing task and source registration
@@ -13,6 +13,14 @@ the new adaptive and Rooms regressions. Historical native observations remain un
 `android/ui-tests/src/test/kotlin` and `android/screenshot-tests/src/shared/kotlin`
 in the App unit-test source set. Their device counterparts are in App androidTest.
 There are no standalone `:ui-tests` or `:screenshot-tests` Gradle modules.
+
+Merged WP-003 PR246 deploys the exact-inverse software-verification amendment
+with existing controller `preflight`, `run --stage scaffold` and `inspect`
+commands. Full `configured:false` intentionally preserves unfinished acceptance;
+it is not an infrastructure-absence or software-execution blocker.
+Same-owner reservation19 integrates the authoritative amendment without
+changing Android bytes. Local code160 results below remain code160/base0183
+executions, not new current-base runs or transferred hosted/review verdicts.
 
 The existing task, executed through the installed serialized Git-bundle/ext4
 snapshot lane, is:
@@ -187,7 +195,7 @@ Primary WP-307 ownership is unchanged.
 | --- | --- |
 | Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs now have a bounded57-input production Rooms slice and four route/content methods. Full Rooms sync/history/actions/store/radio families and onboarding, reactions/path, nodes/discovery, full map, remote admin, tools and settings families remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
-| Formal verification entry | Existing WP-003 owns supported `verification_config.py` overlay/manifest-lineage amendment (published PR246, not deployed here). `configured:false` retains unfinished full acceptance rather than blocking bounded supported App software checks. No configuration/approval or dependency unlock is claimed. |
+| Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |
 | Physical resize/folding, spoken TalkBack, radio/background | Human/device evidence unverified; does not block ordinary deterministic software implementation. |
 | Approved visual goldens | No approval/baseline manufactured or updated. Identical settled draws do not prove visual parity. |
