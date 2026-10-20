@@ -308,10 +308,12 @@ class CliTests(unittest.TestCase):
 class ProvenanceTests(unittest.TestCase):
     def temporary_manifest(self, directory):
         from controller.scope_amendment import AMENDMENT_PATH
+        from controller.software_verification import RECORD_PATH
 
-        amendment = Path(directory) / AMENDMENT_PATH
-        amendment.parent.mkdir(parents=True, exist_ok=True)
-        amendment.write_bytes((REPO / AMENDMENT_PATH).read_bytes())
+        for relative in (AMENDMENT_PATH, RECORD_PATH):
+            amendment = Path(directory) / relative
+            amendment.parent.mkdir(parents=True, exist_ok=True)
+            amendment.write_bytes((REPO / relative).read_bytes())
         return replace(base_manifest(), repo=Path(directory))
 
     def test_navigation_scope_requires_the_actual_immutable_translation_amendment(self):

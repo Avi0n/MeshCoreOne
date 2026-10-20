@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "amendment_id": "WP-003-software-verification-v1",
+  "owner": "android-build-engineer",
+  "base_sha": "0183a2b206b9ba655d7fea5c281b8bfbfecf8847",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "capability_id": "traceability-validation",
+  "operation": "add-or-update-validator-rule",
+  "authorization": "User-directed WP003 follow-through: integrate existing WP502/WP504 task mappings through a versioned verification overlay, preserving historical receipts and remaining acceptance gaps.",
+  "previous_manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "current_manifest_sha256": "977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8",
+  "mapping_sources": [
+    "https://github.com/cbattlegear/MeshCoreOne-Android/blob/dcd133840897a8aee19941633b612ed9cc40bc1b/docs/android/evidence/WP-502/software-verification.md",
+    "https://github.com/cbattlegear/MeshCoreOne-Android/issues/137#issuecomment-6293784662"
+  ],
+  "scope": "Existing executable software checks only. No original-case, device, human, performance-budget, dependency or whole-WP acceptance is granted.",
+  "work_packages": [
+    {
+      "id": "WP-502",
+      "previous": {
+        "configured": false,
+        "commands": [],
+        "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+      },
+      "current": {
+        "configured": false,
+        "commands": [
+          ["python", "tools/android-port/controller/ci.py", "preflight"],
+          ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"],
+          ["python", "tools/android-port/controller/ci.py", "inspect"]
+        ],
+        "blocker": "Software commands are available through the existing App/scaffold lane, not standalone UI modules. Full WP verification remains unconfigured: complete production-feature and original-family accounting, exact-candidate API31/37 and targeted33/34/36 observations, approved visual goldens and physical folding/TalkBack/radio evidence are still required. See the versioned WP-003 software-verification amendment."
+      }
+    },
+    {
+      "id": "WP-504",
+      "previous": {
+        "configured": false,
+        "commands": [],
+        "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+      },
+      "current": {
+        "configured": false,
+        "commands": [
+          ["python", "tools/android-port/controller/ci.py", "preflight"],
+          ["python", "tools/android-port/controller/ci.py", "run", "--stage", "benchmark"]
+        ],
+        "blocker": "Software harness/dataset/R8/static-alignment commands are available. Full WP verification remains unconfigured: actual baseline/profile and startup/timeline/map measurements on supported devices, approved measured budgets, runtime16KB compatibility and StrictMode/ANR/battery evidence are still required. Harness assembly is not a benchmark measurement. See the versioned WP-003 software-verification amendment."
+      }
+    }
+  ]
+}
