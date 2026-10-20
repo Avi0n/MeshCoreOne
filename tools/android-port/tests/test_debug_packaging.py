@@ -60,6 +60,57 @@ class DebugPackagingTests(unittest.TestCase):
             with self.subTest(index=index, field=field), self.assertRaises(PortError):
                 packaging.verify_pair(*values)
 
+    def test_actual_apk_identity_accepts_exact_sdk37_v2_and_numbered_signer_formats(self):
+        certificate = "000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7"
+        for label, value in (("V2 Signer:", certificate), ("Signer #1", certificate.upper())):
+            output = (
+                f"{label} certificate DN: CN=Android Debug, O=Android, C=US\n"
+                f"{label} certificate SHA-256 digest: {value}\n"
+                f"{label} certificate SHA-1 digest: {'a' * 40}\n"
+                f"{label} certificate MD5 digest: {'b' * 32}\n"
+            )
+            with self.subTest(label=label):
+                result, calls = self.apk_fixture(output)
+                self.assertEqual(result["certificate_sha256"], certificate)
+                self.assertEqual(result["package"], packaging.PACKAGES[0])
+                for call in calls:
+                    self.assertEqual(call.kwargs["encoding"], "utf-8")
+                    self.assertEqual(call.kwargs["errors"], "strict")
+                self.assertIn("-Dfile.encoding=UTF-8", calls[0].args[0])
+                self.assertEqual(calls[0].args[0][-3:-1], ["verify", "--print-certs"])
+
+    def test_actual_apk_identity_rejects_ambiguous_unknown_malformed_signers_and_packages(self):
+        line = "V2 Signer: certificate SHA-256 digest: " + "a" * 64
+        for output in (
+            "", line + "\n" + line,
+            line + "\nSigner #2 certificate SHA-256 digest: " + "b" * 64,
+            line + "\nV3 Signer: certificate SHA-256 digest: " + "b" * 64,
+            line.replace("V2 Signer:", "Unknown Signer:"),
+            line[:-1], line + "0", line.replace("a" * 64, "g" * 64),
+        ):
+            with self.subTest(output=output), self.assertRaises(PortError):
+                self.apk_fixture(output)
+        for badging in ("", "package: name='one'\npackage: name='two'"):
+            with self.subTest(badging=badging), self.assertRaises(PortError):
+                self.apk_fixture(line, badging=badging)
+
+    def test_actual_apk_identity_requires_successful_verification_and_strict_text_decoding(self):
+        for error in (subprocess.CalledProcessError(1, ["apksigner"]),
+                      UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid")):
+            with self.subTest(error=type(error).__name__), self.assertRaisesRegex(PortError, "verification failed"):
+                self.apk_fixture(error)
+
+    def apk_fixture(self, output, *, badging=None):
+        apk = self.root / "public-fixture.apk"
+        apk.write_bytes(b"fixture, not a real APK")
+        if badging is None:
+            badging = f"package: name='{packaging.PACKAGES[0]}' versionCode='1'\n"
+        with patch.object(packaging.subprocess, "check_output",
+                          side_effect=output if isinstance(output, Exception) else [output, badging]) as run:
+            result = packaging.apk_identity(apk, self.root / "sdk-tools", {"JAVA_HOME": str(self.root / "jdk")})
+        self.assertEqual(result["sha256"], packaging.sha256(apk))
+        return result, run.call_args_list
+
     def test_packaging_fixed_tasks_preserves_native_lane_and_starts_no_tests_or_installs(self):
         self.exercise()
 
