@@ -103,7 +103,10 @@ class OnboardingRegionPresetComposeTest {
     private fun pick(label: Int, query: String, name: String) {
         button(label).performScrollTo().performClick()
         compose.onNode(hasSetTextAction() and hasText(text(C.chatsSearchPlaceholder))).performTextReplacement(query)
-        compose.onNode(hasText(name) and hasClickAction() and !hasSetTextAction()).assertIsDisplayed().performClick()
+        compose.onNode(
+            hasText(name) and hasClickAction() and !hasSetTextAction() and
+                hasAnyAncestor(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)),
+        ).assertIsDisplayed().performClick()
         compose.onNode(hasSetTextAction()).assertDoesNotExist()
     }
 
