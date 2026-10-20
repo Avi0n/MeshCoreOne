@@ -69,11 +69,13 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `liveNewestArrivalAppearsAfterTheExistingRowsBeforeTheHeldReload` | Frozen `[100,200]+300 -> [100,200,300]`; new visible tail, exact stable identities before/after reload. |
 | `liveEqualTimestampArrivalFollowsTheExistingIdentityBeforeTheHeldReload` | Frozen existing200 `"first"` then distinct200 `"second"`; actual visible arrival order and createdAt-consistent persisted reconciliation, no replacement. |
 | `liveDuplicateIdentityCannotReorderOrReplaceTheExistingRowBeforeTheHeldReload` | Frozen existing200 ID replayed at150; exact original DTO/order/visible row retained despite duplicate burst, one coalesced fetch only. |
+| `liveMidInsertionReconfiguresTheRetainedLaterRowsTimestampBeforeReload` | Frozen same-prefix0xAA/Alice `[100,500]+250 -> [100,250,500]`; original later DTO/identity retained, its timestamp flag changes true-to-false and its actual visible header disappears before/during/after held reload. First header/visible row order/CJK-RTL draft remain, two exact read-side-effect sequences and no post/join/retry/error. Explicit US/UTC restored afterward; not full date-format/avatar parity. |
 
-Current source has9 methods. New code
+Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
 preflight0.62s and actual strict **5 discovered/run/PASS,0 failures/errors/skips,
-43s build**, all five named XML identities read. Actual declared selector:
+43s build**, all five named XML identities read. That source has9 methods,
+not a combined9-case execution. Its actual declared selector:
 
 ```text
 :app:testDebugUnitTest
@@ -93,6 +95,42 @@ unchanged DTOs/draft/no empty/spinner, then exactly one additional fetch and
 post-release read/failed-seen/notification/badge/change sequence. No send/join/
 retry/failure and exactly one subscriber. Four older methods/57 inputs were
 not replayed; this is not a combined9-case or current hosted/native verdict.
+
+Current code **d76a576af1960155931d12baa14a7e6e59554b28** on ec0 adds the
+retained-row timestamp witness and corrects the shared new-message fixture.
+The earlier `message(false).copy(...)` kept the original derived
+`deduplicationKey` after changing timestamp/prefix/text. Frozen RoomMessage's
+initializer and current RoomMessageDTO derive that field from those inputs;
+construct a fresh DTO instead, including the same-ID150 duplicate replay.
+Distinct-key fixture guards and a changed-key assertion prevent that accidental
+field reuse. No production codec/dedup behavior or primary parity accounting
+is changed/claimed. Earlier ece5/5 is not retroactive validation of this correction.
+
+Because all five new consumers share the corrected fixture, the smallest
+affected selector is these five plus the new timestamp method:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveOutOfOrderArrivalAppearsBetweenExistingRowsBeforeTheHeldReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveOlderArrivalAppearsBeforeTheExistingRowsBeforeTheHeldReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveNewestArrivalAppearsAfterTheExistingRowsBeforeTheHeldReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveEqualTimestampArrivalFollowsTheExistingIdentityBeforeTheHeldReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveDuplicateIdentityCannotReorderOrReplaceTheExistingRowBeforeTheHeldReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveMidInsertionReconfiguresTheRetainedLaterRowsTimestampBeforeReload
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Installed preflight **PASS0.60s**; actual **6 discovered/run/PASS,0 failures/
+errors/skips,34s build**. Fresh XML timestamp22:00:18.876Z contains all six
+identities, suite6.899s. This is one genuine affected6 cohort, not an
+invented earlier5+new1, ten-case source/class run or successful-cohort echo.
+The timestamp method asserts independent fixed US/UTC display literals,
+actual visible header removal/row geometry and retained DTOs/draft across
+the50ms deadline and held dependency, then restores TimeZone/default and
+FORMAT/DISPLAY locales in finally. Four legacy methods/57 captures, Region7
+and native/device cohorts are not replayed. Source now has10 methods;
+all12 ordering originals/full grouping/avatar/date-format remain unaccepted.
 
 Rooms production route/content/state-holder ownership remains WP-310; room
 accessibility source/test ownership remains WP-307. The controlled dependencies

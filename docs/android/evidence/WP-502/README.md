@@ -71,7 +71,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Five additional actual live-event methods pass separately at ece2fa061: frozen middle/front/tail/tie/duplicate inputs drive real visible row order/identity before a held50ms coalesced reload, retained draft/no empty/loading flash, exactly one subscriber and two full read-side-effect sequences. Class now has9 methods, not a manufactured9-case cohort. Not actual RoomServerService/history sync/Room-database/radio/golden evidence. |
+| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six additional live-event methods actually pass together at d76a576af: frozen middle/front/tail/tie/duplicate inputs plus same-prefix100/500->250 retained-row timestamp reconfiguration. Fresh DTO construction preserves derived-key fixture consistency. Visible order/identity/draft survive held50ms reconciliation, timestamp header disappears on the retained later row, exact read-side-effect sequences/no false actions. Class now has10 methods, not a manufactured10-case cohort. Not actual RoomServerService/history sync/Room-database/radio/golden evidence. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -89,6 +89,47 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Retained Room timestamp chrome and corrected derived fixture fields
+
+Code **d76a576af1960155931d12baa14a7e6e59554b28**, baseec0, installed
+preflight **PASS0.60s**. Same existing strict App task selects the five
+affected live-event methods plus
+`liveMidInsertionReconfiguresTheRetainedLaterRowsTimestampBeforeReload`:
+**6 discovered/run/PASS,0 failures/errors/skips,34s build**. Actual XML
+timestamp22:00:18.876Z contains all six identities, suite6.899s.
+[Inventory contains the exact selectors/options](software-verification.md#commeshcoreoneandroiduitestsroomscomposetest).
+No old four-method/57-render, Region7 or native/device replay.
+
+The next concrete frozen original is `mid-insert flips the next row timestamp
+flag`: same-prefix0xAA/Alice `[100,500]+250`. Real mounted route retains the
+original later DTO/identity while its timestamp flag changes true-to-false.
+Two actual visible US/UTC timestamp headers become one before the reload;
+the first header, exact visible row order and original CJK/RTL draft persist
+during a held actual data dependency and after release. The source50ms
+deadline is explicitly driven, two complete ordered read-side-effect
+sequences and no post/join/retry/diagnostic failure asserted. Default
+TimeZone and global/FORMAT/DISPLAY locales are restored in finally.
+This is not an internal Compose-node-ID, avatar or full date-format claim.
+
+While tracing this family, found a tightly coupled owned-fixture defect:
+new `liveMessage` copied a template after changing timestamp/prefix/text,
+retaining the old derived `deduplicationKey`. Read the frozen RoomMessage
+initializer and current DTO; both derive the key at initialization.
+Use a fresh RoomMessageDTO, also for same-ID150 replay, with distinct-key
+guards and a changed-key assertion. Production is unchanged; no independent
+codec/oracle or primary test-parity result is invented. The historical
+ece5/5 below remains its own actual execution, not proof of corrected fields.
+That shared correction genuinely affects all five previous consumers, so
+this is one required six-method execution, not a gratuitous successful
+cohort replay or an aggregate of the earlier five and a separate one.
+
+Current source has10 methods; only these6 were selected. Old four method
+blocks/fixtures and all Region/preset predicates remain unchanged.
+Portmap/controller/diff and production/build/policy/source preservation
+checks **PASS**. Same existing owned modify admission remains revision25.
+No new goldens, device observation, grouping/avatar/all12-original or
+whole-WP acceptance; exact successor hosted checks/source review remain separate.
 
 ### Mounted Rooms live events and coalesced reconciliation
 
@@ -119,10 +160,10 @@ retry/diagnostic failure; one subscriber. Existing controlled ports are
 reused unchanged, no production edit/new fake policy or provider/device claim.
 Actual already-owned modify admission remains idempotent revision25.
 
-These are five actual mounted consumer witnesses, not acceptance of all12
+These were five actual mounted consumer witnesses at ece, not acceptance of all12
 ordering originals, grouping/avatar/reconfiguration, full history/store/wire,
 notifications or whole-WP parity. Old four Rooms methods remain byte-for-byte
-unchanged. New source has9 methods; no separate9-case execution is claimed.
+unchanged. That source has9 methods; no separate9-case execution is claimed.
 Portmap/controller/source-pin/old-witness preservation and diff checks pass.
 Earlier ea4 [COMMENTED5591884702](https://github.com/cbattlegear/MeshCoreOne-Android/pull/249#pullrequestreview-5591884702)
 is nonblocking bounded source review of the unchanged seven-Region increment,
