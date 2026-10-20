@@ -5,7 +5,7 @@ verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
 `aae3b10dd78f3d3314f51291687932f42f7d0ac9`. The same producer/reservation owns
-the adaptive, Rooms, mounted draft, onboarding WiFi and pairing regressions.
+the adaptive, Rooms, mounted draft, onboarding WiFi, pairing and Region/preset regressions.
 Historical native observations remain untouched.
 
 ## Existing task and source registration
@@ -176,6 +176,38 @@ English360dp/German834dp are sampled, not a full layout/locale/theme product.
 The current7-case selector is not combined with prior3 WiFi/4 Rooms/2 draft/
 41 cohorts or relabeled as full onboarding/WP-502 acceptance.
 
+### com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest
+
+Same declared strict App task with
+`--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest`
+requires **4** non-skipped executions. At
+`da45bc8c5d4a30de0e19c1e9f9d547c28aeaf733` / baseaae3, exact preflight
+**PASS0.55s**, actual XML **4 discovered/run/passed, zero failure/error/skip,
+31s build**. This is a new, separately executed selector, not a replay of
+seven Bluetooth/pairing or other already-green feature cohorts.
+
+| Method | Actual family |
+| --- | --- |
+| `manualCountryChangesClearSubdivisionAndOnlyAcceptedHeldPresetCompletes` | Real Flow/RegionPicker cancel/empty guards, same-country retains US-CA; Canada hides absent subdivisions, Australia clears prior area then AU-QLD selection commits exact manual value once. Production Australia/915.800 row selected, canApply false gates, one held au-915 rejects repeat CTA/canApply recomposition; Applied alone writes/calls completion once. |
+| `typedErrorsAndRetryCancellationRetainTheSelectedPresetUntilExplicitRetrySucceeds` | Exact US/manual/US-CA, real USA/910.525 row selection retained across NotConnected, CJK/RTL Failed, Retryable/Cancel then Retryable/Retry. Localized errors and Cancel do not complete; five held calls use us-ca; explicit successful Retry completes once. German834dp/200%. |
+| `cancelledApplyPropagatesFromTheProductionJobWithoutFalseErrorAndExplicitDemoOutcomeAloneCompletes` | Actual production apply Job captured at port boundary is cancelled by awaited CancellationException. Loading clears without failure/Retry/completion, selection survives; new same-ID intentional apply with explicit NoRadioToConfigure completes once. Not actual demo or hardware. |
+| `initialResolutionFailureIsSilentButExplicitLocationRetryExplainsFailureBeforeDetectedCommit` | Held resolving versus initial null/manual silent fallback, explicit retry spinner/null failure dialog, dismiss/retry then full US/location/US-CA/los angeles detected value committed once to actual Preset/USA/WCMesh. No apply or completion. |
+
+Uses actual production `OnboardingFlow`, Region/preset coordinators and
+`ServicesRegionCatalog` with Locale.US, not copied policy/catalog placeholders.
+Real UI resources are English360dp/German834dp,200% heading layout assertions,
+1400dp host height. Controlled already-ready Pair input enters Region through
+actual Continue; no new pairing is claimed. Resolver/apply suspend at real
+dependency ports, flags are in memory, unrelated actions fail.
+[Frozen branch/owner mapping and failure history](README.md#bounded-mounted-region-selection-and-preset-recovery)
+distinguish5d92 (1PASS3FAIL/editable query),1f28 (3PASS1FAIL/underlying row),
+74a2 (3PASS1FAIL/wrong Canadian-catalog assumption) and final source-correctda45.
+No product/threshold/golden change. Primary ownership/accounting is unchanged.
+Four frozen SettingsServiceApplyPresetTests cases are **not** accepted by these
+mapped outcomes; RF/hash/stamp and firmware behavior, resolver algorithms/OS
+location, max-three/fallback copy, locale/stale-ID/reentry/process families,
+actual App gate navigation, radio/device/golden/full onboarding remain open.
+
 ### com.meshcoreone.android.uitests.ConversationComposeTest
 
 | Method | Actual family |
@@ -302,7 +334,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, three onboarding WiFi methods and seven pairing methods, including JIT Bluetooth grant/denial/adapter-off recovery. Full Rooms sync/history/actions/store/radio, pairing OS/raw-failure/registry/foreground families, demo transport, region/preset, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, three WiFi, seven pairing and four Region/preset methods (selection/held apply/typed error/Retry/cancellation and resolver recovery). Full Rooms sync/history/actions/store/radio, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset max/fallback/locale/stale/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |

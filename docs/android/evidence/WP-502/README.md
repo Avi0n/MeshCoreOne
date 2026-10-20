@@ -31,7 +31,7 @@ the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
 Current manifest/policy/controller bytes are unchanged from main9c430cb0.
-The existing typed reservation was evolved to revision 23, not replaced.
+The existing typed reservation was evolved to revision 24, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -62,6 +62,7 @@ coordinator integration.
 | `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
 | `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
 | `OnboardingPairingComposeTest` | Seven mounted production Flow/coordinator methods: four primary/held-recovery/Retry/benign-cancel/demo-priority methods, plus three just-in-time Bluetooth grant/denial/adapter-off recovery methods. Actual request-result callbacks refresh controlled snapshots; one grant resumes one held pair, repeated callbacks do not duplicate it, denial consumes intent without a prompt loop, Settings/WiFi remain reachable, and later grant/adapter recovery requires explicit Add. Optional location/notifications/LAN stay denied and independent. Controlled ports, not OS chooser/permission dialog/BLE/radio/device evidence. |
+| `OnboardingRegionPresetComposeTest` | Four real mounted Flow/Region/preset methods with the production ServicesRegionCatalog: empty/cancel/same-country/country-change and subdivision-reset controls, exact manual commit and preset ID/frequency/selection; held apply/canApply gates and explicit completion; NotConnected/Failed/Retryable dialogs, Cancel then same-ID Retry; actual production apply-job cancellation without false success, then explicit NoRadioToConfigure completion; held initial null resolution versus user-retry error and exact detected region/county commit. Controlled resolver/apply outcomes, not geocoder/radio/firmware or full onboarding acceptance. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
@@ -85,6 +86,84 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Bounded mounted Region selection and preset recovery
+
+Same reservation24 admits one owned `OnboardingRegionPresetComposeTest`.
+This increment is **local/unpublished** while the coordinator offers remote
+e317/baseaae3 for maintainer merge. Its explicit publication hold is honored;
+the offered head/body are not replaced. This is a sequencing hold, not a
+software/tool/native execution failure or whole-WP acceptance.
+The remaining-family inventory previously had **no mounted Region selection
+or preset apply assertions**: earlier WiFi/pairing methods only reached Region,
+and their catalog/preset ports could not apply. Existing WP-305 coordinator
+tests and WP-303 adapter tests are reused as prior art, not duplicated as policy
+tests. The new host mounts actual `OnboardingFlow` from Welcome/Permissions/
+Pair Continue with an explicitly already-ready connection snapshot. No pairing
+call is synthesized; only real Region/preset controls drive subsequent state.
+
+| Frozen consumer / existing primary witness | Actual mounted predicate |
+| --- | --- |
+| `RegionPickerRows`/`RegionSelection.afterChoosingCountry`/`afterChoosingSubdivision`, `RegionStepView` manual commit; owner `manualSelectionRequiredToCommit` | Empty/cancelled picker cannot Continue; US/California remains on choosing the same US again. Canada has no subdivision catalog and hides both state/province rows. Australia restores an empty State row, Queensland is selected, and Continue commits exactly `AU/manual/AU-QLD` once. Production catalog exposes Australia/915.800 MHz; selecting its row and a true `canApply` are required. One held `au-915` apply rejects duplicate CTA attempts through canApply recomposition; explicit Applied alone writes completion true once/calls completion once. |
+| `PresetStepView.apply`, `RetryAlertModifier` Cancel/Retry below the max threshold; owner `notConnectedSurfacesErrorWithoutCompleting` and retry/apply cases | US/manual/US-CA commits once; production USA/910.525 MHz row remains selected across typed NotConnected, explicit CJK/RTL Failed, Retryable/Cancel, then new Retryable/Retry. Each held call disables duplicate CTA attempts, exact localized dialogs appear/dismiss, no failure/cancel completes onboarding, and all five apply calls retain `us-ca`. Only explicitly accepted Retry completes once. German834dp/200%. |
+| Native `PresetStepCoordinator.apply` cancellation propagation and owner App adapter cancellation contract; frozen demo no-radio completion branch | Complete the held apply exceptionally with CancellationException; the actual production launch Job becomes cancelled, loading clears, selection survives, no error/Retry/completion is fabricated. A new intentional same-ID apply and explicit NoRadioToConfigure result alone complete. This is real coroutine cancellation of the consumer job, not a benign enum result or actual demo/radio execution. |
+| `RegionStepView` automatic fallback, `useMyLocation` clear/spinner/error and detected commit; owner `noInternetOrTimeoutFallsSilentlyToManual`, `userRetryFailureSurfacesErrorOnlyThen`, `grantedLocationResolvesAndCommitsDetected` | First held resolver shows Resolving, null silently yields disabled empty manual picker. Explicit location retry shows Resolving before second null produces the localized failure dialog. Dismiss/retry then explicit `US/location/US-CA/los angeles` exposes detected controls; Use This Region commits the original full value once and reaches production USA/WCMesh rows without applying/completing. |
+
+The catalog is the **actual merged ServicesRegionCatalog/RegionalAreas/
+RadioPresets**, fixed to Locale.US for deterministic catalog labels, not a
+decorative or manufactured fixture. Independent frozen catalog constants
+`au-915/Australia/915.800`, `us-ca/USA/910.525`, US-CA, AU-QLD and Los Angeles
+county drive expectations; candidate functions do not manufacture expected
+IDs/selections. The German host localizes UI controls while catalog locale
+is explicitly US, not full catalog-localization parity.
+All four use200% font, native SDK31 graphics and actual Region/preset heading
+density/height checks where reached; English360dp/German834dp at1400dp height
+are sampled, not OS resize/device evidence.
+
+Controlled ports suspend each resolver/apply until a separate explicit result.
+No default success, port-internal policy, standalone test coordinator or fake
+UI navigation is introduced. Exact selection writes, apply IDs/counts, held
+busy controls, flag writes and completion callbacks are asserted; unrelated
+pairing/WiFi/demo/settings/permission effects fail the test. In-memory flag
+completion is a bounded Flow callback assertion, not physical preferences,
+App gate-to-Chats navigation or complete onboarding acceptance.
+
+At code **`da45bc8c5d4a30de0e19c1e9f9d547c28aeaf733` / baseaae3**:
+installed Git-bundle/ext4 preflight **PASS0.55s**, then existing strict task:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**4 discovered/run/passed, zero failure/error/skip,31s build**, all four named
+JUnit XML identities read. Failure history is retained:5d92b9c78 passes1/
+fails3 in58s because the country query also matches the editable search;
+1f2890a8a passes3/fails1 in32s because reselecting a country also matches the
+underlying selected row. Scoped74a23c74b passes3/fails1 in30s, exposing the
+test's false assumption of a Canadian subdivision catalog. Frozen/current
+RegionalAreas both explicitly have no Canadian subdivisions. Finalda45 uses
+the source-faithful Canada-hidden/Australia-Queensland transition. These are
+harness/input corrections, not weakened assertions or product fixes.
+No foreign production change or unchanged-production defect is claimed.
+Portmap/controller validation, `git diff --check`, exact five earlier owned
+test/screenshot and inherited-main owner-byte comparisons all **PASS**.
+
+The frozen four `SettingsServiceApplyPresetTests` originals (RF/path hash/
+catalog-stamp ordering/failure/firmware versions) were read but **are not**
+satisfied by these controlled apply results. Resolver/geocoder algorithms,
+OS location/permission lifecycle, real SettingsService/radio/firmware writes,
+three-failure max/fallback copy, locale-fallback/stale-ID families, full
+picker/search locale policy, process/reentry, haptics, device/golden and full
+original-case/onboarding/WP-502 acceptance remain separate.
+Prior Bluetooth [COMMENTED source review5590546770](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5590546770)
+finds no bounded blocker at e317, not a review/approval of these new methods.
+Actual [e317 hosted39480142662](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39480142662)
+has since completed **SUCCESS/all six jobs**; it does not execute/certify this successor.
+No earlier green feature/native cohort is replayed or combined into a new
+execution, no CI-result bundle or new screenshot/golden is produced.
 
 ### Consolidated current-main integration after Bluetooth implementation
 
