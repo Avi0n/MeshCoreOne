@@ -109,6 +109,8 @@ class NotificationDraftRestorationTest : RoomProcessTest() {
             assertTrue(h.appState.servicesVersion.value > version)
             if (pending != null) replacement.notificationService.saveDraft(entity, pending)
             assertEquals("independent disk", h.draftStore.draft(conversation))
+            field.assertTextEquals("retained typing")
+            assertEquals(identity, field.fetchSemanticsNode().id)
             compose.mainClock.autoAdvance = true
             compose.mainClock.advanceTimeByFrame()
             h.settle()
@@ -196,6 +198,7 @@ class NotificationDraftRestorationTest : RoomProcessTest() {
                 val entry = h.container.navigation.state.value.activeStack.last()
                 // A later failed reply belongs to the next initialization, not a recomposition.
                 notifications.saveDraft(peerEntity, "next entry")
+                h.appState.bumpServicesVersion()
                 for (value in listOf(360, 599, 600, 779, 780, 834, 360)) {
                     compose.runOnIdle { width.value = value; h.appState.refreshConversations() }
                     h.settle()

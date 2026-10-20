@@ -25,6 +25,7 @@ import com.meshcoreone.android.feature.chats.rooms.*
 import com.meshcoreone.android.feature.chats.channels.*
 import com.meshcoreone.android.core.services.contacts.ChannelService
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueService
+import com.meshcoreone.android.core.services.notifications.NotificationService
 import java.time.Clock
 import java.util.UUID
 import java.util.logging.Level
@@ -46,6 +47,8 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
         .stateIn(scope, SharingStarted.Eagerly, app.connectionState)
     val currentRadioId = changes.map { app.currentRadioId }
         .stateIn(scope, SharingStarted.Eagerly, app.currentRadioId)
+    internal val notificationSource = app.servicesVersion.map { container.sessions.current?.notificationService }
+        .stateIn(scope, SharingStarted.Eagerly, container.sessions.current?.notificationService)
     val unreadCount = merge(changes, events().map { Unit }).map {
         app.currentRadioId?.let { radio ->
             store.getTotalUnreadCounts(radio).let { Math.addExact(Math.addExact(it.contacts, it.channels), it.rooms) }
@@ -84,11 +87,16 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
         }
     }
 
-    internal fun restoreNotificationDraft(target: ComposerTarget, composer: ComposerStateHolder) {
+    internal fun restoreNotificationDraft(
+        target: ComposerTarget,
+        composer: ComposerStateHolder,
+        source: NotificationService?,
+    ) {
         if (target !is ComposerTarget.Direct) return
         val radio = target.contact.radioId
         val notifications = container.sessions.current?.takeIf { it.token.radioId == radio }?.notificationService
             ?: return
+        if (source !== notifications) return
         val pending = notifications.consumeDraft(EntityKey(radio, target.contact.id)) ?: return
         composer.onDraftChanged(pending.ifEmpty { drafts.get(target.conversationId).orEmpty() })
     }

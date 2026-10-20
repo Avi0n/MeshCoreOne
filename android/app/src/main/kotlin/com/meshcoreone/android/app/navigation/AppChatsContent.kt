@@ -1,6 +1,6 @@
 // AndroidOnly: WP-407 Native conversation registration; screen scopes never create or close a radio connection.
 // AndroidOnly: WP-310 Bind room body actions to the shared link dispatcher/router and radio-scoped contacts.
-// AndroidOnly: WP-307 Restore a pending notification reply once per real composer initialization.
+// AndroidOnly: WP-307 Restore pending replies on composer initialization or notification-source replacement.
 package com.meshcoreone.android.app.navigation
 
 import android.Manifest
@@ -219,7 +219,10 @@ private fun AppChatConversation(
                 ComposerTimer { delay(it) }, ComposerDiagnostics(feature::report),
             )
         }
-        LaunchedEffect(composer) { feature.restoreNotificationDraft(target, composer) }
+        val notificationSource by feature.notificationSource.collectAsState()
+        LaunchedEffect(composer, notificationSource) {
+            feature.restoreNotificationDraft(target, composer, notificationSource)
+        }
         var pickContact by remember { mutableStateOf(false) }
         var actionMessage by remember { mutableStateOf<com.meshcoreone.android.core.model.MessageDTO?>(null) }
         val emojiPicker = remember(feature, scope) { feature.content?.emojiPicker(scope) }
