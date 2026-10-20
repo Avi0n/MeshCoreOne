@@ -62,7 +62,7 @@ coordinator integration.
 | `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
 | `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
 | `OnboardingPairingComposeTest` | Seven mounted production Flow/coordinator methods: four primary/held-recovery/Retry/benign-cancel/demo-priority methods, plus three just-in-time Bluetooth grant/denial/adapter-off recovery methods. Actual request-result callbacks refresh controlled snapshots; one grant resumes one held pair, repeated callbacks do not duplicate it, denial consumes intent without a prompt loop, Settings/WiFi remain reachable, and later grant/adapter recovery requires explicit Add. Optional location/notifications/LAN stay denied and independent. Controlled ports, not OS chooser/permission dialog/BLE/radio/device evidence. |
-| `OnboardingRegionPresetComposeTest` | Four separately passing mounted Flow/Region/preset methods with actual ServicesRegionCatalog cover picker resets, exact manual/detected commit, held apply/typed errors/Retry/cancellation and explicit completion. A fifth, separately executed retry-limit method is a retained **unchanged-production negative**: third-failure dialog lacks the frozen connection remedy. Its later fallback/reset/success assertions have not executed. Controlled outcomes, not geocoder/radio/firmware or full onboarding acceptance. |
+| `OnboardingRegionPresetComposeTest` | Four separately passing mounted Flow/Region/preset methods cover picker resets, exact commits, held apply/typed errors/Retry/cancellation/completion. Fifth is a retained **unchanged-production negative**: third-failure dialog lacks the frozen remedy. Sixth separately passes the actual acknowledgement/fallback/reset/explicit-success path independently of the missing copy. Shared real UI-action witnesses preserve every assertion; fifth's own later assertions remain unreached. No current six-case green cohort, geocoder/radio/firmware or full onboarding claim. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
@@ -86,6 +86,40 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Independent max-retry acknowledgement and budget reset
+
+At **381726bd751c3fe98640d78b87861b487d0a76cf/base680**, sixth method
+`acknowledgingRetryLimitShowsFallbackAndResetsTheNextAttemptWithoutCompleting`
+reaches the production third-failure dialog through the same individually
+held calls/real Retry controls, independently of the retained missing-copy
+negative. Real max dialog has no Retry/Cancel; OK surfaces the exact generic
+fallback without creating another attempt or completing. Dismissing that
+error retains USA selection. New explicit apply4/Retryable shows first-failure
+Connection Error/original message with Retry/Cancel again, not the exhausted
+title, proving acknowledgement reset the actual remembered counter. Cancel
+does not complete; explicit apply5/Applied alone writes the flag/calls completion
+once. Exactly five `us-ca` calls and one original manual commit.
+This additional witness is retained locally for coalescing with the eventual
+admitted producer repair; published draft249/598 still contains the original
+five-method source. No new head/CI run is needed merely to repeat the known
+failure while trusted producer/support admission is unresolved.
+
+Installed preflight **PASS0.51s**. Existing strict App task with:
+
+```text
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest.acknowledgingRetryLimitShowsFallbackAndResetsTheNextAttemptWithoutCompleting
+```
+
+**1 discovered/run/PASS,0 failures/errors/skips,28s build**, actual named XML.
+No other feature cohort, four-method selector or known negative was replayed.
+Shared helpers extract the existing real-action prefix/followthrough without
+removing the fifth test's frozen `ensureConnected`/no-raw-message assertions.
+The fifth test still requires the actual WP-305 copy repair; its own failed
+execution remains679-bound, and its later assertions were not retroactively
+executed. The sixth proves the separate control/state path, not missing-copy
+parity, source-family completion or a current six-case green result.
+No production, threshold, golden, dependency or native-device change.
 
 ### Retry-exhaustion unchanged-production negative
 
@@ -129,7 +163,16 @@ three attempts/fallback and authorize no omission of the first remedy.
 The bounded production prerequisite is **WP-305 modify
 `android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt`**,
 retry-alert text branch; historical producer is PR72/issue113. It is routed
-to the coordinator/primary owner, not edited by WP-502.
+to the coordinator/primary owner, not edited by WP-502. Deduplicated template
+bug [#250](https://github.com/cbattlegear/MeshCoreOne-Android/issues/250)
+tracks this exact copy defect/negative, not whole-WP closure. Producer/transfer
+admission remains required; an old closed issue is not an active-owner receipt.
+Coordinator reports actual WP-303 admission rejects this WP-305 feature-UI
+modify path, no matching active producer reservation exists, and original
+WP-305 is absent from app inventory. Existing WP-003 is preparing a narrowly
+tested support-rule amendment for maintainer review. A candidate policy does
+not activate that access; only a trusted merged rule/current producer and
+actual successful admission can unblock the foreign production action.
 The test's subsequent no-Retry/Cancel, OK-to-generic-fallback, budget reset,
 retained selection and final explicit success assertions remain **unexecuted**
 after this failure, not accepted.

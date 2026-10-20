@@ -185,8 +185,9 @@ originally required **4** non-skipped executions. At
 **PASS0.55s**, actual XML **4 discovered/run/passed, zero failure/error/skip,
 31s build**. This is a new, separately executed selector, not a replay of
 seven Bluetooth/pairing or other already-green feature cohorts.
-The current class now contains **5**, including the separate failing
-retry-exhaustion witness below; no current five-case pass/cohort is claimed.
+The current class now contains **6**: original four, the separate failing
+retry-exhaustion witness, and a separately passing acknowledgement/reset
+witness below. No current six-case pass/cohort is claimed.
 
 | Method | Actual family |
 | --- | --- |
@@ -195,6 +196,7 @@ retry-exhaustion witness below; no current five-case pass/cohort is claimed.
 | `cancelledApplyPropagatesFromTheProductionJobWithoutFalseErrorAndExplicitDemoOutcomeAloneCompletes` | Actual production apply Job captured at port boundary is cancelled by awaited CancellationException. Loading clears without failure/Retry/completion, selection survives; new same-ID intentional apply with explicit NoRadioToConfigure completes once. Not actual demo or hardware. |
 | `initialResolutionFailureIsSilentButExplicitLocationRetryExplainsFailureBeforeDetectedCommit` | Held resolving versus initial null/manual silent fallback, explicit retry spinner/null failure dialog, dismiss/retry then full US/location/US-CA/los angeles detected value committed once to actual Preset/USA/WCMesh. No apply or completion. |
 | `threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget` | New unchanged-production negative: first/second held retryable failures show the original message/Retry/Cancel; actual third Unable To Save lacks frozen ensureConnected remedy. Later fallback/reset/retention/explicit success assertions are defined but not reached/accepted. |
+| `acknowledgingRetryLimitShowsFallbackAndResetsTheNextAttemptWithoutCompleting` | Independent actual max-dialog no-Retry/Cancel, OK-to-fallback without completion, selected-row retention, new explicit same-ID attempt returning to first-failure message/Retry/Cancel, then Cancel and explicit successful completion. Shared production-action helpers, copy negative retained separately. |
 
 At **679c099b2af75d2c226eb675280439c2af55d665/baseaae3**, existing strict
 `:app:testDebugUnitTest` with
@@ -207,6 +209,19 @@ four methods/cohorts were not rerun, no green result is manufactured.
 [Exact frozen branch, unchanged-byte proof and owner path](README.md#retry-exhaustion-unchanged-production-negative)
 record the concrete production prerequisite. Actual PR244 merge680/current-main
 integration10145 preserve all Android679 bytes, not a new execution.
+
+At **381726bd751c3fe98640d78b87861b487d0a76cf/base680**, existing strict
+`:app:testDebugUnitTest` with
+`--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest.acknowledgingRetryLimitShowsFallbackAndResetsTheNextAttemptWithoutCompleting`
+requires **1** non-skipped execution: preflight **PASS0.51s**, actual named XML
+**1 discovered/run/PASS,0 failures/errors/skips,28s build**.
+This separately reaches the actual fallback/reset/state assertions blocked
+by the missing-copy predicate in the fifth method; that frozen predicate
+remains intact. It does not repair/accept the copy or replay a six-method
+cohort. Exact five us-ca applies/one commit/one completion, no false success.
+[Independent consumer evidence](README.md#independent-max-retry-acknowledgement-and-budget-reset)
+maps the same frozen RetryAlertModifier/PresetStepView reset/acknowledgement
+branches; no policy-only duplicate or primary original-case reassignment.
 
 Uses actual production `OnboardingFlow`, Region/preset coordinators and
 `ServicesRegionCatalog` with Locale.US, not copied policy/catalog placeholders.
@@ -349,7 +364,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, three WiFi, seven pairing and five Region/preset methods (four historically passing selection/held apply/typed error/Retry/cancellation/resolver methods; one retained retry-exhaustion negative). Full Rooms sync/history/actions/store/radio, pairing OS/raw-failure/registry/foreground, demo transport, unresolved Region/preset max remedy/fallback followthrough/locale/stale/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, three WiFi, seven pairing and six Region/preset methods (four historical passes, one retained retry-exhaustion negative, one separate acknowledgement/reset pass). Full Rooms sync/history/actions/store/radio, pairing OS/raw-failure/registry/foreground, demo transport, unresolved Region/preset max remedy/locale/stale/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |
