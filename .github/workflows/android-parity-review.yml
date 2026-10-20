@@ -21,6 +21,7 @@ permissions:
   pull-requests: read
   checks: write
   actions: read
+  issues: read
 
 concurrency:
   group: android-port-controller
