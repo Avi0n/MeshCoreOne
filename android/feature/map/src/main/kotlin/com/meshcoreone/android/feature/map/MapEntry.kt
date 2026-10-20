@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AssistChip
@@ -285,65 +286,89 @@ private fun MapControls(
     onOffline: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val controlModifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
     Card(modifier.padding(8.dp)) {
         Column(Modifier.padding(horizontal = 8.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                AssistChip(onClick = onRefresh, label = { Text(stringResource(R.string.l10n_app_map_map_controls_refresh)) })
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                AssistChip(
+                    onClick = onRefresh,
+                    modifier = controlModifier,
+                    label = { Text(stringResource(R.string.l10n_app_map_map_controls_refresh)) },
+                )
                 AssistChip(
                     onClick = onOffline,
+                    modifier = controlModifier,
                     label = { Text(stringResource(R.string.l10n_app_settings_offlinemaps_title)) },
                 )
                 FilterChip(
                     selected = listVisible,
+                    modifier = controlModifier,
                     onClick = { onListVisible(!listVisible) },
                     label = { Text(stringResource(R.string.l10n_app_contacts_contacts_trace_mode_list)) },
                 )
             }
 
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 FilterChip(
                     selected = true,
+                    modifier = controlModifier,
                     onClick = {},
                     label = { Text(stringResource(R.string.l10n_app_map_map_style_standard)) },
                 )
                 FilterChip(
                     selected = false,
+                    modifier = controlModifier,
                     enabled = false,
                     onClick = {},
                     label = { Text(stringResource(R.string.l10n_app_map_map_style_satellite)) },
                 )
                 FilterChip(
                     selected = false,
+                    modifier = controlModifier,
                     enabled = false,
                     onClick = {},
                     label = { Text(stringResource(R.string.l10n_app_map_map_style_topo)) },
                 )
             }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 FilterChip(
                     selected = filter.favoritesOnly,
+                    modifier = controlModifier,
                     onClick = { onFilter(filter.setFavoritesOnly(!filter.favoritesOnly)) },
                     label = { Text(stringResource(R.string.l10n_app_contacts_contacts_pathedit_filter_favorites)) },
                 )
                 FilterChip(
                     selected = filter.showDiscovered,
+                    modifier = controlModifier,
                     enabled = !filter.favoritesOnly,
                     onClick = { onFilter(filter.setShowDiscovered(!filter.showDiscovered)) },
                     label = { Text(stringResource(R.string.l10n_app_map_map_callout_discovered)) },
                 )
                 FilterChip(
                     selected = clustering,
+                    modifier = controlModifier,
                     onClick = { onClustering(!clustering) },
                     label = { Text(stringResource(R.string.l10n_app_map_map_controls_clusternodes)) },
                 )
                 FilterChip(
                     selected = labels,
+                    modifier = controlModifier,
                     onClick = { onLabels(!labels) },
                     label = { Text(stringResource(R.string.l10n_app_map_map_controls_showlabels)) },
                 )
                 ContactMapType.entries.forEach { type ->
                     FilterChip(
                         selected = filter.allows(type),
+                        modifier = controlModifier,
                         enabled = !filter.favoritesOnly,
                         onClick = { onFilter(filter.setContactType(type, !filter.allows(type), MapFilterHost.MAIN_MAP)) },
                         label = {
