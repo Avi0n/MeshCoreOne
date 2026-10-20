@@ -340,3 +340,54 @@ execution, native acceptance or a hosted successor verdict. The automatic
 run39367961680 remains bound only to ff80; discover the new successor's
 automatic run rather than dispatching another or copying a result bundle.
 Native packaging/admission and all protected/acceptance gates remain separate.
+
+### Integration after producer PR233 and PR243 merged
+
+PR233 (`81d8919ad4bfd0a0985acf79449c661a9281ecce`) and PR243
+(`69e7b850c7cda8ecf28e8766765bc8090ae72753`) merged on2026-10-20.
+Main subsequently advanced through merged PR227/235/239 to
+`7ef75f0d6c936e1ad56358124f3a12d11862bd32`. The replacement integrated
+that exact current main in `02f2275822aaf9b40e2dce12cd4e2b21527f6f4a`,
+retaining each producer's commits rather than duplicating product fixes.
+The resulting Android tree is `9689a3edf30974594e0c13bb62774e94846aac39`.
+Historical native outcomes remain bound to their original composites,
+fixtures and APKs; this integration transfers no native credit.
+
+The trusted current-main `CapabilityEngine` was staged from immutable Git
+objects because its WP-scoped packaging-rule validation differs from the
+older branch. Supported canonical `Ledger.evolve_scope` advanced revision9
+to10 for51 admitted incoming paths. Canonical identity, bindings, authorization
+and repair history remain unchanged; actual replacement attribution remains
+separate. The session receipt `files/wp503-producer-merge-integration.json`
+retains paths, revisions, original producer commits and reconciliation details.
+
+Multiple historical merge bases exposed the old publication's producer-copy
+reverts: LoS screen/deviation conflicts and a silently omitted LoS workflow
+test. All three prior WP503 path values were verified identical to prior
+main574d440, with no active WP503 intent. Reconciliation restores the exact
+merged WP315 producer bytes, including its saved-repeater selection test;
+no new product implementation or assertion change was made. Every original
+WP503 fixture, runner and historical native evidence file is unchanged.
+
+The machine reboot restored ordinary PowerShell execution, independently
+proved in this worktree. Subsequent checks use that supported CLI, not the
+historical unavailable-shell assumption:
+
+| Exact command | Result on committed producer integration |
+| --- | --- |
+| `python -m unittest discover -s android\accessibility-tests -p test_shared_device_runner.py -v` | 23 discovered/23 passed;0 failures/errors/skips |
+| `python tools\android-port\controller\test_runner.py --quiet` | 352 discovered/352 passed;0 failures/errors/skips |
+| `python tools\android-port\controller\verification_config.py --check` | PASS, exit0 |
+| `python tools\android-port\controller\validate.py` | PASS, exit0 |
+| `python tools\android-port\controller\workflows.py` | PASS, exit0 |
+| `python tools\android-port\portmap.py` | PASS, exit0 |
+| `git diff --check` and `git diff --cached --check` | PASS, exit0 |
+
+The exact5062 hosted failure remains historical: run39369093064 reports
+App800/4FAILED; full original hosted log exposes the two known Nodes headings
+only, with two other identities unavailable. Its verdict does not transfer.
+The merged producer and improved diagnostics now permit an independently
+classified successor through automatic hosted CI; no blind rerun, duplicate
+dispatch or second CI-result bundle is created. Native host admission,
+packaging execution, install/signing, settings and all acceptance gates remain
+separate, with no such actions performed during integration.
