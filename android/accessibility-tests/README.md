@@ -53,17 +53,28 @@ Inside the unique held operation lane, the consumer authenticates the explicit
 existing transport and observes actual API/boot/fingerprint/CPU, compact font200/
 IME/reduced-motion profile, quiescence and System app locale. It reads only the
 debug app's named locale preference to reject a non-System selection or pending
-migration, never resets a user's language. API33+ resolves the actual numeric
-current user before querying LocaleManager and verifies that exact user in the
-response; Android's `current` sentinel is not a numeric observed user. Missing or
-malformed scale settings report their actual value and required profile without
-changing it. Missing endpoints are surfaced, not
-started. Physical devices, profile changes and occupied native/Gradle lanes fail
-closed. The deployed `assemble_debug_pair` receives the actual operation owner,
+migration, never resets a user's language. Both APIs bind actual owner user0
+before private/package access and reject a user switch through cleanup. Package
+and instrumentation commands explicitly select that bound user. API33+ queries
+LocaleManager with that numeric user and verifies the same user in its response;
+Android's `current` sentinel is not a numeric observed user.
+
+The original settings and display overrides are captured before temporary audit
+setup. A `null` setting is confirmed absent in the settings inventory, not treated
+as a made-up default or confused with a failed probe. Only recorded temporary
+font/IME/motion and display changes are restored; originally unset settings use
+`delete`, absent overrides use `reset`, and unexpected foreign values are never
+overwritten. Restoration continues if an individual receipt write fails.
+Missing endpoints are surfaced, not started. Physical devices, unexpected
+profile changes and occupied native/Gradle lanes fail closed.
+The deployed `assemble_debug_pair` receives the actual operation owner,
 uses the existing debug identity, verifies App/Test/installed public certificates
 and preserves exact build/source hashes. Public APK copies are verified before
-installation; the original target APK and compatible Room schema are preserved,
-and an existing test package is never replaced.
+installation; an originally present target APK and compatible Room schema are
+preserved, and an existing test package is never replaced. A genuinely absent
+target is distinct from a failed probe or retained package registration/data.
+Only this run's verified newly introduced packages may be removed to restore
+original absence; an originally present target is never uninstalled or cleared.
 
 Normal all-positive completion and original packages/profile must be verified
 before releasing the actual operation owner. Spawn/wait/receipt/read/decode/

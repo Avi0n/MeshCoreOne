@@ -76,19 +76,76 @@ class RunConfig:
 
 
 class ProcessDevice(Device):
+    SETTINGS = {
+        "font": ("system", "font_scale", "2.0"),
+        "ime": ("secure", "show_ime_with_hard_keyboard", "0"),
+        "animator_duration_scale": ("global", "animator_duration_scale", "0"),
+        "window_animation_scale": ("global", "window_animation_scale", "0"),
+        "transition_animation_scale": ("global", "transition_animation_scale", "0"),
+    }
+
     def __init__(self, config, api):
         self.config, self.api = config, api
+        self.android_user = None
+        self.profile_mutations = []
+
+    def current_user(self):
+        user = self.run("shell", "am", "get-current-user")
+        require(re.fullmatch(r"[0-9]+", user) is not None, "Actual current Android user is unrecognized")
+        require(user == "0", "This bounded audit requires the actual owner user0 before private or package access")
+        return user
+
+    def bind_user(self):
+        user = self.current_user()
+        require(self.android_user is None or self.android_user == user, "Current Android user changed; retain the bound lane")
+        self.android_user = user
+        return user
 
     def command(self, *arguments):
         # Connecting first must not turn an absent server into an implicit ADB launch.
         with socket.create_connection((self.config.host, self.config.port), timeout=2):
             pass
+        if self.android_user is None and arguments not in (("shell", "am", "get-current-user"), ("get-state",)):
+            self.bind_user()
+        user = self.android_user
+        if user is not None and arguments != ("shell", "am", "get-current-user"):
+            require(self.current_user() == user, "Current Android user changed; no command may target another user")
+            if arguments[0] in ("install", "uninstall"):
+                arguments = (arguments[0], "--user", user, *arguments[1:])
+            elif arguments[:3] in (("shell", "pm", "path"), ("shell", "am", "instrument")):
+                arguments = (*arguments[:3], "--user", user, *arguments[3:])
+            elif arguments == ("shell", "am force-stop " + APP):
+                arguments = ("shell", "am", "force-stop", "--user", user, APP)
         return [
             str(self.config.adb), "-H", self.config.host, "-P", str(self.config.port),
             "-s", self.config.serial, *arguments,
         ]
 
+    def shell(self, command):
+        if self.android_user is not None:
+            if command.startswith("settings "):
+                command = "settings --user " + self.android_user + " " + command[len("settings "):]
+            elif command.startswith("run-as " + APP + " "):
+                command = "run-as " + APP + " --user " + self.android_user + " " + command[len("run-as " + APP + " "):]
+        return self.run("shell", command)
+
+    def confirm_original_absence(self, package):
+        require(package in (APP, TEST), "Absence verification is restricted to the debug App/Test")
+        lines = self.run("shell", "pm", "list", "packages", "-u", package).splitlines()
+        require(all(re.fullmatch(r"package:[A-Za-z0-9_.]+", line) for line in lines),
+                "Package registration probe is unrecognized, not proven absence")
+        require("package:" + package not in lines,
+                "Package has an existing registration/retained data; do not treat it as a genuinely empty target")
+
+    def confirm_unset_setting(self, namespace, key):
+        lines = self.shell("settings list " + namespace).splitlines()
+        require(all("=" in line and line.partition("=")[0] for line in lines),
+                "Actual settings inventory is unrecognized, not proven absence")
+        matches = [line for line in lines if line.partition("=")[0] == key]
+        require(not matches, "Reported null is not confirmed absent (literal null or concurrent change): " + key)
+
     def app_language(self):
+        user = self.bind_user()
         # Read only this debug app's locale preference, never keys or a private-data archive.
         stored = self.shell(
             "run-as " + APP + " sh -c 'test -r . && test -x . || exit 1; "
@@ -114,8 +171,6 @@ class ProcessDevice(Device):
                     require(values[0].get("value") in ("true", "false"), "Malformed native locale migration state")
                     migrated = values[0].get("value") == "true"
         if self.api >= 33:
-            user = self.run("shell", "am", "get-current-user")
-            require(re.fullmatch(r"[0-9]+", user) is not None, "Actual current Android user is unrecognized")
             observed = self.run("shell", "cmd", "locale", "get-app-locales", APP, "--user", user)
             match = re.fullmatch(r"Locales for " + re.escape(APP) + " for user " + user + r" are \[([^\]\n]*)\]", observed)
             require(match is not None, "Actual LocaleManager shell observation is unrecognized")
@@ -124,9 +179,11 @@ class ProcessDevice(Device):
         require(not language, "Actual app locale is not System; do not reset a user's language for this fixture")
         return language
 
-    def profile(self):
+    def capture_profile(self):
         require(self.run("get-state") == "device", "Actual ADB transport is not authenticated/ready")
+        user = self.bind_user()
         result = {
+            "user": user,
             "sdk": self.shell("getprop ro.build.version.sdk"),
             "release": self.shell("getprop ro.build.version.release"),
             "boot": self.shell("getprop sys.boot_completed"),
@@ -141,6 +198,29 @@ class ProcessDevice(Device):
         require(result["boot"] == "1" and result["bootanim"] == "stopped", "Actual device boot is incomplete")
         require(result["cpus"].isdigit() and int(result["cpus"]) > 0 and result["fingerprint"],
                 "Actual runtime identity/CPU observation is missing")
+        for key, (namespace, name, _) in self.SETTINGS.items():
+            if key not in result:
+                result[key] = self.shell("settings get " + namespace + " " + name)
+            if result[key] == "null":
+                self.confirm_unset_setting(namespace, name)
+        result["app_language"] = self.app_language() if self.installed(APP) is not None else None
+        require(not self.active_instrumentations(), "Another instrumentation consumer is active")
+        return result
+
+    @staticmethod
+    def override(profile, key):
+        values = re.findall(r"Override " + key + r": ([^\r\n]+)", profile[key])
+        require(len(values) <= 1, "Ambiguous actual display override: " + key)
+        physical = re.findall(r"Physical " + key + r": ([^\r\n]+)", profile[key])
+        require(len(physical) == 1, "Missing actual physical display observation: " + key)
+        value = values[0] if values else None
+        pattern = r"[1-9][0-9]*x[1-9][0-9]*" if key == "size" else r"[1-9][0-9]*"
+        require(all(re.fullmatch(pattern, item) for item in physical + values), "Malformed actual display " + key)
+        return value
+
+    def profile(self):
+        result = self.capture_profile()
+
         def require_scale(key, expected):
             try:
                 observed = float(result[key])
@@ -154,11 +234,69 @@ class ProcessDevice(Device):
             values = re.findall(r"(?:Physical|Override) " + label + r": ([^\n]+)", result[key])
             require(values and values[-1] == expected, "Actual compact " + label + " profile is not present")
         for key in ("animator_duration_scale", "window_animation_scale", "transition_animation_scale"):
-            result[key] = self.shell("settings get global " + key)
             require_scale(key, 0)
-        require(not self.active_instrumentations(), "Another instrumentation consumer is active")
-        result["app_language"] = self.app_language()
         return result
+
+    def profile_value(self, item):
+        if item["kind"] == "display":
+            return self.override({item["key"]: self.shell("wm " + item["key"])}, item["key"])
+        value = self.shell("settings get " + item["namespace"] + " " + item["key"])
+        if value == "null":
+            self.confirm_unset_setting(item["namespace"], item["key"])
+            return None
+        return value
+
+    def write_profile_value(self, item, value):
+        if item["kind"] == "display":
+            self.shell("wm " + item["key"] + " " + ("reset" if value is None else value))
+        else:
+            action = "delete" if value is None else "put"
+            command = "settings " + action + " " + item["namespace"] + " " + item["key"]
+            self.shell(command if value is None else command + " " + value)
+
+    def prepare_profile(self, original, record):
+        require(self.capture_profile() == original, "Actual original profile changed before preparation")
+        plan = []
+        for name, (namespace, key, value) in self.SETTINGS.items():
+            previous = None if original[name] == "null" else original[name]
+            if previous is not None:
+                require(re.fullmatch(r"[0-9]+(?:\.[0-9]+)?", previous) is not None,
+                        "Actual profile setting is malformed: " + name)
+            if previous is None or float(previous) != float(value):
+                plan.append({"kind": "setting", "namespace": namespace, "key": key,
+                             "original": previous, "temporary": value})
+        for key, value in (("size", "360x900"), ("density", "160")):
+            previous = self.override(original, key)
+            effective = previous or re.search(r"Physical " + key + r": ([^\r\n]+)", original[key])[1]
+            if effective != value:
+                plan.append({"kind": "display", "key": key, "original": previous, "temporary": value})
+        for item in plan:
+            require(self.profile_value(item) == item["original"], "Actual profile changed before owned temporary setup")
+            self.profile_mutations.append(item)
+            record(item)
+            self.write_profile_value(item, item["temporary"])
+
+    def restore_profile(self, original, record):
+        errors = []
+        for item in reversed(self.profile_mutations):
+            try:
+                record(item)
+            except OSError as error:
+                errors.append(error)
+            try:
+                actual = self.profile_value(item)
+                require(actual in (item["original"], item["temporary"]),
+                        "Unexpected profile value; do not overwrite another consumer's setting")
+                if actual != item["original"]:
+                    self.write_profile_value(item, item["original"])
+            except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+                errors.append(error)
+        try:
+            require(self.capture_profile() == original, "Actual original runtime profile was not restored")
+        except (OSError, RuntimeError, subprocess.SubprocessError, ValueError) as error:
+            errors.append(error)
+        if errors:
+            raise ExceptionGroup("Original runtime profile restoration failed", errors)
 
 
 def readiness(request, config, ledger):
@@ -206,32 +344,44 @@ def execute_language(request, config, ledger, *, device=None):
         canonical=request.binding.canonical_session, endpoint=config.endpoint,
         purpose=f"language-api{request.api}-two-original-methods", source=request.binding.source_revision,
     ):
-        profile = device.profile()
-        device.original_runtime_profile = profile
+        original_profile = device.capture_profile()
+        device.original_runtime_profile = original_profile
         before = device.installed(APP)
-        require(before is not None, "Existing user target must be preserved; no fresh install/data fallback")
         require(device.installed(TEST) is None, "Existing test package must not be overwritten")
-        device.original_target_digest = before["sha256"]
+        device.confirm_original_absence(TEST)
+        device.original_test_absent = True
+        if before is None:
+            device.confirm_original_absence(APP)
+        device.original_target_digest = before["sha256"] if before is not None else None
+        device.original_target_absent = before is None
         config.output.mkdir()
-        backup = config.output / "original-target.apk"
-        device.run("pull", before["path"], str(backup), timeout=120)
-        require(sha256(backup) == before["sha256"], "Actual original target APK preservation failed")
+        backup = None
+        if before is not None:
+            backup = config.output / "original-target.apk"
+            device.run("pull", before["path"], str(backup), timeout=120)
+            require(sha256(backup) == before["sha256"], "Actual original target APK preservation failed")
         packaging = assemble_debug_pair(
             manifest=manifest, policy=policy, ledger=ledger, owner=device.native_lane_owner,
             revision=request.binding.source_revision, state=state, debug_home=config.debug_home,
             installed_apk=backup, output=config.output / "packaging",
         )
+        snapshot = packaging["installed_snapshot"]
+        require(snapshot is None if before is None else
+                snapshot is not None and snapshot["sha256"] == before["sha256"] and snapshot["package"] == APP,
+                "Packaging original-presence snapshot differs from the actual observed target")
         paths = retained_pair(packaging, config.output, request)
-        require(has_original_schema(backup) and has_original_schema(paths["app"]),
+        require((backup is None or has_original_schema(backup)) and has_original_schema(paths["app"]),
                 "Actual preserved/current target Room schema compatibility is unverified")
         verify_current_request(request)
-        require(device.profile() == profile and device.installed(APP) == before and device.installed(TEST) is None,
+        require(device.capture_profile() == original_profile and device.installed(APP) == before and device.installed(TEST) is None,
                 "Actual original profile/packages changed during packaging")
         result = {
             "binding": asdict(request.binding), "api": request.api, "identities": request.identities,
             "native_lane_operation_owner": device.native_lane_owner, "endpoint": config.endpoint,
-            "profile_before": profile, "installed_before": before, "packaging": packaging,
-            "mutation_attempts": [], "acceptance": False,
+            "original_profile": original_profile, "installed_before": before, "packaging": packaging,
+            "preservation_mode": "originally-absent" if before is None else "originally-present",
+            "mutation_attempts": [], "profile_setup_attempts": [], "profile_restoration_attempts": [],
+            "acceptance": False,
         }
         operations = config.output / "operations.json"
 
@@ -242,10 +392,18 @@ def execute_language(request, config, ledger, *, device=None):
             result["mutation_attempts"].append(package)
             save()
 
+        def record_profile(item, restoring=False):
+            result["profile_restoration_attempts" if restoring else "profile_setup_attempts"].append(item)
+            save()
+
         save()
         try:
+            device.prepare_profile(original_profile, record_profile)
             install_pair(device, paths, record_attempt)
             verify_current_request(request)
+            profile = device.profile()
+            result["profile_before"] = profile
+            save()
             result["cohort"] = execute_selection(
                 device, config.output, "language", profile,
                 packaging["app"]["sha256"], packaging["tests"]["sha256"],
@@ -261,20 +419,26 @@ def execute_language(request, config, ledger, *, device=None):
             errors = []
             try:
                 states, failures = restore_packages(
-                    device, backup, before["sha256"],
+                    device, backup, device.original_target_digest,
                     packaging["app"]["sha256"], packaging["tests"]["sha256"],
                 )
                 result["cleanup"] = states
                 errors.extend(failures)
+                device.confirm_original_absence(TEST)
+                if before is None:
+                    device.confirm_original_absence(APP)
             except (OSError, RuntimeError, subprocess.SubprocessError) as failure:
                 errors.append(failure)
             try:
-                require(device.profile() == profile, "Original runtime profile was not restored")
-            except (OSError, RuntimeError, subprocess.SubprocessError, ValueError) as failure:
+                device.restore_profile(original_profile, lambda item: record_profile(item, restoring=True))
+                result["original_profile_restored"] = True
+            except (OSError, RuntimeError, subprocess.SubprocessError, ValueError, ExceptionGroup) as failure:
                 errors.append(failure)
             if getattr(device, "application_state_uncertain", False):
                 result["application_state"] = "UNCERTAIN_NATIVE_LANE_RETAINED"
                 result["fixture_recovery_receipt"] = str(device.fixture_recovery_path)
+            if errors:
+                result["cleanup_errors"] = [repr(error) for error in errors]
             try:
                 save()
             except OSError as failure:

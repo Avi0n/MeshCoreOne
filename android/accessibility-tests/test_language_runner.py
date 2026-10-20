@@ -24,7 +24,10 @@ class SyntheticDevice(FakeDevice):
     def __init__(self, original, api):
         super().__init__()
         self.original = original
-        self.packages[APP] = sha256(original)
+        if original is None:
+            self.packages.pop(APP)
+        else:
+            self.packages[APP] = sha256(original)
         self.observed_profile = {"sdk": str(api), "synthetic": True}
         self.install_failure = None
 
@@ -44,10 +47,29 @@ class SyntheticDevice(FakeDevice):
             self.calls.append(command)
             shutil.copyfile(self.original, command[2])
             return "synthetic pull"
+        if command[0] == "uninstall" and command[1] in (APP, TEST):
+            self.calls.append(command)
+            del self.packages[command[1]]
+            return "Success"
         return super().run(*command, **kwargs)
 
     def profile(self):
         return self.observed_profile.copy()
+
+    def capture_profile(self):
+        return self.profile()
+
+    def confirm_original_absence(self, package):
+        if package in self.packages:
+            raise RuntimeError("Synthetic package is not absent")
+
+    def prepare_profile(self, original, record):
+        if original != self.observed_profile:
+            raise RuntimeError("Original synthetic profile changed")
+
+    def restore_profile(self, original, record):
+        if original != self.observed_profile:
+            raise RuntimeError("Original synthetic profile was not restored")
 
 
 class LanguageRunnerTest(unittest.TestCase):
@@ -109,6 +131,8 @@ class LanguageRunnerTest(unittest.TestCase):
             self.assertEqual(self.request.operation_owner, self.ledger.acquire_hard_lock.call_args.args[1])
             return {
                 "owner": kwargs["owner"], "source_revision": kwargs["revision"],
+                "installed_snapshot": {"sha256": sha256(self.packaging["original"]), "package": APP}
+                if kwargs["installed_apk"] is not None else None,
                 "android_source_tree_sha256": self.request.binding.android_source_tree_sha256,
                 "manifest_sha256": self.request.binding.manifest_sha256,
                 "policy_revision": self.request.binding.policy_revision,
@@ -189,14 +213,31 @@ class LanguageRunnerTest(unittest.TestCase):
         self.package.assert_not_called()
         self.spawn.assert_not_called()
 
-    def test_missing_original_or_preexisting_test_is_not_overwritten(self):
-        for packages in ({}, {APP: sha256(self.packaging["original"]), TEST: "foreign-test"}):
+    def test_preexisting_test_is_not_overwritten_for_present_or_absent_original(self):
+        for packages in ({TEST: "foreign-test"}, {APP: sha256(self.packaging["original"]), TEST: "foreign-test"}):
             self.device.packages = packages.copy()
             with self.subTest(packages=packages), self.assertRaisesRegex(RuntimeError, "preserved|overwritten"):
                 self.execute()
             self.assertEqual(packages, self.device.packages)
         self.package.assert_not_called()
         self.assertEqual([], self.device.calls)
+
+    def test_failed_package_probe_is_not_reinterpreted_as_original_absence(self):
+        self.device.installed = Mock(side_effect=subprocess.CalledProcessError(1, ["synthetic-adb"], stderr=b"unknown transport"))
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.execute()
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+        self.assertFalse(any(call[0] in ("install", "uninstall") for call in self.device.calls))
+
+    def test_absent_for_owner_but_registered_or_retained_elsewhere_is_not_empty(self):
+        device = runner.ProcessDevice(self.config, 31)
+        device.run = Mock(return_value="")
+        device.confirm_original_absence(APP)
+        for value in ("package:" + APP, "unknown package-manager response"):
+            device.run.return_value = value
+            with self.subTest(value=value), self.assertRaises(RuntimeError):
+                device.confirm_original_absence(APP)
 
     def test_packaging_public_certificate_failure_cannot_install_a_fallback(self):
         self.package.side_effect = runner.PortError("Public App/Test/installed certificates differ")
@@ -205,6 +246,23 @@ class LanguageRunnerTest(unittest.TestCase):
         self.assert_original_restored()
         self.assertFalse(any(call[0] == "install" for call in self.device.calls))
         self.spawn.assert_not_called()
+
+    def test_packaging_cannot_relabel_observed_original_presence_or_absence(self):
+        make = self.package.side_effect
+        for original in (self.packaging["original"], None):
+            self.device = SyntheticDevice(original, 31)
+            self.config = replace(self.config, output=self.root / ("wrong-presence-" + str(original is None)))
+
+            def wrong_snapshot(**kwargs):
+                result = make(**kwargs)
+                result["installed_snapshot"] = None if original is not None else {"sha256": "invented", "package": APP}
+                return result
+
+            self.package.side_effect = wrong_snapshot
+            with self.subTest(absent=original is None), self.assertRaisesRegex(RuntimeError, "original-presence snapshot"):
+                self.execute()
+            self.assertEqual({} if original is None else {APP: sha256(original)}, self.device.packages)
+            self.spawn.assert_not_called()
 
     def test_packaging_identity_or_byte_drift_cannot_reach_install(self):
         make = self.package.side_effect
@@ -345,9 +403,10 @@ class LanguageRunnerTest(unittest.TestCase):
                 "settings get global window_animation_scale": "0",
                 "settings get global transition_animation_scale": "0",
             }
-            device.run = Mock(return_value="device")
+            device.run = Mock(side_effect=lambda *command: "device" if command == ("get-state",) else "0")
             device.shell = Mock(side_effect=lambda command: values.get(command, "0"))
             device.active_instrumentations = Mock(return_value=[])
+            device.installed = Mock(return_value={"synthetic": True})
             device.app_language = Mock(return_value="")
             self.assertEqual(str(api), device.profile()["sdk"])
             for key, bad in (("getprop ro.build.version.sdk", "30"), ("wm size", "Physical size: 1080x2400"),
@@ -360,6 +419,7 @@ class LanguageRunnerTest(unittest.TestCase):
                 with self.subTest(api=api, key=key), self.assertRaises(RuntimeError):
                     device.profile()
                 values[key] = old
+            device.run.side_effect = None
             device.run.return_value = "unauthorized"
             with self.assertRaisesRegex(RuntimeError, "authenticated"):
                 device.profile()
@@ -395,12 +455,170 @@ class LanguageRunnerTest(unittest.TestCase):
                         device.app_language()
                 observed["locales"] = f"Locales for {APP} for user 10 are []"
                 observed["user"] = "10"
-                self.assertEqual("", device.app_language())
+                device.shell.reset_mock()
+                with self.assertRaisesRegex(RuntimeError, "owner user0"):
+                    device.app_language()
+                device.shell.assert_not_called()
                 for invalid in ("current", "-2", "invalid", "0;echo invalid"):
                     observed["user"] = invalid
                     with self.subTest(user=invalid), self.assertRaisesRegex(RuntimeError, "current Android user"):
                         device.app_language()
             self.assertTrue(all("set-app-locales" not in str(call) for call in device.run.call_args_list))
+
+    def test_both_apis_reject_non_owner_user_before_private_access(self):
+        for api in (31, 37):
+            device = runner.ProcessDevice(self.config, api)
+            device.run = Mock(return_value="10")
+            device.shell = Mock()
+            with self.subTest(api=api), self.assertRaisesRegex(RuntimeError, "owner user0"):
+                device.app_language()
+            device.shell.assert_not_called()
+
+    def test_bound_owner_user_scopes_package_and_instrumentation_commands_and_rejects_switch(self):
+        device = runner.ProcessDevice(self.config, 31)
+        device.android_user = "0"
+        device.current_user = Mock(return_value="0")
+        with patch.object(runner.socket, "create_connection"):
+            for command in (("install", "-r", "app.apk"), ("uninstall", TEST),
+                            ("shell", "pm", "path", APP), ("shell", "am", "instrument", "-w")):
+                with self.subTest(command=command):
+                    actual = device.command(*command)
+                    self.assertEqual("0", actual[actual.index("--user") + 1])
+            device.current_user.return_value = "10"
+            with self.assertRaisesRegex(RuntimeError, "Current Android user changed"):
+                device.command("install", "-r", "app.apk")
+        device.run = Mock()
+        device.shell("run-as " + APP + " sh -c 'echo synthetic'")
+        device.run.assert_called_once_with("shell", "run-as " + APP + " --user 0 sh -c 'echo synthetic'")
+
+    def test_original_absence_removes_only_new_verified_packages_on_both_apis(self):
+        for api in (31, 37):
+            self.request = runner.request_for(source(), api)
+            self.device = SyntheticDevice(None, api)
+            self.config = replace(self.config, output=self.root / ("empty-operation-" + str(api)))
+            self.ledger.reset_mock()
+            result = self.execute()
+            self.assertEqual({}, self.device.packages)
+            self.assertIsNone(result["installed_before"])
+            self.assertEqual("originally-absent", result["preservation_mode"])
+            self.assertIn("original_target_absence", result["cleanup"])
+            self.assertEqual(2, result["cohort"]["passed"])
+            self.assertFalse(any(call[0] == "pull" for call in self.device.calls))
+            self.ledger.release_hard_lock.assert_called_once()
+
+    def test_absent_original_partial_install_failures_restore_absence_without_instrumentation(self):
+        for failed_name in ("current-app.apk", "current-tests.apk"):
+            self.device = SyntheticDevice(None, 31)
+            self.config = replace(self.config, output=self.root / ("failed-empty-" + failed_name))
+            install = self.device.install
+
+            def fail(path):
+                install(path)
+                if path.name == failed_name:
+                    raise RuntimeError("Actual partial install failure")
+
+            self.device.install = fail
+            with self.subTest(package=failed_name), self.assertRaisesRegex(RuntimeError, "partial install failure"):
+                self.execute()
+            self.assertEqual({}, self.device.packages)
+            self.spawn.assert_not_called()
+
+    def test_absent_original_foreign_package_is_never_uninstalled_and_keeps_lane(self):
+        self.device = SyntheticDevice(None, 31)
+
+        def changed_install(path):
+            self.device.packages[APP] = "foreign-app"
+            raise RuntimeError("Actual installed package changed")
+
+        self.device.install = changed_install
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.assertEqual({APP: "foreign-app"}, self.device.packages)
+        self.assertNotIn(("uninstall", APP), self.device.calls)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_profile_restoration_group_does_not_prevent_final_error_receipt(self):
+        self.device.restore_profile = Mock(side_effect=ExceptionGroup("Actual cleanup failure", [OSError("Unreadable setting")]))
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        result = json.loads((self.config.output / "operations.json").read_text())
+        self.assertEqual(2, result["cohort"]["passed"])
+        self.assert_original_restored()
+        self.assertNotIn("original_profile_restored", result)
+
+    def test_observed_unset_font_is_not_a_literal_null_or_failed_probe(self):
+        device = runner.ProcessDevice(self.config, 31)
+        device.run = Mock(side_effect=lambda *command: "device" if command == ("get-state",) else "0")
+        values = {
+            "getprop ro.build.version.sdk": "31", "getprop ro.build.version.release": "synthetic",
+            "getprop sys.boot_completed": "1", "getprop init.svc.bootanim": "stopped",
+            "getconf _NPROCESSORS_ONLN": "4", "settings get system font_scale": "null",
+            "settings get secure show_ime_with_hard_keyboard": "1", "wm size": "Physical size: 1080x2400",
+            "wm density": "Physical density: 420", "getprop ro.build.fingerprint": "synthetic",
+            "settings list system": "",
+        }
+        device.shell = Mock(side_effect=lambda command: values.get(command, "0"))
+        device.installed = Mock(return_value=None)
+        device.active_instrumentations = Mock(return_value=[])
+        self.assertEqual("null", device.capture_profile()["font"])
+        values["settings list system"] = "font_scale=null"
+        with self.assertRaisesRegex(RuntimeError, "not confirmed absent"):
+            device.capture_profile()
+        values["settings list system"] = "unknown settings-provider response"
+        with self.assertRaisesRegex(RuntimeError, "inventory is unrecognized"):
+            device.capture_profile()
+        device.shell.side_effect = OSError("Actual settings read failed")
+        with self.assertRaisesRegex(OSError, "settings read failed"):
+            device.capture_profile()
+
+    def test_temporary_profile_restores_exact_absence_and_survives_receipt_write_failure(self):
+        device = runner.ProcessDevice(self.config, 31)
+        original = {"font": "null", "ime": "1", "animator_duration_scale": "null",
+                    "window_animation_scale": "1.0", "transition_animation_scale": "1.0",
+                    "size": "Physical size: 1080x2400", "density": "Physical density: 420"}
+        values = {key: None if original[name] == "null" else original[name]
+                  for name, (_, key, _) in device.SETTINGS.items()}
+        values.update(size=None, density=None)
+        device.capture_profile = Mock(return_value=original.copy())
+        device.profile_value = Mock(side_effect=lambda item: values[item["key"]])
+        writes = []
+
+        def write(item, value):
+            values[item["key"]] = value
+            writes.append((item.copy(), value))
+
+        device.write_profile_value = Mock(side_effect=write)
+        record = Mock()
+        device.prepare_profile(original, record)
+        self.assertEqual(7, len(writes))
+        self.assertEqual("2.0", values["font_scale"])
+        self.assertEqual("360x900", values["size"])
+        with self.assertRaises(ExceptionGroup):
+            device.restore_profile(original, Mock(side_effect=OSError("Receipt write failed")))
+        self.assertEqual(14, len(writes))
+        self.assertIsNone(values["font_scale"])
+        self.assertIsNone(values["animator_duration_scale"])
+        self.assertIsNone(values["size"])
+        self.assertEqual("1.0", values["window_animation_scale"])
+        device.shell = Mock()
+        runner.ProcessDevice.write_profile_value(device, {"kind": "setting", "namespace": "system", "key": "font_scale"}, None)
+        device.shell.assert_called_once_with("settings delete system font_scale")
+        device.shell.reset_mock()
+        runner.ProcessDevice.write_profile_value(device, {"kind": "display", "key": "size"}, None)
+        device.shell.assert_called_once_with("wm size reset")
+
+    def test_foreign_profile_value_is_not_overwritten_during_independent_restoration(self):
+        device = runner.ProcessDevice(self.config, 31)
+        device.profile_mutations = [
+            {"kind": "setting", "namespace": "system", "key": "font_scale", "original": None, "temporary": "2.0"},
+            {"kind": "setting", "namespace": "secure", "key": "show_ime_with_hard_keyboard", "original": "1", "temporary": "0"},
+        ]
+        device.profile_value = Mock(side_effect=lambda item: "3.0" if item["key"] == "font_scale" else "0")
+        device.write_profile_value = Mock()
+        device.capture_profile = Mock(return_value={"foreign": True})
+        with self.assertRaises(ExceptionGroup):
+            device.restore_profile({}, Mock())
+        device.write_profile_value.assert_called_once_with(device.profile_mutations[1], "1")
 
     def test_cli_has_real_mutually_exclusive_readiness_and_execution_not_a_provider_flag(self):
         with patch.object(runner, "current_binding", return_value=source()), \

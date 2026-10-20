@@ -732,3 +732,55 @@ Published275a0596c/run39495005720 succeeded (App865/865, all7 head-bound checks)
 that historical result does not verify this implementation successor.
 Issue238 and the full audit remain open; two methods per API31/37 are separate
 from missing-only27 and from whole-WP acceptance.
+
+### Authorized current-main execution and real preflight corrections
+
+Reviewed PR254 is actually merged as main
+`5714ba3be50618b8d946a21e0db15feb67f90eb6`: `paused=false`,
+`dispatch_mode=off`, `activation_approved=false`. Reconciliation through the
+same owner's supported scope API preserved the original identity/context.
+The packaging operation was separately admitted by the existing trusted
+`debug-test-packaging` rule, advancing19 to20. The five incoming policy/producer
+paths were already reserved, so their later reconciliation correctly retained
+actual revision20 rather than inventing another revision. Published
+`ca4e4039e61870539f488e9ff46b12dabe0e1e2b` contains the actual reviewed main;
+no local pause override or fleet activation occurred.
+
+Fresh authenticated observations found API31 on `emulator-5554` genuinely
+without the target or test package, with unset font/animator settings, IME1 and
+physical1080x2400/density420. API37 on `emulator-5556` retained its target and
+compact font200/IME0/motion0 profile. Actual attempted current-source execution
+stopped before packaging/install/instrumentation: API31 exposed the unset-font
+precondition; API37 returned `Locales for ... for user -2 are []` for the public
+`--user current` argument. Each pre-mutation lane was released after verified
+quiescence. These are real negative preflight observations, not native passes
+or a missing provider/installation prerequisite.
+
+The consumer resolves and binds actual owner user0 before private/package access
+on both APIs and rejects a later user switch through cleanup. LocaleManager's
+response must match that numeric user exactly; non-owner users are rejected,
+not advertised as multi-user support. Present packages retain original APK
+identity/data. Genuine absence is additionally checked against retained package
+registration/data; unknown/failed probes never become absence. The explicit
+absence packaging path must supply current-built verified App/Test identities,
+not a fabricated original APK. Only those exact newly introduced packages may
+be removed to restore original absence.
+
+Temporary font/IME/motion and display preparation records original values and
+each attempted mutation before writing. Missing settings are confirmed absent
+by their named inventory entry and restored with deletion, not a synthesized
+1.0. Original absent display overrides use reset. Restoration independently
+attempts each recorded change despite receipt errors and refuses to overwrite
+foreign values. Exact original profile/package restoration remains a lane
+release condition; native uncertainty and original strict fixtures are not
+weakened.
+
+The declared Python discovery now passes **79 discovered/run/passed,0
+failures/errors/skips**, including owner-user rejection, bound commands,
+explicit absence versus failed/retained-data probes, both original-package
+modes, partial-install cleanup, foreign-package protection, unset-profile
+restoration, receipt failure and independent cleanup. These remain synthetic
+host results. Actual build/instrumentation counts at this source checkpoint
+are **0**; the unchanged two-method/API execution and full audit are not yet
+accepted. Producer `59a47ac40`, product `421fc446` and strict fixture `99175354`
+remain byte-bound to their original Git objects.

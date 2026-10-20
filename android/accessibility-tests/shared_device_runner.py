@@ -259,9 +259,16 @@ def execution_lane(ledger, device, *, lock_owner, canonical, endpoint, purpose, 
                 actual = device.installed(APP)
                 require(actual is not None and actual["sha256"] == original and device.installed(TEST) is None,
                         "Preserved package state unresolved: native lane retained, not released")
+            if getattr(device, "original_target_absent", False):
+                require(device.installed(APP) is None and device.installed(TEST) is None,
+                        "Originally absent packages were not restored to absence: native lane retained")
+                device.confirm_original_absence(APP)
+            if getattr(device, "original_test_absent", False):
+                device.confirm_original_absence(TEST)
             profile = getattr(device, "original_runtime_profile", None)
             if profile is not None:
-                require(device.profile() == profile, "Original runtime profile unresolved: native lane retained")
+                observer = getattr(device, "capture_profile", device.profile)
+                require(observer() == profile, "Original runtime profile unresolved: native lane retained")
         except (RuntimeError, subprocess.SubprocessError, OSError, ValueError) as cleanup:
             raise BaseExceptionGroup("Native lane retained pending verified guest cleanup",
                                      ([primary] if primary else []) + [cleanup])
@@ -271,11 +278,15 @@ def execution_lane(ledger, device, *, lock_owner, canonical, endpoint, purpose, 
 def restore_packages(device, backup, original_digest, app_digest, test_digest):
     require(not device.active_instrumentations(), "Never replace APKs while guest instrumentation is active")
     states, errors = {}, []
+    require((backup is None) == (original_digest is None), "Original package absence/preservation is ambiguous")
+    absent = original_digest is None
     for label, action in (
-        ("original_target_apk", lambda: restore_target(device, backup, original_digest, app_digest)),
+        ("original_target_apk", lambda: remove_owned_package(device, APP, app_digest) if absent
+         else restore_target(device, backup, original_digest, app_digest)),
         ("owned_new_test_package", lambda: remove_owned_test(device, test_digest)),
-        ("original_target_digest", lambda: require(device.installed(APP)["sha256"] == original_digest,
-                                                  "Original target APK was not restored")),
+        ("original_target_absence" if absent else "original_target_digest",
+         lambda: require(device.installed(APP) is None, "Original target absence was not restored") if absent
+         else require(device.installed(APP)["sha256"] == original_digest, "Original target APK was not restored")),
     ):
         try:
             action()
@@ -296,11 +307,16 @@ def restore_target(device, backup, original_digest, app_digest):
 
 
 def remove_owned_test(device, test_digest):
-    actual = device.installed(TEST)
+    remove_owned_package(device, TEST, test_digest)
+
+
+def remove_owned_package(device, package, expected_digest):
+    require(package in (APP, TEST), "Cleanup is restricted to the owned debug App/Test packages")
+    actual = device.installed(package)
     if actual is None:
         return
-    require(actual["sha256"] == test_digest, "Unexpected test identity: do not remove another consumer's package")
-    require(device.run("uninstall", TEST) == "Success", "Owned new test-package cleanup failed")
+    require(actual["sha256"] == expected_digest, "Unexpected package identity: do not remove another consumer's package")
+    require(device.run("uninstall", package) == "Success", "Owned newly introduced package cleanup failed")
 
 
 def verify_binding(apk_directory):
