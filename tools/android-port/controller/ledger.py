@@ -327,7 +327,7 @@ class Ledger:
 
     def evolve_scope(self, wp: str, attempt: str, expected_revision: int,
                      capabilities: dict, operations: list[str], paths: list[str],
-                     overlap_intents=(), authorization_context=None):
+                     overlap_intents=(), authorization_context=None, *, owner_context=None):
         """Idempotently evolve one owner's advisory scope with complete-record CAS."""
         if type(expected_revision) is not int or expected_revision < 1:
             raise PortError("Capability scope revision must be a positive integer")
@@ -337,6 +337,16 @@ class Ledger:
             ).fetchone())
             if row is None or row["attempt"] != attempt:
                 raise PortError("Missing or stale capability reservation")
+            if owner_context is not None and (
+                not isinstance(owner_context, dict)
+                or set(owner_context) != {"session_id", "branch", "worktree"}
+                or any(not isinstance(value, str) or not value for value in owner_context.values())
+                or owner_context != {
+                    "session_id": row["identity"]["session_id"],
+                    "branch": row["branch"], "worktree": row["worktree"],
+                }
+            ):
+                raise PortError("Capability evolution caller differs from the stored session/branch/worktree")
             if row["revision"] != expected_revision:
                 raise PortError(
                     f"Stale capability reservation revision {expected_revision}; current revision {row['revision']}"
@@ -950,6 +960,24 @@ class Ledger:
 
     def begin_merge(self, payload: dict):
         with self.transaction() as connection:
+            lease = self.unpack(connection.execute(
+                "SELECT * FROM leases WHERE repository=? AND wp=?",
+                (self.repository, payload.get("work_package")),
+            ).fetchone())
+            if (
+                lease is None or payload.get("attempt") != lease["attempt"]
+                or type(payload.get("reservation_revision")) is not int
+                or payload["reservation_revision"] != lease["revision"]
+                or type(payload.get("pr_number")) is not int
+                or payload["pr_number"] != lease["identity"]["pr_number"]
+                or payload.get("binding") != lease["binding"]
+                or payload.get("base_sha") != lease["binding"].get("base_sha")
+                or payload.get("policy_revision") != lease["binding"].get("policy_revision")
+                or not isinstance(payload.get("expected_head_sha"), str)
+                or SHA.fullmatch(payload["expected_head_sha"]) is None
+                or lease["state"] not in ("review_wait", "gate_wait", "merge_wait", "completed")
+            ):
+                raise PortError("Merge intent disagrees with the current attempt/revision/PR/binding/state")
             row = connection.execute(
                 "SELECT * FROM operations WHERE repository=? AND key='merge-lane'", (self.repository,)
             ).fetchone()
