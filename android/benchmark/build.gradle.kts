@@ -23,10 +23,19 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
 }
 
+val verifyBenchmarkMeasurements by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Run synthetic raw-measurement reader assertions; never generate performance data."
+    val repository = rootProject.projectDir.parentFile
+    workingDir(repository)
+    commandLine("python", repository.resolve("tools/android-port/controller/test_runner.py").absolutePath,
+        "--tests", projectDir.resolve("tests").absolutePath)
+}
+
 tasks.register("verifyBenchmarkDataset") {
     group = "verification"
     description = "Execute deterministic workload assertions and reject absent, skipped or zero-test reports."
-    dependsOn("testDebugUnitTest")
+    dependsOn("testDebugUnitTest", verifyBenchmarkMeasurements)
     doLast {
         val reports = layout.buildDirectory.dir("test-results/testDebugUnitTest").get().asFile
         val suites = reports.listFiles { file -> file.name.startsWith("TEST-") && file.extension == "xml" }.orEmpty()
