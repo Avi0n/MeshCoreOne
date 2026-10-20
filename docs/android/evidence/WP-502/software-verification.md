@@ -185,9 +185,11 @@ originally required **4** non-skipped executions. At
 **PASS0.55s**, actual XML **4 discovered/run/passed, zero failure/error/skip,
 31s build**. This is a new, separately executed selector, not a replay of
 seven Bluetooth/pairing or other already-green feature cohorts.
-The current class now contains **6**: original four, the separate failing
-retry-exhaustion witness, and a separately passing acknowledgement/reset
-witness below. No current six-case pass/cohort is claimed.
+The current local class now contains **7**: original four, the separate failing
+retry-exhaustion witness, separately passing acknowledgement/reset and real
+Back/country-change witnesses below. Remote draft249/598 still has the
+original five; extra local work is preserved for coalesced repair publication.
+No current seven-case pass/cohort is claimed.
 
 | Method | Actual family |
 | --- | --- |
@@ -197,6 +199,7 @@ witness below. No current six-case pass/cohort is claimed.
 | `initialResolutionFailureIsSilentButExplicitLocationRetryExplainsFailureBeforeDetectedCommit` | Held resolving versus initial null/manual silent fallback, explicit retry spinner/null failure dialog, dismiss/retry then full US/location/US-CA/los angeles detected value committed once to actual Preset/USA/WCMesh. No apply or completion. |
 | `threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget` | New unchanged-production negative: first/second held retryable failures show the original message/Retry/Cancel; actual third Unable To Save lacks frozen ensureConnected remedy. Later fallback/reset/retention/explicit success assertions are defined but not reached/accepted. |
 | `acknowledgingRetryLimitShowsFallbackAndResetsTheNextAttemptWithoutCompleting` | Independent actual max-dialog no-Retry/Cancel, OK-to-fallback without completion, selected-row retention, new explicit same-ID attempt returning to first-failure message/Retry/Cancel, then Cancel and explicit successful completion. Shared production-action helpers, copy negative retained separately. |
+| `changingRegionThroughTheRealBackCallbackCannotApplyThePreviousPreset` | Actual registered Flow Back callback returns from selected USA to Region; Australia/Queensland commit invalidates visible old preset, disabled Continue causes no application/completion; new selection alone enables held au-915 and explicit Applied completion. Not OS/predictive Back, private invalid-ID guard or lifecycle-reset evidence. |
 
 At **679c099b2af75d2c226eb675280439c2af55d665/baseaae3**, existing strict
 `:app:testDebugUnitTest` with
@@ -222,6 +225,18 @@ cohort. Exact five us-ca applies/one commit/one completion, no false success.
 [Independent consumer evidence](README.md#independent-max-retry-acknowledgement-and-budget-reset)
 maps the same frozen RetryAlertModifier/PresetStepView reset/acknowledgement
 branches; no policy-only duplicate or primary original-case reassignment.
+
+At **2655e7a10e77dff5f0cef1fe8926482d28178dfd/base680**, existing strict
+`:app:testDebugUnitTest` with
+`--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest.changingRegionThroughTheRealBackCallbackCannotApplyThePreviousPreset`
+requires **1** non-skipped execution: preflight **PASS0.62s**, actual named XML
+**1 discovered/run/PASS,0 failures/errors/skips,34s build**.
+The real platform callback is captured with SideEffect, using the existing
+pairing fixture pattern. Exact commits/old-preset absence/new selection gate/
+no false application/one new ID and completion are asserted; no copied
+navigation state or direct coordinator calls. Frozen visible-preset lookup
+and existing primary stale-selection guard inform this bounded consumer case,
+not whole invalid-ID/reset/native-Back parity. No other cohort/negative replay.
 
 Uses actual production `OnboardingFlow`, Region/preset coordinators and
 `ServicesRegionCatalog` with Locale.US, not copied policy/catalog placeholders.
@@ -364,7 +379,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, three WiFi, seven pairing and six Region/preset methods (four historical passes, one retained retry-exhaustion negative, one separate acknowledgement/reset pass). Full Rooms sync/history/actions/store/radio, pairing OS/raw-failure/registry/foreground, demo transport, unresolved Region/preset max remedy/locale/stale/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, three WiFi, seven pairing and seven Region/preset methods (four historical passes, one retained retry-exhaustion negative, separate acknowledgement/reset and Back/country-change passes). Full Rooms sync/history/actions/store/radio, pairing OS/raw-failure/registry/foreground, demo transport, unresolved Region/preset max remedy/locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |

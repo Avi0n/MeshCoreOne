@@ -62,7 +62,7 @@ coordinator integration.
 | `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
 | `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
 | `OnboardingPairingComposeTest` | Seven mounted production Flow/coordinator methods: four primary/held-recovery/Retry/benign-cancel/demo-priority methods, plus three just-in-time Bluetooth grant/denial/adapter-off recovery methods. Actual request-result callbacks refresh controlled snapshots; one grant resumes one held pair, repeated callbacks do not duplicate it, denial consumes intent without a prompt loop, Settings/WiFi remain reachable, and later grant/adapter recovery requires explicit Add. Optional location/notifications/LAN stay denied and independent. Controlled ports, not OS chooser/permission dialog/BLE/radio/device evidence. |
-| `OnboardingRegionPresetComposeTest` | Four separately passing mounted Flow/Region/preset methods cover picker resets, exact commits, held apply/typed errors/Retry/cancellation/completion. Fifth is a retained **unchanged-production negative**: third-failure dialog lacks the frozen remedy. Sixth separately passes the actual acknowledgement/fallback/reset/explicit-success path independently of the missing copy. Shared real UI-action witnesses preserve every assertion; fifth's own later assertions remain unreached. No current six-case green cohort, geocoder/radio/firmware or full onboarding claim. |
+| `OnboardingRegionPresetComposeTest` | Four separately passing methods cover picker resets, commits, held apply/typed errors/Retry/cancellation/completion. Fifth retains the **unchanged-production negative** for missing max-retry remedy. Sixth independently passes acknowledgement/fallback/reset; seventh separately passes real Back/country-change invalidation of the old preset, requiring a new explicit selection/application. Fifth's own later assertions remain unreached. No current seven-case green cohort, geocoder/radio/firmware or full onboarding claim. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
@@ -86,6 +86,39 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Back navigation invalidates the old visible preset
+
+At **2655e7a10e77dff5f0cef1fe8926482d28178dfd/base680**, seventh method
+`changingRegionThroughTheRealBackCallbackCannotApplyThePreviousPreset` selects
+real USA/us-ca, then invokes the callback registered by production
+`OnboardingFlow` through its real `InterceptBack` boundary. Actual Region
+heading returns and Preset disappears. Choosing Australia/Queensland and
+Continue commits exactly `[US/manual/US-CA, AU/manual/AU-QLD]`; old USA row/
+Use USA disappear, Australia/915.800 row is initially unselected, and Continue
+is disabled/no apply or completion occurs. New explicit Australia selection
+alone enables one held `au-915` apply; explicit Applied alone completes once.
+No resolver, duplicate call or reuse of the old preset.
+
+Installed preflight **PASS0.62s**; existing strict App method selector:
+
+```text
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest.changingRegionThroughTheRealBackCallbackCannotApplyThePreviousPreset
+```
+
+**1 discovered/run/PASS,0 failures/errors/skips,34s build**, actual named XML.
+No other cohort or known negative was replayed. Fixture captures the real
+enabled Back callback in SideEffect, reusing the existing pairing witness,
+not direct `flow.back`/coordinator test access or fabricated route state.
+This is a controlled platform callback, **not OS/predictive Back evidence**.
+Frozen PresetStepView resolves selected IDs against visible regional presets;
+primary `staleSelectionIsIgnoredAndApplyingBlocksReentry` is prior art. This
+asserts the mounted invalidated-selection controls, not the entire arbitrary
+invalid-ID/private coordinator parameter family. No preset identity reset or
+coordinator teardown is inferred from the correct visible state.
+Earlier primary/known-negative assertions stay intact; production remains
+unchanged. This additional local witness is preserved for coalesced admitted
+repair publication; remote draft249 remains598. No seven-case green is claimed.
 
 ### Independent max-retry acknowledgement and budget reset
 
