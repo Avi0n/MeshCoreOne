@@ -122,22 +122,6 @@
         "validation": ["workflow trust-boundary tests", "required-check identity validation"]
       },
       {
-        "id": "onboarding-preset-retry-renderer",
-        "work_packages": ["WP-303"],
-        "assignment": {"session_id": "6e503330-9c0f-426b-86c3-fa52f404dcab"},
-        "path_rules": ["android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt"],
-        "operations": ["modify"],
-        "invariants": [
-          "WP-305-primary-provenance-unchanged", "only-preset-retry-limit-renderer",
-          "frozen-ensureConnected-remedy", "existing-local-producer-only",
-          "trusted-main-admission-before-product-edit", "no-ownership-or-history-reassignment"
-        ],
-        "validation": [
-          "mounted-OnboardingRegion-Compose-regression", "affected-module-tests",
-          "manifest-and-provenance-validation", "protected-main-merge-review"
-        ]
-      },
-      {
         "id": "debug-test-packaging",
         "work_packages": ["WP-003", "WP-503"],
         "path_rules": ["tools/android-port/local/debug_packaging.py", "tools/android-port/tests/test_debug_packaging.py"],

@@ -35,45 +35,6 @@ DEBUG_PACKAGING_CAPABILITY = {
         "public certificate verification before any separately guarded install",
     ],
 }
-ONBOARDING_RENDERER_CAPABILITY = {
-    "id": "onboarding-preset-retry-renderer",
-    "work_packages": ["WP-303"],
-    "assignment": {
-        "session_id": "6e503330-9c0f-426b-86c3-fa52f404dcab",
-    },
-    "path_rules": [
-        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt",
-    ],
-    "operations": ["modify"],
-    "invariants": [
-        "WP-305-primary-provenance-unchanged", "only-preset-retry-limit-renderer",
-        "frozen-ensureConnected-remedy", "existing-local-producer-only",
-        "trusted-main-admission-before-product-edit", "no-ownership-or-history-reassignment",
-    ],
-    "validation": [
-        "mounted-OnboardingRegion-Compose-regression", "affected-module-tests",
-        "manifest-and-provenance-validation", "protected-main-merge-review",
-    ],
-}
-
-
-def onboarding_renderer_predecessor(policy):
-    result = copy.deepcopy(policy)
-    reservation = result.get("reservation_policy")
-    if reservation is None and "reservation_policy" not in result:
-        return result
-    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
-    if not isinstance(rules, list):
-        raise PortError("Renderer support requires the canonical capability catalog")
-    selected = [i for i, rule in enumerate(rules)
-                if isinstance(rule, dict) and rule.get("id") == ONBOARDING_RENDERER_CAPABILITY["id"]]
-    if not selected:
-        return result
-    if (len(selected) != 1 or rules[selected[0]] != ONBOARDING_RENDERER_CAPABILITY
-            or selected[0] + 1 >= len(rules) or rules[selected[0] + 1].get("id") != "debug-test-packaging"):
-        raise PortError("Renderer support changed outside the exact assigned amendment")
-    rules.pop(selected[0])
-    return result
 
 
 def debug_packaging_predecessor(policy):
@@ -100,7 +61,7 @@ def debug_packaging_predecessor(policy):
 
 def review_policy_predecessor(policy):
     """Reverse exact authorized process deltas; historical policy receipts stay immutable."""
-    result = debug_packaging_predecessor(onboarding_renderer_predecessor(policy))
+    result = debug_packaging_predecessor(policy)
     if "review_policy" not in result:
         return result
     if result.pop("review_policy") != REVIEW_POLICY:

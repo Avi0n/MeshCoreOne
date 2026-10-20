@@ -19,7 +19,6 @@ from controller.scope_amendment import (
     project_translation_exclusions,
     review_policy_predecessor,
     debug_packaging_predecessor, DEBUG_PACKAGING_CAPABILITY,
-    ONBOARDING_RENDERER_CAPABILITY, onboarding_renderer_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -31,38 +30,6 @@ from controller.software_verification import project as project_software
 
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
-    def test_renderer_support_inverse_rejects_broadening_without_rewriting_history(self):
-        current = load_json(REPO / "docs/android/automation-policy.json")
-        before = copy.deepcopy(current)
-        previous = onboarding_renderer_predecessor(current)
-        self.assertEqual(current, before)
-        rules = previous["reservation_policy"]["capabilities"]
-        self.assertNotIn(ONBOARDING_RENDERER_CAPABILITY["id"], [r["id"] for r in rules])
-        index = next(i for i, r in enumerate(rules) if r["id"] == "debug-test-packaging")
-        rules.insert(index, copy.deepcopy(ONBOARDING_RENDERER_CAPABILITY))
-        self.assertEqual(previous, current)
-        for mode in ("wp", "session", "path", "operation", "invariants", "validation", "duplicate", "order"):
-            candidate = copy.deepcopy(current)
-            rules = candidate["reservation_policy"]["capabilities"]
-            rule = next(r for r in rules if r["id"] == ONBOARDING_RENDERER_CAPABILITY["id"])
-            if mode == "wp":
-                rule["work_packages"].append("WP-502")
-            elif mode == "session":
-                rule["assignment"]["session_id"] = "other"
-            elif mode == "path":
-                rule["path_rules"] = ["android/feature/onboarding/**"]
-            elif mode == "operation":
-                rule["operations"].append("delete")
-            elif mode in ("invariants", "validation"):
-                rule[mode] = []
-            elif mode == "duplicate":
-                rules.append(copy.deepcopy(rule))
-            else:
-                rules.remove(rule)
-                rules.insert(0, rule)
-            with self.subTest(mode=mode), self.assertRaises(PortError):
-                content_scope_revisions(base_manifest(), candidate)
-
     def test_debug_support_projection_preserves_the_actual_pre_capability_policy(self):
         historical = json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",

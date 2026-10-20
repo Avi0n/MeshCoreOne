@@ -43,12 +43,6 @@ class CapabilityEngine:
                 or not all(isinstance(wp, str) and wp for wp in rule["work_packages"])
             ):
                 raise PortError(f"Malformed {rule['id']} capability work_packages")
-            if "assignment" in rule and (
-                not isinstance(rule["assignment"], dict)
-                or set(rule["assignment"]) != {"session_id"}
-                or any(not isinstance(value, str) or not value for value in rule["assignment"].values())
-            ):
-                raise PortError(f"Malformed {rule['id']} capability assignment")
             self._rules[rule["id"]] = rule
 
     @property
@@ -64,8 +58,7 @@ class CapabilityEngine:
             return path == root or path.startswith(root + "/")
         return fnmatchcase(path, pattern)
 
-    def admit(self, wp_id: str, assigned_paths: list[str], path: str, operation: str, *,
-              assignment: dict | None = None) -> Admission:
+    def admit(self, wp_id: str, assigned_paths: list[str], path: str, operation: str) -> Admission:
         nonempty(wp_id, "Capability WP")
         path = git_path(path, subtree=True)
         nonempty(operation, "Capability operation")
@@ -82,7 +75,6 @@ class CapabilityEngine:
             rule for rule in candidates
             if rule is not None and operation in rule["operations"]
             and ("work_packages" not in rule or wp_id in rule["work_packages"])
-            and ("assignment" not in rule or rule["assignment"] == assignment)
         ]
         if not candidates:
             raise PortError(
@@ -99,11 +91,11 @@ class CapabilityEngine:
         return requested == allowed or requested.startswith(allowed + "/")
 
     def admit_scope(self, wp_id: str, assigned_paths: list[str],
-                    paths: list[str], operations: list[str], *, assignment: dict | None = None) -> list[Admission]:
+                    paths: list[str], operations: list[str]) -> list[Admission]:
         if not paths or not operations:
             raise PortError("Capability scope must contain paths and operations")
         result = [
-            self.admit(wp_id, assigned_paths, path, operation, assignment=assignment)
+            self.admit(wp_id, assigned_paths, path, operation)
             for path in sorted(set(paths))
             for operation in sorted(set(operations))
         ]
