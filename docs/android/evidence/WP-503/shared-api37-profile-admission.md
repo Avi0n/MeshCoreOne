@@ -295,3 +295,48 @@ the historical5037/emulator-5556 record, and no device/package/key/user-data
 operation occurred. Missing-only27 still requires a genuine trusted compatible
 exact-source App/Test pair and admitted native-host capability. Packaging
 adapter/controller changes remain with their WP003 producer.
+
+### Current-main integration after runner publication
+
+The replacement reconciled exact current main
+`574d440b5b05ba6609f60d7ba0913c2d8bdaea0d` into published runner successor
+`ff80c2751ab88ed28024a0ebe03641910502c538` through merge commit
+`1e4c4acbd35343d13cc7af3115e7e41da15c3efd`. All31 incoming paths are
+existing WP003 controller/policy/workflow changes; no producer product repair
+or unmerged packaging adapter is imported. Git's automatic merge found no
+conflict. The Android tree remains
+`34eb9408b3ce052fefe6c7fcfc5db4c069b64923`; all runner, fixture and historical
+native evidence bytes are unchanged by that merge.
+
+Supported `Ledger.evolve_scope` admitted the trusted `merge-integration`
+operations `reconcile-current-base` and `merge-disjoint-semantic-edits`,
+advancing canonical reservation revision8 to9. Actual canonical identity,
+attempt, source/base/policy bindings, immutable authorization, branch/worktree
+audit context and repair history remain unchanged. The replacement's actual
+app/CLI identities remain separately attributed, not substituted for the
+canonical identity. Incoming paths, original producing commits and exact
+revision transition are retained in the replacement session's
+`files/wp503-current-main-integration.json`; no raw ledger mutation,
+release/reacquire or fabricated execution identity was used.
+
+The first controller test attempt ran before the merge commit and correctly
+rejected two newly required runtime inputs absent from the then-current
+committed HEAD (325 discovered,320 passed,3 failures,2 errors). After committing
+the complete merge, the same declared commands pass without changing any
+controller test, fixture or assertion:
+
+| Exact command | Result on committed integration |
+| --- | --- |
+| `python -m unittest discover -s android\accessibility-tests -p test_shared_device_runner.py -v` | 23 discovered/23 passed;0 failures/errors/skips |
+| `python tools\android-port\controller\test_runner.py --quiet` | 325 discovered/325 passed;0 failures/errors/skips |
+| `python tools\android-port\controller\verification_config.py --check` | PASS, exit0 |
+| `python tools\android-port\controller\validate.py` | PASS, exit0 |
+| `python tools\android-port\controller\workflows.py` | PASS, exit0 |
+| `python tools\android-port\portmap.py` | PASS, exit0 |
+| `git diff --check` and `git diff --cached --check` | PASS, exit0 |
+
+These scoped host/controller checks are not a local Android build, API37
+execution, native acceptance or a hosted successor verdict. The automatic
+run39367961680 remains bound only to ff80; discover the new successor's
+automatic run rather than dispatching another or copying a result bundle.
+Native packaging/admission and all protected/acceptance gates remain separate.
