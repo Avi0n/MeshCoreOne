@@ -5,7 +5,7 @@ verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
 `0183a2b206b9ba655d7fea5c281b8bfbfecf8847`. The same producer/reservation owns
-the new adaptive regressions. Historical native observations remain untouched.
+the new adaptive and Rooms regressions. Historical native observations remain untouched.
 
 ## Existing task and source registration
 
@@ -34,6 +34,32 @@ ConnectedConversationComposeTest class requires4. Positive execution uses
 zero, skipped, failed or errored cases cannot pass. Method names below identify
 runner cases; descriptions record their actual assertion/parameter families.
 Function-name counts alone are not execution evidence.
+
+The bounded Rooms successor uses the same existing task with just
+`--tests com.meshcoreone.android.uitests.RoomsComposeTest` and the identical
+strict options above. It requires **4** non-skipped executions, separately from
+the incumbent41. Its four methods actually pass at
+`160ba7d3a4018278081c001319b8a6235859c689`; the two cohorts have not been
+combined/re-executed as a claimed45-case result in this resumption.
+
+### com.meshcoreone.android.uitests.RoomsComposeTest
+
+| Method | Actual family |
+| --- | --- |
+| `loadingEmptyGuestMemberAdminAndDisconnectedUseTheProductionRoute` | Held initial load never flashes empty; real holder read/failed-seen/notification/badge/change callbacks in order; guest/member/admin/disconnected controls; 200% CJK/RTL focused draft across360/744/834dp; no post/join/retry from recomposition or permission changes. |
+| `failedPostRetainsDraftAndAccessibleRetryKeepsTheOriginalMessageIdentity` | Held post disables duplicate action, rejected typed permission error retains draft/no row and reaches localized error/diagnostics; accepted fixture post clears draft once; actual message-change/reload and accessible Retry preserve original session/message/text with pending status. Not actual service/database delivery. |
+| `reconnectLookupAndRejectedJoinKeepTheSheetAndExactRememberChoiceUntilSuccess` | Held contact lookup versus missing-contact recovery/cancel; default remember=true toggled false; held/rejected join preserves disconnected state/sheet/password/remember and exact typed failure; successful fixture join alone dismisses sheet and exposes composer. |
+| `roomFramesCoverEffectiveSchemesWindowsFontsLocalesAndPermissionSurfaces` | Production content in57 existing theme/window/font rows: ten themes/19 effective schemes at all three widths and both fonts/directions per frame,12 sampled resource locales, all nine width/disconnected/guest/member pairs. Original CJK/RTL body, FAILED label, actual layout/glyph fit, two equal settled nonblank native draws/capture. |
+
+Rooms production route/content/state-holder ownership remains WP-310; room
+accessibility source/test ownership remains WP-307. The controlled dependencies
+reuse those real contracts and existing fixture pattern, not AppContainer,
+RoomServerService, Room database, server sync or radio. Rendering adds57 Rooms
+inputs to the existing127 conversation/local-content definitions; they are
+not184 approved goldens or a newly executed combined capture cohort. Resource
+locales are sampled, not the full locale x state x theme product or date-format
+parity. Grouping/order, notification lifecycle, authentication expiry, full
+message-action and store/wire families still need their primary-owner evidence.
 
 ### com.meshcoreone.android.uitests.ConversationComposeTest
 
@@ -159,9 +185,9 @@ Primary WP-307 ownership is unchanged.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: current127-input matrix covers conversation/local-content surfaces, not onboarding, rooms, reactions/path, nodes/discovery, full map, remote admin, tools and settings state families. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs now have a bounded57-input production Rooms slice and four route/content methods. Full Rooms sync/history/actions/store/radio families and onboarding, reactions/path, nodes/discovery, full map, remote admin, tools and settings families remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
-| Formal verification entry | Existing WP-003 owns supported `verification_config.py` overlay/manifest-lineage amendment; `configured:false` remains until that amendment is actually admitted. Current App commands are bounded software checks, not full acceptance. |
+| Formal verification entry | Existing WP-003 owns supported `verification_config.py` overlay/manifest-lineage amendment (published PR246, not deployed here). `configured:false` retains unfinished full acceptance rather than blocking bounded supported App software checks. No configuration/approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |
 | Physical resize/folding, spoken TalkBack, radio/background | Human/device evidence unverified; does not block ordinary deterministic software implementation. |
 | Approved visual goldens | No approval/baseline manufactured or updated. Identical settled draws do not prove visual parity. |

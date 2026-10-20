@@ -9,7 +9,9 @@ that the installed Linux implementation lane is unavailable.
 ## Identity and ownership
 
 Repository: `cbattlegear/MeshCoreOne-Android`; issue [#135](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135);
-[PR #206](https://github.com/cbattlegear/MeshCoreOne-Android/pull/206), ready for review.
+[PR #206](https://github.com/cbattlegear/MeshCoreOne-Android/pull/206) is merged;
+remaining software work continues in
+[PR #244](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244).
 Owner: `test-parity-engineer`, canonical project/reservation session
 `3bc8c1b8-20ec-4647-88ae-db3775268489`; runtime alias
 `fb112832-0a71-4f6d-abc0-f07f80eaeb8b`.
@@ -19,11 +21,13 @@ Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`;
-trusted current policy revision:
+Current integrated base: `0183a2b206b9ba655d7fea5c281b8bfbfecf8847`.
+At the prior integrated base `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`,
+the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
-The existing typed reservation was evolved to revision 17, not replaced.
+Current policy/controller bytes are unchanged authoritative main0183 bytes.
+The existing typed reservation was evolved to revision 18, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -56,6 +60,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
+| `RoomsComposeTest` | Production `RoomConversationRoute`/`RoomConversationStateHolder` with controlled service/data ports: held loading versus empty, guest/member/admin/disconnected transitions, focused draft across three widths, held/rejected post and exact-ID accessible Retry, held/missing contact and rejected/successful authentication with exact password/remember inputs. Separately renders production content in 57 effective-theme/window/font rows with 12 sampled locales and all nine width/permission-surface pairs. Not actual RoomServerService, Room-database persistence, radio or approved-golden evidence. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -73,6 +78,65 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Bounded Rooms production slice in PR244
+
+The same producer/reservation18 adds only an owned native-host test file,
+preserving the previously reviewed adaptive regressions byte-for-byte.
+It uses merged WP-310 production route/state-holder/content and contracts, with
+WP-307's existing room accessibility fixture as prior art, not as transferred
+test acceptance. Frozen `RoomConversationView.swift` supplies disconnected,
+read-only and posting branches; `RoomAuthenticationSheet.swift` supplies
+lookup/loading/missing-contact branches. The underlying room label/status tests
+remain owned by WP-307. Translation remains removed from active scope.
+
+The actual existing strict selector is:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+At code commit `160ba7d3a4018278081c001319b8a6235859c689`, exact
+`python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit 160ba7d3a4018278081c001319b8a6235859c689 --stages preflight`
+passes. The selector actually executes **4 discovered/run/passed, zero
+failures/errors/skips, 33s**, through the installed serialized Git-bundle/ext4
+lane. Its JUnit XML contains **57 distinct successful `WP502_RENDER` records**.
+Each capture asserts equal settled native draws, nonblank pixels, measured
+width/height, expected effective scheme, actual font-scaled body layouts,
+unclipped visible glyphs and localized state/action labels. PNGs are generated
+under `android/screenshot-tests/build/screens/sdk31/rooms/`, not committed
+goldens or an additional hosted CI bundle.
+
+The route tests assert real state-holder transitions, callback arguments and
+typed `RoomServerError.PermissionDenied` identity/diagnostics. Failed posting
+retains the draft and publishes no message; successful fixture acceptance
+clears it once, and a service event/reload exposes FAILED and invokes Retry on
+the same session/message ID. Lookup/join gates cannot return fake success;
+missing contact has no password field, rejected join keeps the sheet/password/
+remember choice, and only accepted join dismisses it. These are explicitly
+controlled service-port results, not real firmware/service/store acceptance.
+
+Failure history is retained: initial `a7f68d188` passes preflight but fails
+App test compilation in35s by treating `CustomActions` as a callable semantics
+action; no tests are credited. `fbc5f97cc` actually discovers4, passes2/fails2
+in34s: the text query matches both the message and retained draft, and a
+Robolectric main-looper debounce has not advanced. The corrected selector
+excludes editable fields, reads/invokes the real custom-action list, and drives
+the existing 50ms reload through the host looper. No production timing,
+assertion threshold, queue policy or owner implementation changes.
+Portmap/controller validation and `git diff --check` pass.
+
+The original 127 conversation/local-content inputs and prior41 App executions
+are not rerun or relabeled as current Rooms evidence. No new device/native
+instrumentation execution, physical folding, spoken TalkBack or approved
+goldens are claimed. Full Rooms server sync/history, ordering, links/actions
+and persistence/radio integration remain outside this bounded slice; broader
+feature-matrix/source-family and full WP-502 acceptance remain open.
+Existing WP-003's verification amendment in PR246 is not treated as deployed
+or as whole-WP acceptance.
 
 ### Remaining software coverage after merged PR206
 
