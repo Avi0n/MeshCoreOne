@@ -601,3 +601,36 @@ debug identity and actual unique held operation owner, preserving the device
 and comparing App/Test/installed public certificates before any separately
 guarded replacement. Issue238 remains open; this affected2+2 selection is not
 the separate API37 missing-only27 inventory or full successful-cohort replay.
+
+### Reconciliation after the language producer and three peers merged
+
+Current main `aae3b10dd78f3d3314f51291687932f42f7d0ac9` was reconciled into
+published `61fca316d5aeeee18e88e85bb74252da60e32d15`. PR247's original
+`59a47ac40bd2f84e7188c87a5521af9d0f16e75e` is now genuinely merged, alongside
+PR234's region accessibility, PR245's synthetic benchmark reader and PR248's
+notification-draft restoration. Earlier unmerged-source preparation remains
+historical, not rewritten into merged or native acceptance.
+
+Actual supported scope evolution advanced canonical revision14 to15 with
+`merge-integration` reconciliation operations. All16 incoming producer paths
+match actual main byte-for-byte. Identity, original authorization/bindings,
+audit history, manifest/policy, strict language fixture `99175354ba29a9230b7a2b03a7c17ea4153dd394`
+and product blob `421fc446443a5f301085507603701d7da04d40ef` remain unchanged.
+The existing adapter, retired runner and all historical native evidence are
+preserved. The attributed transaction receipt is retained in the replacement
+session's `files/wp503-consolidated-main-integration.json`.
+
+On the reconciled producer source, the declared audit command above again
+passes **45/45**, and the merged producer's declared
+`python .\tools\android-port\controller\test_runner.py --tests .\android\benchmark\tests`
+passes **22/22**, both with zero failures/errors/skips. All four declared
+validators and staged whitespace checks pass. Benchmark inputs are synthetic,
+not device/performance evidence. No complete local Android build is claimed.
+The preparation CLI must bind the resulting clean committed successor;
+61f's binding and hosted run do not verify that successor.
+
+This source consolidation does not supply the missing trusted
+`admit_language_device(LanguageRequest)` provider or live lifecycle consumer.
+No device, lane, build, key, install or native start is authorized or performed
+by this reconciliation. The unchanged selection remains two methods per
+API31/37, with no successful-cohort replay or acceptance/issue closure.

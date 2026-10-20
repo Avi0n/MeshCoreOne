@@ -70,7 +70,7 @@ python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 `
 
 The declared `benchmark` stage runs the actual
 `:benchmark:verifyBenchmarkHarness validateModuleGraph` tasks with strict
-dependency verification. The harness runs eight workload test cases, compiles
+dependency verification. The harness runs eight workload test cases and synthetic host-reader tests, compiles
 the instrumentation producer, and assembles benchmark/profile/ordinary release.
 The reader rejects missing/zero/skipped/failed/malformed JUnit, absent R8 mapping,
 a debuggable/non-profileable/non-test-only measurement target, wrong identity/SDK
@@ -83,9 +83,21 @@ performance, profiles, StrictMode, ANR, battery and native runtime are unverifie
 The CI executor also declares `ci.py run --stage benchmark`, using the existing
 explicit state/output, environment stripping and task-graph guard. These are
 executable infrastructure commands, not an amendment declaring the entire
-WP accepted. Canonical WP-504 verification/receipt admission remains separate.
+WP accepted. The deployed
+[WP-003 software-command amendment](../evidence/WP-003/software-verification-manifest-amendment.json)
+now declares preflight and the benchmark stage in the WP-504 manifest entry.
+`configured:false` intentionally denotes unfinished **full WP acceptance**,
+not unavailable software commands. The WP-003 owner maintains that supported
+configuration; device acceptance is separate from a bounded tooling/build merge.
 The existing hosted scaffold executes `verifyBenchmarkDataset` through
-`verifyScaffoldTests`; zero dataset assertions cannot silently pass.
+`verifyScaffoldTests`; zero dataset assertions cannot silently pass. It now also
+executes `:benchmark:verifyBenchmarkMeasurements`, the strict existing Python
+runner over `android/benchmark/tests`. Missing/zero/skipped/failed reader suites
+fail the Gradle task. Run just those deterministic **synthetic** reader tests with:
+
+```powershell
+python .\tools\android-port\controller\test_runner.py --tests .\android\benchmark\tests
+```
 
 After an admitted dependency change only, the optional
 `--stages benchmark-dependencies` runs that same actual build with
@@ -158,6 +170,83 @@ supported runner and record the discovered cases, device/build and raw outputs.
 Install commands operate on an isolated test APK only; no updater or APK
 installation behavior is added to the product. No human-owned signing key is
 accessed. Do not uninstall/clear an existing user's ordinary application data.
+
+## Importing actual measurements
+
+[`measurements.py`](../../../android/benchmark/measurements.py) consumes the raw
+AndroidX **1.5.0** `BenchmarkData.json` plus the corresponding successful
+instrumentation JUnit XML and the exact installed benchmark APK. Its schema
+and compilation labels come from the published
+[`benchmark-common` source](https://dl.google.com/dl/android/maven2/androidx/benchmark/benchmark-common/1.5.0/benchmark-common-1.5.0-sources.jar)
+(`json/BenchmarkData.kt`, `MetricResult.kt`, `Arguments.kt`, `ResultWriter.kt`) and
+[`benchmark-macro` source](https://dl.google.com/dl/android/maven2/androidx/benchmark/benchmark-macro/1.5.0/benchmark-macro-1.5.0-sources.jar)
+(`Macrobenchmark.kt`, `CompilationMode.kt`, `Metric.kt`). In particular,
+`Partial(Require)` with no warmup is named **`BaselineProfile`**, not `Partial`,
+in the parameterized output. Frame metrics are nested per-iteration sample
+arrays under `sampledMetrics`, not scalar frame percentiles.
+
+Before the authorized nine-case device run, record the actual candidate commit,
+benchmark APK SHA-256, and canonical workload SHA-256 from the verified
+`WP504_READY:prepare:wp504-v1:<digest>` readiness contract. Do not substitute a
+made-up digest. Forward these values through AndroidX's actual
+`androidx.benchmark.output.payload.*` instrumentation arguments. For example,
+inside the authorized runner/device lane, with `$datasetSha` obtained from that
+actual readiness contract:
+
+```powershell
+$sourceCommit = (git rev-parse HEAD).Trim()
+$benchmarkApk = '.\android\app\build\outputs\apk\benchmark\app-benchmark.apk'
+$targetSha = (Get-FileHash $benchmarkApk -Algorithm SHA256).Hash.ToLowerInvariant()
+$payload = '-Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.output.payload.'
+.\android\gradlew.bat -p .\android :benchmark:connectedDebugAndroidTest `
+  '-Pandroid.testInstrumentationRunnerArguments.class=com.meshcoreone.android.benchmark.PerformanceBenchmark' `
+  "${payload}wp504.commit=$sourceCommit" "${payload}wp504.apkSha256=$targetSha" `
+  "${payload}wp504.dataset=wp504-v1" "${payload}wp504.datasetSha256=$datasetSha"
+```
+
+This is the already-declared device task, **not executed by the host-reader
+tests**. Its existing profile requirement and unsuppressed device checks still
+apply. Select the real files exported by that one run (not a guessed output
+filename or another device's report). Then, with `$rawBenchmarkJson` and
+`$instrumentationJunit` pointing at those exports:
+
+```powershell
+python .\android\benchmark\measurements.py --results $rawBenchmarkJson `
+  --junit $instrumentationJunit --apk $benchmarkApk --commit $sourceCommit `
+  --dataset-sha256 $datasetSha --device-kind physical
+```
+
+Use `--device-kind emulator` for emulator diagnostics; it never becomes physical
+timing/battery evidence. There is no implicit device type or output file. The
+reader prints the imported context, all raw iterations, descriptive
+min/max/P50/P90/P95/P99, and per-iteration plus pooled frame distributions.
+Percentiles use the pinned AndroidX linear-interpolation convention. Pooled
+frames weight iterations by their frame counts; inspect per-iteration values
+and repeated runs rather than interpreting a pooled percentile as a confidence
+bound. Negative `frameOverrunMs` is valid headroom, not an invalid duration.
+
+The reader fails on an incomplete/duplicate/foreign nine-case matrix, missing or
+failed/skipped/zero/mismatched JUnit, non-ten iteration arrays, empty frame
+samples, malformed/nonfinite values, unknown metric families, tampered summary
+statistics, per-iteration disagreement between `frameCount` and CPU/overrun sample
+counts, reported thermal sleep, or mismatched supplied source/APK/dataset
+bindings. Inputs are bounded and duplicate JSON keys/unsafe XML are rejected.
+Different frame counts **between** iterations remain valid; only corresponding
+counts within one iteration must agree, as in the pinned AndroidX frame model.
+All parser controls are explicitly synthetic and are not retained as benchmark
+results. The reader has no benchmark generation or numeric-budget fallback.
+
+**Import consistency is not authenticity or acceptance.** JSON payload and the
+device label are caller-supplied. Matching files do not independently certify
+same-run provenance, the APK's source commit, profile collection, or a physical
+device. AndroidX JSON does not encode error-suppression arguments or establish
+battery/thermal health; zero macrobenchmark thermal sleep is not proof that
+throttling never occurred. Review the actual unsuppressed logs, controlled
+conditions, genuine profiles, exact build provenance and repeatability before
+deriving budgets or comparing builds. This tool does not sign off ANR, battery,
+StrictMode, native runtime, profile provenance, or any performance threshold.
+Retain sanitized non-reproducible device inputs as appropriate; do not make
+another reproducible CI-result bundle.
 
 ## StrictMode, ANR and battery review
 
