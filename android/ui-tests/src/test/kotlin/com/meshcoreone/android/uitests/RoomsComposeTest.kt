@@ -2,6 +2,7 @@
 // ReferenceInput: MC1/Views/RemoteNodes/Rooms/RoomConversationView.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1Services/Sources/MC1Services/Models/RoomMessage.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/Chats/Room/RoomAuthenticationSheet.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1Tests/Views/Chats/Components/RoomMessageBubbleA11yLabelTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.uitests
@@ -49,6 +50,7 @@ import com.meshcoreone.android.feature.chats.rooms.*
 import java.io.File
 import java.time.Instant
 import java.util.Locale
+import java.util.TimeZone
 import java.util.UUID
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -314,11 +316,83 @@ class RoomsComposeTest {
     @Test fun liveDuplicateIdentityCannotReorderOrReplaceTheExistingRowBeforeTheHeldReload() {
         val first = liveMessage(1, 100u)
         val existing = liveMessage(2, 200u)
-        assertLiveArrival(listOf(first, existing), existing.copy(timestamp = 150u), listOf(first, existing))
+        val duplicate = liveMessage(2, 150u, existing.text)
+        assertNotEquals(existing.deduplicationKey, duplicate.deduplicationKey)
+        assertLiveArrival(listOf(first, existing), duplicate, listOf(first, existing))
     }
 
-    private fun liveMessage(id: Long, timestamp: UInt, text: String = "msg $timestamp") = message(false).copy(
-        id = UUID(0, id), authorKeyPrefix = Bytes.of(0xab, 0xcd, 0xef, 0x01), authorName = "Author",
+    @Test fun liveMidInsertionReconfiguresTheRetainedLaterRowsTimestampBeforeReload() {
+        val locale = Locale.getDefault()
+        val formatLocale = Locale.getDefault(Locale.Category.FORMAT)
+        val displayLocale = Locale.getDefault(Locale.Category.DISPLAY)
+        val zone = TimeZone.getDefault()
+        try {
+            Locale.setDefault(Locale.US)
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+            val prefix = Bytes.of(0xaa)
+            val first = liveMessage(1, 100u, "first", prefix, "Alice")
+            val later = liveMessage(2, 500u, "later", prefix, "Alice")
+            val middle = liveMessage(3, 250u, "mid", prefix, "Alice")
+            val expected = listOf(first, middle, later)
+            val fixture = Fixture()
+            fixture.stored = listOf(first, later)
+            mountRoute(fixture)
+            compose.waitUntil { fixture.holder.state.value.hasLoadedOnce }
+            compose.onNode(hasSetTextAction()).performTextReplacement(body)
+            compose.onNodeWithText("Jan 1, 00:01").assertIsDisplayed()
+            compose.onNodeWithText("Jan 1, 00:08").assertIsDisplayed()
+            assertEquals(listOf(true, true), fixture.holder.state.value.rows.map { it.showTimestamp })
+            val held = CompletableDeferred<Unit>()
+            compose.runOnIdle {
+                fixture.fetchGate = held
+                fixture.stored = expected
+                assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageReceived(session.id, middle)))
+            }
+            compose.waitUntil { fixture.holder.state.value.messages == expected }
+            fun assertReconfiguredRows() {
+                assertEquals(expected, fixture.holder.state.value.messages)
+                assertEquals(listOf(true, false, false), fixture.holder.state.value.rows.map { it.showTimestamp })
+                compose.onNodeWithText("Jan 1, 00:01").assertIsDisplayed()
+                compose.onNodeWithText("Jan 1, 00:08").assertDoesNotExist()
+                val tops = listOf("first", "mid", "later").map { text ->
+                    compose.onNodeWithContentDescription("Alice: $text").assertIsDisplayed()
+                        .fetchSemanticsNode().boundsInRoot.top
+                }
+                assertTrue(tops.zipWithNext().all { (a, b) -> a < b })
+                compose.onNode(hasSetTextAction()).assertTextContains(body)
+            }
+            assertReconfiguredRows()
+            org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
+            compose.waitUntil { fixture.loads.count { it == "fetch" } == 2 }
+            assertTrue(fixture.holder.state.value.isLoading)
+            assertReconfiguredRows()
+            compose.runOnIdle { assertTrue(held.complete(Unit)) }
+            compose.waitUntil { !fixture.holder.state.value.isLoading && fixture.loads.count { it == "changed" } == 2 }
+            assertReconfiguredRows()
+            assertEquals(
+                List(2) { listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed") }.flatten(),
+                fixture.loads,
+            )
+            assertTrue(fixture.posts.isEmpty())
+            assertTrue(fixture.joins.isEmpty())
+            assertTrue(fixture.retries.isEmpty())
+            assertTrue(fixture.reported.isEmpty())
+        } finally {
+            TimeZone.setDefault(zone)
+            Locale.setDefault(locale)
+            Locale.setDefault(Locale.Category.FORMAT, formatLocale)
+            Locale.setDefault(Locale.Category.DISPLAY, displayLocale)
+        }
+    }
+
+    private fun liveMessage(
+        id: Long,
+        timestamp: UInt,
+        text: String = "msg $timestamp",
+        prefix: Bytes = Bytes.of(0xab, 0xcd, 0xef, 0x01),
+        author: String = "Author",
+    ) = RoomMessageDTO(
+        id = UUID(0, id), sessionID = session.id, authorKeyPrefix = prefix, authorName = author,
         text = text, timestamp = timestamp, createdAt = Instant.ofEpochSecond(id),
     )
 
@@ -327,6 +401,8 @@ class RoomsComposeTest {
         arrival: RoomMessageDTO,
         expected: List<RoomMessageDTO>,
     ) {
+        assertEquals(initial.size, initial.map { it.deduplicationKey }.distinct().size)
+        assertEquals(expected.size, expected.map { it.deduplicationKey }.distinct().size)
         val fixture = Fixture()
         fixture.stored = initial
         mountRoute(fixture)
