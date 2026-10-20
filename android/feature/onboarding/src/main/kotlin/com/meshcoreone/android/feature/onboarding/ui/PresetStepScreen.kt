@@ -91,7 +91,12 @@ fun PresetStepScreen(
         AlertDialog(
             onDismissRequest = actions.onDismissRetry,
             title = { Text(stringResource(if (alert.isMaxRetriesExceeded) S.alertRetryUnableToSave else S.alertRetryConnectionError)) },
-            text = { Text(uiString(alert.message)) },
+            text = {
+                Text(
+                    if (alert.isMaxRetriesExceeded) stringResource(S.alertRetryEnsureConnected)
+                    else uiString(alert.message),
+                )
+            },
             confirmButton = {
                 if (alert.isMaxRetriesExceeded) TextButton(actions.onDismissRetry) { Text(stringResource(L.commonOk)) }
                 else TextButton(actions.onRetry) { Text(stringResource(S.alertRetryRetry)) }
