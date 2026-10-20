@@ -18,6 +18,7 @@ import com.meshcoreone.android.app.navigation.NativeNavigationShell
 import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings
+import com.meshcoreone.android.core.model.ChannelDTO
 import com.meshcoreone.android.core.model.ChatConversationID
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.protocol.bytes.Bytes
@@ -72,12 +73,16 @@ class NotificationDraftRestorationTest : RoomProcessTest() {
             val other = requireNotNull(store.fetchContact(radio, otherKey))
             val conversation = ChatConversationID.dm(radio, peer.id)
             val otherConversation = ChatConversationID.dm(radio, other.id)
+            val channel = ChannelDTO(radioId = radio, index = 0u, name = "Reply isolation")
+            store.saveChannel(channel)
+            val channelConversation = ChatConversationID.channel(radio, channel.index)
             val peerEntity = EntityKey(radio, peer.id)
             val otherEntity = EntityKey(radio, other.id)
             val otherRadio = RadioId(UUID.fromString("30700000-0000-0000-0000-000000000002"))
             val foreignEntity = EntityKey(otherRadio, peer.id)
             h.draftStore.setDraft("disk", conversation)
             h.draftStore.setDraft("other disk", otherConversation)
+            h.draftStore.setDraft("channel disk", channelConversation)
             h.draftStore.setDraft("foreign disk", ChatConversationID.dm(otherRadio, peer.id))
             if (pending != null) notifications.saveDraft(peerEntity, pending)
             notifications.saveDraft(otherEntity, "other pending")
@@ -123,12 +128,22 @@ class NotificationDraftRestorationTest : RoomProcessTest() {
                 }
             }
 
+            compose.runOnUiThread { h.container.navigation.navigateToChannel(channel) }
+            h.settle()
+            compose.waitForIdle()
+            compose.onNode(matcher).assertIsDisplayed().assertTextEquals("channel disk")
+            assertEquals("channel disk", h.draftStore.draft(channelConversation))
             compose.runOnUiThread { h.container.navigation.navigateToChat(other) }
             h.settle()
             compose.waitForIdle()
             compose.onNode(matcher).assertIsDisplayed().assertTextEquals("other pending")
             assertNull(notifications.consumeDraft(otherEntity))
             assertEquals("other pending", h.draftStore.draft(otherConversation))
+            compose.runOnUiThread { h.container.navigation.navigateToChat(peer.copy(radioId = otherRadio)) }
+            h.settle()
+            compose.waitForIdle()
+            compose.onNode(matcher).assertIsDisplayed().assertTextEquals("foreign disk")
+            assertEquals("foreign disk", h.draftStore.draft(ChatConversationID.dm(otherRadio, peer.id)))
             assertEquals("foreign pending", notifications.consumeDraft(foreignEntity))
             assertNull(notifications.consumeDraft(foreignEntity))
             compose.runOnUiThread { h.container.navigation.navigateToChat(peer) }
