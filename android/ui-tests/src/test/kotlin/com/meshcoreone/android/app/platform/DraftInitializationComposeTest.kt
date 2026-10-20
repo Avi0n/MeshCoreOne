@@ -108,10 +108,16 @@ class DraftInitializationComposeTest : RoomProcessTest() {
             h.draftStore.setDraft("disk", conversation)
             assertEquals("disk", h.container.chatsFeature.drafts.get(conversation))
             field.assertTextContains(populated)
+            val sending = compose.activity.getString(Chats.chatsMessageStatusSending)
+            h.eventually("the actual mounted timeline shows the held message before its terminal reload", virtualBudgetMillis = 100) {
+                compose.onAllNodesWithContentDescription("saved. $sending").fetchSemanticsNodes().size == 1
+            }
+            compose.onNodeWithContentDescription("saved. $sending").assertIsDisplayed()
             val fieldIdentity = field.fetchSemanticsNode().id
             val message = store.fetchMessages(EntityKey(radio, peer.id), 10, 0).single()
             assertEquals("saved", message.text)
-            assertNotEquals(MessageStatus.FAILED, message.status)
+            assertTrue(message.status in setOf(MessageStatus.PENDING, MessageStatus.SENDING))
+            assertEquals(1, store.fetchPendingSendsForMessage(EntityKey(radio, message.id)).size)
             h.links.radios.single().push(Bytes.of(1, 2))
             h.eventually("the real queue persists the terminal failure and removes its envelope") {
                 runBlocking {
