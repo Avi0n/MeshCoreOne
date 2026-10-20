@@ -422,12 +422,15 @@ class RoomsComposeTest {
             assertEquals(listOf(true, false, false), state.rows.map { it.showTimestamp })
             assertNotEquals(originalRow, state.rows.first())
             compose.onAllNodesWithText("Alice", useUnmergedTree = true).assertCountEquals(1)
+            val nameBounds = compose.onNodeWithText("Alice", useUnmergedTree = true).assertIsDisplayed()
+                .fetchSemanticsNode().boundsInRoot
             compose.onAllNodesWithContentDescription("Alice: msg").assertCountEquals(3)
-            val tops = expected.map { message ->
+            val bubbles = expected.map { message ->
                 compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true).assertIsDisplayed()
-                    .fetchSemanticsNode().boundsInRoot.top
+                    .fetchSemanticsNode().boundsInRoot
             }
-            assertTrue(tops.zipWithNext().all { (a, b) -> a < b })
+            assertTrue(nameBounds.bottom <= bubbles.first().top)
+            assertTrue(bubbles.zipWithNext().all { (a, b) -> a.top < b.top })
             compose.onNode(hasSetTextAction()).assertTextContains(body)
             compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
             compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
