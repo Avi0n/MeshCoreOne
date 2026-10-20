@@ -29,7 +29,7 @@ the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
 Current policy/controller bytes are unchanged authoritative main9c430cb0 bytes.
-The existing typed reservation was evolved to revision 21, not replaced.
+The existing typed reservation was evolved to revision 22, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -59,6 +59,7 @@ coordinator integration.
 | `ConnectedConversationComposeTest` | Actual AppContainer/Room/service graph and existing protocol-speaking firmware harness. Reference `RESP_CODE_ERR=1`, direct `ErrorCode.notFound=2` and channel terminal `ErrorCode.illegalArgument=6` reject real sends. Separate mounted direct/channel cases click Retry and require the same saved message, original text/FAILED persistence, visible failure/recovery after both attempts, one terminal event per attempt, durable envelope metadata, queue cleanup, consumed draft and one connection owner. Channel notFound is intentionally retryable and is not substituted for the terminal reference error. New assertions require their own positive execution before credit. |
 | `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
 | `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
+| `OnboardingPairingComposeTest` | Four mounted production Flow/coordinator methods: external/local busy guards and exactly one accepted Region entry; held other-app failure, dismissed alert and repeat failure preserve the exact Retry UUID; benign Cancelled/Ignored remain reusable without error/advance/completion; two title taps do nothing, third unlocks demo once without connecting and demo primary takes priority over the retained Retry target. Controlled pairing/demo ports, not OS chooser/BLE/radio/native-device evidence. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
@@ -82,6 +83,60 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Bounded production pairing primary/recovery slice
+
+Same reservation22 admits only owned `OnboardingPairingComposeTest`; the
+Rooms, adaptive, draft and WiFi test bytes are unchanged from publishede2d.
+It mounts actual `OnboardingFlow` from Welcome through Permissions into Pair.
+The real flow owns `DeviceScanCoordinator`, its busy/error/Retry/demo state
+and Region navigation. Controlled pairing/demo calls suspend on explicit
+deferred outcomes; no fixture completes a request by default.
+
+| Frozen source / existing owner prior art | Added mounted predicate and limit |
+| --- | --- |
+| `DeviceScanView.primaryCTA`, `startPairing`, `retryConnection`; owner `pairingSuccessAdvancesAndMarksInitiated` | External busy prevents even the first pairing call. The real primary starts one held call, remains disabled through repeated clicks and external busy recomposition, and cannot advance until explicit Connected. Actual flow Back from Region immediately returns to Pair, proving one Region push rather than duplicate success navigation. Private haptic/initiation fields are not introspected. |
+| `DeviceScanView` other-app warning observer, `retryConnection`; owner `otherAppFailureOffersRetryThenRetrySucceeds` | Held initial failure with a known Retry UUID displays exact CJK/RTL text. Dismissal keeps Retry. Held Retry failure with no new UUID still retains that original target; the next Retry sends the same UUID. Only explicit success reaches Region once; no extra fresh pair is substituted. The injected outcome is already mapped, not a BLE-error/ConnectionUIState routing test. |
+| `AppState+DeviceActions.withPairingFlowErrorHandling`: `DevicePairingError.cancelled` and `alreadyInProgress`; owner `userCancelIsBenignAndDoesNotAdvance` | Actual native `Cancelled` and `Ignored` outcomes each release busy, leave Pair/Add reusable and produce no alert, Region or completion. A later intentional accepted attempt works. These are benign declared results, not coroutine cancellation, actual picker cancellation or all picker-unavailable/foreground recovery cases. |
+| `DeviceScanView.primaryCTA`, `unlockDemoMode`, `connectSimulator`; owner `primaryActionPrefersDemoThenOtherAppThenAdd`, `threeTitleTapsUnlockDemoMode`, `demoConnectAdvancesToRegion` | Add is initially selected; other-app failure exposes Retry. Two real title taps do not unlock or connect; the third exposes the localized demo alert, unlocks once and still makes no new attempt. After dismissal Demo replaces Retry/Add, its one held demo call remains guarded, and explicit success reaches Region. No actual demo transport or simulator-only iOS branch is certified. |
+
+All methods require no onboarding completion callback/flag or unrelated WiFi,
+settings, preset, location, stale-pair clearing or permission-request effects.
+Bluetooth is a granted controlled prerequisite; location/notification/LAN
+snapshots remain denied. The other-app case uses German/834dp, the others
+English/360dp, all at200% font with actual Pair heading density/height checks,
+1400dp host height and the existing reduced-motion setup. This is native-host
+layout/flow evidence, not OS font/device/keyboard/TalkBack or physical resize.
+The test Back seam invokes the actual flow callback, not Android system Back.
+
+At code `5794a96e71144908c5ff6e2c0c234ea3a9a3f5be`, installed-lane exact
+preflight **PASS0.56s** and the existing strict selector:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingPairingComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**4 discovered/run/passed, zero failure/error/skip,37s build**, from the
+actual four named JUnit XML cases. First execution passes; no failing product
+predicate, foreign fix, weakened assertion or new task is hidden.
+Portmap/controller validation, `git diff --check` and exact previous-test/
+main9c owner-support comparisons all pass after the source/evidence additions.
+Previous successful WiFi/Rooms/draft/adaptive cohorts are not manually replayed
+or added into a manufactured54-case execution.
+
+The five-case frozen `FreshPairingFailureRoutingTests` and two
+`MacOSPairingRecoveryTests` were read but are **not** claimed covered by these
+mapped-outcome UI consumers: PIN/dead-bond classification, ASK/CDM registry,
+foreground prompt/removal/scanner recovery and transport wiring remain their
+actual primary owners' responsibility. Full pairing/source-family and full
+WP-502 acceptance remain unfinished.
+Prior e2d [COMMENTED source review5589729220](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5589729220)
+finds no bounded WiFi blocker, but does not review/certify this pairing successor;
+its hosted39474101494 was still in progress when this delta was recorded.
+No CI verdict, goldens or device observations are transferred or manufactured.
 
 ### Bounded production onboarding WiFi flow
 
