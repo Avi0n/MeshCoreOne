@@ -18,6 +18,67 @@ checkout files have no diff from the frozen commit. This note does not refresh
 archived groups, accounting, proposals or review bindings, and does not audit
 the concurrently owned Rooms changes.
 
+## Coalesced primary assessment (2026-10-20)
+
+[Primary WP-307 assessment6297011991](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6297011991)
+supersedes the initial missing-witness/producer-seam inference below for these
+four concrete **no-notification** predicates. It identifies no remaining
+source-case blocker in the bounded native single-initialization adaptation;
+no composer production repair or archived WP-308 producer is required.
+
+The later witness is published separately in WP-502
+[PR #244 at `ccd1a7d63f5517fa556aadf8daf141636251ec5c`](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244).
+Its exact file is
+`android/ui-tests/src/test/kotlin/com/meshcoreone/android/app/platform/DraftInitializationComposeTest.kt`,
+blob `a56c6eeefcbf4b028967a9115ade75c744fec381`.
+Authoritative exact-published-head
+[run39465426509 / Linux job118776483387](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39465426509/job/118776483387)
+now **passed** at `ccd1a7d63f5517fa556aadf8daf141636251ec5c`.
+Read that actual job log directly in memory: its strict App collector reports
+**766 discovered/run/passed, 0 failures/errors/skips**, and its executed method
+inventory explicitly contains both exact draft-initialization methods below.
+This binds their actual hosted execution to published `ccd`, not PR #165.
+The 766-method suite is not a newly invented standalone 47-case execution,
+and its two methods are not added to an overlapping local count.
+
+[Earlier reported execution and limitations](https://github.com/cbattlegear/MeshCoreOne-Android/blob/ccd1a7d63f5517fa556aadf8daf141636251ec5c/docs/android/evidence/WP-502/draft-initialization.md)
+retain **2 discovered/run/passed, 0 failures/errors/skips** at
+`13de7b9336b9c26996efc8631c51d8190a10d992`, SDK31 Robolectric native graphics.
+The later `13de7b...ccd1a7` delta contains four documentation files only;
+the mounted test bytes are unchanged. This is not a combined 47-case run,
+a rerun by WP-501 or execution of those tests in PR #165.
+
+| Frozen original | Coalesced actual consumer witness |
+| --- | --- |
+| `loadDraft restores the disk draft when the composer is empty` | Existing constructor/store witnesses below plus the mounted helper's real process-store `"saved"` -> actual editable field `"saved"` entry control, lines75-95. Fresh-owner initialization is the bounded native adaptation. |
+| `loadDraft leaves an already-populated composer untouched` | `DraftInitializationComposeTest::inProgressFieldSurvivesRealFailureReloadAndAdaptiveRecompositionWithIndependentSavedDraft` invokes the real mounted helper with `"in-progress"`. After typing persists that value, lines106-112 independently replace only the store with `"disk"` and assert the field/store divergence. The real Sending -> ERR2 -> persisted FAILED/envelope removal -> visible Failed transition and subsequent layout recomposition preserve both independent values. |
+| `restoreComposerDraft keeps disk draft from clobbering an already-populated composer` | `DraftInitializationComposeTest::prepopulatedQuickReplyFieldSurvivesRealFailureReloadAndAdaptiveRecompositionWithIndependentSavedDraft` supplies exact `"quick-reply"` and the same independently persisted `"disk"`, real event-driven row reload and retained-field assertions. The original and this witness do not configure notification recovery. |
+| `restoreComposerDraft applies the disk draft when the composer is empty` | Same real mounted `"saved"` entry control and existing empty-only store/constructor assertions as original1. This is a many-to-one mapping, not another discovered test. |
+
+The tests mount real `NativeNavigationShell` / AppContainer / Room / session /
+queue, not a test-written restoration algorithm. After the real terminal
+message event, each width360/599/600/779/780/834/360 at200% font checks focused
+editable semantics identity/text, `"disk"`, navigation entry and session token.
+Other-contact/same-radio and same-contact/other-radio drafts remain isolated;
+another target gets a different editable identity and its own initial draft.
+
+**Limits and cross-PR binding:** this witnesses fresh-owner initialization and
+retained-owner event-driven row reload/layout recomposition, not repeatable
+`loadDraft`, reconnect-driven `open`/refresh, teardown/re-entry to the original
+contact, Activity recreation/process death, physical preferences durability,
+notification priority/consume-once, all channel/radio families or the general
+empty-after-edit policy. MemoryDraftDefaults is not physical disk; editable
+semantics identity is not private-holder introspection. At the coalescing
+comparison, PR #165 head `7db8a812ff293212210eda15fc86f01c4f4189ee` / main
+`9c430cb0f1666faacc443794899b68c01128a87a` does not contain these peer tests.
+The actual primary assessment is source/consumer review, not a privileged
+acceptance gate, whole-PR approval, persistent integration or whole-WP parity.
+No CI-result bundle was downloaded, hashed, saved or revalidated for this note.
+Separate notification recovery is assigned to existing WP-307 App support;
+it does not reopen these four resolved no-notification source predicates.
+
+The original comparison and execution binding below remain historical.
+
 ## Original contract and native consumer
 
 Swift `MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift::loadDraft`
@@ -51,7 +112,7 @@ The visible Android field is owned by
   Neither holder exposes a `loadDraft` / `restoreComposerDraft` equivalent
   that can be invoked on an already-populated composer.
 
-## Per-case disposition
+## Initial 965-bound per-case disposition
 
 Paths below are relative to `android/`. Test class names and complete method or
 dynamic-case names are the binding, not a source header or a file count.
@@ -111,7 +172,7 @@ all **passed**. These are validators, not newly discovered JVM tests or measured
 assertion-call counts. No test, generated binding, production, workflow or
 frozen-source bytes changed.
 
-## Bounded primary-owner handoff and stop
+## Initial primary-owner handoff (superseded only as stated above)
 
 **WP-307 consumer/test contract requires resolution, with any App support
 reconciled through its current producer.** Preserve independently saved disk
