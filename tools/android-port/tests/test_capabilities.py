@@ -9,9 +9,52 @@ from controller.capabilities import CapabilityEngine
 from controller.errors import PortError
 from controller.ledger import HARD_LOCK_RESOURCES, Identity, Ledger
 from portmap import capability_support_admitted
+from controller.scope_amendment import ONBOARDING_RENDERER_CAPABILITY, onboarding_renderer_predecessor
 
 
 class CapabilityReservationTests(unittest.TestCase):
+    def test_renderer_assignment_is_one_session_wp_path_and_operation_not_ownership(self):
+        rule = ONBOARDING_RENDERER_CAPABILITY
+        path = rule["path_rules"][0]
+        assigned = self.manifest.wp("WP-303")["write_paths"]
+        before = copy.deepcopy(assigned)
+        result = self.engine.admit("WP-303", assigned, path, "modify",
+                                   assignment=rule["assignment"])
+        self.assertEqual(result.capability_id, rule["id"])
+        self.assertEqual(assigned, before)
+        for wp, target, operation, identity in (
+            ("WP-502", path, "modify", rule["assignment"]),
+            ("WP-305", path, "modify", rule["assignment"]),
+            ("WP-303", path.replace("PresetStepScreen", "RegionStepScreen"), "modify", rule["assignment"]),
+            ("WP-303", path, "delete", rule["assignment"]),
+            ("WP-303", path, "transfer-current-producer", None),
+            ("WP-303", path, "modify", None),
+            ("WP-303", path, "modify", {"session_id": "unassigned"}),
+            ("WP-303", path, "unrecognized-operation", rule["assignment"]),
+        ):
+            if operation == "transfer-current-producer":
+                # Existing transfer bookkeeping is not product modification authority.
+                admission = self.engine.admit(wp, assigned, target, operation)
+                self.assertEqual(admission.capability_id, "merge-integration")
+                continue
+            with self.subTest(wp=wp, path=target, operation=operation, identity=identity), \
+                    self.assertRaises(PortError):
+                self.engine.admit(wp, assigned if wp == "WP-303" else [], target, operation,
+                                  assignment=identity)
+        prior = onboarding_renderer_predecessor(self.rules)
+        with self.assertRaises(PortError):
+            CapabilityEngine(prior).admit("WP-303", assigned, path, "modify",
+                                          assignment=rule["assignment"])
+
+    def test_malformed_renderer_assignment_is_not_a_wildcard(self):
+        for assignment in (None, {}, [], {"session_id": ""}, {"session_id": "ok", "extra": "bad"}):
+            rules = copy.deepcopy(self.rules)
+            rule = next(r for r in rules["reservation_policy"]["capabilities"]
+                        if r["id"] == ONBOARDING_RENDERER_CAPABILITY["id"])
+            rule["assignment"] = assignment
+            with self.subTest(assignment=assignment), self.assertRaises(PortError):
+                CapabilityEngine(rules)
+
     def setUp(self):
         self.rules = policy()
         self.manifest = test_manifest("WP-101")

@@ -20,7 +20,43 @@ from controller.errors import PortError
 from controller.gates import policy_revision
 from controller.ledger import Identity, Ledger
 from controller.model import SHA, load_manifest
-from controller.schema import load_json
+from controller.schema import decode_json, digest, load_json
+
+
+def assigned_admissions(repo, policy, wp, paths, operations, session_id, *, record=None):
+    """Session-scoped support is usable only after its exact policy is deployed."""
+    from controller.capabilities import CapabilityEngine
+
+    engine = CapabilityEngine(policy)
+    assignment = {"session_id": session_id} if session_id else None
+    admissions = engine.admit_scope(wp["id"], wp["write_paths"], paths, operations,
+                                    assignment=assignment)
+    scoped = {rule["id"]: rule for rule in policy["reservation_policy"]["capabilities"]
+              if "assignment" in rule}
+    selected = {item.capability_id for item in admissions} & scoped.keys()
+    if not selected:
+        return admissions
+    # A candidate checkout must not authorize its own support-policy addition.
+    response = subprocess.run(
+        ["gh", "api", f"repos/{policy['repository']}/git/ref/heads/{policy['default_branch']}"],
+        capture_output=True, text=True, check=True, timeout=30,
+    )
+    base = decode_json(response.stdout).get("object", {}).get("sha")
+    if not isinstance(base, str) or SHA.fullmatch(base) is None:
+        raise PortError("Assigned support requires an authenticated immutable default-branch SHA")
+    trusted = decode_json(git(repo, "show", f"{base}:docs/android/automation-policy.json"))
+    CapabilityEngine(trusted)
+    trusted_rules = {rule["id"]: rule for rule in trusted["reservation_policy"]["capabilities"]}
+    if digest(policy) != digest(trusted) or any(trusted_rules.get(key) != scoped[key] for key in selected):
+        raise PortError("Assigned support is not deployed on trusted main; product edits remain blocked")
+    subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", base, "HEAD"], check=True)
+    if record is not None and (
+        record["identity"]["session_id"] != session_id
+        or record["branch"] != git(repo, "symbolic-ref", "--short", "HEAD")
+        or Path(record["worktree"]).resolve() != repo.resolve()
+    ):
+        raise PortError("Assigned support evolution belongs to another session/branch/worktree")
+    return admissions
 
 
 def git(repo: Path, *arguments):
@@ -190,6 +226,7 @@ def build_parser():
     evolve.add_argument("--expected-revision", required=True, type=int)
     evolve.add_argument("--path", action="append", required=True)
     evolve.add_argument("--operation", action="append", required=True)
+    evolve.add_argument("--session-id", help="Required for session-assigned support; must match existing receipt")
     transfer = commands.add_parser(
         "transfer", help="Record an advisory current-producer handoff with both attributions"
     )
@@ -209,6 +246,7 @@ def build_parser():
     admit.add_argument("--wp", required=True)
     admit.add_argument("--path", required=True)
     admit.add_argument("--operation", required=True)
+    admit.add_argument("--session-id", help="Existing producer identity for assigned support only")
     return parser
 
 
@@ -247,8 +285,8 @@ def main(argv=None):
         elif args.command == "claim":
             wp = manifest.wp(args.wp)
             paths = list(dict.fromkeys([*(args.path or wp["write_paths"]), *args.additional_path]))
-            engine = CapabilityEngine(policy)
-            admissions = engine.admit_scope(args.wp, wp["write_paths"], paths, [args.operation])
+            admissions = assigned_admissions(repo, policy, wp, paths, [args.operation], args.session_id,
+                                             record=ledger.get(args.wp))
             capabilities = {}
             for admission in admissions:
                 capabilities.setdefault(admission.capability_id, []).append(admission.path)
@@ -276,15 +314,18 @@ def main(argv=None):
                 worktree=str(repo.resolve()),
                 initial_identity=Identity(session_id=args.session_id),
             )
+            assigned_ids = {rule["id"] for rule in policy["reservation_policy"]["capabilities"]
+                            if "assignment" in rule}
+            if not acquired and any(item.capability_id in assigned_ids for item in admissions):
+                raise PortError("Assigned support requires fresh initial acquisition or same-owner CAS evolution")
             result = {"acquired": acquired, "record": record}
         elif args.command in ("evolve", "reconcile"):
             record = ledger.get(args.wp)
             if record is None:
                 raise PortError("Capability evolution requires an existing advisory claim")
             wp = manifest.wp(args.wp)
-            admissions = CapabilityEngine(policy).admit_scope(
-                args.wp, wp["write_paths"], args.path, args.operation
-            )
+            admissions = assigned_admissions(repo, policy, wp, args.path, args.operation,
+                                             args.session_id, record=record)
             capabilities = {}
             for admission in admissions:
                 capabilities.setdefault(admission.capability_id, []).append(admission.path)
@@ -311,9 +352,8 @@ def main(argv=None):
             )
         else:
             wp = manifest.wp(args.wp)
-            admission = CapabilityEngine(policy).admit(
-                args.wp, wp["write_paths"], args.path, args.operation
-            )
+            admission = assigned_admissions(repo, policy, wp, [args.path], [args.operation],
+                                            args.session_id)[0]
             result = {
                 "capability": admission.capability_id, "path": admission.path,
                 "operation": admission.operation, "invariants": admission.invariants,

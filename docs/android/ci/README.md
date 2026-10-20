@@ -8,6 +8,54 @@ GitHub transport, described below; deploying it is not fleet activation.
 
 ## Candidate execution contract
 
+### Assigned onboarding renderer support (maintainer-merge required)
+
+`onboarding-preset-retry-renderer` admits only WP-303, existing producer session
+`6e503330-9c0f-426b-86c3-fa52f404dcab`, `modify`, and the exact
+`PresetStepScreen.kt` path below. WP-305 remains the primary source owner
+(merged PR72 / issue113); the manifest and frozen source pin are unchanged.
+This is an initial local support assignment, not ownership transfer, WP acceptance,
+or fleet activation. It covers only rendering the existing localized
+`alertRetryEnsureConnected` remedy at the retry limit. PR249 retains the failing
+mounted case; neither its assertion nor product code is changed here.
+
+Candidate policy evaluation in unit tests is not deployed authority. Local
+`admit`, `claim`, and `evolve` require an authenticated `gh api` default-branch
+SHA, the exact deployed policy bytes, and that deployed commit in this checkout's
+ancestry for session-assigned support. Missing Git objects require an ordinary
+fetch/integration, not a fallback to candidate policy. The CLI binds the supplied,
+coordinator-confirmed app session ID; it does not authenticate an app runtime,
+observe worker termination, or revoke another publisher. Existing merge/review,
+native evidence and human gates remain separate and unchanged.
+
+**Only after maintainer merge**, the already-existing producer integrates fresh
+main in its own worktree and runs:
+
+```powershell
+$renderer = 'android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt'
+$producer = '6e503330-9c0f-426b-86c3-fa52f404dcab'
+python tools\android-port\local\reserve.py admit --wp WP-303 --session-id $producer --path $renderer --operation modify
+python tools\android-port\local\reserve.py status
+```
+
+If fresh status confirms there is still **no existing WP-303 claim**, acquire
+the real initial reservation, retaining the existing user assignment verbatim
+as immutable authorization context:
+
+```powershell
+# $authorization is the existing assignment text, not new or amended permission.
+python tools\android-port\local\reserve.py claim --wp WP-303 --session-id $producer --additional-path $renderer --operation modify --authorization $authorization
+```
+
+If a matching claim now exists, do not release/recreate it. Use its actual
+revision with `evolve --wp WP-303 --session-id $producer --expected-revision
+<actual-revision> --path $renderer --operation modify`. Session, branch and
+worktree must match that receipt. Different-owner/binding collisions remain
+blocked. Existing typed receipts/CAS preserve identity, authorization and
+history; the assignment adds no product acceptance or automatic merge route.
+Acceptance consumers lacking a verified assignment continue to reject this
+support path rather than assuming authority from its filename.
+
 ### WP-502/504 software-command amendment
 
 `docs/android/evidence/WP-003/software-verification-manifest-amendment.json`
