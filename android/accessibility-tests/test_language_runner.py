@@ -341,6 +341,9 @@ class LanguageRunnerTest(unittest.TestCase):
                 "getconf _NPROCESSORS_ONLN": "4", "settings get system font_scale": "2.0",
                 "settings get secure show_ime_with_hard_keyboard": "0", "wm size": "Override size: 360x900",
                 "wm density": "Override density: 160", "getprop ro.build.fingerprint": "synthetic-fingerprint",
+                "settings get global animator_duration_scale": "0",
+                "settings get global window_animation_scale": "0",
+                "settings get global transition_animation_scale": "0",
             }
             device.run = Mock(return_value="device")
             device.shell = Mock(side_effect=lambda command: values.get(command, "0"))
@@ -348,7 +351,11 @@ class LanguageRunnerTest(unittest.TestCase):
             device.app_language = Mock(return_value="")
             self.assertEqual(str(api), device.profile()["sdk"])
             for key, bad in (("getprop ro.build.version.sdk", "30"), ("wm size", "Physical size: 1080x2400"),
-                             ("settings get system font_scale", "1"), ("getprop sys.boot_completed", "0")):
+                             ("settings get system font_scale", "1"), ("getprop sys.boot_completed", "0"),
+                             ("settings get system font_scale", "null"),
+                             ("settings get global animator_duration_scale", "null"),
+                             ("settings get global window_animation_scale", "1"),
+                             ("settings get global transition_animation_scale", "NaN")):
                 old, values[key] = values[key], bad
                 with self.subTest(api=api, key=key), self.assertRaises(RuntimeError):
                     device.profile()
@@ -361,7 +368,9 @@ class LanguageRunnerTest(unittest.TestCase):
         for api in (31, 37):
             device = runner.ProcessDevice(self.config, api)
             device.shell = Mock(return_value="WP503_NO_LANGUAGE_PREFS")
-            device.run = Mock(return_value=f"Locales for {APP} for user 0 are []")
+            observed = {"user": "0", "locales": f"Locales for {APP} for user 0 are []"}
+            device.run = Mock(side_effect=lambda *command:
+                observed["user"] if command == ("shell", "am", "get-current-user") else observed["locales"])
             self.assertEqual("", device.app_language())
             device.shell.return_value = '<map><string name="language"></string></map>'
             self.assertEqual("", device.app_language())
@@ -375,12 +384,22 @@ class LanguageRunnerTest(unittest.TestCase):
                     device.app_language()
             device.shell.return_value = "WP503_NO_LANGUAGE_PREFS"
             if api == 37:
-                device.run.return_value = f"Locales for {APP} for user 0 are [de]"
+                device.run.assert_any_call("shell", "cmd", "locale", "get-app-locales", APP, "--user", "0")
+                observed["locales"] = f"Locales for {APP} for user 0 are [de]"
                 with self.assertRaisesRegex(RuntimeError, "not System"):
                     device.app_language()
-                device.run.return_value = "unknown locale response"
-                with self.assertRaisesRegex(RuntimeError, "unrecognized"):
-                    device.app_language()
+                for invalid in ("unknown locale response", f"Locales for {APP} for user -2 are []",
+                                f"Locales for {APP} for user 10 are []"):
+                    observed["locales"] = invalid
+                    with self.subTest(response=invalid), self.assertRaisesRegex(RuntimeError, "unrecognized"):
+                        device.app_language()
+                observed["locales"] = f"Locales for {APP} for user 10 are []"
+                observed["user"] = "10"
+                self.assertEqual("", device.app_language())
+                for invalid in ("current", "-2", "invalid", "0;echo invalid"):
+                    observed["user"] = invalid
+                    with self.subTest(user=invalid), self.assertRaisesRegex(RuntimeError, "current Android user"):
+                        device.app_language()
             self.assertTrue(all("set-app-locales" not in str(call) for call in device.run.call_args_list))
 
     def test_cli_has_real_mutually_exclusive_readiness_and_execution_not_a_provider_flag(self):

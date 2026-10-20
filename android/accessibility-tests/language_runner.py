@@ -114,8 +114,10 @@ class ProcessDevice(Device):
                     require(values[0].get("value") in ("true", "false"), "Malformed native locale migration state")
                     migrated = values[0].get("value") == "true"
         if self.api >= 33:
-            observed = self.run("shell", "cmd", "locale", "get-app-locales", APP, "--user", "current")
-            match = re.fullmatch(r"Locales for " + re.escape(APP) + r" for user \d+ are \[([^\]\n]*)\]", observed)
+            user = self.run("shell", "am", "get-current-user")
+            require(re.fullmatch(r"[0-9]+", user) is not None, "Actual current Android user is unrecognized")
+            observed = self.run("shell", "cmd", "locale", "get-app-locales", APP, "--user", user)
+            match = re.fullmatch(r"Locales for " + re.escape(APP) + " for user " + user + r" are \[([^\]\n]*)\]", observed)
             require(match is not None, "Actual LocaleManager shell observation is unrecognized")
             require(migrated or not language, "Pending stored app locale migration would violate the System-language fixture precondition")
             language = match[1]
@@ -139,13 +141,21 @@ class ProcessDevice(Device):
         require(result["boot"] == "1" and result["bootanim"] == "stopped", "Actual device boot is incomplete")
         require(result["cpus"].isdigit() and int(result["cpus"]) > 0 and result["fingerprint"],
                 "Actual runtime identity/CPU observation is missing")
-        require(float(result["font"]) == 2 and result["ime"] == "0", "Actual font200/IME profile is not present")
+        def require_scale(key, expected):
+            try:
+                observed = float(result[key])
+            except ValueError as error:
+                raise RuntimeError(f"Actual {key} setting is not numeric: {result[key]!r}; required {expected}") from error
+            require(observed == expected, f"Actual {key} setting is {result[key]!r}; required {expected}")
+
+        require_scale("font", 2)
+        require(result["ime"] == "0", "Actual IME profile is not present")
         for key, label, expected in (("size", "size", "360x900"), ("density", "density", "160")):
             values = re.findall(r"(?:Physical|Override) " + label + r": ([^\n]+)", result[key])
             require(values and values[-1] == expected, "Actual compact " + label + " profile is not present")
         for key in ("animator_duration_scale", "window_animation_scale", "transition_animation_scale"):
             result[key] = self.shell("settings get global " + key)
-            require(float(result[key]) == 0, "Actual reduced-motion profile is not present: " + key)
+            require_scale(key, 0)
         require(not self.active_instrumentations(), "Another instrumentation consumer is active")
         result["app_language"] = self.app_language()
         return result

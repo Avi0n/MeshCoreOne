@@ -53,7 +53,11 @@ Inside the unique held operation lane, the consumer authenticates the explicit
 existing transport and observes actual API/boot/fingerprint/CPU, compact font200/
 IME/reduced-motion profile, quiescence and System app locale. It reads only the
 debug app's named locale preference to reject a non-System selection or pending
-migration, never resets a user's language. Missing endpoints are surfaced, not
+migration, never resets a user's language. API33+ resolves the actual numeric
+current user before querying LocaleManager and verifies that exact user in the
+response; Android's `current` sentinel is not a numeric observed user. Missing or
+malformed scale settings report their actual value and required profile without
+changing it. Missing endpoints are surfaced, not
 started. Physical devices, profile changes and occupied native/Gradle lanes fail
 closed. The deployed `assemble_debug_pair` receives the actual operation owner,
 uses the existing debug identity, verifies App/Test/installed public certificates
