@@ -253,6 +253,50 @@ class OnboardingRegionPresetComposeTest {
         assertCompletedOnce(fixture, 2)
     }
 
+    @Test fun threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget() {
+        val fixture = Fixture()
+        val failure = "radio temporarily busy"
+        manualUSA(fixture)
+        for (attempt in 1..3) {
+            if (attempt == 1) applyButton().performClick()
+            else button(S.alertRetryRetry).performClick()
+            assertHeld(fixture, attempt)
+            release(fixture, OnboardingPresetOutcome.Retryable(UiText.Verbatim(failure)))
+            if (attempt < 3) {
+                compose.onNodeWithText(text(S.alertRetryConnectionError)).assertIsDisplayed()
+                compose.onNodeWithText(failure).assertIsDisplayed()
+                button(S.alertRetryRetry).assertIsEnabled()
+                button(L.commonCancel).assertIsEnabled()
+            }
+            assertNotCompleted(fixture)
+        }
+        compose.onNodeWithText(text(S.alertRetryUnableToSave)).assertIsDisplayed()
+        compose.onNodeWithText(text(S.alertRetryEnsureConnected)).assertIsDisplayed()
+        compose.onNodeWithText(failure).assertDoesNotExist()
+        button(S.alertRetryRetry).assertDoesNotExist()
+        button(L.commonCancel).assertDoesNotExist()
+        button(L.commonOk).performClick()
+        compose.onNodeWithText(text(S.alertRetryFallbackMessage)).assertIsDisplayed()
+        assertNotCompleted(fixture)
+        button(L.commonOk).performClick()
+        row("USA").assertIsSelected()
+        applyButton().performClick()
+        assertHeld(fixture, 4)
+        release(fixture, OnboardingPresetOutcome.Retryable(UiText.Verbatim(failure)))
+        compose.onNodeWithText(text(S.alertRetryConnectionError)).assertIsDisplayed()
+        compose.onNodeWithText(text(S.alertRetryUnableToSave)).assertDoesNotExist()
+        compose.onNodeWithText(failure).assertIsDisplayed()
+        button(S.alertRetryRetry).assertIsEnabled()
+        button(L.commonCancel).performClick()
+        assertNotCompleted(fixture)
+        applyButton().performClick()
+        assertHeld(fixture, 5)
+        assertEquals(List(5) { "us-ca" }, fixture.applies.map { it.id })
+        assertEquals(listOf(manualUSA), fixture.commits)
+        release(fixture, OnboardingPresetOutcome.Applied)
+        assertCompletedOnce(fixture, 5)
+    }
+
     @Test fun initialResolutionFailureIsSilentButExplicitLocationRetryExplainsFailureBeforeDetectedCommit() {
         val fixture = Fixture(location = PermissionStatus.GRANTED)
         mount(fixture)
