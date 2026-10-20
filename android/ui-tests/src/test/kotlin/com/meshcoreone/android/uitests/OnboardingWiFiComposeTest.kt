@@ -5,6 +5,7 @@ package com.meshcoreone.android.uitests
 
 import android.content.res.Configuration
 import android.os.LocaleList
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -60,6 +61,7 @@ class OnboardingWiFiComposeTest {
     @Before fun createHost() {
         host = Robolectric.buildActivity(ComponentActivity::class.java).setup().visible()
         host.get().actionBar?.hide()
+        Settings.Global.putFloat(host.get().contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
     }
 
     @After fun closeHost() { host.pause().stop().destroy() }
