@@ -22,6 +22,7 @@ import com.meshcoreone.android.core.model.ChannelDTO
 import com.meshcoreone.android.core.model.ChatConversationID
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
 import java.util.UUID
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -46,6 +47,86 @@ class NotificationDraftRestorationTest : RoomProcessTest() {
 
     @Test fun emptyNotificationReplyFallsBackToSavedDraft() = runTest {
         mountedDrafts(this, pending = "", expected = "disk", exerciseContinuity = false)
+    }
+
+    @Test fun replacementNotificationServiceRestoresPendingReplyIntoRetainedComposer() = runTest {
+        replacedSessionDraft(this, "replacement reply")
+    }
+
+    @Test fun replacementNotificationServiceWithoutPendingReplyPreservesRetainedTyping() = runTest {
+        replacedSessionDraft(this, null)
+    }
+
+    private suspend fun replacedSessionDraft(test: TestScope, pending: String?) {
+        val h = ContainerHarness(test, store)
+        val peerKey = Bytes(ByteArray(32) { 4 })
+        val target = h.target(UUID.fromString("30700000-0000-0000-0000-000000000003"))
+        h.links.configureRadio = { firmware ->
+            firmware.knownContacts += contactFrame(peerKey, "Replacement peer")
+        }
+        try {
+            h.manager.connect(target)
+            h.settle()
+            h.assertReady()
+            val first = requireNotNull(h.sessions.current)
+            val radio = first.token.radioId
+            val peer = requireNotNull(store.fetchContact(radio, peerKey))
+            val conversation = ChatConversationID.dm(radio, peer.id)
+            val entity = EntityKey(radio, peer.id)
+            h.draftStore.setDraft("saved", conversation)
+            compose.runOnUiThread {
+                h.container.navigation.navigateToChat(peer)
+                compose.activity.setContent {
+                    MeshCoreTheme(motionScale = 0f) {
+                        NativeNavigationShell(h.container.navigation, chats = h.container.chatsFeature)
+                    }
+                }
+            }
+            h.settle()
+            compose.waitForIdle()
+            val matcher = hasSetTextAction() and hasContentDescription(
+                compose.activity.getString(AppChatsStrings.chatsInputAccessibilityLabel), substring = true,
+            )
+            val field = compose.onNode(matcher).assertIsDisplayed().assertTextEquals("saved")
+            field.performClick().performTextReplacement("retained typing")
+            field.assertIsFocused().assertTextEquals("retained typing")
+            h.draftStore.setDraft("independent disk", conversation)
+            val identity = field.fetchSemanticsNode().id
+            val entry = h.container.navigation.state.value.activeStack.last()
+            val version = h.appState.servicesVersion.value
+            // Hold composition frames until the real replacement's pending source has been seeded.
+            compose.mainClock.autoAdvance = false
+            h.manager.disconnect(RuntimeDisconnectReason.USER_INITIATED)
+            h.settle()
+            assertTrue(first.isTornDown)
+            h.manager.connect(target)
+            h.settle()
+            h.assertReady()
+            val replacement = requireNotNull(h.sessions.current)
+            assertNotSame(first, replacement)
+            assertNotEquals(first.token, replacement.token)
+            assertEquals(radio, replacement.token.radioId)
+            assertTrue(h.appState.servicesVersion.value > version)
+            if (pending != null) replacement.notificationService.saveDraft(entity, pending)
+            assertEquals("independent disk", h.draftStore.draft(conversation))
+            compose.mainClock.autoAdvance = true
+            compose.mainClock.advanceTimeByFrame()
+            h.settle()
+            compose.waitForIdle()
+            assertEquals(entry, h.container.navigation.state.value.activeStack.last())
+            assertEquals("The real composer field must survive service replacement", identity, field.fetchSemanticsNode().id)
+            field.assertIsDisplayed().assertIsFocused().assertTextEquals(pending ?: "retained typing")
+            assertEquals(pending ?: "independent disk", h.draftStore.draft(conversation))
+            assertNull(replacement.notificationService.consumeDraft(entity))
+            assertEquals(2, h.lifecycle.created.size)
+            assertEquals(1, h.sessions.outstanding)
+            assertEquals(0, h.links.radios.sumOf { firmware -> firmware.sent.count { it[0].toInt() in setOf(2, 3) } })
+            assertEquals(0, replacement.chatSendQueueService.queuedEnvelopeCount)
+        } finally {
+            compose.mainClock.autoAdvance = true
+            compose.runOnUiThread { compose.activity.setContent {} }
+            h.container.close()
+        }
     }
 
     private suspend fun mountedDrafts(
