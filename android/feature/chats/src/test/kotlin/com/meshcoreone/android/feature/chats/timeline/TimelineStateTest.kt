@@ -6,6 +6,8 @@ package com.meshcoreone.android.feature.chats.timeline
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.MessageDirection
 import com.meshcoreone.android.core.model.RadioId
+import com.meshcoreone.android.feature.chats.timeline.ui.resolveInitialTimelinePosition
+import com.meshcoreone.android.feature.chats.timeline.ui.TimelineViewportPosition
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.UUID
@@ -16,6 +18,54 @@ import kotlin.test.assertTrue
 import org.junit.Test
 
 class TimelineStateTest {
+    @Test
+    fun `latest anchor leaves a restored middle scroll position unchanged`() {
+        val rows = buildTimelineRows(
+            (1..20).map(::message),
+            unreadAnchorId = null,
+            zoneId = ZoneOffset.UTC,
+        ).asReversed()
+        val restored = TimelineScrollAnchor(message(15).id, 24)
+
+        val position = resolveInitialTimelinePosition(InitialTimelineAnchor.Latest, restored, rows)
+
+        assertEquals(
+            TimelineViewportPosition(rows.indexOfFirst {
+                it is TimelineRow.Message && it.message.id == restored.messageId
+            }, 24),
+            position,
+        )
+    }
+
+    @Test
+    fun `latest anchor still initializes a fresh timeline at the latest message`() {
+        val rows = buildTimelineRows(listOf(message(1)), null, ZoneOffset.UTC).asReversed()
+
+        assertEquals(
+            TimelineViewportPosition(0, 0),
+            resolveInitialTimelinePosition(InitialTimelineAnchor.Latest, null, rows),
+        )
+    }
+
+    @Test
+    fun `explicit message anchor overrides a restored position`() {
+        val target = message(2)
+        val rows = buildTimelineRows(listOf(message(1), target, message(3)), null, ZoneOffset.UTC)
+            .asReversed()
+
+        assertEquals(
+            TimelineViewportPosition(
+                rows.indexOfFirst { it is TimelineRow.Message && it.message.id == target.id },
+                0,
+            ),
+            resolveInitialTimelinePosition(
+                InitialTimelineAnchor.Message(target.id),
+                TimelineScrollAnchor(message(1).id, 24),
+                rows,
+            ),
+        )
+    }
+
     @Test
     @OriginalCase("ChatTimelineTests::open loads the newest page and marks further history available()")
     fun `rows remain chronological while reverse layout input is reversed`() {

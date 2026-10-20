@@ -280,18 +280,13 @@ def validate_evidence(evidence: dict, binding: Binding, manifest: Manifest, poli
     return artifacts, sorted(run_ids)
 
 
-def validate_hosted_evidence(evidence: dict, binding: Binding, manifest: Manifest, catalog):
-    """Hosted results stay on GitHub; acceptance retains references, never a second CI bundle."""
+def hosted_references(evidence: dict, binding: Binding, *, schema_version=2, extra_fields=()):
     fields(evidence, set(asdict(binding)) | {
         "schema_version", "runs", "acceptance", "source_tests", "changed_paths", "retained_artifacts",
-    }, label="hosted acceptance evidence")
-    if type(evidence["schema_version"]) is not int or evidence["schema_version"] != 2:
+    } | set(extra_fields), label="hosted acceptance evidence")
+    if type(evidence["schema_version"]) is not int or evidence["schema_version"] != schema_version:
         raise PortError("Unsupported hosted acceptance schema")
     _binding(evidence, binding, "hosted acceptance evidence")
-    wp = manifest.wp(binding.work_package)
-    if not wp["verification"]["configured"] or not wp["verification"]["commands"]:
-        raise PortError("Verification commands are not configured")
-    validate_writes(wp["write_paths"], evidence["changed_paths"])
     if not isinstance(evidence["runs"], list) or len(evidence["runs"]) != 1:
         raise PortError("Exactly one authoritative Android CI run reference is required")
     run = evidence["runs"][0]
@@ -311,9 +306,19 @@ def validate_hosted_evidence(evidence: dict, binding: Binding, manifest: Manifes
         if path in artifacts or re.fullmatch(r"[0-9a-f]{64}", item["sha256"]) is None:
             raise PortError("Duplicate or malformed retained evidence")
         artifacts.add(path)
+    return artifacts, [run["run_id"]]
+
+
+def validate_hosted_evidence(evidence: dict, binding: Binding, manifest: Manifest, catalog):
+    """Hosted results stay on GitHub; acceptance retains references, never a second CI bundle."""
+    artifacts, runs = hosted_references(evidence, binding)
+    wp = manifest.wp(binding.work_package)
+    if not wp["verification"]["configured"] or not wp["verification"]["commands"]:
+        raise PortError("Verification commands are not configured")
+    validate_writes(wp["write_paths"], evidence["changed_paths"])
     _acceptance(evidence["acceptance"], wp, artifacts, "implementation acceptance")
     validate_cases(evidence, manifest, wp, catalog, artifacts)
-    return artifacts, [run["run_id"]]
+    return artifacts, runs
 
 
 def human_acceptance_required(wp: dict, policy: dict, changed_paths: list[str], labels=()):
@@ -367,6 +372,8 @@ def validate_approval(approvals: list[dict], binding: Binding, policy: dict, aut
 
 def verify_pr_gates(pr: dict, evidence: dict, review: dict, approvals: list[dict],
                     binding: Binding, manifest: Manifest, policy: dict, catalog=None) -> dict:
+    if isinstance(evidence, dict) and evidence.get("schema_version") == 3:
+        raise PortError("Bounded repair acceptance is not full-WP gate/completion evidence")
     if (
         binding.source_sha != manifest.data["reference"]["commit"]
         or binding.manifest_sha256 != manifest.sha256
@@ -406,6 +413,8 @@ def verify_pr_gates(pr: dict, evidence: dict, review: dict, approvals: list[dict
 
 def verify_completion(pr: dict, evidence: dict, review: dict, approvals: list[dict],
                       binding: Binding, manifest: Manifest, policy: dict, catalog=None) -> dict:
+    if isinstance(evidence, dict) and evidence.get("schema_version") == 3:
+        raise PortError("Bounded repair cannot complete a WP or unlock dependencies")
     if pr.get("merged") is not True or not isinstance(pr.get("merge_commit_sha"), str):
         raise PortError("Dependency completion requires a merged implementation PR, not a closed issue")
     if SHA.fullmatch(pr["merge_commit_sha"]) is None:

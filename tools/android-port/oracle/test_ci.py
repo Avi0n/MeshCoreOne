@@ -125,7 +125,8 @@ class FoundationWorkflowTests(unittest.TestCase):
         validate_boundary(self.workflow, self.text)
         self.assertEqual(self.workflow["permissions"], {"contents": "read"})
         self.assertEqual(self.workflow["jobs"]["build"]["runs-on"], "ubuntu-24.04")
-        self.assertEqual(self.workflow["jobs"]["external-oracle"]["runs-on"], "macos-26")
+        for name in ("external-oracle", "backup-oracle"):
+            self.assertEqual(self.workflow["jobs"][name]["runs-on"], "macos-26-intel")
         for job in self.workflow["jobs"].values():
             self.assertFalse(job.get("environment"))
             self.assertFalse(job.get("services"))

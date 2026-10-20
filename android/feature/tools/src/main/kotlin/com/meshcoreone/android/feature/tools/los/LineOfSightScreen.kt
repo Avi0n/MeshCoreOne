@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,6 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,9 +64,15 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -285,7 +293,10 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
             Text(stringResource(AppToolsStrings.toolsLineOfSightPoints), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.weight(1f))
             if (state.isRelocating) {
-                OutlinedButton(onClick = { holder.setRelocatingPoint(null) }) {
+                OutlinedButton(
+                    onClick = { holder.setRelocatingPoint(null) },
+                    modifier = Modifier.heightIn(min = 48.dp),
+                ) {
                     Text(stringResource(AppToolsStrings.toolsLineOfSightCancel))
                 }
             }
@@ -300,6 +311,100 @@ private fun PointsSection(state: LineOfSightState, holder: LineOfSightStateHolde
                 }
             }
             PointCard("B", state.pointB, PointID.POINT_B, state, holder)
+            if (state.repeatersWithLocation.isNotEmpty()) {
+                Text(
+                    stringResource(AppToolsStrings.toolsNodeDiscoveryRepeaters),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+                state.repeatersWithLocation.forEach { contact ->
+                    val selectedAs = state.selectionState[contact.id]?.selectedAs
+                    val endpointLabel = stringResource(
+                        when (selectedAs) {
+                            PointID.POINT_A -> AppToolsStrings.toolsLineOfSightPointA
+                            PointID.POINT_B -> AppToolsStrings.toolsLineOfSightPointB
+                            else -> AppToolsStrings.toolsLineOfSightNotSelected
+                        },
+                    )
+                    val buttonModifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics {
+                        contentDescription = contact.displayName
+                        selected = selectedAs != null
+                        stateDescription = endpointLabel
+                    }
+                    val label: @Composable () -> Unit = {
+                        val nameLayout = remember(contact.id) { arrayOfNulls<TextLayoutResult>(1) }
+                        val roleLayout = remember(contact.id) { arrayOfNulls<TextLayoutResult>(1) }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                contact.displayName,
+                                Modifier.clearAndSetSemantics {
+                                    testTag = "los-saved-endpoint-contact-name"
+                                    getTextLayoutResult { results ->
+                                        val layout = nameLayout[0]
+                                        if (layout == null) {
+                                            false
+                                        } else {
+                                            results.add(layout)
+                                            true
+                                        }
+                                    }
+                                },
+                                onTextLayout = { nameLayout[0] = it },
+                            )
+                            Text(
+                                endpointLabel,
+                                Modifier.clearAndSetSemantics {
+                                    testTag = "los-saved-endpoint-role-label"
+                                    getTextLayoutResult { results ->
+                                        val layout = roleLayout[0]
+                                        if (layout == null) {
+                                            false
+                                        } else {
+                                            results.add(layout)
+                                            true
+                                        }
+                                    }
+                                },
+                                onTextLayout = { roleLayout[0] = it },
+                            )
+                        }
+                    }
+                    when (selectedAs) {
+                        PointID.POINT_A -> {
+                            Button(
+                                onClick = { holder.toggleContact(contact) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = ColorBlue,
+                                    contentColor = androidx.compose.ui.graphics.Color.Black,
+                                ),
+                                modifier = buttonModifier,
+                            ) {
+                                label()
+                            }
+                        }
+                        PointID.POINT_B -> {
+                            Button(
+                                onClick = { holder.toggleContact(contact) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = ColorGreen,
+                                    contentColor = androidx.compose.ui.graphics.Color.Black,
+                                ),
+                                modifier = buttonModifier,
+                            ) {
+                                label()
+                            }
+                        }
+                        else -> {
+                            OutlinedButton(
+                                onClick = { holder.toggleContact(contact) },
+                                modifier = buttonModifier,
+                            ) {
+                                label()
+                            }
+                        }
+                    }
+                }
+            }
             if (state.showsLongPressHint) {
                 Text(
                     stringResource(AppToolsStrings.toolsLineOfSightLongPressPointsHint),

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -53,6 +54,7 @@ import com.meshcoreone.android.feature.settings.app.appearance.ThemeCard
 import com.meshcoreone.android.feature.settings.app.appearance.appearanceSchemeChoices
 
 private const val ACCESSIBILITY_FONT_SCALE = 1.5f
+internal const val SCHEME_ROW_MINIMUM_HEIGHT_DP = 48
 
 @Composable
 fun AppearanceScreen(controller: AppearanceController, modifier: Modifier = Modifier) {
@@ -75,7 +77,7 @@ fun AppearanceScreen(controller: AppearanceController, modifier: Modifier = Modi
                 Text(stringResource(S.appearanceSchemeHeader), style = MaterialTheme.typography.titleSmall)
                 appearanceSchemeChoices.forEach { choice ->
                     Row(
-                        Modifier.fillMaxWidth().selectable(choice == state.colorScheme, role = Role.RadioButton) { holder.selectColorScheme(choice) },
+                        Modifier.fillMaxWidth().heightIn(min = SCHEME_ROW_MINIMUM_HEIGHT_DP.dp).selectable(choice == state.colorScheme, role = Role.RadioButton) { holder.selectColorScheme(choice) },
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(selected = choice == state.colorScheme, onClick = null)
