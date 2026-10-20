@@ -391,3 +391,50 @@ classified successor through automatic hosted CI; no blind rerun, duplicate
 dispatch or second CI-result bundle is created. Native host admission,
 packaging execution, install/signing, settings and all acceptance gates remain
 separate, with no such actions performed during integration.
+
+### Integration after producer PR206, PR229 and PR232 merged
+
+The automatic exact-head [run39438223240](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39438223240)
+passed for `932fa8c090d735bf54f7a8e95318357904dbfd64`. Its hosted
+job results and logs remain authoritative; no second result bundle is retained.
+While that run executed, merged PR206/229/232 advanced main to
+`0183a2b206b9ba655d7fea5c281b8bfbfecf8847`. That later source is
+integrated separately in `1bff15e942d6743f7dade66c745ab5eb25eaf53e`,
+with Android tree `e5600983e1228b6194a9d6d246f4f0873c07ed43`.
+The earlier passing result does not verify this new candidate.
+
+Supported canonical scope evolution advanced revision10 to11 for26 incoming
+paths using the same merge-integration operations, without changing identity,
+authorization, historical bindings or repair history. The separately attributed
+replacement receipt `files/wp503-latest-main-integration.json` records the
+actual paths and producer commits.
+
+The App source-set conflict was disjoint: retain both the original WP503
+accessibility registrations and merged WP502 flow/screenshot registrations.
+Removing only the unchanged six-line WP503 registration from the resolved App
+build file produces exact current-main bytes. Historical virtual-base reverts
+also conflicted on WP312 narratives and silently omitted the Map List repair.
+All three previous path values equal prior main7ef75f0; restore their exact
+merged producer bytes rather than inventing another repair. Every other
+incoming path equals current main, and the Android delta from current main is
+confined to owned accessibility files and the existing App registration.
+All original WP503 fixtures, runner and native evidence bytes are preserved.
+
+The declared checks on the committed integration pass:
+
+| Exact command | Result |
+| --- | --- |
+| `python -m unittest discover -s android\accessibility-tests -p test_shared_device_runner.py -v` | 23 discovered/23 passed;0 failures/errors/skips |
+| `python tools\android-port\controller\test_runner.py --quiet` | 352 discovered/352 passed;0 failures/errors/skips |
+| `python tools\android-port\controller\verification_config.py --check` | PASS, exit0 |
+| `python tools\android-port\controller\validate.py` | PASS, exit0 |
+| `python tools\android-port\controller\workflows.py` | PASS, exit0 |
+| `python tools\android-port\portmap.py` | PASS, exit0 |
+| `git diff --check` and `git diff --cached --check` | PASS, exit0 |
+
+Publication remains a normal fast-forward to PR205, with a new automatic
+exact-head hosted result required; no duplicate dispatch or successful native
+cohort replay. Native packaging/admission, missing-only27, physical and
+protected acceptance gates remain separate. The already merged QR Copy repair
+does not close issue237: its exact-published-repair API31+37 re-audit contract
+still requires actual admitted evidence, not the historical fd9 API31 result.
