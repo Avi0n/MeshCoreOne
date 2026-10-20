@@ -156,18 +156,18 @@ class Controller:
         )
 
     def evolve_reservation(self, wp_id: str, paths: list[str], operations: list[str],
-                           expected_revision: int, overlap_intents=()):
+                           expected_revision: int, overlap_intents=(), *, attempt: str):
         """Admit and evolve the same owner; authorization prose remains unchanged."""
         record = self.ledger.get(wp_id)
-        if record is None:
-            raise PortError("Capability evolution requires an existing reservation")
+        if record is None or record["attempt"] != attempt:
+            raise PortError("Capability evolution requires the caller's current reservation attempt")
         wp = self.manifest.wp(wp_id)
         admissions = self.capabilities.admit_scope(wp_id, wp["write_paths"], paths, operations)
         capabilities = {}
         for admission in admissions:
             capabilities.setdefault(admission.capability_id, []).append(admission.path)
         return self.ledger.evolve_scope(
-            wp_id, record["attempt"], expected_revision, capabilities, operations, paths,
+            wp_id, attempt, expected_revision, capabilities, operations, paths,
             overlap_intents, record["authorization_context"],
         )
 
@@ -465,13 +465,17 @@ class Controller:
         )
 
     def merge(self, wp_id: str, merge_backend):
-        decision = self.decide_merge(wp_id)
         record = self.ledger.get(wp_id)
+        decision = self.decide_merge(wp_id)
+        if record is None or self.ledger.get(wp_id) != record:
+            raise PortError("Merge reservation changed during gate evaluation; re-evaluate current attempt")
         identity = Identity.parse(record["identity"])
         observation = self.backend.reconcile(wp_id, identity)
         if observation.ambiguous or not observation.authoritative or observation.worker_state != "completed":
             raise PortError("Only a completed, reconciled worker may be marked ready")
         payload = {"work_package": wp_id, "pr_number": identity.pr_number, **decision,
+                   "attempt": record["attempt"], "reservation_revision": record["revision"],
+                   "binding": record["binding"],
                    "policy_revision": record["binding"]["policy_revision"]}
         receipt, acquired = self.ledger.begin_merge(payload)
         if not acquired:

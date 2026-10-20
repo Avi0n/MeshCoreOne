@@ -188,6 +188,8 @@ def build_parser():
     )
     evolve.add_argument("--wp", required=True)
     evolve.add_argument("--expected-revision", required=True, type=int)
+    evolve.add_argument("--attempt", required=True, help="Existing attempt from the caller's own receipt")
+    evolve.add_argument("--session-id", required=True, help="Stored session identity; not a new runtime alias")
     evolve.add_argument("--path", action="append", required=True)
     evolve.add_argument("--operation", action="append", required=True)
     transfer = commands.add_parser(
@@ -289,8 +291,13 @@ def main(argv=None):
             for admission in admissions:
                 capabilities.setdefault(admission.capability_id, []).append(admission.path)
             result = ledger.evolve_scope(
-                args.wp, record["attempt"], args.expected_revision,
+                args.wp, args.attempt, args.expected_revision,
                 capabilities, args.operation, args.path,
+                owner_context={
+                    "session_id": args.session_id,
+                    "branch": git(repo, "symbolic-ref", "--short", "HEAD"),
+                    "worktree": str(repo.resolve()),
+                },
             )
         elif args.command == "transfer":
             origin = {

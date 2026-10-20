@@ -8,6 +8,45 @@ GitHub transport, described below; deploying it is not fleet activation.
 
 ## Candidate execution contract
 
+### Reservation mutation and merge-intent fences
+
+Local `reserve.py evolve` (also `reconcile`) now requires the caller's stored
+`--attempt` and `--session-id` as well as `--expected-revision`. It no longer
+reads the current attempt from the ledger and silently adopts it. For example,
+in the receipt's original worktree/branch:
+
+```powershell
+python tools\android-port\local\reserve.py evolve --wp WP-xxx --attempt <stored-attempt> --session-id <stored-session> --expected-revision <actual-revision> --path <admitted-support-path> --operation <trusted-operation>
+```
+
+Session, current Git branch and resolved worktree must match the existing receipt
+inside the same ledger transaction as revision checking and evolution. Use the
+stored identity, not a runtime alias; this operation neither resolves aliases nor
+transfers a claim. A stale or foreign checkout must not copy the current owner's
+identity to proceed. Historical claims lacking branch/worktree attribution fail
+closed here; their identities/history must be reconciled through the existing
+trusted lifecycle path, not release/recreate or hand-edited ledger rows.
+The trusted controller's `evolve_reservation` similarly requires an explicit
+`attempt` keyword; missing/stale attempt never adopts the current owner.
+
+Merge-lane acquisition checks the current attempt, reservation revision,
+implementation PR, complete historical binding, base/policy and review/merge
+state transactionally **before** acquiring or replaying an intent. The controller
+also rejects a reservation changed during gate evaluation. Stale merge payloads
+cannot reuse a confirmed operation after successor admission. The existing
+serialized uncertain-lane behavior and real-merge reconciliation remain intact.
+
+These are local mutation/merge-intent fences, not global worker revocation.
+The third retained diagnostic (the hosted publisher does not open a worktree
+SQLite ledger) still holds by design: ephemeral default-branch publication uses
+authenticated GitHub PR/base/head/review/workflow facts, not a worker-local
+database. Regression tests check both valid hosted publication without local
+ledger access and failure on changed server head/base/closed PR. There is no
+shared authoritative attempt-revocation store consumed by that publisher;
+therefore local retirement alone must never be represented as globally revoking
+publication authority. This repair adds no retirement, terminal observation,
+publisher revocation protocol, activation or native action.
+
 ### WP-502/504 software-command amendment
 
 `docs/android/evidence/WP-003/software-verification-manifest-amendment.json`

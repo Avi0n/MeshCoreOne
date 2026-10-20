@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from pathlib import Path
 from contextlib import closing
+from unittest.mock import Mock, patch
 
 from fixtures import (
     BASE, HEAD, MERGE, NOW, FakeAuthority, FakeBackend, base_manifest, bundle,
@@ -625,20 +626,27 @@ class StateTests(unittest.TestCase):
             self.ledger.begin_operation("issue:WP-101", {"body": "different"})
 
     def test_serialized_merge_lane_retains_uncertainty_and_reconciles_only_real_receipt(self):
-        payload = {"pr_number": 123, "head_sha": HEAD}
+        self.reviewed()
+        payload = self.merge_payload()
+        self.claim("WP-102", attempt="attempt-2")
+        self.ledger.transition("WP-102", "attempt-2", "dispatching")
+        self.ledger.transition("WP-102", "attempt-2", "running", Identity(pr_number=124))
+        self.ledger.transition("WP-102", "attempt-2", "review_wait")
+        next_payload = self.merge_payload("WP-102")
         _, acquired = self.ledger.begin_merge(payload)
         self.assertTrue(acquired)
         with self.assertRaisesRegex(PortError, "Serialized"):
-            self.ledger.begin_merge({"pr_number": 124, "head_sha": HEAD})
+            self.ledger.begin_merge(next_payload)
         self.ledger.confirm_operation("merge-lane", {"merged": True, "sha": BASE})
         receipt, acquired = self.ledger.begin_merge(payload)
         self.assertFalse(acquired)
         self.assertTrue(receipt["merged"])
-        _, acquired = self.ledger.begin_merge({"pr_number": 124, "head_sha": HEAD})
+        _, acquired = self.ledger.begin_merge(next_payload)
         self.assertTrue(acquired)
 
     def test_merge_lane_recovery_requires_verified_matching_real_merge(self):
-        payload = {"pr_number": 123, "head_sha": HEAD}
+        self.reviewed()
+        payload = self.merge_payload()
         self.ledger.begin_merge(payload)
         for receipt, authoritative in (({"merged": False, "sha": BASE}, True),
                                        ({"merged": True, "sha": BASE}, False),
@@ -649,4 +657,102 @@ class StateTests(unittest.TestCase):
         with self.assertRaises(PortError):
             self.ledger.begin_merge({"pr_number": 124})
         self.assertTrue(self.ledger.recover_merge(payload, {"merged": True, "sha": BASE}, True))
-        self.assertTrue(self.ledger.begin_merge({"pr_number": 124})[1])
+        self.assertFalse(self.ledger.begin_merge(payload)[1])
+
+    def merge_payload(self, wp="WP-101"):
+        record = self.ledger.get(wp)
+        return {
+            "work_package": wp, "pr_number": record["identity"]["pr_number"],
+            "attempt": record["attempt"], "reservation_revision": record["revision"],
+            "binding": record["binding"], "base_sha": record["binding"]["base_sha"],
+            "policy_revision": record["binding"]["policy_revision"], "expected_head_sha": HEAD,
+        }
+
+    def test_merge_fence_rejects_wrong_attempt_pr_revision_and_binding_before_any_intent(self):
+        self.reviewed()
+        payload = self.merge_payload()
+        original = self.ledger.get("WP-101")
+        for field, value in (
+            ("work_package", "WP-102"), ("attempt", "retired-attempt"),
+            ("pr_number", 164), ("pr_number", True), ("reservation_revision", 99),
+            ("reservation_revision", True), ("base_sha", HEAD), ("policy_revision", "a" * 64),
+            ("binding", {**payload["binding"], "manifest_sha256": "a" * 64}),
+            ("expected_head_sha", "main"),
+        ):
+            with self.subTest(field=field, value=value), self.assertRaisesRegex(PortError, "Merge intent"):
+                self.ledger.begin_merge({**payload, field: value})
+            with self.ledger.transaction() as connection:
+                self.assertEqual(connection.execute("SELECT COUNT(*) FROM operations").fetchone()[0], 0)
+            self.assertEqual(self.ledger.get("WP-101"), original)
+        for field in payload:
+            with self.subTest(missing=field), self.assertRaises(PortError):
+                self.ledger.begin_merge({k: v for k, v in payload.items() if k != field})
+
+    def test_merge_fence_and_evolution_race_leaves_stale_merge_without_intent(self):
+        self.reviewed()
+        payload = self.merge_payload()
+        self.ledger.evolve_scope("WP-101", "attempt-1", payload["reservation_revision"],
+                                {"wp-owned": ["fixture"]}, ["test"], ["fixture"])
+        with self.assertRaisesRegex(PortError, "Merge intent"):
+            self.ledger.begin_merge(payload)
+        current = self.merge_payload()
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            def acquire(_):
+                try:
+                    return self.ledger.begin_merge(current)[1]
+                except PortError:
+                    return False
+            self.assertCountEqual(list(executor.map(acquire, range(2))), [True, False])
+
+    def test_controller_scope_evolution_never_adopts_a_different_attempt(self):
+        self.claim()
+        before = self.ledger.get("WP-101")
+        paths = self.manifest.wp("WP-101")["write_paths"]
+        with self.assertRaisesRegex(PortError, "caller"):
+            self.controller.evolve_reservation("WP-101", paths, ["modify"], before["revision"],
+                                               attempt="retired-attempt")
+        self.assertEqual(self.ledger.get("WP-101"), before)
+        evolved = self.controller.evolve_reservation(
+            "WP-101", paths, ["test"], before["revision"], attempt=before["attempt"],
+        )
+        self.assertEqual(evolved["attempt"], before["attempt"])
+
+    def test_controller_merge_dispatch_carries_current_attempt_and_complete_binding(self):
+        self.reviewed()
+        value = bundle(self.manifest, self.policy, "WP-101", merged=False)
+        self.controller.authority = FakeAuthority({"WP-101": value})
+        backend = Mock()
+        backend.merge_exact.return_value = {"merged": True, "sha": MERGE}
+        with patch.object(self.controller, "record_completion", return_value={}) as completion, \
+                patch.object(self.ledger, "begin_merge", wraps=self.ledger.begin_merge) as intent:
+            result = self.controller.merge("WP-101", backend)
+        self.assertEqual(result["action"], "real-merge-confirmed")
+        backend.merge_exact.assert_called_once_with(123, HEAD, BASE)
+        completion.assert_called_once_with("WP-101")
+        payload = intent.call_args.args[0]
+        self.assertEqual(payload["attempt"], "attempt-1")
+        self.assertEqual(payload["binding"], self.controller.binding("WP-101", BASE))
+        self.assertFalse(self.ledger.begin_merge(payload)[1])
+
+    def test_controller_merge_rejects_reservation_change_during_gate_evaluation(self):
+        self.reviewed()
+        backend = Mock()
+        def decide(_):
+            self.ledger.evolve_scope("WP-101", "attempt-1", 1,
+                                    {"wp-owned": ["fixture"]}, ["test"], ["fixture"])
+            return {"action": "merge", "expected_head_sha": HEAD, "base_sha": BASE}
+        with patch.object(self.controller, "decide_merge", side_effect=decide), \
+                self.assertRaisesRegex(PortError, "changed during gate"):
+            self.controller.merge("WP-101", backend)
+        backend.merge_exact.assert_not_called()
+        with self.ledger.transaction() as connection:
+            self.assertEqual(connection.execute("SELECT COUNT(*) FROM operations").fetchone()[0], 0)
+
+    def test_confirmed_merge_replay_cannot_restore_retired_attempt_authority(self):
+        self.prepare_successor()
+        payload = self.merge_payload()
+        self.ledger.begin_merge(payload)
+        self.ledger.confirm_operation("merge-lane", {"merged": True, "sha": MERGE})
+        self.assert_successor_history_and_replay()
+        with self.assertRaisesRegex(PortError, "Merge intent"):
+            self.ledger.begin_merge(payload)

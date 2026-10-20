@@ -4,13 +4,75 @@ import json
 import os
 import subprocess
 import sys
+import io
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 import reserve
-from controller.ledger import Ledger
+from controller.ledger import Identity, Ledger
 
 
 class ReservationRuntimeTests(unittest.TestCase):
+    def test_evolution_requires_explicit_receipt_not_current_ledger_adoption(self):
+        for command in ("evolve", "reconcile"):
+            with self.subTest(command=command), redirect_stderr(io.StringIO()), \
+                    self.assertRaises(SystemExit) as stopped:
+                reserve.main([command, "--wp", "WP-407", "--expected-revision", "1",
+                              "--path", "fixture", "--operation", "modify"])
+            self.assertEqual(stopped.exception.code, 2)
+
+    def test_evolution_cli_fences_stored_session_branch_worktree_and_attempt(self):
+        repo = Path(__file__).resolve().parents[3]
+        manifest = reserve.load_manifest(repo)
+        policy = reserve.load_json(repo / "docs/android/automation-policy.json")
+        wp = manifest.wp("WP-407")
+        path = "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppSettingsContent.kt"
+        with tempfile.TemporaryDirectory() as temporary:
+            ledger = Ledger(Path(temporary) / "ledger.sqlite", policy["repository"])
+            initial, _ = ledger.claim(
+                wp, {"base_sha": "a" * 40}, "local", "current-attempt", 1, 1800, 5, 0, 100, 1,
+                initial_identity=Identity(session_id="stored-session"),
+                branch="owner-branch", worktree=str(repo.resolve()),
+                authorization_context={"authorization": "unchanged original assignment"},
+            )
+            initial = ledger.get(wp["id"])
+            invocation = ["--repo", str(repo), "evolve", "--wp", wp["id"],
+                          "--attempt", "current-attempt", "--session-id", "stored-session",
+                          "--expected-revision", "1", "--path", path,
+                          "--operation", "update-launcher-or-composition"]
+            branch, checkout = "owner-branch", str(repo)
+            def git(_repo, *args):
+                return branch if args[0] == "symbolic-ref" else checkout
+            with patch.object(reserve, "load_manifest", return_value=manifest), \
+                    patch.object(reserve, "Ledger", return_value=ledger), \
+                    patch.object(reserve, "shared_ledger", return_value=Path(temporary) / "ledger.sqlite"), \
+                    patch.object(reserve, "git", side_effect=git), \
+                    redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                for flag, value in (("--attempt", "retired-attempt"), ("--session-id", "runtime-alias")):
+                    wrong = invocation.copy()
+                    wrong[wrong.index(flag) + 1] = value
+                    self.assertEqual(reserve.main(wrong), 1)
+                    self.assertEqual(ledger.get(wp["id"]), initial)
+                branch = "retired-branch"
+                self.assertEqual(reserve.main(invocation), 1)
+                branch = "owner-branch"
+                checkout = str(repo / "retired-checkout")
+                self.assertEqual(reserve.main(invocation), 1)
+                checkout = str(repo)
+                self.assertEqual(ledger.get(wp["id"]), initial)
+                self.assertEqual(reserve.main(invocation), 0)
+                evolved = ledger.get(wp["id"])
+                self.assertEqual(evolved["revision"], 2)
+                for key in ("attempt", "identity", "binding", "authorization_context", "branch", "worktree"):
+                    self.assertEqual(evolved[key], initial[key])
+                self.assertEqual(reserve.main(invocation), 1)
+                current = invocation.copy()
+                current[current.index("--expected-revision") + 1] = "2"
+                current[2] = "reconcile"
+                self.assertEqual(reserve.main(current), 0)
+                self.assertEqual(ledger.get(wp["id"]), evolved)
+
     def test_installed_cli_loads_real_manifest_outside_source_import_context(self):
         repo = Path(__file__).resolve().parents[3]
         with tempfile.TemporaryDirectory() as temporary:
