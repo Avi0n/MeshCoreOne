@@ -49,6 +49,8 @@ CONTROL_INPUTS = {
     "tools/android-port/controller/verification_config.py",
     "tools/android-port/controller/scope_amendment.py",
     "docs/android/scope-amendments/translation-removal.json",
+    "tools/android-port/controller/software_verification.py",
+    "docs/android/evidence/WP-003/software-verification-manifest-amendment.json",
 }
 TEXT_SUFFIXES = {".swift", ".kt", ".java", ".kts", ".py", ".json", ".xml", ".md", ".txt", ".properties", ".lockfile"}
 

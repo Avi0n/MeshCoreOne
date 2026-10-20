@@ -8,6 +8,46 @@ GitHub transport, described below; deploying it is not fleet activation.
 
 ## Candidate execution contract
 
+### WP-502/504 software-command amendment
+
+`docs/android/evidence/WP-003/software-verification-manifest-amendment.json`
+replaces the two bootstrap-era "Gradle/Android CI do not exist" blockers with
+real software commands and specific remaining acceptance gaps. Its pinned,
+complete-catalog preimage/postimage and exact inverse preserve every historical
+manifest/receipt and all other WPs. The runtime delivery guard and WP-201
+provenance reader include the new projection and amendment inputs.
+
+WP-502 uses the existing preflight/scaffold/inspect lane: its tests are registered
+in App `testDebugUnitTest`/`androidTest`, not standalone UI/screenshot modules.
+The [owner mapping at dcd13384](https://github.com/cbattlegear/MeshCoreOne-Android/blob/dcd133840897a8aee19941633b612ed9cc40bc1b/docs/android/evidence/WP-502/software-verification.md)
+documents five App selectors (ConversationComposeTest9,
+ConnectedConversationComposeTest4, QueuedComposerIntegrationTest6,
+ShortcutQueueIntegrationTest16, DurableRetryIntegrationTest6), totaling41.
+The scaffold lane executes all registered App tests, not only those selectors.
+The two adaptive Connected cases belong to that separate producer candidate;
+listing its inventory does not merge it or credit41 executions on this base.
+API31/37's12 methods and targeted33/34/36's2 methods still require real
+candidate-bound instrumentation; assembly and API31 Robolectric are not proxies.
+
+WP-504 uses preflight and `ci.py run --stage benchmark`, which executes the
+existing `:benchmark:verifyBenchmarkHarness` and `validateModuleGraph`.
+The harness includes eight dataset JVM cases, dependency inventory, test APK,
+App benchmark/profile/release assembly and static R8/ELF/ZIP checks.
+The [owner mapping](https://github.com/cbattlegear/MeshCoreOne-Android/issues/137#issuecomment-6293784662)
+separately identifies physical `:benchmark:connectedDebugAndroidTest` classes:
+BaselineProfileGenerator2, PerformanceBenchmark9 and NativePageRuntimeTest1.
+No new device endpoint, measurement, numeric budget or runtime16KB success
+is manufactured by declaring software commands.
+
+Both entries deliberately retain `configured:false`: the existing field gates
+**full WP acceptance**, not whether a worker may run a declared software command.
+Complete original-family/feature accounting, current device captures, approved
+goldens, folding/TalkBack/radio evidence and measured performance/runtime review
+remain explicit gaps. Neither acceptance gate nor dependency completion is
+weakened. The amendment is a reviewable content specification, not a terminal
+worker receipt or a second CI-result bundle. WP407 host-lifecycle admission
+remains a separate blocker.
+
 `android-ci.yml` runs for every pull request, including dependent drafts, plus
 merge groups, `main` pushes and manual validation. A small scope job classifies
 whether Android build inputs changed; metadata-only changes validate the
@@ -146,7 +186,7 @@ fails; no fallback installation/cache/pin rewrite occurs.
 
 ## Protected verification amendment
 
-Only WP-002/003 executable verification configurations change. Every WP ID,
+The bootstrap overlay changes only WP-002/003 executable verification configurations. Every WP ID,
 owner, dependency, human/supervised flag, acceptance, source ownership and pending
 feature state remains unchanged. WP-001 stays unconfigured; architecture/license
 approval cannot be replaced by a static build command.
