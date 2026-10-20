@@ -79,6 +79,8 @@ def validate_candidate(value: dict, text: str):
             or gate.get("needs") != ["scope", "controller", "build", "external-oracle", "backup-oracle"]):
         raise PortError("android-ci must always report every selected build outcome")
     build = jobs["build"]
+    if any(jobs[name].get("runs-on") != "macos-26-intel" for name in ("external-oracle", "backup-oracle")):
+        raise PortError("Reference oracles require the supported macOS26 Intel host; do not downgrade runtime or skip oracles")
     if (build.get("runs-on") != "ubuntu-24.04" or "strategy" in build
             or build.get("needs") != ["scope", "controller"]
             or "needs.scope.outputs" not in build.get("if", "")):
@@ -146,7 +148,7 @@ def validate_publisher(value: dict, text: str):
     if set(value) != {"name", "on", "permissions", "concurrency", "jobs"}:
         raise PortError("Unexpected publisher execution property")
     if value.get("permissions") != {
-        "contents": "read", "pull-requests": "read", "checks": "write", "actions": "read",
+        "contents": "read", "pull-requests": "read", "checks": "write", "actions": "read", "issues": "read",
     }:
         raise PortError("Native publisher requires only read facts and Checks write, never merge/dispatch authority")
     if set(value.get("on", {})) != {"workflow_dispatch"} or set(value.get("jobs", {})) != {"publish"}:

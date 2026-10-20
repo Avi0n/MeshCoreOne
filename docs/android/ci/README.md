@@ -357,3 +357,192 @@ schedule/fleet. GitHub supports an authenticated author's normal merge without
 formal self-approval, but an admin merge is not evidence that project gates or
 no-bypass protection were satisfied. At dispatch, main had no legacy branch
 protection (HTTP 404); branch/ruleset proof remains explicitly unverified.
+
+### Change-scoped acceptance for an already-landed WP repair
+
+An open repair of an already-landed WP is not a request to complete that entire
+WP again. The bounded path uses the same authenticated source reviewer and
+default-branch publisher, but returns `acceptance_kind: "bounded-repair"`,
+`wp_complete: false` and `dependency_unlock: false`. Evidence schema 3 is
+deliberately rejected by full-WP gates and completion/accounting. Existing
+whole-WP manifest verification stays unchanged, including unconfigured WPs.
+This path does not enable the paused automatic landing controller or prove
+branch protection. **Current paused/off policy still prohibits automatic
+landing, even with valid bounded checks.** There is no new bypass merge API.
+A supported supervised landing decision remains with maintainer `cbattlegear`:
+it must retain exact candidate/current-base checks, conditional human gates,
+serialization and actual no-bypass enforcement proof. That protected decision
+is separate from this deployment; valid acceptance alone is not end-to-end
+merge authorization and cannot import a WP completion. Do not substitute an
+administrator `gh pr merge` for the blocked controller decision.
+
+The authorized human coordinator first posts one structured scope comment on
+the **existing repair issue**, not on an invented tracking issue. Its body is
+`<!-- android-port-repair-scope-v1 -->` followed by strict JSON with these fields:
+
+| Field | Required meaning |
+| --- | --- |
+| `schema_version`, `kind` | `1`, `"landed-wp-repair"` |
+| `binding` | Exact seven-field repository/WP/current-base/head/source/manifest/policy binding used by native reviews |
+| `repair_pr`, `repair_issue`, `landed_pr`, `owner`, `summary` | Actual PR/issue/merged producer, canonical manifest owner, bounded original issue scope |
+| `paths` | Every server-reported changed path, including both rename paths: `{path, operation, capability}` admitted by trusted typed rules |
+| `acceptance` | Nonempty issue-specific `{id, description}` criteria; do not reuse whole-WP criterion IDs |
+| `coverage` | `{path, modules, source_paths, cases, native_methods, hosted_methods, adaptation}` for each changed Android behavior/test file |
+| `verification` | Exactly `["android-scaffold"]`, mapping to the existing declared strict scaffold runner, not a guessed Gradle task |
+| `native` | Explicit immutable independently retained native observations, or `[]` when affected behavior has a reviewed hosted native adaptation |
+
+Coverage source paths must belong to the canonical WP and be nonexcluded.
+Coverage `cases` items are `{path, id, parameter_family}` from the trusted frozen catalog;
+the receipt must account for every selected parameter family. Every affected
+module must be selected, including typed-capability-admitted support files.
+The actual merged producer must be an ancestor of the current base and have
+the canonical WP marker or legacy `[WP-xxx] ` title. Its actual server path
+inventory must contain an actually repaired production path; added repair helpers
+still need exact typed admissions and behavioral coverage. Legacy title provenance
+does not manufacture a historical completion receipt or alter old reservations.
+
+`hosted_methods` entries are `{path, blob_sha, id}` for actual Kotlin test methods
+in a selected module's `src/test` tree. The publisher binds them to candidate
+blobs, requires the real successful Linux Android build job and parses its
+authoritative strict scaffold report with complete positive module counts.
+The trusted runner now prints actual JUnit class/method identities, including
+SDK/parameter suffixes, in that same hosted log. Selected methods must be present
+in this executed inventory; a source function and green aggregate alone cannot
+prove a filtered-out method ran. Older logs lacking this inventory cannot prove
+a hosted adaptation; use the next actual exact-head hosted execution.
+Missing, malformed, ambiguous, zero, failed, errored or skipped affected tests
+fail closed. The candidate cannot redefine the trusted runner, its JUnit/count
+validators, module graph or Android CI workflow. Extra selected tasks must also
+be existing trusted scoped tasks. Hosted adaptations do not imply physical
+TalkBack/radio/OEM/background/upgrade testing.
+
+Each `native` observation supplies `{revision, transcript, sha256, api, methods,
+bindings, fixture, out_of_scope_failures, execution}`. The transcript is fetched at its
+immutable repository revision and checked against its actual bytes; `api` is
+31 or 37; every selected `Class#method` must really pass. `bindings` explicitly
+maps current production paths to unchanged blobs at that observed revision.
+`fixture` is `{path, blob_sha}` at the observed revision. All other failed or
+skipped methods must be explicitly retained in `out_of_scope_failures` as a
+method-ID-to-explanation object, with actual statuses retained in the transcript; none may
+be an affected method. This is **retained-source-continuity**, not standalone
+execution of the latest head. For example an unrelated API37 integration
+failure remains a failure; it never becomes a passing whole-suite claim.
+
+Native transcripts must have complete ordered starts/outcomes with consistent
+`current`/`numtests` and exactly one successful terminal runner record. Orphan
+outcomes, missing starts, duplicate terminals, short messages/crashes and
+post-terminal instrumentation are rejected.
+The actual `INSTRUMENTATION_RESULT: stream=` completion must
+include one `Time:` line and exactly one consistent JUnit `OK (N tests)` or
+`FAILURES!!!` / `Tests run: N, Failures: F` summary. Lifecycle outcomes and the
+completion summary must agree; missing/contradictory completion cannot be
+accepted. Legitimate unrelated failures remain recorded, not forced to PASS.
+Scope-supplied API labels alone
+are not runtime evidence. `execution` currently supports the actual retained
+`wp503-device-repairs-v1` family with `{format, integration, inputs, metrics}`;
+each file reference is `{path, sha256}` at the observation revision. It reads
+the existing `device-repairs-integration.json`,
+`device-repairs-inputs.json`, `device-repairs-full-api<api>.txt` and matching
+metrics rather than inventing a new execution manifest. These bind the real
+WP503 integration head, both actual APK identities, runtime SDK profile,
+complete transcript outcome accounting and executed source/fixture bytes.
+Selected native methods must exist in the actual fixture at the execution head.
+Other historical capture formats require a reviewed parser for their actual
+records; no coordinator-supplied new schema can silently substitute for missing
+execution provenance or imply a device replay occurred.
+
+Using the existing authenticated read credential, stage without publishing:
+
+```powershell
+python .\tools\android-port\controller\native_review.py stage-repair --trusted-base <current-main-sha> --wp WP-xxx --pr <repair-number> --scope-comment-id <actual-issue-comment-id> --output <private-absolute-path-outside-repository>
+```
+
+The result is staged data only, not acceptance. The coordinator reviews the
+complete immutable stage and posts the existing native review marker with
+envelope `schema_version: 2`, `scope_comment_id`, and the normal `binding`,
+`method`, `staging_sha256`, `review`, `evidence`, `approvals` fields.
+Evidence schema 3 has the same fields as hosted evidence schema 2 plus
+`repair_scope`, exactly matching the authenticated scope comment. Acceptance
+records use the issue-specific criteria; review adaptation records explicitly
+reference the selected originals. Real hosted run references and independently
+retained evidence remain separate, and no second CI-result bundle is saved.
+Do not turn source-only feedback into a structured receipt without this work.
+
+After supervised deployment of this support, the existing `inspect` command
+read-only verifies that actual receipt; only then does the authorized coordinator
+use the existing manual workflow shown above. Scope edits, unexplained paths,
+stale base/head, changed review bytes, unresolved findings, conditional human
+gates and malformed evidence invalidate publication or replay. The publisher
+adds only `issues: read` for the authenticated original-issue scope; it acquires
+no issue writes, merge, dispatch, signing or fleet credentials.
+
+For PR229/232/234, deployment alone is not acceptance: owners must supply
+canonical ready/current-base metadata, and the coordinator must provide the
+actual issue-scoped contract and exact receipt from real affected evidence.
+This support neither publishes those receipts nor reruns their native cohorts.
+
+### Narrow WP-503 standard debug packaging support
+
+The `debug-test-packaging` typed capability admits exactly the support adapter
+`tools/android-port/local/debug_packaging.py` and its regression test, not a
+wildcard signing exemption. `CapabilityEngine.admit("WP-503", [], path,
+"build-debug-test-apks-with-existing-local-identity")` is supported for that
+adapter. Implementation ownership includes WP-003; actual assembly is restricted
+to WP-503. Existing release/signing/hardware/legal human policy is unchanged.
+
+The guarded WP-503 adapter calls `local.debug_packaging.assemble_debug_pair`
+with its actual `manifest`, trusted `policy`, shared `ledger`, native-lane
+`owner`, exact current source `revision`, existing pinned build-input `state`,
+existing default `debug_home`, read-only `installed_apk` snapshot and new private
+absolute `output`. The held native lock must identify that owner and
+`payload.wp == "WP-503"`; this function does not release that caller-owned lock.
+It separately acquires/releases the existing exclusive `gradle-execution` lane.
+The only Gradle tasks are `:app:assembleDebug :app:assembleDebugAndroidTest`,
+with strict dependency verification and one worker. There is no install,
+instrumentation, uninstall, wipe, retained-APK resign or release task.
+
+The adapter checks exact clean committed Android production/fixture inputs,
+pinned readiness/wrapper, and an already-existing default `debug.keystore` by
+file metadata only. It never opens, copies, exports or changes private-key
+bytes. Normal Gradle uses the already-configured local default debug identity;
+no global HOME/tool configuration is changed. Public `apksigner` verification
+and package inspection must match both newly built App/Test APKs to the
+preserved installed debug APK certificate before returning packaging evidence.
+Mismatch/build failure is explicit, releases only the acquired Gradle lock and
+does not produce a success receipt or replace the installed app/data.
+
+The new evidence records actual current source/tree, task/toolchain and APK/log
+hashes and **zero tests started / no install / no acceptance**. Retain the
+previous source/fixture continuity and actual failed install separately; new
+hashes never overwrite historic APK identities. WP-503 must still independently
+verify certificate/profile/data-preservation guards before any separately
+authorized install/replay. This worker did not assemble, install or run a
+device cohort.
+
+Future failed Gradle commands emit available declared JUnit failure/error
+package/class/test identities (including SDK/parameter test-name suffixes) and
+actual totals before the bounded Gradle tail. Missing/malformed/zero reports
+are explicit incomplete evidence, never a PASS. This writes no second CI-result
+bundle or artifact. Lost historical f75 identities remain lost; independently
+complete evidence for a new candidate is not invalidated forever by that gap.
+The failure-log reader also streams every actual Gradle `Class > test[SDK] FAILED`
+identity and test-count summary, with two bounded context lines on either side,
+before the rolling12000-character tail. It never loads the complete log into
+memory. Overlong physical diagnostic lines explicitly mark identity extraction
+incomplete; the original command still fails with its real exit code.
+
+### Reference-oracle hosted capacity
+
+Both reference oracles use the provider-documented standard `macos-26-intel`
+host rather than the capacity-constrained ARM64 `macos-26` label. This preserves
+macOS26, the frozen source, real SwiftData runtime, Swift6.2+ guards, original
+test expectations and credential/ephemeral boundaries. The harnesses do not
+require ARM64; actual compiler/host metadata remain execution evidence.
+Provider references:
+[standard labels](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+and [macOS26 Intel image](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md).
+The image lists the macOS26 SDK and Xcode26 family. This is supported-host
+selection, not a claim that queued/cancelled historical jobs ran or that the
+provider guarantees immediate capacity. Only actual exact-head hosted execution
+proves the changed lane; no OS downgrade, self-hosted service or skipped oracle
+is substituted.

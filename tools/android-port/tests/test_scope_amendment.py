@@ -1,6 +1,8 @@
 """AndroidOnly: WP-000 Full-catalog scope removal, not message-translation acceptance."""
 
 import copy
+import json
+import subprocess
 import unittest
 from unittest.mock import patch
 
@@ -16,6 +18,7 @@ from controller.scope_amendment import (
     AMENDMENT_PATH, amendment, apply_translation_scope, project_translation_scope,
     project_translation_exclusions,
     review_policy_predecessor,
+    debug_packaging_predecessor, DEBUG_PACKAGING_CAPABILITY,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -25,6 +28,58 @@ from inventory_rules import TRANSLATION_PATHS, exclusion, production_owner
 
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
+    def test_debug_support_projection_preserves_the_actual_pre_capability_policy(self):
+        historical = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "7e2835bad2c03dfb5a088063655f9fc4dbafd00f:docs/android/automation-policy.json",
+        ]))
+        self.assertNotIn("reservation_policy", historical)
+        self.assertEqual(debug_packaging_predecessor(historical), historical)
+        for malformed in (None, {}, {"capabilities": None}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                debug_packaging_predecessor({**historical, "reservation_policy": malformed})
+
+    def test_debug_support_projection_is_exact_reversible_and_never_rebinds_history(self):
+        manifest = base_manifest()
+        current = load_json(REPO / "docs/android/automation-policy.json")
+        before = copy.deepcopy(current)
+        previous = debug_packaging_predecessor(current)
+        self.assertEqual(current, before)
+        self.assertFalse(any(rule["id"] == "debug-test-packaging"
+                             for rule in previous["reservation_policy"]["capabilities"]))
+        restored = copy.deepcopy(previous)
+        rules = restored["reservation_policy"]["capabilities"]
+        index = next(i for i, rule in enumerate(rules) if rule["id"] == "merge-integration")
+        rules.insert(index, copy.deepcopy(DEBUG_PACKAGING_CAPABILITY))
+        self.assertEqual(restored, current)
+        self.assertEqual(content_scope_revisions(manifest, current)["policy_revision"],
+                         policy_revision(manifest, current))
+        self.assertEqual(policy_revision(manifest, review_policy_predecessor(current)),
+                         amendment()["current_policy_revision"])
+        for mode in ("owner", "path", "operation", "invariant", "validation", "duplicate", "reordered", "unrelated"):
+            changed = copy.deepcopy(current)
+            rules = changed["reservation_policy"]["capabilities"]
+            rule = next(rule for rule in rules if rule["id"] == "debug-test-packaging")
+            if mode == "owner":
+                rule["work_packages"].append("WP-316")
+            elif mode == "path":
+                rule["path_rules"].append("android/release/**")
+            elif mode == "operation":
+                rule["operations"].append("resign-retained-apk")
+            elif mode == "invariant":
+                rule["invariants"].remove("no-private-key-read-export-copy-or-change")
+            elif mode == "validation":
+                rule["validation"] = []
+            elif mode == "duplicate":
+                rules.append(copy.deepcopy(rule))
+            elif mode == "reordered":
+                rules.remove(rule)
+                rules.insert(0, rule)
+            else:
+                changed["branch_rules_proven"] = True
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                content_scope_revisions(manifest, changed)
+
     def test_all_three_complete_catalog_stages_round_trip_without_mutation(self):
         generated, _ = build_inventory(REPO)
         for current in (generated, apply_overlay(generated), base_manifest().data):
