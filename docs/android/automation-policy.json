@@ -3,7 +3,7 @@
   "repository": "cbattlegear/MeshCoreOne-Android",
   "default_branch": "main",
   "dispatch_mode": "off",
-  "paused": true,
+  "paused": false,
   "activation_approved": false,
   "reservation_policy": {
     "model_version": 2,
