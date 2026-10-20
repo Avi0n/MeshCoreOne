@@ -29,7 +29,7 @@ the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
 Current policy/controller bytes are unchanged authoritative main9c430cb0 bytes.
-The existing typed reservation was evolved to revision 19, not replaced.
+The existing typed reservation was evolved to revision 20, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -57,6 +57,7 @@ coordinator integration.
 | --- | --- |
 | `ConversationScreenCases` | Production `ChatTimeline`/`ComposerBar`, fixed synthetic identities/time, original CJK/Hebrew/ZWJ text; focus/draft retention, accessible retry, offline send rejection, exact UTF-8 boundary, distinct loading/empty/error recovery and 48dp send target. Mounted Enter/NumPadEnter with/without Shift exercises 24 connection/overflow/blank/cooldown/sending/enabled families at controlled 200% font. Consumer assertions informed by frozen `ChatInputBar.swift` and `ChatConversationMessagesContent.swift`; not a claim to port every Swift test. |
 | `ConnectedConversationComposeTest` | Actual AppContainer/Room/service graph and existing protocol-speaking firmware harness. Reference `RESP_CODE_ERR=1`, direct `ErrorCode.notFound=2` and channel terminal `ErrorCode.illegalArgument=6` reject real sends. Separate mounted direct/channel cases click Retry and require the same saved message, original text/FAILED persistence, visible failure/recovery after both attempts, one terminal event per attempt, durable envelope metadata, queue cleanup, consumed draft and one connection owner. Channel notFound is intentionally retryable and is not substituted for the terminal reference error. New assertions require their own positive execution before credit. |
+| `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933; original four-case native-adaptation review remains pending. No physical-disk or notification-delivery claim. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
@@ -81,6 +82,29 @@ height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
 
+### Mounted single-initialization draft followthrough
+
+The same reservation20 admits the owned `DraftInitializationComposeTest`.
+At code `13de7b9336b9c26996efc8631c51d8190a10d992`, exact installed-lane
+preflight passes0.63s; strict existing `:app:testDebugUnitTest --tests
+com.meshcoreone.android.app.platform.DraftInitializationComposeTest` with
+the recorded strict options actually discovers/runs/passes **2**, zero
+failures/errors/skips,34s. The preceding835 source passes2/2 in43s;
+13de strengthens the actual visible Sending-before-Failed reload and durable
+envelope assertions. There is no nominal new restore method/policy composable,
+foreign composer edit, invented clobber or wait for archived WP-308.
+
+[Exact original-case mapping, consumer lifetime, commands and limits](draft-initialization.md)
+reuses existing empty-policy/constructor cases rather than adding duplicates.
+The actual remembered production field retains a value different from its
+saved DraftStore through real service terminal-event/store-refetch and
+adaptive recomposition. Controlled protocol firmware is explicit; the
+App/Room/queue are real. Draft defaults are an injected memory dictionary,
+not physical disk. Primary WP-307's source-equivalence review is required
+before claiming all four originals accepted; notification priority/consume-once
+integration remains a separate gap. No prior cohort/device/golden replay or
+combined execution is claimed.
+
 ### Integration of deployed software verification
 
 PR246 actually merged as authoritative main
@@ -103,6 +127,14 @@ Local Rooms4/57 results remain bound to code160/base0183. Hosted759 results
 remain bound to their own head/base; no pass or failure is transferred here.
 Bounded [source-only review5588526416](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5588526416)
 is COMMENTED at759, not a successor review, gate verdict or approval.
+Published integration48b is actually projected by PR244 at base9c after the
+ordinary non-force push. Its automatically created exact hosted
+[39463187912](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39463187912)
+was in progress at this update, not certification of this draft successor.
+Historical759 run39460593770 completed CANCELLED: Linux Android and SwiftData
+were cancelled and final guard failed, while classification/controller/codec
+passed. This does not turn the cancelled suites into executed test failures
+or erase local Rooms4/57; no duplicate dispatch or result bundle is made.
 
 ### Bounded Rooms production slice in PR244
 

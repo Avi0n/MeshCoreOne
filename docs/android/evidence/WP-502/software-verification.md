@@ -5,7 +5,7 @@ verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
 `9c430cb0f1666faacc443794899b68c01128a87a`. The same producer/reservation owns
-the new adaptive and Rooms regressions. Historical native observations remain untouched.
+the adaptive, Rooms and mounted draft regressions. Historical native observations remain untouched.
 
 ## Existing task and source registration
 
@@ -68,6 +68,26 @@ not184 approved goldens or a newly executed combined capture cohort. Resource
 locales are sampled, not the full locale x state x theme product or date-format
 parity. Grouping/order, notification lifecycle, authentication expiry, full
 message-action and store/wire families still need their primary-owner evidence.
+
+### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
+
+The same existing strict App task with
+`--tests com.meshcoreone.android.app.platform.DraftInitializationComposeTest`
+requires **2** non-skipped executions. At code
+`13de7b9336b9c26996efc8631c51d8190a10d992`, exact snapshot preflight passes;
+actual XML proves2 discovered/run/passed, zero failure/error/skip,34s build.
+This is a separately executed selector, not a newly combined47-case result.
+
+| Method | Actual family |
+| --- | --- |
+| `inProgressFieldSurvivesRealFailureReloadAndAdaptiveRecompositionWithIndependentSavedDraft` | Real mounted production shell/remembered composer, actual Room/App/service queue; independently saved `"disk"` versus populated `"in-progress"`. Visible pending row and real durable envelope precede actual terminal ERR2/refetch to FAILED. Same focused field semantics identity, entry/generation and divergent saved input across360/599/600/779/780/834/360dp at200% font; contact/radio isolation and new-contact constructor control; exactly one wire command/connection. |
+| `prepopulatedQuickReplyFieldSurvivesRealFailureReloadAndAdaptiveRecompositionWithIndependentSavedDraft` | Same actual native single-initialization boundaries with the original's directly populated `"quick-reply"` string. No notification source/priority/consume-once claim. |
+
+[Four-original mapping and limits](draft-initialization.md) reuses existing
+empty-policy/constructor cases. The store is the actual process DraftStore
+with injected memory defaults, not physical-file durability. Primary WP-307
+source-equivalence review remains required; a missing repeat-restore method
+alone is not parity, and no foreign composer/timeline code is changed.
 
 ### com.meshcoreone.android.uitests.ConversationComposeTest
 
@@ -189,7 +209,9 @@ and the draft-restoration/status-label families in
 `MC1Tests/Views/Chats/Components/UnifiedMessageBubbleA11yLabelTests.swift`.
 They check retained draft restoration, not all4 original draft-policy branches,
 and FAILED text semantics, not every incoming sender/path/disclosure variant.
-Primary WP-307 ownership is unchanged.
+The additional mounted single-initialization witnesses above explicitly map
+the four originals and their reused cases, but do not self-accept equivalence.
+Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
