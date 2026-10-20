@@ -22,6 +22,23 @@ from controller.settings import Budget, Settings, Usage
 
 
 class SettingsTests(unittest.TestCase):
+    def test_authorized_policy_unpause_does_not_activate_dispatch_or_change_receipt_semantics(self):
+        from fixtures import REPO
+        from controller.gates import policy_revision
+        from controller.schema import load_json
+
+        rules = load_json(REPO / "docs/android/automation-policy.json")
+        self.assertIs(rules["paused"], False)
+        self.assertEqual(rules["dispatch_mode"], "off")
+        self.assertIs(rules["activation_approved"], False)
+        before = {**rules, "paused": True}
+        self.assertEqual(policy_revision(base_manifest(), rules), policy_revision(base_manifest(), before))
+        configured = Settings.from_env({"ANDROID_PORT_PAUSED": "false"}, rules)
+        self.assertFalse(configured.paused)
+        with self.assertRaisesRegex(PortError, "dispatch is off.*activation is absent"):
+            configured.require_live(rules, "local")
+        self.assertTrue(Settings.from_env({}, rules).paused)
+
     def test_defaults_off_paused_and_missing_limits_auth_block_live(self):
         rules = policy()
         rules.update(dispatch_mode="off", paused=True, activation_approved=False)

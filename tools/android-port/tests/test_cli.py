@@ -72,7 +72,7 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result, 0)
             value = json.loads(output)
             if command == "status":
-                self.assertTrue(value["paused"])
+                self.assertFalse(value["paused"])
                 self.assertEqual(value["dispatch_mode"], "off")
                 self.assertEqual(len(value["work_packages"]), 64)
                 self.assertTrue(all(not w["completion_reconciled"] for w in value["work_packages"]))
