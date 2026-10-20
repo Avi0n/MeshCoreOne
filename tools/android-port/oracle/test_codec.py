@@ -1,8 +1,11 @@
 """AndroidOnly: WP-004 Reference-fragment/provenance and codec-evidence contract tests."""
 
 import copy
+import contextlib
 import gzip
+import io
 import json
+import subprocess
 import tempfile
 import unittest
 import zlib
@@ -11,7 +14,8 @@ from unittest.mock import patch
 
 from oracle.codec_harness import (
     CODEC_TYPES, EXPECTED_CASES, MAC_ENVIRONMENT, codec_fragment,
-    decode_reference_compression, mac_environment, run, stage, type_definition, validate_swift_report, verify_output,
+    decode_reference_compression, execute, mac_environment, phase, run, stage, type_definition,
+    validate_swift_report, verify_output,
 )
 from oracle.reference import FrozenReference, OracleError, REPO, SOURCE_SHA, json_bytes, sha256
 from oracle.swift import Syntax, declarations
@@ -122,6 +126,47 @@ class CodecFragmentTests(unittest.TestCase):
 
 
 class CodecEvidenceTests(unittest.TestCase):
+    def test_command_timeout_reports_phase_and_bounded_context_without_becoming_success(self):
+        def timeout(command, **kwargs):
+            self.assertEqual(kwargs["timeout"], 300)
+            kwargs["stdout"].write("earlier" * 3000 + "\nlast compiler diagnostic")
+            kwargs["stdout"].flush()
+            raise subprocess.TimeoutExpired(command, 300)
+
+        with tempfile.TemporaryDirectory() as root, \
+                patch("oracle.codec_harness.subprocess.run", side_effect=timeout), \
+                contextlib.redirect_stdout(io.StringIO()) as progress, \
+                contextlib.redirect_stderr(io.StringIO()) as diagnostics:
+            with self.assertRaises(subprocess.TimeoutExpired):
+                execute(["fixture-swiftc"], Path(root) / "compile.log", {})
+        self.assertIn("phase=compile state=start", progress.getvalue())
+        self.assertIn("phase=compile state=failed elapsed_seconds=", progress.getvalue())
+        self.assertNotIn("state=success", progress.getvalue())
+        self.assertIn("timeout_seconds=300", diagnostics.getvalue())
+        self.assertTrue(diagnostics.getvalue().rstrip().endswith("last compiler diagnostic"))
+        self.assertLess(len(diagnostics.getvalue().encode()), 8200)
+
+    def test_command_failure_and_success_keep_original_outcomes_with_phase_timing(self):
+        for code in (0, 17):
+            with self.subTest(code=code), tempfile.TemporaryDirectory() as root, \
+                    patch("oracle.codec_harness.subprocess.run",
+                          return_value=subprocess.CompletedProcess(["fixture-swiftc"], code)), \
+                    contextlib.redirect_stdout(io.StringIO()) as progress:
+                if code:
+                    with self.assertRaisesRegex(OracleError, r"failed \(17\)"):
+                        execute(["fixture-swiftc"], Path(root) / "execution.log", {})
+                else:
+                    execute(["fixture-swiftc"], Path(root) / "execution.log", {})
+                self.assertIn("phase=execution state=start", progress.getvalue())
+                self.assertIn(f"state={'failed' if code else 'success'} elapsed_seconds=", progress.getvalue())
+
+    def test_staging_exception_emits_failure_not_completion(self):
+        with contextlib.redirect_stdout(io.StringIO()) as progress, self.assertRaises(OracleError):
+            with phase("source-staging"):
+                raise OracleError("fixture source failure")
+        self.assertIn("phase=source-staging state=failed", progress.getvalue())
+        self.assertNotIn("state=success", progress.getvalue())
+
     def test_real_committed_swift_outputs_match_actual_run_and_artifact_digests(self):
         fixture = REPO / "android" / "core" / "testing" / "fixtures" / "reference-codec"
         proof = json.loads((fixture / "codec-evidence.json").read_text(encoding="utf-8"))
