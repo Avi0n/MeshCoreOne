@@ -4,8 +4,10 @@
 package com.meshcoreone.android.uitests
 
 import android.content.res.Configuration
+import android.content.pm.ApplicationInfo
 import android.os.LocaleList
 import android.provider.Settings
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -17,10 +19,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import com.meshcoreone.android.core.designsystem.ColorScheme
@@ -74,8 +78,16 @@ class OnboardingWiFiComposeTest {
         },
     ).getString(id)
 
+    @Suppress("DEPRECATION")
     private fun mount(fixture: Fixture, case: ScreenCase) {
         frame = case
+        val resources = host.get().resources
+        resources.updateConfiguration(Configuration(resources.configuration).apply {
+            fontScale = frame.fontScale
+            setLayoutDirection(Locale.forLanguageTag(if (frame.rtl) "ar" else frame.locale))
+        }, resources.displayMetrics)
+        host.get().applicationInfo.flags = host.get().applicationInfo.flags or ApplicationInfo.FLAG_SUPPORTS_RTL
+        host.get().window.decorView.layoutDirection = if (frame.rtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
         host.get().setContent {
             val configuration = Configuration(LocalConfiguration.current).apply {
                 setLocales(LocaleList(Locale.forLanguageTag(frame.locale)))
@@ -107,6 +119,14 @@ class OnboardingWiFiComposeTest {
         )
         port().assertTextContains("5000")
         button(O.wifiConnectionConnect).assertIsNotEnabled()
+        val layouts = mutableListOf<TextLayoutResult>()
+        compose.onNodeWithText(text(O.wifiConnectionTitle), useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
+        val title = layouts.single()
+        assertEquals(frame.fontScale, title.layoutInput.density.fontScale, 0f)
+        assertEquals(if (frame.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr, title.layoutInput.layoutDirection)
+        assertFalse(title.didOverflowHeight)
+        for (line in 0 until title.lineCount) assertFalse(title.isLineEllipsized(line))
     }
 
     private fun button(id: Int) = compose.onNode(hasText(text(id)) and hasClickAction())
