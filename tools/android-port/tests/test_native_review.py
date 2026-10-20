@@ -339,6 +339,44 @@ class NativeReviewTests(unittest.TestCase):
         self.assertEqual(len(writes), 2)
         self.assertTrue(all(call[2]["conclusion"] == "failure" for call in writes))
 
+    def test_publisher_authority_is_server_bound_not_a_worktree_lease(self):
+        native, api, prefix, _ = self.fixture()
+        api.routes[("GET", prefix + "/actions/runs/2")]["status"] = "in_progress"
+        ids = iter((201, 202))
+        api.routes[("POST", prefix + "/check-runs")] = lambda payload: {"id": next(ids)}
+        for number in (201, 202):
+            api.routes[("PATCH", prefix + f"/check-runs/{number}")] = {}
+        with patch("controller.native_review.git", return_value=BASE.encode()), \
+                patch.object(Ledger, "__init__", side_effect=AssertionError("Local ledger is not hosted authority")):
+            native.publish("WP-003", 123, 90, 2, 1)
+        self.assertEqual(len([call for call in api.calls
+                              if call[0] == "PATCH" and call[2]["conclusion"] == "success"]), 2)
+
+    def test_changed_server_head_base_or_closed_candidate_cannot_receive_success(self):
+        for kind in ("head", "base", "closed"):
+            native, api, prefix, _ = self.fixture()
+            api.routes[("GET", prefix + "/actions/runs/2")]["status"] = "in_progress"
+            ids = iter((201, 202))
+            api.routes[("POST", prefix + "/check-runs")] = lambda payload: {"id": next(ids)}
+            for number in (201, 202):
+                api.routes[("PATCH", prefix + f"/check-runs/{number}")] = {}
+            reader = native.evaluate
+            def evaluate(*args):
+                result = reader(*args)
+                pr = api.routes[("GET", prefix + "/pulls/123")]
+                if kind == "head":
+                    pr["head"]["sha"] = "a" * 40
+                elif kind == "base":
+                    api.routes[("GET", prefix + "/git/ref/heads/main")]["object"]["sha"] = "a" * 40
+                else:
+                    pr["state"] = "closed"
+                return result
+            with self.subTest(kind=kind), patch("controller.native_review.git", return_value=BASE.encode()), \
+                    patch.object(native, "evaluate", side_effect=evaluate), self.assertRaises(PortError):
+                native.publish("WP-003", 123, 90, 2, 1)
+            self.assertFalse(any(call[0] == "PATCH" and call[2]["conclusion"] == "success"
+                                 for call in api.calls))
+
     def test_mid_publication_new_feedback_never_publishes_success(self):
         native, api, prefix, _ = self.fixture()
         api.routes[("GET", prefix + "/actions/runs/2")]["status"] = "in_progress"
