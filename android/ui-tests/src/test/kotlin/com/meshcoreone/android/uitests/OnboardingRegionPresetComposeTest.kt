@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -344,6 +345,37 @@ class OnboardingRegionPresetComposeTest {
         assertNotCompleted(fixture)
     }
 
+    @Test fun changingRegionThroughTheRealBackCallbackCannotApplyThePreviousPreset() {
+        val fixture = Fixture()
+        manualUSA(fixture)
+        applyButton().assertIsEnabled()
+        compose.runOnIdle { checkNotNull(fixture.back).invoke() }
+        assertHeading(O.regionTitle)
+        compose.onNodeWithText(text(O.presetTitle)).assertDoesNotExist()
+        pick(O.regionCountry, "Australia", "Australia")
+        pick(O.regionState, "Queensland", "Queensland")
+        button(O.regionContinue).assertIsEnabled().performClick()
+        assertHeading(O.presetTitle)
+        assertEquals(
+            listOf(manualUSA, RegionSelection("AU", RegionSelection.Source.MANUAL, "AU-QLD")),
+            fixture.commits,
+        )
+        row("USA").assertDoesNotExist()
+        applyButton().assertDoesNotExist()
+        row("Australia").assertIsNotSelected()
+        compose.onNodeWithText("915.800 MHz").assertIsDisplayed()
+        button(O.presetContinue).assertIsNotEnabled().performClick()
+        assertTrue(fixture.applies.isEmpty())
+        assertNotCompleted(fixture)
+        row("Australia").performClick().assertIsSelected()
+        applyButton("Australia").assertIsEnabled().performClick()
+        assertHeld(fixture, 1, "Australia")
+        assertEquals("au-915", fixture.applies.single().id)
+        release(fixture, OnboardingPresetOutcome.Applied)
+        assertCompletedOnce(fixture, 1)
+        assertTrue(fixture.resolutions.isEmpty())
+    }
+
     private data class ApplyAttempt(
         val id: String, val owner: Job,
         val result: CompletableDeferred<OnboardingPresetOutcome> = CompletableDeferred(),
@@ -358,6 +390,7 @@ class OnboardingRegionPresetComposeTest {
         val canApply = MutableStateFlow(true)
         var completed = 0
         var unrelatedCalls = 0
+        var back: (() -> Unit)? = null
         private val store = InMemoryOnboardingFlagStore()
         override val flags = object : OnboardingFlagStore {
             override fun getBoolean(key: String) = store.getBoolean(key)
@@ -409,6 +442,8 @@ class OnboardingRegionPresetComposeTest {
         override fun openAppSettings(): Unit = unexpected()
         @Composable override fun rememberPermissionRequester(onResult: () -> Unit): (OnboardingPermissionKind) -> Unit =
             { permissionRequests += it }
-        @Composable override fun InterceptBack(enabled: Boolean, onBack: () -> Unit) = Unit
+        @Composable override fun InterceptBack(enabled: Boolean, onBack: () -> Unit) {
+            SideEffect { back = if (enabled) onBack else null }
+        }
     }
 }
