@@ -24,8 +24,9 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `5714ba3be50618b8d946a21e0db15feb67f90eb6`;
-earlier bases `918af38472a43bf24f9a8bc4762c3c1fb45851b4`,
+Current integrated base: `bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`;
+earlier bases `5714ba3be50618b8d946a21e0db15feb67f90eb6`,
+`918af38472a43bf24f9a8bc4762c3c1fb45851b4`,
 `ec0a41e80ac8637baad524b777f774c10cf99f5b`,
 `680246f7914a5b4e5bf5167a916b620f83a79dee` and
 `aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
@@ -38,10 +39,10 @@ The original binding is audit history, not rewritten to the newer policy.
 Manifest/source remain unchanged. Current semantic policy revision is
 `7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6`;
 merged254 changes operational paused=true to false only, preserving
-dispatch_mode=off/activation_approved=false. Policy bytes equal actual main5714,
+dispatch_mode=off/activation_approved=false. Policy bytes equal actual mainbfd,
 not the earlier paused policy; controller/reserve retain tooling252 owner bytes.
 The same typed reservation remains actual revision26: real eight-path918
-evolution followed by idempotent five-path5714 reconciliation; earlier
+evolution followed by idempotent five-path5714/four-pathbfd reconciliations; earlier
 ec0/Rooms operations were idempotent at25.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
@@ -97,6 +98,24 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Actual mainbfd reconciliation after merged packaging255/256
+
+While exact428f/base5714 CI finished, actual main advanced through
+[PR255](https://github.com/cbattlegear/MeshCoreOne-Android/pull/255)
+at23:24:21Z and [PR256](https://github.com/cbattlegear/MeshCoreOne-Android/pull/256)
+at23:36:30Z to **bfd7551565de3c5b1e5a71f3f16df1b72c7af00f**.
+Fresh GitHub main ref and fetched ancestry, not cached PR base5714, identify
+the four incoming debug-packaging/helper-test/CI-doc/WP003 paths.
+Same attempt's supported reconciliation is idempotent at **actual returned26**;
+identity/binding/authorization unchanged, no inferred27 or replacement.
+Ordinary merge **4a7f10acf8d49cce95c22d03de918ee16ab62d6c** preserves
+all four incoming files exactly; Android/manifest/policy bytes remain428f-exact.
+No packaging, APK assembly, key access, native/provider/device action or
+positive-cohort replay. The existing local1f73/baseec0 and exact428f/base5714
+hosted execution retain their own bindings, not successor verification.
+This is genuine current-main integration, not a source successor solely to
+record CI. The new exact-head result/review remains separate.
 
 ### Actual main5714 reconciliation after user-merged pause correction254
 

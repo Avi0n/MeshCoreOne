@@ -4,7 +4,7 @@ This is a bounded command-to-behavior mapping for the existing WP-003 producer's
 verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
-`5714ba3be50618b8d946a21e0db15feb67f90eb6`. The same producer/reservation owns
+`bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`. The same producer/reservation owns
 the adaptive, Rooms, mounted draft, onboarding WiFi, pairing and Region/preset regressions.
 Historical native observations remain untouched.
 Main918/tooling252 was reconciled as35fa6772 through the same attempt's real
@@ -15,6 +15,12 @@ exact. Policy operational paused=false is imported from main, not a candidate
 activation; dispatch=off/activation=false persist. Android/pin/manifest and
 immutable reservation binding/authorization survive. Local1f73 remains baseec0
 execution, not a transferred new-base result or a reason to replay incumbents.
+Actual merged255/256 then advanced main to bfd at23:36:30Z. Its four
+already-admitted packaging/helper-test/CI-doc/WP003 paths reconcile
+idempotently at actual26 as4a7f10acf, all incoming owner bytes exact.
+Android/manifest/policy remain428f-exact; no packaging/key/native/device
+action or successful-cohort replay. Exact428f/base5714 hosted evidence is
+not transferred to this current-main successor.
 
 ## Existing task and source registration
 
