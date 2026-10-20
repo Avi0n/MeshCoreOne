@@ -9,12 +9,16 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.meshcoreone.android.R
 import com.meshcoreone.android.app.container.AppSettingsFeature
@@ -242,10 +246,18 @@ private fun AppLanguageContent(report: (Throwable) -> Unit) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text(stringResource(S.languageAppLanguageFooter))
         TextButton(onClick = { select("") }) { Text(stringResource(R.string.platform_system_language)) }
-        AppLanguages.supported.forEach { tag ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                TextButton(onClick = { select(tag) }) { Text(Locale.forLanguageTag(tag).getDisplayName(Locale.forLanguageTag(tag))) }
-                RadioButton(selected == tag, onClick = { select(tag) })
+        Column(Modifier.selectableGroup()) {
+            AppLanguages.supported.forEach { tag ->
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                        .selectable(selected == tag, role = Role.RadioButton) { select(tag) }
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val locale = Locale.forLanguageTag(tag)
+                    Text(locale.getDisplayName(locale), Modifier.weight(1f).padding(end = 12.dp))
+                    RadioButton(selected == tag, onClick = null)
+                }
             }
         }
     }
