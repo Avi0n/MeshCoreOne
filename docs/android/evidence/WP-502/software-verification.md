@@ -4,7 +4,7 @@ This is a bounded command-to-behavior mapping for the existing WP-003 producer's
 verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
-`9c430cb0f1666faacc443794899b68c01128a87a`. The same producer/reservation owns
+`aae3b10dd78f3d3314f51291687932f42f7d0ac9`. The same producer/reservation owns
 the adaptive, Rooms, mounted draft, onboarding WiFi and pairing regressions.
 Historical native observations remain untouched.
 
@@ -22,6 +22,11 @@ it is not an infrastructure-absence or software-execution blocker.
 Same-owner reservation19 integrates the authoritative amendment without
 changing Android bytes. Local code160 results below remain code160/base0183
 executions, not new current-base runs or transferred hosted/review verdicts.
+Subsequent same-owner reservation23 integrates consolidated mainaae3
+(247/234/245/248) as0c096dcf8. All20 incoming owner paths match main exactly;
+manifest/policy and all owned UI/screenshot sources are preserved.
+Local Bluetooth7/7 remains codee140/base9c, not a rerun/new-main verdict.
+Actual exact-head automatic CI is separate from every earlier execution.
 
 The existing task, executed through the installed serialized Git-bundle/ext4
 snapshot lane, is:
@@ -127,7 +132,7 @@ replaced by these three mounted integration methods.
 Same declared strict App task with
 `--tests com.meshcoreone.android.uitests.OnboardingPairingComposeTest`
 now requires **7** non-skipped executions. Code
-`e140e9fe860517256362e6e500cf57a98725e933` passes exact preflight0.57s and
+`e140e9fe860517256362e6e500cf57a98725e933` on base9c passes exact preflight0.57s and
 actually discovers/runs/passes7, zero failure/error/skip,35s build. Actual
 XML includes the four unchanged incumbent methods and three new mounted
 Bluetooth recovery methods. The same fixture is extended rather than adding

@@ -23,13 +23,15 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `9c430cb0f1666faacc443794899b68c01128a87a`.
+Current integrated base: `aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
+Earlier software-command integration base:
+`9c430cb0f1666faacc443794899b68c01128a87a`.
 At the prior integrated base `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`,
 the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
-Current policy/controller bytes are unchanged authoritative main9c430cb0 bytes.
-The existing typed reservation was evolved to revision 22, not replaced.
+Current manifest/policy/controller bytes are unchanged from main9c430cb0.
+The existing typed reservation was evolved to revision 23, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -84,6 +86,30 @@ height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
 
+### Consolidated current-main integration after Bluetooth implementation
+
+The Bluetooth source/evidence candidateb11 was ordinarily published before
+the coordinator's consolidated-main instruction arrived. Same reservation
+**23** admits all20 incoming support paths through
+`merge-integration/reconcile-current-base`; merge
+`0c096dcf89b5e62037d78237a3d81a4c8fb79c47` integrates actual authoritative
+`aae3b10dd78f3d3314f51291687932f42f7d0ac9`, including merged247/234/245/248.
+All20 inherited owner paths exactly match that main, including the WP-307
+notification-source generation repair, WP-407 settings/localization support,
+WP-313 remote-region semantics and WP-504 performance corrections.
+No owner implementation/accounting is originated, rewritten or duplicated.
+Manifest/policy are unchanged; all WP-502 UI/screenshot sources remain exactly
+byte-identical tob11, including the four unchanged pairing methods and three
+new Bluetooth witnesses. The merge is disjoint, without conflict resolution.
+Portmap/controller validation, `git diff --check`, exact inherited-support and
+owned-source preservation comparisons all **PASS** after integration.
+
+Local7/7 below is still **codee140/base9c**, not a new-main execution, and8f5
+source review/hosted results remain historical to9c. Installed exact-head
+readiness and automatic hosted checks, not a replay of successful selectors,
+bind the ordinary publication successor. No native/device run, manual dispatch,
+copied CI-result bundle, privileged verdict or full-WP acceptance is introduced.
+
 ### Bounded mounted Bluetooth permission and blocker recovery
 
 The existing `OnboardingPairingComposeTest` witness/fixture is extended, not
@@ -121,7 +147,7 @@ not executed by this feature-contract fixture. No system dialog/CDM/BLE,
 radio, actual Settings app, scanner list, process/Activity recreation, new
 screenshots/goldens or full onboarding/native/device acceptance is claimed.
 
-At code **`e140e9fe860517256362e6e500cf57a98725e933`**, exact installed
+At code **`e140e9fe860517256362e6e500cf57a98725e933`** on base9c, exact installed
 Git-bundle/ext4 preflight **PASS0.57s** and the same declared strict selector:
 
 ```text
