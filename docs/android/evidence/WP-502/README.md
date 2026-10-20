@@ -24,8 +24,9 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `ec0a41e80ac8637baad524b777f774c10cf99f5b`;
-earlier bases `680246f7914a5b4e5bf5167a916b620f83a79dee` and
+Current integrated base: `918af38472a43bf24f9a8bc4762c3c1fb45851b4`;
+earlier bases `ec0a41e80ac8637baad524b777f774c10cf99f5b`,
+`680246f7914a5b4e5bf5167a916b620f83a79dee` and
 `aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
 Earlier software-command integration base:
 `9c430cb0f1666faacc443794899b68c01128a87a`.
@@ -33,8 +34,10 @@ At the prior integrated base `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`,
 the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
-Current manifest/policy/controller bytes are unchanged from main9c430cb0.
-The existing typed reservation remains revision 25, not replaced.
+Manifest/policy bytes are unchanged from main9c430cb0; controller/reserve
+now retain the exact merged tooling252 owner bytes from main918.
+The same typed reservation is now revision26 after the actual eight-path
+918 integration; earlier ec0/Rooms operations were idempotent at25.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -89,6 +92,24 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Actual main918 reconciliation after merged tooling252
+
+User merged [PR252](https://github.com/cbattlegear/MeshCoreOne-Android/pull/252)
+at22:44:27Z as **918af38472a43bf24f9a8bc4762c3c1fb45851b4**.
+Fresh origin/main/merge ancestry inspected, not cached PR base metadata.
+Existing same attempt evolves25->**actual returned26** under
+`merge-integration/reconcile-current-base` for the eight exact incoming
+controller/ledger/reserve/tests/CI-doc/WP003 paths. Unlike the earlier
+erroneously inferred26 at ec0, this is a real new receipt revision.
+No reservation replacement, authorization rewrite or candidate rule activation.
+Ordinary merge **35fa6772abec627451bb3a2b16d4a74b89054990** preserves
+all eight incoming owner files byte-for-byte, Android/manifest/policy unchanged.
+The bookend execution remains1f73/baseec0, not a new-base replay/pass;
+current successor needs its own automatic exact-head hosted result.
+Published7ca/run39508725617 and source review5592631796 remain7ca/baseec0.
+The independent WP503 native preparation/pause work is not this software
+increment's execution prerequisite, nor a claimed device observation.
 
 ### One next original family: mounted same-prefix burst bookends
 
@@ -161,7 +182,7 @@ cohort replay or an aggregate of the earlier five and a separate one.
 Current source has10 methods; only these6 were selected. Old four method
 blocks/fixtures and all Region/preset predicates remain unchanged.
 Portmap/controller/diff and production/build/policy/source preservation
-checks **PASS**. Same existing owned modify admission remains revision25.
+checks **PASS**. At that execution, existing owned modify admission is revision25.
 No new goldens, device observation, grouping/avatar/all12-original or
 whole-WP acceptance; exact successor hosted checks/source review remain separate.
 
@@ -202,7 +223,7 @@ Held fetch produces no read/notification/badge/change side effects until
 released, then completes exactly one second ordered sequence. No post/join/
 retry/diagnostic failure; one subscriber. Existing controlled ports are
 reused unchanged, no production edit/new fake policy or provider/device claim.
-Actual already-owned modify admission remains idempotent revision25.
+At ece, actual already-owned modify admission is idempotent revision25.
 
 These were five actual mounted consumer witnesses at ece, not acceptance of all12
 ordering originals, grouping/avatar/reconfiguration, full history/store/wire,

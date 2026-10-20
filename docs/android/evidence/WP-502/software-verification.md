@@ -4,9 +4,13 @@ This is a bounded command-to-behavior mapping for the existing WP-003 producer's
 verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
-`ec0a41e80ac8637baad524b777f774c10cf99f5b`. The same producer/reservation owns
+`918af38472a43bf24f9a8bc4762c3c1fb45851b4`. The same producer/reservation owns
 the adaptive, Rooms, mounted draft, onboarding WiFi, pairing and Region/preset regressions.
 Historical native observations remain untouched.
+Main918 is the actual user-merged tooling252 base, reconciled as35fa6772
+through the same attempt's real returned revision26/eight exact incoming
+paths. All incoming bytes/Android/pin preserved. Local1f73 remains baseec0
+execution, not a transferred new-base result or a reason to replay incumbents.
 
 ## Existing task and source registration
 
