@@ -593,6 +593,21 @@ bytes. Normal Gradle uses the already-configured local default debug identity;
 no global HOME/tool configuration is changed. Public `apksigner` verification
 and package inspection must match both newly built App/Test APKs to the
 preserved installed debug APK certificate before returning packaging evidence.
+Public signer output accepts exactly one SHA-256 identity in the pinned SDK37
+`V2 Signer: certificate ...` format or the existing `Signer #N certificate ...`
+format. Duplicate, mixed, unknown or malformed signer identities are rejected.
+Java output and subprocess decoding use explicit strict UTF-8, not the Windows
+legacy console codepage; a failed verification or decoding error remains fatal.
+For a target the guarded caller has actually observed to be absent, pass
+`installed_apk=None` explicitly: both current-built APKs still require their exact
+packages and the same verified public certificate, but there is no preserved APK
+to read or certificate to invent. The result records `installed_snapshot:null`
+and `preservation_mode:"originally-absent"`. Non-None inputs retain the original
+installed certificate and snapshot-stability checks and record
+`preservation_mode:"originally-present"`; a missing/unreadable snapshot is an error,
+never an implicit switch to absent mode. The adapter cannot observe a device:
+absence, per-user selection, postbuild rechecks, install and removal of only
+newly introduced packages remain the WP-503 guarded caller's responsibility.
 Mismatch/build failure is explicit, releases only the acquired Gradle lock and
 does not produce a success receipt or replace the installed app/data.
 

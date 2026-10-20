@@ -59,29 +59,36 @@ def apk_identity(apk, tools, environment):
     try:
         certs = subprocess.check_output(
             [str(Path(environment["JAVA_HOME"]) / "bin" / ("java.exe" if os.name == "nt" else "java")),
-             "-Xmx128m", "-jar", str(tools / "lib/apksigner.jar"), "verify", "--print-certs", str(apk)],
-            env=environment, text=True, stderr=subprocess.STDOUT, timeout=120,
+             "-Xmx128m", "-Dfile.encoding=UTF-8", "-jar", str(tools / "lib/apksigner.jar"),
+             "verify", "--print-certs", str(apk)],
+            env=environment, encoding="utf-8", errors="strict", stderr=subprocess.STDOUT, timeout=120,
         )
         badging = subprocess.check_output(
             [str(tools / ("aapt2.exe" if os.name == "nt" else "aapt2")), "dump", "badging", str(apk)],
-            env=environment, text=True, stderr=subprocess.STDOUT, timeout=120,
+            env=environment, encoding="utf-8", errors="strict", stderr=subprocess.STDOUT, timeout=120,
         )
-    except (OSError, subprocess.SubprocessError) as error:
+    except (OSError, subprocess.SubprocessError, UnicodeError) as error:
         raise PortError("Public debug APK signature/package verification failed") from error
-    certificates = re.findall(r"^Signer #\d+ certificate SHA-256 digest: ([0-9a-fA-F]{64})$", certs, re.MULTILINE)
+    certificates = [
+        re.fullmatch(r"(?:Signer #\d+ |V2 Signer: )certificate SHA-256 digest: ([0-9a-fA-F]{64})", line)
+        for line in certs.splitlines() if "certificate SHA-256 digest:" in line
+    ]
     packages = re.findall(r"^package: name='([^']+)'", badging, re.MULTILINE)
-    if len(certificates) != 1 or len(packages) != 1:
+    if len(certificates) != 1 or certificates[0] is None or len(packages) != 1:
         raise PortError("Debug APK needs one unambiguous verified signer and package")
     return {"path": str(apk.resolve()), "sha256": sha256(apk),
-            "certificate_sha256": certificates[0].lower(), "package": packages[0]}
+            "certificate_sha256": certificates[0].group(1).lower(), "package": packages[0]}
 
 
 def verify_pair(installed, app, tests):
     if (
+        (app["package"], tests["package"]) != PACKAGES
+        or app["certificate_sha256"] != tests["certificate_sha256"]
+    ):
+        raise PortError("New DEBUG App/Test must have exact packages and matching public certificates")
+    if installed is not None and (
         installed["package"] != PACKAGES[0]
-        or (app["package"], tests["package"]) != PACKAGES
         or app["certificate_sha256"] != installed["certificate_sha256"]
-        or tests["certificate_sha256"] != installed["certificate_sha256"]
     ):
         raise PortError("New DEBUG App/Test public certificates and packages must match the preserved installed identity")
 
@@ -111,8 +118,8 @@ def assemble_debug_pair(*, manifest, policy, ledger, owner, revision, state,
         raise PortError("Debug APK verification requires one pinned build-tools revision")
     tools = Path(state["android_home"]) / "build-tools" / versions.pop()
     output.mkdir(parents=True, exist_ok=True)
-    installed = apk_identity(installed_apk, tools, environment)
-    if installed["package"] != PACKAGES[0]:
+    installed = None if installed_apk is None else apk_identity(installed_apk, tools, environment)
+    if installed is not None and installed["package"] != PACKAGES[0]:
         raise PortError("Preserved installed APK is not the debug application")
     command = [str(repo / "android" / ("gradlew.bat" if os.name == "nt" else "gradlew")),
                *TASKS, "--dependency-verification", "strict", "--no-daemon", "--max-workers=1", "--console=plain"]
@@ -137,7 +144,9 @@ def assemble_debug_pair(*, manifest, policy, ledger, owner, revision, state,
         app = apk_identity(repo / "android/app/build/outputs/apk/debug/app-debug.apk", tools, environment)
         tests = apk_identity(repo / "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk", tools, environment)
         verify_pair(installed, app, tests)
-        if source_identity(repo, revision) != source or apk_identity(installed_apk, tools, environment) != installed:
+        if source_identity(repo, revision) != source or (
+            installed is not None and apk_identity(installed_apk, tools, environment) != installed
+        ):
             raise PortError("Android source/fixtures or preserved installed APK changed during packaging")
     native_lane(ledger, owner, gradle_free=False)
     result = {
@@ -146,6 +155,7 @@ def assemble_debug_pair(*, manifest, policy, ledger, owner, revision, state,
         "manifest_sha256": manifest.sha256, "policy_revision": policy_revision(manifest, policy),
         "android_source_tree_sha256": source, "tasks": list(TASKS),
         "toolchain": toolchain_lock(), "installed_snapshot": installed, "app": app, "tests": tests,
+        "preservation_mode": "originally-absent" if installed is None else "originally-present",
         "build_log_sha256": sha256(output / "debug-build.log"),
         "tests_started": 0, "installed": False, "acceptance": False,
     }
