@@ -166,7 +166,7 @@ class OnboardingWiFiComposeTest {
     }
 
     @Test
-    @Config(qualifiers = "w834dp-h1400dp-mdpi")
+    @Config(qualifiers = "zh-rCN-w834dp-h1400dp-mdpi")
     fun heldFailureRetainsLocalizedFieldsAndRetryAloneAdvancesToRegion() {
         val fixture = Fixture()
         val ember = CoverageMatrix.themeFrames.single { it.theme == ThemeId.EMBER }
@@ -202,7 +202,9 @@ class OnboardingWiFiComposeTest {
         assertNotCompleted(fixture)
     }
 
-    @Test fun benignCancelledAttemptDoesNotAdvanceAndReopenedSheetResetsOnlyItsOwnInputs() {
+    @Test
+    @Config(qualifiers = "de-w360dp-h1400dp-mdpi")
+    fun benignCancelledAttemptDoesNotAdvanceAndReopenedSheetResetsOnlyItsOwnInputs() {
         val fixture = Fixture()
         mount(fixture, CoverageMatrix.themeFrames.first { it.expectedScheme == ColorScheme.DARK }.copy(locale = "de"))
         enter("cancelled.local", "6000")
