@@ -1,6 +1,7 @@
 """AndroidOnly: WP-004 Compile real pinned Swift codec fragments on isolated macOS."""
 
 import argparse
+from contextlib import contextmanager
 import json
 import os
 import platform
@@ -8,6 +9,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import zlib
 from pathlib import Path
 
@@ -212,12 +214,37 @@ def mac_environment(inherited=None):
     return {key: value for key, value in inherited.items() if key in MAC_ENVIRONMENT}
 
 
+@contextmanager
+def phase(name):
+    started, completed = time.monotonic(), False
+    print(f"Swift oracle phase={name} state=start", flush=True)
+    try:
+        yield
+        completed = True
+    finally:
+        state = "success" if completed else "failed"
+        print(f"Swift oracle phase={name} state={state} elapsed_seconds={time.monotonic() - started:.3f}",
+              flush=True)
+
+
+def diagnostic_tail(output: Path):
+    with output.open("rb") as stream:
+        stream.seek(max(0, output.stat().st_size - 8000))
+        return stream.read(8000).decode("utf-8", errors="replace")
+
+
 def execute(command, output: Path, environment):
-    with output.open("w", encoding="utf-8") as stream:
-        result = subprocess.run(command, env=environment, stdout=stream, stderr=subprocess.STDOUT,
-                                check=False, timeout=300)
-    if result.returncode:
-        raise OracleError(f"Actual Swift command failed ({result.returncode}): {output.read_text(encoding='utf-8')[-8000:]}")
+    with phase(output.stem):
+        try:
+            with output.open("w", encoding="utf-8") as stream:
+                result = subprocess.run(command, env=environment, stdout=stream, stderr=subprocess.STDOUT,
+                                        check=False, timeout=300)
+        except subprocess.TimeoutExpired:
+            print(f"Swift oracle phase={output.stem} timeout_seconds=300\n{diagnostic_tail(output)}",
+                  file=sys.stderr, flush=True)
+            raise
+        if result.returncode:
+            raise OracleError(f"Actual Swift command failed ({result.returncode}): {diagnostic_tail(output)}")
 
 
 def decode_reference_compression(data: bytes, *, max_expanded=536_870_912):
@@ -304,7 +331,8 @@ def run(output: Path):
     if output.exists():
         raise OracleError("Actual codec output requires a new isolated directory")
     output.mkdir(parents=True)
-    source_map = stage(FrozenReference(), output / "sources")
+    with phase("source-staging"):
+        source_map = stage(FrozenReference(), output / "sources")
     environment = mac_environment()
     compiler = shutil.which("swiftc", path=environment.get("PATH"))
     if compiler is None:
@@ -319,8 +347,10 @@ def run(output: Path):
                *map(str, sorted((output / "sources").glob("*.swift"))), "-o", str(binary)]
     execute(command, output / "compile.log", environment)
     execute([str(binary), "test", str(output)], output / "execution.log", environment)
-    evidence = verify_output(output, source_map)
-    evidence["identity"] = evidence_identity()
+    with phase("output-verification"):
+        evidence = verify_output(output, source_map)
+    with phase("hosted-identity"):
+        evidence["identity"] = evidence_identity()
     evidence["execution"] = {
         "host": "macOS", "os_version": platform.mac_ver()[0], "architecture": platform.machine(),
         "swift_version": version.strip(), "head_sha": subprocess.check_output(

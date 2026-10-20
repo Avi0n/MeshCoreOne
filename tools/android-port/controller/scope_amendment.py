@@ -90,6 +90,10 @@ def is_translation_scope(data):
 
 
 def transform(data, *, reverse=False, repo=REPO):
+    from .software_verification import apply, project
+
+    if reverse:
+        data = project(data, repo)
     record = amendment(repo)
     source, target = ("current", "previous") if reverse else ("previous", "current")
     matches = [stage for stage in record["revisions"].values() if stage[source] == digest(data)]
@@ -115,7 +119,7 @@ def transform(data, *, reverse=False, repo=REPO):
                 result[section].insert(change["index"], copy.deepcopy(after))
     if digest(result) != matches[0][target]:
         raise PortError("Translation scope changed the complete catalog outside its exact delta")
-    return result
+    return result if reverse else apply(result, repo)
 
 
 def apply_translation_scope(data, repo=REPO):
@@ -140,10 +144,13 @@ def project_translation_exclusions(exclusions, repo=REPO):
 
 def current_revisions(manifest, policy):
     from .gates import policy_revision
+    from .model import Manifest
+    from .software_verification import project
 
     project_translation_scope(manifest.data, manifest.repo)
     actual = policy_revision(manifest, policy)
     predecessor = review_policy_predecessor(policy)
-    if policy_revision(manifest, predecessor) != amendment(manifest.repo)["current_policy_revision"]:
+    historical = Manifest(project(manifest.data, manifest.repo), manifest.exclusions, manifest.repo)
+    if policy_revision(historical, predecessor) != amendment(manifest.repo)["current_policy_revision"]:
         raise PortError("Translation scope current catalog/policy cannot be cross-bound")
     return {"manifest_sha256": manifest.sha256, "policy_revision": actual}

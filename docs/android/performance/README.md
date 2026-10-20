@@ -83,8 +83,12 @@ performance, profiles, StrictMode, ANR, battery and native runtime are unverifie
 The CI executor also declares `ci.py run --stage benchmark`, using the existing
 explicit state/output, environment stripping and task-graph guard. These are
 executable infrastructure commands, not an amendment declaring the entire
-WP accepted. The WP-003 owner maintains the supported verification configuration;
-device acceptance is separate from a bounded tooling/build merge.
+WP accepted. The deployed
+[WP-003 software-command amendment](../evidence/WP-003/software-verification-manifest-amendment.json)
+now declares preflight and the benchmark stage in the WP-504 manifest entry.
+`configured:false` intentionally denotes unfinished **full WP acceptance**,
+not unavailable software commands. The WP-003 owner maintains that supported
+configuration; device acceptance is separate from a bounded tooling/build merge.
 The existing hosted scaffold executes `verifyBenchmarkDataset` through
 `verifyScaffoldTests`; zero dataset assertions cannot silently pass. It now also
 executes `:benchmark:verifyBenchmarkMeasurements`, the strict existing Python
