@@ -220,10 +220,9 @@ class RoomsComposeTest {
         compose.waitUntil { fixture.holder.state.value.messages.single().status == MessageStatus.FAILED }
         val label = "$body, ${text(Rooms.remoteNodesRoomMessageStatusFailedLabel)}"
         val row = compose.onNodeWithContentDescription(label).assertIsDisplayed()
-        row.performSemanticsAction(SemanticsActions.CustomActions) { actions ->
-            assertEquals(listOf(text(Chats.chatsMessageActionRetry)), actions.map { it.label })
-            assertTrue(actions.single().action())
-        }
+        val actions = row.fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        assertEquals(listOf(text(Chats.chatsMessageActionRetry)), actions.map { it.label })
+        compose.runOnIdle { assertTrue(actions.single().action()) }
         compose.waitUntil { fixture.holder.state.value.messages.single().status == MessageStatus.PENDING }
         assertEquals(listOf(session.id to failed.id), fixture.retries)
         assertEquals(pending, fixture.holder.state.value.messages.single())
