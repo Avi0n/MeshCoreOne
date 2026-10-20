@@ -217,6 +217,8 @@ class RoomsComposeTest {
             fixture.stored = listOf(failed)
             assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, failed.id)))
         }
+        compose.waitForIdle()
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
         compose.waitUntil { fixture.holder.state.value.messages.single().status == MessageStatus.FAILED }
         val label = "$body, ${text(Rooms.remoteNodesRoomMessageStatusFailedLabel)}"
         val row = compose.onNodeWithContentDescription(label).assertIsDisplayed()
@@ -337,7 +339,7 @@ class RoomsComposeTest {
             }
             for (message in messages) {
                 val layouts = mutableListOf<TextLayoutResult>()
-                compose.onNodeWithText(message.text, useUnmergedTree = true)
+                compose.onNode(hasText(message.text) and !hasSetTextAction(), useUnmergedTree = true)
                     .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
                 val layout = layouts.single()
                 assertEquals(case.fontScale, layout.layoutInput.density.fontScale, 0f)
