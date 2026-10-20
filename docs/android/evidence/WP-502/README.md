@@ -9,7 +9,9 @@ that the installed Linux implementation lane is unavailable.
 ## Identity and ownership
 
 Repository: `cbattlegear/MeshCoreOne-Android`; issue [#135](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135);
-[PR #206](https://github.com/cbattlegear/MeshCoreOne-Android/pull/206), ready for review.
+[PR #206](https://github.com/cbattlegear/MeshCoreOne-Android/pull/206) is merged;
+remaining software work continues in
+[PR #244](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244).
 Owner: `test-parity-engineer`, canonical project/reservation session
 `3bc8c1b8-20ec-4647-88ae-db3775268489`; runtime alias
 `fb112832-0a71-4f6d-abc0-f07f80eaeb8b`.
@@ -17,13 +19,19 @@ Branch: `cbattlegear-issue-135-wp-502-compose-flows-and-deterministic-534de7`.
 
 Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
-Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
+Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
+Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
+the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`;
-trusted current policy revision:
+Current integrated base: `aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
+Earlier software-command integration base:
+`9c430cb0f1666faacc443794899b68c01128a87a`.
+At the prior integrated base `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`,
+the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
-The existing typed reservation was evolved to revision 16, not replaced.
+Current manifest/policy/controller bytes are unchanged from main9c430cb0.
+The existing typed reservation was evolved to revision 23, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -51,11 +59,15 @@ coordinator integration.
 | --- | --- |
 | `ConversationScreenCases` | Production `ChatTimeline`/`ComposerBar`, fixed synthetic identities/time, original CJK/Hebrew/ZWJ text; focus/draft retention, accessible retry, offline send rejection, exact UTF-8 boundary, distinct loading/empty/error recovery and 48dp send target. Mounted Enter/NumPadEnter with/without Shift exercises 24 connection/overflow/blank/cooldown/sending/enabled families at controlled 200% font. Consumer assertions informed by frozen `ChatInputBar.swift` and `ChatConversationMessagesContent.swift`; not a claim to port every Swift test. |
 | `ConnectedConversationComposeTest` | Actual AppContainer/Room/service graph and existing protocol-speaking firmware harness. Reference `RESP_CODE_ERR=1`, direct `ErrorCode.notFound=2` and channel terminal `ErrorCode.illegalArgument=6` reject real sends. Separate mounted direct/channel cases click Retry and require the same saved message, original text/FAILED persistence, visible failure/recovery after both attempts, one terminal event per attempt, durable envelope metadata, queue cleanup, consumed draft and one connection owner. Channel notFound is intentionally retryable and is not substituted for the terminal reference error. New assertions require their own positive execution before credit. |
+| `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
+| `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
+| `OnboardingPairingComposeTest` | Seven mounted production Flow/coordinator methods: four primary/held-recovery/Retry/benign-cancel/demo-priority methods, plus three just-in-time Bluetooth grant/denial/adapter-off recovery methods. Actual request-result callbacks refresh controlled snapshots; one grant resumes one held pair, repeated callbacks do not duplicate it, denial consumes intent without a prompt loop, Settings/WiFi remain reachable, and later grant/adapter recovery requires explicit Add. Optional location/notifications/LAN stay denied and independent. Controlled ports, not OS chooser/permission dialog/BLE/radio/device evidence. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
+| `RoomsComposeTest` | Production `RoomConversationRoute`/`RoomConversationStateHolder` with controlled service/data ports: held loading versus empty, guest/member/admin/disconnected transitions, focused draft across three widths, held/rejected post and exact-ID accessible Retry, held/missing contact and rejected/successful authentication with exact password/remember inputs. Separately renders production content in 57 effective-theme/window/font rows with 12 sampled locales and all nine width/permission-surface pairs. Not actual RoomServerService, Room-database persistence, radio or approved-golden evidence. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -73,6 +85,369 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Consolidated current-main integration after Bluetooth implementation
+
+The Bluetooth source/evidence candidateb11 was ordinarily published before
+the coordinator's consolidated-main instruction arrived. Same reservation
+**23** admits all20 incoming support paths through
+`merge-integration/reconcile-current-base`; merge
+`0c096dcf89b5e62037d78237a3d81a4c8fb79c47` integrates actual authoritative
+`aae3b10dd78f3d3314f51291687932f42f7d0ac9`, including merged247/234/245/248.
+All20 inherited owner paths exactly match that main, including the WP-307
+notification-source generation repair, WP-407 settings/localization support,
+WP-313 remote-region semantics and WP-504 performance corrections.
+No owner implementation/accounting is originated, rewritten or duplicated.
+Manifest/policy are unchanged; all WP-502 UI/screenshot sources remain exactly
+byte-identical tob11, including the four unchanged pairing methods and three
+new Bluetooth witnesses. The merge is disjoint, without conflict resolution.
+Portmap/controller validation, `git diff --check`, exact inherited-support and
+owned-source preservation comparisons all **PASS** after integration.
+
+Local7/7 below is still **codee140/base9c**, not a new-main execution, and8f5
+source review/hosted results remain historical to9c. Installed exact-head
+readiness and automatic hosted checks, not a replay of successful selectors,
+bind the ordinary publication successor. No native/device run, manual dispatch,
+copied CI-result bundle, privileged verdict or full-WP acceptance is introduced.
+
+### Bounded mounted Bluetooth permission and blocker recovery
+
+The existing `OnboardingPairingComposeTest` witness/fixture is extended, not
+replaced by another policy-only test. Same-owner `evolve --expected-revision 22`
+for this owned path/modify is idempotently admitted at **revision22**; no
+reservation release/recreation, new shared capability or foreign edit.
+The four incumbent method blocks remain exactly byte-identical to8f5.
+Shared helpers still default to zero requests/Settings calls and now assert
+all optional snapshots stay denied. Rooms/adaptive/draft/WiFi bytes are unchanged.
+
+| Existing source/adaptation/owner witness | New actual mounted predicate |
+| --- | --- |
+| WP-305's documented Android just-in-time Bluetooth adaptation; `OnboardingFlowCoordinatorTest.justInTimeBluetoothPermissionThenPairResumes` | `justInTimeGrantResumesOneHeldPairAndRepeatedResultCannotStartAnother`: Welcome/optional Permissions/Pair create no request. First actual Add requests Bluetooth once, calls no pairing port and stays on Pair while result is held. The callback actually supplied by production Flow refreshes independently controlled platform facts to GRANTED, starts one held pair, and repeated callbacks while held and after accepted Region do not add attempts or Region entries. |
+| `DeviceScanCoordinatorTest.bluetoothBlockersAreReportedWithoutPairing`, denied Settings remedy in `DeviceScanScreen`, frozen `DeviceScannerSheet.unauthorized` explanatory state | `deniedResultOffersSettingsAndWiFiWithoutPromptLoopAndGrantNeedsNewIntent`: first request completes DENIED, actual localized notice/Settings appear, no transport/error alert/Region/completion. Explicit Add and repeated callback cannot request again. Real WiFi sheet still opens/cancels without transport. Later GRANTED refresh alone does not revive the consumed denied intent; explicit new Add alone starts one held pair and clears the notice. German834dp/200%. |
+| Same owner blocker case, frozen `DeviceScannerSheet.poweredOff`, existing Android inline Settings remedy | `bluetoothOffOffersSettingsAndWiFiThenExplicitAddRechecksTheAdapterWithoutRequestingPermission`: Bluetooth granted but adapter off blocks pairing without any permission request, exposes actual off title/message/Settings, and preserves WiFi open/cancel. Controlled adapter-on refresh alone does not pair; explicit Add rechecks/clears the blocker and starts one held pair. |
+
+The reused fixture separates platform facts from the published permission
+StateFlow: only its port `refresh()` publishes the changed facts, so pre-setting
+UI state cannot stand in for executing the real Flow result callback.
+Refresh counts, exact request kind/count, settings-opener calls, held pairing,
+completion flag/callback and unrelated-effect absence are asserted.
+Location/notifications/LAN remain denied at every checked boundary, create no
+request, and do not gate pairing or WiFi availability. The WiFi check only
+opens/cancels its real sheet; it does not repeat its validation/connect cohort.
+Accepted pairing returns through one actual flow Back callback to Pair.
+
+Frozen `PermissionsView`'s unconditional Continue and `DeviceScanView`'s
+independent WiFi button inform consumer boundaries; Android permission timing
+and inline Settings are the **existing WP-305 native adaptation**, not identical
+iOS permission APIs or newly accepted frozen original cases.
+App-layer `AndroidOnboardingPermissionPort` API mapping and
+`AppOnboarding.rememberPermissionRequester` were read; the actual OS launcher,
+request history/denial classification and lifecycle settings round-trip are
+not executed by this feature-contract fixture. No system dialog/CDM/BLE,
+radio, actual Settings app, scanner list, process/Activity recreation, new
+screenshots/goldens or full onboarding/native/device acceptance is claimed.
+
+At code **`e140e9fe860517256362e6e500cf57a98725e933`** on base9c, exact installed
+Git-bundle/ext4 preflight **PASS0.57s** and the same declared strict selector:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingPairingComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**7 discovered/run/passed, zero failure/error/skip,35s build**. Actual named
+JUnit XML contains all four incumbent and three new methods. First execution
+passes; no product discrepancy/unchanged-production negative or foreign fix
+was needed. This seven-case execution at e140 does not relabel earlier579's
+four-case result or create a combined other-feature cohort.
+Portmap/controller validation, `git diff --check`, exact incumbent method-block
+comparison and older-test/main9c support-byte comparisons all **PASS**.
+Predecessor8f5 [COMMENTED source review5589919731](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5589919731)
+finds no bounded pairing blocker, but does not review/approve this successor;
+hosted verdicts remain exact-candidate bound.
+
+### Bounded production pairing primary/recovery slice
+
+Same reservation22 admits only owned `OnboardingPairingComposeTest`; the
+Rooms, adaptive, draft and WiFi test bytes are unchanged from publishede2d.
+It mounts actual `OnboardingFlow` from Welcome through Permissions into Pair.
+The real flow owns `DeviceScanCoordinator`, its busy/error/Retry/demo state
+and Region navigation. Controlled pairing/demo calls suspend on explicit
+deferred outcomes; no fixture completes a request by default.
+
+| Frozen source / existing owner prior art | Added mounted predicate and limit |
+| --- | --- |
+| `DeviceScanView.primaryCTA`, `startPairing`, `retryConnection`; owner `pairingSuccessAdvancesAndMarksInitiated` | External busy prevents even the first pairing call. The real primary starts one held call, remains disabled through repeated clicks and external busy recomposition, and cannot advance until explicit Connected. Actual flow Back from Region immediately returns to Pair, proving one Region push rather than duplicate success navigation. Private haptic/initiation fields are not introspected. |
+| `DeviceScanView` other-app warning observer, `retryConnection`; owner `otherAppFailureOffersRetryThenRetrySucceeds` | Held initial failure with a known Retry UUID displays exact CJK/RTL text. Dismissal keeps Retry. Held Retry failure with no new UUID still retains that original target; the next Retry sends the same UUID. Only explicit success reaches Region once; no extra fresh pair is substituted. The injected outcome is already mapped, not a BLE-error/ConnectionUIState routing test. |
+| `AppState+DeviceActions.withPairingFlowErrorHandling`: `DevicePairingError.cancelled` and `alreadyInProgress`; owner `userCancelIsBenignAndDoesNotAdvance` | Actual native `Cancelled` and `Ignored` outcomes each release busy, leave Pair/Add reusable and produce no alert, Region or completion. A later intentional accepted attempt works. These are benign declared results, not coroutine cancellation, actual picker cancellation or all picker-unavailable/foreground recovery cases. |
+| `DeviceScanView.primaryCTA`, `unlockDemoMode`, `connectSimulator`; owner `primaryActionPrefersDemoThenOtherAppThenAdd`, `threeTitleTapsUnlockDemoMode`, `demoConnectAdvancesToRegion` | Add is initially selected; other-app failure exposes Retry. Two real title taps do not unlock or connect; the third exposes the localized demo alert, unlocks once and still makes no new attempt. After dismissal Demo replaces Retry/Add, its one held demo call remains guarded, and explicit success reaches Region. No actual demo transport or simulator-only iOS branch is certified. |
+
+All methods require no onboarding completion callback/flag or unrelated WiFi,
+settings, preset, location, stale-pair clearing or permission-request effects.
+Bluetooth is a granted controlled prerequisite; location/notification/LAN
+snapshots remain denied. The other-app case uses German/834dp, the others
+English/360dp, all at200% font with actual Pair heading density/height checks,
+1400dp host height and the existing reduced-motion setup. This is native-host
+layout/flow evidence, not OS font/device/keyboard/TalkBack or physical resize.
+The test Back seam invokes the actual flow callback, not Android system Back.
+
+At code `5794a96e71144908c5ff6e2c0c234ea3a9a3f5be`, installed-lane exact
+preflight **PASS0.56s** and the existing strict selector:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingPairingComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**4 discovered/run/passed, zero failure/error/skip,37s build**, from the
+actual four named JUnit XML cases. First execution passes; no failing product
+predicate, foreign fix, weakened assertion or new task is hidden.
+Portmap/controller validation, `git diff --check` and exact previous-test/
+main9c owner-support comparisons all pass after the source/evidence additions.
+Previous successful WiFi/Rooms/draft/adaptive cohorts are not manually replayed
+or added into a manufactured54-case execution.
+
+The five-case frozen `FreshPairingFailureRoutingTests` and two
+`MacOSPairingRecoveryTests` were read but are **not** claimed covered by these
+mapped-outcome UI consumers: PIN/dead-bond classification, ASK/CDM registry,
+foreground prompt/removal/scanner recovery and transport wiring remain their
+actual primary owners' responsibility. Full pairing/source-family and full
+WP-502 acceptance remain unfinished.
+Prior e2d [COMMENTED source review5589729220](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5589729220)
+finds no bounded WiFi blocker, but does not review/certify this pairing successor;
+its hosted39474101494 was still in progress when this delta was recorded.
+No CI verdict, goldens or device observations are transferred or manufactured.
+
+### Bounded production onboarding WiFi flow
+
+Same reservation21 admits only owned `OnboardingWiFiComposeTest`; existing
+Rooms/adaptive/draft test bytes are preserved exactly. It mounts the actual
+`OnboardingFlow` from Welcome through Permissions/Pair into its actual modal
+sheet, not a copied test coordinator/policy. Controlled ports hold every WiFi
+outcome until explicitly released; unrelated Bluetooth/demo/region-location/
+preset/settings effects fail the test. Location/notifications/Bluetooth/LAN
+snapshots are denied, with no permission request, yet WiFi remains usable.
+This is deterministic consumer behavior, not a real socket or OS permission.
+
+Frozen `WiFiHostValidationTests.swift::classifies host` supplies all nine
+independent host/expected pairs. Actual field/button semantics exercise all
+nine, plus seven port boundaries; no port call occurs during validation.
+Invalid70000 IME submit shows the actual localized error without connecting.
+Comma replacement, accessible clear and host-Next/port-Done actions reach the
+actual coordinator; whitespace is removed before the exact port input.
+
+The held-call case asserts disabled Connect/toolbar Cancel and no duplicate
+request through actual port IME. Explicit failure displays a polite CJK/RTL
+error, retains address/port and stays on the sheet. Only a second, explicitly
+accepted attempt closes it and displays the real Region screen, without
+marking all onboarding complete. A separate benign `Cancelled` outcome
+does not advance or publish error; Cancel/reopen resets only sheet inputs and
+does not issue another connection. Coroutine cancellation and interactive
+swipe/system-Back dismissal are not established by that outcome test.
+
+Three bounded cases reuse existing `CoverageMatrix` frames: default/light
+English at360dp/200%, forced-dark Ember Chinese/RTL at834dp/200%, and
+default/dark German at360dp/100%, host height1400dp. Actual modal heading
+font density, layout direction, no vertical overflow and no ellipsis are
+asserted. Locale qualifiers configure the real modal host, not just a parent
+CompositionLocal. These are sampled native-host flows, not a new full theme
+matrix, screenshots, physical window/IME or approved goldens.
+
+At code `2b10dd966e43a46a4e4dec28c857ca8d05d139eb`, exact installed-lane
+preflight **PASS0.45s**, followed by the existing strict selector:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingWiFiComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**3 discovered/run/passed, zero failure/error/skip,26s build**, checked from
+actual named JUnit XML. Failure history is retained:145fdd62f discovers3/
+fails3 in3m29s because the real Welcome animation does not idle without the
+existing reduced-motion setup;97678e298 discovers3/fails3 in25s on modal
+visibility/focus assumptions;7a2a39877 passes1/fails2 in26s because the modal
+host is still English while test-local resources expect Chinese/German.
+cbcd787ae passes3/3 in26s after actual host locale configuration.
+The strengthened8ada39588 discovers3/fails3 in25s because the heading query
+also matches the underlying launcher label. Final2b10 selects the actual
+Heading semantics and passes actual font/direction assertions; no product,
+timing threshold, expected validation or owner policy is changed.
+`python tools\android-port\portmap.py`,
+`python tools\android-port\controller\validate.py`, `git diff --check` and
+exact preserved-test/owner-support byte comparisons all pass after these
+owned source/evidence additions.
+
+The exact prior publishedccd
+[run39465426509](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39465426509)
+actually passes all six jobs. Its authoritative
+[Linux job118776483387](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39465426509/job/118776483387)
+reports App766/766, zero failure/error/skip, including both mounted draft
+method identities. That is ccd/base9c evidence, not a successor pass or a
+separate combined47/50-case execution. No successful previous cohort/device
+is manually replayed and no second CI-result bundle is retained.
+
+### Mounted single-initialization draft followthrough
+
+The same reservation20 admits the owned `DraftInitializationComposeTest`.
+At code `13de7b9336b9c26996efc8631c51d8190a10d992`, exact installed-lane
+preflight passes0.63s; strict existing `:app:testDebugUnitTest --tests
+com.meshcoreone.android.app.platform.DraftInitializationComposeTest` with
+the recorded strict options actually discovers/runs/passes **2**, zero
+failures/errors/skips,34s. The preceding835 source passes2/2 in43s;
+13de strengthens the actual visible Sending-before-Failed reload and durable
+envelope assertions. There is no nominal new restore method/policy composable,
+foreign composer edit, invented clobber or wait for archived WP-308.
+
+[Exact original-case mapping, consumer lifetime, commands and limits](draft-initialization.md)
+reuses existing empty-policy/constructor cases rather than adding duplicates.
+The actual remembered production field retains a value different from its
+saved DraftStore through real service terminal-event/store-refetch and
+adaptive recomposition. Controlled protocol firmware is explicit; the
+App/Room/queue are real. Draft defaults are an injected memory dictionary,
+not physical disk. The primary WP-307
+[assessment6297011991](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6297011991)
+now supports these four concrete no-notification originals as a bounded
+fresh-owner/retained-owner native adaptation, with no remaining source-case
+blocker or justified foreign composer change. Parent source-only
+COMMENTED review5589003799 bindsccd, not a successor or privileged gate.
+Reconnect/arbitrary teardown/process/physical preferences, general empty-field
+external-store updates and notification priority/consume-once remain distinct
+gaps; existing WP-307 owns its pending-notification consumer repair.
+No full-WP acceptance or prior cohort/device/golden replay is claimed.
+
+### Integration of deployed software verification
+
+PR246 actually merged as authoritative main
+`9c430cb0f1666faacc443794899b68c01128a87a`. Same-owner reservation19 admits
+its fifteen changed paths through `merge-integration/reconcile-current-base`;
+integration commit `4f8d53e080631221c3825618052c90613fd71698` preserves those
+owner bytes/attributions exactly. All Android bytes, including both Rooms and
+adaptive tests, are identical to published predecessor759. No producer-local
+cohort, device observation or manual hosted run is replayed for this integration.
+
+The deployed WP-003 software-verification amendment now declares the existing
+controller `preflight`, `run --stage scaffold` and `inspect` commands for WP-502.
+Full `configured:false` is intentionally retained for unfinished feature/original
+families, candidate-device observations, approved goldens and physical/human
+acceptance. It no longer says that Gradle/Android infrastructure is absent.
+This is an inherited exact-inverse manifest amendment, not a new WP-502 policy
+or catalog edit and not a dependency/acceptance unlock.
+
+Local Rooms4/57 results remain bound to code160/base0183. Hosted759 results
+remain bound to their own head/base; no pass or failure is transferred here.
+Bounded [source-only review5588526416](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5588526416)
+is COMMENTED at759, not a successor review, gate verdict or approval.
+Published integration48b is actually projected by PR244 at base9c after the
+ordinary non-force push. Its automatically created exact hosted
+[39463187912](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39463187912)
+was in progress at this update, not certification of this draft successor.
+Historical759 run39460593770 completed CANCELLED: Linux Android and SwiftData
+were cancelled and final guard failed, while classification/controller/codec
+passed. This does not turn the cancelled suites into executed test failures
+or erase local Rooms4/57; no duplicate dispatch or result bundle is made.
+
+### Bounded Rooms production slice in PR244
+
+The same producer/reservation18 adds only an owned native-host test file,
+preserving the previously reviewed adaptive regressions byte-for-byte.
+It uses merged WP-310 production route/state-holder/content and contracts, with
+WP-307's existing room accessibility fixture as prior art, not as transferred
+test acceptance. Frozen `RoomConversationView.swift` supplies disconnected,
+read-only and posting branches; `RoomAuthenticationSheet.swift` supplies
+lookup/loading/missing-contact branches. The underlying room label/status tests
+remain owned by WP-307. Translation remains removed from active scope.
+
+The actual existing strict selector is:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+At code commit `160ba7d3a4018278081c001319b8a6235859c689`, exact
+`python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit 160ba7d3a4018278081c001319b8a6235859c689 --stages preflight`
+passes. The selector actually executes **4 discovered/run/passed, zero
+failures/errors/skips, 33s**, through the installed serialized Git-bundle/ext4
+lane. Its JUnit XML contains **57 distinct successful `WP502_RENDER` records**.
+Each capture asserts equal settled native draws, nonblank pixels, measured
+width/height, expected effective scheme, actual font-scaled body layouts,
+unclipped visible glyphs and localized state/action labels. PNGs are generated
+under `android/screenshot-tests/build/screens/sdk31/rooms/`, not committed
+goldens or an additional hosted CI bundle.
+
+The route tests assert real state-holder transitions, callback arguments and
+typed `RoomServerError.PermissionDenied` identity/diagnostics. Failed posting
+retains the draft and publishes no message; successful fixture acceptance
+clears it once, and a service event/reload exposes FAILED and invokes Retry on
+the same session/message ID. Lookup/join gates cannot return fake success;
+missing contact has no password field, rejected join keeps the sheet/password/
+remember choice, and only accepted join dismisses it. These are explicitly
+controlled service-port results, not real firmware/service/store acceptance.
+
+Failure history is retained: initial `a7f68d188` passes preflight but fails
+App test compilation in35s by treating `CustomActions` as a callable semantics
+action; no tests are credited. `fbc5f97cc` actually discovers4, passes2/fails2
+in34s: the text query matches both the message and retained draft, and a
+Robolectric main-looper debounce has not advanced. The corrected selector
+excludes editable fields, reads/invokes the real custom-action list, and drives
+the existing 50ms reload through the host looper. No production timing,
+assertion threshold, queue policy or owner implementation changes.
+Portmap/controller validation and `git diff --check` pass.
+
+The original 127 conversation/local-content inputs and prior41 App executions
+are not rerun or relabeled as current Rooms evidence. No new device/native
+instrumentation execution, physical folding, spoken TalkBack or approved
+goldens are claimed. Full Rooms server sync/history, ordering, links/actions
+and persistence/radio integration remain outside this bounded slice; broader
+feature-matrix/source-family and full WP-502 acceptance remain open.
+At this historical759 execution/publication, WP-003's amendment was not yet
+deployed. Its subsequent authoritative integration is recorded above, without
+turning the Rooms results into whole-WP acceptance.
+
+### Remaining software coverage after merged PR206
+
+Broader issue135 remains open after bounded215/217 closure. The same producer
+and reservation17 integrate authoritative main0183a2b206b9ba655d7fea5c281b8bfbfecf8847,
+preserving other owners' merged timeline-restoration, node, appearance, CLI and
+verification support. Historical source458 native observations remain intact;
+none is relabeled as a new device run.
+
+Two owned `ConnectedConversationComposeTest` methods now exercise actual
+AppContainer/Room/session/NativeNavigationShell direct and channel conversations
+after real rejected send and mounted Retry. Available-width transitions
+360/599/600/779/780/834/360 cross the native rail and list-detail boundaries at
+200% font. Assertions require focused CJK/RTL draft, actual text layout scaling,
+unchanged persisted failed message and draft, selected navigation-entry identity,
+textual FAILED/Retry semantics and one connection generation. Switching to
+Settings and back must restore the actual conversation without an extra
+enqueue, message, terminal event or wire send. This is deterministic native-host
+layout evidence, not physical resize/folding or spoken TalkBack.
+
+The existing declared `:app:testDebugUnitTest` selector for this class now
+requires4 actual JUnit executions (two incumbent terminal-send/Retry cases,
+two new adaptive cases); the existing five-selector App cohort requires41.
+At initial64a343ed9 the test compile fails46s because the text-replacement
+action returns Unit and cannot chain a focus assertion; no tests are credited.
+Corrected `be383a28cf1f45b229f112bf8d1d602b4842f9f8` separates those actions:
+exact supported preflight passes; class-only execution passes4/4 (38s) and the
+existing full five-selector cohort passes41/41 (1m7s), zero failures/errors/skips.
+Both are new positive execution, not historical206 or source-method counts.
+Portmap/controller validation passes. Exact commands, method/family mapping,
+device selectors and honest unfinished rows are in
+[software-verification.md](software-verification.md). The supported formal
+verification-config amendment and semantic command/inventory mapping are
+requested from the existing WP-003 producer via
+[issue135 comment6293815386](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135#issuecomment-6293815386).
+That historical request is fulfilled by the deployed WP-003 amendment above;
+it does not authorize invented tasks or whole-WP acceptance.
 
 ### Follow-up: actual advert consumer error mapping
 
@@ -475,9 +850,10 @@ files directory under `wp502/sdk<actual>/themes`. Do not commit a second
 reproducible CI-result/image bundle; exact-candidate hosted results/logs remain
 authoritative. Retain only actual non-reproducible device/human evidence.
 
-`verification.configured=false` and no WP-502 commands remain in the manifest.
-Existing declared App/scaffold commands can execute registered real tests, but
-do not constitute formal full-WP admission or acceptance.
+`verification.configured=false` remains in the deployed manifest with actual
+software commands now declared by the versioned WP-003 amendment. These
+App/scaffold commands execute registered real tests but do not constitute
+formal full-WP acceptance.
 `WP-502-behavior`, `WP-502-boundaries`, and `WP-502-source-test-parity` remain
 unaccepted pending complete implemented/observed coverage, exact-candidate
 checks and review. Keep #135 open/assigned; no physical radio, legal, signing,
