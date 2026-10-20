@@ -1,15 +1,29 @@
 // AndroidOnly: WP-502 Drive the production composer through the real Room/service graph and a rejecting fake firmware.
 // ReferenceInput: MeshCore/Sources/MeshCore/Protocol/ErrorCode.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Views/Chats/ChatConversationView.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/State/NavigationCoordinator.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.app.platform
 
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import com.meshcoreone.android.MainActivity
 import com.meshcoreone.android.app.container.*
 import com.meshcoreone.android.app.navigation.NativeNavigationShell
 import com.meshcoreone.android.app.state.MessageEvent
+import com.meshcoreone.android.core.contracts.AppTab
 import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings as C
@@ -43,8 +57,21 @@ class ConnectedConversationComposeTest : RoomProcessTest() {
         rejectedSendAndRetry(this, channel = true)
     }
 
-    private suspend fun rejectedSendAndRetry(test: TestScope, channel: Boolean) {
+    @Test
+    @Config(sdk = [31], qualifiers = "w1080dp-h1200dp-mdpi")
+    fun directDraftAndTerminalFailureSurviveAdaptivePanesAndTabReturn() = runTest {
+        rejectedSendAndRetry(this, channel = false, adaptive = true)
+    }
+
+    @Test
+    @Config(sdk = [31], qualifiers = "w1080dp-h1200dp-mdpi")
+    fun channelDraftAndTerminalFailureSurviveAdaptivePanesAndTabReturn() = runTest {
+        rejectedSendAndRetry(this, channel = true, adaptive = true)
+    }
+
+    private suspend fun rejectedSendAndRetry(test: TestScope, channel: Boolean, adaptive: Boolean = false) {
         val h = ContainerHarness(test, store)
+        val width = mutableStateOf(360)
         val contactKey = Bytes(ByteArray(32) { 4 })
         val opcode = if (channel) 3 else 2
         val failures = Collections.synchronizedList(mutableListOf<UUID>())
@@ -79,7 +106,14 @@ class ConnectedConversationComposeTest : RoomProcessTest() {
                 else h.container.navigation.navigateToChat(contact)
                 compose.activity.setContent {
                     MeshCoreTheme(motionScale = 0f) {
-                        NativeNavigationShell(h.container.navigation, chats = h.container.chatsFeature)
+                        if (adaptive) {
+                            val density = LocalDensity.current.density
+                            CompositionLocalProvider(LocalDensity provides Density(density, 2f)) {
+                                Box(Modifier.width(width.value.dp).fillMaxHeight()) {
+                                    NativeNavigationShell(h.container.navigation, chats = h.container.chatsFeature)
+                                }
+                            }
+                        } else NativeNavigationShell(h.container.navigation, chats = h.container.chatsFeature)
                     }
                 }
             }
@@ -135,6 +169,59 @@ class ConnectedConversationComposeTest : RoomProcessTest() {
                     retryTimestamp = requireNotNull(store.fetchMessage(EntityKey(radio, persisted.id))).timestamp
                     compose.onNodeWithText(retry).performClick()
                 }
+            }
+            if (adaptive) {
+                val retained = "Unsent draft: $original"
+                val fieldMatcher = hasSetTextAction() and hasContentDescription(
+                    compose.activity.getString(C.chatsInputAccessibilityLabel), substring = true,
+                )
+                val field = compose.onNode(fieldMatcher)
+                field.performClick().performTextReplacement(retained)
+                field.assertIsFocused()
+                val conversation = if (channel) ChatConversationID.channel(radio, channelDTO.index)
+                    else ChatConversationID.dm(radio, contact.id)
+                assertEquals(retained, h.draftStore.draft(conversation))
+                val entry = h.container.navigation.state.value.activeStack.last()
+                val token = requireNotNull(h.sessions.current).token
+                val persisted = messages().single()
+                val exercisedWidths = mutableListOf<Int>()
+                for (value in listOf(360, 599, 600, 779, 780, 834, 360)) {
+                    compose.runOnIdle { width.value = value }
+                    h.settle()
+                    compose.waitForIdle()
+                    compose.onNodeWithTag(if (value < 780) "single-pane" else "list-detail").assertIsDisplayed()
+                    compose.onNodeWithTag(if (value < 600) "navigation-hidden" else "navigation-rail").assertIsDisplayed()
+                    field.assertIsDisplayed().assertIsFocused().assertTextContains(retained)
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    field.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
+                    assertEquals(2f, layouts.single().layoutInput.density.fontScale, 0f)
+                    assertFalse("The actual 200% draft must not clip vertically at width$value", layouts.single().didOverflowHeight)
+                    compose.onNodeWithContentDescription("$original. $failed").assertIsDisplayed()
+                    compose.onNodeWithText(retry).assertIsDisplayed().assertHasClickAction()
+                    assertEquals(entry, h.container.navigation.state.value.activeStack.last())
+                    assertEquals(value.toFloat(), h.container.navigation.state.value.widthDp, 0f)
+                    assertEquals(retained, h.draftStore.draft(conversation))
+                    assertEquals(persisted, messages().single())
+                    assertEquals(token, requireNotNull(h.sessions.current).token)
+                    exercisedWidths += value
+                }
+                assertEquals(listOf(360, 599, 600, 779, 780, 834, 360), exercisedWidths)
+                compose.runOnIdle { width.value = 834 }
+                compose.onNodeWithTag("tab:SETTINGS").performClick().assertIsSelected()
+                h.settle()
+                compose.onNode(fieldMatcher).assertDoesNotExist()
+                assertEquals(retained, h.draftStore.draft(conversation))
+                compose.onNodeWithTag("tab:CHATS").performClick().assertIsSelected()
+                h.settle()
+                compose.waitForIdle()
+                compose.onNode(fieldMatcher).assertIsDisplayed().assertTextContains(retained)
+                compose.onNodeWithContentDescription("$original. $failed").assertIsDisplayed()
+                compose.onNodeWithText(retry).assertIsDisplayed().assertHasClickAction()
+                assertEquals(AppTab.CHATS, h.container.navigation.state.value.selectedTab)
+                assertEquals(entry, h.container.navigation.state.value.activeStack.last())
+                assertEquals(retained, h.draftStore.draft(conversation))
+                assertEquals(persisted, messages().single())
+                assertEquals(token, requireNotNull(h.sessions.current).token)
             }
             assertEquals(listOf(messageID, messageID), failures.toList())
             assertEquals(2, accepted.size)

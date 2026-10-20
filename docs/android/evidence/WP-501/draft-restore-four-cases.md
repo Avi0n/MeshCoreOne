@@ -18,6 +18,39 @@ checkout files have no diff from the frozen commit. This note does not refresh
 archived groups, accounting, proposals or review bindings, and does not audit
 the concurrently owned Rooms changes.
 
+## Actual peer integration (2026-10-20)
+
+PR #244 is now actually merged at
+`680246f7914a5b4e5bf5167a916b620f83a79dee`, retaining producer
+`e317ee57e84061559a201838e30e9821d2ea5299`; merge time19:41:40Z.
+The existing WP-501 attempt admitted all nine incoming main paths through
+same-owner reservation61->62 and merged them without semantic overlap.
+All nine producer files match main exactly. No mounted peer test was
+copied, rewritten or manually rerun, and no Rooms delta was re-audited.
+
+The actual `DraftInitializationComposeTest.kt` blob is identical at
+`ccd1a7d6`, `e317ee57` and mergedmain680:
+`a56c6eeefcbf4b028967a9115ade75c744fec381`.
+Its two named methods below are therefore now present in the integrated
+WP-501 source tree, not still an unmerged support prerequisite.
+The source/consumer assessment6297011991 continues to supply the bounded
+four-original native adaptation, not a new restore API or a fifth
+notification original.
+
+This is persistent source integration, **not a new execution result**.
+Earlier peer ccd/run39465426509/App766 and local13de2/2 retain those exact
+bindings. WP-5016aa/run39480051177 passed at oldbaseaae3 without these
+peer methods; it cannot certify main680 or their execution here.
+The normal current-base successor's actual hosted collector must establish
+execution of the integrated methods. The historical pre-integration
+statements below remain bound to their stated revisions.
+
+Primary WP-307 notification support was already inherited through
+mainaae3/PR #248; it is not reimplemented or accepted wholesale by this
+no-notification comparison. Physical persistence, process death,
+reconnect/open-refresh, independent acceptance and other stated limits
+remain separate. No result bundle, protected verdict or issue closure.
+
 ## Coalesced primary assessment (2026-10-20)
 
 [Primary WP-307 assessment6297011991](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6297011991)
