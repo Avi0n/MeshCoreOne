@@ -1,0 +1,167 @@
+# WP-502 software verification inventory
+
+This is a bounded command-to-behavior mapping for the existing WP-003 producer's
+verification-config amendment, not approval, a CI-result bundle, original-case
+parity accounting or whole-WP acceptance. Source remains
+`db14559b39d32322b06477c6ae676112f583db50`; integrated main is
+`0183a2b206b9ba655d7fea5c281b8bfbfecf8847`. The same producer/reservation owns
+the new adaptive regressions. Historical native observations remain untouched.
+
+## Existing task and source registration
+
+`android/app/build.gradle.kts` registers `android/ui-tests/src/shared/kotlin`,
+`android/ui-tests/src/test/kotlin` and `android/screenshot-tests/src/shared/kotlin`
+in the App unit-test source set. Their device counterparts are in App androidTest.
+There are no standalone `:ui-tests` or `:screenshot-tests` Gradle modules.
+
+The existing task, executed through the installed serialized Git-bundle/ext4
+snapshot lane, is:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.ConversationComposeTest
+--tests com.meshcoreone.android.app.platform.ConnectedConversationComposeTest
+--tests com.meshcoreone.android.app.container.QueuedComposerIntegrationTest
+--tests com.meshcoreone.android.app.container.ShortcutQueueIntegrationTest
+--tests com.meshcoreone.android.app.container.DurableRetryIntegrationTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Expected discovery is41:9+4+6+16+6. Selecting only the fully qualified
+ConnectedConversationComposeTest class requires4. Positive execution uses
+`android/app/build/test-results/testDebugUnitTest/TEST-*.xml`; absent, malformed,
+zero, skipped, failed or errored cases cannot pass. Method names below identify
+runner cases; descriptions record their actual assertion/parameter families.
+Function-name counts alone are not execution evidence.
+
+### com.meshcoreone.android.uitests.ConversationComposeTest
+
+| Method | Actual family |
+| --- | --- |
+| `draftFocusAndRetrySurviveResize` | Production timeline/composer content; retained focused draft and one Retry across360/744/834dp content constraints. Not a real service graph. |
+| `disconnectedAndByteOverflowDisableTheRealComposer` | Offline send rejection;162-byte CJK rejected and160-byte boundary accepted; original text retained. |
+| `timelineLoadingEmptyAndFailureHaveAccessibleRecovery` | Distinct loading/empty/failed states; textual error and one actionable retry. |
+| `hardwareReturnUsesSendGuardsAndNormalMultilineFallback` |24 guard/key/modifier families: disconnected/overflow/blank/cooldown/sending/enabled, Enter/NumPadEnter, Shift/plain;200% font, exact send/newline outcomes. |
+| `localImageRecoveryViewerAndPreviewSafetyUseNoNetwork` | Self-authored raster; decode failure/retry/viewer; manual/cached preview; malware has no open action. |
+| `offlineLocalMapRecoveryDoesNotGateCoordinateActions` | Local schematic only; pending/null/retry/success snapshot; coordinate callback independent of offline rendering. |
+| `allNineteenEffectiveThemeFramesRenderDeterministically` | Ten unlocked themes/19 effective frames,57 width/font rows, independent forced-dark oracle; identical settled draws/nonblank/visible-glyph checks. |
+| `systemPreferenceAndForcedSchemeRequestsRenderDeterministically` |20 theme/SYSTEM-dark requests including forced-dark Ember; actual effective scheme asserted. |
+| `localeWindowFontDirectionAndDeliveryStatePairsAreComplete` |48 cases cover all176 factor pairs over12 locales,4 states,3 widths,2 fonts,2 directions; expected pair sets are checked. |
+
+Rendering totals127 inputs (57+20+48+2 local-content captures). Repeatable draws
+are not approved goldens. Native host SDK31 is not actual API37 execution.
+
+### com.meshcoreone.android.app.platform.ConnectedConversationComposeTest
+
+| Method | Actual family |
+| --- | --- |
+| `rejectedNativeDirectSendAndMountedRetryExposeEachPersistedTerminalFailure` | Actual Room/AppContainer/session, independent direct ERR2; initial send and mounted Retry preserve one row/text, durable envelope and one terminal event per attempt. |
+| `rejectedNativeChannelSendAndMountedRetryExposeEachPersistedTerminalFailure` | Same actual graph for channel with terminal ERR6 (not retryable ERR2); exact resend flag/captured timestamp/node name. |
+| `directDraftAndTerminalFailureSurviveAdaptivePanesAndTabReturn` | Real direct flow above plus360/599/600/779/780/834/360 available-width transitions,200% actual text layout, focused CJK/RTL draft, unchanged message/draft/entry/generation, FAILED/Retry semantics and tab return; no extra wire/enqueue/event/connection. |
+| `channelDraftAndTerminalFailureSurviveAdaptivePanesAndTabReturn` | Same adaptive flow for actual channel selection, persisted draft and envelope semantics. |
+
+The adaptive cases complement, rather than duplicate as parity, the shell
+owner's synthetic text-field resize test and WP-307's pixel-offset restoration
+test. They do not simulate a physical hinge or assert spoken TalkBack output.
+
+### com.meshcoreone.android.app.container.QueuedComposerIntegrationTest
+
+| Method | Actual family |
+| --- | --- |
+| `directPendingRetryAndSendAgainHaveOneDurableOwnerAndTerminalEvent` | Actual direct initial/retry/Send Again;3 envelope modes, one service queue/event each, exact resend policy. |
+| `channelPendingRetryAndSendAgainPreserveRealEnvelopeAndTerminalEvent` | Actual channel counterpart; resend and pre-enqueue message metadata preserved. |
+| `missingQueueProviderSurfacesTypedFailureAndFailsSavedDirectAndChannelRows` | Both recipient kinds; missing provider is typed, pending row really becomes FAILED, no fake admission. |
+| `realRoomEnqueueFailureSurfacesTypedCauseAndFailsSavedDirectAndChannelRows` | Actual rejected transaction for both recipients, typed persistence cause and saved-row semantics. |
+| `failedSeenBookkeepingCannotSuppressDurableFailureEventOrRefresh` | Terminal event/refresh survives a later typed seen-store failure, which is explicitly logged. |
+| `cancelledComposerAcceptanceRemainsDurableForOneReplacementGeneration` | Accepted cancellation retains original provenance and durable intent for replacement generation. |
+
+### com.meshcoreone.android.app.container.ShortcutQueueIntegrationTest
+
+| Method | Actual family |
+| --- | --- |
+| `realAdvertServiceSessionErrorsReachAdapterAndExecutorForZeroHopAndFlood` | Independent opcode7 ERR1/6 through actual AdvertisementService; same session payload/outer cause, localized executor failure then OK0 recovery, both reaches/confirmation/no message rows. |
+| `realAdvertBoundaryPreservesTypedNotConnectedFallbackAndCancellationForBothReaches` | Both reaches; typed not-connected/SendFailed/InvalidResponse/generic/cancellation at actual transport-write seam, fresh generation per uncertain correlation, exact provenance. |
+| `rawAdvertSessionPayloadAndExistingShortcutFailureRetainIdentity` | Explicit raw-conversion seam (service normally wraps); same payload/cause and existing ShortcutException identity, no wire effects. |
+| `queuedResultRequiresOneRealDurableDirectAndChannelEnqueueWithoutWireReceipt` | Both real PendingSend envelopes persist before Queued; no delivery/firmware-ACK proxy for acceptance. |
+| `realEnqueueTransactionFailureNeverReturnsQueuedAndMarksActualRowsFailed` | Rejected real pending-send INSERT; typed cause, original message FAILED, no admission/send. |
+| `realPendingCreationFailureNeverReturnsQueuedOrPersistsOptimisticRows` | Rejected real message INSERT; no optimistic message or queue row. |
+| `rejectedFailureStatusWriteCannotReplaceTheTypedEnqueueError` | Enqueue and cleanup UPDATE both reject; original typed enqueue cause/logging retained; row honestly remains PENDING, not invented FAILED. |
+| `realAdapterRetainsTypedReadinessRecipientAndLengthErrorsWithoutCreatingRows` | Not connected, invalid recipient and too-long text categories; no rows. |
+| `appSessionFailurePayloadAndOuterCauseSurviveLocalizedShortcutPresentation` |24 synthetic conversion/presentation combinations:6 MeshCore families x2 actual wrapper types x2 locales; exact payload/outer cause, no fake durable receipt. |
+| `confirmationConnectionDropDoesNotReportQueuedOrCreateAStaleRadioMessage` | Actual disconnect during confirmation; NeedsForeground and no stale row/admission. |
+| `confirmationRadioReplacementNeverQueuesOrCreatesTheOldRecipient` | Actual changed radio/key/generation during confirmation; no old/new radio send. |
+| `declinedOrCancelledConfirmationNeverPersistsOrPublishesDirectOrChannelSends` | Both recipients x decline/cancel; no effects while held or afterward. |
+| `cancellationAfterPendingPublicationPropagatesButAcceptedQueueSurvivesGenerationReplacement` | Direct accepted cancellation; exact original/recovery-cause provenance and legitimate retry across real generations. |
+| `cancelledAcceptedChannelSendSurvivesGenerationReplacementWithoutDuplicateFailure` | Channel counterpart; one retained message and terminal queue result after reconnect. |
+| `syncingShortcutQueueWaitsForRealSyncCompletionWhileAdvertRemainsReadyOnly` | Durable acceptance while SYNCING, actual sync/drain, READY-only adverts. |
+| `acceptedDirectAndChannelQueueRowsSurviveActualFileStoreReopenAndDrainOnReconnect` | Real file-store close/reopen, fresh AppContainer reconnect/drain, one wire command/message, no duplicate rows. |
+
+### com.meshcoreone.android.app.container.DurableRetryIntegrationTest
+
+These six incumbent App-owner cases are reused, not relabeled as WP-502 ports.
+
+| Method | Actual family |
+| --- | --- |
+| `offlineMountedRetryReplacesRowsBeforeQueueLookupAndRetainsPendingTimeline` | Atomic local retry replacement; typed offline error, other radio untouched, no transport. |
+| `deliberateSendAgainPersistsResendTrueAndNeverDowngradesLateDelivery` | Deliberate resend differs from Retry; late DELIVERED cannot be downgraded. |
+| `cancelledCallerAfterRealMountedCommitRetainsPendingAndTheSameCancellation` | Actual post-commit cancellation, pending survives, original exception retained. |
+| `realTransactionFailureRestoresOldRowAndFailedTimelineWithoutQueueAdmission` | Actual rejected transaction rolls back old row/status, no queue admission. |
+| `offlineIntentHydratesThroughActualNewGenerationWithoutDoublePersistence` | Actual new session hydrates/delivers one intent/command and cleans queue. |
+| `joinedOldGenerationLeavesOneDurableIntentForReplacementHydration` | Old session joined/torn down, reader stopped; replacement drains retained intent without double persistence. |
+
+## Existing device selectors: declared, not executed in this resumption
+
+Existing `:app:assembleDebug :app:assembleDebugAndroidTest` compiles target/test
+APKs. Actual device execution uses
+`adb -s <explicit-owned-serial> shell am instrument -w -e class <selectors>`
+with `com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner`.
+Readiness must verify actual OS/API and matching binaries. No new device command
+was run for this software delta.
+
+API31/37 selectors total12 existing methods:
+
+| Fully qualified class | Methods |
+| --- | --- |
+| `com.meshcoreone.android.uitests.ConversationDeviceTest` | `offlineAndByteOverflowAreCapabilityIndependent`; `actualDeviceShowsDistinctTimelineLoadingEmptyAndFailure`; `actualDeviceHardwareReturnUsesSendGuardsAndMultilineFallback`; `actualDeviceLocalImageRecoveryAndPreviewSafety`; `actualDeviceOfflineLocalMapRecoveryAndCoordinateActions`; `retainedDraftAndRetryWorkOnTheCurrentDeviceWindow`; `actualDeviceRendersEveryEffectiveThemeFrame` |
+| `com.meshcoreone.android.app.platform.NativeCapabilityTest` | `actualDeniedOrGrantedPermissionsStayCapabilityScopedOnTheSelectedApi`; `realOfflineConversationAndFullEmojiInsertionDoNotRequestOptionalPermissions`; `actualCameraDenialLeavesManualInputAndOneDecodeUsable` |
+| `com.meshcoreone.android.app.platform.NativePlatformTest` | `productionApplicationBuildsOneProcessGraphOnSupportedApi` |
+| `com.meshcoreone.android.app.navigation.NavigationKeyboardBackTest` | `realImeBackDismissesKeyboardBeforePoppingDetailAndInsetsAreAppliedOnce` |
+
+API33/34/36 selector
+`com.meshcoreone.android.uitests.PlatformApiBoundaryDeviceTest` has2 methods:
+`actualNotificationDenialIsAdvisoryAndLanRemainsIndependentBeforeApi37` and
+`actualConnectedDeviceRegistrationAndPublicBondRemovalBoundaryMatchTheApi`.
+They query scoped permission/service/public-method facts; never remove a bond
+or certify a real radio/background session.
+
+Last actual native observations remain source458, with original APK identity,
+logs and120 API31/37 PNGs in the preserved worker session storage. They are not
+this candidate's device acceptance. Hosted scaffold does not execute androidTest.
+
+## Source families and remaining acceptance
+
+The frozen manifest has0 WP-502 primary inventory rows and126 test cross-reference
+files owned by other WPs. These are not126 accepted cases; files include helpers,
+and original assertions/parameter families still require their primary owners'
+accounting. This mapping does not replace WP-501's audit or mark those families
+ported from headers.
+
+The new adaptive cases are native integration adaptations informed by
+`MC1/Views/Chats/ChatConversationView.swift` draft save/teardown,
+`MC1/State/NavigationCoordinator.swift` selected route/sidebar/per-tab ownership,
+and the draft-restoration/status-label families in
+`MC1Tests/Views/Chats/ChatViewModelDraftRestoreTests.swift` and
+`MC1Tests/Views/Chats/Components/UnifiedMessageBubbleA11yLabelTests.swift`.
+They check retained draft restoration, not all4 original draft-policy branches,
+and FAILED text semantics, not every incoming sender/path/disclosure variant.
+Primary WP-307 ownership is unchanged.
+
+| Remaining row | Disposition |
+| --- | --- |
+| Full deterministic production-feature matrix | Open software work: current127-input matrix covers conversation/local-content surfaces, not onboarding, rooms, reactions/path, nodes/discovery, full map, remote admin, tools and settings state families. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+|126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
+| Formal verification entry | Existing WP-003 owns supported `verification_config.py` overlay/manifest-lineage amendment; `configured:false` remains until that amendment is actually admitted. Current App commands are bounded software checks, not full acceptance. |
+| Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |
+| Physical resize/folding, spoken TalkBack, radio/background | Human/device evidence unverified; does not block ordinary deterministic software implementation. |
+| Approved visual goldens | No approval/baseline manufactured or updated. Identical settled draws do not prove visual parity. |

@@ -23,7 +23,7 @@ Current integrated base: `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`;
 trusted current policy revision:
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
-The existing typed reservation was evolved to revision 16, not replaced.
+The existing typed reservation was evolved to revision 17, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -96,7 +96,15 @@ layout evidence, not physical resize/folding or spoken TalkBack.
 The existing declared `:app:testDebugUnitTest` selector for this class now
 requires4 actual JUnit executions (two incumbent terminal-send/Retry cases,
 two new adaptive cases); the existing five-selector App cohort requires41.
-New assertions are not yet credited as executed. The supported formal
+At initial64a343ed9 the test compile fails46s because the text-replacement
+action returns Unit and cannot chain a focus assertion; no tests are credited.
+Corrected `be383a28cf1f45b229f112bf8d1d602b4842f9f8` separates those actions:
+exact supported preflight passes; class-only execution passes4/4 (38s) and the
+existing full five-selector cohort passes41/41 (1m7s), zero failures/errors/skips.
+Both are new positive execution, not historical206 or source-method counts.
+Portmap/controller validation passes. Exact commands, method/family mapping,
+device selectors and honest unfinished rows are in
+[software-verification.md](software-verification.md). The supported formal
 verification-config amendment and semantic command/inventory mapping are
 requested from the existing WP-003 producer via
 [issue135 comment6293815386](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135#issuecomment-6293815386).
