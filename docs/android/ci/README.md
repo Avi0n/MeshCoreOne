@@ -1,9 +1,10 @@
 # WP-003 isolated scaffold CI
 
 **Supervised dependent draft, not accepted WP-003 or activation.** The build
-workflow runs real scaffold commands. The four trusted-duty workflows remain
-manual, deployed-default-branch-only previews and deliberately return `BLOCKED`
-for absent integrations. They do not publish `parity-review` or `gate-integrity`.
+workflow runs real scaffold commands. Dispatch, shepherd and gate-audit workflows
+remain manual previews and deliberately return `BLOCKED` for absent fleet/merge
+integrations. The manual review-publication workflow now has a supported native
+GitHub transport, described below; deploying it is not fleet activation.
 
 ## Candidate execution contract
 
@@ -175,8 +176,8 @@ files/bytes fail rather than dropping cases. A staged JSON object is not a verdi
 
 The authority reconciles real PR/check/run/review facts, exact Android Actions
 check-suite membership, isolated publisher binding/run/attempt external IDs,
-current/historical base, source/manifest/policy and actual bound independent
-formal reviews. A rebased head/base, wrong publisher/workflow/repository/attempt,
+current/historical base, source/manifest/policy and any actual bound human
+acceptance records. A rebased head/base, wrong publisher/workflow/repository/attempt,
 skipped check, malformed verdict, absent original-case family or model-written
 approval cannot complete a WP. Repairs retain the existing worker/open PR and
 bounded attempt counter; a cloud comment receipt must match that PR and feedback.
@@ -188,12 +189,360 @@ require a protected immutable-artifact reader/publisher amendment.
 [Historical revalidation](historical-revalidation.md) is a versioned **blocked
 migration interface**, not a fabricated bootstrap Android check or import.
 
-Still external: independent authenticated publisher/reviewer/native host,
+Still external: authenticated isolated publisher/reviewer/native host,
 complete live usage/shared ledger, genuine branch-rule/check identities,
-real alternate authorized reviewer for self-authored PRs, protected historical
-receipt approval, user-selected limits and separate activation. Sole maintainer
-`cbattlegear` cannot formally approve their own PR. No attestation alternative is
-approved here. Ordinary dependent drafts are not a registered native stack;
+protected historical receipt approval, user-selected limits and separate
+activation. Ordinary dependent drafts are not a registered native stack;
 later native-stack landing requires its asynchronous native API, not
 `MergeBackend`. No settings, auto-merge, stack registration, fleet, signing,
 release or downstream WP is authorized by this implementation.
+
+### User-directed WP-003 review-authority amendment
+
+This amendment supersedes the repository-created separate-person/formal GitHub
+`APPROVED` requirement for code review, including the code-review portions of the
+supervised foundation gates and ADR-006's protected-path approval wording. It does
+not rewrite original plan/ADR acceptance history or activate automation.
+
+The authenticated trusted publisher's exact-bound read-only review is the code
+review authority for ordinary and protected code changes. An authenticated
+authorized coordinator may arrange the same isolated review even when the
+coordinator is the PR author. A name alone, candidate-provided PASS, staged input
+file, or locally constructed bundle is not authority. Findings, complete
+acceptance/case validation, actual required checks, publisher provenance and
+exact repository/base/head/source/manifest/policy bindings remain mandatory.
+Current-head changes requested by an authorized reviewer still block.
+
+`review_policy` separates this code review from retained human acceptance.
+WP-001's architecture/license decisions, WP-505's physical-device outcomes,
+WP-506's signing/release acceptance, protected release/signing/legal paths and
+explicit `needs-human` labels still require actual human acceptance. Generic
+protected code paths do not require an additional person's GitHub review.
+Ordinary unprotected WPs acquire no new approval requirement. Activation,
+budgets, credentials, branch rules, hardware/legal/signing evidence and historical
+receipt import keep their existing separate controls.
+
+A new acceptance record uses `kind: human-acceptance` with the existing immutable
+binding fields and a real maintainer review in `COMMENTED` or `APPROVED` state.
+Its actual GitHub body must contain
+`<!-- android-port-acceptance:<binding.key> -->`; reviewer, commit, state and
+latest decisive review must match server facts. The sole maintainer may record
+a truthful acceptance comment on their own PR; this is not a GitHub self-approval.
+It cannot manufacture hardware/legal/signing outcomes or waive acceptance
+evidence. Historical untyped `APPROVED` records and their original stamps remain
+readable, unchanged. Neither format can substitute for authenticated code review.
+
+### Native authenticated review publication (bounded WP-003 repair)
+
+The manual path no longer requires a custom GitHub App, injected Copilot app-host
+APIs, a second human, or a formal GitHub `APPROVED` review. An authorized coordinator
+performs/arranges the trusted-profile read/search-only review and explicitly records
+its complete acceptance decision as an authenticated `COMMENTED` PR review. This
+is an accountable coordinator attestation, **not a claim that GitHub independently
+measured the reviewer's tool isolation**. The producer must not mint their own
+trusted verdict. Plain source feedback, a green build, PR prose and staged input
+are not acceptance. Existing comments on feature PRs remain source feedback only.
+
+`android-parity-review.yml` is manual, default-branch-only, ephemeral, serialized
+with the controller lane, and uses GitHub's built-in ephemeral Actions token.
+It has read-only contents/actions/PR access and **Checks write only**. No custom
+credential, signing/dispatch/merge secret, privileged cache or new service is
+installed. Candidate jobs remain entirely read-only. The publisher fetches candidate
+Git objects as data, never checks out or executes candidate scripts/instructions.
+All publishing code/profile/skills/manifest/policy come from the exact deployed
+default-branch SHA. A feature-branch dispatch is not an installation or acceptance
+test. Check output contains only receipt/binding/run references, not a second
+CI-result bundle or copied original-case catalog.
+
+Before the review, fetch the immutable candidate into the reviewer's own worktree,
+then use the existing staging command with the actual WP and current base/head:
+
+```powershell
+python .\tools\android-port\controller\gate_runtime.py stage --wp WP-xxx --trusted-base <40-hex-base> --candidate <40-hex-head> --output <private-staged-input.json>
+```
+
+The review body must start exactly with
+`<!-- android-port-native-review-v1 -->` followed by a newline and one JSON object:
+
+```json
+{
+  "schema_version": 1,
+  "binding": "<the complete staged binding object, not this placeholder>",
+  "method": "authenticated-coordinator-read-only",
+  "staging_sha256": "<controller.schema.digest of the complete staged JSON>",
+  "review": "<the existing complete parity-review schema object>",
+  "evidence": "<hosted acceptance schema v2 object described below>",
+  "approvals": []
+}
+```
+
+The placeholders above are explanatory, invalid inputs, not a ready-made PASS.
+Record a real review using GitHub's supported REST API
+`POST /repos/{owner}/{repo}/pulls/{number}/reviews` with `event: COMMENT`,
+`commit_id` equal to the exact candidate head, and that body. Do not automate
+fabrication of the verdict. The authenticated reviewer must be a human GitHub
+`User` in the trusted policy's `authorized_coordinators`; the coordinator can also
+be the PR author. The receipt must fit the complete 65,535-byte/character bound.
+Oversized receipts block; there is no unverified attachment or truncation fallback.
+
+Hosted acceptance schema v2 has `schema_version: 2`, all seven binding fields,
+`changed_paths`, `acceptance` and `source_tests` with their existing complete
+schemas, plus:
+
+```json
+{
+  "runs": [{"check": "android-ci", "run_id": 123, "run_attempt": 1}],
+  "retained_artifacts": []
+}
+```
+
+Those numbers are shape examples, **not evidence**. Every acceptance/case evidence
+reference must name the actual authoritative URL
+`https://github.com/<repository>/actions/runs/<run_id>/attempts/<attempt>` or a
+retained non-reproducible evidence file `{path, sha256}`. CI counts, results,
+checksums and output copies are deliberately not accepted in this run-reference
+schema. The actual CI implementation still fails on missing/malformed/zero/skipped/
+failed tests. The publisher reconciles successful Actions run and latest Android
+check, workflow path/ID, Actions application/check-suite, PR and exact base/head.
+Original cases/families are validated against `docs/android/test-cases.json` read
+from the trusted base, not a catalog supplied by the producer. Retained evidence
+hashes are compared with actual candidate Git blobs; they do not manufacture
+physical-device, legal, signing or human outcomes.
+
+Conditional human acceptance remains separate: retain actual bound maintainer
+reviews and the `android-port-acceptance:<binding.key>` stamp in `approvals`.
+Architecture/license, hardware, signing/release and `needs-human` still block
+without their genuine acceptance. Unresolved inline threads, current formal
+changes-requested reviews, or later authorized source feedback invalidate the
+source receipt. The publisher evaluates twice before success; subsequent edits,
+new findings, reruns and base/head movement are rejected again by the authority
+when acceptance/completion/merge is read. Renames retain both path identities.
+
+A coordinator can inspect without any write operation using their existing
+authenticated GitHub user credential in `ANDROID_PORT_GITHUB_TOKEN`:
+
+```powershell
+python .\tools\android-port\controller\native_review.py inspect --trusted-base <base> --wp WP-xxx --pr <number> --review-id <actual-review-id>
+```
+
+After **supervised review and merge of this repair**, dispatch the deployed workflow:
+
+```powershell
+gh workflow run android-parity-review.yml --ref main -f work_package=WP-xxx -f pull_request=<number> -f review_id=<actual-review-id>
+```
+
+Only this workflow may publish `parity-review` and `gate-integrity`; local
+`publish` fails before mutation. Publication creates in-progress checks first and
+records failures explicitly. Interrupted publication remains pending/failed, never
+success. A successful check is authoritative only after its real default-branch
+publisher run also completes successfully. App IDs/workflow IDs are obtained from
+authenticated GitHub server facts, never invented or taken from candidate JSON.
+The immutable Actions job identity includes the WP/PR/review ID and is reconciled
+through the exact run-attempt jobs API; another PR's successful default-branch run
+cannot be reused by changing a check's summary or `external_id`.
+Legacy custom-publisher bundles remain readable when that publisher is configured.
+`GitHubGateAuthority` and the existing completion/accounting path revalidate native
+receipts rather than bypassing them with a new success flag.
+Native completion validates the server PR's actual merged head/merge commit and
+first-parent base for both a normal merge and the existing REST adapter's squash
+strategy; it never invents a second parent for a squash commit.
+
+**Project acceptance is not GitHub enforcement, producer completion or permission
+to merge.** A source-reviewed open PR cannot complete a dependency. Current-base
+serialization, paused/off activation, budgets, actual worker reconciliation,
+protected historical foundation import and branch-rule/no-bypass proof still gate
+the existing landing controller. This repair does not merge anything, change
+repository settings, install credentials, clear failed feature CI, or enable a
+schedule/fleet. GitHub supports an authenticated author's normal merge without
+formal self-approval, but an admin merge is not evidence that project gates or
+no-bypass protection were satisfied. At dispatch, main had no legacy branch
+protection (HTTP 404); branch/ruleset proof remains explicitly unverified.
+
+### Change-scoped acceptance for an already-landed WP repair
+
+An open repair of an already-landed WP is not a request to complete that entire
+WP again. The bounded path uses the same authenticated source reviewer and
+default-branch publisher, but returns `acceptance_kind: "bounded-repair"`,
+`wp_complete: false` and `dependency_unlock: false`. Evidence schema 3 is
+deliberately rejected by full-WP gates and completion/accounting. Existing
+whole-WP manifest verification stays unchanged, including unconfigured WPs.
+This path does not enable the paused automatic landing controller or prove
+branch protection. **Current paused/off policy still prohibits automatic
+landing, even with valid bounded checks.** There is no new bypass merge API.
+A supported supervised landing decision remains with maintainer `cbattlegear`:
+it must retain exact candidate/current-base checks, conditional human gates,
+serialization and actual no-bypass enforcement proof. That protected decision
+is separate from this deployment; valid acceptance alone is not end-to-end
+merge authorization and cannot import a WP completion. Do not substitute an
+administrator `gh pr merge` for the blocked controller decision.
+
+The authorized human coordinator first posts one structured scope comment on
+the **existing repair issue**, not on an invented tracking issue. Its body is
+`<!-- android-port-repair-scope-v1 -->` followed by strict JSON with these fields:
+
+| Field | Required meaning |
+| --- | --- |
+| `schema_version`, `kind` | `1`, `"landed-wp-repair"` |
+| `binding` | Exact seven-field repository/WP/current-base/head/source/manifest/policy binding used by native reviews |
+| `repair_pr`, `repair_issue`, `landed_pr`, `owner`, `summary` | Actual PR/issue/merged producer, canonical manifest owner, bounded original issue scope |
+| `paths` | Every server-reported changed path, including both rename paths: `{path, operation, capability}` admitted by trusted typed rules |
+| `acceptance` | Nonempty issue-specific `{id, description}` criteria; do not reuse whole-WP criterion IDs |
+| `coverage` | `{path, modules, source_paths, cases, native_methods, hosted_methods, adaptation}` for each changed Android behavior/test file |
+| `verification` | Exactly `["android-scaffold"]`, mapping to the existing declared strict scaffold runner, not a guessed Gradle task |
+| `native` | Explicit immutable independently retained native observations, or `[]` when affected behavior has a reviewed hosted native adaptation |
+
+Coverage source paths must belong to the canonical WP and be nonexcluded.
+Coverage `cases` items are `{path, id, parameter_family}` from the trusted frozen catalog;
+the receipt must account for every selected parameter family. Every affected
+module must be selected, including typed-capability-admitted support files.
+The actual merged producer must be an ancestor of the current base and have
+the canonical WP marker or legacy `[WP-xxx] ` title. Its actual server path
+inventory must contain an actually repaired production path; added repair helpers
+still need exact typed admissions and behavioral coverage. Legacy title provenance
+does not manufacture a historical completion receipt or alter old reservations.
+
+`hosted_methods` entries are `{path, blob_sha, id}` for actual Kotlin test methods
+in a selected module's `src/test` tree. The publisher binds them to candidate
+blobs, requires the real successful Linux Android build job and parses its
+authoritative strict scaffold report with complete positive module counts.
+The trusted runner now prints actual JUnit class/method identities, including
+SDK/parameter suffixes, in that same hosted log. Selected methods must be present
+in this executed inventory; a source function and green aggregate alone cannot
+prove a filtered-out method ran. Older logs lacking this inventory cannot prove
+a hosted adaptation; use the next actual exact-head hosted execution.
+Missing, malformed, ambiguous, zero, failed, errored or skipped affected tests
+fail closed. The candidate cannot redefine the trusted runner, its JUnit/count
+validators, module graph or Android CI workflow. Extra selected tasks must also
+be existing trusted scoped tasks. Hosted adaptations do not imply physical
+TalkBack/radio/OEM/background/upgrade testing.
+
+Each `native` observation supplies `{revision, transcript, sha256, api, methods,
+bindings, fixture, out_of_scope_failures, execution}`. The transcript is fetched at its
+immutable repository revision and checked against its actual bytes; `api` is
+31 or 37; every selected `Class#method` must really pass. `bindings` explicitly
+maps current production paths to unchanged blobs at that observed revision.
+`fixture` is `{path, blob_sha}` at the observed revision. All other failed or
+skipped methods must be explicitly retained in `out_of_scope_failures` as a
+method-ID-to-explanation object, with actual statuses retained in the transcript; none may
+be an affected method. This is **retained-source-continuity**, not standalone
+execution of the latest head. For example an unrelated API37 integration
+failure remains a failure; it never becomes a passing whole-suite claim.
+
+Native transcripts must have complete ordered starts/outcomes with consistent
+`current`/`numtests` and exactly one successful terminal runner record. Orphan
+outcomes, missing starts, duplicate terminals, short messages/crashes and
+post-terminal instrumentation are rejected.
+The actual `INSTRUMENTATION_RESULT: stream=` completion must
+include one `Time:` line and exactly one consistent JUnit `OK (N tests)` or
+`FAILURES!!!` / `Tests run: N, Failures: F` summary. Lifecycle outcomes and the
+completion summary must agree; missing/contradictory completion cannot be
+accepted. Legitimate unrelated failures remain recorded, not forced to PASS.
+Scope-supplied API labels alone
+are not runtime evidence. `execution` currently supports the actual retained
+`wp503-device-repairs-v1` family with `{format, integration, inputs, metrics}`;
+each file reference is `{path, sha256}` at the observation revision. It reads
+the existing `device-repairs-integration.json`,
+`device-repairs-inputs.json`, `device-repairs-full-api<api>.txt` and matching
+metrics rather than inventing a new execution manifest. These bind the real
+WP503 integration head, both actual APK identities, runtime SDK profile,
+complete transcript outcome accounting and executed source/fixture bytes.
+Selected native methods must exist in the actual fixture at the execution head.
+Other historical capture formats require a reviewed parser for their actual
+records; no coordinator-supplied new schema can silently substitute for missing
+execution provenance or imply a device replay occurred.
+
+Using the existing authenticated read credential, stage without publishing:
+
+```powershell
+python .\tools\android-port\controller\native_review.py stage-repair --trusted-base <current-main-sha> --wp WP-xxx --pr <repair-number> --scope-comment-id <actual-issue-comment-id> --output <private-absolute-path-outside-repository>
+```
+
+The result is staged data only, not acceptance. The coordinator reviews the
+complete immutable stage and posts the existing native review marker with
+envelope `schema_version: 2`, `scope_comment_id`, and the normal `binding`,
+`method`, `staging_sha256`, `review`, `evidence`, `approvals` fields.
+Evidence schema 3 has the same fields as hosted evidence schema 2 plus
+`repair_scope`, exactly matching the authenticated scope comment. Acceptance
+records use the issue-specific criteria; review adaptation records explicitly
+reference the selected originals. Real hosted run references and independently
+retained evidence remain separate, and no second CI-result bundle is saved.
+Do not turn source-only feedback into a structured receipt without this work.
+
+After supervised deployment of this support, the existing `inspect` command
+read-only verifies that actual receipt; only then does the authorized coordinator
+use the existing manual workflow shown above. Scope edits, unexplained paths,
+stale base/head, changed review bytes, unresolved findings, conditional human
+gates and malformed evidence invalidate publication or replay. The publisher
+adds only `issues: read` for the authenticated original-issue scope; it acquires
+no issue writes, merge, dispatch, signing or fleet credentials.
+
+For PR229/232/234, deployment alone is not acceptance: owners must supply
+canonical ready/current-base metadata, and the coordinator must provide the
+actual issue-scoped contract and exact receipt from real affected evidence.
+This support neither publishes those receipts nor reruns their native cohorts.
+
+### Narrow WP-503 standard debug packaging support
+
+The `debug-test-packaging` typed capability admits exactly the support adapter
+`tools/android-port/local/debug_packaging.py` and its regression test, not a
+wildcard signing exemption. `CapabilityEngine.admit("WP-503", [], path,
+"build-debug-test-apks-with-existing-local-identity")` is supported for that
+adapter. Implementation ownership includes WP-003; actual assembly is restricted
+to WP-503. Existing release/signing/hardware/legal human policy is unchanged.
+
+The guarded WP-503 adapter calls `local.debug_packaging.assemble_debug_pair`
+with its actual `manifest`, trusted `policy`, shared `ledger`, native-lane
+`owner`, exact current source `revision`, existing pinned build-input `state`,
+existing default `debug_home`, read-only `installed_apk` snapshot and new private
+absolute `output`. The held native lock must identify that owner and
+`payload.wp == "WP-503"`; this function does not release that caller-owned lock.
+It separately acquires/releases the existing exclusive `gradle-execution` lane.
+The only Gradle tasks are `:app:assembleDebug :app:assembleDebugAndroidTest`,
+with strict dependency verification and one worker. There is no install,
+instrumentation, uninstall, wipe, retained-APK resign or release task.
+
+The adapter checks exact clean committed Android production/fixture inputs,
+pinned readiness/wrapper, and an already-existing default `debug.keystore` by
+file metadata only. It never opens, copies, exports or changes private-key
+bytes. Normal Gradle uses the already-configured local default debug identity;
+no global HOME/tool configuration is changed. Public `apksigner` verification
+and package inspection must match both newly built App/Test APKs to the
+preserved installed debug APK certificate before returning packaging evidence.
+Mismatch/build failure is explicit, releases only the acquired Gradle lock and
+does not produce a success receipt or replace the installed app/data.
+
+The new evidence records actual current source/tree, task/toolchain and APK/log
+hashes and **zero tests started / no install / no acceptance**. Retain the
+previous source/fixture continuity and actual failed install separately; new
+hashes never overwrite historic APK identities. WP-503 must still independently
+verify certificate/profile/data-preservation guards before any separately
+authorized install/replay. This worker did not assemble, install or run a
+device cohort.
+
+Future failed Gradle commands emit available declared JUnit failure/error
+package/class/test identities (including SDK/parameter test-name suffixes) and
+actual totals before the bounded Gradle tail. Missing/malformed/zero reports
+are explicit incomplete evidence, never a PASS. This writes no second CI-result
+bundle or artifact. Lost historical f75 identities remain lost; independently
+complete evidence for a new candidate is not invalidated forever by that gap.
+The failure-log reader also streams every actual Gradle `Class > test[SDK] FAILED`
+identity and test-count summary, with two bounded context lines on either side,
+before the rolling12000-character tail. It never loads the complete log into
+memory. Overlong physical diagnostic lines explicitly mark identity extraction
+incomplete; the original command still fails with its real exit code.
+
+### Reference-oracle hosted capacity
+
+Both reference oracles use the provider-documented standard `macos-26-intel`
+host rather than the capacity-constrained ARM64 `macos-26` label. This preserves
+macOS26, the frozen source, real SwiftData runtime, Swift6.2+ guards, original
+test expectations and credential/ephemeral boundaries. The harnesses do not
+require ARM64; actual compiler/host metadata remain execution evidence.
+Provider references:
+[standard labels](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+and [macOS26 Intel image](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md).
+The image lists the macOS26 SDK and Xcode26 family. This is supported-host
+selection, not a claim that queued/cancelled historical jobs ran or that the
+provider guarantees immediate capacity. Only actual exact-head hosted execution
+proves the changed lane; no OS downgrade, self-hosted service or skipped oracle
+is substituted.

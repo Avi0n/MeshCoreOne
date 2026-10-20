@@ -219,6 +219,8 @@ def validate_cases(evidence: dict, manifest: Manifest, wp: dict, catalog: dict |
 
 
 def validate_evidence(evidence: dict, binding: Binding, manifest: Manifest, policy: dict, catalog=None):
+    if isinstance(evidence, dict) and evidence.get("schema_version") == 2:
+        return validate_hosted_evidence(evidence, binding, manifest, catalog)
     fields(evidence, set(asdict(binding)) | {
         "schema_version", "runs", "acceptance", "source_tests", "changed_paths",
     }, label="acceptance evidence")
@@ -278,35 +280,100 @@ def validate_evidence(evidence: dict, binding: Binding, manifest: Manifest, poli
     return artifacts, sorted(run_ids)
 
 
+def hosted_references(evidence: dict, binding: Binding, *, schema_version=2, extra_fields=()):
+    fields(evidence, set(asdict(binding)) | {
+        "schema_version", "runs", "acceptance", "source_tests", "changed_paths", "retained_artifacts",
+    } | set(extra_fields), label="hosted acceptance evidence")
+    if type(evidence["schema_version"]) is not int or evidence["schema_version"] != schema_version:
+        raise PortError("Unsupported hosted acceptance schema")
+    _binding(evidence, binding, "hosted acceptance evidence")
+    if not isinstance(evidence["runs"], list) or len(evidence["runs"]) != 1:
+        raise PortError("Exactly one authoritative Android CI run reference is required")
+    run = evidence["runs"][0]
+    fields(run, {"check", "run_id", "run_attempt"}, label="hosted run reference")
+    if run["check"] != "android-ci":
+        raise PortError("Unknown hosted CI check")
+    positive_integer(run["run_id"], "Hosted run ID")
+    positive_integer(run["run_attempt"], "Hosted run attempt")
+    artifacts = {
+        f"https://github.com/{binding.repository}/actions/runs/{run['run_id']}/attempts/{run['run_attempt']}"
+    }
+    if not isinstance(evidence["retained_artifacts"], list):
+        raise PortError("Malformed retained non-reproducible evidence")
+    for item in evidence["retained_artifacts"]:
+        fields(item, {"path", "sha256"}, label="retained evidence")
+        path = git_path(item["path"])
+        if path in artifacts or re.fullmatch(r"[0-9a-f]{64}", item["sha256"]) is None:
+            raise PortError("Duplicate or malformed retained evidence")
+        artifacts.add(path)
+    return artifacts, [run["run_id"]]
+
+
+def validate_hosted_evidence(evidence: dict, binding: Binding, manifest: Manifest, catalog):
+    """Hosted results stay on GitHub; acceptance retains references, never a second CI bundle."""
+    artifacts, runs = hosted_references(evidence, binding)
+    wp = manifest.wp(binding.work_package)
+    if not wp["verification"]["configured"] or not wp["verification"]["commands"]:
+        raise PortError("Verification commands are not configured")
+    validate_writes(wp["write_paths"], evidence["changed_paths"])
+    _acceptance(evidence["acceptance"], wp, artifacts, "implementation acceptance")
+    validate_cases(evidence, manifest, wp, catalog, artifacts)
+    return artifacts, runs
+
+
+def human_acceptance_required(wp: dict, policy: dict, changed_paths: list[str], labels=()):
+    rules = policy.get("review_policy")
+    fields(rules, {
+        "code_review_authority", "authorized_coordinators", "human_acceptance_work_packages",
+        "human_acceptance_paths", "human_acceptance_patterns",
+    }, label="review policy")
+    if rules["code_review_authority"] != "trusted-read-only-review":
+        raise PortError("Unsupported code review authority")
+    for key in ("authorized_coordinators", "human_acceptance_work_packages",
+                "human_acceptance_paths", "human_acceptance_patterns"):
+        values = rules[key]
+        if not isinstance(values, list) or not values or not all(isinstance(v, str) and v for v in values):
+            raise PortError(f"Malformed review policy {key}")
+    return (
+        wp["id"] in rules["human_acceptance_work_packages"]
+        or "needs-human" in labels
+        or bool(protected_paths({
+            "protected_paths": rules["human_acceptance_paths"],
+            "protected_patterns": rules["human_acceptance_patterns"],
+        }, protected_paths(policy, changed_paths)))
+    )
+
+
 def validate_approval(approvals: list[dict], binding: Binding, policy: dict, author: str):
+    """Validate retained human acceptance, not a separate-person code review."""
     nonempty(author, "Actual PR author")
-    if not set(policy["maintainers"]) - {author}:
-        raise PortError(
-            "No configured independent maintainer can approve this PR author. "
-            "Personal-repo/local publication needs an actually authorized alternate reviewer/publisher "
-            "strategy at WP-003; self-reviews or model-written attestations are not approval."
-        )
     if not isinstance(approvals, list):
         raise PortError("Malformed maintainer approvals")
     for approval in approvals:
+        typed = isinstance(approval, dict) and "kind" in approval
         fields(approval, {
             "review_id", "reviewer", "state", "head_sha", "base_sha", "policy_revision",
             "binding_key",
-        }, label="maintainer approval")
+        } | ({"kind"} if typed else set()), label="human acceptance")
+        if typed and approval["kind"] != "human-acceptance":
+            raise PortError("Unknown human acceptance kind")
         positive_integer(approval["review_id"], "Review ID")
+        states = ("COMMENTED", "APPROVED") if typed else ("APPROVED",)
         if (
-            approval["reviewer"] in policy["maintainers"] and approval["reviewer"] != author
-            and approval["state"] == "APPROVED" and approval["head_sha"] == binding.head_sha
+            approval["reviewer"] in policy["maintainers"]
+            and approval["state"] in states and approval["head_sha"] == binding.head_sha
             and approval["base_sha"] == binding.base_sha
             and approval["policy_revision"] == binding.policy_revision
             and approval["binding_key"] == binding.key
         ):
             return approval["review_id"]
-    raise PortError("Missing independent current-head/current-base bound maintainer approval")
+    raise PortError("Missing current-head/current-base bound human acceptance")
 
 
 def verify_pr_gates(pr: dict, evidence: dict, review: dict, approvals: list[dict],
                     binding: Binding, manifest: Manifest, policy: dict, catalog=None) -> dict:
+    if isinstance(evidence, dict) and evidence.get("schema_version") == 3:
+        raise PortError("Bounded repair acceptance is not full-WP gate/completion evidence")
     if (
         binding.source_sha != manifest.data["reference"]["commit"]
         or binding.manifest_sha256 != manifest.sha256
@@ -331,16 +398,23 @@ def verify_pr_gates(pr: dict, evidence: dict, review: dict, approvals: list[dict
     wp = manifest.wp(binding.work_package)
     human = wp["human_gate"] or bool(protected_paths(policy, pr["changed_paths"])) or "needs-human" in pr["labels"]
     validate_review(review, binding, wp, artifacts, human)
-    approval_id = validate_approval(approvals, binding, policy, pr["author"]) if human else None
+    requires_acceptance = human_acceptance_required(wp, policy, pr["changed_paths"], pr["labels"])
+    approval_id = validate_approval(approvals, binding, policy, pr["author"]) if requires_acceptance else None
     return {
         "binding": asdict(binding), "pr_number": pr["number"],
         "merge_commit_sha": pr["merge_commit_sha"], "ci_run_ids": run_ids,
         "approval_id": approval_id, "evidence_sha256": digest(evidence), "review_sha256": digest(review),
+        "review_authorization": {
+            "kind": "trusted-read-only-code-review", "binding_key": binding.key,
+            "human_acceptance_required": requires_acceptance,
+        },
     }
 
 
 def verify_completion(pr: dict, evidence: dict, review: dict, approvals: list[dict],
                       binding: Binding, manifest: Manifest, policy: dict, catalog=None) -> dict:
+    if isinstance(evidence, dict) and evidence.get("schema_version") == 3:
+        raise PortError("Bounded repair cannot complete a WP or unlock dependencies")
     if pr.get("merged") is not True or not isinstance(pr.get("merge_commit_sha"), str):
         raise PortError("Dependency completion requires a merged implementation PR, not a closed issue")
     if SHA.fullmatch(pr["merge_commit_sha"]) is None:

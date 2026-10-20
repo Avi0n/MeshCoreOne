@@ -199,6 +199,11 @@ class RoomConversationStateHolder(
 
     fun clearFailure() = mutableState.update { it.copy(failure = null) }
 
+    fun reportLinkFailure(failure: Exception) {
+        mutableState.update { it.copy(failure = failure) }
+        dependencies.diagnostics.report("load room link contacts", failure)
+    }
+
     private fun appendIfNew(message: RoomMessageDTO) {
         mutableState.update { current ->
             if (current.messages.any { it.id == message.id }) return@update current

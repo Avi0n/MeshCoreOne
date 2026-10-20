@@ -1,35 +1,42 @@
-name: Android parity staging preview (paused)
+name: Android authenticated review publication
 
 on:
   workflow_dispatch:
     inputs:
       work_package:
-        description: Stage trusted acceptance inputs only; no reviewer launch or check publishing
+        description: Assigned WP; this workflow never launches a worker or reviewer
         required: true
-        default: WP-000
         type: string
-      candidate_sha:
-        description: Full immutable already-fetched candidate; data only, never executed
+      pull_request:
+        description: Existing ready PR targeting the current default branch
+        required: true
+        type: string
+      review_id:
+        description: Actual exact-bound authenticated coordinator source-review receipt ID
         required: true
         type: string
 
 permissions:
   contents: read
+  pull-requests: read
+  checks: write
+  actions: read
+  issues: read
 
 concurrency:
   group: android-port-controller
   cancel-in-progress: false
 
 jobs:
-  staging:
-    name: Dry-run staging (not parity-review)
+  publish:
+    name: Native review ${{ inputs.work_package }} PR ${{ inputs.pull_request }} receipt ${{ inputs.review_id }}
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     env:
       WORK_PACKAGE: ${{ inputs.work_package }}
-      CANDIDATE_SHA: ${{ inputs.candidate_sha }}
-      ANDROID_PORT_DISPATCH_MODE: off
-      ANDROID_PORT_PAUSED: "true"
+      PR_NUMBER: ${{ inputs.pull_request }}
+      REVIEW_ID: ${{ inputs.review_id }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -39,14 +46,14 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12.4"
-      - run: python tools/android-port/controller/dispatch.py --dry-run render --wp "$WORK_PACKAGE"
-      - name: Stage trusted-base profile, skills, reference and complete candidate data
-        run: python tools/android-port/controller/gate_runtime.py stage --wp "$WORK_PACKAGE" --trusted-base "$GITHUB_SHA" --candidate "$CANDIDATE_SHA" --output "$RUNNER_TEMP/reviewer-input.json"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: reviewer-staging-data-only
-          path: ${{ runner.temp }}/reviewer-input.json
-          if-no-files-found: error
-          retention-days: 7
-      - name: Missing isolated reviewer/publisher is BLOCKED, never parity-review PASS
-        run: python tools/android-port/controller/gate_runtime.py capabilities
+      - name: Fetch candidate objects as data only
+        run: |
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || exit 2
+          git fetch --no-tags origin "refs/pull/$PR_NUMBER/head"
+      - name: Validate current server facts and publish exact-head checks
+        env:
+          ANDROID_PORT_GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python tools/android-port/controller/native_review.py publish
+          --trusted-base "$GITHUB_SHA" --wp "$WORK_PACKAGE"
+          --pr "$PR_NUMBER" --review-id "$REVIEW_ID"

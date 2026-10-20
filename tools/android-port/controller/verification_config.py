@@ -13,7 +13,7 @@ from controller.errors import PortError
 from controller.schema import digest, load_json
 from controller.scope_amendment import (
     apply_translation_scope, current_revisions, is_translation_scope, project_translation_scope,
-    project_translation_exclusions,
+    project_translation_exclusions, review_policy_predecessor,
 )
 
 BOOTSTRAP_POLICY_AMENDMENT = {
@@ -217,10 +217,11 @@ def content_scope_revisions(manifest, policy):
     historical = baseline.sha256 == VERIFICATION_MANIFEST_SHA256
     expected = ("56bdc53548bc86d631245795dfa38b4fc86048e0e7cbe1c7d5695879b035b42a"
                 if historical else WP_003_SEMANTIC_POLICY_REVISION)
-    if policy_revision(baseline, policy) != expected:
+    predecessor_policy = review_policy_predecessor(policy)
+    if policy_revision(baseline, predecessor_policy) != expected:
         raise PortError("Frozen predecessor policy changed outside the approved content scope")
     if historical:
-        return {"manifest_sha256": manifest.sha256, "policy_revision": policy_revision(manifest, policy)}
+        return {"manifest_sha256": manifest.sha256, "policy_revision": policy_revision(manifest, predecessor_policy)}
     return {
         "manifest_sha256": PRIOR_CONTENT_MANIFEST_REVISION,
         "policy_revision": PRIOR_CONTENT_POLICY_REVISION,

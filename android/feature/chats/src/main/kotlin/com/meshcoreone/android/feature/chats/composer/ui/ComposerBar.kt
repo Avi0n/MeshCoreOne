@@ -35,6 +35,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalResources
@@ -45,6 +46,7 @@ import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -149,10 +151,27 @@ private fun ComposerField(
         modifier = modifier
             .focusRequester(focusRequester)
             .onPreviewKeyEvent { event ->
-                // Hardware keyboard: Enter sends, Shift+Enter inserts a newline (iOS `onSend` hardware path).
+                // Hardware Return sends only when the button is enabled; otherwise normal multiline editing handles it.
                 val isEnter = event.key == Key.Enter || event.key == Key.NumPadEnter
-                if (isEnter && !event.isShiftPressed) {
+                if (state.canSend && isEnter && !event.isShiftPressed) {
                     if (event.type == KeyEventType.KeyDown) actions.onSend()
+                    true
+                } else {
+                    false
+                }
+            }
+            .onKeyEvent { event ->
+                // The Android editor's default key map ignores Shift+Enter; let it handle the event first.
+                if ((event.key == Key.Enter || event.key == Key.NumPadEnter) &&
+                    event.isShiftPressed && event.type == KeyEventType.KeyDown && fieldValue.composition == null
+                ) {
+                    val selection = fieldValue.selection
+                    actions.onFieldValueChange(
+                        fieldValue.copy(
+                            text = fieldValue.text.replaceRange(selection.min, selection.max, "\n"),
+                            selection = TextRange(selection.min + 1),
+                        ),
+                    )
                     true
                 } else {
                     false

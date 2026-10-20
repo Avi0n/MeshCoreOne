@@ -63,7 +63,7 @@ def record(repo: Path, side: str, path: str, blob: str):
     }
 
 
-def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str):
+def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *, path_operations=None):
     if any(not isinstance(value, str) or SHA.fullmatch(value) is None for value in (trusted_base, candidate)):
         raise PortError("Reviewer staging requires exact immutable base/head SHAs")
     base_tree, candidate_tree = tree(repo, trusted_base), tree(repo, candidate)
@@ -107,7 +107,15 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str):
     reference_tree = tree(repo, source_sha)
     candidate_data = decode_json(object_bytes(repo, candidate_tree["docs/android/port-manifest.json"]).decode("utf-8"))
     changed = sorted(path for path in base_tree.keys() | candidate_tree.keys() if base_tree.get(path) != candidate_tree.get(path))
-    validate_writes(wp["write_paths"], changed)
+    if path_operations is None:
+        validate_writes(wp["write_paths"], changed)
+    else:
+        from .capabilities import CapabilityEngine
+
+        if not isinstance(path_operations, dict) or set(path_operations) != set(changed):
+            raise PortError("Repair admissions must explain every changed path")
+        for path in changed:
+            CapabilityEngine(policy).admit(wp_id, wp["write_paths"], path, path_operations[path])
     audit = integrity(data, candidate_data, policy, changed)
     for path in changed:
         for side, entries in (("base-data", base_tree), ("candidate-data", candidate_tree)):
@@ -131,12 +139,15 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str):
     }
 
 
-def require_reviewer(policy: dict, *, cli_authenticated=False, independent_human_reviewer=None, author=None):
-    alternate = (
-        isinstance(author, str) and bool(author)
-        and isinstance(independent_human_reviewer, str)
-        and independent_human_reviewer in policy["maintainers"] and independent_human_reviewer != author
+def require_reviewer(policy: dict, *, cli_authenticated=False, coordinator=None,
+                     coordinator_authenticated=False, independent_human_reviewer=None, author=None):
+    # The legacy keyword remains an identity alias, never proof of authentication.
+    reviewer = coordinator if coordinator is not None else independent_human_reviewer
+    authorized = (
+        coordinator_authenticated is True
+        and isinstance(reviewer, str)
+        and reviewer in policy["review_policy"]["authorized_coordinators"]
     )
-    if cli_authenticated is not True and not alternate:
-        raise PortError("BLOCKED: isolated Copilot CLI credential or real authorized alternate human reviewer is absent")
+    if cli_authenticated is not True and not authorized:
+        raise PortError("BLOCKED: authenticated isolated reviewer or authorized coordinator is absent")
     return True

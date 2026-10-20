@@ -122,6 +122,14 @@
         "validation": ["workflow trust-boundary tests", "required-check identity validation"]
       },
       {
+        "id": "debug-test-packaging",
+        "work_packages": ["WP-003", "WP-503"],
+        "path_rules": ["tools/android-port/local/debug_packaging.py", "tools/android-port/tests/test_debug_packaging.py"],
+        "operations": ["implement-debug-packaging-adapter", "build-debug-test-apks-with-existing-local-identity"],
+        "invariants": ["WP-503-execution-only", "exact-clean-source-and-fixtures", "existing-native-and-exclusive-gradle-lanes", "existing-local-default-debug-identity-only", "public-app-test-installed-certificate-match", "no-private-key-read-export-copy-or-change", "no-retained-apk-resign", "no-install-uninstall-wipe-or-release-task"],
+        "validation": ["debug-packaging regression tests", "actual source-build-output hashes", "public certificate verification before any separately guarded install"]
+      },
+      {
         "id": "merge-integration",
         "path_rules": ["**"],
         "operations": ["reconcile-current-base", "merge-disjoint-semantic-edits", "transfer-current-producer"],
@@ -137,6 +145,13 @@
   "trusted_gate_publisher_app_id": null,
   "branch_rules_proven": false,
   "maintainers": ["cbattlegear"],
+  "review_policy": {
+    "code_review_authority": "trusted-read-only-review",
+    "authorized_coordinators": ["cbattlegear"],
+    "human_acceptance_work_packages": ["WP-001", "WP-505", "WP-506"],
+    "human_acceptance_paths": ["android/release/"],
+    "human_acceptance_patterns": ["android/**/signing*", "android/**/keystore*", "**/*license*", "**/*LICENSE*", "**/*legal*"]
+  },
   "repair_limit": 3,
   "merge_strategy": "serialized-exact-head-current-base",
   "admin_bypass": false,
@@ -181,7 +196,8 @@
     "android/**/keystore*"
   ],
   "merge_gate_policy": {
-    "protected_paths_require_human_approval_for_main_merge": true,
+    "protected_paths_require_trusted_code_review_for_main_merge": true,
+    "human_hardware_legal_signing_acceptance_required": true,
     "pre_edit_permission_not_required": true,
     "capability_admission_required": true,
     "semantic_reconciliation_required": true,
@@ -202,7 +218,6 @@
     "Supervised WP-003 Windows/Linux hosted scaffold evidence and cloud setup review",
     "Protected versioned historical foundation receipt migration/revalidation",
     "Complete inline check output must fit 65535 characters and UTF-8 bytes; oversized catalogs require a protected reader amendment",
-    "A real alternate authorized formal reviewer or separately human-approved attestation design for self-authored local PRs",
     "Native asynchronous stack landing integration if a real stack is later registered; ordinary dependent drafts are not a native stack"
   ]
 }

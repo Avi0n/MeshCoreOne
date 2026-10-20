@@ -18,7 +18,7 @@ ACTION_PINS = {
     "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
 }
 TRUSTED_WORKFLOWS = (
-    "android-port-dispatch.yml", "android-parity-review.yml",
+    "android-port-dispatch.yml",
     "android-pr-shepherd.yml", "android-gate-integrity.yml",
 )
 
@@ -79,6 +79,8 @@ def validate_candidate(value: dict, text: str):
             or gate.get("needs") != ["scope", "controller", "build", "external-oracle", "backup-oracle"]):
         raise PortError("android-ci must always report every selected build outcome")
     build = jobs["build"]
+    if any(jobs[name].get("runs-on") != "macos-26-intel" for name in ("external-oracle", "backup-oracle")):
+        raise PortError("Reference oracles require the supported macOS26 Intel host; do not downgrade runtime or skip oracles")
     if (build.get("runs-on") != "ubuntu-24.04" or "strategy" in build
             or build.get("needs") != ["scope", "controller"]
             or "needs.scope.outputs" not in build.get("if", "")):
@@ -142,10 +144,71 @@ def validate_trusted(value: dict, text: str):
         raise PortError("Trusted controller operations require a serialized noncancelling lane")
 
 
+def validate_publisher(value: dict, text: str):
+    if set(value) != {"name", "on", "permissions", "concurrency", "jobs"}:
+        raise PortError("Unexpected publisher execution property")
+    if value.get("permissions") != {
+        "contents": "read", "pull-requests": "read", "checks": "write", "actions": "read", "issues": "read",
+    }:
+        raise PortError("Native publisher requires only read facts and Checks write, never merge/dispatch authority")
+    if set(value.get("on", {})) != {"workflow_dispatch"} or set(value.get("jobs", {})) != {"publish"}:
+        raise PortError("Native publisher must be manual and contain only the trusted publication job")
+    job = value["jobs"]["publish"]
+    if (
+        job.get("name") != "Native review ${{ inputs.work_package }} PR ${{ inputs.pull_request }} receipt ${{ inputs.review_id }}"
+        or job.get("if") != "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)"
+        or job.get("runs-on") != "ubuntu-24.04" or job.get("timeout-minutes") != "15"
+        or value.get("concurrency") != {"group": "android-port-controller", "cancel-in-progress": "false"}
+        or set(job) != {"name", "if", "runs-on", "timeout-minutes", "env", "steps"}
+    ):
+        raise PortError("Publisher must use a bounded ephemeral default-branch serialized lane")
+    if any(word in text for word in ("secrets.", "pull_request_target", "workflow_run", "self-hosted",
+                                     "actions/cache", "actions/upload-artifact", "actions/download-artifact")):
+        raise PortError("Publisher cannot consume privileged secrets, caches or candidate artifact/code execution")
+    steps = job.get("steps", [])
+    if len(steps) != 4:
+        raise PortError("Unexpected trusted publisher execution step")
+    if (
+        [set(step) for step in steps] != [
+            {"uses", "with"}, {"uses", "with"}, {"name", "run"}, {"name", "env", "run"},
+        ]
+        or steps[0].get("uses") != "actions/checkout@" + ACTION_PINS["actions/checkout"]
+        or steps[1].get("uses") != "actions/setup-python@" + ACTION_PINS["actions/setup-python"]
+    ):
+        raise PortError("Unexpected publisher step execution property")
+    for step in steps:
+        if step.get("continue-on-error") or step.get("if"):
+            raise PortError("Publisher steps cannot skip or ignore verification failures")
+        if "uses" in step:
+            name, _, pin = step["uses"].partition("@")
+            if name not in ("actions/checkout", "actions/setup-python") or ACTION_PINS[name] != pin:
+                raise PortError("Unexpected/unpinned publisher action")
+    if steps[0].get("with") != {"ref": "${{ github.sha }}", "fetch-depth": "0", "persist-credentials": "false"}:
+        raise PortError("Publisher must check out exact trusted code without persisted credentials")
+    if steps[1].get("with") != {"python-version": "3.12.4"}:
+        raise PortError("Publisher Python pin drift")
+    if steps[2].get("run") != (
+        '[[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || exit 2\n'
+        'git fetch --no-tags origin "refs/pull/$PR_NUMBER/head"\n'
+    ):
+        raise PortError("Candidate may be fetched only as Git data, never checked out or executed")
+    if steps[3].get("env") != {"ANDROID_PORT_GITHUB_TOKEN": "${{ github.token }}"} or steps[3].get("run") != (
+        'python tools/android-port/controller/native_review.py publish '
+        '--trusted-base "$GITHUB_SHA" --wp "$WORK_PACKAGE" --pr "$PR_NUMBER" --review-id "$REVIEW_ID"'
+    ):
+        raise PortError("Only the trusted native publisher may receive the ephemeral Checks token")
+    if job["env"] != {
+        "WORK_PACKAGE": "${{ inputs.work_package }}", "PR_NUMBER": "${{ inputs.pull_request }}",
+        "REVIEW_ID": "${{ inputs.review_id }}",
+    }:
+        raise PortError("Publisher inputs must be quoted environment data")
+
+
 def validate_workflows(repo: Path):
     directory = repo / ".github" / "workflows"
     for name, validator in (
         ("android-ci.yml", validate_candidate), ("copilot-setup-steps.yml", validate_setup),
+        ("android-parity-review.yml", validate_publisher),
         *((name, validate_trusted) for name in TRUSTED_WORKFLOWS),
     ):
         text = (directory / name).read_text(encoding="utf-8")
