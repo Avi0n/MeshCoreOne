@@ -59,21 +59,25 @@ def apk_identity(apk, tools, environment):
     try:
         certs = subprocess.check_output(
             [str(Path(environment["JAVA_HOME"]) / "bin" / ("java.exe" if os.name == "nt" else "java")),
-             "-Xmx128m", "-jar", str(tools / "lib/apksigner.jar"), "verify", "--print-certs", str(apk)],
-            env=environment, text=True, stderr=subprocess.STDOUT, timeout=120,
+             "-Xmx128m", "-Dfile.encoding=UTF-8", "-jar", str(tools / "lib/apksigner.jar"),
+             "verify", "--print-certs", str(apk)],
+            env=environment, encoding="utf-8", errors="strict", stderr=subprocess.STDOUT, timeout=120,
         )
         badging = subprocess.check_output(
             [str(tools / ("aapt2.exe" if os.name == "nt" else "aapt2")), "dump", "badging", str(apk)],
-            env=environment, text=True, stderr=subprocess.STDOUT, timeout=120,
+            env=environment, encoding="utf-8", errors="strict", stderr=subprocess.STDOUT, timeout=120,
         )
-    except (OSError, subprocess.SubprocessError) as error:
+    except (OSError, subprocess.SubprocessError, UnicodeError) as error:
         raise PortError("Public debug APK signature/package verification failed") from error
-    certificates = re.findall(r"^Signer #\d+ certificate SHA-256 digest: ([0-9a-fA-F]{64})$", certs, re.MULTILINE)
+    certificates = [
+        re.fullmatch(r"(?:Signer #\d+ |V2 Signer: )certificate SHA-256 digest: ([0-9a-fA-F]{64})", line)
+        for line in certs.splitlines() if "certificate SHA-256 digest:" in line
+    ]
     packages = re.findall(r"^package: name='([^']+)'", badging, re.MULTILINE)
-    if len(certificates) != 1 or len(packages) != 1:
+    if len(certificates) != 1 or certificates[0] is None or len(packages) != 1:
         raise PortError("Debug APK needs one unambiguous verified signer and package")
     return {"path": str(apk.resolve()), "sha256": sha256(apk),
-            "certificate_sha256": certificates[0].lower(), "package": packages[0]}
+            "certificate_sha256": certificates[0].group(1).lower(), "package": packages[0]}
 
 
 def verify_pair(installed, app, tests):
