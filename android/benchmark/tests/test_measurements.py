@@ -234,6 +234,48 @@ class MeasurementsTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.summarize()
 
+    def test_individually_valid_scalar_frame_count_must_match_samples(self):
+        frame = next(case for case in self.results["benchmarks"] if case["name"].startswith("nativeMapPan"))
+        frame["metrics"]["frameCount"] = metric([999] * 10)
+        with self.assertRaisesRegex(ValueError, "Frame cardinality"):
+            self.summarize()
+
+    def test_individually_valid_cpu_and_overrun_samples_need_matching_iteration_counts(self):
+        for change in ("cpu-extra", "overrun-extra", "redistributed"):
+            with self.subTest(change=change):
+                self.results = synthetic_results()
+                frame = next(case for case in self.results["benchmarks"] if case["name"].startswith("nativeMapPan"))
+                key = "frameOverrunMs" if change == "overrun-extra" else "frameDurationCpuMs"
+                runs = frame["sampledMetrics"][key]["runs"]
+                runs[0] = [*runs[0], -1 if key == "frameOverrunMs" else 1]
+                if change == "redistributed":
+                    runs[1] = runs[1][:-1]
+                frame["sampledMetrics"][key] = metric(runs, sampled=True)
+                with self.assertRaisesRegex(ValueError, "Frame cardinality"):
+                    self.summarize()
+
+    def test_consistent_different_frame_counts_between_iterations_are_preserved(self):
+        counts = list(range(1, 11))
+        for frame in self.results["benchmarks"]:
+            if frame["name"].startswith("coldStartup"):
+                continue
+            frame["metrics"]["frameCount"] = metric(counts)
+            frame["sampledMetrics"]["frameDurationCpuMs"] = metric(
+                [list(range(1, count + 1)) for count in counts], sampled=True,
+            )
+            frame["sampledMetrics"]["frameOverrunMs"] = metric(
+                [[-value for value in range(1, count + 1)] for count in counts], sampled=True,
+            )
+        result = self.summarize()
+        for frame in result["benchmarks"]:
+            if frame["name"].startswith("coldStartup"):
+                continue
+            self.assertEqual(counts, frame["metrics"]["frameCount"]["raw_runs"])
+            for key in ("frameDurationCpuMs", "frameOverrunMs"):
+                self.assertEqual(counts, [run["count"] for run in frame["metrics"][key]["per_iteration"]])
+                self.assertEqual(sum(counts), frame["metrics"][key]["count"])
+            self.assertTrue(all(value < 0 for run in frame["metrics"]["frameOverrunMs"]["raw_runs"] for value in run))
+
     def test_junit_exact_positive_identity_and_aggregate_wrapper(self):
         self.assertEqual(self.identities, measurements.junit_cases(self.xml))
         wrapper = ET.Element("testsuites")

@@ -224,8 +224,11 @@ bound. Negative `frameOverrunMs` is valid headroom, not an invalid duration.
 The reader fails on an incomplete/duplicate/foreign nine-case matrix, missing or
 failed/skipped/zero/mismatched JUnit, non-ten iteration arrays, empty frame
 samples, malformed/nonfinite values, unknown metric families, tampered summary
-statistics, reported thermal sleep, or mismatched supplied source/APK/dataset
+statistics, per-iteration disagreement between `frameCount` and CPU/overrun sample
+counts, reported thermal sleep, or mismatched supplied source/APK/dataset
 bindings. Inputs are bounded and duplicate JSON keys/unsafe XML are rejected.
+Different frame counts **between** iterations remain valid; only corresponding
+counts within one iteration must agree, as in the pinned AndroidX frame model.
 All parser controls are explicitly synthetic and are not retained as benchmark
 results. The reader has no benchmark generation or numeric-budget fallback.
 

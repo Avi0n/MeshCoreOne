@@ -212,6 +212,14 @@ def summarize(results, junit, *, commit, target_sha256, dataset_sha256, device_k
         require(("timeToInitialDisplayMs" if startup else "frameCount") in metrics, "Missing required metric")
         summary = {key: summarize_metric(value, key, sampled=False) for key, value in metrics.items()}
         summary.update({key: summarize_metric(value, key, sampled=True) for key, value in sampled.items()})
+        if not startup:
+            for iteration, (count, cpu, overrun) in enumerate(zip(
+                summary["frameCount"]["raw_runs"], summary["frameDurationCpuMs"]["raw_runs"],
+                summary["frameOverrunMs"]["raw_runs"],
+            )):
+                require(count == len(cpu) == len(overrun),
+                        f"Frame cardinality mismatch at iteration {iteration}: "
+                        f"frameCount={count}, CPU={len(cpu)}, overrun={len(overrun)}")
         summaries.append({"name": name, "iterations": ITERATIONS, "metrics": summary})
     require({(CLASS, name) for name in observed} == junit, "JSON/JUnit case disagreement")
     return {
