@@ -1,5 +1,7 @@
 // AndroidOnly: WP-502 Production Rooms route/content with controlled service ports; not radio, Room database or golden evidence.
 // ReferenceInput: MC1/Views/RemoteNodes/Rooms/RoomConversationView.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/Chats/Room/RoomAuthenticationSheet.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1Tests/Views/Chats/Components/RoomMessageBubbleA11yLabelTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.uitests
@@ -278,6 +280,96 @@ class RoomsComposeTest {
         assertEquals(List(2) { Triple(contact, "test-only-password", false) }, fixture.joins)
         assertTrue(fixture.posts.isEmpty())
         assertTrue(fixture.retries.isEmpty())
+    }
+
+    @Test fun liveOutOfOrderArrivalAppearsBetweenExistingRowsBeforeTheHeldReload() {
+        val first = liveMessage(1, 100u)
+        val second = liveMessage(2, 200u)
+        val third = liveMessage(3, 300u)
+        val arrival = liveMessage(4, 150u)
+        assertLiveArrival(listOf(first, second, third), arrival, listOf(first, arrival, second, third))
+    }
+
+    @Test fun liveOlderArrivalAppearsBeforeTheExistingRowsBeforeTheHeldReload() {
+        val first = liveMessage(1, 200u)
+        val second = liveMessage(2, 300u)
+        val arrival = liveMessage(3, 100u)
+        assertLiveArrival(listOf(first, second), arrival, listOf(arrival, first, second))
+    }
+
+    @Test fun liveNewestArrivalAppearsAfterTheExistingRowsBeforeTheHeldReload() {
+        val first = liveMessage(1, 100u)
+        val second = liveMessage(2, 200u)
+        val arrival = liveMessage(3, 300u)
+        assertLiveArrival(listOf(first, second), arrival, listOf(first, second, arrival))
+    }
+
+    @Test fun liveEqualTimestampArrivalFollowsTheExistingIdentityBeforeTheHeldReload() {
+        val first = liveMessage(1, 100u)
+        val existing = liveMessage(2, 200u, "first")
+        val arrival = liveMessage(3, 200u, "second")
+        assertLiveArrival(listOf(first, existing), arrival, listOf(first, existing, arrival))
+    }
+
+    @Test fun liveDuplicateIdentityCannotReorderOrReplaceTheExistingRowBeforeTheHeldReload() {
+        val first = liveMessage(1, 100u)
+        val existing = liveMessage(2, 200u)
+        assertLiveArrival(listOf(first, existing), existing.copy(timestamp = 150u), listOf(first, existing))
+    }
+
+    private fun liveMessage(id: Long, timestamp: UInt, text: String = "msg $timestamp") = message(false).copy(
+        id = UUID(0, id), authorKeyPrefix = Bytes.of(0xab, 0xcd, 0xef, 0x01), authorName = "Author",
+        text = text, timestamp = timestamp, createdAt = Instant.ofEpochSecond(id),
+    )
+
+    private fun assertLiveArrival(
+        initial: List<RoomMessageDTO>,
+        arrival: RoomMessageDTO,
+        expected: List<RoomMessageDTO>,
+    ) {
+        val fixture = Fixture()
+        fixture.stored = initial
+        mountRoute(fixture)
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val load = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+        assertEquals(load, fixture.loads)
+        val held = CompletableDeferred<Unit>()
+        compose.runOnIdle {
+            fixture.fetchGate = held
+            fixture.stored = expected
+            val event = RoomConversationEvent.MessageReceived(session.id, arrival)
+            assertTrue(fixture.events.tryEmit(event))
+            assertTrue(fixture.events.tryEmit(event))
+        }
+        compose.waitUntil { fixture.holder.state.value.messages == expected }
+        fun assertVisibleRows() {
+            assertEquals(expected, fixture.holder.state.value.messages)
+            val tops = expected.map { message ->
+                compose.onNodeWithContentDescription("Author: ${message.text}").assertIsDisplayed()
+                    .fetchSemanticsNode().boundsInRoot.top
+            }
+            assertTrue("Actual mounted room rows must remain chronological", tops.zipWithNext().all { (a, b) -> a < b })
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
+            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
+        }
+        assertVisibleRows()
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
+        compose.waitUntil { fixture.loads.count { it == "fetch" } == 2 }
+        assertTrue(fixture.holder.state.value.isLoading)
+        assertEquals(load + "fetch", fixture.loads)
+        assertVisibleRows()
+        compose.runOnIdle { assertTrue(held.complete(Unit)) }
+        compose.waitUntil { !fixture.holder.state.value.isLoading && fixture.loads.count { it == "changed" } == 2 }
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
+        assertEquals(load + load, fixture.loads)
+        assertVisibleRows()
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        assertTrue(fixture.posts.isEmpty())
+        assertTrue(fixture.joins.isEmpty())
+        assertTrue(fixture.retries.isEmpty())
+        assertTrue(fixture.reported.isEmpty())
     }
 
     @Test fun roomFramesCoverEffectiveSchemesWindowsFontsLocalesAndPermissionSurfaces() {

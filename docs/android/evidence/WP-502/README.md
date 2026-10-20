@@ -34,7 +34,7 @@ the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
 Current manifest/policy/controller bytes are unchanged from main9c430cb0.
-The existing typed reservation was evolved to revision 26, not replaced.
+The existing typed reservation remains revision 25, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -96,7 +96,7 @@ PR251 actually merged **2026-10-20T20:44:12Z** as
 **ec0a41e80ac8637baad524b777f774c10cf99f5b**, exact54aa head.
 Fresh `origin/main` inspection confirms only the canonical renderer/WP305
 note changed from680; manifest/policy/frozen pin unchanged. Same WP502
-attempt **revision26**, existing `merge-integration/reconcile-current-base`,
+attempt **revision25**, existing `merge-integration/reconcile-current-base`,
 admits those exact two paths. Ordinary merge retains the seven-case source,
 all prior witnesses and producer ancestry. Android bytes remain identical to
 executed16a; this is no new test/native/hosted verdict.
@@ -114,6 +114,10 @@ times out **UNVERIFIED**, no completed cohort credited. Its actual automatic
 binds077/base680, not the reconciled successor. Preserve that run/binding;
 the current-main successor needs its own automatic exact-head result,
 not a manual repeat of the existing local seven or producer five/56.
+Receipt correction: the reconcile request was idempotent; its actual returned
+JSON remains revision25, as does the subsequent already-owned Rooms modify
+admission. Earlier ea4 prose inferred26 incorrectly. No ledger reset,
+reservation replacement or extra authorization occurred.
 
 ### Canonical producer repair and seven-case negative-to-positive execution
 
