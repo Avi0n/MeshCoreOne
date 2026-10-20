@@ -29,7 +29,7 @@ the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
 Current policy/controller bytes are unchanged authoritative main9c430cb0 bytes.
-The existing typed reservation was evolved to revision 20, not replaced.
+The existing typed reservation was evolved to revision 21, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -57,7 +57,8 @@ coordinator integration.
 | --- | --- |
 | `ConversationScreenCases` | Production `ChatTimeline`/`ComposerBar`, fixed synthetic identities/time, original CJK/Hebrew/ZWJ text; focus/draft retention, accessible retry, offline send rejection, exact UTF-8 boundary, distinct loading/empty/error recovery and 48dp send target. Mounted Enter/NumPadEnter with/without Shift exercises 24 connection/overflow/blank/cooldown/sending/enabled families at controlled 200% font. Consumer assertions informed by frozen `ChatInputBar.swift` and `ChatConversationMessagesContent.swift`; not a claim to port every Swift test. |
 | `ConnectedConversationComposeTest` | Actual AppContainer/Room/service graph and existing protocol-speaking firmware harness. Reference `RESP_CODE_ERR=1`, direct `ErrorCode.notFound=2` and channel terminal `ErrorCode.illegalArgument=6` reject real sends. Separate mounted direct/channel cases click Retry and require the same saved message, original text/FAILED persistence, visible failure/recovery after both attempts, one terminal event per attempt, durable envelope metadata, queue cleanup, consumed draft and one connection owner. Channel notFound is intentionally retryable and is not substituted for the terminal reference error. New assertions require their own positive execution before credit. |
-| `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933; original four-case native-adaptation review remains pending. No physical-disk or notification-delivery claim. |
+| `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
+| `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
@@ -82,6 +83,76 @@ height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
 
+### Bounded production onboarding WiFi flow
+
+Same reservation21 admits only owned `OnboardingWiFiComposeTest`; existing
+Rooms/adaptive/draft test bytes are preserved exactly. It mounts the actual
+`OnboardingFlow` from Welcome through Permissions/Pair into its actual modal
+sheet, not a copied test coordinator/policy. Controlled ports hold every WiFi
+outcome until explicitly released; unrelated Bluetooth/demo/region-location/
+preset/settings effects fail the test. Location/notifications/Bluetooth/LAN
+snapshots are denied, with no permission request, yet WiFi remains usable.
+This is deterministic consumer behavior, not a real socket or OS permission.
+
+Frozen `WiFiHostValidationTests.swift::classifies host` supplies all nine
+independent host/expected pairs. Actual field/button semantics exercise all
+nine, plus seven port boundaries; no port call occurs during validation.
+Invalid70000 IME submit shows the actual localized error without connecting.
+Comma replacement, accessible clear and host-Next/port-Done actions reach the
+actual coordinator; whitespace is removed before the exact port input.
+
+The held-call case asserts disabled Connect/toolbar Cancel and no duplicate
+request through actual port IME. Explicit failure displays a polite CJK/RTL
+error, retains address/port and stays on the sheet. Only a second, explicitly
+accepted attempt closes it and displays the real Region screen, without
+marking all onboarding complete. A separate benign `Cancelled` outcome
+does not advance or publish error; Cancel/reopen resets only sheet inputs and
+does not issue another connection. Coroutine cancellation and interactive
+swipe/system-Back dismissal are not established by that outcome test.
+
+Three bounded cases reuse existing `CoverageMatrix` frames: default/light
+English at360dp/200%, forced-dark Ember Chinese/RTL at834dp/200%, and
+default/dark German at360dp/100%, host height1400dp. Actual modal heading
+font density, layout direction, no vertical overflow and no ellipsis are
+asserted. Locale qualifiers configure the real modal host, not just a parent
+CompositionLocal. These are sampled native-host flows, not a new full theme
+matrix, screenshots, physical window/IME or approved goldens.
+
+At code `2b10dd966e43a46a4e4dec28c857ca8d05d139eb`, exact installed-lane
+preflight **PASS0.45s**, followed by the existing strict selector:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingWiFiComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**3 discovered/run/passed, zero failure/error/skip,26s build**, checked from
+actual named JUnit XML. Failure history is retained:145fdd62f discovers3/
+fails3 in3m29s because the real Welcome animation does not idle without the
+existing reduced-motion setup;97678e298 discovers3/fails3 in25s on modal
+visibility/focus assumptions;7a2a39877 passes1/fails2 in26s because the modal
+host is still English while test-local resources expect Chinese/German.
+cbcd787ae passes3/3 in26s after actual host locale configuration.
+The strengthened8ada39588 discovers3/fails3 in25s because the heading query
+also matches the underlying launcher label. Final2b10 selects the actual
+Heading semantics and passes actual font/direction assertions; no product,
+timing threshold, expected validation or owner policy is changed.
+`python tools\android-port\portmap.py`,
+`python tools\android-port\controller\validate.py`, `git diff --check` and
+exact preserved-test/owner-support byte comparisons all pass after these
+owned source/evidence additions.
+
+The exact prior publishedccd
+[run39465426509](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39465426509)
+actually passes all six jobs. Its authoritative
+[Linux job118776483387](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39465426509/job/118776483387)
+reports App766/766, zero failure/error/skip, including both mounted draft
+method identities. That is ccd/base9c evidence, not a successor pass or a
+separate combined47/50-case execution. No successful previous cohort/device
+is manually replayed and no second CI-result bundle is retained.
+
 ### Mounted single-initialization draft followthrough
 
 The same reservation20 admits the owned `DraftInitializationComposeTest`.
@@ -100,10 +171,16 @@ The actual remembered production field retains a value different from its
 saved DraftStore through real service terminal-event/store-refetch and
 adaptive recomposition. Controlled protocol firmware is explicit; the
 App/Room/queue are real. Draft defaults are an injected memory dictionary,
-not physical disk. Primary WP-307's source-equivalence review is required
-before claiming all four originals accepted; notification priority/consume-once
-integration remains a separate gap. No prior cohort/device/golden replay or
-combined execution is claimed.
+not physical disk. The primary WP-307
+[assessment6297011991](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6297011991)
+now supports these four concrete no-notification originals as a bounded
+fresh-owner/retained-owner native adaptation, with no remaining source-case
+blocker or justified foreign composer change. Parent source-only
+COMMENTED review5589003799 bindsccd, not a successor or privileged gate.
+Reconnect/arbitrary teardown/process/physical preferences, general empty-field
+external-store updates and notification priority/consume-once remain distinct
+gaps; existing WP-307 owns its pending-notification consumer repair.
+No full-WP acceptance or prior cohort/device/golden replay is claimed.
 
 ### Integration of deployed software verification
 

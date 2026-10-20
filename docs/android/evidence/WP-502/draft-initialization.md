@@ -1,8 +1,9 @@
 # Mounted draft initialization: bounded native adaptation
 
-**Implemented and executed; primary WP-307 equivalence review is pending.**
-This does not mark four original cases, notification integration, WP-308,
-WP-407/#238 or full WP-502 accepted.
+**Implemented, executed and source-reviewed for the four specific
+no-notification originals at the bounded native lifetimes below.**
+This is not a privileged parity gate, formal PR approval, notification
+integration, WP-308, WP-407/#238 or full WP-502 acceptance.
 
 WP-502 / [PR244](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244) /
 existing canonical reservation-attempt
@@ -12,7 +13,7 @@ Code and execution: `13de7b9336b9c26996efc8631c51d8190a10d992`.
 Frozen source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest/policy lineage is unchanged from the [WP evidence](README.md).
 
-## Original assertions and proposed witnesses
+## Original assertions and reviewed witnesses
 
 The four originals are the actual bodies in
 `MC1Tests/Views/Chats/ChatViewModelDraftRestoreTests.swift`, not four filename
@@ -25,8 +26,8 @@ defect was presumed or found in these executed boundaries.
 | Frozen original | Exact inputs/outcome | Existing or added native witness; acceptance limit |
 | --- | --- | --- |
 | `loadDraft restores the disk draft when the composer is empty` | Empty field, saved `"saved"`; `loadDraft` sets `"saved"`. | Reuse `ComposerStateHolderTest::drafts persist and restore per conversation` (constructor restores `"saved @al"`) and `DraftStoreTest`'s `draftToApply returns the saved draft when the field is empty`. Both new mounted methods also see `"saved"` at actual conversation entry as their lifetime control, not a new nominal empty-policy method. |
-| `loadDraft leaves an already-populated composer untouched` | Independent disk `"disk"` and field `"in-progress"`; `loadDraft` preserves field. | New `inProgressFieldSurvivesRealFailureReloadAndAdaptiveRecompositionWithIndependentSavedDraft` observes the actual production single-initialization adaptation described below. Source-equivalence review pending; it does not call a fabricated repeat-restore method. |
-| `restoreComposerDraft keeps disk draft from clobbering an already-populated composer` | Independent disk `"disk"` and directly populated field `"quick-reply"`; `restoreComposerDraft` preserves field. | New `prepopulatedQuickReplyFieldSurvivesRealFailureReloadAndAdaptiveRecompositionWithIndependentSavedDraft` uses that exact string and the same actual native lifetime. The original sets the field directly; neither it nor this witness delivers a notification. Source-equivalence review pending. |
+| `loadDraft leaves an already-populated composer untouched` | Independent disk `"disk"` and field `"in-progress"`; `loadDraft` preserves field. | New `inProgressFieldSurvivesRealFailureReloadAndAdaptiveRecompositionWithIndependentSavedDraft` observes the actual production single-initialization adaptation described below. Primary WP-307 supports the bounded retained-owner equivalent; it does not call a fabricated repeat-restore method. |
+| `restoreComposerDraft keeps disk draft from clobbering an already-populated composer` | Independent disk `"disk"` and directly populated field `"quick-reply"`; `restoreComposerDraft` preserves field. | New `prepopulatedQuickReplyFieldSurvivesRealFailureReloadAndAdaptiveRecompositionWithIndependentSavedDraft` uses that exact string and the same actual native lifetime. Primary WP-307 supports the bounded equivalent. The original sets the field directly; neither it nor this witness delivers a notification. |
 | `restoreComposerDraft applies the disk draft when the composer is empty` | Empty field, saved `"saved"`; `restoreComposerDraft` sets `"saved"`. | Reuse the same existing empty-policy/constructor witnesses and mounted entry control, without duplicating a fourth nominal test. No pending notification source is installed by the original case. |
 
 Existing owner witnesses are referenced, not re-executed or reassigned here.
@@ -122,7 +123,31 @@ fresh combined47-case execution, new screenshot capture or approved golden.
 Exact hosted results/review bind to their own candidate, not this local result;
 no duplicate CI-result bundle is committed.
 
-## Limits and review prerequisite
+Subsequently, exact published head
+`ccd1a7d63f5517fa556aadf8daf141636251ec5c`/base9c actually completes
+[hosted39465426509](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39465426509)
+**SUCCESS, all six jobs**. The authoritative
+[Linux job118776483387](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39465426509/job/118776483387)
+reports App **766 discovered/run/passed, zero failure/error/skip**, including
+both exact new mounted method identities. This is actual published-head
+execution, not just unchanged bytes or a separately manufactured47-case
+cohort. It does not certify a later successor or execute native device tests.
+
+## Bounded source assessment and remaining limits
+
+The actual primary WP-307
+[assessment6297011991](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6297011991)
+reads all four frozen originals, the published test and mapping atccd/code13de.
+It identifies **no remaining source-case blocker for these four concrete
+no-notification predicates**, supporting the reused fresh-owner empty outcomes
+and two populated retained-owner event-reload/recomposition witnesses as a
+bounded native adaptation. No composer production change is justified.
+The parent [COMMENTED source-only review5589003799](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5589003799)
+also identifies no blocking finding in the bounded delta.
+Neither is a formal PR approval, privileged gate, merge authorization or
+whole-WP verdict. WP-501 retains its own accounting; no records/tests are
+duplicated here. The earlier pending-review state was corrected at the next
+substantive software publication, not by cancelling/restarting greenccd.
 
 The harness injects the actual process `DraftStore` backed by
 `MemoryDraftDefaults`, not the physical SharedPreferences adapter. `"disk"`
@@ -133,12 +158,13 @@ These are existing-holder failure/event reload and adaptive recomposition
 boundaries plus a new-target initialization control. They do not establish
 reconnect-driven restoration, arbitrary teardown/re-entry retention, process
 recreation, notification pending-draft priority/consume-once behavior, or every
-radio/channel family. The frozen production `restoreComposerDraft` first
+radio/channel family. They also do not establish general empty-field reload
+behavior after external saved-store updates. The frozen production `restoreComposerDraft` first
 consumes a notification draft and then applies empty-only store restoration;
 that full notification integration remains separately unfinished.
 
-Primary WP-307 must review whether these observed native single-initialization
-consequences are an acceptable equivalent for the two populated originals and
-the reused empty witnesses. Until then the four-case acceptance remains open,
-not blocked on an archived WP-308 producer or presumed product bug. No foreign
-composer/timeline production or owner tests are edited.
+The source-equivalence wait for these four specific predicates is removed,
+not replaced by a wait for archived WP-308 or a presumed product bug. All
+broader lifecycle/notification claims remain separately unaccepted; the
+pending-notification consumer repair belongs to the existing WP-307 producer.
+No foreign composer/timeline production or owner tests are edited here.

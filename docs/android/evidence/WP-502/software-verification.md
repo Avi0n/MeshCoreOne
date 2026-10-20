@@ -5,7 +5,8 @@ verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
 `9c430cb0f1666faacc443794899b68c01128a87a`. The same producer/reservation owns
-the adaptive, Rooms and mounted draft regressions. Historical native observations remain untouched.
+the adaptive, Rooms, mounted draft and onboarding WiFi regressions.
+Historical native observations remain untouched.
 
 ## Existing task and source registration
 
@@ -86,8 +87,40 @@ This is a separately executed selector, not a newly combined47-case result.
 [Four-original mapping and limits](draft-initialization.md) reuses existing
 empty-policy/constructor cases. The store is the actual process DraftStore
 with injected memory defaults, not physical-file durability. Primary WP-307
-source-equivalence review remains required; a missing repeat-restore method
-alone is not parity, and no foreign composer/timeline code is changed.
+[assessment6297011991](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6297011991)
+supports the four specific no-notification predicates as a bounded native
+adaptation, removing that source-case wait, not publishing a privileged gate.
+Exact publishedccd's hosted39465426509 actually passes all six jobs; Linux
+job118776483387 reports App766/766 with both new method identities, zero
+failure/error/skip. This is not a separate combined47-case execution or a
+later successor result. Notification/reconnect/process/physical preferences
+and general empty-field external-store reload remain distinct limits.
+No foreign composer/timeline code or WP-501 accounting is changed.
+
+### com.meshcoreone.android.uitests.OnboardingWiFiComposeTest
+
+Same declared strict App task with
+`--tests com.meshcoreone.android.uitests.OnboardingWiFiComposeTest`
+requires **3** non-skipped executions. Code
+`2b10dd966e43a46a4e4dec28c857ca8d05d139eb` passes exact preflight0.45s and
+actually discovers/runs/passes3, zero failure/error/skip,26s build.
+
+| Method | Actual family |
+| --- | --- |
+| `frozenHostFamiliesAndPortGuardsReachTheRealFlowBeforeNormalizedKeyboardSubmit` | Actual Welcome/Permissions/Pair/WiFi host/coordinator; all nine frozen `classifies host` argument pairs drive real button availability, seven port boundaries, invalid70000 IME error/no port call, comma replacement/accessibility clear, address Next/port Done, normalized exact host/65535 input, held then explicitly accepted result reaches actual Region but not full completion. English/light360dp/200% font. |
+| `heldFailureRetainsLocalizedFieldsAndRetryAloneAdvancesToRegion` | Actual modal Connecting disables duplicate Connect/toolbar Cancel; second real IME creates no extra attempt. Explicit CJK/RTL failure is a polite live region, retains host/port and no Region; Retry clears error and alone reaches Region on explicit success. Chinese/forced-dark Ember834dp/200%, RTL. |
+| `benignCancelledAttemptDoesNotAdvanceAndReopenedSheetResetsOnlyItsOwnInputs` | Benign `Cancelled` result retains host/port without error or advancement; actual toolbar Cancel/reopen creates fresh empty host/default5000, no second port call; unrelated effects/completion absent. German/default dark360dp/100%. Not coroutine cancellation or system/swipe dismissal evidence. |
+
+All three deny optional permission snapshots, assert no request and no
+Bluetooth/demo/preset/location/settings effect, and assert actual modal
+heading density/direction/no ellipsis/height overflow. Real production
+`OnboardingFlow` owns all coordinators and sheet state; controlled WiFi/other
+dependency ports are not actual sockets, AppContainer transport, OS permission
+or radio evidence. Region is only the reached production destination; country
+catalog/application and full onboarding/demo/pairing remain untested here.
+No screenshot/approved golden, full Cartesian matrix or new combined50-case
+execution is claimed. The broader primary-owner source-family audit is not
+replaced by these three mounted integration methods.
 
 ### com.meshcoreone.android.uitests.ConversationComposeTest
 
@@ -215,7 +248,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs now have a bounded57-input production Rooms slice and four route/content methods. Full Rooms sync/history/actions/store/radio families and onboarding, reactions/path, nodes/discovery, full map, remote admin, tools and settings families remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, plus three actual onboarding WiFi methods with independent validation/held-failure/retry/cancel outcomes. Full Rooms sync/history/actions/store/radio, remaining onboarding/pairing/demo/region/preset, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |
