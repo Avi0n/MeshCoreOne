@@ -337,7 +337,8 @@ class RoomsComposeTest {
             val fixture = Fixture()
             fixture.stored = listOf(first, later)
             mountRoute(fixture)
-            compose.waitUntil { fixture.holder.state.value.hasLoadedOnce }
+            compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+            assertEquals(listOf(first, later), fixture.holder.state.value.rows.map { it.message })
             compose.onNode(hasSetTextAction()).performTextReplacement(body)
             compose.onNodeWithText("Jan 1, 00:01").assertIsDisplayed()
             compose.onNodeWithText("Jan 1, 00:08").assertIsDisplayed()
@@ -351,6 +352,7 @@ class RoomsComposeTest {
             compose.waitUntil { fixture.holder.state.value.messages == expected }
             fun assertReconfiguredRows() {
                 assertEquals(expected, fixture.holder.state.value.messages)
+                assertEquals(expected, fixture.holder.state.value.rows.map { it.message })
                 assertEquals(listOf(true, false, false), fixture.holder.state.value.rows.map { it.showTimestamp })
                 compose.onNodeWithText("Jan 1, 00:01").assertIsDisplayed()
                 compose.onNodeWithText("Jan 1, 00:08").assertDoesNotExist()
