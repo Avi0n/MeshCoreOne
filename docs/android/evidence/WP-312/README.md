@@ -93,3 +93,67 @@ This is static packaging evidence, not execution on a 16 KiB device.
 | `WP-312-source-test-parity` | Shared map algebra and snapshot/offline parameter families are covered by 20 nonzero JVM cases; feature-specific downstream map builders remain consumers of these WP-312 seams in their owning WPs. |
 
 PR #140 may leave draft only after its exact-head hosted checks pass.
+
+## Issue #224: compact RTL system-font200 controls
+
+Follow-up base: `d8181418614a5acaa46f4acde54b741b492ac4b0`.
+Owner remains WP-312 / `nodes-map-ui-engineer`; production changes are confined
+to `MapControls` in the map feature.
+
+The fixed Refresh/Offline Maps/List row exhausted its width before measuring
+List on actual API31 and API37. Actions now wrap using the available width,
+and every map-control chip reserves at least 48dp in both dimensions rather
+than relying on a touch region expanded outside its measured bounds. Existing
+copy, theme, filter state, map renderer and callbacks are unchanged.
+
+The regression is the unchanged WP-503 fixture at
+`8eb2d610b7a954dedfefcba6a973c497c41ce8f1` (fixture blob
+`6d596bcb37e0ad501a981f969f04eca2b2e5171b`):
+`NativeMapRuntimeAccessibilityTest#populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200`.
+Acceptance requires its actual API31/37 visibility, unclipped-font, contained
+48dp target, selection, coordinate and favorite-filter assertions. Local
+compile/lint/domain results alone do not establish that acceptance.
+WP-503 reports exact candidate `cee2b806f88ecc313137e89f777a8b1035147da7`
+integrated and executed at `4690cfa37af2ba3b3ff46db64b2d925e8e63ca13`.
+Actual API31 and API37 each discovered and passed the complete owned inventory
+23/23, with 0 failures, errors or skips. The List measured 75x48dp, fully
+visible and within the viewport: API31 `(84,127)-(159,175)` inside
+`(0,63)-(360,774)`; API37 `(84,116)-(159,164)` inside `(0,52)-(360,876)`.
+Both APIs passed selection/unselection, CJK favorite and other saved repeater
+listing, exact `37.8,-122.4` coordinate display, Done dismissal, Favorites
+filter inclusion/exclusion and clearing. This is bounded issue #224 evidence,
+not full WP-312 acceptance, physical TalkBack/device evidence, actual radio or
+offline-download acceptance. Original failures remain historical.
+
+Local environment readiness passed with the pinned JDK 21/platform37.2 tools.
+The declared launcher command
+`.\android\scaffold\invoke-gradle.ps1 -ConstrainedMemory -BuildHeap 1536m -BuildMetaspace 768m -GradleArguments ':feature:map:compileDebugKotlin',':feature:map:lintDebug',':core:maps:testDebugUnitTest'`
+passed: Kotlin compilation and map-feature lint succeeded; core-map JUnit XML
+reported 3 suites, 23 discovered/run/passed tests, 0 failures/errors/skips.
+`git diff --check` also passed. No iOS, native-device or screenshot acceptance
+is inferred from these local checks.
+
+### Current-main integration for PR #229
+
+On 2026-10-19 the existing owner branch integrated authoritative main
+`574d440b5b05ba6609f60d7ba0913c2d8bdaea0d` using a non-rewriting merge.
+The same WP-312 advisory reservation admitted the incoming paths through
+`merge-integration` operations `reconcile-current-base` and
+`merge-disjoint-semantic-edits`. There were no conflicts; WP-003's controller
+and policy changes retain their upstream authorship and are not a WP-312
+infrastructure implementation.
+
+`git diff --exit-code ebb6c8eeb470f551856f4fdd684ebdd3f716d62d -- android/core/maps android/feature/map`
+passed before committing the merge: map production bytes are unchanged from
+the previously audited repair. `python tools\android-port\controller\validate.py`
+passed with 64 work packages, 1866 tracked reference files and the frozen source
+pin retained. The canonical `<!-- android-port-wp:WP-312 -->` PR body marker
+identifies this owner; it is not acceptance or approval.
+
+The API31/37 positives above remain bound to implementation candidate
+`cee2b806f88ecc313137e89f777a8b1035147da7` and audit integration
+`4690cfa37af2ba3b3ff46db64b2d925e8e63ca13`. No new device execution,
+whole-WP acceptance or current-base gate pass is inferred from this merge.
+Exact-successor automated verification is the hosted job result/log linked
+from PR #229, not a second committed CI-result bundle. The PR remains ready
+for independent review, with no automatic main merge or issue closure.
