@@ -438,3 +438,58 @@ cohort replay. Native packaging/admission, missing-only27, physical and
 protected acceptance gates remain separate. The already merged QR Copy repair
 does not close issue237: its exact-published-repair API31+37 re-audit contract
 still requires actual admitted evidence, not the historical fd9 API31 result.
+
+### Integration after versioned software amendment PR246 merged
+
+Merged producer PR246 advances exact main to
+`9c430cb0f1666faacc443794899b68c01128a87a`. The replacement reconciled
+that main in `c3bc617b9571b8e1cecb479ec41fccce7eb8166e`, retaining the
+producer's software-command amendment, Room evidence provenance correction
+and Swift oracle phase/timeout diagnostics unchanged. All15 incoming paths
+equal exact main. No Android product, audit fixture, runner or original native
+evidence byte changes; Android tree remains
+`e5600983e1228b6194a9d6d246f4f0873c07ed43`.
+
+Supported scope evolution advances canonical revision11 to12 with the same
+merge-integration operations. Identity, historical binding, authorization
+context, branch/worktree audit context and repairs remain unchanged.
+`files/wp503-software-main-integration.json` records the actual replacement
+attribution and admitted paths; no lease release/recreation or raw ledger
+rewrite occurs.
+
+The actual merged controller's `current_revisions` and software-amendment
+`project` APIs validate the new exact catalog and its historical preimage:
+
+- Amendment: `WP-003-software-verification-v1`.
+- Current manifest:
+  `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`.
+- Current policy revision:
+  `7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6`.
+- Exact projected historical manifest:
+  `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
+
+The WP503 entry itself is unchanged. The amendment declares existing WP502
+and WP504 software commands, not full verification or native acceptance.
+Historical canonical bindings are preserved rather than rebound to the new
+manifest or policy. Frozen Swift remains
+`db14559b39d32322b06477c6ae676112f583db50`.
+
+Declared checks on the committed integration:
+
+| Exact command | Result |
+| --- | --- |
+| `python -m unittest discover -s android\accessibility-tests -p test_shared_device_runner.py -v` | 23 discovered/23 passed;0 failures/errors/skips |
+| `python tools\android-port\controller\test_runner.py --quiet` | 358 discovered/358 passed;0 failures/errors/skips |
+| `python tools\android-port\controller\verification_config.py --check` | PASS, exit0 |
+| `python tools\android-port\controller\validate.py` | PASS, exit0 |
+| `python tools\android-port\controller\workflows.py` | PASS, exit0 |
+| `python tools\android-port\portmap.py` | PASS, exit0 |
+| `git diff --check` and `git diff --cached --check` | PASS, exit0 |
+
+Prior automatic [run39444539184](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39444539184)
+passed only for6e2d151c at0183a2b; neither unchanged Android bytes nor a
+conflict-free merge transfers its verdict to this successor. Discover only
+the automatic exact-candidate run; do not dispatch a duplicate or retain a
+second CI-result bundle. Missing native admission/API37 observations, QR237
+re-audit, protected review and acceptance remain separate. No native launch,
+replay, install/signing, merge or issue closure is performed.
