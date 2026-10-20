@@ -290,7 +290,8 @@ class MeasurementsTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unsafe"):
             measurements.junit_cases(self.xml)
         path = self.directory / "malformed.json"
-        for text in ('{"benchmarks": [], "benchmarks": []}', '{"value": NaN}', '{"value": Infinity}', "{"):
+        for text in ('{"benchmarks": [], "benchmarks": []}', '{"value": NaN}', '{"value": Infinity}',
+                     '{"value": 1e999}', '{"unusedMetadata": -1e999}', "{"):
             with self.subTest(text=text):
                 path.write_text(text, encoding="utf-8")
                 with self.assertRaises(ValueError):

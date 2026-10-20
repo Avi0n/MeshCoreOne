@@ -43,7 +43,10 @@ def unique_object(pairs):
 def read_results(path):
     def invalid_constant(value):
         raise ValueError(f"Non-finite JSON constant: {value}")
-    return json.loads(read_input(path), object_pairs_hook=unique_object, parse_constant=invalid_constant)
+    return json.loads(
+        read_input(path), object_pairs_hook=unique_object, parse_constant=invalid_constant,
+        parse_float=lambda value: number(float(value), "JSON number"),
+    )
 
 
 def object_value(value, label):
