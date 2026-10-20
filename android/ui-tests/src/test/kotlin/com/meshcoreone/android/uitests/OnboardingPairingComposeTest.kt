@@ -84,14 +84,19 @@ class OnboardingPairingComposeTest {
         assertNotCompleted(fixture)
     }
 
-    private fun assertNotCompleted(fixture: Fixture) {
+    private fun assertNotCompleted(fixture: Fixture, expectedRequests: Int = 0, expectedSettings: Int = 0) {
         assertEquals(0, fixture.completed)
         assertFalse(fixture.flags.getBoolean(OnboardingState.KEY_HAS_COMPLETED))
         assertEquals(0, fixture.unrelatedCalls)
-        assertTrue(fixture.permissionRequests.isEmpty())
+        assertEquals(List(expectedRequests) { OnboardingPermissionKind.BLUETOOTH }, fixture.permissionRequests)
+        assertEquals(expectedSettings, fixture.settingsOpens)
+        val snapshot = fixture.permissions.snapshot.value
+        assertEquals(PermissionStatus.DENIED, snapshot.location)
+        assertEquals(PermissionStatus.DENIED, snapshot.notifications)
+        assertEquals(PermissionStatus.DENIED, snapshot.localNetwork)
     }
 
-    private fun assertHeld(fixture: Fixture, expectedCount: Int) {
+    private fun assertHeld(fixture: Fixture, expectedCount: Int, expectedRequests: Int = 0, expectedSettings: Int = 0) {
         button(O.deviceScanConnecting).assertIsDisplayed().assertIsNotEnabled().performClick()
         compose.runOnIdle {
             fixture.connection.value = OnboardingConnectionSnapshot(isBusy = true)
@@ -101,24 +106,26 @@ class OnboardingPairingComposeTest {
         button(O.deviceScanConnecting).assertIsNotEnabled()
         assertEquals(expectedCount, fixture.attempts.size)
         compose.onNodeWithText(text(O.regionTitle)).assertDoesNotExist()
-        assertNotCompleted(fixture)
+        assertNotCompleted(fixture, expectedRequests, expectedSettings)
     }
 
     private fun release(fixture: Fixture, outcome: OnboardingConnectOutcome) {
         compose.runOnIdle { assertTrue(fixture.attempts.last().result.complete(outcome)) }
     }
 
-    private fun assertExactlyOneRegionEntry(fixture: Fixture, expectedCount: Int) {
+    private fun assertExactlyOneRegionEntry(
+        fixture: Fixture, expectedCount: Int, expectedRequests: Int = 0, expectedSettings: Int = 0,
+    ) {
         compose.onNodeWithText(text(O.regionTitle)).assertIsDisplayed()
         pairTitle().assertDoesNotExist()
-        assertNotCompleted(fixture)
+        assertNotCompleted(fixture, expectedRequests, expectedSettings)
         // Invoke the actual flow's Back callback, not a copied navigation policy or an OS Back claim.
         compose.runOnIdle { requireNotNull(fixture.back)() }
         pairTitle().assertIsDisplayed()
         compose.onNodeWithText(text(O.regionTitle)).assertDoesNotExist()
         button(O.deviceScanAddDevice).performScrollTo().assertIsEnabled()
         assertEquals(expectedCount, fixture.attempts.size)
-        assertNotCompleted(fixture)
+        assertNotCompleted(fixture, expectedRequests, expectedSettings)
     }
 
     @Test fun heldPrimaryHasOneAttemptAndOnlyExplicitSuccessPushesOneRegionEntry() {
@@ -207,13 +214,120 @@ class OnboardingPairingComposeTest {
         assertEquals(2, fixture.attempts.size)
     }
 
+    private fun finishBluetoothRequest(fixture: Fixture, status: PermissionStatus) {
+        compose.runOnIdle {
+            fixture.platformPermissions = fixture.platformPermissions.copy(bluetooth = status)
+            requireNotNull(fixture.permissionResult)()
+        }
+    }
+
+    private fun assertBlocked(fixture: Fixture, expectedRequests: Int, expectedSettings: Int = 0) {
+        assertTrue(fixture.attempts.isEmpty())
+        button(O.deviceScanAddDevice).performScrollTo().assertIsEnabled()
+        compose.onNodeWithText(text(O.regionTitle)).assertDoesNotExist()
+        button(L.commonOk).assertDoesNotExist()
+        assertNotCompleted(fixture, expectedRequests, expectedSettings)
+    }
+
+    private fun assertWiFiRemainsAvailable(fixture: Fixture, expectedRequests: Int, expectedSettings: Int) {
+        button(O.deviceScanConnectViaWifi).performScrollTo().assertIsEnabled().performClick()
+        compose.onNode(
+            hasText(text(O.wifiConnectionTitle)) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading),
+            useUnmergedTree = true,
+        ).assertIsDisplayed()
+        button(L.commonCancel).assertIsEnabled().performClick()
+        assertBlocked(fixture, expectedRequests, expectedSettings)
+    }
+
+    @Test fun justInTimeGrantResumesOneHeldPairAndRepeatedResultCannotStartAnother() {
+        val fixture = Fixture(bluetooth = PermissionStatus.NOT_DETERMINED)
+        mount(fixture)
+        assertEquals(0, fixture.permissionRefreshes)
+        button(O.deviceScanAddDevice).performClick()
+        assertBlocked(fixture, expectedRequests = 1)
+        assertEquals(PermissionStatus.NOT_DETERMINED, fixture.permissions.snapshot.value.bluetooth)
+        compose.waitForIdle()
+        assertBlocked(fixture, expectedRequests = 1)
+
+        finishBluetoothRequest(fixture, PermissionStatus.GRANTED)
+        assertEquals(1, fixture.permissionRefreshes)
+        assertEquals(PermissionStatus.GRANTED, fixture.permissions.snapshot.value.bluetooth)
+        assertEquals(listOf(Action.PAIR), fixture.attempts.map { it.action })
+        assertHeld(fixture, 1, expectedRequests = 1)
+        finishBluetoothRequest(fixture, PermissionStatus.GRANTED)
+        assertEquals(2, fixture.permissionRefreshes)
+        assertHeld(fixture, 1, expectedRequests = 1)
+        release(fixture, OnboardingConnectOutcome.Connected)
+        compose.onNodeWithText(text(O.regionTitle)).assertIsDisplayed()
+        finishBluetoothRequest(fixture, PermissionStatus.GRANTED)
+        assertEquals(3, fixture.permissionRefreshes)
+        assertExactlyOneRegionEntry(fixture, 1, expectedRequests = 1)
+    }
+
+    @Test
+    @Config(qualifiers = "de-w834dp-h1400dp-mdpi")
+    fun deniedResultOffersSettingsAndWiFiWithoutPromptLoopAndGrantNeedsNewIntent() {
+        val fixture = Fixture(bluetooth = PermissionStatus.NOT_DETERMINED)
+        mount(fixture)
+        button(O.deviceScanAddDevice).performClick()
+        assertBlocked(fixture, expectedRequests = 1)
+        finishBluetoothRequest(fixture, PermissionStatus.DENIED)
+        assertEquals(1, fixture.permissionRefreshes)
+        assertEquals(PermissionStatus.DENIED, fixture.permissions.snapshot.value.bluetooth)
+        compose.onNodeWithText(text(O.deviceScannerBluetoothUnauthorizedTitle)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(text(O.deviceScannerBluetoothUnauthorizedMessage)).performScrollTo().assertIsDisplayed()
+        button(O.permissionsOpenSettings).performScrollTo().assertIsEnabled().performClick()
+        assertBlocked(fixture, expectedRequests = 1, expectedSettings = 1)
+        button(O.deviceScanAddDevice).performClick()
+        finishBluetoothRequest(fixture, PermissionStatus.DENIED)
+        assertEquals(2, fixture.permissionRefreshes)
+        assertBlocked(fixture, expectedRequests = 1, expectedSettings = 1)
+        assertWiFiRemainsAvailable(fixture, expectedRequests = 1, expectedSettings = 1)
+
+        // A later settings grant refreshes the snapshot, but the denied request's intent was consumed.
+        finishBluetoothRequest(fixture, PermissionStatus.GRANTED)
+        assertEquals(3, fixture.permissionRefreshes)
+        assertBlocked(fixture, expectedRequests = 1, expectedSettings = 1)
+        button(O.deviceScanAddDevice).performClick()
+        compose.onNodeWithText(text(O.deviceScannerBluetoothUnauthorizedTitle)).assertDoesNotExist()
+        assertEquals(listOf(Action.PAIR), fixture.attempts.map { it.action })
+        assertHeld(fixture, 1, expectedRequests = 1, expectedSettings = 1)
+        release(fixture, OnboardingConnectOutcome.Connected)
+        assertExactlyOneRegionEntry(fixture, 1, expectedRequests = 1, expectedSettings = 1)
+    }
+
+    @Test fun bluetoothOffOffersSettingsAndWiFiThenExplicitAddRechecksTheAdapterWithoutRequestingPermission() {
+        val fixture = Fixture(adapterEnabled = false)
+        mount(fixture)
+        button(O.deviceScanAddDevice).performClick()
+        compose.onNodeWithText(text(O.deviceScannerBluetoothOffTitle)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(text(O.deviceScannerBluetoothOffMessage)).performScrollTo().assertIsDisplayed()
+        button(O.permissionsOpenSettings).performScrollTo().assertIsEnabled().performClick()
+        assertBlocked(fixture, expectedRequests = 0, expectedSettings = 1)
+        assertWiFiRemainsAvailable(fixture, expectedRequests = 0, expectedSettings = 1)
+        compose.runOnIdle {
+            fixture.platformPermissions = fixture.platformPermissions.copy(bluetoothAdapterEnabled = true)
+        }
+        finishBluetoothRequest(fixture, PermissionStatus.GRANTED)
+        assertEquals(1, fixture.permissionRefreshes)
+        assertBlocked(fixture, expectedRequests = 0, expectedSettings = 1)
+        button(O.deviceScanAddDevice).performClick()
+        compose.onNodeWithText(text(O.deviceScannerBluetoothOffTitle)).assertDoesNotExist()
+        assertEquals(listOf(Action.PAIR), fixture.attempts.map { it.action })
+        assertHeld(fixture, 1, expectedRequests = 0, expectedSettings = 1)
+        release(fixture, OnboardingConnectOutcome.Connected)
+        assertExactlyOneRegionEntry(fixture, 1, expectedRequests = 0, expectedSettings = 1)
+    }
+
     private enum class Action { PAIR, RETRY, DEMO }
     private data class Attempt(
         val action: Action, val deviceId: UUID? = null,
         val result: CompletableDeferred<OnboardingConnectOutcome> = CompletableDeferred(),
     )
 
-    private class Fixture : OnboardingFeatureDependencies {
+    private class Fixture(
+        bluetooth: PermissionStatus = PermissionStatus.GRANTED, adapterEnabled: Boolean = true,
+    ) : OnboardingFeatureDependencies {
         val attempts = mutableListOf<Attempt>()
         val permissionRequests = mutableListOf<OnboardingPermissionKind>()
         val connection = MutableStateFlow(OnboardingConnectionSnapshot())
@@ -221,13 +335,21 @@ class OnboardingPairingComposeTest {
         var unrelatedCalls = 0
         var unlocks = 0
         var back: (() -> Unit)? = null
+        var permissionResult: (() -> Unit)? = null
+        var permissionRefreshes = 0
+        var settingsOpens = 0
+        var platformPermissions = OnboardingPermissionSnapshot(
+            location = PermissionStatus.DENIED, notifications = PermissionStatus.DENIED,
+            bluetooth = bluetooth, localNetwork = PermissionStatus.DENIED, bluetoothAdapterEnabled = adapterEnabled,
+        )
+        private val permissionSnapshot = MutableStateFlow(platformPermissions)
         override val flags = InMemoryOnboardingFlagStore()
         override val permissions = object : OnboardingPermissionPort {
-            override val snapshot = MutableStateFlow(OnboardingPermissionSnapshot(
-                location = PermissionStatus.DENIED, notifications = PermissionStatus.DENIED,
-                bluetooth = PermissionStatus.GRANTED, localNetwork = PermissionStatus.DENIED,
-            ))
-            override fun refresh() = Unit
+            override val snapshot = permissionSnapshot
+            override fun refresh() {
+                permissionRefreshes += 1
+                permissionSnapshot.value = platformPermissions
+            }
         }
         private suspend fun attempt(action: Action, id: UUID? = null): OnboardingConnectOutcome {
             val call = Attempt(action, id)
@@ -271,9 +393,11 @@ class OnboardingPairingComposeTest {
             override val canApply = MutableStateFlow(false)
             override suspend fun apply(presetId: String): OnboardingPresetOutcome = unexpected()
         }
-        override fun openAppSettings(): Unit = unexpected()
-        @Composable override fun rememberPermissionRequester(onResult: () -> Unit): (OnboardingPermissionKind) -> Unit =
-            { permissionRequests += it }
+        override fun openAppSettings() { settingsOpens += 1 }
+        @Composable override fun rememberPermissionRequester(onResult: () -> Unit): (OnboardingPermissionKind) -> Unit {
+            SideEffect { permissionResult = onResult }
+            return { permissionRequests += it }
+        }
         @Composable override fun InterceptBack(enabled: Boolean, onBack: () -> Unit) {
             SideEffect { back = if (enabled) onBack else null }
         }
