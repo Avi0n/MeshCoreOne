@@ -131,6 +131,16 @@ checks **PASS**. Same existing owned modify admission remains revision25.
 No new goldens, device observation, grouping/avatar/all12-original or
 whole-WP acceptance; exact successor hosted checks/source review remain separate.
 
+Latest source **2b478f7acd64405b305e963f7866aed9381f23fd** strengthens only
+this new timestamp method: one explicitly armed subscriber before emission
+and complete displayed-row DTO equality before/after, retaining original
+logical message IDs without internal Compose-node coupling.
+Exact preflight **PASS0.60s**; actual strict **single method1/1PASS,0 failures/
+errors/skips,31s build**, fresh XML22:12:00.252Z/suite6.075s.
+The preceding six-selector result remains bound to d76; unchanged other
+five methods/helper are not replayed, no combined7/ten-case result invented.
+Exact command is in the inventory. No production/assertion weakening.
+
 ### Mounted Rooms live events and coalesced reconciliation
 
 Code **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2**, baseec0, installed

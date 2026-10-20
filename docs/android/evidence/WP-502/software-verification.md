@@ -96,7 +96,7 @@ post-release read/failed-seen/notification/badge/change sequence. No send/join/
 retry/failure and exactly one subscriber. Four older methods/57 inputs were
 not replayed; this is not a combined9-case or current hosted/native verdict.
 
-Current code **d76a576af1960155931d12baa14a7e6e59554b28** on ec0 adds the
+First six-selector code **d76a576af1960155931d12baa14a7e6e59554b28** on ec0 adds the
 retained-row timestamp witness and corrects the shared new-message fixture.
 The earlier `message(false).copy(...)` kept the original derived
 `deduplicationKey` after changing timestamp/prefix/text. Frozen RoomMessage's
@@ -131,6 +131,23 @@ the50ms deadline and held dependency, then restores TimeZone/default and
 FORMAT/DISPLAY locales in finally. Four legacy methods/57 captures, Region7
 and native/device cohorts are not replayed. Source now has10 methods;
 all12 ordering originals/full grouping/avatar/date-format remain unaccepted.
+
+Latest **2b478f7acd64405b305e963f7866aed9381f23fd** strengthens only the
+timestamp method: explicitly wait for one armed event subscriber and assert
+the complete displayed-row DTO sequence before/after insertion, not just
+the backing messages and timestamp flags. Exact source preflight **PASS0.60s**;
+the smallest changed-method selector below **1 discovered/run/PASS,0 failures/
+errors/skips,31s build**, actual named XML22:12:00.252Z, suite6.075s.
+The other five methods/shared helper remain identical to d76; no six/legacy
+cohort replay or invented combined7 result.
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit 2b478f7acd64405b305e963f7866aed9381f23fd --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveMidInsertionReconfiguresTheRetainedLaterRowsTimestampBeforeReload
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
 
 Rooms production route/content/state-holder ownership remains WP-310; room
 accessibility source/test ownership remains WP-307. The controlled dependencies
