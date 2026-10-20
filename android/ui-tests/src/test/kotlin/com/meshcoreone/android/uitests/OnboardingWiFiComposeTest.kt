@@ -120,7 +120,10 @@ class OnboardingWiFiComposeTest {
         port().assertTextContains("5000")
         button(O.wifiConnectionConnect).assertIsNotEnabled()
         val layouts = mutableListOf<TextLayoutResult>()
-        compose.onNodeWithText(text(O.wifiConnectionTitle), useUnmergedTree = true)
+        compose.onNode(
+            hasText(text(O.wifiConnectionTitle)) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading),
+            useUnmergedTree = true,
+        )
             .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
         val title = layouts.single()
         assertEquals(frame.fontScale, title.layoutInput.density.fontScale, 0f)
