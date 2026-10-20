@@ -74,6 +74,35 @@ height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
 
+### Remaining software coverage after merged PR206
+
+Broader issue135 remains open after bounded215/217 closure. The same producer
+and reservation17 integrate authoritative main0183a2b206b9ba655d7fea5c281b8bfbfecf8847,
+preserving other owners' merged timeline-restoration, node, appearance, CLI and
+verification support. Historical source458 native observations remain intact;
+none is relabeled as a new device run.
+
+Two owned `ConnectedConversationComposeTest` methods now exercise actual
+AppContainer/Room/session/NativeNavigationShell direct and channel conversations
+after real rejected send and mounted Retry. Available-width transitions
+360/599/600/779/780/834/360 cross the native rail and list-detail boundaries at
+200% font. Assertions require focused CJK/RTL draft, actual text layout scaling,
+unchanged persisted failed message and draft, selected navigation-entry identity,
+textual FAILED/Retry semantics and one connection generation. Switching to
+Settings and back must restore the actual conversation without an extra
+enqueue, message, terminal event or wire send. This is deterministic native-host
+layout evidence, not physical resize/folding or spoken TalkBack.
+
+The existing declared `:app:testDebugUnitTest` selector for this class now
+requires4 actual JUnit executions (two incumbent terminal-send/Retry cases,
+two new adaptive cases); the existing five-selector App cohort requires41.
+New assertions are not yet credited as executed. The supported formal
+verification-config amendment and semantic command/inventory mapping are
+requested from the existing WP-003 producer via
+[issue135 comment6293815386](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135#issuecomment-6293815386).
+The stale unconfigured WP000 blocker is not a product-development hold or
+permission to invent a verification task or claim whole-WP acceptance.
+
 ### Follow-up: actual advert consumer error mapping
 
 Frozen `MC1/Intents/SendAdvertIntent.swift::mapToIntentError` preserves typed
