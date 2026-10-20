@@ -1,5 +1,6 @@
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift@db14559b39d32322b06477c6ae676112f583db50
 // WP-407 native composition binds the existing chat list/timeline/composer to the single process store and live radio graph.
 package com.meshcoreone.android.app.container
 
@@ -81,6 +82,15 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
             if (text == null) app.draftStore.clearDraft(conversationId)
             else app.draftStore.setDraft(text, conversationId)
         }
+    }
+
+    internal fun restoreNotificationDraft(target: ComposerTarget, composer: ComposerStateHolder) {
+        if (target !is ComposerTarget.Direct) return
+        val radio = target.contact.radioId
+        val notifications = container.sessions.current?.takeIf { it.token.radioId == radio }?.notificationService
+            ?: return
+        val pending = notifications.consumeDraft(EntityKey(radio, target.contact.id)) ?: return
+        composer.onDraftChanged(pending.ifEmpty { drafts.get(target.conversationId).orEmpty() })
     }
 
     val list: ChatListFeatureDependencies = listFor(null)
