@@ -655,3 +655,21 @@ remain historical. Recompute preparation on the clean committed successor.
 The missing trusted Android-device admission provider/preservation/lane scope
 remains a live capability blocker. No native action, replay or acceptance is
 performed or inferred by this source reconciliation.
+
+### WP305 localized exhaustion guidance after PR251 merged
+
+Main `ec0a41e80ac8637baad524b777f774c10cf99f5b` was reconciled into published
+`919a373acc235cf1a745008078acbf0610c127bb`. Both incoming paths (the preset
+screen and WP305 note) match actual main and canonical producer
+`54aaab70bc01725376f0af712dab0ca26c361a5b` exactly. Actual same-owner scope
+evolution advances revision16 to17 while preserving immutable canonical
+identity, authorization, bindings/history, policy/frozen pin and all original
+native evidence. The receipt is retained in
+`files/wp503-wp305-main-integration.json` in the replacement session.
+
+The declared pure audit suite passes45/45 with zero failures/errors/skips;
+all four validators and staged whitespace checks pass. Old919/run39486741165/
+App865 is historical, not an ec0 verdict. Preparation must bind the clean
+committed successor. The strict language fixture/product lineage and two
+methods per API31/37 are unchanged. No native/provider authority is created,
+and no device, lane, key, install, start or successful-cohort replay occurs.
