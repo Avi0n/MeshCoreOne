@@ -25,6 +25,8 @@ from controller.verification_config import (
     content_scope_predecessor, content_scope_revisions, project_content_scope,
 )
 from inventory_rules import TRANSLATION_PATHS, exclusion, production_owner
+from controller.model import Manifest
+from controller.software_verification import project as project_software
 
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
@@ -54,7 +56,8 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         self.assertEqual(restored, current)
         self.assertEqual(content_scope_revisions(manifest, current)["policy_revision"],
                          policy_revision(manifest, current))
-        self.assertEqual(policy_revision(manifest, review_policy_predecessor(current)),
+        historical = Manifest(project_software(manifest.data), manifest.exclusions, REPO)
+        self.assertEqual(policy_revision(historical, review_policy_predecessor(current)),
                          amendment()["current_policy_revision"])
         for mode in ("owner", "path", "operation", "invariant", "validation", "duplicate", "reordered", "unrelated"):
             changed = copy.deepcopy(current)
@@ -104,8 +107,10 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
             expected = [dep for dep in old[identity]["depends_on"] if dep != "WP-406"]
             self.assertEqual(wp["depends_on"], expected)
             self.assertEqual(wp["human_gate"], old[identity]["human_gate"])
-            for field in ("owner", "supervised", "planned_state", "write_paths", "verification"):
+            for field in ("owner", "supervised", "planned_state", "write_paths"):
                 self.assertEqual(wp[field], old[identity][field])
+            projected = next(w for w in project_software(current.data)["work_packages"] if w["id"] == identity)
+            self.assertEqual(projected["verification"], old[identity]["verification"])
         self.assertEqual({wp["id"] for wp in new.values() if wp["human_gate"]}, HUMAN_GATES)
         self.assertEqual(len(HUMAN_GATES), 7)
         self.assertFalse(any("WP-406" in e["cross_references"] for e in current.data["inventory"]))
@@ -210,7 +215,8 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         revisions = content_scope_revisions(manifest, policy)
         self.assertEqual(revisions, {"manifest_sha256": manifest.sha256,
                                     "policy_revision": policy_revision(manifest, policy)})
-        self.assertEqual(policy_revision(manifest, review_policy_predecessor(policy)),
+        historical = Manifest(project_software(manifest.data), manifest.exclusions, REPO)
+        self.assertEqual(policy_revision(historical, review_policy_predecessor(policy)),
                          amendment()["current_policy_revision"])
         self.assertEqual(content_scope_manifest_revision(manifest), manifest.sha256)
         self.assertNotEqual(revisions["manifest_sha256"], amendment()["revisions"]["final"]["previous"])
