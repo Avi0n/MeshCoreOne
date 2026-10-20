@@ -62,7 +62,7 @@ coordinator integration.
 | `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
 | `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
 | `OnboardingPairingComposeTest` | Seven mounted production Flow/coordinator methods: four primary/held-recovery/Retry/benign-cancel/demo-priority methods, plus three just-in-time Bluetooth grant/denial/adapter-off recovery methods. Actual request-result callbacks refresh controlled snapshots; one grant resumes one held pair, repeated callbacks do not duplicate it, denial consumes intent without a prompt loop, Settings/WiFi remain reachable, and later grant/adapter recovery requires explicit Add. Optional location/notifications/LAN stay denied and independent. Controlled ports, not OS chooser/permission dialog/BLE/radio/device evidence. |
-| `OnboardingRegionPresetComposeTest` | Four real mounted Flow/Region/preset methods with the production ServicesRegionCatalog: empty/cancel/same-country/country-change and subdivision-reset controls, exact manual commit and preset ID/frequency/selection; held apply/canApply gates and explicit completion; NotConnected/Failed/Retryable dialogs, Cancel then same-ID Retry; actual production apply-job cancellation without false success, then explicit NoRadioToConfigure completion; held initial null resolution versus user-retry error and exact detected region/county commit. Controlled resolver/apply outcomes, not geocoder/radio/firmware or full onboarding acceptance. |
+| `OnboardingRegionPresetComposeTest` | Four separately passing mounted Flow/Region/preset methods with actual ServicesRegionCatalog cover picker resets, exact manual/detected commit, held apply/typed errors/Retry/cancellation and explicit completion. A fifth, separately executed retry-limit method is a retained **unchanged-production negative**: third-failure dialog lacks the frozen connection remedy. Its later fallback/reset/success assertions have not executed. Controlled outcomes, not geocoder/radio/firmware or full onboarding acceptance. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
@@ -87,13 +87,69 @@ height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
 
+### Retry-exhaustion unchanged-production negative
+
+The next genuinely uncovered branch is the third retryable preset failure,
+not another four-case replay. Same reservation24 owned/modify admission is
+idempotent; one method was added to the same real mounted class:
+`threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget`.
+Actual production Flow/Region/preset ownership, US/manual/US-CA, real USA row
+and five original fixture boundaries remain unchanged. Three individually
+held same-ID outcomes use explicit `Retryable("radio temporarily busy")`,
+the real Retry button and no false completion. First/second connection-error
+dialogs expose their original message and Retry/Cancel. The third actual
+Unable To Save title appears, but its required connection-remedy text does not.
+
+At **`679c099b2af75d2c226eb675280439c2af55d665` / baseaae3**:
+installed preflight **PASS0.66s**; exact existing App task:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest.threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**1 discovered/run,0 passed,1 failure,0 errors/skips;33s build**.
+Actual named JUnit XML fails at test line274:
+`Please ensure your device is connected.` is not displayed.
+The four earlier methods were **not** rerun or combined with this negative.
+No threshold/expectation, ignored test, fake policy or production edit hides it.
+`git diff --exit-code aae3b10dd78f3d3314f51291687932f42f7d0ac9 679c099b2af75d2c226eb675280439c2af55d665 -- android/feature/onboarding android/app`
+**PASS** proves unchanged production. This is host software evidence, not
+actual radio/Settings/firmware or native device evidence.
+
+Frozen `RetryAlertModifier.swift@db14559b39d32322b06477c6ae676112f583db50`
+uses `ensureConnected` at retryCount >=3, retaining the original failure
+message only below that threshold. Current `PresetStepScreen.kt` changes the
+title/buttons at the limit but **unconditionally** renders `alert.message`.
+Existing WP-305 `retryableFailureOffersRetryThenFallsBackAfterThree` checks
+counter/fallback state, not this mounted copy. WP-305 deviations preserve
+three attempts/fallback and authorize no omission of the first remedy.
+The bounded production prerequisite is **WP-305 modify
+`android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt`**,
+retry-alert text branch; historical producer is PR72/issue113. It is routed
+to the coordinator/primary owner, not edited by WP-502.
+The test's subsequent no-Retry/Cancel, OK-to-generic-fallback, budget reset,
+retained selection and final explicit success assertions remain **unexecuted**
+after this failure, not accepted.
+
+The publication hold was honored until PR244 actually merged at
+2026-10-20T19:41:40Z as **680246f7914a5b4e5bf5167a916b620f83a79dee**.
+Main680 has exactly the e317 tree. Ordinary same-owner merge10145ab50531c1af79b2c6b9416e4bc874fa839f
+integrates that landing without changing any Android bytes relative to679.
+Relative to main only this new owned test file/three owned docs differ.
+No prior execution is rebound to main680, no CI replay/bundle is created.
+This successor is **not green/completed** until the real primary repair
+and exact resulting selector run; broader WP-502/#135 remain unfinished.
+
 ### Bounded mounted Region selection and preset recovery
 
 Same reservation24 admits one owned `OnboardingRegionPresetComposeTest`.
-This increment is **local/unpublished** while the coordinator offers remote
-e317/baseaae3 for maintainer merge. Its explicit publication hold is honored;
-the offered head/body are not replaced. This is a sequencing hold, not a
-software/tool/native execution failure or whole-WP acceptance.
+The initial four-method increment was local/unpublished while the coordinator
+offered e317/baseaae3 for maintainer merge. That explicit publication hold was
+honored until actual PR244 merge; its offered head/body were never replaced.
+The newer retry-exhaustion negative above is a separate execution/blocker.
 The remaining-family inventory previously had **no mounted Region selection
 or preset apply assertions**: earlier WiFi/pairing methods only reached Region,
 and their catalog/preset ports could not apply. Existing WP-305 coordinator
@@ -147,7 +203,8 @@ test's false assumption of a Canadian subdivision catalog. Frozen/current
 RegionalAreas both explicitly have no Canadian subdivisions. Finalda45 uses
 the source-faithful Canada-hidden/Australia-Queensland transition. These are
 harness/input corrections, not weakened assertions or product fixes.
-No foreign production change or unchanged-production defect is claimed.
+Those first four methods found no product defect; the later negative above
+must not be confused with these passing observations. No foreign edit.
 Portmap/controller validation, `git diff --check`, exact five earlier owned
 test/screenshot and inherited-main owner-byte comparisons all **PASS**.
 
