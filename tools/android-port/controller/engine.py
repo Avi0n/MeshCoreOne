@@ -404,6 +404,8 @@ class Controller:
         self.ledger.complete(wp_id, record["attempt"], proof, authoritative=True)
         self.ledger.recover_merge({
             "work_package": wp_id, "pr_number": proof["pr_number"], "action": "merge",
+            "attempt": record["attempt"], "reservation_revision": record["revision"],
+            "binding": record["binding"],
             "expected_head_sha": proof["binding"]["head_sha"], "base_sha": proof["binding"]["base_sha"],
             "ci_run_ids": proof["ci_run_ids"], "approval_id": proof["approval_id"],
             "policy_revision": proof["binding"]["policy_revision"],

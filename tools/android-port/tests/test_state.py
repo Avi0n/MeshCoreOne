@@ -748,6 +748,41 @@ class StateTests(unittest.TestCase):
         with self.ledger.transaction() as connection:
             self.assertEqual(connection.execute("SELECT COUNT(*) FROM operations").fetchone()[0], 0)
 
+    def test_real_completion_recovers_receipt_bound_merge_lane_and_allows_next_wp(self):
+        identity = self.reviewed()
+        merged = bundle(self.manifest, self.policy, "WP-101")
+        self.controller.authority = FakeAuthority({
+            "WP-101": replace(merged, pr={**merged.pr, "merged": False, "merge_commit_sha": None}),
+        })
+        record = self.ledger.get("WP-101")
+        payload = {
+            "work_package": "WP-101", "pr_number": identity.pr_number,
+            **self.controller.decide_merge("WP-101"),
+            "attempt": record["attempt"], "reservation_revision": record["revision"],
+            "binding": record["binding"], "policy_revision": record["binding"]["policy_revision"],
+        }
+        self.assertTrue(self.ledger.begin_merge(payload)[1])
+        self.ledger.transition("WP-101", record["attempt"], "merge_wait")
+        self.controller.authority.bundles["WP-101"] = merged
+        self.backend.observation = Observation(identity, "completed", False, True)
+        proof = self.controller.record_completion("WP-101")
+        self.assertEqual(proof["merge_commit_sha"], MERGE)
+        with self.ledger.transaction() as connection:
+            operation = connection.execute(
+                "SELECT state,identity FROM operations WHERE key='merge-lane'",
+            ).fetchone()
+        self.assertEqual(operation["state"], "confirmed")
+        self.assertEqual(json.loads(operation["identity"]), {"merged": True, "sha": MERGE})
+        self.assertEqual(self.controller.record_completion("WP-101"), proof)
+        receipt, acquired = self.ledger.begin_merge(payload)
+        self.assertFalse(acquired)
+        self.assertEqual(receipt, {"merged": True, "sha": MERGE})
+        self.claim("WP-102", attempt="attempt-2")
+        self.ledger.transition("WP-102", "attempt-2", "dispatching")
+        self.ledger.transition("WP-102", "attempt-2", "running", Identity(pr_number=124))
+        self.ledger.transition("WP-102", "attempt-2", "review_wait")
+        self.assertTrue(self.ledger.begin_merge(self.merge_payload("WP-102"))[1])
+
     def test_confirmed_merge_replay_cannot_restore_retired_attempt_authority(self):
         self.prepare_successor()
         payload = self.merge_payload()
