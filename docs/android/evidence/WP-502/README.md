@@ -11,7 +11,8 @@ that the installed Linux implementation lane is unavailable.
 Repository: `cbattlegear/MeshCoreOne-Android`; issue [#135](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135);
 [PR #206](https://github.com/cbattlegear/MeshCoreOne-Android/pull/206) is merged;
 remaining software work continues in
-[PR #244](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244).
+[PR #249](https://github.com/cbattlegear/MeshCoreOne-Android/pull/249)
+after actual PR244 merge.
 Owner: `test-parity-engineer`, canonical project/reservation session
 `3bc8c1b8-20ec-4647-88ae-db3775268489`; runtime alias
 `fb112832-0a71-4f6d-abc0-f07f80eaeb8b`.
@@ -23,7 +24,8 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
+Current integrated base: `680246f7914a5b4e5bf5167a916b620f83a79dee`;
+earlier consolidated base `aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
 Earlier software-command integration base:
 `9c430cb0f1666faacc443794899b68c01128a87a`.
 At the prior integrated base `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`,
@@ -31,7 +33,7 @@ the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
 Current manifest/policy/controller bytes are unchanged from main9c430cb0.
-The existing typed reservation was evolved to revision 24, not replaced.
+The existing typed reservation was evolved to revision 25, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -62,7 +64,7 @@ coordinator integration.
 | `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
 | `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
 | `OnboardingPairingComposeTest` | Seven mounted production Flow/coordinator methods: four primary/held-recovery/Retry/benign-cancel/demo-priority methods, plus three just-in-time Bluetooth grant/denial/adapter-off recovery methods. Actual request-result callbacks refresh controlled snapshots; one grant resumes one held pair, repeated callbacks do not duplicate it, denial consumes intent without a prompt loop, Settings/WiFi remain reachable, and later grant/adapter recovery requires explicit Add. Optional location/notifications/LAN stay denied and independent. Controlled ports, not OS chooser/permission dialog/BLE/radio/device evidence. |
-| `OnboardingRegionPresetComposeTest` | Four separately passing methods cover picker resets, commits, held apply/typed errors/Retry/cancellation/completion. Fifth retains the **unchanged-production negative** for missing max-retry remedy. Sixth independently passes acknowledgement/fallback/reset; seventh separately passes real Back/country-change invalidation of the old preset, requiring a new explicit selection/application. Fifth's own later assertions remain unreached. No current seven-case green cohort, geocoder/radio/firmware or full onboarding claim. |
+| `OnboardingRegionPresetComposeTest` | Seven actual mounted methods pass together at16a060a03 after the real canonical WP305 repair: picker resets/commits, held apply/typed errors/Retry/cancellation/completion, retained negative-to-positive max-remedy/fallback/reset assertions, independent acknowledgement/reset and Back/country-change invalidation. All seven named XML identities pass. Historical679/598 failures remain recorded, not weakened/relabelled. Controlled ports, not geocoder/radio/firmware/full onboarding acceptance. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
@@ -86,6 +88,65 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Canonical producer repair and seven-case negative-to-positive execution
+
+User-directed primary routing replaces the earlier proposed support-policy
+route; no policy expansion was made. Actual ledger read verifies leased
+**WP-305 attempt6e503330-9c0f-426b-86c3-fa52f404dcab/revision1**. Its published
+1ec9ca8fa1a040346ef4ad871918e7c588dd4d13 was received first. Coordinator then
+designated [PR251](https://github.com/cbattlegear/MeshCoreOne-Android/pull/251) /
+**54aaab70bc01725376f0af712dab0ca26c361a5b** sole canonical repair; the same
+existing producer confirmed the transfer/no competing PR. Both have parent
+main680 and the same message selection, differing in formatting/provenance
+wording only.
+
+Same WP-502 attempt evolves24->**25** through the existing
+`merge-integration/merge-disjoint-semantic-edits` rule for the exact producer
+`PresetStepScreen.kt` and WP305 deviation note. No new reservation, rule,
+policy, source pin or producer implementation. Merge1d909 receives1ec9;
+merge **16a060a037860e524c062f3dfe49bfe52f414b77** receives requested54aa,
+retaining both ancestries and primary documentation. The single textual UI
+conflict is identical conditional semantics in one-line versus multiline
+format; resolved to **exact54aa UI bytes**, not a newly authored fix.
+Tests/threshold/actions/controller/manifest/policy remain unchanged.
+
+The earlier1d909 preflight was **queued/unexecuted**, with no targeted-test
+log or discovery. Only this session's own waiter was stopped to select54aa;
+no other holder/lock was modified and no old negative replayed.
+After the real shared lane became available, exact committed source16a060a03,
+base680, installed preflight **PASS0.76s** and existing strict task:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**7 discovered/run/PASS,0 failures/errors/skips,46s build**. Actual XML
+contains all seven method identities in the inventory as PASS, including
+`threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget`.
+The unchanged frozen remedy/no-raw-message predicate now passes, and its
+previously unreachable no-Retry/Cancel/OK-to-fallback/reset/retained-selection/
+same-ID explicit-success assertions actually execute/pass.
+This is **one seven-case cohort including the negative-to-positive method**,
+not separate manufactured1+7 executions or acceptance of whole original
+families. Other original Region cases and both independent followthroughs
+pass in this same actual cohort.
+
+`git diff --exit-code 54aaab70bc01725376f0af712dab0ca26c361a5b 16a060a037860e524c062f3dfe49bfe52f414b77 -- android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt`
+and exact owned test/screenshot comparison to2655 both **PASS**.
+[Producer result handoff](https://github.com/cbattlegear/MeshCoreOne-Android/issues/250#issuecomment-6300737908)
+records the exact command/source/counts. This is scoped local software proof,
+not approval/merge, current hosted success, native/device/radio or whole-WP
+acceptance. The canonical producer remains the owner of the fix.
+Historical [598 hosted39487023988/Linux118850747810](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39487023988/job/118850747810)
+actually fails: available App JUnit790 discovered/789 passed/1 failure/0 errors/
+skips, solely the same missing-remedy method. Controller/classification/Swift
+codec pass; mandatory SwiftData is **SKIPPED**, final android-ci fails.
+No unexecuted oracle test-failure claim, rerun or CI-result bundle.
+Those results are not rebound to16a; no new screenshot/golden/device run.
 
 ### Back navigation invalidates the old visible preset
 
@@ -116,9 +177,10 @@ primary `staleSelectionIsIgnoredAndApplyingBlocksReentry` is prior art. This
 asserts the mounted invalidated-selection controls, not the entire arbitrary
 invalid-ID/private coordinator parameter family. No preset identity reset or
 coordinator teardown is inferred from the correct visible state.
-Earlier primary/known-negative assertions stay intact; production remains
-unchanged. This additional local witness is preserved for coalesced admitted
-repair publication; remote draft249 remains598. No seven-case green is claimed.
+Earlier primary/known-negative assertions stay intact; production at that
+execution remained unchanged. This witness was retained locally until the
+canonical repair; that individual run was not a seven-case result. The later
+actual full seven-case execution is recorded above.
 
 ### Independent max-retry acknowledgement and budget reset
 
@@ -133,10 +195,9 @@ Connection Error/original message with Retry/Cancel again, not the exhausted
 title, proving acknowledgement reset the actual remembered counter. Cancel
 does not complete; explicit apply5/Applied alone writes the flag/calls completion
 once. Exactly five `us-ca` calls and one original manual commit.
-This additional witness is retained locally for coalescing with the eventual
-admitted producer repair; published draft249/598 still contains the original
-five-method source. No new head/CI run is needed merely to repeat the known
-failure while trusted producer/support admission is unresolved.
+This additional witness was retained locally until coalescing with the real
+canonical repair; original published249/598 contained five methods. No new
+head/CI run was made merely to repeat the known failure during routing.
 
 Installed preflight **PASS0.51s**. Existing strict App task with:
 
@@ -200,12 +261,15 @@ to the coordinator/primary owner, not edited by WP-502. Deduplicated template
 bug [#250](https://github.com/cbattlegear/MeshCoreOne-Android/issues/250)
 tracks this exact copy defect/negative, not whole-WP closure. Producer/transfer
 admission remains required; an old closed issue is not an active-owner receipt.
-Coordinator reports actual WP-303 admission rejects this WP-305 feature-UI
-modify path, no matching active producer reservation exists, and original
-WP-305 is absent from app inventory. Existing WP-003 is preparing a narrowly
-tested support-rule amendment for maintainer review. A candidate policy does
-not activate that access; only a trusted merged rule/current producer and
-actual successful admission can unblock the foreign production action.
+Earlier actual WP-303 admission rejected this foreign feature-UI modify path.
+The later **user-directed routing correction** assigns existing onboarding
+worker6e503330-9c0f-426b-86c3-fa52f404dcab the bounded **primary WP-305**
+repair through normal WP-owned admission/real initial reservation. WP-003
+support-policy work is on hold; no rule expansion/new worker is requested.
+Assignment alone is not successful admission or an already-published fix.
+WP-502 retains the negative and awaits actual producer publication before
+integration and the smallest affected method/class for negative-to-positive
+evidence; it does not make the foreign edit itself.
 The test's subsequent no-Retry/Cancel, OK-to-generic-fallback, budget reset,
 retained selection and final explicit success assertions remain **unexecuted**
 after this failure, not accepted.
@@ -216,8 +280,9 @@ Main680 has exactly the e317 tree. Ordinary same-owner merge10145ab50531c1af79b2
 integrates that landing without changing any Android bytes relative to679.
 Relative to main only this new owned test file/three owned docs differ.
 No prior execution is rebound to main680, no CI replay/bundle is created.
-This successor is **not green/completed** until the real primary repair
-and exact resulting selector run; broader WP-502/#135 remain unfinished.
+At598 this candidate was **not green/completed** pending the real primary
+repair/result. The later16a seven-case proof above resolves this bounded
+software regression only; broader WP-502/#135 remain unfinished.
 
 ### Bounded mounted Region selection and preset recovery
 
