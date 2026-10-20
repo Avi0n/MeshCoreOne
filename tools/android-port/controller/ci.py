@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import unittest
+from collections import deque
 from xml.etree.ElementTree import ParseError as ETError
 from dataclasses import asdict
 from pathlib import Path
@@ -102,6 +103,36 @@ def execution_identity():
         "run_id": positive_integer(int(os.environ["GITHUB_RUN_ID"]), "Workflow run ID"),
         "run_attempt": positive_integer(int(os.environ["GITHUB_RUN_ATTEMPT"]), "Workflow run attempt"),
     }
+def print_failed_command_log(log: Path):
+    failure = re.compile(r"\S.*\s>\s.+\sFAILED\s*$|\b\d+ tests? completed,\s*\d+ failed\b")
+    preceding = deque(maxlen=2)
+    following, tail = 0, ""
+    with log.open(encoding="utf-8", errors="replace") as stream:
+        while line := stream.readline(65537):
+            tail = (tail + line)[-12000:]
+            if len(line) > 65536:
+                print("BLOCKED: overlong failed-command diagnostic line; identity extraction is incomplete", file=sys.stderr)
+                while not line.endswith("\n"):
+                    line = stream.readline(65537)
+                    if not line:
+                        break
+                    tail = (tail + line)[-12000:]
+                preceding.clear()
+                following = 0
+                continue
+            if failure.search(line):
+                if not following:
+                    for context in preceding:
+                        print(context[:2000].rstrip("\r\n"), file=sys.stderr)
+                print(line.rstrip("\r\n"), file=sys.stderr)
+                following = 2
+            elif following:
+                print(line[:2000].rstrip("\r\n"), file=sys.stderr)
+                following -= 1
+            preceding.append(line)
+    print(tail, file=sys.stderr)
+
+
 def execute(command: list[str], environment: dict | None, log: Path, *, timeout=1800, failure_reports=None):
     log.parent.mkdir(parents=True, exist_ok=True)
     print("Executing " + " ".join(str(item) for item in command[:5]), flush=True)
@@ -123,8 +154,7 @@ def execute(command: list[str], environment: dict | None, log: Path, *, timeout=
                     print("BLOCKED: failed-command JUnit evidence: " + str(error), file=sys.stderr)
             print(json.dumps({"failed_command_report_totals": totals,
                               "evidence_complete": not problems, "problems": problems}), file=sys.stderr)
-        tail = log.read_text(encoding="utf-8", errors="replace")[-12000:]
-        print(tail, file=sys.stderr)
+        print_failed_command_log(log)
         raise PortError(f"Declared command failed with exit {result.returncode}; log: {log.name}")
 
 

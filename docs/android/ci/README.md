@@ -417,7 +417,7 @@ be existing trusted scoped tasks. Hosted adaptations do not imply physical
 TalkBack/radio/OEM/background/upgrade testing.
 
 Each `native` observation supplies `{revision, transcript, sha256, api, methods,
-bindings, fixture, out_of_scope_failures}`. The transcript is fetched at its
+bindings, fixture, out_of_scope_failures, execution}`. The transcript is fetched at its
 immutable repository revision and checked against its actual bytes; `api` is
 31 or 37; every selected `Class#method` must really pass. `bindings` explicitly
 maps current production paths to unchanged blobs at that observed revision.
@@ -427,6 +427,29 @@ method-ID-to-explanation object, with actual statuses retained in the transcript
 be an affected method. This is **retained-source-continuity**, not standalone
 execution of the latest head. For example an unrelated API37 integration
 failure remains a failure; it never becomes a passing whole-suite claim.
+
+Native transcripts must have complete ordered starts/outcomes with consistent
+`current`/`numtests` and exactly one successful terminal runner record. Orphan
+outcomes, missing starts, duplicate terminals, short messages/crashes and
+post-terminal instrumentation are rejected.
+The actual `INSTRUMENTATION_RESULT: stream=` completion must
+include one `Time:` line and exactly one consistent JUnit `OK (N tests)` or
+`FAILURES!!!` / `Tests run: N, Failures: F` summary. Lifecycle outcomes and the
+completion summary must agree; missing/contradictory completion cannot be
+accepted. Legitimate unrelated failures remain recorded, not forced to PASS.
+Scope-supplied API labels alone
+are not runtime evidence. `execution` currently supports the actual retained
+`wp503-device-repairs-v1` family with `{format, integration, inputs, metrics}`;
+each file reference is `{path, sha256}` at the observation revision. It reads
+the existing `device-repairs-integration.json`,
+`device-repairs-inputs.json`, `device-repairs-full-api<api>.txt` and matching
+metrics rather than inventing a new execution manifest. These bind the real
+WP503 integration head, both actual APK identities, runtime SDK profile,
+complete transcript outcome accounting and executed source/fixture bytes.
+Selected native methods must exist in the actual fixture at the execution head.
+Other historical capture formats require a reviewed parser for their actual
+records; no coordinator-supplied new schema can silently substitute for missing
+execution provenance or imply a device replay occurred.
 
 Using the existing authenticated read credential, stage without publishing:
 
@@ -502,6 +525,11 @@ actual totals before the bounded Gradle tail. Missing/malformed/zero reports
 are explicit incomplete evidence, never a PASS. This writes no second CI-result
 bundle or artifact. Lost historical f75 identities remain lost; independently
 complete evidence for a new candidate is not invalidated forever by that gap.
+The failure-log reader also streams every actual Gradle `Class > test[SDK] FAILED`
+identity and test-count summary, with two bounded context lines on either side,
+before the rolling12000-character tail. It never loads the complete log into
+memory. Overlong physical diagnostic lines explicitly mark identity extraction
+incomplete; the original command still fails with its real exit code.
 
 ### Reference-oracle hosted capacity
 

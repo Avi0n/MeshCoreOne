@@ -209,7 +209,7 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         raise PortError("Malformed retained native evidence references")
     for item in scope["native"]:
         fields(item, {"revision", "transcript", "sha256", "api", "methods", "bindings",
-                      "fixture", "out_of_scope_failures"}, label="retained native observation")
+                      "fixture", "out_of_scope_failures", "execution"}, label="retained native observation")
         if (
             not isinstance(item["revision"], str) or SHA.fullmatch(item["revision"]) is None
             or not isinstance(item["sha256"], str) or re.fullmatch(r"[0-9a-f]{64}", item["sha256"]) is None
@@ -218,6 +218,16 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         ):
             raise PortError("Native evidence requires exact revision and byte identity")
         git_path(item["transcript"])
+        fields(item["fixture"], {"path", "blob_sha"}, label="native fixture")
+        git_path(item["fixture"]["path"])
+        if not isinstance(item["fixture"]["blob_sha"], str) or SHA.fullmatch(item["fixture"]["blob_sha"]) is None:
+            raise PortError("Native fixture requires immutable Git identity")
+        if not isinstance(item["bindings"], dict) or not item["bindings"]:
+            raise PortError("Native observations require actual source bindings")
+        for path, blob in item["bindings"].items():
+            git_path(path)
+            if not isinstance(blob, str) or SHA.fullmatch(blob) is None:
+                raise PortError("Malformed native production source identity")
     return admitted, cases, modules
 
 
@@ -417,35 +427,158 @@ def retained_file(native, revision, path, expected_hash):
 
 
 def instrumentation_results(text):
-    result, current = {}, {}
+    result, current, active = {}, {}, None
+    expected, terminal = None, False
+    summary = None
     for line in text.splitlines():
+        if terminal and line.strip():
+            raise PortError("Unexpected output after the terminal instrumentation result")
+        if re.search(r"shortMsg=|INSTRUMENTATION_FAILED|INSTRUMENTATION_ABORTED|Process crashed|FATAL EXCEPTION", line):
+            raise PortError("Retained instrumentation contains a runner crash/failure")
+        if line.startswith("INSTRUMENTATION_") and terminal:
+            raise PortError("Instrumentation emitted status after its terminal result")
+        if line.startswith("INSTRUMENTATION_RESULT: stream="):
+            if summary is not None or active is not None or current or len(result) != expected:
+                raise PortError("Instrumentation completion stream is duplicate or precedes complete outcomes")
+            summary = [line.partition("stream=")[2]]
+            continue
+        if summary is not None and not line.startswith("INSTRUMENTATION_CODE:"):
+            if line.startswith("INSTRUMENTATION_"):
+                raise PortError("Instrumentation status/result follows its completion stream")
+            summary.append(line)
+            continue
         if line.startswith("INSTRUMENTATION_STATUS: "):
             key, separator, value = line[len("INSTRUMENTATION_STATUS: "):].partition("=")
-            if separator and key in ("class", "test"):
+            if separator and key in ("class", "test", "current", "numtests"):
+                if key in current:
+                    raise PortError("Duplicate instrumentation status field")
                 current[key] = value
         elif line.startswith("INSTRUMENTATION_STATUS_CODE: "):
             code = line.partition(": ")[2]
+            if set(current) != {"class", "test", "current", "numtests"} or not all(current.values()):
+                raise PortError("Incomplete instrumentation lifecycle/status fields")
+            if not current["numtests"].isdecimal() or not current["current"].isdecimal():
+                raise PortError("Malformed instrumentation runner counts")
+            count, index = int(current["numtests"]), int(current["current"])
+            if count < 1 or index != len(result) + 1 or index > count or expected not in (None, count):
+                raise PortError("Inconsistent instrumentation runner discovery/order")
+            expected = count
+            identity = current["class"] + "#" + current["test"]
             if code == "1":
+                if active is not None or identity in result:
+                    raise PortError("Duplicate/overlapping instrumentation start")
+                active = identity
                 current = {}
                 continue
-            if code not in ("0", "-1", "-2", "-3", "-4") or set(current) != {"class", "test"}:
-                raise PortError("Malformed native instrumentation status")
-            identity = current["class"] + "#" + current["test"]
-            if identity in result:
-                raise PortError("Duplicate native method outcome")
+            if code not in ("0", "-1", "-2", "-3", "-4") or active != identity:
+                raise PortError("Native outcome has no matching actual start")
             result[identity] = code
-            current = {}
-    if not result or "INSTRUMENTATION_CODE: -1" not in text:
+            current, active = {}, None
+        elif line.startswith("INSTRUMENTATION_CODE:"):
+            if line != "INSTRUMENTATION_CODE: -1" or active is not None or current or len(result) != expected:
+                raise PortError("Instrumentation terminal result is failed/incomplete")
+            terminal = True
+    if not result or not terminal or active is not None or current or len(result) != expected:
         raise PortError("Missing/zero/incomplete retained native execution")
+    if summary is None:
+        raise PortError("Missing actual instrumentation completion stream")
+    completion = "\n".join(summary)
+    times = re.findall(r"^Time: \d+(?:\.\d+)?$", completion, re.MULTILINE)
+    successes = re.findall(r"^OK \((\d+) tests?\)$", completion, re.MULTILINE)
+    failures = re.findall(r"^Tests run: (\d+),\s+Failures: (\d+)$", completion, re.MULTILINE)
+    failure_markers = re.findall(r"^FAILURES!!!$", completion, re.MULTILINE)
+    failed = sum(status in ("-1", "-2") for status in result.values())
+    executed = len(result) - sum(status == "-3" for status in result.values())
+    if len(times) != 1:
+        raise PortError("Missing/ambiguous actual instrumentation elapsed-time summary")
+    if failed:
+        if successes or len(failure_markers) != 1 or failures != [(str(executed), str(failed))]:
+            raise PortError("Actual failing runner summary contradicts native lifecycle outcomes")
+    elif failure_markers or failures or successes != [str(executed)]:
+        raise PortError("Actual successful runner summary contradicts native lifecycle outcomes")
     return result
+
+
+def retained_repairs_execution(native, item, outcomes):
+    """Read the actual legacy WP-503 repairs format, not a new asserted execution schema."""
+    reference = item["execution"]
+    fields(reference, {"format", "integration", "inputs", "metrics"}, label="retained execution references")
+    if reference["format"] != "wp503-device-repairs-v1":
+        raise PortError("Unsupported retained execution format; a reviewed actual-format parser is required")
+    root = "docs/android/evidence/WP-503/"
+    names = {"integration": "device-repairs-integration.json", "inputs": "device-repairs-inputs.json",
+             "metrics": f"device-repairs-full-api{item['api']}-metrics.txt"}
+    records = {}
+    for key, name in names.items():
+        record = reference[key]
+        fields(record, {"path", "sha256"}, label="independent execution record")
+        if record["path"] != root + name:
+            raise PortError("Execution record does not match the actual legacy capture family")
+        records[key] = retained_file(native, item["revision"], record["path"], record["sha256"])
+    if item["transcript"] != root + f"device-repairs-full-api{item['api']}.txt":
+        raise PortError("Transcript is not associated with the independent execution family")
+    integration = decode_json(records["integration"].decode("utf-8"))
+    inputs = decode_json(records["inputs"].decode("utf-8"))
+    if not isinstance(integration, dict) or not isinstance(inputs, dict):
+        raise PortError("Independent execution records must be actual JSON objects")
+    if (
+        integration.get("repository") != native.policy["repository"]
+        or integration.get("work_package") != "WP-503"
+        or integration.get("source") != native.manifest.data["reference"]["commit"]
+    ):
+        raise PortError("Independent execution repository/WP/frozen source mismatch")
+    observed = integration.get("shared_nodes_registration_integration")
+    if not isinstance(observed, dict) or inputs.get("head") != observed.get("head"):
+        raise PortError("Actual execution source and APK input manifest are not associated")
+    head = inputs["head"]
+    if not isinstance(head, str) or SHA.fullmatch(head) is None:
+        raise PortError("Independent execution has no immutable source revision")
+    apks = inputs.get("apks")
+    if not isinstance(apks, dict) or set(apks) != {"wp503-device-app.apk", "wp503-device-test.apk"}:
+        raise PortError("Independent execution lacks actual App/Test package identities")
+    for apk in apks.values():
+        fields(apk, {"size", "sha256"}, label="executed APK identity")
+        positive_integer(apk["size"], "Executed APK size")
+        if not isinstance(apk["sha256"], str) or re.fullmatch(r"[0-9a-f]{64}", apk["sha256"]) is None:
+            raise PortError("Malformed executed APK byte identity")
+    profiles = set(re.findall(r"WP503_DEVICE_PROFILE\|sdk=(\d+)\|", records["metrics"].decode("utf-8")))
+    if profiles != {str(item["api"])}:
+        raise PortError("Actual retained runtime API differs from the claimed capture API")
+    actual_counts = {"discovered": len(outcomes), "passed": sum(status == "0" for status in outcomes.values())}
+    if item["api"] == 37:
+        actual_counts.update(failed=sum(status in ("-1", "-2") for status in outcomes.values()),
+                             errors=0, skipped=sum(status in ("-3", "-4") for status in outcomes.values()))
+    api_record = observed.get(f"native_api{item['api']}")
+    if not isinstance(api_record, dict) or api_record.get("full") != actual_counts:
+        raise PortError("Actual transcript outcomes disagree with independent execution accounting")
+    for path, blob in {**item["bindings"], item["fixture"]["path"]: item["fixture"]["blob_sha"]}.items():
+        if native.get(f"/contents/{path}?ref={head}").get("sha") != blob:
+            raise PortError("Actual executed source/fixture differs from the retained/candidate bindings")
+    fixture = native.get(f"/contents/{item['fixture']['path']}?ref={head}")
+    try:
+        content = base64.b64decode("".join(fixture["content"].split()), validate=True)
+    except (KeyError, ValueError, TypeError) as error:
+        raise PortError("Actual executed fixture bytes are unavailable") from error
+    blob = hashlib.sha1(b"blob " + str(len(content)).encode("ascii") + b"\0" + content).hexdigest()
+    text = content.decode("utf-8")
+    if blob != item["fixture"]["blob_sha"]:
+        raise PortError("Executed fixture content differs from its Git identity")
+    for method in item["methods"]:
+        class_name, separator, test = method.rpartition("#")
+        if (
+            not separator or not re.search(r"\bclass\s+" + re.escape(class_name.rsplit(".", 1)[-1]) + r"\b", text)
+            or not re.search(r"@Test\s+(?:public\s+)?fun\s+" + re.escape(test) + r"\s*\(", text)
+        ):
+            raise PortError("Selected executed method is absent from the actual bound native fixture")
+    return head
 
 
 def verify_native(native, scope, candidate_tree):
     methods = {m for coverage in scope["coverage"] for m in coverage["native_methods"]}
-    covered = set()
+    covered, captures = set(), set()
     for item in scope["native"]:
         fields(item, {"revision", "transcript", "sha256", "api", "methods", "bindings",
-                      "fixture", "out_of_scope_failures"}, label="retained native observation")
+                      "fixture", "out_of_scope_failures", "execution"}, label="retained native observation")
         if type(item["api"]) is not int or item["api"] not in (31, 37):
             raise PortError("Native observation must declare supported API31/API37")
         if (
@@ -460,7 +593,15 @@ def verify_native(native, scope, candidate_tree):
         ):
             raise PortError("Native observations must retain independently owned audit provenance")
         raw = retained_file(native, item["revision"], item["transcript"], item["sha256"])
+        capture = (item["revision"], item["transcript"], item["sha256"])
+        if capture in captures:
+            raise PortError("One retained capture cannot be relabelled across APIs")
+        captures.add(capture)
         outcomes = instrumentation_results(raw.decode("utf-8"))
+        fields(item["fixture"], {"path", "blob_sha"}, label="native fixture")
+        if not isinstance(item["bindings"], dict) or not item["bindings"]:
+            raise PortError("Native observation lacks producer source continuity")
+        retained_repairs_execution(native, item, outcomes)
         failures = {method for method, status in outcomes.items() if status != "0"}
         if not isinstance(item["out_of_scope_failures"], dict) or set(item["out_of_scope_failures"]) != failures:
             raise PortError("All native failures/skips must remain explicitly accounted for")

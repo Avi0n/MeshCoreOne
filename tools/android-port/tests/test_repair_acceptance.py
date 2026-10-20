@@ -17,6 +17,7 @@ from controller.native_review import REVIEW_MARKER
 from controller.repair_acceptance import (
     SCOPE_MARKER, authenticated_scope, instrumentation_results, validate_build_log,
     validate_hosted_methods, validate_scope, verify_native, verify_repair,
+    retained_repairs_execution,
 )
 from controller.schema import digest
 import test_native_review
@@ -197,11 +198,16 @@ class RepairExecutionTests(unittest.TestCase):
                 validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, inventory)
 
     def transcript(self, outcomes):
+        failed = sum(status in ("-1", "-2") for _, status in outcomes)
+        executed = len(outcomes) - sum(status == "-3" for _, status in outcomes)
+        completion = (f"FAILURES!!!\nTests run: {executed},  Failures: {failed}"
+                      if failed else f"OK ({executed} tests)")
         return "\n".join(
             f"INSTRUMENTATION_STATUS: class=NativeTest\nINSTRUMENTATION_STATUS: test={method}\n"
-            f"INSTRUMENTATION_STATUS_CODE: {status}"
-            for method, status in outcomes
-        ) + "\nINSTRUMENTATION_CODE: -1\n"
+            f"INSTRUMENTATION_STATUS: current={index}\nINSTRUMENTATION_STATUS: numtests={len(outcomes)}\n"
+            f"INSTRUMENTATION_STATUS_CODE: {code}"
+            for index, (method, status) in enumerate(outcomes, 1) for code in ("1", status)
+        ) + f"\nINSTRUMENTATION_RESULT: stream=\n\nTime: 0.123\n\n{completion}\n\nINSTRUMENTATION_CODE: -1\n"
 
     def test_native_results_keep_unrelated_failure_but_never_accept_affected_failure_or_skip(self):
         text = self.transcript([("affected", "0"), ("unrelated", "-2")])
@@ -209,24 +215,64 @@ class RepairExecutionTests(unittest.TestCase):
         for text in ("", text + text, text.replace("INSTRUMENTATION_CODE: -1", "")):
             with self.assertRaises(PortError):
                 instrumentation_results(text)
+        valid = self.transcript([("affected", "0")])
+        for malformed in (
+            valid.replace("INSTRUMENTATION_STATUS_CODE: 1\n", "", 1),
+            valid.replace("INSTRUMENTATION_STATUS_CODE: 1\n",
+                          "INSTRUMENTATION_STATUS_CODE: 1\n" + valid.split("INSTRUMENTATION_STATUS_CODE: 1\n")[0] +
+                          "INSTRUMENTATION_STATUS_CODE: 1\n", 1),
+            valid.replace("INSTRUMENTATION_STATUS: class=NativeTest",
+                          "INSTRUMENTATION_STATUS: class=NativeTest\nINSTRUMENTATION_STATUS: class=NativeTest", 1),
+            valid.replace("INSTRUMENTATION_STATUS: test=affected", "INSTRUMENTATION_STATUS: test=wrong", 1),
+            valid.replace("numtests=1", "numtests=2"),
+            valid.replace("current=1", "current=2"),
+            valid + "INSTRUMENTATION_CODE: -1\n",
+            valid + "INSTRUMENTATION_CODE: 0\n",
+            valid + "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\n",
+            valid.replace("INSTRUMENTATION_CODE: -1", "prefix INSTRUMENTATION_CODE: -1"),
+            valid.replace("OK (1 tests)", "FAILURES!!!\nTests run: 1,  Failures: 1"),
+            valid.replace("OK (1 tests)", "OK (2 tests)"),
+            valid.replace("Time: 0.123", ""),
+            valid.replace("INSTRUMENTATION_RESULT: stream=\n\nTime: 0.123\n\nOK (1 tests)\n\n", ""),
+            valid.replace("OK (1 tests)", "OK (1 tests)\nOK (1 tests)"),
+        ):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                instrumentation_results(malformed)
+        two = self.transcript([("affected", "0"), ("other", "0")])
+        for malformed in (
+            two.replace("test=other", "test=affected"),
+            two.replace("numtests=2", "numtests=3", 1),
+            two.replace("current=2", "current=1"),
+        ):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                instrumentation_results(malformed)
+        failing = self.transcript([("affected", "0"), ("unrelated", "-2")])
+        for malformed in (
+            failing.replace("Failures: 1", "Failures: 0"),
+            failing.replace("FAILURES!!!\nTests run: 2,  Failures: 1", "OK (2 tests)"),
+        ):
+            with self.assertRaises(PortError):
+                instrumentation_results(malformed)
 
     def test_retained_native_scope_requires_both_apis_exact_source_fixture_and_all_failures(self):
         _, _, _, scope = fixture()
         scope["coverage"][0].update(native_methods=["NativeTest#affected"], hosted_methods=[])
         raw = self.transcript([("affected", "0"), ("unrelated", "-2")]).encode()
         records = [{
-            "revision": MERGE, "transcript": "docs/android/evidence/WP-503/native.txt",
+            "revision": MERGE, "transcript": f"docs/android/evidence/WP-503/device-repairs-full-api{api}.txt",
             "sha256": hashlib.sha256(raw).hexdigest(), "api": api, "methods": ["NativeTest#affected"],
             "bindings": {PATH: "5" * 40}, "fixture": {"path": TEST, "blob_sha": "4" * 40},
             "out_of_scope_failures": {"NativeTest#unrelated": "Outside the admitted repair; original failure retained."},
+            "execution": {},
         } for api in (31, 37)]
         scope["native"] = records
         class Native:
             def get(self, path):
                 return {"sha": "4" * 40 if TEST in path else "5" * 40}
-        with patch("controller.repair_acceptance.retained_file", return_value=raw):
+        with patch("controller.repair_acceptance.retained_file", return_value=raw), \
+                patch("controller.repair_acceptance.retained_repairs_execution", return_value=BASE):
             self.assertFalse(verify_native(Native(), scope, {PATH: "5" * 40})["standalone_head_execution"])
-            for kind in ("api", "source", "fixture", "hidden-failure", "excluded-affected"):
+            for kind in ("api", "source", "fixture", "hidden-failure", "excluded-affected", "duplicate-capture"):
                 changed = copy.deepcopy(scope)
                 tree = {PATH: "5" * 40}
                 if kind == "api":
@@ -237,14 +283,92 @@ class RepairExecutionTests(unittest.TestCase):
                     changed["native"][0]["fixture"]["blob_sha"] = "6" * 40
                 elif kind == "hidden-failure":
                     changed["native"][0]["out_of_scope_failures"] = {}
+                elif kind == "duplicate-capture":
+                    changed["native"][1].update(
+                        transcript=changed["native"][0]["transcript"],
+                        sha256=changed["native"][0]["sha256"],
+                    )
                 else:
                     changed["native"][0]["out_of_scope_failures"]["NativeTest#affected"] = "Must not exclude"
                 with self.subTest(kind=kind), self.assertRaises(PortError):
                     verify_native(Native(), changed, tree)
         for status in ("-1", "-2", "-3", "-4"):
             failed = self.transcript([("affected", status), ("unrelated", "-2")]).encode()
-            with patch("controller.repair_acceptance.retained_file", return_value=failed), self.assertRaises(PortError):
+            with patch("controller.repair_acceptance.retained_file", return_value=failed), \
+                    patch("controller.repair_acceptance.retained_repairs_execution", return_value=BASE), \
+                    self.assertRaises(PortError):
                 verify_native(Native(), scope, {PATH: "5" * 40})
+
+    def test_actual_legacy_execution_binds_api_source_apks_and_executed_fixture(self):
+        manifest, rules, _, _ = fixture()
+        text = b"class NativeTest { @Test fun affected() {} }"
+        blob = hashlib.sha1(b"blob " + str(len(text)).encode() + b"\0" + text).hexdigest()
+        root = "docs/android/evidence/WP-503/"
+        item = {
+            "revision": MERGE, "api": 31, "transcript": root + "device-repairs-full-api31.txt",
+            "methods": ["NativeTest#affected"], "bindings": {PATH: "5" * 40},
+            "fixture": {"path": TEST, "blob_sha": blob},
+            "execution": {"format": "wp503-device-repairs-v1", **{
+                key: {"path": root + name, "sha256": "a" * 64} for key, name in (
+                    ("integration", "device-repairs-integration.json"),
+                    ("inputs", "device-repairs-inputs.json"),
+                    ("metrics", "device-repairs-full-api31-metrics.txt"),
+                )
+            }},
+        }
+        integration = {
+            "repository": rules["repository"], "work_package": "WP-503",
+            "source": manifest.data["reference"]["commit"],
+            "shared_nodes_registration_integration": {
+                "head": BASE, "native_api31": {"full": {"discovered": 1, "passed": 1}},
+            },
+        }
+        inputs = {"head": BASE, "apks": {
+            name: {"size": 42, "sha256": "a" * 64}
+            for name in ("wp503-device-app.apk", "wp503-device-test.apk")
+        }}
+        class Native:
+            policy = rules
+            def __init__(self):
+                self.manifest = manifest
+                self.fixture = text
+                self.source = "5" * 40
+            def get(self, path):
+                return ({"sha": blob, "content": base64.b64encode(self.fixture).decode(), "encoding": "base64"}
+                        if TEST in path else {"sha": self.source})
+        for kind in ("positive", "api-relabel", "nonexecuted-source", "wrong-fixture", "missing-apk",
+                     "wrong-run", "missing-method", "wrong-capture"):
+            native, changed = Native(), copy.deepcopy(item)
+            bound_inputs = copy.deepcopy(inputs)
+            metrics = b"WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0\n"
+            if kind == "api-relabel":
+                metrics = b"WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0\n"
+            elif kind == "nonexecuted-source":
+                native.source = "6" * 40
+            elif kind == "wrong-fixture":
+                native.fixture = b"class Wrong {}"
+            elif kind == "missing-apk":
+                bound_inputs["apks"].pop("wp503-device-test.apk")
+            elif kind == "wrong-run":
+                bound_inputs["head"] = HEAD
+            elif kind == "missing-method":
+                changed["methods"] = ["NativeTest#notExecuted"]
+            elif kind == "wrong-capture":
+                changed["transcript"] = root + "device-repairs-full-api37.txt"
+            records = {
+                root + "device-repairs-integration.json": json.dumps(integration).encode(),
+                root + "device-repairs-inputs.json": json.dumps(bound_inputs).encode(),
+                root + "device-repairs-full-api31-metrics.txt": metrics,
+            }
+            with self.subTest(kind=kind), patch(
+                "controller.repair_acceptance.retained_file",
+                side_effect=lambda _, revision, path, sha: records[path],
+            ):
+                if kind == "positive":
+                    self.assertEqual(retained_repairs_execution(native, changed, {"NativeTest#affected": "0"}), BASE)
+                else:
+                    with self.assertRaises(PortError):
+                        retained_repairs_execution(native, changed, {"NativeTest#affected": "0"})
 
 
 class RepairAuthorityTests(unittest.TestCase):
