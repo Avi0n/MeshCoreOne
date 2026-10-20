@@ -24,8 +24,9 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `680246f7914a5b4e5bf5167a916b620f83a79dee`;
-earlier consolidated base `aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
+Current integrated base: `ec0a41e80ac8637baad524b777f774c10cf99f5b`;
+earlier bases `680246f7914a5b4e5bf5167a916b620f83a79dee` and
+`aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
 Earlier software-command integration base:
 `9c430cb0f1666faacc443794899b68c01128a87a`.
 At the prior integrated base `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`,
@@ -33,7 +34,7 @@ the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
 Current manifest/policy/controller bytes are unchanged from main9c430cb0.
-The existing typed reservation was evolved to revision 25, not replaced.
+The existing typed reservation was evolved to revision 26, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -88,6 +89,31 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Actual canonical main landing and same-owner reconciliation
+
+PR251 actually merged **2026-10-20T20:44:12Z** as
+**ec0a41e80ac8637baad524b777f774c10cf99f5b**, exact54aa head.
+Fresh `origin/main` inspection confirms only the canonical renderer/WP305
+note changed from680; manifest/policy/frozen pin unchanged. Same WP502
+attempt **revision26**, existing `merge-integration/reconcile-current-base`,
+admits those exact two paths. Ordinary merge retains the seven-case source,
+all prior witnesses and producer ancestry. Android bytes remain identical to
+executed16a; this is no new test/native/hosted verdict.
+
+Renderer equals canonical54aa and current main exactly. **Full WP305 note
+does not equal main**: the earlier primary1ec9 nine-line Issue250 provenance
+section remains as a disjoint, attributed addition; main's canonical retry
+bullet/all existing lines are retained. No competing fix PR or claim that
+this whole support note is byte-identical to main. Both original owner
+contributions stay traceable, without rewriting live production.
+
+077 was normally published before this main landing: installed180s advisory
+times out **UNVERIFIED**, no completed cohort credited. Its actual automatic
+[run39493993907](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39493993907)
+binds077/base680, not the reconciled successor. Preserve that run/binding;
+the current-main successor needs its own automatic exact-head result,
+not a manual repeat of the existing local seven or producer five/56.
 
 ### Canonical producer repair and seven-case negative-to-positive execution
 

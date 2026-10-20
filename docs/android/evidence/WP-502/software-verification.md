@@ -197,6 +197,13 @@ not an invented1+7/combined-other-feature execution or a hosted pass.
 [Canonical producer/receipt/source preservation](README.md#canonical-producer-repair-and-seven-case-negative-to-positive-execution)
 records the real revision25 integration; no foreign reimplementation,
 policy expansion or threshold/assertion change.
+After actual PR251 merge at20:44:12Z, current integrated main is
+ec0a41e80ac8637baad524b777f774c10cf99f5b, same attempt revision26 under
+`reconcile-current-base`. Android source remains identical to tested16a;
+no manual cohort replay. Renderer equals main; the WP305 note retains an
+attributed nine-line earlier-primary provenance addition, so its full bytes
+are explicitly **not** claimed equal to main. Current-main hosted verification
+remains separate from local16a, original producer5/56 and published077/base680.
 
 | Method | Actual family |
 | --- | --- |
