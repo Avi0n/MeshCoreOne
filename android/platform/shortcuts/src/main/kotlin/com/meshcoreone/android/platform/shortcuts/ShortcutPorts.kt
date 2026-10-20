@@ -48,6 +48,7 @@ interface ShortcutText {
     fun sendConfirm(recipientName: String): String
     fun advertConfirm(reach: AdvertReach): String
     fun advertSent(reach: AdvertReach): String
+    /** SessionError delegates to its underlying MeshCore user-facing copy, never generic send copy. */
     fun error(error: ShortcutError): String
     val sendForeground: String
     val statusNotReady: String

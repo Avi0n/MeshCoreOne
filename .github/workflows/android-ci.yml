@@ -163,7 +163,7 @@ jobs:
     name: Swift codec oracle
     needs: [scope, controller]
     if: ${{ needs.scope.outputs['external-oracle'] == 'true' }}
-    runs-on: macos-26
+    runs-on: macos-26-intel
     timeout-minutes: 20
     steps:
       - name: Read-only exact candidate and frozen source objects
@@ -184,7 +184,7 @@ jobs:
     name: SwiftData restore and export oracle
     needs: [scope, build]
     if: ${{ needs.scope.outputs.backup == 'true' }}
-    runs-on: macos-26
+    runs-on: macos-26-intel
     timeout-minutes: 40
     steps:
       - name: Read-only exact candidate and frozen source objects

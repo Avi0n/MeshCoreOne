@@ -274,6 +274,56 @@ def compare_discovery_tsv(report: Path, result: dict):
             raise PortError("Scaffold discovery TSV disagrees with actual JUnit cases")
 
 
+def suite_case_ids(directory: Path):
+    suite_counts(directory, 1)
+    return sorted(
+        ({"class": case.get("classname"), "method": case.get("name")}
+         for path in directory.glob("TEST-*.xml") for case in read_xml(path).findall("testcase")),
+        key=lambda case: (case["class"], case["method"]),
+    )
+
+
+def failed_case_report(directories):
+    totals = {"discovered": 0, "passed": 0, "failed": 0, "errors": 0, "skipped": 0}
+    identities, failures = set(), []
+    for directory in directories:
+        files = sorted(directory.glob("TEST-*.xml"))
+        if not files:
+            raise PortError("Failed-command mandatory JUnit reports are missing: " + str(directory))
+        for path in files:
+            suite = read_xml(path)
+            cases = suite.findall("testcase")
+            try:
+                declared = {key: int(suite.attrib[key]) for key in ("tests", "failures", "errors", "skipped")}
+            except (KeyError, ValueError) as error:
+                raise PortError("Failed-command JUnit counts are malformed") from error
+            observed = dict.fromkeys(("failures", "errors", "skipped"), 0)
+            if suite.tag != "testsuite" or not cases or declared["tests"] != len(cases):
+                raise PortError("Failed-command JUnit reports are malformed/zero-discovery")
+            for case in cases:
+                identity = (case.get("classname"), case.get("name"))
+                key = (str(directory), *identity)
+                if not all(identity) or key in identities:
+                    raise PortError("Failed-command JUnit method identity is missing/duplicate")
+                identities.add(key)
+                outcomes = [tag for tag in ("failure", "error", "skipped") if case.find(tag) is not None]
+                if len(outcomes) > 1:
+                    raise PortError("Failed-command JUnit outcomes are ambiguous")
+                outcome = outcomes[0] if outcomes else "passed"
+                totals["discovered"] += 1
+                totals[{"failure": "failed", "error": "errors"}.get(outcome, outcome)] += 1
+                if outcomes:
+                    observed[{"failure": "failures", "error": "errors", "skipped": "skipped"}[outcome]] += 1
+                if outcome in ("failure", "error"):
+                    failures.append({"report": str(path), "package": suite.get("package") or identity[0].rpartition(".")[0],
+                                     "class": identity[0], "test": identity[1], "outcome": outcome})
+            if any(declared[name] != observed[name] for name in observed):
+                raise PortError("Failed-command JUnit declared/actual outcomes disagree")
+    if not totals["discovered"]:
+        raise PortError("Failed-command JUnit report set has zero discovery")
+    return {"kind": "failed-command-available-junit-reports", "counts": totals, "failures": failures}
+
+
 def collect_suites(android: Path):
     result = {name: suite_counts(android / path, minimum) for name, (path, minimum) in SUITES.items()}
     require_case_identities(android / SUITES["app"][0], WP501_ACCEPTANCE_CASES)

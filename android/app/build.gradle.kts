@@ -101,6 +101,19 @@ android {
     )
     // AndroidOnly: WP-501 Test-only cross-component acceptance; never an APK source set.
     sourceSets.getByName("test").kotlin.srcDir("../parity-tests/src/test/kotlin")
+    // AndroidOnly: WP-502 Test-only external sources; no product dependency or parity-runner change.
+    sourceSets.getByName("test").kotlin.srcDirs(
+        "../ui-tests/src/shared/kotlin",
+        "../ui-tests/src/test/kotlin",
+        "../screenshot-tests/src/shared/kotlin",
+        "../screenshot-tests/src/test/kotlin",
+    )
+    sourceSets.getByName("androidTest").kotlin.srcDirs(
+        "../ui-tests/src/shared/kotlin",
+        "../ui-tests/src/androidTest/kotlin",
+        "../screenshot-tests/src/shared/kotlin",
+        "../screenshot-tests/src/androidTest/kotlin",
+    )
 
     // AndroidOnly: WP-504 Release optimization and isolated, non-shipping workload target.
     buildTypes.getByName("release") {
@@ -162,6 +175,7 @@ tasks.withType<Test>().configureEach {
     systemProperty("referenceCodecFixtures",
         rootProject.layout.projectDirectory.dir("core/testing/fixtures/reference-codec").asFile.absolutePath)
     dependsOn(prepareAppPlatformSdks)
+    systemProperty("wp502ScreenshotDirectory", rootProject.file("screenshot-tests/build/screens").absolutePath)
     forkEvery = 1
     jvmArgumentProviders.add(ContentPlatformSdkArguments(
         layout.buildDirectory.dir("platform-sdks"),

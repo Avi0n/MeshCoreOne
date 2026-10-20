@@ -60,6 +60,21 @@ def check_module_tests(repo: Path):
     return results
 
 
+def module_method_inventory(repo: Path, modules):
+    from .ci_evidence import SUITES, suite_case_ids
+
+    result = {"app": suite_case_ids(repo / "android" / SUITES["app"][0])}
+    for module in modules:
+        locations = [
+            repo / "android" / module / relative for relative in REPORT_LOCATIONS
+            if any((repo / "android" / module / relative).glob("TEST-*.xml"))
+        ]
+        if len(locations) != 1:
+            raise PortError("Missing/ambiguous executed method inventory for module: " + module)
+        result[module] = suite_case_ids(locations[0])
+    return result
+
+
 def linked(path: Path):
     if path.is_symlink():
         return True

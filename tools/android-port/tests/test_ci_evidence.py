@@ -9,8 +9,10 @@ from pathlib import Path
 from controller.ci_evidence import (
     EXPECTED_APK_PERMISSIONS,
     counts,
+    failed_case_report,
     lint_evidence,
     suite_counts,
+    suite_case_ids,
     validate_graph_runtime,
 )
 from controller.errors import PortError
@@ -38,6 +40,27 @@ def junit_report(path: Path, tests=1, failures=0, errors=0, skipped=0):
 
 
 class LiveReportTests(unittest.TestCase):
+    def test_failed_hosted_logs_keep_all_real_identities_and_actual_totals(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            report = directory / "TEST-fixture.xml"
+            junit_report(report, tests=6, failures=3, errors=1, skipped=1)
+            observed = failed_case_report([directory])
+            self.assertEqual(observed["counts"], {"discovered": 6, "passed": 1, "failed": 3, "errors": 1, "skipped": 1})
+            self.assertEqual([case["test"] for case in observed["failures"]], ["case-0", "case-1", "case-2", "case-3"])
+            self.assertTrue(all(case["class"] == "fixture.live" for case in observed["failures"]))
+            with self.assertRaises(PortError):
+                suite_case_ids(directory)
+            junit_report(report, tests=2)
+            self.assertEqual(len(suite_case_ids(directory)), 2)
+            for count in (0,):
+                junit_report(report, tests=count)
+                with self.assertRaises(PortError):
+                    failed_case_report([directory])
+            report.unlink()
+            with self.assertRaises(PortError):
+                failed_case_report([directory])
+
     def test_runtime_inventory_preserves_distinct_licenses_for_one_component(self):
         with tempfile.TemporaryDirectory() as temporary:
             reports = Path(temporary)

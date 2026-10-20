@@ -38,6 +38,11 @@ class CapabilityEngine:
                     isinstance(value, str) and value for value in rule[key]
                 ):
                     raise PortError(f"Malformed {rule['id']} capability {key}")
+            if "work_packages" in rule and (
+                not isinstance(rule["work_packages"], list) or not rule["work_packages"]
+                or not all(isinstance(wp, str) and wp for wp in rule["work_packages"])
+            ):
+                raise PortError(f"Malformed {rule['id']} capability work_packages")
             self._rules[rule["id"]] = rule
 
     @property
@@ -69,6 +74,7 @@ class CapabilityEngine:
         candidates = [
             rule for rule in candidates
             if rule is not None and operation in rule["operations"]
+            and ("work_packages" not in rule or wp_id in rule["work_packages"])
         ]
         if not candidates:
             raise PortError(
