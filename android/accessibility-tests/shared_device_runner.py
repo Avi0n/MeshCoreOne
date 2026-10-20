@@ -280,13 +280,17 @@ def restore_packages(device, backup, original_digest, app_digest, test_digest):
     states, errors = {}, []
     require((backup is None) == (original_digest is None), "Original package absence/preservation is ambiguous")
     absent = original_digest is None
+
+    def verify_original_target():
+        actual = device.installed(APP)
+        require(actual is None if absent else actual is not None and actual["sha256"] == original_digest,
+                "Original target absence was not restored" if absent else "Original target APK was not restored")
+
     for label, action in (
         ("original_target_apk", lambda: remove_owned_package(device, APP, app_digest) if absent
          else restore_target(device, backup, original_digest, app_digest)),
         ("owned_new_test_package", lambda: remove_owned_test(device, test_digest)),
-        ("original_target_absence" if absent else "original_target_digest",
-         lambda: require(device.installed(APP) is None, "Original target absence was not restored") if absent
-         else require(device.installed(APP)["sha256"] == original_digest, "Original target APK was not restored")),
+        ("original_target_absence" if absent else "original_target_digest", verify_original_target),
     ):
         try:
             action()

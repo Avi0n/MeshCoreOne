@@ -375,6 +375,9 @@ def execute_language(request, config, ledger, *, device=None):
         verify_current_request(request)
         require(device.capture_profile() == original_profile and device.installed(APP) == before and device.installed(TEST) is None,
                 "Actual original profile/packages changed during packaging")
+        device.confirm_original_absence(TEST)
+        if before is None:
+            device.confirm_original_absence(APP)
         result = {
             "binding": asdict(request.binding), "api": request.api, "identities": request.identities,
             "native_lane_operation_owner": device.native_lane_owner, "endpoint": config.endpoint,

@@ -29,6 +29,7 @@ class SyntheticDevice(FakeDevice):
         else:
             self.packages[APP] = sha256(original)
         self.observed_profile = {"sdk": str(api), "synthetic": True}
+        self.retained_registrations = set()
         self.install_failure = None
 
     def installed(self, package):
@@ -60,7 +61,7 @@ class SyntheticDevice(FakeDevice):
         return self.profile()
 
     def confirm_original_absence(self, package):
-        if package in self.packages:
+        if package in self.packages or package in self.retained_registrations:
             raise RuntimeError("Synthetic package is not absent")
 
     def prepare_profile(self, original, record):
@@ -536,6 +537,67 @@ class LanguageRunnerTest(unittest.TestCase):
         self.assertEqual({APP: "foreign-app"}, self.device.packages)
         self.assertNotIn(("uninstall", APP), self.device.calls)
         self.ledger.release_hard_lock.assert_not_called()
+
+    def test_failed_original_apk_recovery_still_restores_temporary_profile_and_error_receipt(self):
+        install = self.device.install
+        restore = self.device.restore_profile
+
+        def fail_backup(path):
+            if path.name == "original-target.apk":
+                raise RuntimeError("Actual preserved APK reinstall failed")
+            install(path)
+
+        def prepare(original, record):
+            record({"synthetic": "temporary-font"})
+            self.device.observed_profile["temporary_font"] = "2.0"
+
+        def restore_temporary(original, record):
+            record({"synthetic": "restore-original-font"})
+            self.device.observed_profile.pop("temporary_font", None)
+            restore(original, record)
+
+        def remove_target(**kwargs):
+            self.device.packages.pop(APP)
+            return 0
+
+        self.device.install = fail_backup
+        self.device.prepare_profile = prepare
+        self.device.restore_profile = Mock(side_effect=restore_temporary)
+        self.process.wait.side_effect = remove_target
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.device.restore_profile.assert_called_once()
+        self.assertNotIn("temporary_font", self.device.observed_profile)
+        self.assertEqual({}, self.device.packages)
+        result = json.loads((self.config.output / "operations.json").read_text())
+        self.assertIn("preserved APK reinstall failed", result["cleanup"]["original_target_apk"])
+        self.assertIn("Original target APK was not restored", result["cleanup"]["original_target_digest"])
+        self.assertTrue(result["cleanup_errors"])
+        self.assertTrue(result["profile_restoration_attempts"])
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_packaging_time_retained_registration_cannot_reach_profile_or_package_mutation(self):
+        make = self.package.side_effect
+        for package in (APP, TEST):
+            self.device = SyntheticDevice(None, 31)
+            self.device.prepare_profile = Mock(wraps=self.device.prepare_profile)
+            self.config = replace(self.config, output=self.root / ("retained-during-build-" + package))
+            self.ledger.reset_mock()
+
+            def retain_registration(**kwargs):
+                result = make(**kwargs)
+                self.device.retained_registrations.add(package)
+                return result
+
+            self.package.side_effect = retain_registration
+            with self.subTest(package=package), self.assertRaises(BaseExceptionGroup):
+                self.execute()
+            self.device.prepare_profile.assert_not_called()
+            self.assertFalse(any(call[0] in ("install", "uninstall") for call in self.device.calls))
+            self.assertEqual({}, self.device.packages)
+            self.assertEqual({package}, self.device.retained_registrations)
+            self.spawn.assert_not_called()
+            self.ledger.release_hard_lock.assert_not_called()
 
     def test_profile_restoration_group_does_not_prevent_final_error_receipt(self):
         self.device.restore_profile = Mock(side_effect=ExceptionGroup("Actual cleanup failure", [OSError("Unreadable setting")]))

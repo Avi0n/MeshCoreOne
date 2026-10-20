@@ -784,3 +784,32 @@ host results. Actual build/instrumentation counts at this source checkpoint
 are **0**; the unchanged two-method/API execution and full audit are not yet
 accepted. Producer `59a47ac40`, product `421fc446` and strict fixture `99175354`
 remain byte-bound to their original Git objects.
+
+### Recovery failure and post-packaging absence hardening
+
+Independent review of6271a8e5 identified two coupled preservation gaps before
+the next native attempt. Original-APK recovery now treats a still-missing target
+as a collected require failure, never a `None` indexing error that could skip
+independent temporary-profile restoration or the final error receipt. The native
+lane remains held when the original target cannot be recovered. The real shared
+cleanup path is exercised through `execute_language`, including failed backup
+reinstall, a still-absent target, independent profile restoration and persisted
+package/cleanup errors.
+
+The consumer also rechecks complete original test registration absence, and
+target registration absence when originally empty, after packaging and before
+any temporary profile/package mutation. Newly retained registration/data cannot
+be mistaken for an empty `pm path`. Parameterized App/Test regressions introduce
+that drift during packaging and prove zero profile setup, install, uninstall or
+instrumentation and no deletion of foreign registration.
+
+Declared discovery passes **81 discovered/run/passed,0 failures/errors/skips**.
+These are synthetic host regressions, not a native result. Strict fixture and
+product blobs are unchanged. The genuine6271a8e5 API37 attempt stopped before
+Gradle/install/instrumentation at the packaging helper's SDK37 public signer
+format parser: successful `apksigner verify --print-certs` returned the exact
+`V2 Signer: certificate SHA-256 digest:` form, not `Signer #N`. Its public
+certificate was `000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7`;
+the package was correct, original target/profile remained untouched and the
+actual lane was released. That concrete packaging source repair belongs to the
+existing WP003 producer, not a new provider, key or user-installation gate.
