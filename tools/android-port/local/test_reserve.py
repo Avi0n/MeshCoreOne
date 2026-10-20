@@ -18,6 +18,7 @@ from controller.scope_amendment import ONBOARDING_RENDERER_CAPABILITY, onboardin
 class ReservationRuntimeTests(unittest.TestCase):
     def test_assigned_renderer_cli_claim_collision_and_evolve_use_real_receipts(self):
         repo, wp, policy, rule = self.assigned_fixture()
+        manifest = reserve.load_manifest(repo)
         sid = rule["assignment"]["session_id"]
         base = "a" * 40
         response = subprocess.CompletedProcess(["gh"], 0, json.dumps({"object": {"sha": base}}))
@@ -30,6 +31,7 @@ class ReservationRuntimeTests(unittest.TestCase):
                 return base
             return "fixture-owner-branch"
         with tempfile.TemporaryDirectory() as directory, \
+                patch.object(reserve, "load_manifest", return_value=manifest), \
                 patch.object(reserve, "shared_ledger", return_value=Path(directory) / "claims.sqlite"), \
                 patch.object(reserve.subprocess, "run", return_value=response), \
                 patch.object(reserve, "git", side_effect=git), \
