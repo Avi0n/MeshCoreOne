@@ -70,6 +70,7 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `liveEqualTimestampArrivalFollowsTheExistingIdentityBeforeTheHeldReload` | Frozen existing200 `"first"` then distinct200 `"second"`; actual visible arrival order and createdAt-consistent persisted reconciliation, no replacement. |
 | `liveDuplicateIdentityCannotReorderOrReplaceTheExistingRowBeforeTheHeldReload` | Frozen existing200 ID replayed at150; exact original DTO/order/visible row retained despite duplicate burst, one coalesced fetch only. |
 | `liveMidInsertionReconfiguresTheRetainedLaterRowsTimestampBeforeReload` | Frozen same-prefix0xAA/Alice `[100,500]+250 -> [100,250,500]`; original later DTO/identity retained, its timestamp flag changes true-to-false and its actual visible header disappears before/during/after held reload. First header/visible row order/CJK-RTL draft remain, two exact read-side-effect sequences and no post/join/retry/error. Explicit US/UTC restored afterward; not full date-format/avatar parity. |
+| `samePrefixBurstKeepsTheVisibleNameOnFirstAndMovesTheAvatarFlagToLastBeforeReload` | Frozen prefix0xAA/nameAlice/textmsg/timestamps100,160,220. Actual mounted burst retains first-name-only rendering, three once-labelled/keyed visible bubbles, exact DTOs/draft and state-only last-avatar IDs before/during/after held50ms coalesced reload. First row's value changes but logical message ID remains. Not rendered-avatar acceptance; source-confirmed production gap253. |
 
 Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
@@ -158,6 +159,48 @@ not184 approved goldens or a newly executed combined capture cohort. Resource
 locales are sampled, not the full locale x state x theme product or date-format
 parity. Remaining grouping/avatar/order originals, notification lifecycle, authentication expiry, full
 message-action and store/wire families still need their primary-owner evidence.
+
+#### Next single original family: same-prefix burst
+
+Coordinator-directed code **1f73d3daf5c3ecbef958fcb6d04833213d15c2e6** on ec0
+adds only the one same-prefix burst method above, leaving all10 incumbent
+method bodies/helpers/fixture unchanged. Exact preflight **PASS0.60s** and
+the smallest new-method-only selector **1 discovered/run/PASS,0 failures/
+errors/skips,29s build**. Fresh named XML22:45:29.540Z/suite6.234s:
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit 1f73d3daf5c3ecbef958fcb6d04833213d15c2e6 --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.samePrefixBurstKeepsTheVisibleNameOnFirstAndMovesTheAvatarFlagToLastBeforeReload
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+An armed real route starts with the first DTO, receives160/220 in one loop,
+and displays three bubbles while the data dependency cannot complete.
+Name IDs equal only100's ID; avatar flags equal only220's ID; timestamp
+flags are `[true,false,false]`. Actual rendered author count stays1 and
+three original-body accessibility labels/keyed bubble bounds preserve order.
+The sole author node must actually be displayed with its bottom above the
+first keyed bubble, not merely exist once somewhere in the semantics tree.
+The same first DTO survives a changed row value. CJK/RTL draft/no empty/
+spinner, one subscriber, exactly two full read-side-effect sequences and
+no post/join/retry/diagnostic failure are checked across reconciliation.
+No arbitrary sleep/global locale mutation or old successful cohort replay.
+Source has11 methods, not an executed11-case/combined result.
+Initial7525 independently passes1/1,30s/preflight0.52s; latest1f73 strengthens
+that same method with explicit visible first-name placement and passes only
+that changed method again. Not a new family or invented combined2-case run.
+
+**Avatar limitation:** frozen RoomMessageBubble consumes `showAvatar` through
+IncomingAvatarGutter; production RoomMessageRowContent never reads that field.
+Deduplicated [source-confirmed bug253](https://github.com/cbattlegear/MeshCoreOne-Android/issues/253)
+routes the actual renderer/gutter prerequisite to primary WP-310. This passing
+method asserts the original bookend flags and visible name consumer, not a
+rendered-avatar negative/pass, approved omission or full-family visual acceptance.
+The other five previously unrepresented ordering families remain without
+these mounted witnesses; primary all12 accounting/native/goldens remain open.
+Stop this single increment for review, no additional family/foreign repair.
 
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 

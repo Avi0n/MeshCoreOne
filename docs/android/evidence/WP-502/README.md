@@ -71,7 +71,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six additional live-event methods actually pass together at d76a576af: frozen middle/front/tail/tie/duplicate inputs plus same-prefix100/500->250 retained-row timestamp reconfiguration. Fresh DTO construction preserves derived-key fixture consistency. Visible order/identity/draft survive held50ms reconciliation, timestamp header disappears on the retained later row, exact read-side-effect sequences/no false actions. Class now has10 methods, not a manufactured10-case cohort. Not actual RoomServerService/history sync/Room-database/radio/golden evidence. |
+| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six live-event methods pass together at d76a576af; strengthened timestamp method separately passes at2b478f7. Next single same-prefix burst/name-first/avatar-flag-last method passes alone at1f73d3daf. Fresh DTO keys, held50ms reconciliation, exact identities/visible order/draft/read effects remain. Source now11 methods, not a manufactured11-case cohort. State avatar flags are not rendered-avatar acceptance: actual consumer gap253 remains primary WP-310-owned. No actual RoomServerService/history sync/Room-database/radio/golden claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -89,6 +89,40 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### One next original family: mounted same-prefix burst bookends
+
+Coordinator-directed single next family, code
+**1f73d3daf5c3ecbef958fcb6d04833213d15c2e6/baseec0**: installed preflight
+**PASS0.60s**, exact new-method-only App selector **1 discovered/run/PASS,
+0 failures/errors/skips,29s build**. Named fresh XML22:45:29.540Z/suite6.234s.
+[Exact command/family inventory](software-verification.md#next-single-original-family-same-prefix-burst).
+Only65 lines added; all10 incumbent methods/helpers/fixture are untouched
+and not manually replayed. Source11 is not an11-case or combined cohort.
+
+Frozen `same-prefix burst books name on first and avatar on last` keeps
+prefix0xAA/nameAlice/textmsg/timestamps100,160,220. Real route/subscriber/
+holder, two same-loop arrivals and held actual data dependency prove
+optimistic rows before reconciliation. Actual visible name count remains1;
+three once-labelled original bodies/keyed bubbles retain chronology.
+Its sole author node is explicitly displayed above the first keyed bubble,
+not just counted somewhere in semantics. Initial7525's1/1/30s is historical;
+strengthened1f73 reruns only the same changed method, not a second family.
+Complete DTOs/draft and first logical message ID survive its row-value
+change; name/last-avatar IDs and timestamp flags match independent original
+expectations before/during/after the50ms coalesced reload. Exactly two full
+read-side-effect sequences, one subscriber and no false actions/failures.
+No locale mutation, new production path, fake policy or native dependency.
+
+**Do not treat avatar state as rendered output.** Full frozen BubbleContent
+uses IncomingAvatarGutter; actual native RoomMessageRowContent never consumes
+`showAvatar`. No declared avatar omission was found in the WP-310 deviation.
+Deduplicated template [bug253](https://github.com/cbattlegear/MeshCoreOne-Android/issues/253)
+records the source-confirmed product prerequisite, primary118/146 and207/209
+provenance and the absence of an executed avatar-rendering negative/device
+claim. No foreign product fix or extra worker. Five other ordering families,
+actual avatar/gutter rendering and full source/native/golden acceptance
+remain open. Stop this bounded increment for review as directed.
 
 ### Retained Room timestamp chrome and corrected derived fixture fields
 
