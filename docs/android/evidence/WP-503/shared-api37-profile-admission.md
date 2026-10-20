@@ -538,16 +538,60 @@ and both Git whitespace checks exit0. These are host/helper checks, not an
 execution of the producer's new App tests or of the native language fixture.
 The new publication requires its own automatic hosted verdict.
 
-**Native continuation is BLOCKED before packaging or launch.**
-The actual `python tools\android-port\controller\gate_runtime.py capabilities`
-returns exit2, `state=BLOCKED`, `authoritative=false`, including:
-`Dispatch/repair/merge activation remains off, paused and human-unapproved.`
-and unproven authenticated native-host integration. Trusted current policy is
-`paused=true`, `activation_approved=false`, `dispatch_mode=off`. The live
-shared ledger has no native-execution holder. These observations are not a
-new admission receipt or permission to acquire a lane and act on a historical
-endpoint. A fresh authenticated native-host admission for this current owner
-and exact published source is the remaining live prerequisite.
+**Correction: the static integration diagnostic is not native admission.**
+`gate_runtime.capabilities` returns exit2 and `authoritative=false`, and
+unconditionally appends unproven native-host/live-usage/shared-ledger integration.
+Its output does not evaluate the actual scoped Android-device boundary and
+cannot establish a live rejection or justify activating the dispatch/merge
+fleet. The policy pause and device-preservation guards remain applicable;
+neither this diagnostic nor an empty native ledger grants permission to act.
+
+The deployed `backends.NativeHost` provides session-dispatch callbacks
+(`capabilities`, `reconcile`, `create_session`, `get_session`,
+`send_session_message`, `usage`), not current-owner/source/device admission.
+No deployed current-source language execution consumer or Android-device
+admission provider was found. The precise missing host interface is
+`admit_language_device(LanguageRequest)`, supplied by a trusted app host and
+returning its guarded preservation/native-lane scope. This is a missing
+interface/provider, not a request to enable global automation or rewrite
+authorization. The old shared runner's historical source, retired alias,
+endpoint and missing-only27 selection cannot substitute for it.
+
+### Current-owner language binding and guard regressions
+
+Supported same-owner scope evolution advanced canonical reservation revision13
+to14, admitting `language_binding.py`, its tests and directly related audit
+documentation. Canonical identity/history and original authorization remain
+unchanged; current replacement app/CLI attribution is separate.
+
+The pure adapter uses actual clean committed source through the deployed
+debug-packaging source-identity helper. It binds the exact producer repair,
+unchanged strict fixture, two real method identities in source order, Android
+tree/digest, manifest/policy revisions, current reservation and a unique owner
+per API31/37 request. Before calling an injected provider it rechecks current
+inputs and the exact published PR205 head. It does not implement the provider,
+enter its scope, acquire lanes, build/install, or start instrumentation.
+Transcript accounting reuses the existing strict parser and never grants
+acceptance, clears uncertainty or releases an actual lane. The historical
+shared runner and native fixtures are unchanged.
+
+Executed software verification:
+
+```powershell
+python -m unittest discover -s android\accessibility-tests -p test_*.py -v
+python tools\android-port\controller\verification_config.py --check
+python tools\android-port\controller\validate.py
+python tools\android-port\controller\workflows.py
+python tools\android-port\portmap.py
+git diff --check
+```
+
+The suite discovers **45 tests:45PASS/0FAIL/0ERROR/0SKIP**, including14 new
+language binding/guard/accounting tests. Each declared validator exits0;
+whitespace validation passes. Provider fixtures/mocks are pure tests, not a
+live host or admission evidence. Missing/JSON/session-dispatch providers,
+stale claims/policy/source, unpublished inputs, changed fixture/method
+inventory and nonpositive/forced completion fail closed.
 
 No device probe, old endpoint reuse, key access, packaging build, install,
 native start, profile write or replay occurred. Therefore no compatible

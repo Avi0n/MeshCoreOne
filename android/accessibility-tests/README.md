@@ -1,5 +1,50 @@
 # WP-503 native audit helpers
 
+## Current-owner language source adapter
+
+`language_binding.py` prepares only the unchanged issue238 fixture's two methods
+on each API31/37, against the real PR247 repair and the actual clean committed
+current source. It records canonical identity separately from the replacement
+app/CLI identity, current reservation revision and unique per-API operation owner.
+It verifies producer ancestry/blob, strict fixture bytes and method inventory,
+and uses the deployed debug-packaging source-identity/capability checks.
+
+Read-only preparation, with the actual current committed head:
+
+```powershell
+python android\accessibility-tests\language_binding.py --head CURRENT_HEAD
+python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --require-native-admission
+```
+
+The second command deliberately fails closed while no trusted app-host
+`admit_language_device(LanguageRequest)` provider is deployed. This is the
+missing **Android-device** admission boundary, not `backends.NativeHost`'s
+session-dispatch callbacks or `gate_runtime.capabilities`' static,
+non-authoritative integration diagnostic. Neither a JSON PASS nor the latter
+diagnostic supplies device authority. No candidate file, flag, environment value,
+historical endpoint or retired worker can provide that host injection.
+
+The adapter rechecks actual current source/policy/owner/reservation and exact
+published PR205 input before calling an injected provider. That real provider
+must enforce the applicable pause, current source/owner/device and preservation
+guards and return its guarded preservation/native-lane scope. This module does
+not implement that host, enter the scope, acquire a lane, build/install APKs or
+start instrumentation. A live execution consumer must retain the existing
+bounded preservation/cleanup behavior; no duplicate lifecycle runner is added.
+Transcript-only accounting reuses `shared_device_runner.parse_outcomes`, rejects
+forced/nonpositive completion and never grants native acceptance or clears an
+actual lane. No old source/selector/endpoint constant is rebound.
+
+All pure adapter/cleanup/terminal regressions, with positive discovery:
+
+```powershell
+python -m unittest discover -s android\accessibility-tests -p test_*.py -v
+```
+
+The sections below retain historical source-bound entrypoints and results.
+In particular, the old `shared_device_runner.py` missing-only27 entrypoint is
+unchanged and is **not** the current-owner language entrypoint.
+
 ## Publication and execution are different source configurations
 
 PR205 publishes this owned audit surface, WP503 documentation/native evidence
