@@ -256,6 +256,20 @@ class OnboardingRegionPresetComposeTest {
     @Test fun threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget() {
         val fixture = Fixture()
         val failure = "radio temporarily busy"
+        reachRetryLimit(fixture, failure)
+        compose.onNodeWithText(text(S.alertRetryEnsureConnected)).assertIsDisplayed()
+        compose.onNodeWithText(failure).assertDoesNotExist()
+        acknowledgeRetryLimitAndVerifyReset(fixture, failure)
+    }
+
+    @Test fun acknowledgingRetryLimitShowsFallbackAndResetsTheNextAttemptWithoutCompleting() {
+        val fixture = Fixture()
+        val failure = "radio temporarily busy"
+        reachRetryLimit(fixture, failure)
+        acknowledgeRetryLimitAndVerifyReset(fixture, failure)
+    }
+
+    private fun reachRetryLimit(fixture: Fixture, failure: String) {
         manualUSA(fixture)
         for (attempt in 1..3) {
             if (attempt == 1) applyButton().performClick()
@@ -271,8 +285,9 @@ class OnboardingRegionPresetComposeTest {
             assertNotCompleted(fixture)
         }
         compose.onNodeWithText(text(S.alertRetryUnableToSave)).assertIsDisplayed()
-        compose.onNodeWithText(text(S.alertRetryEnsureConnected)).assertIsDisplayed()
-        compose.onNodeWithText(failure).assertDoesNotExist()
+    }
+
+    private fun acknowledgeRetryLimitAndVerifyReset(fixture: Fixture, failure: String) {
         button(S.alertRetryRetry).assertDoesNotExist()
         button(L.commonCancel).assertDoesNotExist()
         button(L.commonOk).performClick()
