@@ -24,8 +24,9 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `918af38472a43bf24f9a8bc4762c3c1fb45851b4`;
-earlier bases `ec0a41e80ac8637baad524b777f774c10cf99f5b`,
+Current integrated base: `5714ba3be50618b8d946a21e0db15feb67f90eb6`;
+earlier bases `918af38472a43bf24f9a8bc4762c3c1fb45851b4`,
+`ec0a41e80ac8637baad524b777f774c10cf99f5b`,
 `680246f7914a5b4e5bf5167a916b620f83a79dee` and
 `aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
 Earlier software-command integration base:
@@ -34,10 +35,14 @@ At the prior integrated base `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`,
 the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
-Manifest/policy bytes are unchanged from main9c430cb0; controller/reserve
-now retain the exact merged tooling252 owner bytes from main918.
-The same typed reservation is now revision26 after the actual eight-path
-918 integration; earlier ec0/Rooms operations were idempotent at25.
+Manifest/source remain unchanged. Current semantic policy revision is
+`7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6`;
+merged254 changes operational paused=true to false only, preserving
+dispatch_mode=off/activation_approved=false. Policy bytes equal actual main5714,
+not the earlier paused policy; controller/reserve retain tooling252 owner bytes.
+The same typed reservation remains actual revision26: real eight-path918
+evolution followed by idempotent five-path5714 reconciliation; earlier
+ec0/Rooms operations were idempotent at25.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -92,6 +97,22 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Actual main5714 reconciliation after user-merged pause correction254
+
+User-authorized [PR254](https://github.com/cbattlegear/MeshCoreOne-Android/pull/254)
+merged at23:00:39Z as **5714ba3be50618b8d946a21e0db15feb67f90eb6**.
+Fresh origin/main/merge ancestry and exact five-path delta inspected.
+Same attempt's `reconcile-current-base` returns **actual revision26** again:
+all five paths were already admitted, not an inferred27 or a replacement.
+Ordinary merge **e270dc7504602fbd8cfa16c7da6848678714e6ae** preserves
+the policy/CI-doc/WP003/gate-test/state-test owner bytes exactly. The only
+policy value delta is paused=false; dispatch remains off and activation false.
+Frozen pin/manifest, Android bytes and immutable authorization/binding survive.
+This imports the user's actual merged policy, not a candidate activation.
+No native/device/metadata action or unrelated positive-cohort replay.
+Local1f73/baseec0 and predecessor7ca execution bindings remain distinct from
+the successor's still-required exact-head hosted check and bounded review.
 
 ### Actual main918 reconciliation after merged tooling252
 
