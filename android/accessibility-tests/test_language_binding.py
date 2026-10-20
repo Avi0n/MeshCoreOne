@@ -3,6 +3,7 @@
 from dataclasses import replace
 import io
 import json
+import subprocess
 import unittest
 from unittest.mock import Mock, patch
 
@@ -127,10 +128,32 @@ class LanguageBindingTest(unittest.TestCase):
     def test_exact_published_current_source_rechecks_without_a_host_callback(self):
         request = binding.request_for(source(), 37)
         with patch.object(binding, "current_binding", return_value=source()) as current, \
-                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF) as git:
-            binding.verify_current_request(request)
+                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF) as git, \
+                patch.object(binding, "trusted_execution_policy", return_value={"paused": True}) as policy:
+            self.assertEqual({"paused": True}, binding.verify_current_request(request))
         current.assert_called_once_with(HEAD)
         git.assert_called_once_with("ls-remote", "origin", binding.PUBLIC_REF)
+        policy.assert_called_once_with()
+
+    def test_pause_policy_is_loaded_from_verified_current_main_object_not_a_candidate_grant(self):
+        with patch.object(binding, "git", side_effect=[
+            HEAD, HEAD + "\t" + binding.MAIN_REF, "", '{"paused":true}',
+        ]) as git:
+            self.assertEqual({"paused": True}, binding.trusted_execution_policy())
+        self.assertEqual(("show", HEAD + ":docs/android/automation-policy.json"), git.call_args.args)
+        self.assertEqual(("diff", "--exit-code", "--quiet", HEAD, "--",
+                          "docs/android/automation-policy.json", "docs/android/port-manifest.json"),
+                         git.call_args_list[2].args)
+
+    def test_stale_main_and_candidate_policy_edits_cannot_unpause_device_execution(self):
+        with patch.object(binding, "git", side_effect=[HEAD, "0" * 40 + "\t" + binding.MAIN_REF]):
+            with self.assertRaisesRegex(binding.PortError, "Trusted main is stale"):
+                binding.trusted_execution_policy()
+        with patch.object(binding, "git", side_effect=[
+            HEAD, HEAD + "\t" + binding.MAIN_REF, subprocess.CalledProcessError(1, "git diff"),
+        ]):
+            with self.assertRaisesRegex(binding.PortError, "differs from trusted current main"):
+                binding.trusted_execution_policy()
 
     def test_preparation_cli_is_read_only(self):
         output = io.StringIO()

@@ -44,7 +44,9 @@ performs that API's **two original language methods only**. Select the other API
 explicitly with a fresh output directory; there is no automatic replay/default
 full cohort. Current clean source/policy/owner/reservation and exact published
 PR205 head are rechecked before the lane, after packaging and before native
-start. The actual policy pause blocks before device commands or lane acquisition;
+start. Policy/manifest must match verified current main; the execution policy
+is read from that immutable Git object, not a candidate/worktree authority grant.
+The actual policy pause blocks before device commands or lane acquisition;
 it is not a demand to enable dispatch/merge automation.
 
 Inside the unique held operation lane, the consumer authenticates the explicit

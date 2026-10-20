@@ -77,7 +77,7 @@ class LanguageRunnerTest(unittest.TestCase):
         load = runner.load_json
         self.stack.enter_context(patch.object(runner, "load_json", side_effect=lambda path:
             self.policy if path == runner.ROOT / "docs/android/automation-policy.json" else load(path)))
-        self.verify = self.stack.enter_context(patch.object(runner, "verify_current_request"))
+        self.verify = self.stack.enter_context(patch.object(runner, "verify_current_request", return_value=self.policy))
         self.stack.enter_context(patch.object(runner, "load_manifest", return_value=Mock()))
         self.print = self.stack.enter_context(patch("builtins.print"))
         self.packaging = {}
@@ -228,7 +228,7 @@ class LanguageRunnerTest(unittest.TestCase):
     def test_source_or_reservation_change_after_packaging_and_after_install_blocks_start(self):
         for stage in (2, 3):
             self.config = replace(self.config, output=self.root / ("stage-" + str(stage)))
-            self.verify.side_effect = [None] * (stage - 1) + [runner.PortError("actual source changed")]
+            self.verify.side_effect = [self.policy] * (stage - 1) + [runner.PortError("actual source changed")]
             with self.subTest(stage=stage), self.assertRaisesRegex(runner.PortError, "actual source changed"):
                 self.execute()
             self.assert_original_restored()

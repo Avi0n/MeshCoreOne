@@ -705,9 +705,9 @@ historical and are not used as current-source inputs.
 
 The declared pure command
 `python -m unittest discover -s android\accessibility-tests -p test_*.py -v`
-passes **65 discovered/65 passed/0 failed/0 errors/0 skipped**, including20 new
+passes **67 discovered/67 passed/0 failed/0 errors/0 skipped**, including20 new
 synthetic direct-process lifecycle tests, the existing23 shared-runner safety
-tests,14 binding/accounting tests and8 cleanup tests. The first63-test attempt
+tests,16 binding/accounting tests and8 cleanup tests. The first63-test attempt
 had one synthetic CLI fixture error (a Git lookup intercepted by the mocked
 process); that test isolation was corrected, not a native assertion changed.
 The final command covers actual API31/37 argument selection, current owner/
@@ -718,6 +718,11 @@ The four existing validators and whitespace checks pass; no local Android
 build or device outcome is claimed.
 
 The real readiness mode checks source/configuration without device probing.
+The final source hardening verifies actual current main and rejects candidate/
+worktree policy or manifest changes, consuming the immutable trusted-main
+policy object rather than a candidate pause override. Two added regressions
+cover that boundary. Initial published13ac17261 passed65 tests; the final
+source successor includes these two additional checks without rewriting it.
 Execution mode still enforces the actual repository pause, authentication,
 held-lane, preservation and current-source guards; the removed method does not
 grant authority. This continuation performs no device probe, lane acquisition,

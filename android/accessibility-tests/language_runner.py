@@ -152,8 +152,7 @@ class ProcessDevice(Device):
 
 
 def readiness(request, config, ledger):
-    verify_current_request(request)
-    policy = load_json(ROOT / "docs/android/automation-policy.json")
+    policy = verify_current_request(request)
     if type(policy.get("paused")) is not bool:
         raise PortError("Malformed actual pause state")
     if policy["paused"]:

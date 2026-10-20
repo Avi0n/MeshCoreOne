@@ -27,6 +27,7 @@ CANONICAL = "1666502a-0420-46ef-930f-e78651ba8b9f"
 CURRENT_APP_SESSION = "df52b3d0-81d4-49fb-b88f-a5926ed31fa5"
 CURRENT_CLI_SESSION = "b531305a-0513-4731-896f-2b470f8879cd"
 PUBLIC_REF = "refs/heads/cbattlegear-issue-136-wp-503-accessibility-audit-807238"
+MAIN_REF = "refs/heads/main"
 PRODUCER = "59a47ac40bd2f84e7188c87a5521af9d0f16e75e"
 PRODUCTION = "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppSettingsContent.kt"
 PRODUCTION_BLOB = "421fc446443a5f301085507603701d7da04d40ef"
@@ -133,6 +134,19 @@ def verify_current_request(request):
     published = git("ls-remote", "origin", PUBLIC_REF).split()
     if published != [request.binding.source_revision, PUBLIC_REF]:
         raise PortError("Native request is not the exact currently published PR205 input")
+    return trusted_execution_policy()
+
+
+def trusted_execution_policy():
+    trusted = git("rev-parse", "refs/remotes/origin/main")
+    if git("ls-remote", "origin", MAIN_REF).split() != [trusted, MAIN_REF]:
+        raise PortError("Trusted main is stale; fetch current main before native readiness/execution")
+    try:
+        git("diff", "--exit-code", "--quiet", trusted, "--",
+            "docs/android/automation-policy.json", "docs/android/port-manifest.json")
+    except subprocess.CalledProcessError as error:
+        raise PortError("Candidate/worktree policy or manifest differs from trusted current main") from error
+    return json.loads(git("show", trusted + ":docs/android/automation-policy.json"))
 
 
 def account_outcomes(transcript, request, *, process_exit, forced_termination):
