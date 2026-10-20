@@ -28,6 +28,55 @@ MIXED = PORTED + (
 
 
 class SourceDispositionTests(unittest.TestCase):
+    def test_overlong_failure_log_lines_report_incomplete_and_keep_later_identities(self):
+        identity = "com.meshcoreone.android.FixtureTest > laterCase[37] FAILED"
+        content = "x" * 140000 + "\n" + identity + "\nBUILD FAILED\n"
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / "overlong.log"
+            log.write_text(content, encoding="utf-8")
+            with contextlib.redirect_stderr(io.StringIO()) as diagnostics:
+                ci.print_failed_command_log(log)
+        output = diagnostics.getvalue()
+        self.assertEqual(output.count("identity extraction is incomplete"), 1)
+        self.assertIn(identity, output)
+        self.assertTrue(output.rstrip().endswith("BUILD FAILED"))
+
+    def test_failed_command_retains_every_gradle_identity_before_the_bounded_tail(self):
+        identities = [
+            f"com.meshcoreone.android.FixtureTest > originalCase{index}[{sdk}] FAILED"
+            for index, sdk in enumerate((31, 37, 31, 37))
+        ]
+        content = "\n".join(
+            f"bounded preceding context\n{identity}\n    java.lang.AssertionError: original assertion\n"
+            for identity in identities
+        ) + "\n800 tests completed, 4 failed\n" + ("later diagnostic output\n" * 2000) + "BUILD FAILED\n"
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / "gradle-failure.log"
+            def failed(command, **kwargs):
+                kwargs["stdout"].write(content)
+                return ci.subprocess.CompletedProcess(command, 17)
+            with patch.object(ci.subprocess, "run", side_effect=failed), \
+                    patch.object(Path, "read_text", side_effect=AssertionError("Whole-log reads are forbidden")), \
+                    contextlib.redirect_stdout(io.StringIO()), \
+                    contextlib.redirect_stderr(io.StringIO()) as diagnostics:
+                with self.assertRaisesRegex(PortError, "Declared command failed with exit 17"):
+                    ci.execute(["fixture-gradle"], {}, log)
+            output = diagnostics.getvalue()
+            for identity in identities:
+                self.assertNotIn(identity, content[-12000:])
+                self.assertIn(identity, output)
+            self.assertIn("800 tests completed, 4 failed", output)
+            self.assertIn("java.lang.AssertionError: original assertion", output)
+            self.assertTrue(output.rstrip().endswith("BUILD FAILED"))
+
+    def test_successful_command_does_not_emit_failure_diagnostics(self):
+        with tempfile.TemporaryDirectory() as temporary, \
+                patch.object(ci.subprocess, "run", return_value=ci.subprocess.CompletedProcess(["fixture"], 0)), \
+                patch.object(ci, "print_failed_command_log") as diagnostics, \
+                contextlib.redirect_stdout(io.StringIO()):
+            ci.execute(["fixture"], {}, Path(temporary) / "success.log")
+            diagnostics.assert_not_called()
+
     def test_shared_candidate_executor_change_requires_broad_verification(self):
         self.assertTrue(all(classify(["tools/android-port/controller/ci.py"]).values()))
 

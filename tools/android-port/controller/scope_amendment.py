@@ -19,11 +19,49 @@ REVIEW_POLICY = {
         "android/**/signing*", "android/**/keystore*", "**/*license*", "**/*LICENSE*", "**/*legal*",
     ],
 }
+DEBUG_PACKAGING_CAPABILITY = {
+    "id": "debug-test-packaging",
+    "work_packages": ["WP-003", "WP-503"],
+    "path_rules": ["tools/android-port/local/debug_packaging.py", "tools/android-port/tests/test_debug_packaging.py"],
+    "operations": ["implement-debug-packaging-adapter", "build-debug-test-apks-with-existing-local-identity"],
+    "invariants": [
+        "WP-503-execution-only", "exact-clean-source-and-fixtures", "existing-native-and-exclusive-gradle-lanes",
+        "existing-local-default-debug-identity-only", "public-app-test-installed-certificate-match",
+        "no-private-key-read-export-copy-or-change", "no-retained-apk-resign",
+        "no-install-uninstall-wipe-or-release-task",
+    ],
+    "validation": [
+        "debug-packaging regression tests", "actual source-build-output hashes",
+        "public certificate verification before any separately guarded install",
+    ],
+}
+
+
+def debug_packaging_predecessor(policy):
+    """Reverse only the exact admitted debug-support delta, preserving all historical receipts."""
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result.get("reservation_policy")
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Debug support amendment requires the canonical capability catalog")
+    selected = [index for index, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == "debug-test-packaging"]
+    if not selected:
+        return result
+    if (
+        len(selected) != 1 or rules[selected[0]] != DEBUG_PACKAGING_CAPABILITY
+        or selected[0] + 1 >= len(rules) or rules[selected[0] + 1].get("id") != "merge-integration"
+    ):
+        raise PortError("Debug support capability changed outside the exact authorized amendment")
+    rules.pop(selected[0])
+    return result
 
 
 def review_policy_predecessor(policy):
-    """Reverse only the authorized review delta; historical policy receipts stay immutable."""
-    result = copy.deepcopy(policy)
+    """Reverse exact authorized process deltas; historical policy receipts stay immutable."""
+    result = debug_packaging_predecessor(policy)
     if "review_policy" not in result:
         return result
     if result.pop("review_policy") != REVIEW_POLICY:
