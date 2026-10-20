@@ -8,6 +8,7 @@ package com.meshcoreone.android.platform.shortcuts
 import com.meshcoreone.android.core.model.ChannelDTO
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.RadioId
+import com.meshcoreone.android.core.protocol.config.MeshCoreException
 
 /** Raw values are the stable identifiers persisted in shortcut intents. */
 enum class AdvertReach(val rawValue: String) {
@@ -31,7 +32,18 @@ enum class SendRoute { HEADLESS_QUEUE, QUEUE_AFTER_SYNC, FOREGROUND_ESCALATE, NO
 
 enum class SendOutcome { QUEUED, MUST_FOREGROUND }
 
-/** Typed failures; the text is resolved by [ShortcutText] so no raw service error is ever shown. */
-enum class ShortcutError { NOT_CONNECTED, INVALID_RECIPIENT, MESSAGE_TOO_LONG, SEND_FAILED, ADVERT_FAILED, DENIED }
+/** Presentation categories retain the session payload rather than the wrapper's diagnostic message. */
+sealed class ShortcutError(val name: String) {
+    data object NOT_CONNECTED : ShortcutError("NOT_CONNECTED")
+    data object INVALID_RECIPIENT : ShortcutError("INVALID_RECIPIENT")
+    data object MESSAGE_TOO_LONG : ShortcutError("MESSAGE_TOO_LONG")
+    data object SEND_FAILED : ShortcutError("SEND_FAILED")
+    data object ADVERT_FAILED : ShortcutError("ADVERT_FAILED")
+    data object DENIED : ShortcutError("DENIED")
+    data class SessionError(val underlying: MeshCoreException) : ShortcutError("SESSION_ERROR")
+}
 
-class ShortcutException(val error: ShortcutError, cause: Throwable? = null) : Exception(error.name, cause)
+class ShortcutException(
+    val error: ShortcutError,
+    cause: Throwable? = (error as? ShortcutError.SessionError)?.underlying,
+) : Exception(error.name, cause)
