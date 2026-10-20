@@ -634,3 +634,24 @@ This source consolidation does not supply the missing trusted
 No device, lane, build, key, install or native start is authorized or performed
 by this reconciliation. The unchanged selection remains two methods per
 API31/37, with no successful-cohort replay or acceptance/issue closure.
+
+### WP502 mounted-test source dependency after PR244 merged
+
+Main `680246f7914a5b4e5bf5167a916b620f83a79dee` was reconciled into published
+`3f773d94dc03db22bfe70582a2fea0090f085557`. All nine incoming WP502 paths
+(five mounted tests/four documents) match both actual main and original producer
+`e317ee57e84061559a201838e30e9821d2ea5299` byte-for-byte. Supported same-owner
+scope evolution advances revision15 to16, preserving immutable canonical
+identity, authorization, bindings and history. Manifest/policy, original
+language producer/product/strict fixture lineage, adapter and historical native
+evidence remain unchanged. The transaction receipt is retained in
+`files/wp503-wp502-main-integration.json` in the replacement session.
+
+On the reconciled source, the declared audit suite again passes45/45 with zero
+failures/errors/skips; all four declared validators and staged whitespace
+checks pass. The mounted Kotlin changes require their own exact-successor
+hosted verification; old3f/run39479575207/App847 and its Android-tree binding
+remain historical. Recompute preparation on the clean committed successor.
+The missing trusted Android-device admission provider/preservation/lane scope
+remains a live capability blocker. No native action, replay or acceptance is
+performed or inferred by this source reconciliation.
