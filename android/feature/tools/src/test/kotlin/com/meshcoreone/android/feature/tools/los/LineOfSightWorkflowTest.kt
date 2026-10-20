@@ -200,6 +200,35 @@ class LineOfSightWorkflowTest {
     }
 
     @Test
+    fun `toggleContact with saved repeaters updates selectionState roles`() = losScenario {
+        val radioId = RadioId(UUID.randomUUID())
+        val store = FakeContactSource()
+        val east = createTestContact("East saved repeater", 37.8, -122.4, ContactType.REPEATER, radioId)
+        val west = createTestContact("West saved repeater", 37.7, -122.3, ContactType.REPEATER, radioId)
+        store.add(east)
+        store.add(west)
+        val viewModel = holder()
+        viewModel.configure(contactSource = { store }, radioId = { radioId })
+        viewModel.loadRepeaters()
+
+        assertEquals(listOf(east, west), viewModel.state.value.repeatersWithLocation)
+        assertNull(viewModel.state.value.selectionState[east.id]?.selectedAs)
+        assertNull(viewModel.state.value.selectionState[west.id]?.selectedAs)
+
+        viewModel.toggleContact(east)
+        assertEquals(PointID.POINT_A, viewModel.state.value.selectionState[east.id]?.selectedAs)
+        assertNull(viewModel.state.value.selectionState[west.id]?.selectedAs)
+
+        viewModel.toggleContact(west)
+        assertEquals(PointID.POINT_A, viewModel.state.value.selectionState[east.id]?.selectedAs)
+        assertEquals(PointID.POINT_B, viewModel.state.value.selectionState[west.id]?.selectedAs)
+
+        viewModel.toggleContact(east)
+        assertNull(viewModel.state.value.selectionState[east.id]?.selectedAs)
+        assertEquals(PointID.POINT_B, viewModel.state.value.selectionState[west.id]?.selectedAs)
+    }
+
+    @Test
     fun `failed point elevation falls back to sea level and is reported`() = losScenario {
         val reported = mutableListOf<String>()
         val viewModel = LineOfSightStateHolder(scope, elevation, analyzer, kotlin.coroutines.EmptyCoroutineContext, { op, _ -> reported += op })
