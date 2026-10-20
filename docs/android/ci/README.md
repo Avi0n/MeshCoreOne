@@ -6,6 +6,12 @@ remain manual previews and deliberately return `BLOCKED` for absent fleet/merge
 integrations. The manual review-publication workflow now has a supported native
 GitHub transport, described below; deploying it is not fleet activation.
 
+The user-authorized WP-503 language-cohort pause correction sets policy
+`paused:false` only. Dispatch stays `off`, activation stays unapproved, and
+all source/device/preservation/native-lane and human/protected gates remain.
+The existing WP-503 owner must refresh deployed main before its separately
+guarded execution; a candidate checkout is not live authority.
+
 ## Candidate execution contract
 
 ### Reservation mutation and merge-intent fences

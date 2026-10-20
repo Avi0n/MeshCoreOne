@@ -152,7 +152,7 @@ class StagingTests(unittest.TestCase):
 
         rules = load_json(REPO / "docs" / "android" / "automation-policy.json")
         self.assertEqual(rules["dispatch_mode"], "off")
-        self.assertTrue(rules["paused"])
+        self.assertFalse(rules["paused"])
         self.assertFalse(rules["activation_approved"])
         self.assertIsNone(rules["trusted_gate_publisher_app_id"])
         self.assertFalse(rules["branch_rules_proven"])
