@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import com.meshcoreone.android.core.designsystem.ColorScheme
@@ -61,6 +62,7 @@ class OnboardingWiFiComposeTest {
     @Before fun createHost() {
         host = Robolectric.buildActivity(ComponentActivity::class.java).setup().visible()
         host.get().actionBar?.hide()
+        host.windowFocusChanged(true)
         Settings.Global.putFloat(host.get().contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
     }
 
@@ -100,7 +102,9 @@ class OnboardingWiFiComposeTest {
         button(O.welcomeGetStarted).assertIsDisplayed().performClick()
         button(O.permissionsContinue).assertIsEnabled().performClick()
         button(O.deviceScanConnectViaWifi).performScrollTo().performClick()
-        address().assertIsDisplayed().assertIsFocused().assertTextContains("")
+        address().performScrollTo().performClick().assertIsDisplayed().assertIsFocused().assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")),
+        )
         port().assertTextContains("5000")
         button(O.wifiConnectionConnect).assertIsNotEnabled()
     }
@@ -212,7 +216,9 @@ class OnboardingWiFiComposeTest {
         button(L.commonCancel).performClick()
         address().assertDoesNotExist()
         button(O.deviceScanConnectViaWifi).performScrollTo().performClick()
-        address().assertIsFocused().assertTextContains("")
+        address().performScrollTo().performClick().assertIsFocused().assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")),
+        )
         port().assertTextContains("5000")
         button(O.wifiConnectionConnect).assertIsNotEnabled()
         assertEquals(1, fixture.attempts.size)
