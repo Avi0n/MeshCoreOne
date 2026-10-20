@@ -263,9 +263,13 @@ dependency lock. The follow-up candidate must still pass its exact-head hosted A
 
 ## Current-main reconciliation for issue #218
 
-The existing PR branch was merged forward from main `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`.
-This reconciles the current WP-003 trusted-review/controller changes without changing the
-WP-313-owned Android tree: the Android tree is identical to the preceding PR candidate, and
+The existing PR branch was subsequently merged forward from main
+`0183a2b206b9ba655d7fea5c281b8bfbfecf8847`, retaining the earlier reconciliation from
+`574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`. This imports the maintainer-merged producer
+and controller changes, including the hosted macOS runner-capacity repair and bounded-repair
+acceptance tooling. The complete Android tree changes with those other producers' work;
+the WP-313 remote-nodes source, tests, build wiring and dependency lock are unchanged from
+`af1ab9d0f97f01904724d4ff4a5fefd7324f90f2`, and
 the six WP-313-owned changed paths remain the remote-nodes module/build wiring, its dependency
 lock, and this evidence file. No new device execution is claimed from this reconciliation.
 The combined WP-503 native record remains scoped to its recorded source/APK/test/device tree;
@@ -276,6 +280,13 @@ the local WSL verification lane; it returned an explicit `UNVERIFIED CANDIDATE` 
 not block publication. Exact current-base verification must come from the declared hosted
 change-scoped workflow for the final successor SHA. Do not transfer the prior exact-head CI
 result to this successor or create a second CI-result bundle.
+
+The earlier hosted run `39316751595` completed with a failed final guard: its Linux build
+and SwiftData restore/export passed, but the mandatory codec job was cancelled with no
+runner and zero executed steps. That is not a source assertion failure or a passing
+oracle. The ordinary Windows preflight for the new reconciliation reports missing explicit
+`ANDROID_CI_STATE`; local readiness is not claimed. The successor's declared hosted
+change-scoped lane supplies its own provisioning, test discovery and exact-candidate result.
 
 ## Not claimed
 
