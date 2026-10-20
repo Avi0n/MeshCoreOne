@@ -16,7 +16,7 @@ CONTROLLER_MODULES = (
     "__init__", "apk_alignment", "authority", "backends", "capabilities", "ci", "ci_environment", "ci_evidence",
     "dispatch", "engine", "errors", "gate_runtime", "gates", "historical", "ledger", "model", "module_junit",
     "native_review", "paths", "performance", "publication", "provision", "repair_acceptance", "render", "runtime_inputs", "schema", "scope_amendment", "settings",
-    "staging", "test_runner", "validate", "verification_config", "workflows",
+    "software_verification", "staging", "test_runner", "validate", "verification_config", "workflows",
 )
 FIXED_INPUTS = (
     ".github/workflows/android-ci.yml", ".github/workflows/copilot-setup-steps.yml",
@@ -38,6 +38,7 @@ FIXED_INPUTS = (
     "docs/android/port-manifest.schema.json", "docs/android/not-ported.json",
     "docs/android/not-ported.schema.json", "docs/android/automation-policy.json",
     "docs/android/scope-amendments/translation-removal.json",
+    "docs/android/evidence/WP-003/software-verification-manifest-amendment.json",
     "android/scaffold/environment-allowlist.json", "android/scaffold/check_environment.py",
     "android/scaffold/inspect_apk.py", "android/scaffold/sync_notices.py",
     "android/gradlew", "android/gradlew.bat", "android/settings.gradle.kts",
