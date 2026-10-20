@@ -4,7 +4,7 @@ This is a bounded command-to-behavior mapping for the existing WP-003 producer's
 verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
-`aae3b10dd78f3d3314f51291687932f42f7d0ac9`. The same producer/reservation owns
+`ec0a41e80ac8637baad524b777f774c10cf99f5b`. The same producer/reservation owns
 the adaptive, Rooms, mounted draft, onboarding WiFi, pairing and Region/preset regressions.
 Historical native observations remain untouched.
 
@@ -49,9 +49,9 @@ zero, skipped, failed or errored cases cannot pass. Method names below identify
 runner cases; descriptions record their actual assertion/parameter families.
 Function-name counts alone are not execution evidence.
 
-The bounded Rooms successor uses the same existing task with just
+The historical four-method Rooms successor used the same existing task with just
 `--tests com.meshcoreone.android.uitests.RoomsComposeTest` and the identical
-strict options above. It requires **4** non-skipped executions, separately from
+strict options above. It required **4** non-skipped executions, separately from
 the incumbent41. Its four methods actually pass at
 `160ba7d3a4018278081c001319b8a6235859c689`; the two cohorts have not been
 combined/re-executed as a claimed45-case result in this resumption.
@@ -64,6 +64,35 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `failedPostRetainsDraftAndAccessibleRetryKeepsTheOriginalMessageIdentity` | Held post disables duplicate action, rejected typed permission error retains draft/no row and reaches localized error/diagnostics; accepted fixture post clears draft once; actual message-change/reload and accessible Retry preserve original session/message/text with pending status. Not actual service/database delivery. |
 | `reconnectLookupAndRejectedJoinKeepTheSheetAndExactRememberChoiceUntilSuccess` | Held contact lookup versus missing-contact recovery/cancel; default remember=true toggled false; held/rejected join preserves disconnected state/sheet/password/remember and exact typed failure; successful fixture join alone dismisses sheet and exposes composer. |
 | `roomFramesCoverEffectiveSchemesWindowsFontsLocalesAndPermissionSurfaces` | Production content in57 existing theme/window/font rows: ten themes/19 effective schemes at all three widths and both fonts/directions per frame,12 sampled resource locales, all nine width/disconnected/guest/member pairs. Original CJK/RTL body, FAILED label, actual layout/glyph fit, two equal settled nonblank native draws/capture. |
+| `liveOutOfOrderArrivalAppearsBetweenExistingRowsBeforeTheHeldReload` | Frozen `[100,200,300]+150 -> [100,150,200,300]`; actual incoming event/visible row geometry before and across held coalesced data reconciliation. |
+| `liveOlderArrivalAppearsBeforeTheExistingRowsBeforeTheHeldReload` | Frozen `[200,300]+100 -> [100,200,300]`; new visible head, same retained draft and single reload/read sequence. |
+| `liveNewestArrivalAppearsAfterTheExistingRowsBeforeTheHeldReload` | Frozen `[100,200]+300 -> [100,200,300]`; new visible tail, exact stable identities before/after reload. |
+| `liveEqualTimestampArrivalFollowsTheExistingIdentityBeforeTheHeldReload` | Frozen existing200 `"first"` then distinct200 `"second"`; actual visible arrival order and createdAt-consistent persisted reconciliation, no replacement. |
+| `liveDuplicateIdentityCannotReorderOrReplaceTheExistingRowBeforeTheHeldReload` | Frozen existing200 ID replayed at150; exact original DTO/order/visible row retained despite duplicate burst, one coalesced fetch only. |
+
+Current source has9 methods. New code
+**ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
+preflight0.62s and actual strict **5 discovered/run/PASS,0 failures/errors/skips,
+43s build**, all five named XML identities read. Actual declared selector:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveOutOfOrderArrivalAppearsBetweenExistingRowsBeforeTheHeldReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveOlderArrivalAppearsBeforeTheExistingRowsBeforeTheHeldReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveNewestArrivalAppearsAfterTheExistingRowsBeforeTheHeldReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveEqualTimestampArrivalFollowsTheExistingIdentityBeforeTheHeldReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveDuplicateIdentityCannotReorderOrReplaceTheExistingRowBeforeTheHeldReload
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Each mounts actual route/holder/events, uses fixed original prefix/timestamps,
+holds the real data dependency after duplicate same-loop arrivals, advances
+the original50ms deadline explicitly, verifies visible semantic row order/
+unchanged DTOs/draft/no empty/spinner, then exactly one additional fetch and
+post-release read/failed-seen/notification/badge/change sequence. No send/join/
+retry/failure and exactly one subscriber. Four older methods/57 inputs were
+not replayed; this is not a combined9-case or current hosted/native verdict.
 
 Rooms production route/content/state-holder ownership remains WP-310; room
 accessibility source/test ownership remains WP-307. The controlled dependencies
@@ -72,7 +101,7 @@ RoomServerService, Room database, server sync or radio. Rendering adds57 Rooms
 inputs to the existing127 conversation/local-content definitions; they are
 not184 approved goldens or a newly executed combined capture cohort. Resource
 locales are sampled, not the full locale x state x theme product or date-format
-parity. Grouping/order, notification lifecycle, authentication expiry, full
+parity. Remaining grouping/avatar/order originals, notification lifecycle, authentication expiry, full
 message-action and store/wire families still need their primary-owner evidence.
 
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
@@ -394,7 +423,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, three WiFi, seven pairing and seven Region/preset methods actually passing together after canonical primary repair (including retained max-remedy negative-to-positive and acknowledgement/reset/Back). Full Rooms sync/history/actions/store/radio, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input/four-method Rooms history plus five separately passing mounted live insertion/tie/duplicate/reconciliation methods (source now9, no invented9-case cohort), three WiFi, seven pairing and seven Region/preset methods passing together after canonical repair. Full Rooms sync/history/actions/store/radio and remaining grouping/avatar originals, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |

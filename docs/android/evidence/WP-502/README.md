@@ -71,7 +71,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Production `RoomConversationRoute`/`RoomConversationStateHolder` with controlled service/data ports: held loading versus empty, guest/member/admin/disconnected transitions, focused draft across three widths, held/rejected post and exact-ID accessible Retry, held/missing contact and rejected/successful authentication with exact password/remember inputs. Separately renders production content in 57 effective-theme/window/font rows with 12 sampled locales and all nine width/permission-surface pairs. Not actual RoomServerService, Room-database persistence, radio or approved-golden evidence. |
+| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Five additional actual live-event methods pass separately at ece2fa061: frozen middle/front/tail/tie/duplicate inputs drive real visible row order/identity before a held50ms coalesced reload, retained draft/no empty/loading flash, exactly one subscriber and two full read-side-effect sequences. Class now has9 methods, not a manufactured9-case cohort. Not actual RoomServerService/history sync/Room-database/radio/golden evidence. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -89,6 +89,44 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Mounted Rooms live events and coalesced reconciliation
+
+Code **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2**, baseec0, installed
+preflight **PASS0.62s**. Same declared App task selects only the five new
+`RoomsComposeTest.live*` methods by their explicit full names in the inventory,
+with existing strict dependency/build-cache/no-parallel/4-worker/512m options:
+**5 discovered/run/PASS,0 failures/errors/skips,43s build**.
+Fresh XML contains all five identities, timestamp21:35:24.913Z.
+No legacy four-method/57-draw, Region/preset, old combined cohort or device rerun.
+
+Read the complete frozen RoomConversationView/ViewModel and all12
+RoomConversationViewModelOrderingTests, then actual primary Android
+route/holder/contracts/tests. First five original parameter families are
+preserved: `[100,200,300]+150`, `[200,300]+100`, `[100,200]+300`,
+`[100,200(first)]+200(second)` and duplicate existing200 ID replayed at150.
+Fixed independent UUIDs/createdAt and unique raw body labels permit actual
+rendered-order checks without a candidate-generated expected oracle.
+
+Real route starts its actual holder/subscriber/load. A same-loop duplicate
+received-event burst updates rendered rows optimistically, then the actual
+50ms looper deadline starts exactly one held data-source reload. Visible
+semantic bounds/order/full DTO identities and original draft survive before,
+during and after reconciliation; cached rows never become empty/spinner.
+Held fetch produces no read/notification/badge/change side effects until
+released, then completes exactly one second ordered sequence. No post/join/
+retry/diagnostic failure; one subscriber. Existing controlled ports are
+reused unchanged, no production edit/new fake policy or provider/device claim.
+Actual already-owned modify admission remains idempotent revision25.
+
+These are five actual mounted consumer witnesses, not acceptance of all12
+ordering originals, grouping/avatar/reconfiguration, full history/store/wire,
+notifications or whole-WP parity. Old four Rooms methods remain byte-for-byte
+unchanged. New source has9 methods; no separate9-case execution is claimed.
+Portmap/controller/source-pin/old-witness preservation and diff checks pass.
+Earlier ea4 [COMMENTED5591884702](https://github.com/cbattlegear/MeshCoreOne-Android/pull/249#pullrequestreview-5591884702)
+is nonblocking bounded source review of the unchanged seven-Region increment,
+not this new Rooms delta, an approval or a transferred hosted/native result.
 
 ### Actual canonical main landing and same-owner reconciliation
 
