@@ -15,9 +15,14 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 private const val ADAPTED = "adapted-service-fake"
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [31])
 class CliToolLocalCommandsTest {
     private val scheduler = TestScheduler()
     private val holder = CliToolStateHolder(scheduler.scope, XmlDiagnosticsText(), scheduler.clock, FAKE_ERRORS)

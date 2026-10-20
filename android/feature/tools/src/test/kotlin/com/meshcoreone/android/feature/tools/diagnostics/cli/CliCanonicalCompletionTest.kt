@@ -8,7 +8,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [31])
 class CliCanonicalCompletionTest {
     @Test
     fun learnedLoginPrefixUsesCanonicalEquivalence() {
