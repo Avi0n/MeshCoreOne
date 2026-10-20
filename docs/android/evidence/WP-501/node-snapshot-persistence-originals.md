@@ -199,6 +199,25 @@ source are unchanged; local22/22 remains actual5714 execution, not a
 fresh687 replay. Inherited packaging code is not WP-501 deployment,
 native consumer verification or permission to invoke it.
 
+During normal publication of initial22-case
+`ce29cb1b87e834c484245bcf3095aec1a97150e9`, user-merged PR #256
+advanced actual main at23:36:30Z to
+`bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`, retaining producer
+`1562fb5c1a0bcb62e7b5c56d844ea41fc8c2a3af`. Same owner-fenced
+admission is idempotent for those already admitted four paths:
+actual revision remains73, not a manufactured74 or new attempt.
+Merge `b58cf78d35c4f6d4ba1a4b49d04c1d6edc82e012` preserves all
+four exact producer/main blobs and all148 ce29 candidate-only paths.
+This is the latest integrated main/base. Frozen source, manifest,
+policy and all executed Android test/product/fixture bytes are unchanged.
+Local22/22 remains actual5714 execution, not a new bfd replay.
+No packaging/native invocation, deployment or signing acceptance.
+Intermediate [ce29 CI39516079612](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39516079612)
+was running at this read: classifier/controller passed, Linux and codec
+running; no full verdict. Its installed advisory Python/preflight
+passed, scaffold exceeded180s with owned cleanup: explicitly UNVERIFIED,
+not a test defect, merge check or transferred successor execution.
+
 Actual [COMMENTED source comparison5592998645](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5592998645)
 binds adb/5714's six location originals and carried-forward three slot
 originals only. No blocker in that bounded source comparison is not a
