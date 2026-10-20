@@ -126,9 +126,17 @@ replaced by these three mounted integration methods.
 
 Same declared strict App task with
 `--tests com.meshcoreone.android.uitests.OnboardingPairingComposeTest`
-requires **4** non-skipped executions. Code
+now requires **7** non-skipped executions. Code
+`e140e9fe860517256362e6e500cf57a98725e933` passes exact preflight0.57s and
+actually discovers/runs/passes7, zero failure/error/skip,35s build. Actual
+XML includes the four unchanged incumbent methods and three new mounted
+Bluetooth recovery methods. The same fixture is extended rather than adding
+nominal duplicate coordinator-policy cases.
+
+Historical code
 `5794a96e71144908c5ff6e2c0c234ea3a9a3f5be` passes exact preflight0.56s and
-actually discovers/runs/passes4, zero failure/error/skip,37s build.
+actually discovers/runs/passes4, zero failure/error/skip,37s build; that result
+remains bound to its earlier four-method source.
 
 | Method | Actual family |
 | --- | --- |
@@ -136,9 +144,22 @@ actually discovers/runs/passes4, zero failure/error/skip,37s build.
 | `otherAppFailureKeepsExactRetryTargetAcrossDismissalAndAnotherFailureUntilSuccess` | Initial held pair failure presents exact CJK/RTL message; dismiss preserves Retry, first held Retry fails without a replacement UUID, next Retry still uses the same original UUID, no substitute fresh pair, explicit success/one Region push. German834dp. |
 | `benignCancelledAndIgnoredOutcomesLeaveTheActualPairStepReusableWithoutAnErrorOrCompletion` | Declared Cancelled and Ignored independently clear busy with no error/Region/completion; Add remains reusable and a later explicit success works. Not thrown coroutine cancellation or an actual picker result. |
 | `threeTitleTapsAloneUnlockDemoAndDemoPrimaryPrecedesAnExistingRetryTarget` | Actual Add -> other-app Retry -> Demo precedence. Two title taps have no effect; third unlocks once/shows localized alert without connecting. Demo replaces Retry/Add and one held demo attempt advances only on explicit success. |
+| `justInTimeGrantResumesOneHeldPairAndRepeatedResultCannotStartAnother` | First Add with Bluetooth NOT_DETERMINED requests exactly Bluetooth once, no transport/advance. Actual Flow result callback refreshes independent facts to GRANTED and resumes one held pair. Repeated callback while held/after Region never duplicates attempt/navigation; optional permissions stay denied. |
+| `deniedResultOffersSettingsAndWiFiWithoutPromptLoopAndGrantNeedsNewIntent` | First result DENIED exposes localized inline notice/Settings, no transport/false completion or prompt loop on Add/repeated callback. Actual WiFi open/cancel remains available. Later grant refresh does not reuse consumed intent; explicit new Add starts one held pair. German834dp/200%. |
+| `bluetoothOffOffersSettingsAndWiFiThenExplicitAddRechecksTheAdapterWithoutRequestingPermission` | Granted Bluetooth plus adapter off calls neither transport nor permission requester, exposes actual notice/Settings and preserves WiFi availability. Controlled adapter-on refresh alone cannot pair; explicit Add rechecks/clears notice and starts one held pair. |
 
 All use real `OnboardingFlow`/coordinators, actual200% Pair heading density/
-height, no completion flag/callback, no unrelated effect or permission request.
+height, no completion flag/callback or unrelated effects. The four incumbent
+methods still require zero requests/Settings effects; new methods require
+their exact expected Bluetooth request/Settings counts and denied optional
+snapshots. Permission result is the actual callback passed by production Flow,
+not a direct test invocation of a copied/standalone coordinator. The controlled
+permission port publishes separate facts only when refreshed.
+Existing WP-305 JIT/inline-remedy adaptation and primary-owner blocker/resume
+cases are [mapped explicitly](README.md#bounded-mounted-bluetooth-permission-and-blocker-recovery);
+Android-only cases are not reassigned frozen originals. App-layer API mapping/
+actual launcher, system permission dialog/Settings lifecycle, request-history
+classification and process recreation remain outside this fixture.
 The controlled pairing/demo outcomes are not a real CDM/BLE/OS/device/demo
 transport. Frozen source branches and existing owner-case correspondence
 are recorded in [WP evidence](README.md#bounded-production-pairing-primaryrecovery-slice),
@@ -147,8 +168,8 @@ not reclassified as newly ported primary test files or whole families.
 two cases are not satisfied by injecting already-mapped outcomes: PIN/bond/
 foreground/registry/scanner and raw-failure classification remain separate.
 English360dp/German834dp are sampled, not a full layout/locale/theme product.
-This4-case selector does not re-execute/combine the prior3 WiFi/4 Rooms/2 draft/
-41 cohort as a new54-case execution or certify full onboarding/WP-502.
+The current7-case selector is not combined with prior3 WiFi/4 Rooms/2 draft/
+41 cohorts or relabeled as full onboarding/WP-502 acceptance.
 
 ### com.meshcoreone.android.uitests.ConversationComposeTest
 
@@ -276,7 +297,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, three onboarding WiFi methods and four pairing primary/held-recovery/Retry/cancel/demo-priority methods. Full Rooms sync/history/actions/store/radio, pairing OS/raw-failure/registry/foreground families, demo transport, region/preset, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input Rooms slice/four methods, three onboarding WiFi methods and seven pairing methods, including JIT Bluetooth grant/denial/adapter-off recovery. Full Rooms sync/history/actions/store/radio, pairing OS/raw-failure/registry/foreground families, demo transport, region/preset, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |

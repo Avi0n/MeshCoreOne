@@ -59,7 +59,7 @@ coordinator integration.
 | `ConnectedConversationComposeTest` | Actual AppContainer/Room/service graph and existing protocol-speaking firmware harness. Reference `RESP_CODE_ERR=1`, direct `ErrorCode.notFound=2` and channel terminal `ErrorCode.illegalArgument=6` reject real sends. Separate mounted direct/channel cases click Retry and require the same saved message, original text/FAILED persistence, visible failure/recovery after both attempts, one terminal event per attempt, durable envelope metadata, queue cleanup, consumed draft and one connection owner. Channel notFound is intentionally retryable and is not substituted for the terminal reference error. New assertions require their own positive execution before credit. |
 | `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
 | `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
-| `OnboardingPairingComposeTest` | Four mounted production Flow/coordinator methods: external/local busy guards and exactly one accepted Region entry; held other-app failure, dismissed alert and repeat failure preserve the exact Retry UUID; benign Cancelled/Ignored remain reusable without error/advance/completion; two title taps do nothing, third unlocks demo once without connecting and demo primary takes priority over the retained Retry target. Controlled pairing/demo ports, not OS chooser/BLE/radio/native-device evidence. |
+| `OnboardingPairingComposeTest` | Seven mounted production Flow/coordinator methods: four primary/held-recovery/Retry/benign-cancel/demo-priority methods, plus three just-in-time Bluetooth grant/denial/adapter-off recovery methods. Actual request-result callbacks refresh controlled snapshots; one grant resumes one held pair, repeated callbacks do not duplicate it, denial consumes intent without a prompt loop, Settings/WiFi remain reachable, and later grant/adapter recovery requires explicit Add. Optional location/notifications/LAN stay denied and independent. Controlled ports, not OS chooser/permission dialog/BLE/radio/device evidence. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
@@ -83,6 +83,64 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Bounded mounted Bluetooth permission and blocker recovery
+
+The existing `OnboardingPairingComposeTest` witness/fixture is extended, not
+replaced by another policy-only test. Same-owner `evolve --expected-revision 22`
+for this owned path/modify is idempotently admitted at **revision22**; no
+reservation release/recreation, new shared capability or foreign edit.
+The four incumbent method blocks remain exactly byte-identical to8f5.
+Shared helpers still default to zero requests/Settings calls and now assert
+all optional snapshots stay denied. Rooms/adaptive/draft/WiFi bytes are unchanged.
+
+| Existing source/adaptation/owner witness | New actual mounted predicate |
+| --- | --- |
+| WP-305's documented Android just-in-time Bluetooth adaptation; `OnboardingFlowCoordinatorTest.justInTimeBluetoothPermissionThenPairResumes` | `justInTimeGrantResumesOneHeldPairAndRepeatedResultCannotStartAnother`: Welcome/optional Permissions/Pair create no request. First actual Add requests Bluetooth once, calls no pairing port and stays on Pair while result is held. The callback actually supplied by production Flow refreshes independently controlled platform facts to GRANTED, starts one held pair, and repeated callbacks while held and after accepted Region do not add attempts or Region entries. |
+| `DeviceScanCoordinatorTest.bluetoothBlockersAreReportedWithoutPairing`, denied Settings remedy in `DeviceScanScreen`, frozen `DeviceScannerSheet.unauthorized` explanatory state | `deniedResultOffersSettingsAndWiFiWithoutPromptLoopAndGrantNeedsNewIntent`: first request completes DENIED, actual localized notice/Settings appear, no transport/error alert/Region/completion. Explicit Add and repeated callback cannot request again. Real WiFi sheet still opens/cancels without transport. Later GRANTED refresh alone does not revive the consumed denied intent; explicit new Add alone starts one held pair and clears the notice. German834dp/200%. |
+| Same owner blocker case, frozen `DeviceScannerSheet.poweredOff`, existing Android inline Settings remedy | `bluetoothOffOffersSettingsAndWiFiThenExplicitAddRechecksTheAdapterWithoutRequestingPermission`: Bluetooth granted but adapter off blocks pairing without any permission request, exposes actual off title/message/Settings, and preserves WiFi open/cancel. Controlled adapter-on refresh alone does not pair; explicit Add rechecks/clears the blocker and starts one held pair. |
+
+The reused fixture separates platform facts from the published permission
+StateFlow: only its port `refresh()` publishes the changed facts, so pre-setting
+UI state cannot stand in for executing the real Flow result callback.
+Refresh counts, exact request kind/count, settings-opener calls, held pairing,
+completion flag/callback and unrelated-effect absence are asserted.
+Location/notifications/LAN remain denied at every checked boundary, create no
+request, and do not gate pairing or WiFi availability. The WiFi check only
+opens/cancels its real sheet; it does not repeat its validation/connect cohort.
+Accepted pairing returns through one actual flow Back callback to Pair.
+
+Frozen `PermissionsView`'s unconditional Continue and `DeviceScanView`'s
+independent WiFi button inform consumer boundaries; Android permission timing
+and inline Settings are the **existing WP-305 native adaptation**, not identical
+iOS permission APIs or newly accepted frozen original cases.
+App-layer `AndroidOnboardingPermissionPort` API mapping and
+`AppOnboarding.rememberPermissionRequester` were read; the actual OS launcher,
+request history/denial classification and lifecycle settings round-trip are
+not executed by this feature-contract fixture. No system dialog/CDM/BLE,
+radio, actual Settings app, scanner list, process/Activity recreation, new
+screenshots/goldens or full onboarding/native/device acceptance is claimed.
+
+At code **`e140e9fe860517256362e6e500cf57a98725e933`**, exact installed
+Git-bundle/ext4 preflight **PASS0.57s** and the same declared strict selector:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingPairingComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**7 discovered/run/passed, zero failure/error/skip,35s build**. Actual named
+JUnit XML contains all four incumbent and three new methods. First execution
+passes; no product discrepancy/unchanged-production negative or foreign fix
+was needed. This seven-case execution at e140 does not relabel earlier579's
+four-case result or create a combined other-feature cohort.
+Portmap/controller validation, `git diff --check`, exact incumbent method-block
+comparison and older-test/main9c support-byte comparisons all **PASS**.
+Predecessor8f5 [COMMENTED source review5589919731](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5589919731)
+finds no bounded pairing blocker, but does not review/approve this successor;
+hosted verdicts remain exact-candidate bound.
 
 ### Bounded production pairing primary/recovery slice
 
