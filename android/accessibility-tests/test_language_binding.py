@@ -1,6 +1,8 @@
-"""AndroidOnly: WP-503 Pure language binding/admission guards, not a live Android host."""
+"""AndroidOnly: WP-503 Pure language source/publication guards, not native acceptance."""
 
 from dataclasses import replace
+import io
+import json
 import unittest
 from unittest.mock import Mock, patch
 
@@ -122,69 +124,47 @@ class LanguageBindingTest(unittest.TestCase):
         with self.assertRaises(binding.PortError):
             binding.request_for(replace(source(), replacement_cli_session="d2980f28-620c-408b-9947-067e2da8eedf"), 31)
 
-    def test_no_provider_static_diagnostic_or_session_dispatch_is_not_device_admission(self):
-        class SessionHost:
-            create_session = Mock()
-            capabilities = Mock(return_value={"authenticated": True})
-
-        host = SessionHost()
-        for provider in (None, {"state": "PASS", "authoritative": True}, host):
-            with self.subTest(provider=provider), self.assertRaisesRegex(binding.PortError, "admit_language_device"):
-                binding.admission_scope(provider, binding.request_for(source(), 31))
-        host.create_session.assert_not_called()
-        host.capabilities.assert_not_called()
-
-    def test_provider_must_supply_guarded_scope_not_boolean_or_json_authority(self):
-        for result in (True, {"admitted": True}, None):
-            provider = Mock(admit_language_device=Mock(return_value=result))
-            request = binding.request_for(source(), 37)
-            with self.subTest(result=result), patch.object(binding, "current_binding", return_value=source()), \
-                    patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF):
-                with self.assertRaisesRegex(binding.PortError, "guarded preservation/lane"):
-                    binding.admission_scope(provider, request)
-            provider.admit_language_device.assert_called_once_with(request)
-
-    def test_injected_scope_is_returned_without_entering_or_starting_a_device(self):
-        class FixtureScope:
-            entries = 0
-
-            def __enter__(self):
-                self.entries += 1
-
-            def __exit__(self, *_args):
-                return False
-
-        scope = FixtureScope()
-        provider = Mock(admit_language_device=Mock(return_value=scope))
+    def test_exact_published_current_source_rechecks_without_a_host_callback(self):
         request = binding.request_for(source(), 37)
-        with patch.object(binding, "current_binding", return_value=source()), \
-                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF):
-            self.assertIs(scope, binding.admission_scope(provider, request))
-        self.assertEqual(0, scope.entries)
-        provider.admit_language_device.assert_called_once_with(request)
+        with patch.object(binding, "current_binding", return_value=source()) as current, \
+                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF) as git:
+            binding.verify_current_request(request)
+        current.assert_called_once_with(HEAD)
+        git.assert_called_once_with("ls-remote", "origin", binding.PUBLIC_REF)
 
-    def test_stale_source_claim_policy_or_unpublished_input_never_calls_provider(self):
+    def test_preparation_cli_is_read_only(self):
+        output = io.StringIO()
+        with patch.object(binding, "current_binding", return_value=source()), patch("sys.stdout", output):
+            self.assertEqual(0, binding.main(["--head", HEAD]))
+        result = json.loads(output.getvalue())
+        self.assertFalse(result["authority"])
+        self.assertFalse(result["apks_built"])
+        self.assertEqual(0, result["native_starts"])
+        self.assertEqual([31, 37], [request["api"] for request in result["requests"]])
+
+    def test_always_fail_admission_placeholder_is_removed_from_cli(self):
+        with patch("sys.stderr", io.StringIO()), self.assertRaises(SystemExit) as caught:
+            binding.main(["--head", HEAD, "--require-native-admission"])
+        self.assertEqual(2, caught.exception.code)
+
+    def test_stale_source_claim_policy_or_unpublished_input_is_rejected(self):
         request = binding.request_for(source(), 31)
         for actual in (
             replace(source(), reservation_revision=15),
             replace(source(), policy_revision="e" * 64),
             replace(source(), source_revision="f" * 40),
         ):
-            provider = Mock()
             with self.subTest(actual=actual), patch.object(binding, "current_binding", return_value=actual), \
                     patch.object(binding, "git") as git:
                 with self.assertRaisesRegex(binding.PortError, "changed before"):
-                    binding.admission_scope(provider, request)
+                    binding.verify_current_request(request)
                 git.assert_not_called()
-                provider.admit_language_device.assert_not_called()
         for published in ("", "f" * 40 + "\t" + binding.PUBLIC_REF,
                           HEAD + "\trefs/heads/other"):
-            provider = Mock()
             with self.subTest(published=published), patch.object(binding, "current_binding", return_value=source()), \
                     patch.object(binding, "git", return_value=published):
                 with self.assertRaisesRegex(binding.PortError, "exact currently published"):
-                    binding.admission_scope(provider, request)
-                provider.admit_language_device.assert_not_called()
+                    binding.verify_current_request(request)
 
     def test_transcript_accounting_uses_current_source_but_grants_no_acceptance(self):
         for api in (31, 37):

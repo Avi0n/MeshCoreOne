@@ -13,27 +13,61 @@ Read-only preparation, with the actual current committed head:
 
 ```powershell
 python android\accessibility-tests\language_binding.py --head CURRENT_HEAD
-python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --require-native-admission
 ```
 
-The second command deliberately fails closed while no trusted app-host
-`admit_language_device(LanguageRequest)` provider is deployed. This is the
-missing **Android-device** admission boundary, not `backends.NativeHost`'s
-session-dispatch callbacks or `gate_runtime.capabilities`' static,
-non-authoritative integration diagnostic. Neither a JSON PASS nor the latter
-diagnostic supplies device authority. No candidate file, flag, environment value,
-historical endpoint or retired worker can provide that host injection.
+The old `--require-native-admission`/hardcoded-None hook is removed. Its proposed
+`admit_language_device` method was our unfinished software, not a vendor API,
+installable integration or independent authority. No extension or fleet
+activation is required to invoke the actual existing local process boundary.
+The static `gate_runtime.capabilities` diagnostic remains non-authoritative.
 
-The adapter rechecks actual current source/policy/owner/reservation and exact
-published PR205 input before calling an injected provider. That real provider
-must enforce the applicable pause, current source/owner/device and preservation
-guards and return its guarded preservation/native-lane scope. This module does
-not implement that host, enter the scope, acquire a lane, build/install APKs or
-start instrumentation. A live execution consumer must retain the existing
-bounded preservation/cleanup behavior; no duplicate lifecycle runner is added.
-Transcript-only accounting reuses `shared_device_runner.parse_outcomes`, rejects
-forced/nonpositive completion and never grants native acceptance or clears an
-actual lane. No old source/selector/endpoint constant is rebound.
+`language_runner.py` is the direct-process consumer. It reuses the shared
+runner's parameterized lane, installer, strict parser, uncertainty, bounded host/
+guest cleanup and original-package restoration. The historical constants,
+missing-only27 selectors and old default entrypoint are not rebound.
+
+Explicit host/source/configuration readiness (no device probe, lane, build or
+instrumentation), using actual current values rather than a historical endpoint:
+
+```powershell
+python android\accessibility-tests\language_runner.py --head CURRENT_PUBLISHED_HEAD --api 31 --readiness --adb CURRENT_ADB --host CURRENT_LOOPBACK_IP --port CURRENT_PORT --serial CURRENT_EMULATOR_SERIAL --state CURRENT_BUILD_INPUTS_JSON --debug-home EXISTING_DEFAULT_DEBUG_HOME --output NEW_PRIVATE_OUTPUT_DIRECTORY
+```
+
+`--state` uses the existing `candidate_environment` build-input schema
+(`schema_version`, `host`, absolute `java_home`/`android_home`/`private_root`,
+`provenance`), not an adapter-state file or JSON admission grant. The supplied
+ADB must exist in that SDK. Debug-home inspection checks file metadata only;
+no key is read, created, exported or copied by this consumer.
+
+Only when actual live guards permit, replacing `--readiness` with `--execute`
+performs that API's **two original language methods only**. Select the other API
+explicitly with a fresh output directory; there is no automatic replay/default
+full cohort. Current clean source/policy/owner/reservation and exact published
+PR205 head are rechecked before the lane, after packaging and before native
+start. The actual policy pause blocks before device commands or lane acquisition;
+it is not a demand to enable dispatch/merge automation.
+
+Inside the unique held operation lane, the consumer authenticates the explicit
+existing transport and observes actual API/boot/fingerprint/CPU, compact font200/
+IME/reduced-motion profile, quiescence and System app locale. It reads only the
+debug app's named locale preference to reject a non-System selection or pending
+migration, never resets a user's language. Missing endpoints are surfaced, not
+started. Physical devices, profile changes and occupied native/Gradle lanes fail
+closed. The deployed `assemble_debug_pair` receives the actual operation owner,
+uses the existing debug identity, verifies App/Test/installed public certificates
+and preserves exact build/source hashes. Public APK copies are verified before
+installation; the original target APK and compatible Room schema are preserved,
+and an existing test package is never replaced.
+
+Normal all-positive completion and original packages/profile must be verified
+before releasing the actual operation owner. Spawn/wait/receipt/read/decode/
+terminal-proof failures retain uncertainty, independently attempt bounded host
+and verified-owned guest cleanup, and never equate APK restoration with fixture
+preference/window recovery. Cancellation and cleanup failures remain visible.
+Output under the new private directory retains operations, original/public APKs,
+packaging log/binding and exact two-method transcripts/recovery receipts.
+Synthetic unit transports/processes are not native evidence. Transcript-only
+accounting and the runner both leave whole-WP `acceptance=false`.
 
 All pure adapter/cleanup/terminal regressions, with positive discovery:
 
@@ -42,8 +76,9 @@ python -m unittest discover -s android\accessibility-tests -p test_*.py -v
 ```
 
 The sections below retain historical source-bound entrypoints and results.
-In particular, the old `shared_device_runner.py` missing-only27 entrypoint is
-unchanged and is **not** the current-owner language entrypoint.
+In particular, the old `shared_device_runner.py` missing-only27 source/default
+selection is **not** the current-owner language entrypoint. Its shared lifecycle
+helpers are reused without advancing its historical source or result bindings.
 
 ## Publication and execution are different source configurations
 

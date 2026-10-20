@@ -127,24 +127,12 @@ def current_binding(revision):
     return prepare_binding(revision, claim)
 
 
-def admission_scope(provider, request):
-    """Only a trusted app-host injection may supply the real scoped device boundary."""
-    admit = getattr(provider, "admit_language_device", None)
-    if not callable(admit):
-        raise PortError(
-            "Missing trusted app-host Android-device admission provider: "
-            "admit_language_device(LanguageRequest). Existing backends.NativeHost supplies session "
-            "dispatch only, not current-owner/source/device admission. No device, lane or build started."
-        )
+def verify_current_request(request):
     if current_binding(request.binding.source_revision) != request.binding:
-        raise PortError("Source, policy, current owner or reservation revision changed before native admission")
+        raise PortError("Source, policy, current owner or reservation revision changed before execution")
     published = git("ls-remote", "origin", PUBLIC_REF).split()
     if published != [request.binding.source_revision, PUBLIC_REF]:
         raise PortError("Native request is not the exact currently published PR205 input")
-    scope = admit(request)
-    if not callable(getattr(scope, "__enter__", None)) or not callable(getattr(scope, "__exit__", None)):
-        raise PortError("Device admission provider must return its guarded preservation/lane scope, not a data verdict")
-    return scope
 
 
 def account_outcomes(transcript, request, *, process_exit, forced_termination):
@@ -164,7 +152,6 @@ def account_outcomes(transcript, request, *, process_exit, forced_termination):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--head", required=True)
-    parser.add_argument("--require-native-admission", action="store_true")
     args = parser.parse_args(argv)
     try:
         binding = current_binding(args.head)
@@ -175,8 +162,6 @@ def main(argv=None):
             ],
             "authority": False, "native_starts": 0, "apks_built": False,
         }, indent=2))
-        if args.require_native_admission:
-            admission_scope(None, requests[0])
         return 0
     except (PortError, OSError, subprocess.SubprocessError, KeyError, ValueError) as error:
         print("BLOCKED: " + str(error), file=sys.stderr)

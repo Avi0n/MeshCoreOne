@@ -673,3 +673,57 @@ App865 is historical, not an ec0 verdict. Preparation must bind the clean
 committed successor. The strict language fixture/product lineage and two
 methods per API31/37 are unchanged. No native/provider authority is created,
 and no device, lane, key, install, start or successful-cohort replay occurs.
+
+### Direct-process language lifecycle replaces the invented provider dependency
+
+The user-directed correction removes `admission_scope(None, ...)` and the
+always-failing `--require-native-admission` placeholder. Earlier statements
+above describing a missing `admit_language_device` provider as an external host
+prerequisite were an implementation mistake, not a discovered vendor API or
+required installation. The separate extension/bridge proposal is superseded;
+no such source, settings, policy dependency or actor is introduced.
+
+Supported `Ledger.evolve_scope` advances the same canonical reservation17 to18
+for the current-source consumer and tests, shared helper extraction, binding
+correction and directly related documentation. Immutable identity, original
+authorization/bindings, branch/worktree context and repair history are verified
+unchanged. The generated transaction receipt remains in the replacement
+session's `files/wp503-direct-language-consumer.json`.
+
+`language_runner.py` consumes the actual process boundary and deployed
+`assemble_debug_pair`. It passes the unique held `canonical:language:UUID`
+operation owner, preserves the original target, verifies current source and
+public APK hashes/certificates, and reuses the existing installer, strict
+discovery, uncertainty, bounded host/guest cleanup and restoration helpers.
+It observes an explicit current transport/API/profile and System app locale,
+including the real API31 preference/API37 LocaleManager and pending-migration
+contracts. It never resets user locale or changes fixture/product bytes.
+Cancellation kills/waits independently; receipt/metrics/proof failures retain
+uncertainty. Unresolved original profile or package state retains the lane.
+The historical shared runner's HEAD/tree/actor/default selectors remain
+historical and are not used as current-source inputs.
+
+The declared pure command
+`python -m unittest discover -s android\accessibility-tests -p test_*.py -v`
+passes **65 discovered/65 passed/0 failed/0 errors/0 skipped**, including20 new
+synthetic direct-process lifecycle tests, the existing23 shared-runner safety
+tests,14 binding/accounting tests and8 cleanup tests. The first63-test attempt
+had one synthetic CLI fixture error (a Git lookup intercepted by the mocked
+process); that test isolation was corrected, not a native assertion changed.
+The final command covers actual API31/37 argument selection, current owner/
+source, pause and occupied lanes, explicit endpoint/configuration, original
+locale/storage preconditions, packaging/schema/byte failures, partial install,
+receipt failure, cancellation, timeout, positive discovery and retained lanes.
+The four existing validators and whitespace checks pass; no local Android
+build or device outcome is claimed.
+
+The real readiness mode checks source/configuration without device probing.
+Execution mode still enforces the actual repository pause, authentication,
+held-lane, preservation and current-source guards; the removed method does not
+grant authority. This continuation performs no device probe, lane acquisition,
+key access, packaging build, install or native start. Its exact clean committed
+successor requires a fresh source binding and automatic hosted verdict.
+Published275a0596c/run39495005720 succeeded (App865/865, all7 head-bound checks);
+that historical result does not verify this implementation successor.
+Issue238 and the full audit remain open; two methods per API31/37 are separate
+from missing-only27 and from whole-WP acceptance.

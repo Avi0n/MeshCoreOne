@@ -230,10 +230,19 @@ class Device:
 @contextmanager
 def native_lane(ledger, device):
     lock_owner = OWNER + ":shared37:" + uuid.uuid4().hex
+    with execution_lane(
+        ledger, device, lock_owner=lock_owner, canonical=OWNER,
+        endpoint="127.0.0.1:5037/" + SERIAL, purpose="missing-only27", source=HEAD,
+    ):
+        yield
+
+
+@contextmanager
+def execution_lane(ledger, device, *, lock_owner, canonical, endpoint, purpose, source):
     device.native_lane_owner = lock_owner
     ledger.acquire_hard_lock("native-execution", lock_owner, {
-        "wp": "WP-503", "canonical_session_id": OWNER, "endpoint": "127.0.0.1:5037/" + SERIAL,
-        "purpose": "missing-only27", "source": HEAD,
+        "wp": "WP-503", "canonical_session_id": canonical, "endpoint": endpoint,
+        "purpose": purpose, "source": source,
     }, time.time())
     try:
         yield
@@ -250,7 +259,10 @@ def native_lane(ledger, device):
                 actual = device.installed(APP)
                 require(actual is not None and actual["sha256"] == original and device.installed(TEST) is None,
                         "Preserved package state unresolved: native lane retained, not released")
-        except (RuntimeError, subprocess.SubprocessError, OSError) as cleanup:
+            profile = getattr(device, "original_runtime_profile", None)
+            if profile is not None:
+                require(device.profile() == profile, "Original runtime profile unresolved: native lane retained")
+        except (RuntimeError, subprocess.SubprocessError, OSError, ValueError) as cleanup:
             raise BaseExceptionGroup("Native lane retained pending verified guest cleanup",
                                      ([primary] if primary else []) + [cleanup])
         ledger.release_hard_lock("native-execution", lock_owner)
@@ -331,22 +343,54 @@ def has_original_schema(apk):
         return any(SCHEMA in archive.read(name) for name in archive.namelist() if name.endswith(".dex"))
 
 
+def finish_log_consumer(stream):
+    errors = []
+    try:
+        stream.terminate()
+    except BaseException as failure:
+        errors.append(failure)
+    try:
+        stream.wait(timeout=15)
+    except BaseException as failure:
+        errors.append(failure)
+        for action in (stream.kill, lambda: stream.wait(timeout=15)):
+            try:
+                action()
+            except BaseException as cleanup:
+                errors.append(cleanup)
+    if errors:
+        raise BaseExceptionGroup("Bounded log-consumer cleanup failed", errors)
+
+
 def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
+    require(not getattr(device, "application_state_uncertain", False),
+            "Prior fixture state is uncertain; no subsequent cohort may start")
+    return execute_selection(
+        device, directory, cohort, profile, app_digest, test_digest,
+        expected=selected_methods(cohort), api=37, source=HEAD, android_tree=TREE,
+        canonical=OWNER, endpoint="127.0.0.1:5037/" + SERIAL,
+        stem_name="device-shared37-" + cohort, event_prefix="WP503_SHARED37",
+    )
+
+
+def execute_selection(device, directory, cohort, profile, app_digest, test_digest, *,
+                      expected, api, source, android_tree, canonical, endpoint,
+                      stem_name, event_prefix):
     require(not getattr(device, "application_state_uncertain", False),
             "Prior fixture state is uncertain; no subsequent cohort may start")
     require(device.profile() == profile, "Runtime profile changed between cohorts")
     require(device.installed(APP)["sha256"] == app_digest and device.installed(TEST)["sha256"] == test_digest,
             "Actual installed source-bound APKs changed")
-    expected = selected_methods(cohort)
-    stem = directory / ("device-shared37-" + cohort)
+    require(expected and len(expected) == len(set(expected)), "Require positive distinct selected identities")
+    stem = directory / stem_name
     require(not stem.with_suffix(".txt").exists(), "Existing result must not be replayed or overwritten")
     device.fixture_recovery_path = Path(str(stem) + "-recovery.json")
     require(not device.fixture_recovery_path.exists(), "Existing fixture recovery receipt must not be overwritten")
     device.fixture_recovery_context = {
-        "canonical_session_id": OWNER, "source_head": HEAD, "android_tree": TREE,
+        "canonical_session_id": canonical, "source_head": source, "android_tree": android_tree,
         "native_lane_operation_owner": getattr(device, "native_lane_owner", None),
         "cohort": cohort, "original_identities": expected,
-        "endpoint": "127.0.0.1:5037/" + SERIAL,
+        "endpoint": endpoint, "api": api,
         "source_bound_app_sha256": app_digest, "source_bound_test_sha256": test_digest,
         "profile_before": profile,
         "original_target_sha256": getattr(device, "original_target_digest", None),
@@ -359,10 +403,10 @@ def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
         ),
     }
     command = device.command("shell", "am", "instrument", "-w", "-r", "-e", "class", ",".join(expected),
-                             "-e", "expectedApi", "37", TEST + "/androidx.test.runner.AndroidJUnitRunner")
+                             "-e", "expectedApi", str(api), TEST + "/androidx.test.runner.AndroidJUnitRunner")
     # Stream only new System.out records. Never clear the shared device log buffers.
     log_command = device.command("logcat", "-T", "1", "-v", "raw", "-s", "System.out:I", "*:S")
-    print("WP503_SHARED37_START|" + json.dumps({"cohort": cohort, "command": command}), flush=True)
+    print(event_prefix + "_START|" + json.dumps({"cohort": cohort, "command": command}), flush=True)
     with Path(str(stem) + "-logcat.txt").open("xb") as logs, stem.with_suffix(".txt").open("xb") as output:
         stream = subprocess.Popen(log_command, stdout=logs, stderr=subprocess.STDOUT)
         try:
@@ -372,33 +416,41 @@ def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
             process = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT)
             try:
                 code = process.wait(timeout=600)
-            except subprocess.TimeoutExpired:
-                failures = [TimeoutError("Original600s outer deadline exceeded; partial output retained, no retry")]
+            except BaseException as failure:
+                # Cancellation must clean up our host process too, without hiding the original signal.
+                failures = [TimeoutError("Original600s outer deadline exceeded; partial output retained, no retry")
+                            if isinstance(failure, subprocess.TimeoutExpired) else failure]
                 for action in (
                     lambda: device.mark_application_state_uncertain(
-                        "Original600s host timeout; guest completion and Kotlin fixture finally are unverified"),
+                        "Host wait failed; guest completion and Kotlin fixture finally are unverified"),
                     process.kill,
                     lambda: process.wait(timeout=15),
                 ):
                     try:
                         action()
-                    except (RuntimeError, subprocess.SubprocessError, OSError) as cleanup_failure:
+                    except BaseException as cleanup_failure:
                         failures.append(cleanup_failure)
                 if len(failures) > 1:
-                    raise ExceptionGroup("Native timeout and host/receipt cleanup failures", failures)
+                    raise BaseExceptionGroup("Native wait and host/receipt cleanup failures", failures)
                 raise failures[0]
             require(stream.poll() is None, "Scoped log consumer exited during instrumentation")
         finally:
             primary = sys.exception()
             errors = []
             for action in (
-                lambda: (stream.terminate(), stream.wait(timeout=15)),
+                lambda: finish_log_consumer(stream),
                 lambda: device.finish_owned_instrumentation(app_digest, test_digest),
             ):
                 try:
                     action()
-                except (RuntimeError, subprocess.SubprocessError, OSError, ExceptionGroup) as cleanup:
+                except BaseException as cleanup:
                     errors.append(cleanup)
+            if primary is not None or errors:
+                try:
+                    device.mark_application_state_uncertain(
+                        "Instrumentation/cleanup did not complete normally: " + str(primary or errors))
+                except (RuntimeError, OSError) as receipt_failure:
+                    errors.append(receipt_failure)
             if errors:
                 raise BaseExceptionGroup("Instrumentation/log-consumer cleanup failed",
                                          ([primary] if primary else []) + errors)
@@ -408,6 +460,16 @@ def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
         require(code == 0 and summary["passed"] == len(expected) and
                 not device.fixture_completion_untrusted,
                 "Normal all-positive fixture completion is unverified; retain native lane")
+        summary.update({"cohort": cohort, "command": command, "process_exit": code})
+        metrics = [line for line in Path(str(stem) + "-logcat.txt").read_bytes().splitlines()
+                   if line.startswith(b"WP503_")]
+        Path(str(stem) + "-metrics.txt").write_bytes(b"\n".join(metrics) + b"\n")
+        Path(str(stem) + ".json").write_text(json.dumps(summary, indent=2) + "\n")
+        device.fixture_recovery_context.update({
+            "status": "VERIFIED_NORMAL_ALL_POSITIVE_COMPLETION",
+            "fixture_preferences_and_window_restoration_verified": True,
+        })
+        device.fixture_recovery_path.write_text(json.dumps(device.fixture_recovery_context, indent=2) + "\n")
     except (OSError, RuntimeError, KeyError, ValueError) as failure:
         try:
             device.mark_application_state_uncertain(
@@ -416,12 +478,7 @@ def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
             raise ExceptionGroup("Native proof and uncertainty receipt failures", [failure, receipt_failure])
         raise
     device.application_state_uncertain = False
-    summary.update({"cohort": cohort, "command": command, "process_exit": code})
-    metrics = [line for line in Path(str(stem) + "-logcat.txt").read_bytes().splitlines()
-               if line.startswith(b"WP503_")]
-    Path(str(stem) + "-metrics.txt").write_bytes(b"\n".join(metrics) + b"\n")
-    Path(str(stem) + ".json").write_text(json.dumps(summary, indent=2) + "\n")
-    print("WP503_SHARED37_OUTCOME|" + json.dumps(summary), flush=True)
+    print(event_prefix + "_OUTCOME|" + json.dumps(summary), flush=True)
     return summary
 
 
