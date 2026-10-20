@@ -176,7 +176,8 @@ class ConnectedConversationComposeTest : RoomProcessTest() {
                     compose.activity.getString(C.chatsInputAccessibilityLabel), substring = true,
                 )
                 val field = compose.onNode(fieldMatcher)
-                field.performClick().performTextReplacement(retained).assertIsFocused()
+                field.performClick().performTextReplacement(retained)
+                field.assertIsFocused()
                 val conversation = if (channel) ChatConversationID.channel(radio, channelDTO.index)
                     else ChatConversationID.dm(radio, contact.id)
                 assertEquals(retained, h.draftStore.draft(conversation))
