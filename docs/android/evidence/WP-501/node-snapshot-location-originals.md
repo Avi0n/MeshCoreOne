@@ -4,7 +4,7 @@
 
 Repository `cbattlegear/MeshCoreOne-Android`, WP-501 / PR #165 / issue #134.
 Starts at published `19bb78c13ad086e6622c0bf38a66e11dced981e1`;
-actual current main/base is now
+targeted-execution main/base is
 `918af38472a43bf24f9a8bc4762c3c1fb45851b4`.
 Frozen source remains `db14559b39d32322b06477c6ae676112f583db50`.
 Semantic manifest remains
@@ -24,6 +24,27 @@ main/producer blobs and every candidate-only path from19bb. There was
 no overlap, producer rewrite, frozen-source/policy/manifest change or
 replay of unchanged Android cohorts. Inherited controller source is not
 a newly claimed controller execution or gate approval.
+
+During normal publication of the six-case increment
+`eb44f0b503c89a7396879db9ba66740357774402`, the user merged PR #254 at
+23:00:39Z. Latest actual main/base is
+`5714ba3be50618b8d946a21e0db15feb67f90eb6`, retaining producer
+`5f7f9db4996e47cb96c084e0afcd5fbb76975bb6`. Same reservation70->71
+admitted its five disjoint incoming paths. Merge
+`555ce38ff8723022044336c21ea974b3c7a247f3` preserves all five exact
+main/producer blobs and all146 candidate-only paths unchanged. Inherited
+policy bytes change `paused:true` to `false`; dispatch remains off and
+activation unapproved. Actual supported policy_revision still returns
+the same semantic7f757 value above. This is the already user-merged
+WP-003 operational prerequisite, not a WP-501 policy edit or native
+authorization. No native action, live deployment, fleet activation or
+test replay is performed. Local6/6 below remains execution on918 with
+identical test/product/fixture bytes, not a newly executed5714 result.
+The intermediate eb44 automatic
+[CI39512750216](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39512750216)
+was pending at that checkpoint; advisory Python/preflight passed but
+scaffold exceeded180s/owned cleanup, explicitly UNVERIFIED. No result
+from that intermediate publication is relabeled to the final successor.
 
 Read all six complete adjacent location originals and their
 `createTestService`, `metrics`, `testPublicKey` and `testFix` helpers in
