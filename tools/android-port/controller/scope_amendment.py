@@ -58,6 +58,67 @@ ROOMS_AVATAR_CAPABILITY = {
         "exact-head/current-base protected merge review after verified native cleanup",
     ],
 }
+ROOMS_MESSAGE_ACTIONS_CAPABILITY = {
+    "id": "rooms-message-actions",
+    "work_packages": ["WP-502"],
+    "path_rules": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/" + name
+        for name in (
+            "RoomConversationScreen.kt", "RoomConversationStateHolder.kt", "RoomContracts.kt",
+            "RoomMessageAction.kt", "RoomMessageActionAvailability.kt", "RoomMessageActionsSheet.kt",
+            "RoomSendDMSheet.kt",
+        )
+    ],
+    "operations": ["implement-room-message-actions"],
+    "invariants": [
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+        "WP-310-primary-provenance-unchanged", "existing-WP-502-owner-same-reservation",
+        "original-copy-reply-mention-sendDM-sendAgain-availability-and-metadata",
+        "presentation-time-availability-stable-until-dismissal",
+        "real-clipboard-preference-composer-focus-navigation-and-room-post-effects",
+        "sendAgain-post-original-text-without-clearing-existing-draft",
+        "radio-scoped-fresh-contacts-excludeBlocked-and-room-DTO-not-DM-conversion",
+        "source-dismissal-delay-before-focus-or-sendDM-presentation",
+        "once-only-accessibility-label-and-long-press-link-suppression",
+        "reuse-shared-native-identity-theme-and-localized-actions", "translation-removed-no-provider-or-action",
+        "no-unrelated-auth-service-ordering-or-activation-change", "avatar-only-capability-unchanged",
+        "semantic-collisions-serialize-or-transfer-current-producer",
+        "trusted-main-admission-before-product-edit",
+        "no-main-policy-landing-during-held-native-or-gradle-operation",
+    ],
+    "validation": [
+        "mounted Room actions availability, stable presentation, incoming/outgoing metadata and retained-row regressions",
+        "real Copy, Reply/Mention preference/composer/focus, SendDM contact/navigation and SendAgain room-post consumer assertions",
+        "dismissal timing, once-only accessibility, link suppression and translation-absence assertions",
+        "affected manifest-declared software verification and trusted ownership/traceability validators",
+        "exact-head/current-base protected merge review after verified native cleanup",
+    ],
+}
+
+
+def rooms_message_actions_predecessor(policy):
+    """Project the complete exact action-support delta, never historical result identities."""
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result.get("reservation_policy")
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Rooms actions amendment requires the canonical capability catalog")
+    selected = [index for index, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == ROOMS_MESSAGE_ACTIONS_CAPABILITY["id"]]
+    if not selected:
+        return result
+    if (
+        len(selected) != 1 or rules[selected[0]] != ROOMS_MESSAGE_ACTIONS_CAPABILITY
+        or selected[0] == 0 or rules[selected[0] - 1] != ROOMS_AVATAR_CAPABILITY
+        or selected[0] + 1 >= len(rules)
+        or not isinstance(rules[selected[0] + 1], dict)
+        or rules[selected[0] + 1].get("id") != "merge-integration"
+    ):
+        raise PortError("Rooms actions capability changed outside the exact authorized amendment")
+    rules.pop(selected[0])
+    return result
 
 
 def rooms_avatar_predecessor(policy):
@@ -109,7 +170,7 @@ def debug_packaging_predecessor(policy):
 
 def review_policy_predecessor(policy):
     """Reverse exact authorized process deltas; historical policy receipts stay immutable."""
-    result = debug_packaging_predecessor(rooms_avatar_predecessor(policy))
+    result = debug_packaging_predecessor(rooms_avatar_predecessor(rooms_message_actions_predecessor(policy)))
     if "review_policy" not in result:
         return result
     if result.pop("review_policy") != REVIEW_POLICY:

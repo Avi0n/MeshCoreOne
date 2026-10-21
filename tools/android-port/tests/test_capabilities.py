@@ -8,6 +8,7 @@ from fixtures import BASE, NOW, policy, settings, test_manifest
 from controller.capabilities import CapabilityEngine
 from controller.errors import PortError
 from controller.ledger import HARD_LOCK_RESOURCES, Identity, Ledger
+from controller.scope_amendment import ROOMS_AVATAR_CAPABILITY
 from portmap import capability_support_admitted
 
 
@@ -17,6 +18,15 @@ ROOM_RENDERER = (
 )
 ROOM_REPAIR = "repair-room-incoming-avatar-bookends"
 ROOM_CAPABILITY = "rooms-incoming-avatar-repair"
+ROOM_ACTIONS_OPERATION = "implement-room-message-actions"
+ROOM_ACTIONS_PATHS = [
+    ROOM_RENDERER.rsplit("/", 1)[0] + "/" + name
+    for name in (
+        "RoomConversationScreen.kt", "RoomConversationStateHolder.kt", "RoomContracts.kt",
+        "RoomMessageAction.kt", "RoomMessageActionAvailability.kt", "RoomMessageActionsSheet.kt",
+        "RoomSendDMSheet.kt",
+    )
+]
 
 
 class CapabilityReservationTests(unittest.TestCase):
@@ -165,6 +175,118 @@ class CapabilityReservationTests(unittest.TestCase):
         with self.assertRaisesRegex(PortError, rf"WP WP-101.*{assigned_path}.*unsupported-operation"):
             self.engine.admit("WP-101", self.manifest.wp("WP-101")["write_paths"],
                               assigned_path, "unsupported-operation")
+
+    def test_rooms_actions_exact_paths_and_named_operation_do_not_widen_avatar_or_other_features(self):
+        assigned = test_manifest("WP-502").wp("WP-502")["write_paths"]
+        admissions = self.engine.admit_scope("WP-502", assigned, ROOM_ACTIONS_PATHS, [ROOM_ACTIONS_OPERATION])
+        self.assertEqual({admission.capability_id for admission in admissions}, {"rooms-message-actions"})
+        self.assertEqual({admission.path for admission in admissions}, set(ROOM_ACTIONS_PATHS))
+        self.assertTrue(all(path != p and not path.startswith(p.rstrip("/") + "/")
+                            for p in assigned for path in ROOM_ACTIONS_PATHS))
+        for wp, path, operation in (
+            *[(wp, ROOM_RENDERER, ROOM_ACTIONS_OPERATION) for wp in
+              ("WP-003", "WP-501", "WP-503", "WP-310")],
+            *[("WP-502", path, ROOM_ACTIONS_OPERATION) for path in (
+                ROOM_RENDERER.rsplit("/", 1)[0],
+                ROOM_RENDERER.replace("rooms/", "channels/"),
+                ROOM_RENDERER.replace("Screen.kt", "Service.kt"),
+                ROOM_RENDERER.replace("Screen.kt", "AuthenticationSheet.kt"),
+                ROOM_RENDERER.replace("RoomConversationScreen.kt", "UnknownRoomAction.kt"),
+                ROOM_RENDERER + ".backup",
+                "android/core/services/RoomService.kt",
+                "android/app/src/main/kotlin/RoomActions.kt",
+            )],
+            *[("WP-502", path, operation) for path in ROOM_ACTIONS_PATHS
+              for operation in ("modify", "create", "delete", "implement-translation", "unknown")],
+            *[("WP-502", path, ROOM_REPAIR) for path in ROOM_ACTIONS_PATHS if path != ROOM_RENDERER],
+        ):
+            with self.subTest(wp=wp, path=path, operation=operation), self.assertRaisesRegex(
+                PortError, r"no trusted path\+operation rule"
+            ):
+                self.engine.admit(wp, [], path, operation)
+        avatar = next(r for r in self.rules["reservation_policy"]["capabilities"] if r["id"] == ROOM_CAPABILITY)
+        self.assertEqual(avatar, ROOMS_AVATAR_CAPABILITY)
+        self.assertEqual(self.engine.admit("WP-502", [], ROOM_RENDERER, ROOM_REPAIR).capability_id,
+                         ROOM_CAPABILITY)
+
+    def test_rooms_actions_invariants_and_candidate_policy_are_not_live_product_authority(self):
+        rule = next(r for r in self.rules["reservation_policy"]["capabilities"]
+                    if r["id"] == "rooms-message-actions")
+        self.assertEqual(rule["work_packages"], ["WP-502"])
+        self.assertEqual(rule["path_rules"], ROOM_ACTIONS_PATHS)
+        self.assertEqual(rule["operations"], [ROOM_ACTIONS_OPERATION])
+        self.assertEqual(set(rule["invariants"]), {
+            "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+            "WP-310-primary-provenance-unchanged", "existing-WP-502-owner-same-reservation",
+            "original-copy-reply-mention-sendDM-sendAgain-availability-and-metadata",
+            "presentation-time-availability-stable-until-dismissal",
+            "real-clipboard-preference-composer-focus-navigation-and-room-post-effects",
+            "sendAgain-post-original-text-without-clearing-existing-draft",
+            "radio-scoped-fresh-contacts-excludeBlocked-and-room-DTO-not-DM-conversion",
+            "source-dismissal-delay-before-focus-or-sendDM-presentation",
+            "once-only-accessibility-label-and-long-press-link-suppression",
+            "reuse-shared-native-identity-theme-and-localized-actions",
+            "translation-removed-no-provider-or-action", "no-unrelated-auth-service-ordering-or-activation-change",
+            "avatar-only-capability-unchanged", "semantic-collisions-serialize-or-transfer-current-producer",
+            "trusted-main-admission-before-product-edit",
+            "no-main-policy-landing-during-held-native-or-gradle-operation",
+        })
+        self.assertEqual(len(rule["validation"]), 5)
+        trusted = copy.deepcopy(self.rules)
+        trusted["reservation_policy"]["capabilities"].remove(rule)
+        for path in ROOM_ACTIONS_PATHS:
+            with self.subTest(path=path), self.assertRaises(PortError):
+                CapabilityEngine(trusted).admit("WP-502", [], path, ROOM_ACTIONS_OPERATION)
+        for key in ("paused", "dispatch_mode", "activation_approved", "merge_gate_policy",
+                    "review_policy", "protected_paths", "admin_bypass"):
+            self.assertEqual(trusted[key], self.rules[key])
+
+    def test_rooms_actions_same_owner_evolution_and_semantic_fences_remain_required(self):
+        wp = test_manifest("WP-502").wp("WP-502")
+        binding = {"repository": self.rules["repository"], "work_package": "WP-502",
+                   "base_sha": BASE, "head_sha": "2" * 40, "source_sha": "d" * 40,
+                   "manifest_sha256": "e" * 64, "policy_revision": "f" * 64}
+        owner = {"session_id": "existing-502", "branch": "existing-branch", "worktree": "C:\\existing"}
+        _, acquired = self.ledger.claim(
+            wp, binding, "local", "same-attempt", NOW, 1800, 5, 0, 100, 5,
+            initial_identity=Identity(session_id=owner["session_id"]),
+            branch=owner["branch"], worktree=owner["worktree"],
+            authorization_context={"authorization": "immutable original authorization"},
+        )
+        self.assertTrue(acquired)
+        before = self.ledger.get("WP-502")
+        admitted = self.engine.admit_scope("WP-502", wp["write_paths"], ROOM_ACTIONS_PATHS,
+                                           [ROOM_ACTIONS_OPERATION])
+        capabilities = {"rooms-message-actions": [a.path for a in admitted]}
+        with self.assertRaises(PortError):
+            self.ledger.evolve_scope("WP-502", before["attempt"], before["revision"], capabilities,
+                                     [ROOM_ACTIONS_OPERATION], ROOM_ACTIONS_PATHS,
+                                     owner_context={**owner, "session_id": "foreign"})
+        self.assertEqual(self.ledger.get("WP-502"), before)
+        evolved = self.ledger.evolve_scope(
+            "WP-502", before["attempt"], before["revision"], capabilities,
+            [ROOM_ACTIONS_OPERATION], ROOM_ACTIONS_PATHS, owner_context=owner,
+        )
+        for key in ("identity", "binding", "authorization_context", "attempt", "branch",
+                    "worktree", "state", "repairs"):
+            self.assertEqual(evolved[key], before[key])
+        self.assertEqual(evolved["capabilities"]["rooms-message-actions"], sorted(ROOM_ACTIONS_PATHS))
+        with self.assertRaises(PortError):
+            self.ledger.evolve_scope("WP-502", before["attempt"], before["revision"], capabilities,
+                                     [ROOM_ACTIONS_OPERATION], ROOM_ACTIONS_PATHS, owner_context=owner)
+        self.assertEqual(self.ledger.get("WP-502"), evolved)
+        self.assertEqual(self.ledger.evolve_scope(
+            "WP-502", before["attempt"], evolved["revision"], capabilities,
+            [ROOM_ACTIONS_OPERATION], ROOM_ACTIONS_PATHS, owner_context=owner,
+        ), evolved)
+        intent = {"owner": "existing-502", "semantic_key": "message-actions",
+                  "value_digest": "a" * 64, "evidence": "mounted-originals"}
+        with self.assertRaisesRegex(PortError, "Current base changed"):
+            self.engine.reconcile_intents(BASE, "9" * 40, ROOM_RENDERER, "rooms-message-actions", [intent])
+        with self.assertRaisesRegex(PortError, "Unresolved semantic ownership collision"):
+            self.engine.reconcile_intents(BASE, BASE, ROOM_RENDERER, "rooms-message-actions", [
+                intent, {**intent, "owner": "other", "value_digest": "b" * 64},
+            ])
 
     def test_shared_dependency_scope_is_admitted_without_byte_authorization(self):
         admission = self.engine.admit(

@@ -599,6 +599,46 @@ policy receipts and acceptance remain historical; current bindings still hash
 the full current policy. Broadened/duplicate/reordered rules or unrelated policy
 changes fail rather than being silently projected away.
 
+### Room message actions support (separate from avatar permission)
+
+`rooms-message-actions` admits only WP-502's
+`implement-room-message-actions` operation on seven explicitly named files in
+`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/`:
+the existing `RoomConversationScreen.kt`, `RoomConversationStateHolder.kt`,
+`RoomContracts.kt`, and new `RoomMessageAction.kt`,
+`RoomMessageActionAvailability.kt`, `RoomMessageActionsSheet.kt`,
+`RoomSendDMSheet.kt`. The operation covers directly necessary creation/modification
+only; it is not generic `modify`/`create`/`delete`, a directory wildcard or authority
+over App/services/shared models. These exact names were confirmed by the existing
+producer in PR249 comment 6307954067. Existing App/resource capabilities stay
+separate; primary WP-310 provenance and avatar-only authority are unchanged.
+
+Preserve frozen Copy, Reply/Mention, Send DM and Send Again availability captured
+at presentation, original incoming/outgoing/optional-RTT metadata, original text,
+localized accessible presentation, dismissal/focus timing and long-press link
+suppression. Consumer assertions must prove real clipboard, quote preference,
+composer/focus, radio-scoped fresh blocked-excluding contact selection/navigation,
+and original-text Room post without clearing an existing draft. Do not convert
+Room messages to DM DTOs or add removed translation/actions/providers. No unrelated
+auth, service, ordering, theme or activation changes are admitted.
+
+The candidate is not live product authority. After reviewed trusted-main deployment,
+the existing WP-502 owner must freshly admit the named operation and evolve the
+same reservation using actual stored identity/attempt/current revision. Do not
+rewrite authorization, release/recreate or infer permission from transfer. Semantic
+overlap must serialize/transfer to the current producer. The exact new rule is
+reversibly projected before avatar/debug/review history; old acceptance remains
+historical while current bindings include the complete current semantic policy.
+
+**The retained WP-503 native operation blocks main/policy landing.** This producer
+performs no host/device/lease/recovery/local Gradle action. Publication may record
+the exact candidate through `local.check.record_pending` and use an invocation-only
+empty hooks path to avoid starting advisory Gradle under that hold, as explicitly
+authorized for this repair. Installed hook configuration and normal nonforce
+fast-forward push are unchanged. This is locally **UNVERIFIED**, never a successful
+fast check or waived merge gate; exact isolated hosted CI and protected review
+remain required. No runtime installation or native acceptance follows from admission.
+
 ### Narrow WP-503 standard debug packaging support
 
 The `debug-test-packaging` typed capability admits exactly the support adapter
