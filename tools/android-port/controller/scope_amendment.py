@@ -40,7 +40,7 @@ DISPOSABLE_CAPABILITY = {
 
 def disposable_predecessor(policy):
     """Reverse only the exact disposable resource/capability pair."""
-    result = copy.deepcopy(policy)
+    result = parity_support_predecessor(policy)
     if not isinstance(result, dict):
         raise PortError("Disposable amendment requires a policy object")
     reservation = result.get("reservation_policy")
@@ -184,6 +184,98 @@ MENTION_PICKER_CAPABILITY = {
         "exact-head/current-base protected merge review after verified native cleanup",
     ],
 }
+
+
+REPEAT_ROW_FALLBACK_CAPABILITY = {
+    "id": "repeat-row-fallback-affordance",
+    "work_packages": ["WP-502"],
+    "path_rules": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/actions/MessageActionsUi.kt",
+    ],
+    "operations": ["repair-repeat-row-fallback-affordance"],
+    "invariants": [
+        "issue-117-comment-6324787817-frozen-RepeatRow-and-FallbackMatchIndicator-consumers",
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+        "WP-309-primary-provenance-and-original-tests-unchanged",
+        "existing-WP-502-owner-same-reservation",
+        "real-private-RepeatRow-fallback-only-tappable-explanation-and-independent-accessibility-stop",
+        "localized-label-hint-title-explanation-theme-48dp-and-dismissal",
+        "exact-unresolved-resolution-order-identity-signal-hop-text-and-other-actions-unchanged",
+        "no-resolver-primary-test-resource-App-State-core-or-service-widening",
+        "no-substitute-consumer-or-fake-renderer",
+        "existing-Room-avatar-mention-translation-rules-unchanged",
+        "semantic-collisions-serialize-or-transfer-current-producer",
+        "trusted-main-admission-before-product-edit",
+        "no-main-policy-landing-during-held-native-or-gradle-operation",
+    ],
+    "validation": [
+        "future mounted real MessageActionsRoute RepeatRow fallback indicator: tap and accessible action open localized title/explanation; dismissal and independent accessibility stop",
+        "exact and unresolved rows do not expose fallback control; retained identity/signal/hops/actions and original resolver cases unchanged",
+        "owned WP-502 tests/evidence exercise real consumer, not substitute renderer or primary-test rewrite",
+        "affected manifest-declared verification and trusted ownership/traceability validators",
+        "exact-head/current-base protected review after verified native cleanup",
+    ],
+}
+CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY = {
+    "id": "channel-open-flood-scope",
+    "work_packages": ["WP-501"],
+    "path_rules": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/TimelineContracts.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt",
+    ],
+    "operations": ["repair-channel-open-flood-scope"],
+    "invariants": [
+        "issue-115-comment-6324879936-frozen-ChatViewModel-Channels-real-open-chain",
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+        "WP-307-and-WP-407-App-primary-provenance-and-original-tests-unchanged",
+        "existing-WP-501-owner-same-reservation",
+        "real-mounted-open-through-timeline-contract-and-App-to-conversation-radio-current-session",
+        "channel-preference-device-default-firmware-capability-and-existing-resolver-preserved",
+        "populate-then-syncFloodScope-before-loaded-result-and-unread-bookkeeping",
+        "success-only-dedup-scoped-to-real-radio-session-and-desired-state",
+        "failed-or-cancelled-send-not-cached-superseding-cancellation-benign-other-errors-explicit",
+        "AllRegions-v12plus-unscoped-3601-older-firmware-Scope-Disabled",
+        "no-prefetch-radio-side-effects-or-unrelated-DM-refresh-send-order-change",
+        "no-resolver-primary-test-core-service-build-or-substitute-consumer-widening",
+        "existing-App-support-and-all-product-rules-unchanged",
+        "semantic-collisions-serialize-or-transfer-current-producer",
+        "trusted-main-admission-before-product-edit",
+        "no-main-policy-landing-during-held-native-or-gradle-operation",
+    ],
+    "validation": [
+        "future mounted channel-open real ChatViewModel TimelineContracts AppChatsFeature consumer emits actual session command with matching radio/generation",
+        "frozen resolver six originals/nine calls retained; AllRegions Germany v12plus emits 36 01 and older firmware Scope Disabled",
+        "source ordering including failed population, success-only dedup, failed/cancelled retry, superseding load and changed radio/session/device default",
+        "explicit diagnostics/cancellation and prefetch zero radio commands; owned WP-501 tests/evidence not resolver copies or primary-test rewrites",
+        "affected manifest-declared verification and trusted ownership/traceability validators; exact-head/current-base protected review after verified native cleanup",
+    ],
+}
+
+
+def parity_support_predecessor(policy):
+    """Reverse only the exact two-rule parity-support proposal appended after 6b."""
+    if not isinstance(policy, dict):
+        raise PortError("Parity support amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result.get("reservation_policy")
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Parity support amendment requires the canonical capability catalog")
+    expected = [REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY]
+    selected = [rule for rule in rules if isinstance(rule, dict)
+                and rule.get("id") in {item["id"] for item in expected}]
+    if not selected:
+        return result
+    if (
+        selected != expected or rules[-2:] != expected or len(rules) < 3
+        or not isinstance(rules[-3], dict) or rules[-3].get("id") != "merge-integration"
+    ):
+        raise PortError("Parity support capabilities changed outside the exact two-rule amendment")
+    del rules[-2:]
+    return result
 
 
 MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY = {

@@ -181,6 +181,46 @@ class CapabilityAuthorityCliTests(unittest.TestCase):
         self.assertEqual(result, 0, errors)
         return record["record"]
 
+    def test_real_cli_parity_support_proposal_cannot_admit_or_evolve_either_existing_owner(self):
+        from controller.scope_amendment import REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY
+
+        with authority_fixture() as (repo, ledger, git, cli):
+            for wp in ("WP-501", "WP-502"):
+                self.claim(cli, wp)
+            before = self.snapshot(ledger)
+            proposed = (REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY)
+            products = {
+                path: (repo / path).read_bytes()
+                for rule in proposed for path in rule["path_rules"]
+            }
+            manifest_bytes = (repo / "docs/android/port-manifest.json").read_bytes()
+            installed = reserve.runtime_target(repo)
+            self.assertFalse(installed.exists())
+            source = Path(__file__).resolve().parents[3]
+            policy_path = repo / "docs/android/automation-policy.json"
+            policy_path.write_bytes((source / "docs/android/automation-policy.json").read_bytes())
+            git("add", "docs/android/automation-policy.json")
+            git("commit", "--quiet", "-m", "candidate-only exact parity support proposal")
+            candidate = CapabilityEngine(reserve.load_json(policy_path))
+            for rule in proposed:
+                wp, operation = rule["work_packages"][0], rule["operations"][0]
+                for path in rule["path_rules"]:
+                    self.assertEqual(candidate.admit(wp, [], path, operation).capability_id, rule["id"])
+                    for command, options in (
+                        ("admit", []),
+                        ("evolve", ["--attempt", "existing-owner", "--session-id", "existing-owner",
+                                    "--expected-revision", "1"]),
+                    ):
+                        with self.subTest(wp=wp, path=path, command=command):
+                            status, _, errors = cli(command, "--wp", wp, "--path", path,
+                                                    "--operation", operation, *options)
+                            self.assertEqual(status, 1, errors)
+                            self.assertIn("no trusted path+operation rule", errors)
+                            self.assertEqual(self.snapshot(ledger), before)
+                            self.assertEqual({p: (repo / p).read_bytes() for p in products}, products)
+                            self.assertEqual((repo / "docs/android/port-manifest.json").read_bytes(), manifest_bytes)
+                            self.assertFalse(installed.exists())
+
     def assert_rejected(self, repo, ledger, cli, operation):
         before = self.snapshot(ledger)
         product = (repo / self.path).read_bytes()

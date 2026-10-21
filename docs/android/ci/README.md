@@ -307,6 +307,39 @@ trusted lifecycle path, not release/recreate or hand-edited ledger rows.
 The trusted controller's `evolve_reservation` similarly requires an explicit
 `attempt` keyword; missing/stale attempt never adopts the current owner.
 
+### LOCAL parity-support proposal after 6b (not live admission)
+
+Two candidate-only rules propose bounded support for existing parity owners:
+WP-502 / `repeat-row-fallback-affordance` / operation
+`repair-repeat-row-fallback-affordance` admits only
+`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/actions/MessageActionsUi.kt`;
+WP-501 / `channel-open-flood-scope` / operation
+`repair-channel-open-flood-scope` admits only the chats timeline
+`TimelineContracts.kt`, `ChatViewModel.kt` and App container `AppChatsFeature.kt`
+at their full canonical `src/main/kotlin/com/meshcoreone/android/...` paths in
+the rule. The generic App rule does not admit that named operation and is not
+broadened. No Room rule, whole directory, generic modify, resolver or primary
+test authority is reused to smuggle either repair.
+
+These proposals require trusted-main admission BEFORE product edits, existing
+producer identity/reservation, preserved WP-309/WP-307/WP-407 provenance,
+semantic-overlap serialization/current-producer transfer, real mounted consumer
+evidence and protected review after verified native/Gradle cleanup. Product
+tests/evidence stay in existing parity-owned paths. The two-rule inverse
+restores the entire reviewed6b policy, not an approximate digest or rewritten
+historical receipt. The actual reserve CLI continues reading trusted default-
+base policy/manifest; candidate rules cannot admit or evolve themselves.
+
+RepeatRow evidence must demonstrate fallback-only tappable/localized explanation
+and an independent accessibility action through the real public route, retaining
+exact/unresolved behavior and all other actions. Channel-open evidence must
+exercise the actual timeline-to-App-to-same-radio/session command, original
+population/scope/unread ordering, firmware capability, success-only deduplication,
+error/cancellation/retry behavior and zero prefetch radio effects, not merely
+repeat the already-passing resolver cases. Details and exact input revisions:
+`docs/android/deviations/WP-003.md`. Until protected admission, these are still
+product prerequisites, not implemented features or live execution permission.
+
 Merge-lane acquisition checks the current attempt, reservation revision,
 implementation PR, complete historical binding, base/policy and review/merge
 state transactionally **before** acquiring or replaying an intent. The controller

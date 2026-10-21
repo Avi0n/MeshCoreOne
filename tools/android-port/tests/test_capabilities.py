@@ -12,6 +12,8 @@ from controller.ledger import HARD_LOCK_RESOURCES, Identity, Ledger
 from controller.scope_amendment import (
     ROOMS_AVATAR_CAPABILITY, ROOMS_MESSAGE_ACTIONS_CAPABILITY,
     MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY,
+    REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY,
+    parity_support_predecessor,
 )
 from portmap import capability_support_admitted
 
@@ -56,6 +58,81 @@ class CapabilityReservationTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="meshcore-capability-tests-")
         self.addCleanup(self.temporary.cleanup)
         self.ledger = Ledger(Path(self.temporary.name) / "ledger.sqlite", self.rules["repository"])
+
+    def test_parity_support_exact_tuples_do_not_authorize_wrong_owner_path_operation_or_primary_tests(self):
+        manifest = test_manifest("WP-501")
+        for rule in (REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY):
+            wp = rule["work_packages"][0]
+            operation = rule["operations"][0]
+            actual = next(r for r in self.rules["reservation_policy"]["capabilities"] if r["id"] == rule["id"])
+            self.assertEqual(actual, rule)
+            for path in rule["path_rules"]:
+                admission = self.engine.admit(wp, manifest.wp(wp)["write_paths"], path, operation)
+                self.assertEqual(admission.capability_id, rule["id"])
+                self.assertEqual((admission.path, admission.operation), (path, operation))
+                self.assertFalse(any(CapabilityEngine._assigned_path(p, path)
+                                     for p in manifest.wp(wp)["write_paths"]))
+                for wrong_wp in ("WP-003", "WP-501" if wp == "WP-502" else "WP-502", "WP-503",
+                                 "WP-307", "WP-309", "WP-407"):
+                    with self.subTest(wp=wrong_wp, path=path), self.assertRaises(PortError):
+                        self.engine.admit(wrong_wp, manifest.wp(wrong_wp)["write_paths"], path, operation)
+                for wrong_path in (
+                    path + ".backup", path.rsplit("/", 1)[0],
+                    path.rsplit("/", 1)[0] + "/Other.kt",
+                    path.replace("/src/main/", "/src/test/"),
+                    path.replace("/src/main/", "/src/androidTest/"),
+                    "android/core/services/ChannelFloodScopeResolver.kt",
+                    ROOM_RENDERER,
+                ):
+                    with self.subTest(path=wrong_path, operation=operation), self.assertRaises(PortError):
+                        self.engine.admit(wp, manifest.wp(wp)["write_paths"], wrong_path, operation)
+                for wrong_operation in ("modify", "create", "delete", "unknown", ROOM_REPAIR,
+                                        ROOM_ACTIONS_OPERATION, PICKER_OPERATION):
+                    with self.subTest(path=path, operation=wrong_operation), self.assertRaises(PortError):
+                        self.engine.admit(wp, manifest.wp(wp)["write_paths"], path, wrong_operation)
+                for rooms_rule in (ROOM_CAPABILITY, "rooms-message-actions"):
+                    origin = {"wp": "WP-310", "session": "primary", "evidence": "primary-source"}
+                    producer = {"wp": wp, "session": "parity", "evidence": "future-consumer"}
+                    with self.subTest(rule=rooms_rule, path=path), self.assertRaises(PortError):
+                        self.engine.transfer_intent(origin, producer, path, rooms_rule)
+
+    def test_parity_support_preserves_primary_attribution_and_real_semantic_overlap_fences(self):
+        manifest = test_manifest("WP-501")
+        primary = {
+            "MC1/Views/Chats/Components/RepeatRowView.swift": "WP-309",
+            "MC1/Views/Chats/Components/FallbackMatchIndicatorView.swift": "WP-307",
+            "MC1/Views/Chats/ViewModel/ChatViewModel+Channels.swift": "WP-307",
+        }
+        for path, owner in primary.items():
+            entry = next(e for e in manifest.data["inventory"] if e["path"] == path)
+            self.assertEqual(entry["primary_owner"], owner)
+        for rule in (REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY):
+            path, wp = rule["path_rules"][0], rule["work_packages"][0]
+            origin = {"wp": "WP-309" if wp == "WP-502" else "WP-307",
+                      "session": "original-producer", "evidence": "frozen-originals"}
+            producer = {"wp": wp, "session": "same-parity-owner", "evidence": "future-real-consumer"}
+            result = self.engine.transfer_intent(origin, producer, path, rule["id"])
+            self.assertEqual(result["origin"], origin)
+            self.assertEqual(result["producer"], producer)
+            intent = {"owner": origin["wp"], "semantic_key": "real-consumer",
+                      "value_digest": "a" * 64, "evidence": origin["evidence"]}
+            with self.assertRaisesRegex(PortError, "Unresolved semantic ownership collision"):
+                self.engine.reconcile_intents(BASE, BASE, path, rule["id"], [
+                    intent, {**intent, "owner": wp, "value_digest": "b" * 64},
+                ])
+            with self.assertRaisesRegex(PortError, "Current base changed"):
+                self.engine.reconcile_intents(BASE, "9" * 40, path, rule["id"], [intent])
+            self.assertIn("trusted-main-admission-before-product-edit", rule["invariants"])
+            self.assertIn("no-main-policy-landing-during-held-native-or-gradle-operation", rule["invariants"])
+        app = next(r for r in self.rules["reservation_policy"]["capabilities"] if r["id"] == "app-build-launcher")
+        self.assertNotIn("repair-channel-open-flood-scope", app["operations"])
+        self.assertIn("populate-then-syncFloodScope-before-loaded-result-and-unread-bookkeeping",
+                      CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY["invariants"])
+        trusted = CapabilityEngine(parity_support_predecessor(self.rules))
+        for rule in (REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY):
+            for path in rule["path_rules"]:
+                with self.assertRaises(PortError):
+                    trusted.admit(rule["work_packages"][0], [], path, rule["operations"][0])
 
     def test_wrong_path_and_operation_fail_closed_with_actionable_blocker(self):
         with self.assertRaisesRegex(PortError, r"WP WP-101.*secrets/key.*export"):

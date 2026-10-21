@@ -24,6 +24,7 @@ from controller.scope_amendment import (
     mention_picker_predecessor, MENTION_PICKER_CAPABILITY,
     message_actions_translation_predecessor, MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY,
     disposable_predecessor,
+    parity_support_predecessor, REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -35,6 +36,69 @@ from controller.software_verification import project as project_software
 
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
+    def test_parity_support_inverse_restores_entire_exact_6b_policy_and_manifest(self):
+        current = load_json(REPO / "docs/android/automation-policy.json")
+        before = copy.deepcopy(current)
+        previous = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "6b394bbabe2c4210e37bb2c401f2bcb2e1443032:docs/android/automation-policy.json",
+        ]))
+        self.assertEqual(parity_support_predecessor(current), previous)
+        self.assertEqual(parity_support_predecessor(previous), previous)
+        self.assertEqual(current, before)
+        self.assertEqual(current["reservation_policy"]["capabilities"][:-2],
+                         previous["reservation_policy"]["capabilities"])
+        restored = copy.deepcopy(previous)
+        restored["reservation_policy"]["capabilities"].extend([
+            copy.deepcopy(REPEAT_ROW_FALLBACK_CAPABILITY), copy.deepcopy(CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY),
+        ])
+        self.assertEqual(restored, current)
+        self.assertEqual(json.loads((REPO / "docs/android/port-manifest.json").read_text(encoding="utf-8")),
+                         json.loads(subprocess.check_output([
+                             "git", "-C", str(REPO), "show",
+                             "6b394bbabe2c4210e37bb2c401f2bcb2e1443032:docs/android/port-manifest.json",
+                         ])))
+        self.assertEqual(content_scope_revisions(base_manifest(), current)["policy_revision"],
+                         policy_revision(base_manifest(), current))
+        self.assertFalse(current["paused"])
+        self.assertEqual(current["dispatch_mode"], "off")
+        self.assertFalse(current["activation_approved"])
+
+    def test_parity_support_projection_rejects_widening_partial_reordering_and_unrelated_drift(self):
+        current = load_json(REPO / "docs/android/automation-policy.json")
+        for index in (-2, -1):
+            for mode in ("owner", "path", "operation", "invariant", "validation", "duplicate", "missing", "order"):
+                changed = copy.deepcopy(current)
+                rules = changed["reservation_policy"]["capabilities"]
+                rule = rules[index]
+                if mode == "owner":
+                    rule["work_packages"].append("WP-003")
+                elif mode == "path":
+                    rule["path_rules"].append("android/feature/chats/**")
+                elif mode == "operation":
+                    rule["operations"].append("modify")
+                elif mode == "invariant":
+                    rule["invariants"].remove("trusted-main-admission-before-product-edit")
+                elif mode == "validation":
+                    rule["validation"] = []
+                elif mode == "duplicate":
+                    rules.append(copy.deepcopy(rule))
+                elif mode == "missing":
+                    rules.remove(rule)
+                else:
+                    rules.remove(rule)
+                    rules.insert(1, rule)
+                with self.subTest(index=index, mode=mode), self.assertRaises(PortError):
+                    parity_support_predecessor(changed)
+        for malformed in (None, [], {"reservation_policy": None},
+                          {"reservation_policy": {"capabilities": None}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                parity_support_predecessor(malformed)
+        changed = copy.deepcopy(current)
+        changed["branch_rules_proven"] = True
+        with self.assertRaises(PortError):
+            content_scope_revisions(base_manifest(), changed)
+
     def test_debug_support_projection_preserves_the_actual_pre_capability_policy(self):
         historical = json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",
