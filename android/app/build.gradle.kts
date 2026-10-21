@@ -4,6 +4,7 @@
 // Navigation coordinates are the WP-302 owner's reviewed proposal; incumbent catalog pins remain unchanged.
 import org.gradle.api.tasks.testing.TestDescriptor
 import org.gradle.api.tasks.testing.TestListener
+import org.gradle.api.tasks.testing.TestOutputEvent
 import org.gradle.api.tasks.testing.TestResult
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -304,6 +305,13 @@ tasks.withType<Test>().configureEach {
 // exact same local pattern already used by core/designsystem/build.gradle.kts for the same
 // reason: no behavior change, no new dependency/config; `logger.error` always prints regardless
 // of the configured Gradle log level, so this is the one reliable way to see which test failed.
+// AndroidOnly: WP-501 Quiet-visible path-recency observation; no task or test outcome changes.
+tasks.configureEach {
+    if (name == "compileDebugKotlin" || name == "compileDebugUnitTestKotlin") {
+        doFirst { logger.quiet("WP501_PATH_RECENCY|TASK|$path|START") }
+        doLast { logger.quiet("WP501_PATH_RECENCY|TASK|$path|END") }
+    }
+}
 tasks.withType<Test>().configureEach {
     testLogging.quiet {
         events(TestLogEvent.FAILED)
@@ -313,11 +321,35 @@ tasks.withType<Test>().configureEach {
         showStackTraces = true
     }
     val failureLogger = logger
+    val pathRecencyClass = "com.meshcoreone.android.parity.AdvertisementPathRecencyOriginalPredicateTest"
+    val pathRecencyPhases = setOf(
+        "room-open", "room-close", "room-seed", "room-contact-check", "room-final-check",
+        "session-start", "session-stop", "service-monitor-start", "service-initial-drain",
+        "body", "predicate", "service-monitor-stop", "owner-cancel-join",
+        "service-events-finish", "service-listener-join", "protocol-listener-join",
+    )
+    val pathRecencyMarkers = pathRecencyPhases.flatMap { phase ->
+        listOf("WP501_PATH_RECENCY_PHASE|$phase|START", "WP501_PATH_RECENCY_PHASE|$phase|END")
+    }.toSet()
+    val pathRecencyOutput = mutableMapOf<String, StringBuilder>()
+    val pathRecencyMarkerLimit = pathRecencyMarkers.maxOf { it.length }
+    doFirst { logger.quiet("WP501_PATH_RECENCY|TASK|$path|START") }
+    doLast { logger.quiet("WP501_PATH_RECENCY|TASK|$path|END") }
     addTestListener(object : TestListener {
         override fun beforeSuite(suite: TestDescriptor) = Unit
         override fun afterSuite(suite: TestDescriptor, result: TestResult) = Unit
-        override fun beforeTest(testDescriptor: TestDescriptor) = Unit
+        override fun beforeTest(testDescriptor: TestDescriptor) {
+            if (testDescriptor.className == pathRecencyClass) {
+                failureLogger.quiet("WP501_PATH_RECENCY|TEST|${testDescriptor.className}|${testDescriptor.name}|START")
+            }
+        }
         override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {
+            if (testDescriptor.className == pathRecencyClass) {
+                synchronized(pathRecencyOutput) { pathRecencyOutput.remove(testDescriptor.name) }
+                failureLogger.quiet(
+                    "WP501_PATH_RECENCY|TEST|${testDescriptor.className}|${testDescriptor.name}|END|${result.resultType}",
+                )
+            }
             if (result.resultType == TestResult.ResultType.FAILURE) {
                 failureLogger.error("WP218_NATIVE_FAILURE|${testDescriptor.className}|${testDescriptor.name}")
                 result.exceptions.forEach { failure ->
@@ -326,4 +358,25 @@ tasks.withType<Test>().configureEach {
             }
         }
     })
+    addTestOutputListener { descriptor, event ->
+        if (descriptor.className == pathRecencyClass && event.destination == TestOutputEvent.Destination.StdOut) {
+            synchronized(pathRecencyOutput) {
+                val pending = pathRecencyOutput.getOrPut(descriptor.name) { StringBuilder() }
+                event.message.forEach { character ->
+                    if (character == '\n' || character == '\r') {
+                        val marker = pending.toString()
+                        pending.setLength(0)
+                        if (marker in pathRecencyMarkers) {
+                            failureLogger.quiet(
+                                "WP501_PATH_RECENCY|PHASE|${descriptor.className}|${descriptor.name}|" +
+                                    marker.removePrefix("WP501_PATH_RECENCY_PHASE|"),
+                            )
+                        }
+                    } else if (pending.length <= pathRecencyMarkerLimit) {
+                        pending.append(character)
+                    }
+                }
+            }
+        }
+    }
 }

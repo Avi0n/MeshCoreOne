@@ -1,4 +1,5 @@
 // AndroidOnly: WP-303 Test harness: the production AppContainer over a Room store, a fake radio and fake platform roles.
+// AndroidOnly: WP-501 Fixed, class-scoped Room lifecycle diagnostic markers.
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.database.MeshCoreDatabase
@@ -165,16 +166,26 @@ abstract class RoomProcessTest {
     private lateinit var owner: CoroutineScope
 
     @Before fun openStore() {
+        reportPathRecencyPhase("room-open|START")
         db = openMemoryDatabase()
         owner = CoroutineScope(SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
         store = RoomPersistenceStore(db, owner)
+        reportPathRecencyPhase("room-open|END")
     }
 
     @After fun closeStore() {
+        reportPathRecencyPhase("room-close|START")
         try { kotlinx.coroutines.runBlocking { store.close() } } finally {
             DebugLogBuffer.shared = null
             owner.cancel()
             db.close()
+        }
+        reportPathRecencyPhase("room-close|END")
+    }
+
+    protected fun reportPathRecencyPhase(phase: String) {
+        if (javaClass.name == "com.meshcoreone.android.parity.AdvertisementPathRecencyOriginalPredicateTest") {
+            println("WP501_PATH_RECENCY_PHASE|$phase")
         }
     }
 }

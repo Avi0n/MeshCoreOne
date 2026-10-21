@@ -58,6 +58,7 @@ class AdvertisementPathRecencyOriginalPredicateTest : RoomProcessTest() {
                 f.serviceEvents == listOf(AdvertisementEvent.PathDiscoveryResponse(path))
             }
 
+            reportPathRecencyPhase("room-contact-check|START")
             val updated = assertNotNull(store.fetchContact(f.radio, f.before.publicKey))
             assertEquals(1_700_000_100u, updated.lastModified)
             assertTrue((updated.lastHeardTimestamp ?: 0u) > 0u)
@@ -66,6 +67,7 @@ class AdvertisementPathRecencyOriginalPredicateTest : RoomProcessTest() {
             assertEquals(listOf<MeshEvent>(MeshEvent.PathResponse(path)), f.protocolEvents)
             assertTrue(f.handlerFlags.isEmpty(), "A path response must not start a delta round")
             f.expected = updated
+            reportPathRecencyPhase("room-contact-check|END")
         }
     }
 
@@ -85,11 +87,13 @@ class AdvertisementPathRecencyOriginalPredicateTest : RoomProcessTest() {
                     f.serviceEvents == listOf(AdvertisementEvent.ContactUpdated, AdvertisementEvent.ContactUpdated)
             }
 
+            reportPathRecencyPhase("room-contact-check|START")
             val updated = assertNotNull(store.fetchContact(f.radio, f.before.publicKey))
             assertEquals(0u, updated.lastHeardTimestamp ?: 0u)
             assertEquals(f.before, updated)
             assertEquals(listOf<MeshEvent>(MeshEvent.PathUpdate(f.before.publicKey)), f.protocolEvents)
             assertEquals(listOf(false, true), f.handlerFlags)
+            reportPathRecencyPhase("room-contact-check|END")
         }
     }
 
@@ -98,6 +102,7 @@ class AdvertisementPathRecencyOriginalPredicateTest : RoomProcessTest() {
         name: String,
         body: suspend TestScope.(PathFixture) -> Unit,
     ) {
+        reportPathRecencyPhase("room-seed|START")
         val radio = RadioId(UUID.randomUUID())
         val foreignRadio = RadioId(UUID.randomUUID())
         val device = DeviceDTO(
@@ -115,6 +120,7 @@ class AdvertisementPathRecencyOriginalPredicateTest : RoomProcessTest() {
         val foreign = assertNotNull(store.fetchContact(foreignRadio, key))
         assertEquals(frame, before.toContactFrame())
         assertEquals(0u, before.lastHeardTimestamp)
+        reportPathRecencyPhase("room-seed|END")
 
         val owner = Job(backgroundScope.coroutineContext.job)
         val scope = CoroutineScope(backgroundScope.coroutineContext + owner)
@@ -154,45 +160,79 @@ class AdvertisementPathRecencyOriginalPredicateTest : RoomProcessTest() {
             }
         }
         retainFailure {
+            reportPathRecencyPhase("session-start|START")
             session.start()
+            reportPathRecencyPhase("session-start|END")
             assertEquals(
                 listOf(Bytes.fromHex("01032020202020204d65736843")), transport.sent.toList(),
                 "Only the independently specified APP_START is expected",
             )
+            reportPathRecencyPhase("service-monitor-start|START")
             service.startEventMonitoring(radio)
+            reportPathRecencyPhase("service-monitor-start|END")
+            reportPathRecencyPhase("service-initial-drain|START")
             runCurrent()
+            reportPathRecencyPhase("service-initial-drain|END")
+            reportPathRecencyPhase("body|START")
             body(f)
+            reportPathRecencyPhase("body|END")
         }
-        retainFailure { service.stopEventMonitoring() }
-        retainFailure { owner.cancelAndJoin() }
-        retainFailure { service.finishEvents() }
         retainFailure {
+            reportPathRecencyPhase("service-monitor-stop|START")
+            service.stopEventMonitoring()
+            reportPathRecencyPhase("service-monitor-stop|END")
+        }
+        retainFailure {
+            reportPathRecencyPhase("owner-cancel-join|START")
+            owner.cancelAndJoin()
+            reportPathRecencyPhase("owner-cancel-join|END")
+        }
+        retainFailure {
+            reportPathRecencyPhase("service-events-finish|START")
+            service.finishEvents()
+            reportPathRecencyPhase("service-events-finish|END")
+        }
+        retainFailure {
+            reportPathRecencyPhase("service-listener-join|START")
             serviceListener.join()
             assertTrue(serviceListener.isCompleted, "The public service stream must finish")
+            reportPathRecencyPhase("service-listener-join|END")
         }
         retainFailure {
+            reportPathRecencyPhase("room-final-check|START")
             assertEquals(listOf(f.expected), store.fetchContacts(radio))
             assertEquals(listOf(foreign), store.fetchContacts(foreignRadio), "Same-key foreign-radio row must survive unchanged")
             assertEquals(devicesBefore, store.fetchDevices())
             assertEquals(listOf(Bytes.fromHex("01032020202020204d65736843")), transport.sent.toList())
             assertEquals(emptyList(), diagnostics.filter { it.level == DebugLogLevel.ERROR }, "Service failures must not hide behind event waits")
+            reportPathRecencyPhase("room-final-check|END")
         }
-        retainFailure { session.stop() }
         retainFailure {
+            reportPathRecencyPhase("session-stop|START")
+            session.stop()
+            reportPathRecencyPhase("session-stop|END")
+        }
+        retainFailure {
+            reportPathRecencyPhase("protocol-listener-join|START")
             protocolListener.join()
             assertTrue(protocolListener.isCompleted, "Session stop must finish its public event stream")
             assertEquals(1, transport.connects)
             assertEquals(1, transport.closes)
             assertEquals(0, transport.readers)
+            reportPathRecencyPhase("protocol-listener-join|END")
         }
         primary?.let { throw it }
     }
 
     private fun TestScope.awaitPredicate(f: PathFixture, label: String, predicate: () -> Boolean) {
+        reportPathRecencyPhase("predicate|START")
         val deadline = System.nanoTime() + 5_000_000_000L
         while (System.nanoTime() < deadline) {
             runCurrent()
-            if (predicate()) return
+            if (predicate()) {
+                reportPathRecencyPhase("predicate|END")
+                return
+            }
             Thread.sleep(2)
         }
         assertTrue(
@@ -200,6 +240,7 @@ class AdvertisementPathRecencyOriginalPredicateTest : RoomProcessTest() {
             "Timed out awaiting $label; protocol=${f.protocolEvents}; service=${f.serviceEvents}; " +
                 "rounds=${f.handlerFlags}; diagnostics=${f.diagnostics}",
         )
+        reportPathRecencyPhase("predicate|END")
     }
 
     private class PathFixture(

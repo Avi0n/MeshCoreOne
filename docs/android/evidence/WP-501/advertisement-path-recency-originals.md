@@ -1,6 +1,150 @@
 # WP-501 advertisement path recency: two original persistence destinations
 
-## Current type-alignment successor: LOCAL, UNVERIFIED and UNPUBLISHED
+## Current diagnostic-only successor: LOCAL, UNVERIFIED and UNPUBLISHED
+
+Repository `cbattlegear/MeshCoreOne-Android`, WP-501, existing ready PR165;
+direct parent `f60fe2074ea025375a556f7df7a310b66b9d3251`.
+This is observation of the SAME two original destinations, not another family,
+behavioral repair, original recount or acceptance claim. It remains
+NOT COMPILED/RUN/DISCOVERED. No publication or automatic execution is requested.
+
+### Actual timeout versus unlocalized cause
+
+Published f60's own39616485162 Linux119279925892 TERMINAL FAILURE is the
+trusted Gradle command's unchanged1799.999985122-second outer timeout,
+14:27:32Z to14:57:33Z. Official output has no new compiler/assertion failure,
+new-class mention or method start/completion identity. Available reports do
+not establish either new destination's discovery/pass. Classifier/controller/
+SwiftCodec succeeded; aggregate119295660930 FAILED and SwiftData119295661489
+was upstream-SKIPPED, not scope/passed oracle. Failed-e6's earlier generic
+compilation failure and missing App discovery remain separate below.
+
+The source investigation found actual suspension boundaries in real Room
+operations, public session startup, monitor stop, owner cancellation and
+stream joins, but did not locate a stalled boundary. The passing9ab invocation
+also occupied nearly the same overall window. Neither absence of a compiler
+error nor total job duration proves a new fixture hang or either method pass.
+No scope swap, product fix, deadline increase, retry or expected-outcome change
+is justified. This receipt retains only the narrow failure/source boundary,
+not a second hosted result/log bundle.
+
+### Bounded diagnostic contract
+
+The existing App Gradle listener keeps ALL prior failure/stack handling and
+adds `logger.quiet` task START/END actions for the existing App debug Kotlin
+and unit-test Kotlin compile tasks and App Test tasks. No dependency, plugin,
+task, selector, ordering dependency, heap, task graph or outer1800s budget
+changes. Task actions emit only when actually reached; cached/skipped work
+does not manufacture START/END or compilation evidence.
+
+The existing TestListener emits START for this exact class/method and END
+only on the actual afterTest callback, with its actual SUCCESS/FAILURE/SKIPPED
+result. These are diagnostic identities, not replacement JUnit evidence.
+Only the SAME two primary methods remain:
+
+- `originalDirectPathResponseCommitsPhoneRecencyWithoutChangingTheRadioWatermark`
+- `originalPathUpdateCompletesBothRealDeltaRoundsWithoutStampingPhoneRecency`
+
+Fixed fixture phase literals bracket actual Room open/close/seeding/contact
+checks/final checks, session start/stop, monitor start/stop, initial scheduler
+drain, body/predicate, owner cancel-and-join, event finish and both listener
+joins. A phase END is after the corresponding actual operation/assertions,
+never a finally/catch success substitute. The existing RoomProcessTest adds
+only a class-gated reporting helper and Room open/close markers so a hang in
+its inherited @Before/@After is observable too; the real try/finally close,
+process owner, store and database remain unchanged.
+
+The standard TestOutputListener accepts ONLY this class's StdOut and exactly
+32 whitelisted START/END lines for16 fixed phases. Per-method buffers handle
+split/multiline CR/LF events under synchronization, retain at most the longest
+allowed marker plus one rejection sentinel, and are removed at afterTest.
+Unknown/oversized/other-class/stderr output is not forwarded. No blanket
+standard-stream logging, payload, contact, key, environment, secret, exception
+replacement, service callback, fallback, new execution harness or dependency.
+
+### Trusted admission and exact source preservation
+
+Fresh actor `cbattlegear`/916234, actual main/base
+`dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c`, public/local f60, OPEN/ready PR165,
+clean initial branch, paused=false, frozen db145, canonical manifest977b/
+policy e8 and raw trusted policy/manifest/admission helper equalities were
+checked. Exact canonical revisions remain
+`977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8` and
+`e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3`.
+Historical authorization/binding revisions below are not rewritten.
+
+BEFORE edits, SAME attempt/owner/session
+`d6056690-3a5d-453e-b67e-36866c676ac5` evolved95->96 by
+`Ledger.evolve_scope` CAS, retaining every other record field, actual identity,
+immutable authorization_context, budget, expiry, state and historical binding.
+Current CLI27f3 is not relabeled as that owner. Trusted current
+`app-build-launcher` has no WP filter and admits:
+
+| Actual support path | Actual operation |
+|---|---|
+| `android/app/build.gradle.kts` | `update-build-or-manifest` |
+| `android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt` | `add-direct-support-wiring` |
+
+The three existing owned test/evidence/deviation paths retain `wp-owned`.
+Invariants remain no unrelated feature activation, process/connection
+lifetimes, GMS-independent core, and min/target/application identity.
+Affected compile/tests remain required but UNRUN under the execution hold.
+
+Actual retained WP313/407/502/503/504 App intents were read through Git objects,
+not their checkouts. Their ENTIRE existing failure-listener tail equals f60;
+none has the new diagnostic/helper semantic slot. CapabilityEngine reconciled
+that shared retained listener at actualDBB with all six producer attributions.
+Other App configuration is preserved, not replaced with any producer snapshot.
+The95->96 receipt retains these advisory overlaps without release/recreate,
+manual SQLite edits, policy amendment, resource lease or owner replacement.
+
+| Changed source | Exact f60 parent blob | Diagnostic successor source blob |
+|---|---|---|
+| App build listener | `25610eeb69a74d0f4339f03b4d0417f8198dc577` | `630195588afbe6aca03c8f3f216a28dc91b1eb61` |
+| Existing ContainerHarness/RoomProcessTest | `c6fb962fca19d1ff87c48eaa05868514a08d614a` | `82e720b353265a2c3706e20da4e89da2f6637e53` |
+| Existing path-recency original predicate class | `38326e576d46b57fbdf99ae7d6030b2dd74678d5` | `d4512466488e6ec14f557b8d11a17d6f883e1318` |
+
+Reversing ONLY the diagnostic statements/helper/listeners/import, restoring
+the original single-line four retainFailure calls and predicate-return
+formatting restores EACH ENTIRE parent source file byte-for-byte (LF Git
+content), not just assertion counts. Parent SHA256s respectively:
+`c14337bef933802a0bc0e8d29dfb9e28f7521c50733a548996d870c5a6cd1179`,
+`cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc`,
+`bd48d57267fe563f2d8b2e08bc8980d2e6e0316193a9bd559643dea4508f0346`.
+The two complete original predicates/full DTOs/foreign and device controls,
+literal wire objects/order, all assertions, typed primary/cancellation
+identity and suppression, every cleanup/join and deterministic clock/deadline
+are preserved. Production Room/session/services and frozen inputs are untouched.
+
+Exactly five changed paths: those three sources, THIS existing evidence
+(f60 blob `25a71330316e709f109cd8f57f73139890cc3988`), and existing
+`docs/android/deviations/WP-501.md`
+(f60 blob `f242fbd3c766732bc84ab25d831b27307cfca6c5`).
+Their final commit/blob bindings accompany the local review handoff; no
+self-referential receipt hash or CI-result archive is created.
+
+The following current source-only checks PASSED; none runs Gradle, compiles
+the script/Kotlin or proves listener delivery/test discovery:
+
+| Exact command/check | Outcome |
+|---|---|
+| `python tools\android-port\controller\verification_config.py --check` | PASSED |
+| `python tools\android-port\controller\validate.py` | PASSED |
+| `python tools\android-port\portmap.py` | PASSED |
+| `python android\parity-tests\audit.py --check` | PASSED |
+| `python android\parity-tests\semantic.py --check` | PASSED; historical inventory/comparisons, not new test passes |
+| `git diff --check` | PASSED |
+| Entire three-source-file reversal and32 fixed marker-identity equality | PASSED; source comparison only |
+
+Staged/committed whitespace, final exact five-path/blob readback and clean
+direct-parent commit are checked in the local handoff. No local
+Gradle/compiler/WSL/native/device/host/readiness/resource/recovery action
+or CI rerun/dispatch is permitted. Both actual method identities, useful quiet-visible markers,
+clean/nonempty App and complete mandatory selected reports/OWN all-six hosted
+outcomes remain unobserved. No whole22/fourth-counter/native/full-WP/protected/
+merge acceptance follows from this source-only successor.
+
+## Historical f60 pre-publication type-alignment source boundary (retained)
 
 Direct parent is failed published
 `e6ff34ad778471da3a4d36647d003bf5b0ba41ad`.
