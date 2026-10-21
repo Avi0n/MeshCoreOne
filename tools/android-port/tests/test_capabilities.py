@@ -458,7 +458,7 @@ class CapabilityReservationTests(unittest.TestCase):
             ):
                 self.engine.admit(wp, manifest.wp(wp)["write_paths"], path, operation)
 
-    def test_translation_affordance_invariants_and_actual_trusted_policy_prevent_self_admission(self):
+    def test_translation_affordance_invariants_and_hypothetical_versus_trusted_engine_inputs(self):
         rule = next(r for r in self.rules["reservation_policy"]["capabilities"]
                     if r["id"] == TRANSLATION_REMOVAL_CAPABILITY)
         self.assertEqual(rule, MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY)

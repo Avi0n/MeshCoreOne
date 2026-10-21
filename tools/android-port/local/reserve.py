@@ -20,8 +20,9 @@ sys.path.insert(0, str(MODULE_ROOT))
 from controller.errors import PortError
 from controller.gates import policy_revision
 from controller.ledger import Identity, Ledger
-from controller.model import SHA, load_manifest
-from controller.schema import decode_json, load_json
+from controller.model import Manifest, REFERENCE_SHA, SHA, load_manifest, tree, validate_dag
+from controller.paths import git_path
+from controller.schema import check_schema, decode_json, load_json
 
 
 def git(repo: Path, *arguments):
@@ -37,7 +38,7 @@ def repository_identity(value, label):
     return repository
 
 
-def trusted_install_repository(repo):
+def trusted_default_policy(repo):
     try:
         reference = git(repo, "symbolic-ref", "--quiet", "refs/remotes/origin/HEAD")
         if not reference.startswith("refs/remotes/origin/"):
@@ -48,7 +49,11 @@ def trusted_install_repository(repo):
         policy = decode_json(git(repo, "show", revision + ":docs/android/automation-policy.json"))
     except subprocess.CalledProcessError as error:
         raise PortError("Trusted origin default-base policy unavailable; no candidate namespace fallback") from error
-    repository = repository_identity(policy, "Trusted default-base policy")
+    repository_identity(policy, "Trusted default-base policy")
+    return revision, policy
+
+
+def verify_installed_repository(repo, repository):
     target = runtime_target(repo)
     if target.exists():
         manifest = verify_runtime(target, allow_legacy=True)
@@ -56,7 +61,62 @@ def trusted_install_repository(repo):
             manifest, "Installed runtime"
         ) != repository:
             raise PortError("Installed runtime repository differs from trusted default-base authority")
+
+
+def trusted_install_repository(repo):
+    _, policy = trusted_default_policy(repo)
+    repository = repository_identity(policy, "Trusted default-base policy")
+    verify_installed_repository(repo, repository)
     return repository
+
+
+def trusted_capability_authority(repo):
+    from controller.capabilities import CapabilityEngine
+    from controller.staging import object_bytes
+
+    revision, policy = trusted_default_policy(repo)
+    repository = repository_identity(policy, "Trusted default-base policy")
+    verify_installed_repository(repo, repository)
+    CapabilityEngine(policy)
+    entries = tree(repo, revision)
+
+    def read(name):
+        path = "docs/android/" + name
+        if path not in entries:
+            raise PortError(f"Trusted default-base input unavailable: {path}")
+        return decode_json(object_bytes(repo, entries[path]).decode("utf-8"))
+
+    data, exclusions = read("port-manifest.json"), read("not-ported.json")
+    for value, schema_name in ((data, "port-manifest.schema.json"), (exclusions, "not-ported.schema.json")):
+        schema = read(schema_name)
+        if not isinstance(schema, dict) or schema.get("type") != "object":
+            raise PortError(f"Malformed trusted default-base schema: {schema_name}")
+        try:
+            check_schema(value, schema)
+        except (KeyError, TypeError) as error:
+            raise PortError(f"Malformed trusted default-base input/schema: {schema_name}") from error
+    if (
+        not isinstance(data, dict) or not isinstance(data.get("reference"), dict)
+        or not isinstance(data.get("work_packages"), list)
+        or data["reference"].get("commit") != REFERENCE_SHA
+        or not isinstance(exclusions, dict) or exclusions.get("reference_sha") != REFERENCE_SHA
+    ):
+        raise PortError("Trusted capability authority has malformed manifest or changed source pin")
+    if any(
+        not isinstance(wp, dict) or not isinstance(wp.get("id"), str)
+        or re.fullmatch(r"WP-[0-9]{3}", wp["id"]) is None
+        or not isinstance(wp.get("depends_on"), list)
+        or not all(isinstance(dependency, str) for dependency in wp["depends_on"])
+        or not isinstance(wp.get("write_paths"), list) or not wp["write_paths"]
+        or not all(isinstance(path, str) for path in wp["write_paths"])
+        for wp in data["work_packages"]
+    ):
+        raise PortError("Malformed trusted capability work-package authority")
+    validate_dag(data["work_packages"])
+    for wp in data["work_packages"]:
+        for path in wp["write_paths"]:
+            git_path(path, subtree=True)
+    return Manifest(data, exclusions, repo), policy
 
 
 def shared_ledger(repo: Path):
@@ -262,14 +322,17 @@ def main(argv=None):
         from controller.capabilities import CapabilityEngine
 
         repo = Path(git(args.repo, "rev-parse", "--show-toplevel"))
-        policy = load_json(repo / "docs/android/automation-policy.json")
-        repository = repository_identity(policy, "Candidate policy")
         if args.command == "install-runtime":
+            policy = load_json(repo / "docs/android/automation-policy.json")
+            repository = repository_identity(policy, "Candidate policy")
             trusted = trusted_install_repository(repo)
             if repository != trusted:
                 raise PortError("Candidate repository differs from trusted default-base authority")
             repository = trusted
-        manifest = load_manifest(repo)
+            manifest = load_manifest(repo)
+        else:
+            manifest, policy = trusted_capability_authority(repo)
+            repository = repository_identity(policy, "Trusted default-base policy")
         ledger = Ledger(shared_ledger(repo), repository)
         if args.command == "install-runtime":
             result = install_runtime(runtime_target(repo), ledger, args.owner, time.time())

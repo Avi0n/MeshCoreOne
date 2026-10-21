@@ -146,6 +146,31 @@ never becomes a merge pass.
 
 ### Reservation mutation and merge-intent fences
 
+The actual reservation CLI now selects capability policy, manifest write paths
+and exclusions from ONE immutable host-controlled origin default-base commit.
+Manifest/exclusion/schema inputs use bounded Git object reads. It validates the
+source pin/catalog/DAG/paths and any installed namespace before opening Ledger.
+`admit`, `claim`, `evolve`/`reconcile` and `transfer` never authorize from checkout
+policy or manifest; status and other Ledger consumers use the same namespace.
+Missing/malformed trusted metadata fails explicitly with no candidate fallback.
+The aa4 installer retains its distinct candidate-identity rejection and atomic
+installation/execution exclusion.
+
+This fixes a real gap in the first Translate proposal: manually feeding an old
+policy to CapabilityEngine did NOT prove the CLI chose that policy. Real
+temporary-Git CLI tests now use a complete valid trusted checkout/default ref,
+an actual same-owner claim, a same-repository candidate-only rule and a separate
+candidate manifest widening. Hypothetical engine calls admit each candidate
+change, while actual CLI admit/claim/evolve/reconcile/transfer reject it and
+preserve the entire raw receipt/revision/binding/capabilities/authorization and
+product bytes, with no foreign partition.
+
+Existing trusted WP-owned/support development remains usable even with malformed
+candidate policy/manifest drafts: actual WP-003 policy admission and typed support
+evolution succeed under trusted authority, preserving historical receipt fields.
+This is not blanket refusal of policy-development edits or candidate simulation.
+These tests use private Git/SQLite/runtime fixtures, not host runtime/lease actions.
+
 Local `reserve.py evolve` (also `reconcile`) now requires the caller's stored
 `--attempt` and `--session-id` as well as `--expected-revision`. It no longer
 reads the current attempt from the ledger and silently adopts it. For example,
