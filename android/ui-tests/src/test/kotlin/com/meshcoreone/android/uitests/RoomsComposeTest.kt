@@ -1275,6 +1275,133 @@ class RoomsComposeTest {
         assertRetainedRoom()
     }
 
+    @Test fun connectedUnmatchedCharlieShowsNotSavedWithoutSelectingAliceOrChangingTheRoom() {
+        val alice = ContactDTO(
+            id = UUID(0, 361), radioId = radio, publicKey = Bytes(ByteArray(32) { 0x11 }),
+            name = "Alice", typeRawValue = 0u, flags = 0u, outPathLength = 0u, outPath = Bytes.EMPTY,
+            lastAdvertTimestamp = 0u, latitude = 0.0, longitude = 0.0, lastModified = 0u,
+            lastHeardTimestamp = null, nickname = null, isBlocked = false, isMuted = false,
+            isFavorite = false, lastMessageDate = null, unreadCount = 0, unreadMentionCount = 0,
+            ocvPreset = null, customOCVArrayString = null, avatarImageData = null,
+        )
+        val savedContacts = listOf(alice)
+        val mention = liveMessage(1, 100u, "@[Charlie]", Bytes.of(0xaa), "Sender")
+        val fixture = Fixture().apply { stored = listOf(mention) }
+        val navigation = NavigationCoordinator(NavigationState(radioId = radio))
+        navigation.navigateToRoom(session)
+        val beforeNavigation = navigation.state.value
+        val contactReads = mutableListOf<List<ContactDTO>>()
+        val deviceNameReads = mutableListOf<String>()
+        val radioReads = mutableListOf<RadioId>()
+        val navigated = mutableListOf<ContactDTO>()
+        val redraw = mutableStateOf(false)
+        val links = ConversationLinkActions(
+            contacts = { savedContacts.also { contactReads.add(it) } },
+            connectedDeviceName = { "Me".also { deviceNameReads.add(it) } },
+            radioId = { radio.also { radioReads.add(it) } },
+            route = { error("Unmatched mention must not use the URL router") },
+            openExternal = { error("Unmatched mention must not open an external URL") },
+            navigateToContact = {
+                navigated += it
+                navigation.navigateToContactDetail(it)
+            },
+        )
+        mount {
+            RoomConversationRoute(
+                fixture.holder, links, modifier = Modifier.testTag("unmatched-mention-route:${redraw.value}"),
+                failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val retained = RoomConversationState(
+            session, messages = listOf(mention), rows = listOf(RoomMessageRow(mention, true, true, true)),
+            draft = body, hasLoadedOnce = true,
+        )
+        fun assertRetainedRoom(expectedReads: Int) {
+            assertEquals(retained, fixture.holder.state.value)
+            assertEquals(listOf(mention), fixture.stored)
+            assertEquals(listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed"), fixture.loads)
+            assertTrue(fixture.posts.isEmpty())
+            assertTrue(fixture.joins.isEmpty())
+            assertTrue(fixture.retries.isEmpty())
+            assertTrue(fixture.reported.isEmpty())
+            assertTrue(navigated.isEmpty())
+            assertEquals(beforeNavigation, navigation.state.value)
+            assertEquals(List(expectedReads) { savedContacts }, contactReads)
+            assertEquals(List(expectedReads) { "Me" }, deviceNameReads)
+            assertEquals(List(expectedReads) { radio }, radioReads)
+        }
+        fun assertVisibleRoom() {
+            val parent = compose.onAllNodesWithContentDescription("Sender: @[Charlie]")
+                .assertCountEquals(1)[0].assertIsDisplayed()
+            assertEquals(
+                listOf("Sender: @[Charlie]"),
+                parent.fetchSemanticsNode().config[SemanticsProperties.ContentDescription],
+            )
+            val bubble = compose.onNodeWithTag("room-bubble:${mention.id}", useUnmergedTree = true)
+                .assertIsDisplayed().fetchSemanticsNode()
+            compose.runOnIdle { assertMountedViewport(bubble, "unmatched Charlie Room bubble") }
+            compose.onNode(
+                hasText("@Charlie") and SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult),
+                useUnmergedTree = true,
+            ).assertIsDisplayed().assertTextEquals("@Charlie")
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            compose.onNodeWithText(text(Chats.chatsInputSendMessage)).assertIsEnabled().assertHeightIsAtLeast(48.dp)
+        }
+        val title = "Mention: Charlie"
+        val notSaved = "Not a saved contact"
+        val subtitle = "@Charlie doesn't match any contact on this radio."
+        assertEquals(title, Chats.chatsMentionPickerTitle(host.get().resources, "Charlie"))
+        assertEquals(notSaved, text(Chats.chatsMentionPickerNotSavedTitle))
+        assertEquals(subtitle, Chats.chatsMentionPickerNotSavedSubtitle(host.get().resources, "Charlie"))
+        assertEquals("Done", text(Chats.chatsCommonDone))
+        fun assertStatusSheet() {
+            compose.onNodeWithText(title).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            for (copy in listOf(title, notSaved, subtitle, "Done")) {
+                assertMountedText(
+                    compose, compose.onNodeWithText(copy), copy, 2f, LayoutDirection.Ltr,
+                    "connected unmatched Charlie sheet copy=$copy",
+                )
+            }
+            compose.onNodeWithText(text(Chats.chatsMentionPickerSelfTitle)).assertDoesNotExist()
+            compose.onNodeWithText(text(Chats.chatsMentionPickerMatchingContacts)).assertDoesNotExist()
+            compose.onNodeWithText("Alice", useUnmergedTree = true).assertDoesNotExist()
+            compose.onAllNodesWithContentDescription(
+                Chats.chatsMentionAccessibilityLabel(host.get().resources, "Alice"),
+            ).assertCountEquals(0)
+            compose.onNodeWithText("Done").assertHasClickAction().assertHeightIsAtLeast(48.dp)
+        }
+        assertVisibleRoom()
+        compose.onNodeWithText(title).assertDoesNotExist()
+        assertRetainedRoom(0)
+        val parent = compose.onAllNodesWithContentDescription("Sender: @[Charlie]").assertCountEquals(1)[0]
+        val actions = parent.fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        assertEquals(
+            listOf(Chats.chatsMessageActionOpenMention(host.get().resources, "Charlie")),
+            actions.map { it.label },
+        )
+        compose.runOnIdle { assertTrue(actions.single().action()) }
+        assertStatusSheet()
+        assertRetainedRoom(1)
+        assertSame(savedContacts, contactReads.single())
+        compose.runOnIdle { redraw.value = true }
+        compose.onNodeWithTag("unmatched-mention-route:true").assertExists()
+        assertStatusSheet()
+        assertRetainedRoom(1)
+        compose.onNodeWithText("Done").performClick()
+        for (copy in listOf(title, notSaved, subtitle, "Done")) compose.onNodeWithText(copy).assertDoesNotExist()
+        assertVisibleRoom()
+        assertRetainedRoom(1)
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        compose.runOnIdle {
+            scope.cancel()
+            assertEquals(0, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, mention.id)))
+        }
+        assertRetainedRoom(1)
+    }
+
     private fun mountOriginalRoomBubble(
         row: RoomMessageRow,
         onRetry: (UUID) -> Unit = { error("Unexpected original bubble retry") },
