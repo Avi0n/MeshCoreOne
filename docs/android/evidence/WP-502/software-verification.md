@@ -85,6 +85,7 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `liveDuplicateIdentityCannotReorderOrReplaceTheExistingRowBeforeTheHeldReload` | Frozen existing200 ID replayed at150; exact original DTO/order/visible row retained despite duplicate burst, one coalesced fetch only. |
 | `liveMidInsertionReconfiguresTheRetainedLaterRowsTimestampBeforeReload` | Frozen same-prefix0xAA/Alice `[100,500]+250 -> [100,250,500]`; original later DTO/identity retained, its timestamp flag changes true-to-false and its actual visible header disappears before/during/after held reload. First header/visible row order/CJK-RTL draft remain, two exact read-side-effect sequences and no post/join/retry/error. Explicit US/UTC restored afterward; not full date-format/avatar parity. |
 | `samePrefixBurstKeepsTheVisibleNameOnFirstAndMovesTheAvatarFlagToLastBeforeReload` | Frozen prefix0xAA/nameAlice/textmsg/timestamps100,160,220. Actual mounted burst retains first-name-only rendering, three once-labelled/keyed visible bubbles, exact DTOs/draft and state-only last-avatar IDs before/during/after held50ms coalesced reload. First row's value changes but logical message ID remains. Not rendered-avatar acceptance; source-confirmed production gap253. |
+| `differentPrefixesKeepSeparateVisibleNamesEvenWhenDisplayNamesMatchBeforeReload` | Frozen0xAA/Alice/msg100 and0xBB/Alice/msg160. Real live arrival keeps both clusters' visible names above their respective keyed bubbles despite matching display names; original first row remains equal, exact name/avatar-flag IDs/DTOs/draft/labels/read effects survive optimistic/held50ms/reconciled phases. Flags only, not rendered-avatar acceptance. |
 
 Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
@@ -215,6 +216,44 @@ rendered-avatar negative/pass, approved omission or full-family visual acceptanc
 The other five previously unrepresented ordering families remain without
 these mounted witnesses; primary all12 accounting/native/goldens remain open.
 Stop this single increment for review, no additional family/foreign repair.
+
+#### Next original family: distinct prefixes with matching names
+
+Following actual prior-head review5593292686 and the explicit next-family
+instruction, code **ed2276627f7df94bcc5800f759185e9d5d2ae176/basebfd** adds
+only the method above:66 insertions/zero deletions. All11 incumbent methods/
+helpers/fixture and Region7 remain unchanged/unreplayed. Existing owned modify
+admission is idempotent at actual26; immutable identity/binding/authorization
+survive. No foreign renderer edit before its real reviewed rule/admission.
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit ed2276627f7df94bcc5800f759185e9d5d2ae176 --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.differentPrefixesKeepSeparateVisibleNamesEvenWhenDisplayNamesMatchBeforeReload
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Preflight **PASS0.69s**; actual **1 discovered/run/PASS,0 failures/errors/skips,
+44s build**. Fresh named XML2026-10-21T00:13:53.923Z/suite6.688s; source12
+methods is not a local12-case/combined result. This preserves the exact frozen
+two-message0xAA/0xBB, Alice/msg100/160 inputs, not different names/text that
+would hide a name-based clustering defect. Both name/avatar-flag ID lists
+must contain both independent message IDs; timestamp flags are `[true,false]`.
+The complete first row remains equal after arrival rather than losing its
+avatar flag to a same-name/different-prefix neighbor.
+
+Two actual displayed Alice nodes and two original-body parent labels are
+required. Each name is above its keyed visible bubble, and the second is below
+the first bubble; counting two names somewhere is insufficient. Full DTOs/
+CJK-RTL draft/no empty/spinner, exact two read-side-effect sequences/one
+subscriber/no post/join/retry/diagnostic error persist before/during/after the
+held source50ms reload. No shared helper/production/policy/locale change.
+The actual avatar/gutter253 remains unimplemented here: flags are not rendered
+avatar, approved omission, native/device/golden or full-family acceptance.
+Four other ordering originals/full primary accounting still remain. Healthy
+3f3 CI and source-only review retain3f3 bindings; no successful-cohort replay,
+CI cancellation, result bundle or future-head result transfer.
 
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 

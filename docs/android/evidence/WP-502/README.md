@@ -80,7 +80,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six live-event methods pass together at d76a576af; strengthened timestamp method separately passes at2b478f7. Next single same-prefix burst/name-first/avatar-flag-last method passes alone at1f73d3daf. Fresh DTO keys, held50ms reconciliation, exact identities/visible order/draft/read effects remain. Source now11 methods, not a manufactured11-case cohort. State avatar flags are not rendered-avatar acceptance: actual consumer gap253 remains primary WP-310-owned. No actual RoomServerService/history sync/Room-database/radio/golden claim. |
+| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six live-event methods pass together at d76a576af; strengthened timestamp method separately passes at2b478f7. Same-prefix burst/name-first/avatar-flag-last method passes alone at1f73d3daf. Next different-prefix/same-display-name method passes alone ated2276627. Fresh DTO keys, held50ms reconciliation, exact identities/visible names/order/draft/read effects remain. Source now12 methods, not a manufactured local12-case cohort. State avatar flags are not rendered-avatar acceptance: actual consumer gap253 awaits the real reviewed renderer rule/admission. No actual RoomServerService/history sync/Room-database/radio/golden claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -98,6 +98,39 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Next original family: different prefixes with the same display name
+
+Coordinator's source-only COMMENTED5593292686 covers prior3f3/basebfd, not
+this next family. Subsequent instruction explicitly permits the next missing
+original locally; the actual503 native/Gradle lanes were released after its
+D8/daemon OOM, not held indefinitely. Use the existing exclusive software lane;
+do not change its heap/provider or touch the unadmitted foreign renderer.
+
+Code **ed2276627f7df94bcc5800f759185e9d5d2ae176/basebfd** adds only the
+frozen `different prefixes are two clusters even when display names match`:
+0xAA/Alice/msg100 and0xBB/Alice/msg160. Installed preflight **PASS0.69s**;
+smallest new-method-only App selector **1 discovered/run/PASS,0 failures/
+errors/skips,44s build**, named XML2026-10-21T00:13:53.923Z/suite6.688s.
+[Exact command and behavior inventory](software-verification.md#next-original-family-distinct-prefixes-with-matching-names).
+All11 incumbent bodies/helpers/fixture/Region7 are unchanged and not manually
+replayed; source12 is not a local12-case or combined cohort.
+
+Real route/armed subscriber receives the second message before a held actual
+data dependency can complete. Both original name/avatar-flag IDs are required
+even though the names match. Two displayed Alice nodes sit above their own
+keyed bubbles, with the second name below the first bubble; two original
+message labels, complete DTOs/unchanged first row/draft and literal timestamp
+flags survive optimistic/held50ms/reconciled phases. Exactly two full read
+sequences/one subscriber/no false actions or diagnostics. No new helper,
+locale mutation, fake identity policy, golden or native observation.
+
+The actual avatar consumer remains source-confirmed253, not proved by flags.
+The coordinator assigned its typed admission-rule repair to existing003;
+no renderer edit until that real reviewed rule/ownership admission. Four other
+ordering originals and full source/native/golden/physical acceptance remain.
+At this local execution, healthy3f3/run39518219256 is preserved in progress,
+not cancelled or relabelled; old428f799/799 remains its own exact hosted result.
 
 ### Actual mainbfd reconciliation after merged packaging255/256
 
