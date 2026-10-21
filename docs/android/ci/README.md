@@ -56,6 +56,16 @@ helpers before check.py; hook installation now uses the same runtime-install
 interlock and no unnecessary WSL probe. Installation still needs separately
 authorized, quiescent deployment; no install occurs in this source assignment.
 
+The actual `reserve.py install-runtime` CLI resolves the host-controlled
+`refs/remotes/origin/HEAD` default-base commit and reads THAT committed policy's
+repository before creating a Ledger or writing anything. It rejects candidate
+repository drift and disagreement with an existing schema-v2 runtime identity.
+Initial installation and integrity-verified schema-v1 upgrades use this same
+default-base authority; schema-v1 never authorizes a candidate-selected namespace.
+Missing/malformed default-base authority or non-object/invalid candidate/runtime
+metadata fails explicitly, with no guessed namespace or candidate fallback.
+This does not fetch, set a default ref, install or authorize deployment by itself.
+
 Windows retains its native SQLite ownership while WSL receives an exact private
 invocation handoff. Linux does not open the Windows database or substitute its
 flock for the shared Ledger. Internal shell modes require the actual inherited
@@ -73,6 +83,11 @@ immediately BEFORE an actual transport/bundle/adapter subprocess attempt, never
 merely because a helper was called. Attempted-but-unacknowledged execution retains
 ownership regardless of exception type or exit status. Advisory TERM/KILL cleanup
 is bounded and signals only pinned owned descendants.
+
+Unsupported worktree overlays and malformed structural requests are rejected
+before even binding/admission/transport, not inside a runner after WSL discovery.
+Malformed namespace inputs become explicit blockers/pending candidates rather
+than uncaught TypeError or an alternate partition.
 
 Full/manual has an explicit OWNED NON-DAEMON adaptation: local Gradle tasks use
 `--no-daemon` and Kotlin compilation in-process, including cold first use.

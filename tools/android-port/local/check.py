@@ -67,9 +67,10 @@ def execution_runtime(repo):
             raise ValueError(f"Local launcher differs from installed execution runtime: {name}")
     try:
         policy = reserve.load_json(repo / "docs/android/automation-policy.json")
-        if policy["repository"] != manifest["repository"]:
+        repository = reserve.repository_identity(manifest, "Installed runtime")
+        if reserve.repository_identity(policy, "Candidate policy") != repository:
             raise ValueError("Candidate repository differs from trusted installed runtime identity")
-        return Ledger(reserve.shared_ledger(repo), manifest["repository"])
+        return Ledger(reserve.shared_ledger(repo), repository)
     except PortError as error:
         raise ValueError(str(error)) from error
 
@@ -89,6 +90,14 @@ def cleaned_execution(path, token):
 
 
 def run_owned(repo, revision, distribution, stages, worktree, *, advisory=False, adapter=None):
+    if worktree:
+        raise ValueError("Working-tree overlays are not supported by the installed merge verifier")
+    if (
+        not isinstance(stages, list) or not stages or not all(isinstance(stage, str) for stage in stages)
+        or len(stages) != len(set(stages)) or set(stages) - (set(ALL_STAGES) | OPTIONAL_STAGES)
+        or adapter is not None and (advisory or stages != ALL_STAGES)
+    ):
+        raise ValueError("Invalid exact committed execution request")
     commit, tree = binding(repo, revision)
     # Never invoke transport, bundle construction or an adapter before atomic admission.
     ledger = execution_runtime(repo)

@@ -18,6 +18,7 @@ from controller.errors import PortError
 from controller.ledger import Ledger
 from local import check, reserve
 from local import advisory
+from fixtures import base_manifest
 
 
 class ExecutionInterlockTests(unittest.TestCase):
@@ -52,6 +53,155 @@ class ExecutionInterlockTests(unittest.TestCase):
                 patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.root / "ledger.sqlite3")}):
             yield
 
+    @contextlib.contextmanager
+    def installer_fixture(self, name, *, schema=2):
+        repo = self.root / name
+        repo.mkdir()
+        policy = repo / "docs/android/automation-policy.json"
+        policy.parent.mkdir(parents=True)
+        policy.write_text('{"repository":"fixture/repository"}', encoding="utf-8")
+        hooks = self.root / (name + "-empty-hooks")
+        hooks.mkdir()
+
+        def git(*arguments):
+            subprocess.run(["git", "-C", str(repo), "-c", "core.hooksPath=" + str(hooks),
+                            "-c", "commit.gpgsign=false", "-c", "user.name=Fixture",
+                            "-c", "user.email=fixture@example.invalid", *arguments],
+                           check=True, capture_output=True)
+
+        git("init", "--quiet")
+        git("add", "docs")
+        git("commit", "--quiet", "-m", "trusted fixture base")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/main")
+        target = repo / ".git/meshcore-reservations"
+        if schema is not None:
+            target.mkdir()
+            reserve.write_runtime(target, "fixture/repository")
+            if schema == 1:
+                path = target / "runtime-manifest.json"
+                value = json.loads(path.read_text(encoding="utf-8"))
+                value.pop("repository")
+                value["schema_version"] = 1
+                path.write_text(json.dumps(value), encoding="utf-8")
+        with patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.root / "ledger.sqlite3")}), \
+                patch.object(reserve, "load_manifest", return_value=base_manifest()), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            yield repo, target, policy, git
+
+    def test_real_installer_cli_rejects_candidate_partition_drift_without_touching_genuine_execution(self):
+        with self.installer_fixture("installer-drift") as (repo, target, policy, git):
+            policy.write_text('{"repository":"candidate/incorrect"}', encoding="utf-8")
+            git("add", "docs")
+            git("commit", "--quiet", "-m", "candidate metadata drift")
+            original = {str(p.relative_to(target)): p.read_bytes() for p in target.rglob("*") if p.is_file()}
+            for resource in ("native-execution", "gradle-execution"):
+                self.own(resource)
+                before = self.ledger.hard_lock_records()
+                with patch.object(reserve, "write_runtime", wraps=reserve.write_runtime) as write:
+                    self.assertEqual(reserve.main([
+                        "--repo", str(repo), "install-runtime", "--owner", "candidate-install",
+                    ]), 1)
+                write.assert_not_called()
+                self.assertEqual(self.other.hard_lock_records(), before)
+                self.assertEqual({str(p.relative_to(target)): p.read_bytes()
+                                  for p in target.rglob("*") if p.is_file()}, original)
+                with self.ledger.transaction() as connection:
+                    self.assertEqual(connection.execute("SELECT COUNT(*) FROM hard_locks").fetchone()[0], 1)
+                self.ledger.release_hard_lock(resource, "native-owner")
+
+    def test_real_installer_bootstraps_initial_and_legacy_only_from_trusted_default_base(self):
+        for schema in (None, 1):
+            with self.subTest(schema=schema), self.installer_fixture("bootstrap-" + str(schema), schema=schema) as (
+                repo, target, _, _
+            ):
+                original = {str(p.relative_to(target)): p.read_bytes()
+                            for p in target.rglob("*") if p.is_file()}
+                for resource in ("native-execution", "gradle-execution"):
+                    self.own(resource)
+                    before = self.ledger.hard_lock_records()
+                    with patch.object(reserve, "write_runtime", wraps=reserve.write_runtime) as write:
+                        self.assertEqual(reserve.main([
+                            "--repo", str(repo), "install-runtime", "--owner", "fixture-install",
+                        ]), 1)
+                    write.assert_not_called()
+                    self.assertEqual(self.ledger.hard_lock_records(), before)
+                    self.assertEqual({str(p.relative_to(target)): p.read_bytes()
+                                      for p in target.rglob("*") if p.is_file()}, original)
+                    self.ledger.release_hard_lock(resource, "native-owner")
+                self.assertEqual(reserve.main([
+                    "--repo", str(repo), "install-runtime", "--owner", "fixture-install",
+                ]), 0)
+                manifest = reserve.verify_runtime(target)
+                self.assertEqual(manifest["schema_version"], 2)
+                self.assertEqual(manifest["repository"], "fixture/repository")
+                self.assertEqual(self.ledger.hard_lock_records(), [])
+
+    def test_real_installer_non_object_candidate_or_runtime_metadata_is_a_typed_failure(self):
+        with self.installer_fixture("malformed-installer") as (repo, target, policy, _):
+            self.own("native-execution")
+            before = self.ledger.hard_lock_records()
+            manifest = target / "runtime-manifest.json"
+            original_policy, original_manifest = policy.read_bytes(), manifest.read_bytes()
+            for path, value in ((policy, None), (policy, {"repository": []}),
+                                (manifest, []), (manifest, {"schema_version": 2, "repository": []}),
+                                (manifest, {**json.loads(original_manifest),
+                                            "repository": "foreign/installed"})):
+                policy.write_bytes(original_policy)
+                manifest.write_bytes(original_manifest)
+                path.write_text(json.dumps(value), encoding="utf-8")
+                with self.subTest(value=value), patch.object(reserve, "write_runtime") as write:
+                    self.assertEqual(reserve.main([
+                        "--repo", str(repo), "install-runtime", "--owner", "fixture-install",
+                    ]), 1)
+                write.assert_not_called()
+                self.assertEqual(self.ledger.hard_lock_records(), before)
+
+    def test_installer_without_default_base_fails_closed_instead_of_using_candidate_policy(self):
+        for schema in (None, 1, 2):
+            with self.subTest(schema=schema), self.installer_fixture(
+                "missing-authority-" + str(schema), schema=schema
+            ) as (repo, target, _, git):
+                original = {str(p.relative_to(target)): p.read_bytes()
+                            for p in target.rglob("*") if p.is_file()}
+                git("symbolic-ref", "--delete", "refs/remotes/origin/HEAD")
+                with patch.object(reserve, "write_runtime") as write:
+                    self.assertEqual(reserve.main([
+                        "--repo", str(repo), "install-runtime", "--owner", "fixture-install",
+                    ]), 1)
+                write.assert_not_called()
+                self.assertEqual({str(p.relative_to(target)): p.read_bytes()
+                                  for p in target.rglob("*") if p.is_file()}, original)
+                self.assertEqual(self.ledger.hard_lock_records(), [])
+
+    def test_non_object_or_malformed_namespace_inputs_record_pending_without_typeerror_or_launch(self):
+        with self.matching_runtime():
+            policy = self.root / "docs/android/automation-policy.json"
+            manifest = self.root / "common/meshcore-reservations/runtime-manifest.json"
+            original_policy, original_manifest = policy.read_bytes(), manifest.read_bytes()
+            for path, value in (
+                (policy, None), (policy, []), (policy, {"repository": []}),
+                (policy, {"repository": 42}), (manifest, None), (manifest, [{}]),
+                (manifest, {"schema_version": 2, "repository": {}, "files": {}}),
+                (manifest, {**json.loads(original_manifest), "schema_version": True}),
+                (manifest, {**json.loads(original_manifest), "files": {"C:escape": "a" * 64}}),
+            ):
+                policy.write_bytes(original_policy)
+                manifest.write_bytes(original_manifest)
+                path.write_text(json.dumps(value), encoding="utf-8")
+                with self.subTest(path=path.name, value=value), \
+                        patch.object(check, "transport") as transport, \
+                        patch.object(check.subprocess, "run") as process, \
+                        patch("sys.stdin", io.StringIO(f"refs/a {self.commit} refs/a {check.ZERO}\n")), \
+                        contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(check.main(["--pre-push"]), 0)
+                transport.assert_not_called()
+                process.assert_not_called()
+                record = json.loads(check.pending_file(self.root).read_text(encoding="utf-8"))
+                self.assertEqual((record["commit"], record["tree"]), (self.commit, self.tree))
+                self.assertEqual(record["status"], "verification-pending")
+                self.assertEqual(self.ledger.hard_lock_records(), [])
+
     def test_actual_matching_runtime_rejects_candidate_namespace_drift_with_entire_native_row_unchanged(self):
         self.own("native-execution")
         before = self.ledger.hard_lock_records()
@@ -84,12 +234,28 @@ class ExecutionInterlockTests(unittest.TestCase):
         self.assertEqual(self.other.hard_lock_records(), [])
 
     def test_actual_prelaunch_worktree_refusal_releases_own_identity_without_launch(self):
-        with self.matching_runtime(), patch.object(check, "transport", return_value=[]), \
+        with self.matching_runtime(), patch.object(check, "transport") as transport, \
                 patch.object(check.subprocess, "run") as process:
             with self.assertRaisesRegex(ValueError, "Working-tree overlays"):
                 check.run_owned(self.root, self.commit, None, check.ALL_STAGES, True)
+        transport.assert_not_called()
         process.assert_not_called()
         self.assertEqual(self.other.hard_lock_records(), [])
+
+    def test_worktree_and_structural_refusals_never_enter_transport_or_admission_with_held_native(self):
+        self.own("native-execution")
+        before = self.ledger.hard_lock_records()
+        for stages, worktree in ((check.ALL_STAGES, True), (None, False), ([], False),
+                                 (["inspect", "inspect"], False), (["inspect", 1], False)):
+            with patch.object(check, "transport") as transport, \
+                    patch.object(check, "execution_runtime") as runtime, \
+                    patch.object(check.subprocess, "run") as process, \
+                    self.subTest(stages=stages, worktree=worktree), self.assertRaises(ValueError):
+                check.run_owned(self.root, self.commit, None, stages, worktree)
+            transport.assert_not_called()
+            runtime.assert_not_called()
+            process.assert_not_called()
+            self.assertEqual(self.other.hard_lock_records(), before)
 
     def test_held_native_blocks_advisory_and_manual_before_any_transport_or_bundle(self):
         self.own("native-execution")
