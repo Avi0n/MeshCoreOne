@@ -322,6 +322,13 @@ tasks.withType<Test>().configureEach {
     }
     val failureLogger = logger
     val pathRecencyClass = "com.meshcoreone.android.parity.AdvertisementPathRecencyOriginalPredicateTest"
+    val rollbackClass = "com.meshcoreone.android.parity.AdvertisementRollbackOriginalPredicateTest"
+    val rollbackTestNames = setOf(
+        "originalSuccessfulCommitRemovesTheRealResurrectedRowWithoutDiscoverOrNotification",
+        "originalReAdvertClearsTheDeleteAndKeepsTheReaddedRoomContactAndNewHistory",
+        "originalFailedCommitRollsBackItsRealEarlyWriteAndCannotRequeueTheDeletedKey",
+        "originalCancelledTeardownStillRollsBackTheRealCommitLandingAfterStop",
+    ).flatMap { method -> listOf(method, "$method()", "$method[31]", "$method[31]()") }.toSet()
     val pathRecencyPhases = setOf(
         "room-open", "room-close", "room-seed", "room-contact-check", "room-final-check",
         "session-start", "session-stop", "service-monitor-start", "service-initial-drain",
@@ -342,12 +349,20 @@ tasks.withType<Test>().configureEach {
             if (testDescriptor.className == pathRecencyClass) {
                 failureLogger.quiet("WP501_PATH_RECENCY|TEST|${testDescriptor.className}|${testDescriptor.name}|START")
             }
+            if (testDescriptor.className == rollbackClass && testDescriptor.name in rollbackTestNames) {
+                failureLogger.quiet("WP501_ADVERT_ROLLBACK|TEST|${testDescriptor.className}|${testDescriptor.name}|START")
+            }
         }
         override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {
             if (testDescriptor.className == pathRecencyClass) {
                 synchronized(pathRecencyOutput) { pathRecencyOutput.remove(testDescriptor.name) }
                 failureLogger.quiet(
                     "WP501_PATH_RECENCY|TEST|${testDescriptor.className}|${testDescriptor.name}|END|${result.resultType}",
+                )
+            }
+            if (testDescriptor.className == rollbackClass && testDescriptor.name in rollbackTestNames) {
+                failureLogger.quiet(
+                    "WP501_ADVERT_ROLLBACK|TEST|${testDescriptor.className}|${testDescriptor.name}|END|${result.resultType}",
                 )
             }
             if (result.resultType == TestResult.ResultType.FAILURE) {
