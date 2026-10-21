@@ -28,9 +28,9 @@ from controller.schema import load_json
 from controller.staging import object_bytes
 from local.reserve import shared_ledger
 
-PRODUCER = "85d35dc3fc47e5fda5a0e08687ff7c9dfb84bd3c"
+PRODUCER = "759f2d83b783834f802687ff0a42a8a57b1056e3"
 PRODUCER_INPUTS = MappingProxyType({
-    "tools/android-port/controller/disposable.py": "b16cb30d11e2e8fd0546164d471bdc53abfa0b77",
+    "tools/android-port/controller/disposable.py": "858f12778cb16da35fd52dadab5d1700bb399a2c",
     "tools/android-port/controller/windows_guest.py": "621612bb67e16432692e07a5a1b1056426747777",
     "tools/android-port/controller/ledger.py": "6048cf50b275b85c9028781fd80a473ef06ca6f2",
     "tools/android-port/local/debug_packaging.py": "7f8e5e9769c0f8d70a42678738280bf7209c17e9",
@@ -195,6 +195,12 @@ class PrivateDevice(ProcessDevice):
 
 def wait_boot(guest, ledger, save_observation):
     deadline = time.monotonic() + 120
+    remaining = deadline - time.monotonic()
+    require(remaining > 0, "Private guest framework boot exceeded its120s deadline")
+    transport = guest.adb(ledger, ["wait-for-device"], timeout=remaining)
+    require(type(transport.returncode) is int and isinstance(transport.stdout, bytes),
+            "Malformed actual private transport wait result")
+    transport.check_returncode()
     while True:
         values = {}
         for name in ("sys.boot_completed", "init.svc.bootanim"):

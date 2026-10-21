@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, call, patch
 import zipfile
 
 import disposable_runner as runner
@@ -72,10 +72,13 @@ class GuestModel:
         self.assert_held(ledger, self.owner)
         assert self.phase == "running"
         assert isinstance(arguments, list) and 0 < timeout <= 180
-        assert arguments[0] in ("get-state", "shell", "install", "logcat")
+        assert arguments[0] in ("wait-for-device", "get-state", "shell", "install", "logcat")
         ledger.events.append(tuple(arguments))
         output = b""
-        if arguments[0] == "get-state":
+        if arguments[0] == "wait-for-device":
+            assert arguments == ["wait-for-device"]
+            output = b""
+        elif arguments[0] == "get-state":
             output = b"device"
         elif arguments[0] == "install":
             package = TEST if Path(arguments[-1]).name == "current-tests.apk" else APP
@@ -844,6 +847,59 @@ class DisposableConsumerTest(unittest.TestCase):
             self.execute()
         self.assertEqual([], self.operations()["mutation_attempts"])
         self.assert_disposed()
+
+    def test_transport_registration_precedes_framework_probes_with_the_same_boot_deadline(self):
+        guest, ledger, observed = Mock(), object(), []
+        guest.adb.side_effect = [
+            subprocess.CompletedProcess(["wait-for-device"], 0, stdout=b"", stderr=b""),
+            subprocess.CompletedProcess(["getprop"], 0, stdout=b"1", stderr=b""),
+            subprocess.CompletedProcess(["getprop"], 0, stdout=b"stopped", stderr=b""),
+        ]
+        with patch.object(runner.time, "monotonic", side_effect=[10, 11, 115, 116, 117]):
+            runner.wait_boot(guest, ledger, observed.append)
+        self.assertEqual([
+            call(ledger, ["wait-for-device"], timeout=119),
+            call(ledger, ["shell", "getprop", "sys.boot_completed"], timeout=15),
+            call(ledger, ["shell", "getprop", "init.svc.bootanim"], timeout=14),
+        ], guest.adb.call_args_list)
+        self.assertEqual([{"sys.boot_completed": "1", "init.svc.bootanim": "stopped"}], observed)
+
+    def test_transport_wait_failures_keep_unknown_instrumentation_exit_and_independent_disposal(self):
+        old_adb = GuestModel.adb
+        for index, failure in enumerate((
+                subprocess.CalledProcessError(1, ["model-wait-for-device"], output=b"not registered"),
+                subprocess.TimeoutExpired(["model-wait-for-device"], 120, output=b"partial transport"))):
+            with self.subTest(failure=type(failure).__name__):
+                parent = self.root / ("transport-failure-" + str(index))
+                parent.mkdir()
+                self.config = replace(self.config, parent=parent, output=self.root / ("transport-output-" + str(index)))
+                self.ledger.events.clear()
+
+                def fail_wait(guest, ledger, arguments, **kwargs):
+                    if arguments == ["wait-for-device"]:
+                        self.assertGreater(kwargs["timeout"], 0)
+                        self.assertLessEqual(kwargs["timeout"], 120)
+                        ledger.events.append(tuple(arguments))
+                        guest.phase = "uncertain"
+                        raise failure
+                    return old_adb(guest, ledger, arguments, **kwargs)
+
+                with patch.object(GuestModel, "adb", fail_wait):
+                    with self.assertRaises(type(failure)) as raised:
+                        self.execute()
+                self.assertIs(failure, raised.exception)
+                result = self.operations()
+                self.assertEqual(["package", "start", ("wait-for-device",), "dispose"], self.ledger.events)
+                self.assertEqual([], result["boot_observations"])
+                self.assertEqual([], result["profile_setup_attempts"])
+                self.assertEqual([], result["mutation_attempts"])
+                self.assertIsNone(result["host_instrumentation_process_exit"])
+                self.assertNotIn("cohort", result)
+                self.assertFalse(result["acceptance"])
+                self.assertTrue(result["disposal_verified"])
+                self.assertFalse((self.config.output / "device-nodes37.txt").exists())
+                self.assertFalse((self.config.output / "device-nodes37-stderr.txt").exists())
+                self.assert_disposed()
 
     def test_boot_deadline_is_bounded_without_sleep_or_retry_after_expiry(self):
         with patch.object(runner.time, "monotonic", side_effect=[0, 121]), \

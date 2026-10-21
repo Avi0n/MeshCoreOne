@@ -2044,3 +2044,93 @@ unchanged. The existing provenance test now also preserves the historical4b/
 fbf tree and verifies the exact two-file reviewed production delta. No assertion
 is removed or weakened, no native case is replayed and no old result is rebound.
 The actual failing first log remains separate from the corrected check.
+
+### Actual7b3 startup: host capacity and selected-transport registration
+
+Published `7b3c0087718e9e23eb7f35cdd41740b8b3dbf004`, direct
+`6f05d57b42bc75cd1b3255451867e9715db2fe12`, retained the corrected232/232
+source check and original Nodes7 selection. Its own automatic39689748278
+official Controller119533384175 selected accessibility and ran732 tests/OK;
+that includes consumer/source models, not Windows backend or native acceptance.
+Historical6deb own39687254360 completedCANCELLED, not success.
+
+The first actual7b3 fresh guest, owner suffix
+`nodes:1daf4d4b6e434b84b380bdba2064f354`, reached emulator launch but failed
+its first selected `shell getprop sys.boot_completed`. Actual private ADB bytes
+were `adb.exe: device 'emulator-5558' not found\r\n`. Its process log established
+a concrete host-capacity failure: SDK increased RAM to4096MiB; committed
+70978.667969MiB/limit73491.687500MiB left2513.019531MiB, below4096MiB needed.
+Independent disposal verified true/no disposal error. No instrumentation,
+boot observations, cohort or known host instrumentation exit.
+
+The coordinator reclaimed only independently verified idle owned CLI processes,
+not preserved worktrees, old guests, shared applications or OS/pagefile settings.
+The wait decision was coordinator-selected on the user's behalf under the
+existing autonomous assignment, not a new direct-user permission event.
+An immediate live observation found6442.06MiB commit headroom before a genuinely
+new7b3 attempt; it was not a resource reservation or guarantee.
+
+The new owner suffix `nodes:c01a793f396f433dae75b28470bb2e2b`, private root
+`private-avd-0_wvm9gf`, actually built/verified the current-source App/Test pair:
+BUILD SUCCESSFUL2m,446 tasks/5 executed/441 up-to-date. Public APK SHA256 values:
+App `2fe596b391edbfd82b9dff0aade204bc0b88ba5fdaedec13a95dc0ac33a9280f`,
+Test `20f20334f3785fa48b31d23666917a0f14f3e3c8d403a0fc33b4e5f1cd029672`.
+These are7b3-only build results, not successor proof.
+
+Its first selected getprop again exited1 with the same exact ADB bytes.
+This time the retained emulator log had no insufficient-RAM/error/fatal entry;
+it ended during initial emulator/WHPX startup. Source inspection identifies
+the real readiness mismatch: producer `start` establishes owned listeners,
+not selected ADB registration, while the consumer immediately queries getprop.
+Producer `adb` marks a nonzero command uncertain; swallowing/retrying that
+failure would violate its contract. This does not prove eventual Android boot
+or explain either historical clipboard/Save failure.
+
+Second-attempt independent disposal also verified true/no disposal error,
+zero instrumentation starts, no boot observations/cohort, unknown host
+instrumentation exit. Actual CLI, packaging, operations and private process
+logs remain separately under `wp503-7b3c-nodes37-disposable-a1` and `-a2`.
+Original473/66bd and its25 outcomes/23 positives/two failures, unknown Nodes host
+exit and two unstarted flows remain untouched.
+
+The directly coupled consumer correction waits for exact selected
+`["wait-for-device"]` through actual `guest.adb`, using only the remainder of
+the existing120s deadline before the unchanged strict framework probes.
+It checks the real command result and propagates failure; no catch/retry,
+new sleep, extended boot/instrumentation deadline or shared600s fence change.
+Only a genuinely reviewed merged producer supporting that exact command may
+be pinned before live use; source preparation is not runtime admission.
+
+Two focused methods in the existing consumer suite cover transport-before-
+getprop order/budget and nonzero/timeout propagation with independent disposal,
+no profile/install/cohort/transcripts and unknown instrumentation exit.
+Against unchanged7b3 consumer production, the declared234-method suite failed
+with two failing subtests and one error in15.778s. After the consumer correction,
+the same declared command passed234/234 in16.137s:
+`python -B -m unittest discover -s android\accessibility-tests -p test_*.py -v`.
+The original232 and all earlier224/231 negatives remain historical evidence.
+These additional checks use bounded consumer doubles, never native/backend
+proof. The four declared source validators and `git diff --check` also passed.
+
+Actual reviewed producer `759f2d83b783834f802687ff0a42a8a57b1056e3` then
+merged as trusted main `2e0a1979b7d6f92e3de70095cee32e97a55aa58b`.
+Same-owner supported integration remained revision30 and admitted exactly
+the three incoming producer/test/deviation paths; all disjoint owned edits
+were preserved. The consumer now pins actual disposable blob
+`858f12778cb16da35fd52dadab5d1700bb399a2c`; the other three actual API inputs
+remain `621612bb67e16432692e07a5a1b1056426747777`,
+`6048cf50b275b85c9028781fd80a473ef06ca6f2` and
+`7f8e5e9769c0f8d70a42678738280bf7209c17e9`.
+The producer admits only exact selected `wait-for-device`, preserving its
+actual private endpoint/serial, ownership, finite<=180s bound and uncertainty.
+Its own39692949518 official controller503/OK is producer-model evidence,
+not native readiness. The original Nodes7/144 delegates, assertions,120s
+total boot budget,180s instrumentation and shared600s fence are unchanged.
+The consumer regression also measures119s for registration followed by only
+15s/14s remaining for its two framework probes; it cannot restart the budget.
+Final integrated source passed234/234 in16.304s with the declared Python
+command above. Also PASS:
+`python -B tools\android-port\controller\verification_config.py --check`,
+`python -B tools\android-port\controller\validate.py`,
+`python -B tools\android-port\controller\workflows.py`,
+`python -B tools\android-port\portmap.py`, and `git diff --check`.
