@@ -54,6 +54,7 @@ class MountedTextAssertionsTest {
     private lateinit var host: ActivityController<ComponentActivity>
     private var fontScale = 1f
     private var direction = LayoutDirection.Ltr
+    private val nativeCaretEvidence = mutableMapOf<String, String>()
 
     @Before fun createHost() {
         host = Robolectric.buildActivity(ComponentActivity::class.java).setup().visible()
@@ -77,7 +78,8 @@ class MountedTextAssertionsTest {
     }
 
     private fun check(tag: String, text: String): TextLayoutResult = assertMountedText(
-        compose, compose.onNodeWithTag(tag), text, fontScale, direction, "mounted oracle control=$tag",
+        compose, compose.onNodeWithTag(tag), text, fontScale, direction,
+        "mounted oracle control=$tag|${nativeCaretEvidence.getOrDefault(tag, "native-callback=not-observed")}",
     )
 
     private fun rejects(tag: String, text: String, reason: String) {
@@ -91,9 +93,36 @@ class MountedTextAssertionsTest {
         return layouts.single()
     }
 
+    private fun observeNativeCaretGeometry(semantics: TextLayoutResult, native: TextLayoutResult, tag: String) {
+        val paint = compose.runOnIdle { mountedPaintLayout(semantics) }
+        for ((source, layout) in listOf("semantics" to semantics, "derived" to paint, "native-callback" to native)) {
+            println("WP502_NATIVE_CARET_INPUT|tag=$tag|source=$source|size=${layout.size}" +
+                "|paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}|constraints=${layout.layoutInput.constraints}" +
+                "|fontScale=${layout.layoutInput.density.fontScale}|direction=${layout.layoutInput.layoutDirection}" +
+                "|align=${layout.layoutInput.style.textAlign}|overflow=${layout.layoutInput.overflow}" +
+                "|vertical=${layout.didOverflowHeight}|text=${layout.layoutInput.text.text}")
+            for (line in 0 until layout.lineCount) {
+                println("WP502_NATIVE_CARET_LINE|tag=$tag|source=$source|line=$line" +
+                    "|range=${layout.getLineStart(line)}..${layout.getLineEnd(line)}" +
+                    "|edges=${layout.getLineLeft(line)},${layout.getLineTop(line)},${layout.getLineRight(line)},${layout.getLineBottom(line)}" +
+                    "|baseline=${layout.getLineBaseline(line)}|ellipsis=${layout.isLineEllipsized(line)}")
+            }
+            layout.layoutInput.text.text.indices.forEach { offset ->
+                println("WP502_NATIVE_CARET_UNIT|tag=$tag|source=$source|UTF16=$offset" +
+                    "|unit=${layout.layoutInput.text.text[offset].code}|bounds=${layout.getBoundingBox(offset)}" +
+                    "|line=${layout.getLineForOffset(offset)}|paragraphDirection=${layout.getParagraphDirection(offset)}" +
+                    "|runDirection=${layout.getBidiRunDirection(offset)}")
+            }
+            for (offset in 0..layout.layoutInput.text.length) {
+                println("WP502_NATIVE_CARET_POSITION|tag=$tag|source=$source|offset=$offset" +
+                    "|primary=${layout.getHorizontalPosition(offset, true)}|secondary=${layout.getHorizontalPosition(offset, false)}")
+            }
+        }
+    }
+
     private fun assertNativePaintAgreement(semantics: TextLayoutResult, native: TextLayoutResult, tag: String) {
         val paint = compose.runOnIdle { mountedPaintLayout(semantics) }
-        val diagnostic = "native paint witness=$tag|semantics=$semantics|paint=$paint|native=$native"
+        val diagnostic = "native paint witness=$tag|semanticsSize=${semantics.size}|paintSize=${paint.size}|nativeSize=${native.size}"
         assertEquals(diagnostic, native.layoutInput.text, paint.layoutInput.text)
         assertEquals(diagnostic, native.layoutInput.style, paint.layoutInput.style)
         assertEquals(diagnostic, native.layoutInput.density.density, paint.layoutInput.density.density, 0f)
@@ -122,6 +151,16 @@ class MountedTextAssertionsTest {
         }
     }
 
+    private fun retainNativeCaretEvidence(native: TextLayoutResult, vararg tags: String) {
+        val lines = (0 until native.lineCount).joinToString { line ->
+            "$line:${native.getLineLeft(line)},${native.getLineTop(line)},${native.getLineRight(line)},${native.getLineBottom(line)}"
+        }
+        val boxes = native.layoutInput.text.text.indices.joinToString { offset -> "$offset:${native.getBoundingBox(offset)}" }
+        val evidence = "nativeDerivedAgreement=passed|nativeSize=${native.size}" +
+            "|nativeParagraph=${native.multiParagraph.width}x${native.multiParagraph.height}|nativeLines=$lines|nativeUtf16=$boxes"
+        tags.forEach { nativeCaretEvidence[it] = evidence }
+    }
+
     private fun mixedBidiPaintWitnesses(rtl: Boolean) {
         val hebrewFirst = "\u05e9\u05dc\u05d5\u05dd Beta"
         val latinFirst = "Beta \u05e9\u05dc\u05d5\u05dd"
@@ -144,10 +183,14 @@ class MountedTextAssertionsTest {
             "wrapped-center-bidi" to wrapped, "wrapped-right-bidi" to wrapped,
         )
         for ((tag, text) in samples) {
-            val semantics = check(tag, text)
-            check("$tag-native", text)
+            val semantics = rawLayout(tag)
             val painted = compose.runOnIdle { native.getValue(tag) }
+            observeNativeCaretGeometry(semantics, painted, tag)
             assertNativePaintAgreement(semantics, painted, tag)
+            retainNativeCaretEvidence(painted, tag, "$tag-native")
+            println("WP502_NATIVE_CARET_AGREEMENT|tag=$tag|allNativeDerivedParagraphLineAndUtf16AssertionsReached=true")
+            check(tag, text)
+            check("$tag-native", text)
             if (tag.startsWith("wrapped-")) assertTrue("Native witness must actually wrap", painted.lineCount > 1)
         }
         val reconstructed = rawLayout("content-bidi")
@@ -207,13 +250,16 @@ class MountedTextAssertionsTest {
 
     @Test fun mixedBidiRightAlignedCopyStillRequiresRealTargetViewportContainmentAndScrolling() {
         val text = "\u05e9\u05dc\u05d5\u05dd Beta"
+        val native = mutableMapOf<String, TextLayoutResult>()
         mount {
             Row(Modifier.width(120.dp).horizontalScroll(rememberScrollState())) {
                 Spacer(Modifier.width(112.dp))
                 Box(Modifier.width(96.dp).height(64.dp).clickable {}.testTag("bidi-viewport-target")) {
-                    Text(text, Modifier.width(96.dp), fontSize = 16.sp, textAlign = TextAlign.Right)
+                    Text(text, Modifier.width(96.dp).testTag("bidi-viewport-text"), fontSize = 16.sp, textAlign = TextAlign.Right)
                 }
             }
+            Text(text, Modifier.width(96.dp).testTag("bidi-viewport-native"), fontSize = 16.sp,
+                textAlign = TextAlign.Right, onTextLayout = { native["viewport"] = it })
         }
         val target = compose.onNodeWithTag("bidi-viewport-target").assertIsDisplayed()
             .assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
@@ -221,7 +267,14 @@ class MountedTextAssertionsTest {
         assertTrue("Actual target must be only partially visible", partial.boundsInRoot.width < partial.size.width)
         rejects("bidi-viewport-target", text, "WP502_TEXT_VIEWPORT")
         target.performScrollTo()
+        val semantics = rawLayout("bidi-viewport-text")
+        val painted = compose.runOnIdle { native.getValue("viewport") }
+        observeNativeCaretGeometry(semantics, painted, "bidi-viewport-after-scroll")
+        assertNativePaintAgreement(semantics, painted, "bidi-viewport-after-scroll")
+        retainNativeCaretEvidence(painted, "bidi-viewport-target", "bidi-viewport-native")
+        println("WP502_NATIVE_CARET_AGREEMENT|tag=bidi-viewport-after-scroll|allNativeDerivedParagraphLineAndUtf16AssertionsReached=true")
         check("bidi-viewport-target", text)
+        check("bidi-viewport-native", text)
     }
 
     @Test fun unconstrainedParagraphWorkspaceDoesNotReplaceActualUtf16ContentBounds() {

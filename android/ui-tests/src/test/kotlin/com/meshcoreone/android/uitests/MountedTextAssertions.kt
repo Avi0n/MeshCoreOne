@@ -161,7 +161,11 @@ internal fun assertMountedText(
     for (line in 0 until paint.lineCount) {
         assertEquals("$paintDiagnostic|missing text before line=$line", covered, paint.getLineStart(line))
         covered = paint.getLineEnd(line)
-        assertTrue("$paintDiagnostic|line outside measured text line=$line", contains(size, paintLines[line]))
+        if (!contains(size, paintLines[line])) {
+            println("WP502_LINE_REJECT|$context|line=$line|bounds=${paintLines[line]}|allocation=$size")
+        }
+        assertTrue("line outside measured text line=$line|bounds=${paintLines[line]}|allocation=$size|$context|$paintDiagnostic",
+            contains(size, paintLines[line]))
     }
     assertEquals("$paintDiagnostic|missing UTF16 suffix", actual.length, covered)
     val characters = actual.indices.associateWith { paint.getBoundingBox(it) }
@@ -170,7 +174,14 @@ internal fun assertMountedText(
         println("$characterDiagnostic|semanticsCharacters=${actual.indices.associateWith { layout.getBoundingBox(it) }}")
     }
     for ((offset, bounds) in characters) {
-        assertTrue("$characterDiagnostic|character outside measured text UTF16=$offset", contains(size, bounds))
+        if (!contains(size, bounds)) {
+            val line = paint.getLineForOffset(offset)
+            println("WP502_CARET_REJECT|$context|UTF16=$offset|unit=${actual[offset].code}" +
+                "|bounds=$bounds|allocation=$size|line=$line|lineBounds=${paintLines[line]}" +
+                "|paragraphDirection=${paint.getParagraphDirection(offset)}|runDirection=${paint.getBidiRunDirection(offset)}")
+        }
+        assertTrue("character outside measured text UTF16=$offset|bounds=$bounds|allocation=$size|$context|$characterDiagnostic",
+            contains(size, bounds))
     }
     return layout
 }
