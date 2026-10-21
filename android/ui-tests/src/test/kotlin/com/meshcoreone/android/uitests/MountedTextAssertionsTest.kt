@@ -87,9 +87,10 @@ class MountedTextAssertionsTest {
         assertTrue("Unexpected primary rejection: ${failure.message}", failure.message.orEmpty().contains(reason))
     }
 
-    private fun rawLayout(tag: String): TextLayoutResult {
+    private fun rawLayout(tag: String, useUnmergedTree: Boolean = false): TextLayoutResult {
         val layouts = mutableListOf<TextLayoutResult>()
-        compose.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
+        compose.onNodeWithTag(tag, useUnmergedTree = useUnmergedTree)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
         return layouts.single()
     }
 
@@ -188,6 +189,10 @@ class MountedTextAssertionsTest {
             observeNativeCaretGeometry(semantics, painted, tag)
             assertNativePaintAgreement(semantics, painted, tag)
             retainNativeCaretEvidence(painted, tag, "$tag-native")
+            if (tag == "fixed-right-bidi") {
+                val raster = observeMountedNativePaint(compose, compose.onNodeWithTag(tag), painted, text, tag)
+                nativeCaretEvidence[tag] = "$raster|${nativeCaretEvidence.getValue(tag)}"
+            }
             println("WP502_NATIVE_CARET_AGREEMENT|tag=$tag|allNativeDerivedParagraphLineAndUtf16AssertionsReached=true")
             check(tag, text)
             check("$tag-native", text)
@@ -230,6 +235,7 @@ class MountedTextAssertionsTest {
                 layout.getLineLeft(0) < 0f || layout.getLineRight(0) > layout.size.width)
             assertFalse(layout.didOverflowHeight)
             assertFalse(layout.isLineEllipsized(0))
+            observeMountedNativePaint(compose, compose.onNodeWithTag(tag), layout, text, tag, requireClippingWitness = true)
             rejects(tag, text, "line outside measured text")
         }
     }
@@ -267,11 +273,16 @@ class MountedTextAssertionsTest {
         assertTrue("Actual target must be only partially visible", partial.boundsInRoot.width < partial.size.width)
         rejects("bidi-viewport-target", text, "WP502_TEXT_VIEWPORT")
         target.performScrollTo()
-        val semantics = rawLayout("bidi-viewport-text")
+        val semantics = rawLayout("bidi-viewport-text", useUnmergedTree = true)
         val painted = compose.runOnIdle { native.getValue("viewport") }
         observeNativeCaretGeometry(semantics, painted, "bidi-viewport-after-scroll")
         assertNativePaintAgreement(semantics, painted, "bidi-viewport-after-scroll")
         retainNativeCaretEvidence(painted, "bidi-viewport-target", "bidi-viewport-native")
+        val raster = observeMountedNativePaint(
+            compose, compose.onNodeWithTag("bidi-viewport-text", useUnmergedTree = true),
+            painted, text, "bidi-viewport-after-scroll",
+        )
+        nativeCaretEvidence["bidi-viewport-target"] = "$raster|${nativeCaretEvidence.getValue("bidi-viewport-target")}"
         println("WP502_NATIVE_CARET_AGREEMENT|tag=bidi-viewport-after-scroll|allNativeDerivedParagraphLineAndUtf16AssertionsReached=true")
         check("bidi-viewport-target", text)
         check("bidi-viewport-native", text)
