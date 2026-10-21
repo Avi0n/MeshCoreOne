@@ -1,14 +1,18 @@
 import copy
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
-from fixtures import BASE, NOW, policy, settings, test_manifest
+from fixtures import BASE, NOW, REPO, policy, settings, test_manifest
 from controller.capabilities import CapabilityEngine
 from controller.errors import PortError
 from controller.ledger import HARD_LOCK_RESOURCES, Identity, Ledger
-from controller.scope_amendment import ROOMS_AVATAR_CAPABILITY, ROOMS_MESSAGE_ACTIONS_CAPABILITY
+from controller.scope_amendment import (
+    ROOMS_AVATAR_CAPABILITY, ROOMS_MESSAGE_ACTIONS_CAPABILITY,
+    MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY,
+)
 from portmap import capability_support_admitted
 
 
@@ -36,6 +40,12 @@ PICKER_PATHS = [
 ]
 PICKER_OPERATION = "repair-shared-mention-picker"
 PICKER_CAPABILITY = "shared-mention-picker-repair"
+TRANSLATION_ACTION_PATH = (
+    "android/feature/chats/src/main/kotlin/com/meshcoreone/android/"
+    "feature/chats/actions/MessageActionsUi.kt"
+)
+TRANSLATION_REMOVAL_OPERATION = "remove-active-message-translation-affordance"
+TRANSLATION_REMOVAL_CAPABILITY = "message-actions-translation-removal"
 
 
 class CapabilityReservationTests(unittest.TestCase):
@@ -414,6 +424,123 @@ class CapabilityReservationTests(unittest.TestCase):
             self.engine.reconcile_intents(BASE, "9" * 40, PICKER_PATH, PICKER_CAPABILITY, [intent])
         with self.assertRaisesRegex(PortError, "Unresolved semantic ownership collision"):
             self.engine.reconcile_intents(BASE, BASE, PICKER_PATH, PICKER_CAPABILITY, [
+                intent, {**intent, "owner": "other", "value_digest": "b" * 64},
+            ])
+
+    def test_translation_affordance_removal_admits_only_exact_wp_path_and_operation(self):
+        manifest = test_manifest("WP-502")
+        assigned = manifest.wp("WP-502")["write_paths"]
+        admission = self.engine.admit("WP-502", assigned, TRANSLATION_ACTION_PATH, TRANSLATION_REMOVAL_OPERATION)
+        self.assertEqual(admission.capability_id, TRANSLATION_REMOVAL_CAPABILITY)
+        self.assertEqual((admission.path, admission.operation),
+                         (TRANSLATION_ACTION_PATH, TRANSLATION_REMOVAL_OPERATION))
+        self.assertFalse(any(TRANSLATION_ACTION_PATH.startswith(p) for p in assigned))
+        self.assertTrue(any(TRANSLATION_ACTION_PATH.startswith(p)
+                            for p in manifest.wp("WP-309")["write_paths"]))
+        for wp, path, operation in (
+            *[(wp, TRANSLATION_ACTION_PATH, TRANSLATION_REMOVAL_OPERATION)
+              for wp in ("WP-003", "WP-309", "WP-407", "WP-501", "WP-503")],
+            *[("WP-502", path, TRANSLATION_REMOVAL_OPERATION) for path in (
+                TRANSLATION_ACTION_PATH.rsplit("/", 1)[0], TRANSLATION_ACTION_PATH + ".backup",
+                TRANSLATION_ACTION_PATH.replace("MessageActionsUi.kt", "MessageActionsState.kt"),
+                TRANSLATION_ACTION_PATH.replace("MessageActionsUi.kt", "MessageActionModels.kt"),
+                PICKER_PATH, ROOM_RENDERER,
+                "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageActions.kt",
+                "android/core/model/src/main/kotlin/MessageDTO.kt",
+                "android/feature/chats/build.gradle.kts",
+                "android/feature/chats/src/main/res/values/strings.xml",
+            )],
+            *[("WP-502", TRANSLATION_ACTION_PATH, operation) for operation in
+              ("modify", "create", "delete", PICKER_OPERATION, ROOM_ACTIONS_OPERATION, "unknown-operation")],
+        ):
+            with self.subTest(wp=wp, path=path, operation=operation), self.assertRaisesRegex(
+                PortError, r"no trusted path\+operation rule"
+            ):
+                self.engine.admit(wp, manifest.wp(wp)["write_paths"], path, operation)
+
+    def test_translation_affordance_invariants_and_actual_trusted_policy_prevent_self_admission(self):
+        rule = next(r for r in self.rules["reservation_policy"]["capabilities"]
+                    if r["id"] == TRANSLATION_REMOVAL_CAPABILITY)
+        self.assertEqual(rule, MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY)
+        self.assertEqual(rule["work_packages"], ["WP-502"])
+        self.assertEqual(rule["path_rules"], [TRANSLATION_ACTION_PATH])
+        self.assertEqual(rule["operations"], [TRANSLATION_REMOVAL_OPERATION])
+        self.assertEqual(set(rule["invariants"]), {
+            "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+            "WP-309-primary-provenance-unchanged", "existing-WP-502-owner-same-reservation",
+            "remove-only-active-Translate-affordance-from-real-public-MessageActionsRoute",
+            "no-renamed-hidden-or-alternate-reachable-translation-action",
+            "all-other-real-actions-availability-theme-localized-labels-48dp-dismissal-state-and-side-effects-unchanged",
+            "original-message-text-and-app-localization-preserved",
+            "inert-Translate-enum-handler-helper-may-remain-no-App-State-core-build-resource-widening",
+            "no-translation-provider-model-backend-billing-or-new-service",
+            "no-fake-renderer-or-removal-of-action-section",
+            "existing-Room-mention-picker-and-avatar-rules-unchanged",
+            "semantic-collisions-serialize-or-transfer-current-producer",
+            "trusted-main-admission-before-product-edit",
+            "no-main-policy-landing-during-held-native-or-gradle-operation",
+        })
+        self.assertEqual(len(rule["validation"]), 5)
+        for revision in ("aa4b0b425b3ee58485191c7ede39e69ca8a1acf5",
+                         "dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c"):
+            trusted = json.loads(subprocess.check_output([
+                "git", "-C", str(REPO), "show", revision + ":docs/android/automation-policy.json",
+            ]))
+            before = copy.deepcopy(trusted)
+            with self.subTest(revision=revision), self.assertRaisesRegex(
+                PortError, r"no trusted path\+operation rule"
+            ):
+                CapabilityEngine(trusted).admit(
+                    "WP-502", test_manifest("WP-502").wp("WP-502")["write_paths"],
+                    TRANSLATION_ACTION_PATH, TRANSLATION_REMOVAL_OPERATION,
+                )
+            self.assertEqual(trusted, before)
+
+    def test_translation_affordance_same_owner_evolution_and_semantic_collision_fences(self):
+        wp = test_manifest("WP-502").wp("WP-502")
+        owner = {"session_id": "existing-502", "branch": "existing-branch", "worktree": "C:\\existing"}
+        self.ledger.claim(
+            wp, {"base_sha": BASE}, "local", "existing-attempt", NOW, 1800, 5, 0, 100, 5,
+            initial_identity=Identity(session_id=owner["session_id"]),
+            branch=owner["branch"], worktree=owner["worktree"],
+            authorization_context={"authorization": "immutable original"},
+        )
+        before = self.ledger.get("WP-502")
+        caps = {TRANSLATION_REMOVAL_CAPABILITY: [TRANSLATION_ACTION_PATH]}
+        for attempt, context in (
+            ("foreign-attempt", owner),
+            ("existing-attempt", {**owner, "session_id": "foreign"}),
+            ("existing-attempt", {**owner, "branch": "foreign"}),
+            ("existing-attempt", {**owner, "worktree": "C:\\foreign"}),
+        ):
+            with self.subTest(attempt=attempt, context=context), self.assertRaises(PortError):
+                self.ledger.evolve_scope("WP-502", attempt, before["revision"], caps,
+                                         [TRANSLATION_REMOVAL_OPERATION], [TRANSLATION_ACTION_PATH],
+                                         owner_context=context)
+            self.assertEqual(self.ledger.get("WP-502"), before)
+        evolved = self.ledger.evolve_scope(
+            "WP-502", before["attempt"], before["revision"], caps,
+            [TRANSLATION_REMOVAL_OPERATION], [TRANSLATION_ACTION_PATH], owner_context=owner,
+        )
+        self.assertEqual(evolved["revision"], before["revision"] + 1)
+        self.assertEqual(evolved["capabilities"][TRANSLATION_REMOVAL_CAPABILITY], [TRANSLATION_ACTION_PATH])
+        for key in ("identity", "binding", "authorization_context", "attempt", "branch", "worktree", "state", "repairs"):
+            self.assertEqual(evolved[key], before[key])
+        with self.assertRaisesRegex(PortError, "Stale capability reservation"):
+            self.ledger.evolve_scope("WP-502", before["attempt"], before["revision"], caps,
+                                     [TRANSLATION_REMOVAL_OPERATION], [TRANSLATION_ACTION_PATH], owner_context=owner)
+        self.assertEqual(self.ledger.get("WP-502"), evolved)
+        self.assertEqual(self.ledger.evolve_scope(
+            "WP-502", before["attempt"], evolved["revision"], caps,
+            [TRANSLATION_REMOVAL_OPERATION], [TRANSLATION_ACTION_PATH], owner_context=owner,
+        ), evolved)
+        intent = {"owner": "existing-502", "semantic_key": "active-translation-affordance",
+                  "value_digest": "a" * 64, "evidence": "future-mounted-real-route"}
+        with self.assertRaisesRegex(PortError, "Current base changed"):
+            self.engine.reconcile_intents(BASE, "9" * 40, TRANSLATION_ACTION_PATH,
+                                          TRANSLATION_REMOVAL_CAPABILITY, [intent])
+        with self.assertRaisesRegex(PortError, "Unresolved semantic ownership collision"):
+            self.engine.reconcile_intents(BASE, BASE, TRANSLATION_ACTION_PATH, TRANSLATION_REMOVAL_CAPABILITY, [
                 intent, {**intent, "owner": "other", "value_digest": "b" * 64},
             ])
 

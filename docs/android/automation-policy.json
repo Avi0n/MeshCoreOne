@@ -217,6 +217,36 @@
         ]
       },
       {
+        "id": "message-actions-translation-removal",
+        "work_packages": ["WP-502"],
+        "path_rules": [
+          "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/actions/MessageActionsUi.kt"
+        ],
+        "operations": ["remove-active-message-translation-affordance"],
+        "invariants": [
+          "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+          "WP-309-primary-provenance-unchanged", "existing-WP-502-owner-same-reservation",
+          "remove-only-active-Translate-affordance-from-real-public-MessageActionsRoute",
+          "no-renamed-hidden-or-alternate-reachable-translation-action",
+          "all-other-real-actions-availability-theme-localized-labels-48dp-dismissal-state-and-side-effects-unchanged",
+          "original-message-text-and-app-localization-preserved",
+          "inert-Translate-enum-handler-helper-may-remain-no-App-State-core-build-resource-widening",
+          "no-translation-provider-model-backend-billing-or-new-service",
+          "no-fake-renderer-or-removal-of-action-section",
+          "existing-Room-mention-picker-and-avatar-rules-unchanged",
+          "semantic-collisions-serialize-or-transfer-current-producer",
+          "trusted-main-admission-before-product-edit",
+          "no-main-policy-landing-during-held-native-or-gradle-operation"
+        ],
+        "validation": [
+          "future mounted real public MessageActionsRoute: no reachable Translate action in English and Chinese, not merely hidden or renamed text",
+          "independent retained Reply/Copy/SendAgain/SendDM/React/Delete and block/mute/path/details render and dispatch according to original availability",
+          "real localized labels/theme/48dp/dismissal/state/consumer side effects and original message text unchanged; no reachable not-registered translation error or fake renderer",
+          "affected manifest-declared software verification and trusted ownership/traceability validators",
+          "exact-head/current-base protected merge review after verified native cleanup"
+        ]
+      },
+      {
         "id": "merge-integration",
         "path_rules": ["**"],
         "operations": ["reconcile-current-base", "merge-disjoint-semantic-edits", "transfer-current-producer"],

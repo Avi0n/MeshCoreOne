@@ -14,9 +14,41 @@ guarded execution; a candidate checkout is not live authority.
 
 ## Candidate execution contract
 
+### Local-only active Translate removal proposal
+
+The successor to published `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
+proposes ONE independent `message-actions-translation-removal` capability,
+WP-502 only, operation `remove-active-message-translation-affordance` only,
+exactly `android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/actions/MessageActionsUi.kt`.
+This is not present trusted-main admission or a product edit. App/State/core/
+build/resources receive no new path or operation. Inert Translate enum/handler/
+helpers may remain; no provider/model/backend/billing/service is introduced.
+
+The actual public MessageActionsRoute currently reaches unconditional Translate
+in ActionButtons, and AppMessageActions reports "Message translation is not
+registered". Removing this ACTIVE entry implements the already-approved
+PORTING_PLAN section 2.2 scope removal; the frozen Swift button remains read-only,
+WP-309 primary provenance unchanged. All other real action availability, theme,
+localized labels, 48dp, dismissal, state/side effects and original text must remain.
+
+Future product evidence must mount the REAL public MessageActionsRoute in
+English AND Chinese, prove no reachable Translate dispatch (not just absent,
+hidden or renamed label text), and independently render/dispatch retained actions
+according to their original availability. A fake renderer or deleting the action
+section cannot satisfy this. No mounted/native proof is claimed by Python tests.
+
+Exact reverse removes only the new rule and recovers the ENTIRE reviewed aa4
+policy/Git blob; Room7/picker3/avatar rules and manifest stay unchanged. Current
+binding includes the new rule; old historical projections retain their identities.
+Workers must obtain actual trusted-main admission and evolve the SAME WP-502
+reservation only after separately reviewed deployment/verified native cleanup;
+candidate policy cannot supply that authority. Semantic overlap serializes or
+transfers to the current producer. This proposal remains LOCAL/UNPUBLISHED:
+no publication, main/policy/runtime landing or product consumption is authorized.
+
 ### Source-only local/native execution interlock correction
 
-The unpublished successor to `67a225dbaf00d712710a82cededa9a9311f17f8a`
+The source successor published as `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
 closes the advisory/manual launcher gap; it does not deploy either candidate
 capability or alter the held native473 operation/runtime. Both independent
 Room7/picker3 rules and historical projections remain unchanged.

@@ -141,6 +141,65 @@ MENTION_PICKER_CAPABILITY = {
 }
 
 
+MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY = {
+    "id": "message-actions-translation-removal",
+    "work_packages": ["WP-502"],
+    "path_rules": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/actions/MessageActionsUi.kt",
+    ],
+    "operations": ["remove-active-message-translation-affordance"],
+    "invariants": [
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+        "WP-309-primary-provenance-unchanged", "existing-WP-502-owner-same-reservation",
+        "remove-only-active-Translate-affordance-from-real-public-MessageActionsRoute",
+        "no-renamed-hidden-or-alternate-reachable-translation-action",
+        "all-other-real-actions-availability-theme-localized-labels-48dp-dismissal-state-and-side-effects-unchanged",
+        "original-message-text-and-app-localization-preserved",
+        "inert-Translate-enum-handler-helper-may-remain-no-App-State-core-build-resource-widening",
+        "no-translation-provider-model-backend-billing-or-new-service",
+        "no-fake-renderer-or-removal-of-action-section",
+        "existing-Room-mention-picker-and-avatar-rules-unchanged",
+        "semantic-collisions-serialize-or-transfer-current-producer",
+        "trusted-main-admission-before-product-edit",
+        "no-main-policy-landing-during-held-native-or-gradle-operation",
+    ],
+    "validation": [
+        "future mounted real public MessageActionsRoute: no reachable Translate action in English and Chinese, not merely hidden or renamed text",
+        "independent retained Reply/Copy/SendAgain/SendDM/React/Delete and block/mute/path/details render and dispatch according to original availability",
+        "real localized labels/theme/48dp/dismissal/state/consumer side effects and original message text unchanged; no reachable not-registered translation error or fake renderer",
+        "affected manifest-declared software verification and trusted ownership/traceability validators",
+        "exact-head/current-base protected merge review after verified native cleanup",
+    ],
+}
+
+
+def message_actions_translation_predecessor(policy):
+    """Reverse only the exact active-affordance support rule, not removed product scope."""
+    if not isinstance(policy, dict):
+        raise PortError("Message actions translation amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result.get("reservation_policy")
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Message actions translation amendment requires the canonical capability catalog")
+    selected = [index for index, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY["id"]]
+    if not selected:
+        return result
+    if (
+        len(selected) != 1 or rules[selected[0]] != MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY
+        or selected[0] == 0 or rules[selected[0] - 1] != MENTION_PICKER_CAPABILITY
+        or selected[0] + 1 >= len(rules)
+        or not isinstance(rules[selected[0] + 1], dict)
+        or rules[selected[0] + 1].get("id") != "merge-integration"
+    ):
+        raise PortError("Message actions translation capability changed outside the exact authorized amendment")
+    rules.pop(selected[0])
+    return result
+
+
 def mention_picker_predecessor(policy):
     """Remove only the exact independent picker rule, retaining the Room action preimage."""
     result = copy.deepcopy(policy)
@@ -241,7 +300,8 @@ def debug_packaging_predecessor(policy):
 def review_policy_predecessor(policy):
     """Reverse exact authorized process deltas; historical policy receipts stay immutable."""
     result = debug_packaging_predecessor(rooms_avatar_predecessor(
-        rooms_message_actions_predecessor(mention_picker_predecessor(policy))))
+        rooms_message_actions_predecessor(mention_picker_predecessor(
+            message_actions_translation_predecessor(policy)))))
     if "review_policy" not in result:
         return result
     if result.pop("review_policy") != REVIEW_POLICY:
