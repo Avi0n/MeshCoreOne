@@ -1025,22 +1025,28 @@ class RoomsComposeTest {
             calls += stage
             failIfSelected(stage)
         }
+        fun sessionStep(stage: String, requestedSession: RemoteNodeSessionDTO) {
+            assertEquals(session, requestedSession)
+            step(stage)
+        }
         val dependencies = object : RoomConversationDependencies by fixture {
             override val data = object : RoomConversationDataSource by fixture.data {
                 override suspend fun fetchMessages(session: RemoteNodeSessionDTO): List<RoomMessageDTO> {
+                    assertEquals(this@RoomsComposeTest.session, session)
                     calls += "fetch"
                     gate.await()
                     failIfSelected("fetch")
                     return stored
                 }
-                override suspend fun markAsRead(session: RemoteNodeSessionDTO) = step("read")
-                override suspend fun markFailedSendsSeen(session: RemoteNodeSessionDTO) = step("failed-seen")
+                override suspend fun markAsRead(session: RemoteNodeSessionDTO) = sessionStep("read", session)
+                override suspend fun markFailedSendsSeen(session: RemoteNodeSessionDTO) = sessionStep("failed-seen", session)
                 override suspend fun refreshSession(session: RemoteNodeSessionDTO): RemoteNodeSessionDTO? =
                     error("Load must not refresh authentication")
                 override suspend fun contactFor(session: RemoteNodeSessionDTO): ContactDTO? =
                     error("Load must not look up authentication")
             }
-            override suspend fun removeDeliveredNotifications(session: RemoteNodeSessionDTO) = step("notifications")
+            override suspend fun removeDeliveredNotifications(session: RemoteNodeSessionDTO) =
+                sessionStep("notifications", session)
             override suspend fun updateBadgeCount() = step("badge")
             override fun conversationsChanged() = step("changed")
         }
@@ -1132,6 +1138,17 @@ class RoomsComposeTest {
         assertTrue(fixture.retries.isEmpty())
         assertFalse(holder.state.value.isSending)
         assertFalse(holder.state.value.isAuthenticating)
+        val settled = holder.state.value
+        compose.runOnIdle {
+            holderScope.cancel()
+            clock.runCurrent()
+            assertEquals(0, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageReceived(session.id, cached)))
+            clock.advanceTimeBy(50)
+            clock.runCurrent()
+        }
+        assertEquals(settled, holder.state.value)
+        assertEquals(failedCalls + stages, calls)
     }
 
     private fun liveMessage(
