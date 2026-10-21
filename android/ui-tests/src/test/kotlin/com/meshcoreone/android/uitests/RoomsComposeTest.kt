@@ -45,6 +45,7 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.services.remote.RoomServerError
 import com.meshcoreone.android.core.ui.UiErrorMapper
 import com.meshcoreone.android.core.ui.uiString
+import com.meshcoreone.android.feature.chats.composer.MessageLinkDispatcher
 import com.meshcoreone.android.feature.chats.composer.ui.ConversationLinkActions
 import com.meshcoreone.android.feature.chats.rooms.*
 import java.io.File
@@ -679,6 +680,124 @@ class RoomsComposeTest {
             Locale.setDefault(Locale.Category.FORMAT, formatLocale)
             Locale.setDefault(Locale.Category.DISPLAY, displayLocale)
         }
+    }
+
+    @Test fun originalIncomingFollowUpAnnouncesTheAuthorEvenWithoutAVisibleName() {
+        val message = liveMessage(1, 100u, "follow up", Bytes.of(0xaa), "Alice")
+        mountOriginalRoomBubble(RoomMessageRow(message, false, false, true))
+        assertOriginalBubbleLabel(message, "Alice: follow up")
+        compose.onNodeWithText("Alice", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test fun originalIncomingClusterStartAnnouncesTheAuthorOnlyOnce() {
+        val message = liveMessage(1, 100u, "hello", Bytes.of(0xaa), "Alice")
+        mountOriginalRoomBubble(RoomMessageRow(message, false, true, true))
+        val label = "Alice: hello"
+        val actual = assertOriginalBubbleLabel(message, label)
+        assertEquals(1, Regex("Alice").findAll(actual).count())
+        compose.onAllNodesWithText("Alice", useUnmergedTree = true).assertCountEquals(1)
+    }
+
+    @Test fun originalSentOutgoingAnnouncesItsStatusOnlyOnce() {
+        val message = liveMessage(1, 100u, "hello", Bytes.of(0x42), "Me")
+            .copy(isFromSelf = true, statusRawValue = MessageStatus.SENT.rawValue)
+        mountOriginalRoomBubble(RoomMessageRow(message, false, false, false))
+        val status = text(Rooms.remoteNodesRoomMessageStatusDeliveredLabel)
+        val label = "hello, $status"
+        val actual = assertOriginalBubbleLabel(message, label)
+        assertEquals(1, Regex(Regex.escape(status)).findAll(actual).count())
+        compose.onAllNodesWithContentDescription(status).assertCountEquals(0)
+        compose.onNodeWithText(text(Chats.chatsMessageStatusSent), useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test fun originalFailedOutgoingCustomRetryInvokesTheExactMessageCallback() {
+        val message = liveMessage(1, 100u, "hello", Bytes.of(0x42), "Me")
+            .copy(isFromSelf = true, statusRawValue = MessageStatus.FAILED.rawValue)
+        val retried = mutableListOf<UUID>()
+        mountOriginalRoomBubble(RoomMessageRow(message, false, false, false), onRetry = { retried += it })
+        val label = "hello, ${text(Rooms.remoteNodesRoomMessageStatusFailedLabel)}"
+        assertOriginalBubbleLabel(message, label)
+        val actions = compose.onNodeWithContentDescription(label).fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        assertEquals(listOf(text(Chats.chatsMessageActionRetry)), actions.map { it.label })
+        assertTrue(retried.isEmpty())
+        compose.runOnIdle { assertTrue(actions.single().action()) }
+        assertEquals(listOf(message.id), retried)
+        assertOriginalBubbleLabel(message, label)
+        compose.onNode(hasSetTextAction()).assertTextContains(body)
+    }
+
+    @Test fun originalSentOutgoingHasNoCustomRetryEvenWithACallback() {
+        val message = liveMessage(1, 100u, "hello", Bytes.of(0x42), "Me")
+            .copy(isFromSelf = true, statusRawValue = MessageStatus.SENT.rawValue)
+        val retried = mutableListOf<UUID>()
+        mountOriginalRoomBubble(RoomMessageRow(message, false, false, false), onRetry = { retried += it })
+        val label = "hello, ${text(Rooms.remoteNodesRoomMessageStatusDeliveredLabel)}"
+        assertOriginalBubbleLabel(message, label)
+        val actions = compose.onNodeWithContentDescription(label).fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        assertTrue(actions.isEmpty())
+        compose.onNodeWithText(text(Chats.chatsMessageStatusRetry), useUnmergedTree = true).assertDoesNotExist()
+        assertTrue(retried.isEmpty())
+    }
+
+    @Test fun originalHttpsBodyExposesTheLocalizedHostActionAndDispatchesTheOriginalUrl() {
+        val message = liveMessage(1, 100u, "see https://example.com", Bytes.of(0xaa), "Alice")
+        val routed = mutableListOf<String>()
+        val external = mutableListOf<String>()
+        val dispatcher = MessageLinkDispatcher(
+            contacts = { error("HTTPS action must not resolve contacts") },
+            radioId = { error("HTTPS action must not resolve a radio") },
+            connectedDeviceName = { error("HTTPS action must not resolve self") },
+            onMention = { error("HTTPS action must not open a mention") },
+            route = { routed += it; false },
+            openExternal = { external += it },
+        )
+        mountOriginalRoomBubble(RoomMessageRow(message, false, true, true), onLink = dispatcher::dispatch)
+        val label = "Alice: see https://example.com"
+        assertOriginalBubbleLabel(message, label)
+        val actions = compose.onNodeWithContentDescription(label).fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        val expectedName = Chats.chatsMessageActionOpenWebLink(host.get().resources, "example.com")
+        assertEquals(listOf(expectedName), actions.map { it.label })
+        assertTrue(routed.isEmpty())
+        assertTrue(external.isEmpty())
+        compose.runOnIdle { assertTrue(actions.single().action()) }
+        assertEquals(listOf("https://example.com"), routed)
+        assertEquals(listOf("https://example.com"), external)
+        assertEquals("example.com", java.net.URI(external.single()).host)
+        assertOriginalBubbleLabel(message, label)
+        compose.onNode(hasSetTextAction()).assertTextContains(body)
+    }
+
+    private fun mountOriginalRoomBubble(
+        row: RoomMessageRow,
+        onRetry: (UUID) -> Unit = { error("Unexpected original bubble retry") },
+        onLink: (String) -> Boolean = { error("Unexpected original bubble link") },
+    ) = mount {
+        RoomConversationContent(
+            RoomConversationState(
+                session, messages = listOf(row.message), rows = listOf(row), draft = body, hasLoadedOnce = true,
+            ),
+            onDraftChanged = { error("Unexpected original bubble draft mutation") },
+            onSend = { error("Unexpected original bubble send") },
+            onRetry = onRetry,
+            onLink = onLink,
+            onReconnect = { error("Unexpected original bubble authentication") },
+            onDismissError = { error("Unexpected original bubble failure") },
+            failureText = { throw AssertionError("Unexpected original bubble error", it) },
+        )
+    }
+
+    private fun assertOriginalBubbleLabel(message: RoomMessageDTO, label: String): String {
+        val parent = compose.onAllNodesWithContentDescription(label).assertCountEquals(1)[0].assertIsDisplayed()
+        val descriptions = parent.fetchSemanticsNode().config[SemanticsProperties.ContentDescription]
+        assertEquals(listOf(label), descriptions)
+        compose.onAllNodesWithContentDescription(message.authorDisplayName).assertCountEquals(0)
+        compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true).assertIsDisplayed()
+        compose.onAllNodes(hasText(message.text) and !hasSetTextAction(), useUnmergedTree = true).assertCountEquals(1)[0]
+            .assertIsDisplayed()
+        compose.onNode(hasSetTextAction()).assertTextContains(body)
+        compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
+        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
+        return descriptions.single()
     }
 
     private fun liveMessage(
