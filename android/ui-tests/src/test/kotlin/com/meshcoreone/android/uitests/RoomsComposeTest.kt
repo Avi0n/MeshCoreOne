@@ -7,6 +7,10 @@
 // ReferenceInput: MC1Services/Sources/MC1Services/Models/RoomMessage.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/Chats/Room/RoomAuthenticationSheet.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1Tests/Views/Chats/Components/RoomMessageBubbleA11yLabelTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1Tests/Views/Chats/ChatConversationViewTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Views/Chats/Mentions/MentionTapEvaluator.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Views/Chats/Mentions/MentionTapHandler.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Views/Chats/Mentions/MentionPickerSheet.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.uitests
 
 import android.content.res.Configuration
@@ -893,6 +897,109 @@ class RoomsComposeTest {
         assertEquals("example.com", java.net.URI(external.single()).host)
         assertOriginalBubbleLabel(message, label)
         compose.onNode(hasSetTextAction()).assertTextContains(body)
+    }
+
+    @Test fun selfMentionAndMissingDeviceNameUseDistinctMountedStatusSheetsWithoutLosingTheRoomDraft() {
+        val selfMention = liveMessage(1, 100u, "@[mydevice]", Bytes.of(0xaa), "Alice")
+        val fallbackMention = liveMessage(2, 160u, "@[Me]", Bytes.of(0xaa), "Alice")
+        val alice = ContactDTO(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000331"),
+            radioId = radio, publicKey = Bytes(ByteArray(32) { 0x11 }),
+            name = "Alice", lastHeardTimestamp = null,
+        )
+        var savedContacts = listOf(alice)
+        var deviceName: String? = "MyDevice"
+        val contactReads = mutableListOf<List<ContactDTO>>()
+        val deviceNameReads = mutableListOf<String?>()
+        val radioReads = mutableListOf<RadioId>()
+        val fixture = Fixture().apply { stored = listOf(selfMention, fallbackMention) }
+        val links = ConversationLinkActions(
+            contacts = { savedContacts.also { contactReads.add(it) } },
+            connectedDeviceName = { deviceName.also { deviceNameReads.add(it) } },
+            radioId = { radio.also { radioReads.add(it) } },
+            route = { error("Mention status must not use the URL router") },
+            openExternal = { error("Mention status must not open an external URL") },
+            navigateToContact = { error("Self or missing mention must not navigate to a contact") },
+        )
+        mount {
+            RoomConversationRoute(
+                fixture.holder, links, failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val retained = RoomConversationState(
+            session, messages = listOf(selfMention, fallbackMention),
+            rows = listOf(
+                RoomMessageRow(selfMention, true, true, false),
+                RoomMessageRow(fallbackMention, false, false, true),
+            ),
+            draft = body, hasLoadedOnce = true,
+        )
+        val readEffects = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+        fun assertRetainedRoom() {
+            assertEquals(retained, fixture.holder.state.value)
+            assertEquals(body, fixture.holder.state.value.draft)
+            assertEquals(readEffects, fixture.loads)
+            assertTrue(fixture.posts.isEmpty())
+            assertTrue(fixture.joins.isEmpty())
+            assertTrue(fixture.retries.isEmpty())
+            assertTrue(fixture.reported.isEmpty())
+        }
+        fun openMention(message: RoomMessageDTO, rawName: String) {
+            val parent = compose.onAllNodesWithContentDescription("Alice: ${message.text}")
+                .assertCountEquals(1)[0].assertIsDisplayed()
+            val actions = parent.fetchSemanticsNode().config[SemanticsActions.CustomActions]
+            assertEquals(
+                listOf(Chats.chatsMessageActionOpenMention(host.get().resources, rawName)),
+                actions.map { it.label },
+            )
+            compose.runOnIdle { assertTrue(actions.single().action()) }
+        }
+        openMention(selfMention, "mydevice")
+        val selfTitle = Chats.chatsMentionPickerTitle(host.get().resources, "mydevice")
+        compose.onNodeWithText(selfTitle).assertIsDisplayed()
+        compose.onNodeWithText(text(Chats.chatsMentionPickerSelfTitle)).assertIsDisplayed()
+        compose.onNodeWithText(Chats.chatsMentionPickerSelfSubtitle(host.get().resources, "mydevice"))
+            .assertIsDisplayed()
+        compose.onNodeWithText(text(Chats.chatsMentionPickerNotSavedTitle)).assertDoesNotExist()
+        compose.onNodeWithText(text(Chats.chatsMentionPickerMatchingContacts)).assertDoesNotExist()
+        assertRetainedRoom()
+        compose.onNodeWithText(text(Chats.chatsCommonDone)).assertHeightIsAtLeast(48.dp).performClick()
+        compose.onNodeWithText(selfTitle).assertDoesNotExist()
+        compose.onNode(hasSetTextAction()).assertTextContains(body)
+        compose.runOnIdle {
+            savedContacts = emptyList()
+            deviceName = null
+        }
+        openMention(fallbackMention, "Me")
+        val missingTitle = Chats.chatsMentionPickerTitle(host.get().resources, "Me")
+        compose.onNodeWithText(missingTitle).assertIsDisplayed()
+        compose.onNodeWithText(text(Chats.chatsMentionPickerNotSavedTitle)).assertIsDisplayed()
+        compose.onNodeWithText(Chats.chatsMentionPickerNotSavedSubtitle(host.get().resources, "Me"))
+            .assertIsDisplayed()
+        compose.onNodeWithText(text(Chats.chatsMentionPickerSelfTitle)).assertDoesNotExist()
+        compose.onNodeWithText(text(Chats.chatsMentionPickerMatchingContacts)).assertDoesNotExist()
+        assertRetainedRoom()
+        assertEquals(listOf(listOf(alice), emptyList<ContactDTO>()), contactReads)
+        assertEquals(listOf("MyDevice", null), deviceNameReads)
+        assertEquals(listOf(radio, radio), radioReads)
+        compose.onNodeWithText(text(Chats.chatsCommonDone)).performClick()
+        compose.onNodeWithText(missingTitle).assertDoesNotExist()
+        for (message in listOf(selfMention, fallbackMention)) {
+            compose.onAllNodesWithContentDescription("Alice: ${message.text}")
+                .assertCountEquals(1)[0].assertIsDisplayed()
+            compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true).assertIsDisplayed()
+        }
+        compose.onNode(hasSetTextAction()).assertTextContains(body)
+        assertRetainedRoom()
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        compose.runOnIdle {
+            scope.cancel()
+            assertEquals(0, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, selfMention.id)))
+        }
+        assertRetainedRoom()
     }
 
     private fun mountOriginalRoomBubble(
