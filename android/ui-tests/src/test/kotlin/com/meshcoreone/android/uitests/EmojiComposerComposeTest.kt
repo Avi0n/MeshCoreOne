@@ -60,6 +60,8 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -77,6 +79,21 @@ class EmojiComposerComposeTest {
     private var effectiveScheme: ColorScheme? = null
     private val revision = mutableStateOf(0)
     private val fixtures = mutableListOf<Fixture>()
+    @get:Rule val failureDiagnostics = object : TestWatcher() {
+        override fun failed(failure: Throwable, description: Description) {
+            System.err.println("WP502_EMOJI_FAILURE|${description.methodName}|frame=${failureFrame()}|effectiveScheme=$effectiveScheme")
+            fixtures.forEachIndexed { index, fixture ->
+                System.err.println(
+                    "WP502_EMOJI_STATE|fixture=$index|load=${fixture.picker.state.value.load}" +
+                        "|attempts=${fixture.attempts.size}|active=${fixture.activeLoads}|cancelled=${fixture.cancelledLoads}" +
+                        "|draftReads=${fixture.draftReads}|draftWrites=${fixture.draftWrites}" +
+                        "|frequentReads=${fixture.frequentReads}|frequentWrites=${fixture.frequentWrites}" +
+                        "|effects=${fixture.effects}|forbidden=${fixture.forbiddenCalls}",
+                )
+            }
+            failure.printStackTrace(System.err)
+        }
+    }
     private val catalog = linkedMapOf(
         "flags" to listOf(EmojiEntry("1F1EF-1F1F5", "\uD83C\uDDEF\uD83C\uDDF5", "Japan")),
         "symbols" to listOf(EmojiEntry("2733", "\u2733", "asterisk")),
@@ -94,8 +111,10 @@ class EmojiComposerComposeTest {
     private val categoryIds = listOf("frequent", "people", "nature", "foods", "activity", "places", "objects", "symbols", "flags")
     private val dark = ScreenCase(
         "emoji-dark-cjk-rtl", theme = ThemeId.EMBER, expectedScheme = ColorScheme.DARK,
-        locale = "zh-Hans", fontScale = 2f, rtl = true,
+        locale = "zh-Hans", heightDp = 1400, fontScale = 2f, rtl = true,
     )
+
+    private fun failureFrame() = if (::frame.isInitialized) frame.toString() else "not-mounted"
 
     @Before fun createHost() {
         host = Robolectric.buildActivity(ComponentActivity::class.java).setup().visible()
@@ -110,7 +129,7 @@ class EmojiComposerComposeTest {
     }
 
     @Suppress("DEPRECATION")
-    private fun mount(fixture: Fixture, case: ScreenCase = ScreenCase("emoji-light", locale = "en-US")) {
+    private fun mount(fixture: Fixture, case: ScreenCase = ScreenCase("emoji-light", heightDp = 1400, locale = "en-US")) {
         fixtures += fixture
         frame = case
         val resources = host.get().resources
@@ -147,6 +166,7 @@ class EmojiComposerComposeTest {
             }
         }
         compose.runOnIdle { assertEquals(frame.expectedScheme, effectiveScheme) }
+        compose.runOnIdle { assertMountedProfile(host.get(), frame) }
     }
 
     private fun composer() = compose.onNode(
@@ -190,7 +210,11 @@ class EmojiComposerComposeTest {
 
     private fun assertCopyLayout(node: SemanticsNodeInteraction, text: String) {
         val layout = assertTypography(node, text)
-        assertFalse(layout.didOverflowWidth)
+        assertMountedText(
+            compose, node, text, frame.fontScale,
+            if (frame.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+            "emoji frame=$frame effectiveScheme=$effectiveScheme",
+        )
         assertFalse(layout.didOverflowHeight)
         for (line in 0 until layout.lineCount) assertFalse(layout.isLineEllipsized(line))
     }
@@ -329,7 +353,7 @@ class EmojiComposerComposeTest {
     }
 
     @Test fun failedCatalogShowsLocalizedFailureAndOnlyRealDismissReopenStartsAnotherLoad() {
-        for (case in listOf(ScreenCase("emoji-error", locale = "en-US"), dark)) {
+        for (case in listOf(ScreenCase("emoji-error", heightDp = 1400, locale = "en-US"), dark)) {
             val fixture = Fixture(emptyList())
             mount(fixture, case)
             open()

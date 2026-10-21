@@ -78,7 +78,7 @@ class ReactionDetailsComposeTest {
     private val fixtures = mutableListOf<Fixture>()
     private val dark = ScreenCase(
         "reactions-dark-cjk-rtl", theme = ThemeId.EMBER, expectedScheme = ColorScheme.DARK,
-        locale = "zh-Hans", fontScale = 2f, rtl = true,
+        locale = "zh-Hans", heightDp = 1400, fontScale = 2f, rtl = true,
     )
 
     @Before fun createHost() {
@@ -99,7 +99,7 @@ class ReactionDetailsComposeTest {
     }
 
     @Suppress("DEPRECATION")
-    private fun mount(fixture: Fixture, case: ScreenCase = ScreenCase("reactions-light", locale = "en-US")) {
+    private fun mount(fixture: Fixture, case: ScreenCase = ScreenCase("reactions-light", heightDp = 1400, locale = "en-US")) {
         fixtures += fixture
         frame = case
         val resources = host.get().resources
@@ -137,6 +137,7 @@ class ReactionDetailsComposeTest {
             }
         }
         compose.runOnIdle { assertEquals(frame.expectedScheme, effectiveScheme) }
+        compose.runOnIdle { assertMountedProfile(host.get(), frame) }
     }
 
     private fun title() = if (frame.locale == "en-US") "Reactions" else "\u53cd\u5e94"
@@ -148,24 +149,11 @@ class ReactionDetailsComposeTest {
     )
 
     private fun fullBounds(node: SemanticsNode): Rect {
-        val position = node.positionInRoot
-        return Rect(position.x, position.y, position.x + node.size.width, position.y + node.size.height)
+        return mountedFullBounds(node)
     }
 
-    private fun contains(outer: Rect, inner: Rect) =
-        inner.left >= outer.left && inner.top >= outer.top && inner.right <= outer.right && inner.bottom <= outer.bottom
-
     private fun assertFullyVisible(node: SemanticsNode, expected: String) {
-        val full = fullBounds(node)
-        val visible = node.boundsInRoot
-        val ancestors = generateSequence(node) { it.parent }.toList()
-        val viewports = listOf(ancestors.last().boundsInRoot) + ancestors.drop(1).filter {
-            it.config.contains(SemanticsProperties.HorizontalScrollAxisRange) ||
-                it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
-        }.map { it.boundsInRoot }
-        val diagnostic = "$expected frame=$frame full=$full visible=$visible viewports=$viewports"
-        assertTrue(diagnostic, full.width > 0f && full.height > 0f)
-        assertTrue(diagnostic, contains(visible, full) && viewports.all { contains(it, full) })
+        assertMountedViewport(node, "$expected frame=$frame")
     }
 
     private fun assertCopyLayout(node: SemanticsNodeInteraction, expected: String) {
@@ -182,7 +170,11 @@ class ReactionDetailsComposeTest {
         assertEquals(expected, layout.layoutInput.text.text)
         assertEquals(frame.fontScale, layout.layoutInput.density.fontScale, 0f)
         assertEquals(if (frame.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr, layout.layoutInput.layoutDirection)
-        assertFalse(diagnostic, layout.didOverflowWidth)
+        assertMountedText(
+            compose, node, expected, frame.fontScale,
+            if (frame.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+            "$diagnostic|effectiveScheme=$effectiveScheme",
+        )
         assertFalse(diagnostic, layout.didOverflowHeight)
         for (line in 0 until layout.lineCount) assertFalse(diagnostic, layout.isLineEllipsized(line))
     }
@@ -337,7 +329,7 @@ class ReactionDetailsComposeTest {
     }
 
     @Test fun successfulEmptyReturnedGroupsShowLocalizedEmptyCopyOnlyAfterTheReadCompletes() {
-        for (case in listOf(ScreenCase("reactions-empty", locale = "en-US"), dark)) {
+        for (case in listOf(ScreenCase("reactions-empty", heightDp = 1400, locale = "en-US"), dark)) {
             val fixture = Fixture("$THUMB:3")
             mount(fixture, case)
             openBadge(THUMB, 3)

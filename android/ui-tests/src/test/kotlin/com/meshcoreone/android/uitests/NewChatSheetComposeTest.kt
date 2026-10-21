@@ -105,7 +105,7 @@ class NewChatSheetComposeTest {
     @After fun closeHost() { host.pause().stop().destroy() }
 
     @Suppress("DEPRECATION")
-    private fun mount(fixture: Fixture, case: ScreenCase = ScreenCase("new-chat", locale = "en-US")) {
+    private fun mount(fixture: Fixture, case: ScreenCase = ScreenCase("new-chat", heightDp = 1400, locale = "en-US")) {
         frame = case
         val resources = host.get().resources
         resources.updateConfiguration(Configuration(resources.configuration).apply {
@@ -143,6 +143,7 @@ class NewChatSheetComposeTest {
         }
         compose.waitForIdle()
         assertEquals(frame.expectedScheme, effectiveScheme)
+        compose.runOnIdle { assertMountedProfile(host.get(), frame) }
     }
 
     private fun search() = compose.onNode(hasSetTextAction())
@@ -186,7 +187,11 @@ class NewChatSheetComposeTest {
         assertEquals(frame.fontScale, layout.layoutInput.density.fontScale, 0f)
         assertEquals(if (frame.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr, layout.layoutInput.layoutDirection)
         assertFalse("$text clipped vertically; $diagnostic", layout.didOverflowHeight)
-        assertFalse("$text clipped horizontally; $diagnostic", layout.didOverflowWidth)
+        assertMountedText(
+            compose, node, text, frame.fontScale,
+            if (frame.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+            "$diagnostic|effectiveScheme=$effectiveScheme",
+        )
         for (line in 0 until layout.lineCount) assertFalse("$text ellipsized; $diagnostic", layout.isLineEllipsized(line))
     }
 
@@ -273,7 +278,7 @@ class NewChatSheetComposeTest {
             val fixture = Fixture(radio)
             mount(fixture, ScreenCase(
                 "new-chat-cjk-rtl", theme = ThemeId.EMBER, expectedScheme = ColorScheme.DARK,
-                locale = "zh-Hans", fontScale = 2f, rtl = true,
+                locale = "zh-Hans", heightDp = 1400, fontScale = 2f, rtl = true,
             ))
             progress().assertIsDisplayed()
             compose.runOnIdle { assertTrue(fixture.result.complete(contacts)) }
