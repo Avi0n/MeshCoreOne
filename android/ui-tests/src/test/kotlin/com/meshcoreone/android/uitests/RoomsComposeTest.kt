@@ -11,6 +11,7 @@
 // ReferenceInput: MC1/Views/Chats/Mentions/MentionTapEvaluator.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/Chats/Mentions/MentionTapHandler.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/Chats/Mentions/MentionPickerSheet.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/State/NavigationCoordinator.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.uitests
 
 import android.content.res.Configuration
@@ -40,6 +41,10 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.meshcoreone.android.app.navigation.NavigationCoordinator
+import com.meshcoreone.android.app.navigation.NavigationDestination
+import com.meshcoreone.android.app.navigation.NavigationState
+import com.meshcoreone.android.core.contracts.AppTab
 import com.meshcoreone.android.core.designsystem.ColorScheme
 import com.meshcoreone.android.core.designsystem.LocalMeshTheme
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
@@ -999,6 +1004,130 @@ class RoomsComposeTest {
             assertEquals(0, fixture.events.subscriptionCount.value)
             assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, selfMention.id)))
         }
+        assertRetainedRoom()
+    }
+
+    @Test fun multipleAliceMatchesWaitForRowSelectionThenNavigateToTheSecondIdentityWithoutChangingTheRoomDraft() {
+        fun sourceContact(id: Long, octet: Int, name: String) = ContactDTO(
+            id = UUID(0, id), radioId = radio, publicKey = Bytes(ByteArray(32) { octet.toByte() }),
+            name = name, typeRawValue = 0u, flags = 0u, outPathLength = 0u, outPath = Bytes.EMPTY,
+            lastAdvertTimestamp = 0u, latitude = 0.0, longitude = 0.0, lastModified = 0u,
+            lastHeardTimestamp = null, nickname = null, isBlocked = false, isMuted = false,
+            isFavorite = false, lastMessageDate = null, unreadCount = 0,
+            ocvPreset = null, customOCVArrayString = null,
+        )
+        val alice1 = sourceContact(341, 0x11, "Alice")
+        val alice2 = sourceContact(342, 0x22, "Alice")
+        val bob = sourceContact(343, 0x33, "Bob")
+        val savedContacts = listOf(alice1, alice2, bob)
+        assertNotEquals(alice1.id, alice2.id)
+        assertNotEquals(alice1.publicKey, alice2.publicKey)
+        val mention = liveMessage(1, 100u, "@[Alice]", Bytes.of(0xaa), "Sender")
+        val other = liveMessage(2, 160u, "unchanged", Bytes.of(0xbb), "Other")
+        val fixture = Fixture().apply { stored = listOf(mention, other) }
+        val navigation = NavigationCoordinator(NavigationState(radioId = radio))
+        navigation.navigateToRoom(session)
+        val beforeNavigation = navigation.state.value
+        val contactReads = mutableListOf<List<ContactDTO>>()
+        val deviceNameReads = mutableListOf<String>()
+        val radioReads = mutableListOf<RadioId>()
+        val links = ConversationLinkActions(
+            contacts = { savedContacts.also { contactReads.add(it) } },
+            connectedDeviceName = { "Me".also { deviceNameReads.add(it) } },
+            radioId = { radio.also { radioReads.add(it) } },
+            route = { error("Mention disambiguation must not use the URL router") },
+            openExternal = { error("Mention disambiguation must not open an external URL") },
+            navigateToContact = navigation::navigateToContactDetail,
+        )
+        mount {
+            RoomConversationRoute(
+                fixture.holder, links, failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val retained = RoomConversationState(
+            session, messages = listOf(mention, other),
+            rows = listOf(RoomMessageRow(mention, true, true, true), RoomMessageRow(other, false, true, true)),
+            draft = body, hasLoadedOnce = true,
+        )
+        val readEffects = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+        fun assertRetainedRoom() {
+            assertEquals(retained, fixture.holder.state.value)
+            assertEquals(readEffects, fixture.loads)
+            assertTrue(fixture.posts.isEmpty())
+            assertTrue(fixture.joins.isEmpty())
+            assertTrue(fixture.retries.isEmpty())
+            assertTrue(fixture.reported.isEmpty())
+        }
+        val title = Chats.chatsMentionPickerTitle(host.get().resources, "Alice")
+        val aliceLabel = Chats.chatsMentionAccessibilityLabel(host.get().resources, "Alice")
+        fun openPicker(): SemanticsNodeInteractionCollection {
+            val parent = compose.onAllNodesWithContentDescription("Sender: @[Alice]")
+                .assertCountEquals(1)[0].assertIsDisplayed()
+            val actions = parent.fetchSemanticsNode().config[SemanticsActions.CustomActions]
+            assertEquals(
+                listOf(Chats.chatsMessageActionOpenMention(host.get().resources, "Alice")),
+                actions.map { it.label },
+            )
+            compose.runOnIdle { assertTrue(actions.single().action()) }
+            compose.onNodeWithText(title).assertIsDisplayed()
+            compose.onNodeWithText(text(Chats.chatsMentionPickerMatchingContacts)).assertIsDisplayed()
+            compose.onNodeWithText(text(Chats.chatsMentionPickerSelfTitle)).assertDoesNotExist()
+            compose.onNodeWithText(text(Chats.chatsMentionPickerNotSavedTitle)).assertDoesNotExist()
+            compose.onNodeWithText("Bob").assertDoesNotExist()
+            compose.onAllNodesWithText("Alice", useUnmergedTree = true).assertCountEquals(2)
+            val rows = compose.onAllNodesWithContentDescription(aliceLabel).assertCountEquals(2)
+            val bounds = (0..1).map { index ->
+                rows[index].assertIsDisplayed().assertHasClickAction().assertHeightIsAtLeast(48.dp)
+                    .fetchSemanticsNode().boundsInRoot
+            }
+            assertTrue(bounds[0].bottom <= bounds[1].top)
+            assertEquals(beforeNavigation, navigation.state.value)
+            assertRetainedRoom()
+            return rows
+        }
+        openPicker()
+        compose.onNodeWithText(text(Chats.chatsCommonDone)).assertHeightIsAtLeast(48.dp).performClick()
+        compose.onNodeWithText(title).assertDoesNotExist()
+        compose.onAllNodesWithContentDescription(aliceLabel).assertCountEquals(0)
+        assertEquals(beforeNavigation, navigation.state.value)
+        compose.onNode(hasSetTextAction()).assertTextContains(body)
+        assertRetainedRoom()
+        openPicker()[1].performClick()
+        compose.onNodeWithText(title).assertDoesNotExist()
+        compose.onNodeWithText(text(Chats.chatsMentionPickerMatchingContacts)).assertDoesNotExist()
+        compose.onAllNodesWithContentDescription(aliceLabel).assertCountEquals(0)
+        val selected = navigation.state.value
+        assertEquals(AppTab.NODES, selected.selectedTab)
+        assertEquals(alice2, selected.pendingContactDetail)
+        assertEquals(alice2, selected.selectedContact)
+        assertEquals(NavigationDestination.ContactDetail(alice2), selected.activeStack.last().destination)
+        assertEquals(beforeNavigation.stacks.getValue(AppTab.NODES).size + 1, selected.activeStack.size)
+        assertEquals(beforeNavigation.nextEntryId + 1, selected.nextEntryId)
+        assertEquals(beforeNavigation.stacks.getValue(AppTab.CHATS), selected.stacks.getValue(AppTab.CHATS))
+        assertEquals(beforeNavigation.chatsSelectedRoute, selected.chatsSelectedRoute)
+        assertEquals(session, selected.pendingRoomSession)
+        assertEquals(radio, selected.radioId)
+        assertNull(selected.pendingChatContact)
+        assertEquals(List(2) { savedContacts }, contactReads)
+        assertEquals(List(2) { "Me" }, deviceNameReads)
+        assertEquals(List(2) { radio }, radioReads)
+        for (message in listOf(mention, other)) {
+            compose.onAllNodesWithContentDescription("${message.authorDisplayName}: ${message.text}")
+                .assertCountEquals(1)[0].assertIsDisplayed()
+            compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true).assertIsDisplayed()
+        }
+        compose.onNode(hasSetTextAction()).assertTextContains(body)
+        compose.onNodeWithText(text(Chats.chatsInputSendMessage)).assertIsEnabled()
+        assertRetainedRoom()
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        compose.runOnIdle {
+            scope.cancel()
+            assertEquals(0, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, mention.id)))
+        }
+        assertEquals(selected, navigation.state.value)
         assertRetainedRoom()
     }
 
