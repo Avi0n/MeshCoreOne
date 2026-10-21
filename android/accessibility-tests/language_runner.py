@@ -277,20 +277,24 @@ class ProcessDevice(Device):
         require(len(rows) == 1, "Actual font-setting writer is ambiguous")
         return observed, rows[0], history
 
-    def restore_unset_font(self, item, original, record):
+    def restore_unset_font(self, item, original, record, *, already_absent=False):
         self.profile_restoration_uncertain = True
         before, scale = self.font_configuration()
         require(scale in (1, 2), "Unexpected effective font; do not overwrite foreign configuration")
-        previous = self.font_history()[2] if scale == 2 else None
-        record({**item, "phase": "delete-originally-unset-font", "effective_configuration_before": before})
-        self.write_profile_value(item, None)
+        previous = self.font_history()[2] if scale == 2 and not already_absent else None
+        record({**item, "phase": "verify-already-unset-font" if already_absent else "delete-originally-unset-font",
+                "effective_configuration_before": before})
+        if not already_absent:
+            self.write_profile_value(item, None)
         deadline = time.monotonic() + 5
         while True:
             actual = self.profile_value(item)
             configuration, current_scale = self.font_configuration()
             require(current_scale in (1, 2) and actual in (None, "1.0"),
                     "Unexpected font after owned deletion; retain the native lane")
-            if current_scale == 1 and (scale == 1 or actual == "1.0"):
+            require(not already_absent or actual is None,
+                    "Previously absent font changed without an owned deletion; do not overwrite it")
+            if current_scale == 1 and (already_absent or scale == 1 or actual == "1.0"):
                 break
             require(time.monotonic() < deadline, "Effective font restoration did not settle; retain the native lane")
             time.sleep(0.1)
@@ -300,7 +304,8 @@ class ProcessDevice(Device):
             require(re.fullmatch(
                 r"_id:[0-9]+ name:font_scale pkg:android value:1\.0 default:1\.0 defaultSystemSet:true", row
             ) is not None, "Font materialization is not attributed to the Android framework")
-            require(len(history) >= 2 and history[0][1] == "update" and history[1][1] == "delete"
+            require(previous and len(history) > 2 and history[0][1] == "update" and history[1][1] == "delete"
+                    and history[0][0] >= history[1][0] > previous[0][0]
                     and history[2:] == previous[:len(history) - 2],
                     "Font history does not correlate with this owned deletion")
             require(self.capture_profile() == {**original, "font": "1.0"},
@@ -352,11 +357,10 @@ class ProcessDevice(Device):
                 actual = self.profile_value(item)
                 require(actual in (item["original"], item["temporary"]),
                         "Unexpected profile value; do not overwrite another consumer's setting")
-                if actual != item["original"]:
-                    if self.api == 31 and item["key"] == "font_scale" and item["original"] is None:
-                        self.restore_unset_font(item, original, record_restore)
-                    else:
-                        self.write_profile_value(item, item["original"])
+                if self.api == 31 and item["key"] == "font_scale" and item["original"] is None:
+                    self.restore_unset_font(item, original, record_restore, already_absent=actual is None)
+                elif actual != item["original"]:
+                    self.write_profile_value(item, item["original"])
             except (OSError, RuntimeError, subprocess.SubprocessError) as error:
                 errors.append(error)
         try:

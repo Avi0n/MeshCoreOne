@@ -920,3 +920,34 @@ Native evidence creation and byte-preserving attributes subsequently evolved
 the same owner through returned revisions **21→22→23**; the actual native
 outcomes remain bound tor21, not rebound to current scope/source. Hosted exact
 job/logs remain authoritative for each candidate; no earlier verdict transfers.
+
+### Review corrections for effective-font and history proof
+
+Bounded review5593657671 identified two gaps in5ed90aef's automatic cleanup.
+Already-original raw font could bypass effective configuration verification,
+and a history containing only two events could satisfy a vacuous suffix
+comparison. The corrected consumer always verifies effective/stable original
+font for a recorded API31 unset-font mutation, including rawNone, without
+writing an already absent setting. Timeout or an unattributed materialization
+sets retained-profile uncertainty and cannot release the lane.
+
+A second deletion now requires nonempty overlapping history, two strictly newer
+ordered update/delete events and exact prior-history anchoring. Lost, unchanged,
+same-timestamp-ambiguous or malformed history fails closed. Actual-adapter tests
+exercise rawNone/effective2 through the real lane guard, lost/unchanged histories
+through the real parser, stable rawNone/effective1 without writes, and the
+original observed correlated positive history. Maximum one additional deletion,
+receipt-failure independent cleanup and the rawNone-versus1.0 distinction remain.
+Declared audit discovery passes **91 discovered/run/passed,0 failures/errors/
+skips**. No new device run or replay is claimed.
+
+Actual deployed PR258 main `c9ed1f9b78bcc322fb1ec281d211f99852cfec3b`
+(parents85871f40/27947068) is reconciled through the same supported owner scope,
+returning idempotent revision **23→23** for four already admitted disjoint
+support paths. Identity/authorization/history and nativeb2/r21 bindings remain
+unchanged. The historicalb2 hosted run39520769161 terminated **CANCELLED**:
+Linux118964258034 succeeded (App865/865,0 failures/errors/skips), while
+SwiftData118973686724 was cancelled and aggregate118974617616 failed.
+Neither the overall run nor this successor is relabeled successful, and no
+second hosted result bundle is retained. Local controller discovery on committed
+5ed90aef passed376/376,0 failures/errors/skips; it is not a successor verdict.

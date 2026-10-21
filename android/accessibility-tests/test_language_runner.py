@@ -759,6 +759,8 @@ class LanguageRunnerTest(unittest.TestCase):
             metadata.replace("defaultSystemSet:true", "defaultSystemSet:false"),
             metadata.replace("1970-01-01 01:39:30 delete", "1970-01-01 01:39:30 update"),
             metadata.replace("1970-01-01 01:39:03", "1970-01-01 01:38:03"),
+            "\r\n".join(metadata.splitlines()[:3]),
+            metadata.replace("1970-01-01 01:39:30", "1970-01-01 01:39:03"),
             metadata + "\r\nunknown response",
             metadata.replace("1970-01-01", "1970-99"),
         )
@@ -776,6 +778,44 @@ class LanguageRunnerTest(unittest.TestCase):
             device.restore_profile(original, Mock())
         self.assertEqual(1, state["deletes"])
         self.assertTrue(device.profile_restoration_uncertain)
+
+    def test_unchanged_alternating_font_history_cannot_authorize_an_extra_delete(self):
+        device, original, state, metadata = self.materializing_font_device()
+        state["metadata"] = metadata
+        shell = device.shell.side_effect
+
+        def unchanged(command):
+            return metadata if command == "dumpsys settings | grep -F font_scale" else shell(command)
+
+        device.shell.side_effect = unchanged
+        with self.assertRaises(ExceptionGroup):
+            device.restore_profile(original, Mock())
+        self.assertEqual(1, state["deletes"])
+        self.assertTrue(device.profile_restoration_uncertain)
+
+    def test_already_raw_unset_font_still_requires_effective_and_stability_proof_without_writes(self):
+        for scale in (1, 2):
+            device, original, state, _ = self.materializing_font_device()
+            state.update(font=None, scale=scale)
+            device.active_instrumentations = Mock(return_value=[])
+            device.original_runtime_profile = original
+            self.ledger.reset_mock()
+            with self.subTest(scale=scale), patch.object(runner.time, "monotonic", side_effect=[0, 6]):
+                if scale == 1:
+                    device.restore_profile(original, Mock())
+                    self.assertFalse(device.profile_restoration_uncertain)
+                else:
+                    with self.assertRaises(BaseExceptionGroup), runner.execution_lane(
+                        self.ledger, device, lock_owner=self.request.operation_owner,
+                        canonical=self.request.binding.canonical_session, endpoint=self.config.endpoint,
+                        purpose="synthetic-already-unset-font", source=self.request.binding.source_revision,
+                    ):
+                        device.restore_profile(original, Mock())
+                    self.assertTrue(device.profile_restoration_uncertain)
+                    self.assertEqual(original, device.capture_profile())
+                    self.ledger.release_hard_lock.assert_not_called()
+            self.assertIsNone(state["font"])
+            self.assertEqual(0, state["deletes"])
 
     def test_font_recovery_receipt_failure_does_not_prevent_independent_exact_cleanup(self):
         device, original, state, _ = self.materializing_font_device()

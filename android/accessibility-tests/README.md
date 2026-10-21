@@ -89,6 +89,10 @@ pre-deletion history, and unchanged other captured state. It journals both
 deletions, never writes1.0, and requires stable exact absence afterward.
 Unknown provenance, foreign state or timeout retains effective-profile
 uncertainty and the lane even if the raw setting temporarily reads unset.
+Already-unset raw font still requires effective/stability proof without another
+write. The extra deletion requires nonempty overlapping pre-deletion history
+and strictly newer update/delete events; lost, unchanged or ambiguous history
+fails closed rather than authorizing cleanup.
 Receipt failure still permits independent cleanup but remains an error.
 
 Normal all-positive completion and original packages/profile must be verified
