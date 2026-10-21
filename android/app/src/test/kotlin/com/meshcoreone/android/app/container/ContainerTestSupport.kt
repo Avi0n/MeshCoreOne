@@ -108,6 +108,7 @@ internal class FirmwareRadio(private val publicKey: Bytes, private val nodeName:
     var closes = 0
     var readers = 0
     var connectFailure: Exception? = null
+    var firmwareVersion: UByte = 9u
 
     /** When set, [connect] suspends until the gate opens (an in-flight connection attempt). */
     var connectGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
@@ -170,7 +171,7 @@ internal class FirmwareRadio(private val publicKey: Bytes, private val nodeName:
             le32(915_000) + le32(250_000) + Bytes.of(10, 5) + Bytes.utf8(nodeName)
 
     private fun devicePacket(): Bytes =
-        Bytes.of(13, 9, 50, 8) + le32(0) + Bytes.utf8("01 Jan 2025").paddedOrTruncated(12) +
+        Bytes.of(13, firmwareVersion.toInt(), 50, 8) + le32(0) + Bytes.utf8("01 Jan 2025").paddedOrTruncated(12) +
             Bytes.utf8("T-Deck").paddedOrTruncated(40) + Bytes.utf8("v1.13.0").paddedOrTruncated(20) + Bytes.of(0)
 }
 

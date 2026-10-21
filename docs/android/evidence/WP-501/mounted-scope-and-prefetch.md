@@ -143,6 +143,36 @@ successor's own CI; source review is not execution or protected acceptance.
 
 ## Actual verification and boundaries
 
+Exact5f own39687541104 is terminal FAILURE, not a watcher-printing verdict.
+Complete official Linux119527065578 was decoded in memory: App1149 discovered,
+1144 passed,5 failures,0 errors/skips. All five named failures are scope
+methods: `cancelledHeldOpenDoesNotClearUnreadAndANewSessionCannotInheritItsDedup`,
+`realDeviceErrorIsReportedAndNeverMemoizedAsSuccessful`,
+`mountedOpenPopulatesThenSetsV12AllRegionsBeforeClearingRealUnread`,
+`storedSelectionFirmwareDefaultAndOtherConversationInvalidateActualSessionScope`,
+and `failedPopulationStillSetsScopeButRetainsUnreadAndTheTypedLoadError`.
+Classifier/controller/scoped codec succeeded; SwiftData was SKIPPED and
+aggregate119536087421 failed. This is not a timeout or whole-run pass.
+
+The actual source establishes a fixture mismatch: `FirmwareRadio.devicePacket`
+advertises firmware9, whereas the new helper changed only the manager's DTO
+to12. The real `MeshCoreSession` still correctly rejects unscoped send before
+transmission with typed UNSUPPORTED_COMMAND1. That accounts for missing
+unscoped packets and expected ERR2 versus actual ERR1. The ordinary test
+support follow-up makes only the firmware reply version configurable, still
+default9, and sets12 through the existing radio-creation callback before
+every scope fixture's actual handshake, including reconnect. Its helper now
+asserts the resulting manager value instead of cosmetically replacing it.
+The explicit manager-capability11 branch remains a metadata/fallback decision,
+not proof that the protocol session was downgraded to firmware11.
+
+Same-owner `app-build-launcher` / `add-direct-support-wiring` admits this
+existing shared test helper. All six scope test bodies/assertions, all fifteen
+admission methods including LOCAL3d2's late stream witness, all production
+bytes and the session firmware guard remain unchanged. The new combined
+candidate needs its own execution and positive per-method evidence; failed-
+command totals alone do not establish individual passing methods.
+
 The first product publication `398187037fa09c51476110503ee78f6e3598ed29`
 owns failed run39685755510. Its complete official controller119519331850 log
 was read in memory:606 discovered/run,603 passed,3 errors,0 failures/skips.

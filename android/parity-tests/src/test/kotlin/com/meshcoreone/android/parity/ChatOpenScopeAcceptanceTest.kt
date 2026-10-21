@@ -155,9 +155,10 @@ class ChatOpenScopeAcceptanceTest : RoomProcessTest() {
     private suspend fun TestScope.withRadio(body: suspend (ContainerHarness, FirmwareRadio, RadioId) -> Unit) {
         val h = ContainerHarness(this, store)
         try {
+            h.links.configureRadio = { it.firmwareVersion = 12u }
             h.manager.connect(h.target())
             h.eventually("ready") { h.manager.connectionState == DeviceConnectionState.READY }
-            h.manager.replaceConnectedDevice(assertNotNull(h.manager.connectedDevice).copy(firmwareVersion = 12u))
+            assertEquals(12.toUByte(), assertNotNull(h.manager.connectedDevice).firmwareVersion)
             body(h, h.links.radios.single(), assertNotNull(h.sessions.current).token.radioId)
         } finally {
             withContext(NonCancellable) { h.container.close() }
