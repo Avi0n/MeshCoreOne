@@ -324,7 +324,11 @@ test authority is reused to smuggle either repair.
 These proposals require trusted-main admission BEFORE product edits, existing
 producer identity/reservation, preserved WP-309/WP-307/WP-407 provenance,
 semantic-overlap serialization/current-producer transfer, real mounted consumer
-evidence and protected review after verified native/Gradle cleanup. Product
+evidence and protected review excluding active conflicting native/Gradle
+operations. The old retained guest/receipt/history are untouched: no restoration,
+release or cleanup of that guest is a prerequisite for these disjoint repairs
+or their trusted policy proposal landing. This does not assert that the old
+guest is idle or dispose of any receipt. Product
 tests/evidence stay in existing parity-owned paths. The two-rule inverse
 restores the entire reviewed6b policy, not an approximate digest or rewritten
 historical receipt. The actual reserve CLI continues reading trusted default-
@@ -339,6 +343,14 @@ error/cancellation/retry behavior and zero prefetch radio effects, not merely
 repeat the already-passing resolver cases. Details and exact input revisions:
 `docs/android/deviations/WP-003.md`. Until protected admission, these are still
 product prerequisites, not implemented features or live execution permission.
+
+This clarification applies ONLY to the two new proposed rules; incumbent rules
+and actual execution/runtime-install interlocks are unchanged. In particular,
+`Ledger.acquire_hard_lock` still rejects an `installed-git-common-runtime`
+acquisition while an execution receipt is held. This proposal does not install
+that runtime or bypass its exclusion. The inspected controller merge/gate and
+native-review paths do not impose an old-guest recovery prerequisite for this
+source-policy proposal; protected/current-head/semantic gates still apply.
 
 Merge-lane acquisition checks the current attempt, reservation revision,
 implementation PR, complete historical binding, base/policy and review/merge

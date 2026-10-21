@@ -81,6 +81,10 @@ class CapabilityReservationTests(unittest.TestCase):
                     path.rsplit("/", 1)[0] + "/Other.kt",
                     path.replace("/src/main/", "/src/test/"),
                     path.replace("/src/main/", "/src/androidTest/"),
+                    "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
+                    "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/actions/MessagePathModelsTest.kt",
+                    "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/actions/OriginalCaseInventoryTest.kt",
+                    "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ChatPrewarmTest.kt",
                     "android/core/services/ChannelFloodScopeResolver.kt",
                     ROOM_RENDERER,
                 ):
@@ -123,7 +127,10 @@ class CapabilityReservationTests(unittest.TestCase):
             with self.assertRaisesRegex(PortError, "Current base changed"):
                 self.engine.reconcile_intents(BASE, "9" * 40, path, rule["id"], [intent])
             self.assertIn("trusted-main-admission-before-product-edit", rule["invariants"])
-            self.assertIn("no-main-policy-landing-during-held-native-or-gradle-operation", rule["invariants"])
+            self.assertIn("exclude-active-conflicting-native-or-gradle-operations-no-inactivity-inferred-from-retained-receipt",
+                          rule["invariants"])
+            self.assertIn("old-retained-guest-receipt-history-untouched-no-restore-release-or-cleanup-prerequisite",
+                          rule["invariants"])
         app = next(r for r in self.rules["reservation_policy"]["capabilities"] if r["id"] == "app-build-launcher")
         self.assertNotIn("repair-channel-open-flood-scope", app["operations"])
         self.assertIn("populate-then-syncFloodScope-before-loaded-result-and-unread-bookkeeping",
@@ -133,6 +140,27 @@ class CapabilityReservationTests(unittest.TestCase):
             for path in rule["path_rules"]:
                 with self.assertRaises(PortError):
                     trusted.admit(rule["work_packages"][0], [], path, rule["operations"][0])
+
+    def test_parity_proposal_never_requires_old_guest_recovery_or_disposes_unknown_retained_receipt(self):
+        self.ledger.acquire_hard_lock(
+            "native-execution", "old-private-fixture-owner",
+            {"endpoint": "old-private-fixture", "state": "unverified-retained-not-idle"}, NOW,
+        )
+        with self.ledger.transaction() as connection:
+            before = [tuple(row) for row in connection.execute("SELECT rowid,* FROM hard_locks")]
+        for rule in (REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY):
+            self.assertNotIn("no-main-policy-landing-during-held-native-or-gradle-operation", rule["invariants"])
+            self.assertTrue(all("after verified native cleanup" not in text for text in rule["validation"]))
+            for path in rule["path_rules"]:
+                admission = self.engine.admit(rule["work_packages"][0], [], path, rule["operations"][0])
+                self.assertEqual(admission.capability_id, rule["id"])
+        # Hypothetical source admission is not installation, resource acquisition or inactivity proof.
+        with self.ledger.transaction() as connection:
+            self.assertEqual([tuple(row) for row in connection.execute("SELECT rowid,* FROM hard_locks")], before)
+        with self.assertRaisesRegex(PortError, "held|conflict"):
+            self.ledger.acquire_hard_lock("gradle-execution", "new-fixture-owner", {}, NOW + 1)
+        with self.ledger.transaction() as connection:
+            self.assertEqual([tuple(row) for row in connection.execute("SELECT rowid,* FROM hard_locks")], before)
 
     def test_wrong_path_and_operation_fail_closed_with_actionable_blocker(self):
         with self.assertRaisesRegex(PortError, r"WP WP-101.*secrets/key.*export"):

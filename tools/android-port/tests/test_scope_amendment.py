@@ -53,6 +53,17 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
             copy.deepcopy(REPEAT_ROW_FALLBACK_CAPABILITY), copy.deepcopy(CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY),
         ])
         self.assertEqual(restored, current)
+        text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index(',\n      {\n        "id": "repeat-row-fallback-affordance",')
+        end = text.index("\n    ]", start)
+        reversed_text = text[:start] + text[end:]
+        self.assertEqual(json.loads(reversed_text), previous)
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=reversed_text.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "6b394bbabe2c4210e37bb2c401f2bcb2e1443032:docs/android/automation-policy.json",
+        ]).strip())
         self.assertEqual(json.loads((REPO / "docs/android/port-manifest.json").read_text(encoding="utf-8")),
                          json.loads(subprocess.check_output([
                              "git", "-C", str(REPO), "show",

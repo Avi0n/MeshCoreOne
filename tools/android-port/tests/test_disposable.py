@@ -20,7 +20,7 @@ from controller.disposable import ADAPTER, OPERATION, RESOURCE, PrivateGuest, tr
 from controller.errors import PortError
 from controller.ledger import Identity, Ledger
 from controller.schema import load_json
-from controller.scope_amendment import disposable_predecessor
+from controller.scope_amendment import disposable_predecessor, parity_support_predecessor
 from local import debug_packaging
 
 
@@ -379,6 +379,10 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(current, before)
         self.assertEqual(disposable_predecessor(previous), previous)
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index(',\n      {\n        "id": "repeat-row-fallback-affordance",')
+        end = text.index("\n    ]", start)
+        text = text[:start] + text[end:]
+        self.assertEqual(json.loads(text), parity_support_predecessor(current))
         start = text.index('      {\n        "id": "disposable-native-guest",')
         end = text.index('      {\n        "id": "wp-owned",', start)
         reversed_text = (text[:start] + text[end:]).replace(
