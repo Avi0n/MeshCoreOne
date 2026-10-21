@@ -3,6 +3,7 @@
 from contextlib import ExitStack
 import copy
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -11,6 +12,7 @@ from unittest.mock import patch
 
 from fixtures import BASE, NOW, base_manifest, policy
 from controller.capabilities import CapabilityEngine
+from controller.ci_environment import host_name
 from controller.errors import PortError
 from controller.ledger import Ledger
 from local import debug_packaging as packaging
@@ -111,7 +113,7 @@ class DebugPackagingTests(unittest.TestCase):
         self.assertEqual(result["sha256"], packaging.sha256(apk))
         return result, run.call_args_list
 
-    def test_packaging_fixed_tasks_preserves_native_lane_and_starts_no_tests_or_installs(self):
+    def test_full_assembly_uses_two_gib_with_real_local_environment_and_preserves_native_lane(self):
         self.exercise()
 
     def test_originally_absent_packaging_has_no_fabricated_snapshot_or_preserved_apk_read(self):
@@ -159,11 +161,21 @@ class DebugPackagingTests(unittest.TestCase):
         tests = {**installed, "package": packaging.PACKAGES[1]}
         if certificate_error:
             tests["certificate_sha256"] = "c" * 64
+        state = {
+            "schema_version": 1, "host": host_name(), "java_home": str(self.root / "jdk"),
+            "android_home": str(self.root / "sdk"), "private_root": str(self.root / "private"),
+            "provenance": {"scope": "local fixture, not hosted/device evidence"},
+        }
+        inherited = {
+            "PATH": "tools", "GRADLE_USER_HOME": str(self.root / "existing-gradle-cache"),
+            "GRADLE_OPTS": "-Xmx99g -Duntrusted=fixture", "JAVA_OPTS": "-Duntrusted=fixture",
+            "GH_TOKEN": "fixture-not-a-credential", "SIGNING_PASSWORD": "fixture-not-a-credential",
+        }
         with ExitStack() as stack:
+            stack.enter_context(patch.dict(os.environ, inherited, clear=True))
             stack.enter_context(patch.object(packaging, "source_identity", return_value="d" * 64))
             stack.enter_context(patch.object(packaging, "verify_wrapper"))
-            stack.enter_context(patch.object(packaging, "candidate_environment", return_value={"PATH": "tools"}))
-            stack.enter_context(patch.object(packaging, "preflight"))
+            readiness = stack.enter_context(patch.object(packaging, "preflight"))
             stack.enter_context(patch("shutil.which", return_value="pwsh"))
             apk_reader = stack.enter_context(patch.object(
                 packaging, "apk_identity",
@@ -177,7 +189,7 @@ class DebugPackagingTests(unittest.TestCase):
             stack.enter_context(self.ledger.hard_lock("native-execution", "session", {"wp": "WP-503"}, NOW))
             arguments = dict(
                 manifest=self.manifest, policy=policy(), ledger=self.ledger, owner="session",
-                revision=BASE, state={"android_home": str(self.root / "sdk")},
+                revision=BASE, state=state,
                 debug_home=home, installed_apk=None if originally_absent else self.root / "preserved.apk", output=output,
             )
             if build_error or certificate_error or snapshot_drift:
@@ -203,6 +215,28 @@ class DebugPackagingTests(unittest.TestCase):
             invocation = output / "debug-invocation.json"
             arguments = json.loads(invocation.read_text())["arguments"] if invocation.exists() else command[1:]
             self.assertEqual(arguments[:2], list(packaging.TASKS))
+            self.assertIn("--dependency-verification", arguments)
+            self.assertEqual(arguments[arguments.index("--dependency-verification") + 1], "strict")
+            self.assertIn("--max-workers=1", arguments)
+            self.assertNotIn("--no-build-cache", arguments)
             self.assertFalse(any("release" in item.lower() or "install" in item.lower() for item in command))
-            self.assertEqual(runner.call_args.kwargs["env"]["ANDROID_USER_HOME"], str(home))
+            environment = runner.call_args.kwargs["env"]
+            self.assertEqual(environment["ANDROID_USER_HOME"], str(home))
+            self.assertEqual(environment["GRADLE_USER_HOME"], inherited["GRADLE_USER_HOME"])
+            self.assertEqual(environment["JAVA_HOME"], state["java_home"])
+            self.assertIn("-Xmx2048m", environment["GRADLE_OPTS"])
+            self.assertNotIn("-Xmx768m", environment["GRADLE_OPTS"])
+            self.assertIn("-XX:MaxMetaspaceSize=512m", environment["GRADLE_OPTS"])
+            for variable, cache in (("JAVA_OPTS", "32m"), ("GRADLE_OPTS", "96m")):
+                for flag in ("-XX:+UseSerialGC", "-XX:ActiveProcessorCount=2",
+                             "-XX:TieredStopAtLevel=1", f"-XX:ReservedCodeCacheSize={cache}"):
+                    self.assertIn(flag, environment[variable])
+                self.assertNotIn("untrusted", environment[variable])
+            self.assertNotIn("GH_TOKEN", environment)
+            self.assertNotIn("SIGNING_PASSWORD", environment)
+            allowed = json.loads((packaging.REPO / "android/scaffold/environment-allowlist.json").read_text())
+            self.assertLessEqual({key.casefold() for key in environment},
+                                 {key.casefold() for key in allowed["allowed_names"]})
+            readiness.assert_called_once_with(state, output / "readiness", local=True)
+            self.assertEqual(dict(os.environ), inherited)
             self.assertEqual([lock["resource"] for lock in self.ledger.hard_lock_records()], ["native-execution"])

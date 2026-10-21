@@ -585,6 +585,14 @@ It separately acquires/releases the existing exclusive `gradle-execution` lane.
 The only Gradle tasks are `:app:assembleDebug :app:assembleDebugAndroidTest`,
 with strict dependency verification and one worker. There is no install,
 instrumentation, uninstall, wipe, retained-APK resign or release task.
+This full-assembly invocation explicitly selects the existing 2048 MiB Gradle
+heap via `candidate_environment(state, local=True, full_assembly=True)`, not the
+768 MiB local fast-check heap that exhausted D8 during real dex merging. Local
+preflight/provenance, SerialGC, two-CPU/JIT/code-cache/metaspace safeguards,
+environment allowlisting and the existing Gradle cache remain intact. Hosted
+defaults and ordinary local fast checks are unchanged; no global/property
+override or inherited arbitrary JVM options are used. This is a process budget,
+not a claim that the reported build has been rerun or native execution passed.
 
 The adapter checks exact clean committed Android production/fixture inputs,
 pinned readiness/wrapper, and an already-existing default `debug.keystore` by
