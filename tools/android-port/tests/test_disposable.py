@@ -482,6 +482,74 @@ class DisposableGuestTests(unittest.TestCase):
                 guest.dispose(self.ledger)
                 self.assert_legacy()
 
+    def test_private_adb_launch_uses_loopback_default_listener_and_explicit_client_endpoint(self):
+        image = self.root / "image"
+        image.mkdir()
+        (image / "source.properties").write_text(
+            "AndroidVersion.ApiLevel=37.0\nSystemImage.Abi=x86_64\n", encoding="utf-8",
+        )
+        (image / "userdata.img").write_bytes(b"fixture initial data")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        before = self.rows()
+
+        def inspect_launch(command):
+            self.assertEqual(command, [str(adb), "-L", f"tcp:{guest.server_port}", "nodaemon", "server"])
+            self.assertNotIn("-a", command)
+            self.assertEqual(guest.environment["ADB_SERVER_SOCKET"], f"tcp:127.0.0.1:{guest.server_port}")
+            self.assertEqual(guest.environment["ANDROID_ADB_SERVER_PORT"], str(guest.server_port))
+            raise RuntimeError("fixture stops before any process")
+
+        with patch.object(guest, "_prepare_supervisor"), \
+                patch.object(guest, "_spawn", side_effect=inspect_launch) as spawn:
+            try:
+                with self.assertRaisesRegex(RuntimeError, "fixture stops before any process"):
+                    guest.start(self.ledger, emulator=emulator, adb=adb, image=image)
+                spawn.assert_called_once()
+                self.assertEqual(self.rows(), before)
+            finally:
+                guest.dispose(self.ledger)
+        self.assert_legacy()
+
+    def test_exited_private_windows_adb_never_launches_emulator_and_retains_uncertain_ownership(self):
+        from unittest.mock import Mock
+
+        image = self.root / "image"
+        image.mkdir()
+        (image / "source.properties").write_text(
+            "AndroidVersion.ApiLevel=37.0\nSystemImage.Abi=x86_64\n", encoding="utf-8",
+        )
+        (image / "userdata.img").write_bytes(b"fixture initial data")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        before = self.rows()
+        job, process = Mock(), Mock()
+        process.poll.return_value = 1
+
+        def prepare():
+            guest.job = job
+
+        with patch.object(guest, "_prepare_supervisor", side_effect=prepare), \
+                patch.object(guest, "_spawn", return_value=process) as spawn:
+            with self.assertRaisesRegex(PortError, "Owned Windows transport process exited"):
+                guest.start(self.ledger, emulator=emulator, adb=adb, image=image)
+            self.addCleanup(guest.log.close)
+            spawn.assert_called_once_with([str(adb), "-L", f"tcp:{guest.server_port}", "nodaemon", "server"])
+            job.owns_listener.assert_not_called()
+        self.assertEqual(guest.phase, "uncertain")
+        with patch.object(guest, "_cleanup", side_effect=PortError("fixture cleanup unproven")):
+            with self.assertRaisesRegex(PortError, "cleanup unproven"):
+                guest.dispose(self.ledger)
+        self.assertEqual(self.rows(), before)
+        self.assertTrue(guest.root.exists())
+        self.assert_legacy()
+
     def test_unsupported_live_entrance_refuses_before_ledger_runtime_or_allocation(self):
         with patch("controller.disposable.sys.platform", "darwin"), \
                 patch.object(PrivateGuest, "allocate") as allocate, \

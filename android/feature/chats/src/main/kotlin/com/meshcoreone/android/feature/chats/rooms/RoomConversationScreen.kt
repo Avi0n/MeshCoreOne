@@ -10,10 +10,12 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -35,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -54,6 +57,7 @@ import com.meshcoreone.android.core.designsystem.WCAGContrast
 import com.meshcoreone.android.core.designsystem.accessibleForeground
 import com.meshcoreone.android.core.designsystem.toComposeColor
 import com.meshcoreone.android.core.model.MessageStatus
+import com.meshcoreone.android.core.ui.ContactAvatar
 import com.meshcoreone.android.core.ui.sharedTouchTarget
 import com.meshcoreone.android.feature.chats.composer.MentionPickerContext
 import com.meshcoreone.android.feature.chats.composer.MentionTapEvaluator
@@ -213,6 +217,10 @@ fun RoomConversationContent(
 @Composable
 private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID) -> Unit, onLink: (String) -> Boolean) {
     val message = row.message
+    val avatarSize = 28.dp
+    val avatarGap = 6.dp
+    val avatarDiameter = avatarSize * LocalDensity.current.fontScale.coerceAtLeast(1f)
+    val incomingInset = if (message.isFromSelf) 0.dp else avatarDiameter + avatarGap
     val tokens = LocalMeshTheme.current
     val frame = tokens.frame
     val bubble = when {
@@ -258,19 +266,39 @@ private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID)
                 addAll(linkActions.map { action -> CustomAccessibilityAction(action.name) { onLink(action.url) } })
             }
         }, horizontalAlignment = if (message.isFromSelf) Alignment.End else Alignment.Start) {
-            if (row.showSenderName) Text(message.authorDisplayName, style = MaterialTheme.typography.labelMedium)
-            Surface(
-                modifier = Modifier.testTag("room-bubble:${message.id}"),
-                color = bubble.toComposeColor(),
-                contentColor = foreground.toComposeColor(),
-                shape = MaterialTheme.shapes.large,
-            ) {
-                MessageBody(
-                    message.text, message.isFromSelf, currentUserName = null, onLink = { onLink(it) },
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    baseColor = preferredForeground.toComposeColor(),
-                    backgroundColor = bubble.toComposeColor(),
+            if (!message.isFromSelf && row.showSenderName) {
+                Text(
+                    message.authorDisplayName,
+                    modifier = Modifier.padding(start = incomingInset),
+                    style = MaterialTheme.typography.labelMedium,
                 )
+            }
+            Row(verticalAlignment = Alignment.Bottom) {
+                if (!message.isFromSelf) {
+                    if (row.showAvatar) {
+                        ContactAvatar(
+                            name = message.authorDisplayName,
+                            size = avatarSize,
+                            modifier = Modifier.testTag("room-avatar:${message.id}").clearAndSetSemantics {},
+                        )
+                    } else {
+                        Spacer(Modifier.width(avatarDiameter))
+                    }
+                    Spacer(Modifier.width(avatarGap))
+                }
+                Surface(
+                    modifier = Modifier.testTag("room-bubble:${message.id}"),
+                    color = bubble.toComposeColor(),
+                    contentColor = foreground.toComposeColor(),
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    MessageBody(
+                        message.text, message.isFromSelf, currentUserName = null, onLink = { onLink(it) },
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        baseColor = preferredForeground.toComposeColor(),
+                        backgroundColor = bubble.toComposeColor(),
+                    )
+                }
             }
             if (message.isFromSelf) {
                 Text(
