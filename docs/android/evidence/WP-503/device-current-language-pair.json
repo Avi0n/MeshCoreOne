@@ -1,0 +1,186 @@
+{
+  "kind": "non-reproducible-native-language-pair",
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "binding": {
+    "repository": "cbattlegear/MeshCoreOne-Android",
+    "source_revision": "b2d9a00368432c04ccc40676417b2576bf472218",
+    "android_tree": "4798be366ae48a517a80a4e3b49ef99262d6fb78",
+    "android_source_tree_sha256": "8ef72bc7f51b77fdf8dec38169d41b6597a08c91483c3db37a9f7fe65014ee17",
+    "manifest_sha256": "977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8",
+    "policy_revision": "7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6",
+    "canonical_session": "1666502a-0420-46ef-930f-e78651ba8b9f",
+    "replacement_app_session": "df52b3d0-81d4-49fb-b88f-a5926ed31fa5",
+    "replacement_cli_session": "b531305a-0513-4731-896f-2b470f8879cd",
+    "reservation_revision": 21,
+    "producer_revision": "59a47ac40bd2f84e7188c87a5521af9d0f16e75e",
+    "production_blob": "421fc446443a5f301085507603701d7da04d40ef",
+    "fixture_blob": "99175354ba29a9230b7a2b03a7c17ea4153dd394"
+  },
+  "trusted_main_at_execution": "85871f40b1520a89ced6b9bec74aa8eec2f4f4de",
+  "frozen_swift": "db14559b39d32322b06477c6ae676112f583db50",
+  "runs": [
+    {
+      "api": 31,
+      "native_lane_operation_owner": "1666502a-0420-46ef-930f-e78651ba8b9f:language:8586cccd48f544618f89b3604b24fffa",
+      "identities": [
+        "com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest#actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest#actualNamedChineseChoiceAndSystemResetPreserveLanguageDetailAcrossNativeRecreation"
+      ],
+      "counts": {
+        "discovered": 2,
+        "started": 2,
+        "matching_outcomes": 2,
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "runner_completed": true,
+      "terminal_instrumentation_code": -1,
+      "process_exit": 0,
+      "seconds": [
+        "9.251"
+      ],
+      "original_profile": {
+        "user": "0",
+        "sdk": "31",
+        "release": "12",
+        "boot": "1",
+        "bootanim": "stopped",
+        "cpus": "4",
+        "font": "null",
+        "ime": "1",
+        "size": "Physical size: 1080x2400",
+        "density": "Physical density: 420",
+        "animator_duration_scale": "null",
+        "window_animation_scale": "1.0",
+        "transition_animation_scale": "1.0",
+        "app_language": null
+      },
+      "original_package_presence": {
+        "app": false,
+        "tests": false
+      },
+      "packaging": {
+        "installed_snapshot": null,
+        "app": {
+          "sha256": "d3490e09a2defed5ef6c0190bf1ca3b924e0617e7e2eb4f0f1725a272e0e84ae",
+          "certificate_sha256": "000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7",
+          "package": "com.meshcoreone.android.debug"
+        },
+        "tests": {
+          "sha256": "84245ac5dd091157f4e70372001143c660345f9cb44e1dbc1023f7422acaf4ce",
+          "certificate_sha256": "000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7",
+          "package": "com.meshcoreone.android.debug.test"
+        }
+      },
+      "package_cleanup": {
+        "original_target_apk": "verified",
+        "owned_new_test_package": "verified",
+        "original_target_absence": "verified"
+      },
+      "initial_original_profile_restored": false,
+      "initial_cleanup_errors": [
+        "ExceptionGroup('Original runtime profile restoration failed', [RuntimeError('Actual original runtime profile was not restored')])"
+      ],
+      "fixture_preferences_and_window_restoration_verified": true,
+      "transcript": "device-current-language-api31.txt",
+      "transcript_sha256": "aa34681f8594ed1fc1231300af5381e4dac283753b14a271c85fbf88e654e2b6",
+      "private_operations_sha256": "aaf349a74d1d2734cc68a73ba5ad79c1732c2f57b1711a2629c54c87e6f64cea",
+      "private_evidence_directory": "wp503-language31-b2d9-r21-attempt1",
+      "bounded_font_recovery": {
+        "status": "VERIFIED_EXACT_ORIGINAL_STATE_NATIVE_LANE_RELEASED",
+        "original_font": null,
+        "observed_framework_font": "1.0",
+        "framework_metadata": "_id:43 name:font_scale pkg:android value:1.0 default:1.0 defaultSystemSet:true\r\n1970-01-01 01:39:30 update font_scale\r\n1970-01-01 01:39:30 delete font_scale\r\n1970-01-01 01:39:03 update font_scale\r\n1970-01-01 01:39:03 update font_scale",
+        "effective_configuration_before": "mGlobalConfiguration: {1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h842dp 420dpi nrml long port finger qwerty/v/v dpad/v winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2274) mMaxBounds=Rect(0, 0 - 1080, 2400) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.143 fontWeightAdjustment=0}",
+        "cleanup_only": true,
+        "native_replayed": false,
+        "deletions_attempted": 1,
+        "global_original_package_absence_verified": true,
+        "guest_quiescent": true,
+        "native_lane_released": true,
+        "private_receipt_sha256": "c12b7ef1957e7f615bc74d4c2416e496c06fb9f60d4fe50fa45e2e4443b3fbb5",
+        "stable_exact_original_profile_checks": 2
+      },
+      "final_captured_original_profile_restored": true,
+      "native_lane_released": true
+    },
+    {
+      "api": 37,
+      "native_lane_operation_owner": "1666502a-0420-46ef-930f-e78651ba8b9f:language:9f9b1851c35740f48e8bf033fc8743d6",
+      "identities": [
+        "com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest#actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest#actualNamedChineseChoiceAndSystemResetPreserveLanguageDetailAcrossNativeRecreation"
+      ],
+      "counts": {
+        "discovered": 2,
+        "started": 2,
+        "matching_outcomes": 2,
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "runner_completed": true,
+      "terminal_instrumentation_code": -1,
+      "process_exit": 0,
+      "seconds": [
+        "12.092"
+      ],
+      "original_profile": {
+        "user": "0",
+        "sdk": "37",
+        "release": "17",
+        "boot": "1",
+        "bootanim": "stopped",
+        "cpus": "4",
+        "font": "2.0",
+        "ime": "0",
+        "size": "Physical size: 1344x2992\r\nOverride size: 360x900",
+        "density": "Physical density: 480\r\nOverride density: 160",
+        "animator_duration_scale": "0",
+        "window_animation_scale": "0",
+        "transition_animation_scale": "0",
+        "app_language": ""
+      },
+      "original_package_presence": {
+        "app": true,
+        "tests": false
+      },
+      "packaging": {
+        "installed_snapshot": {
+          "sha256": "6d98b22de0d99a0e3a017f579bc068011bcba34c0ab527392cc63bfb1b613748",
+          "certificate_sha256": "000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7",
+          "package": "com.meshcoreone.android.debug"
+        },
+        "app": {
+          "sha256": "d3490e09a2defed5ef6c0190bf1ca3b924e0617e7e2eb4f0f1725a272e0e84ae",
+          "certificate_sha256": "000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7",
+          "package": "com.meshcoreone.android.debug"
+        },
+        "tests": {
+          "sha256": "84245ac5dd091157f4e70372001143c660345f9cb44e1dbc1023f7422acaf4ce",
+          "certificate_sha256": "000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7",
+          "package": "com.meshcoreone.android.debug.test"
+        }
+      },
+      "package_cleanup": {
+        "original_target_apk": "verified",
+        "owned_new_test_package": "verified",
+        "original_target_digest": "verified"
+      },
+      "initial_original_profile_restored": true,
+      "initial_cleanup_errors": [],
+      "fixture_preferences_and_window_restoration_verified": true,
+      "transcript": "device-current-language-api37.txt",
+      "transcript_sha256": "a1ee411b8e95aeb3dd890330bc3145f9cf14dbd16788618c59227e98859672aa",
+      "private_operations_sha256": "8d681345a52649683f6c12d8f5d9a247a420ef6dc8ebef04ddd0a398bfee6821",
+      "private_evidence_directory": "wp503-language37-b2d9-r21-attempt1",
+      "final_captured_original_profile_restored": true,
+      "native_lane_released": true
+    }
+  ],
+  "full_wp_acceptance": false,
+  "scope": "Exactly two unchanged original language methods per API31/API37. API31 initial cleanup failure and separately verified bounded recovery are retained; no native replay. Device identifiers/private package paths/raw logcat/keys and reproducible hosted CI bundles are excluded."
+}

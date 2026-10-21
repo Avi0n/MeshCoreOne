@@ -11,6 +11,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import time
 import xml.etree.ElementTree as ET
 
 from language_binding import ROOT, current_binding, request_for, verify_current_request
@@ -254,6 +255,66 @@ class ProcessDevice(Device):
             command = "settings " + action + " " + item["namespace"] + " " + item["key"]
             self.shell(command if value is None else command + " " + value)
 
+    def font_configuration(self):
+        observed = self.shell("dumpsys activity | grep -F mGlobalConfiguration")
+        match = re.fullmatch(r"mGlobalConfiguration: \{([0-9]+(?:\.[0-9]+)?) [^\r\n]+\}", observed)
+        require(match is not None, "Actual effective font configuration is unrecognized")
+        return observed, float(match[1])
+
+    def font_history(self):
+        observed = self.shell("dumpsys settings | grep -F font_scale")
+        rows, history = [], []
+        for line in observed.splitlines():
+            line = line.strip()
+            if re.fullmatch(r"_id:[0-9]+ name:font_scale pkg:[A-Za-z0-9_.]+ value:[^\r\n]+", line):
+                rows.append(line)
+            else:
+                match = re.fullmatch(
+                    r"([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}) (update|delete) font_scale", line
+                )
+                require(match is not None, "Actual font-setting history is unrecognized")
+                history.append((match[1], match[2]))
+        require(len(rows) == 1, "Actual font-setting writer is ambiguous")
+        return observed, rows[0], history
+
+    def restore_unset_font(self, item, original, record):
+        self.profile_restoration_uncertain = True
+        before, scale = self.font_configuration()
+        require(scale in (1, 2), "Unexpected effective font; do not overwrite foreign configuration")
+        previous = self.font_history()[2] if scale == 2 else None
+        record({**item, "phase": "delete-originally-unset-font", "effective_configuration_before": before})
+        self.write_profile_value(item, None)
+        deadline = time.monotonic() + 5
+        while True:
+            actual = self.profile_value(item)
+            configuration, current_scale = self.font_configuration()
+            require(current_scale in (1, 2) and actual in (None, "1.0"),
+                    "Unexpected font after owned deletion; retain the native lane")
+            if current_scale == 1 and (scale == 1 or actual == "1.0"):
+                break
+            require(time.monotonic() < deadline, "Effective font restoration did not settle; retain the native lane")
+            time.sleep(0.1)
+        if actual == "1.0":
+            require(scale == 2, "Uncorrelated font materialization; do not overwrite a foreign setting")
+            metadata, row, history = self.font_history()
+            require(re.fullmatch(
+                r"_id:[0-9]+ name:font_scale pkg:android value:1\.0 default:1\.0 defaultSystemSet:true", row
+            ) is not None, "Font materialization is not attributed to the Android framework")
+            require(len(history) >= 2 and history[0][1] == "update" and history[1][1] == "delete"
+                    and history[2:] == previous[:len(history) - 2],
+                    "Font history does not correlate with this owned deletion")
+            require(self.capture_profile() == {**original, "font": "1.0"},
+                    "Other original state changed; do not retry font cleanup")
+            record({**item, "phase": "single-framework-materialization-cleanup",
+                    "framework_metadata": metadata, "effective_configuration": configuration})
+            self.write_profile_value(item, None)
+        for delay in (0.1, 0.2):
+            time.sleep(delay)
+            require(self.profile_value(item) is None and self.font_configuration()[1] == 1
+                    and self.capture_profile() == original,
+                    "Exact unset font/profile restoration is unresolved; retain the native lane")
+        self.profile_restoration_uncertain = False
+
     def prepare_profile(self, original, record):
         require(self.capture_profile() == original, "Actual original profile changed before preparation")
         plan = []
@@ -278,17 +339,24 @@ class ProcessDevice(Device):
 
     def restore_profile(self, original, record):
         errors = []
-        for item in reversed(self.profile_mutations):
+
+        def record_restore(item):
             try:
                 record(item)
             except OSError as error:
                 errors.append(error)
+
+        for item in reversed(self.profile_mutations):
+            record_restore(item)
             try:
                 actual = self.profile_value(item)
                 require(actual in (item["original"], item["temporary"]),
                         "Unexpected profile value; do not overwrite another consumer's setting")
                 if actual != item["original"]:
-                    self.write_profile_value(item, item["original"])
+                    if self.api == 31 and item["key"] == "font_scale" and item["original"] is None:
+                        self.restore_unset_font(item, original, record_restore)
+                    else:
+                        self.write_profile_value(item, item["original"])
             except (OSError, RuntimeError, subprocess.SubprocessError) as error:
                 errors.append(error)
         try:

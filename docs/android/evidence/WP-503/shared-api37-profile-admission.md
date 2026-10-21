@@ -858,3 +858,65 @@ the allowlist, existing debug identity, fixed strict tasks and exclusive lanes.
 Trusted policy remains `paused=false`, `dispatch_mode=off`,
 `activation_approved=false`. No previous hosted or native verdict transfers to
 this integrated candidate.
+
+### Actual authorized language pair and bounded API31 cleanup recovery
+
+Executed source is exactly `b2d9a00368432c04ccc40676417b2576bf472218`,
+Android tree `4798be366ae48a517a80a4e3b49ef99262d6fb78`, source-tree digest
+`8ef72bc7f51b77fdf8dec38169d41b6597a08c91483c3db37a9f7fe65014ee17`,
+trusted main `85871f40b1520a89ced6b9bec74aa8eec2f4f4de`, reservation **21**.
+Product/fixture/producer and the two original method identities remain unchanged.
+Both standard strict debug assemblies completed using the existing local
+identity; App/Test public certificates matched
+`000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7`.
+
+| API | Discovered / started / matching outcomes / passed | Failed / errors / skipped | Instrumentation seconds | Final captured original state |
+| --- | --- | --- | --- | --- |
+| 37 | 2 / 2 / 2 / 2 | 0 / 0 / 0 | 12.092 | Original App APK digest/profile verified; introduced Test removed; normal release |
+| 31 | 2 / 2 / 2 / 2 | 0 / 0 / 0 | 9.251 | Original global App/Test absence and exact captured profile verified after separate bounded recovery; release verified |
+
+[Exact-source native summary](device-current-language-pair.json) binds actual
+APK/certificate hashes, original captured profiles, operation owners, immutable
+private receipt hashes and unmodified [API31](device-current-language-api31.txt)/
+[API37](device-current-language-api37.txt) transcripts. Both runners completed
+normally with process exit0 and terminal instrumentation code-1. This is native
+language evidence, not a duplicate reproducible hosted-CI result bundle, full-WP
+acceptance, physical TalkBack/radio verification or a passing-cohort replay.
+
+API31's first cleanup correctly exited2 and retained the same native lane:
+all package checks succeeded, but original unset font was now1.0; every other
+captured original field matched. The original failed operations receipt remains
+unchanged. Restricted setting diagnostics attributed the new1.0 to `pkg:android`,
+`defaultSystemSet:true`; update/delete history matched the owned restoration,
+and actual effective global configuration had settled to1.0. The pinned
+[Android12 observer/persistence path](https://android.googlesource.com/platform/frameworks/base/+/android-12.0.0_r1/services/core/java/com/android/server/wm/ActivityTaskManagerService.java)
+and [Settings writer](https://android.googlesource.com/platform/frameworks/base/+/android-12.0.0_r1/core/java/android/provider/Settings.java)
+explain materialization after deleting2.0, rather than changing the definition
+of original absence.
+
+Within that unchanged source/owner/reservation, recovery journaled exactly one
+additional deletion through the existing process-device component. It never
+wrote1.0 or issued locale-setting mutations. Two spaced full captures equaled
+the original profile, including genuinely unset font/animator, owner0 and
+original display/IME/motion; global App/Test absence and guest quiescence were
+verified before the supported same-owner native-lane release. No tests were
+replayed and no unresolved lane was released.
+
+After release, the consumer gained a bounded automatic correction for that
+observed API31 case. It correlates actual new framework update/delete history
+with pre-deletion history, checks effective configuration and other original
+state, journals at most one extra deletion and verifies stable exact absence.
+Unknown/foreign/malformed state or settlement timeout retains explicit
+effective-profile uncertainty, even when the raw setting reads unset. Receipt
+failure does not prevent independent cleanup but remains a reported error.
+Declared audit discovery now passes **89 discovered/run/passed,0
+failures/errors/skips**; these new cases are synthetic software regressions,
+not execution of this later cleanup code on a device.
+
+The committedb2d9 Windows controller rerun passed **376/376,0 failed/errors/
+skips**. Its preceding precommit run was375/376 with one immutable-input error
+against the old HEAD; that failed precommit result is not relabeled as success.
+Native evidence creation and byte-preserving attributes subsequently evolved
+the same owner through returned revisions **21→22→23**; the actual native
+outcomes remain bound tor21, not rebound to current scope/source. Hosted exact
+job/logs remain authoritative for each candidate; no earlier verdict transfers.

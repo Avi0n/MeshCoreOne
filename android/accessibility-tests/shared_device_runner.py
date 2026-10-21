@@ -254,6 +254,8 @@ def execution_lane(ledger, device, *, lock_owner, canonical, endpoint, purpose, 
             require(not getattr(device, "application_state_uncertain", False),
                     "Fixture/application state unresolved after incomplete or forced termination: "
                     "retain native lane until exact fixture/preferences/window recovery is independently verified")
+            require(not getattr(device, "profile_restoration_uncertain", False),
+                    "Original effective runtime profile unresolved: native lane retained")
             original = getattr(device, "original_target_digest", None)
             if original is not None:
                 actual = device.installed(APP)

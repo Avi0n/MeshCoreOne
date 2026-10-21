@@ -20,3 +20,4 @@ device-reviewedrepairs-* -text
 device-uipreconditions-* -text
 device-finalnodes-* -text
 device-losendpoints-* -text
+device-current-language-* -text whitespace=cr-at-eol

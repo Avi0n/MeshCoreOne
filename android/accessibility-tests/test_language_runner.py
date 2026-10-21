@@ -668,6 +668,7 @@ class LanguageRunnerTest(unittest.TestCase):
                   for name, (_, key, _) in device.SETTINGS.items()}
         values.update(size=None, density=None)
         device.capture_profile = Mock(return_value=original.copy())
+        device.font_configuration = Mock(return_value=("synthetic settled configuration", 1))
         device.profile_value = Mock(side_effect=lambda item: values[item["key"]])
         writes = []
 
@@ -694,6 +695,129 @@ class LanguageRunnerTest(unittest.TestCase):
         device.shell.reset_mock()
         runner.ProcessDevice.write_profile_value(device, {"kind": "display", "key": "size"}, None)
         device.shell.assert_called_once_with("wm size reset")
+
+    def materializing_font_device(self, *, materialize=True):
+        device = runner.ProcessDevice(self.config, 31)
+        item = {"kind": "setting", "namespace": "system", "key": "font_scale",
+                "original": None, "temporary": "2.0"}
+        original = {"font": "null", "ime": "1"}
+        state = {"font": "2.0", "scale": 2, "deletes": 0, "metadata": None, "stuck": False, "extra": {}}
+        previous = "1970-01-01 01:39:03 update font_scale\r\n1970-01-01 01:39:03 update font_scale"
+        metadata = ("_id:43 name:font_scale pkg:android value:1.0 default:1.0 defaultSystemSet:true\r\n"
+                    "1970-01-01 01:39:30 update font_scale\r\n1970-01-01 01:39:30 delete font_scale\r\n" + previous)
+
+        def shell(command):
+            if command == "settings delete system font_scale":
+                state["deletes"] += 1
+                state["font"] = "1.0" if materialize and state["deletes"] == 1 else None
+                if not state["stuck"]:
+                    state["scale"] = 1
+                return "Deleted 1 rows"
+            if command == "settings get system font_scale":
+                return state["font"] or "null"
+            if command == "settings list system":
+                return "" if state["font"] is None else "font_scale=" + state["font"]
+            if command == "dumpsys activity | grep -F mGlobalConfiguration":
+                return "mGlobalConfiguration: {" + str(state["scale"]) + ".0 synthetic configuration}"
+            if command == "dumpsys settings | grep -F font_scale":
+                return (state["metadata"] or metadata) if state["deletes"] else (
+                    "_id:42 name:font_scale pkg:android value:2.0 default:2.0 defaultSystemSet:true\r\n" + previous)
+            raise AssertionError("Unexpected font cleanup command: " + command)
+
+        device.shell = Mock(side_effect=shell)
+        device.capture_profile = Mock(side_effect=lambda: {
+            **original, "font": state["font"] or "null", **state["extra"],
+        })
+        device.profile_mutations = [item]
+        return device, original, state, metadata
+
+    def test_observed_framework_font_materialization_gets_one_provenance_bound_cleanup_delete(self):
+        device, original, state, _ = self.materializing_font_device()
+        record = Mock()
+        device.restore_profile(original, record)
+        self.assertEqual(2, state["deletes"])
+        self.assertIsNone(state["font"])
+        self.assertFalse(device.profile_restoration_uncertain)
+        self.assertEqual(original, device.capture_profile())
+        self.assertEqual(1, sum(call.args[0].get("phase") == "single-framework-materialization-cleanup"
+                                for call in record.call_args_list))
+        self.assertFalse(any("settings put" in call.args[0] for call in device.shell.call_args_list))
+
+    def test_already_settled_default_font_restores_absence_with_only_one_delete(self):
+        device, original, state, _ = self.materializing_font_device(materialize=False)
+        state["scale"] = 1
+        device.restore_profile(original, Mock())
+        self.assertEqual(1, state["deletes"])
+        self.assertIsNone(state["font"])
+        self.assertFalse(device.profile_restoration_uncertain)
+        self.assertFalse(any("dumpsys settings" in call.args[0] for call in device.shell.call_args_list))
+
+    def test_foreign_or_uncorrelated_font_materialization_is_never_deleted_again(self):
+        _, _, _, metadata = self.materializing_font_device()
+        variants = (
+            metadata.replace("pkg:android", "pkg:foreign.owner"),
+            metadata.replace("defaultSystemSet:true", "defaultSystemSet:false"),
+            metadata.replace("1970-01-01 01:39:30 delete", "1970-01-01 01:39:30 update"),
+            metadata.replace("1970-01-01 01:39:03", "1970-01-01 01:38:03"),
+            metadata + "\r\nunknown response",
+            metadata.replace("1970-01-01", "1970-99"),
+        )
+        for value in variants:
+            device, original, state, _ = self.materializing_font_device()
+            state["metadata"] = value
+            with self.subTest(metadata=value), self.assertRaises(ExceptionGroup):
+                device.restore_profile(original, Mock())
+            self.assertEqual(1, state["deletes"])
+            self.assertEqual("1.0", state["font"])
+            self.assertTrue(device.profile_restoration_uncertain)
+        device, original, state, _ = self.materializing_font_device()
+        state["extra"] = {"ime": "foreign"}
+        with self.assertRaises(ExceptionGroup):
+            device.restore_profile(original, Mock())
+        self.assertEqual(1, state["deletes"])
+        self.assertTrue(device.profile_restoration_uncertain)
+
+    def test_font_recovery_receipt_failure_does_not_prevent_independent_exact_cleanup(self):
+        device, original, state, _ = self.materializing_font_device()
+        with self.assertRaises(ExceptionGroup):
+            device.restore_profile(original, Mock(side_effect=OSError("Recovery receipt unavailable")))
+        self.assertEqual(2, state["deletes"])
+        self.assertIsNone(state["font"])
+        self.assertFalse(device.profile_restoration_uncertain)
+
+    def test_font_settlement_timeout_retains_uncertainty_even_when_raw_setting_is_unset(self):
+        device, original, state, _ = self.materializing_font_device(materialize=False)
+        state["stuck"] = True
+        with patch.object(runner.time, "monotonic", side_effect=[0, 6]), self.assertRaises(ExceptionGroup):
+            device.restore_profile(original, Mock())
+        self.assertEqual(1, state["deletes"])
+        self.assertIsNone(state["font"])
+        self.assertTrue(device.profile_restoration_uncertain)
+
+    def test_effective_font_query_rejects_unknown_or_foreign_configuration_before_deletion(self):
+        for value in ("unknown configuration", "mGlobalConfiguration: {NaN synthetic}",
+                      "mGlobalConfiguration: {3.0 foreign}", "mGlobalConfiguration: {1.0 one}\nextra"):
+            device, original, state, _ = self.materializing_font_device()
+            shell = device.shell.side_effect
+            device.shell.side_effect = lambda command: value if "mGlobalConfiguration" in command else shell(command)
+            with self.subTest(value=value), self.assertRaises(ExceptionGroup):
+                device.restore_profile(original, Mock())
+            self.assertEqual(0, state["deletes"])
+            self.assertTrue(device.profile_restoration_uncertain)
+
+    def test_unresolved_effective_profile_retains_lane_even_when_raw_profile_matches(self):
+        restore = self.device.restore_profile
+
+        def unsettled(original, record):
+            restore(original, record)
+            self.device.profile_restoration_uncertain = True
+            raise RuntimeError("Effective font restoration did not settle")
+
+        self.device.restore_profile = unsettled
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.assert_original_restored()
+        self.ledger.release_hard_lock.assert_not_called()
 
     def test_foreign_profile_value_is_not_overwritten_during_independent_restoration(self):
         device = runner.ProcessDevice(self.config, 31)

@@ -81,6 +81,16 @@ private data or admits non-owner execution.
 Only this run's verified newly introduced packages may be removed to restore
 original absence; an originally present target is never uninstalled or cleared.
 
+API31 can persist a framework-owned `font_scale=1.0` after deleting the owned
+temporary2.0 from an originally unset setting. Cleanup waits for effective
+configuration settlement and permits only one further deletion, after strict
+Android-writer/default metadata, new update/delete history correlated with the
+pre-deletion history, and unchanged other captured state. It journals both
+deletions, never writes1.0, and requires stable exact absence afterward.
+Unknown provenance, foreign state or timeout retains effective-profile
+uncertainty and the lane even if the raw setting temporarily reads unset.
+Receipt failure still permits independent cleanup but remains an error.
+
 Normal all-positive completion and original packages/profile must be verified
 before releasing the actual operation owner. Spawn/wait/receipt/read/decode/
 terminal-proof failures retain uncertainty, independently attempt bounded host
@@ -90,6 +100,13 @@ Output under the new private directory retains operations, original/public APKs,
 packaging log/binding and exact two-method transcripts/recovery receipts.
 Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
+
+The authorized pair actually passed2/2 on each API at immutable source
+`b2d9a00368432c04ccc40676417b2576bf472218`/reservation21. API31's initial cleanup
+failure and separate verified, single-deletion recovery are both retained in
+[native evidence](../../docs/android/evidence/WP-503/device-current-language-pair.json).
+The subsequent automatic font-cleanup correction has synthetic regressions;
+neither passing native cohort is replayed or rebound to that later source.
 
 All pure adapter/cleanup/terminal regressions, with positive discovery:
 
