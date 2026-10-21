@@ -497,6 +497,149 @@ class LanguageBindingTest(unittest.TestCase):
         self.assertEqual(0, result["native_starts"])
         self.assertFalse(result["apks_built"])
 
+    def test_comparator_binds_only_original_eleven_api37_and_unique_current_owner_not_supplemental_locales(self):
+        bound = self.prepare("comparator")
+        self.assertEqual(source("comparator"), bound)
+        requests = [binding.request_for(bound, 37) for _ in range(2)]
+        self.assertEqual(binding.COMPARATOR.identities, requests[0].identities)
+        self.assertEqual(11, len(requests[0].identities))
+        self.assertNotEqual(requests[0].operation_owner, requests[1].operation_owner)
+        self.assertTrue(requests[0].operation_owner.startswith(binding.CANONICAL + ":comparator:"))
+        for api in (30, 31, 33, 34, 36, 38, True, "37", 37.0):
+            with self.subTest(api=api), self.assertRaises(binding.PortError):
+                binding.request_for(bound, api)
+        for name in ("comparator-us", "comparator-tr-az", "tr-TR", "az-AZ", "Comparator", None):
+            with self.subTest(family=name), patch.object(binding, "source_identity") as identity:
+                with self.assertRaises(binding.PortError):
+                    binding.prepare_binding(HEAD, self.claim, family=name)
+                identity.assert_not_called()
+        for changes in ({"producer_revision": "0" * 40}, {"production_blob": "0" * 40},
+                        {"fixture_blob": "0" * 40}, {"replacement_app_session": "retired"},
+                        {"replacement_cli_session": "retired"}, {"canonical_session": "retired"}):
+            with self.subTest(changes=changes), self.assertRaises(binding.PortError):
+                binding.request_for(replace(bound, **changes), 37)
+        for family in ("language", "diagnostics", "nodes"):
+            with self.subTest(family=family), self.assertRaises(binding.PortError):
+                binding.request_for(replace(source(family), family="comparator"), 37)
+            with self.assertRaises(binding.PortError):
+                binding.LanguageRequest(bound, 37, binding.CANONICAL + ":" + family + ":" + "a" * 32)
+
+    def test_comparator_original_current_production_oracle_and_helper_git_objects_are_exact(self):
+        spec = binding.COMPARATOR
+        for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            with self.subTest(path=path):
+                self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
+                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
+        for revision in (spec.producer, "HEAD"):
+            body = binding.git("show", revision + ":" + spec.fixture)
+            self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
+            self.assertIn("newInstance(Locale.US)", body)
+            self.assertNotIn("assertProducerCases", body)
+        self.assertEqual("213866562c54c12d1f82f9c397b5cdcac7a4907c",
+                         binding.git("rev-parse", "HEAD:" + spec.production + "/LocalizedCompare.kt"))
+        supplemental = binding.git(
+            "show", "HEAD:" + spec.fixture.replace("ParityTest.kt", "LocalePreservationTest.kt"),
+        )
+        self.assertEqual(2, len(re.findall(r"@Test fun (\w+)\(", supplemental)))
+        self.assertTrue(set(spec.methods).isdisjoint(re.findall(r"@Test fun (\w+)\(", supplemental)))
+
+    def test_comparator_each_original_current_fixture_production_oracle_helper_and_ancestor_fails_on_drift(self):
+        spec = binding.COMPARATOR
+        for path, producer, _ in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            for revision in (HEAD, producer):
+                def changed(*args):
+                    if args == ("rev-parse", revision + ":" + path):
+                        return "0" * 40
+                    return self.family_git(*args, family="comparator")
+                with self.subTest(path=path, revision=revision), \
+                        patch.object(binding, "source_identity", return_value="b" * 64), \
+                        patch.object(binding, "git", side_effect=changed):
+                    with self.assertRaisesRegex(binding.PortError, "drifted"):
+                        binding.prepare_binding(HEAD, self.claim, family="comparator")
+            def missing(*args):
+                if args == ("merge-base", "--is-ancestor", producer, HEAD):
+                    raise subprocess.CalledProcessError(1, "missing comparator ancestor")
+                return self.family_git(*args, family="comparator")
+            with self.subTest(producer=producer), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=missing):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    binding.prepare_binding(HEAD, self.claim, family="comparator")
+
+    def test_comparator_wrong_count_identity_order_or_supplemental_substitution_cannot_bind(self):
+        methods = binding.COMPARATOR.methods
+        for actual in (methods[:-1], (*methods, "extra"), methods[::-1],
+                       (*methods[:-1], methods[0]),
+                       (*methods[:-1], "turkishProducerCasesPreserveLocaleTailoringOnAndroid")):
+            def changed(*args):
+                if args[0] == "show":
+                    return "\n".join("@Test fun " + method + "() {}" for method in actual)
+                return self.family_git(*args, family="comparator")
+            with self.subTest(methods=actual), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=changed):
+                with self.assertRaisesRegex(binding.PortError, "eleven original"):
+                    binding.prepare_binding(HEAD, self.claim, family="comparator")
+
+    def test_comparator_reuses_stale_source_policy_scope_family_and_publication_guards(self):
+        bound = source("comparator")
+        request = binding.request_for(bound, 37)
+        with patch.object(binding, "current_binding", return_value=bound) as current, \
+                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF), \
+                patch.object(binding, "trusted_execution_policy", return_value={"paused": True}):
+            self.assertEqual({"paused": True}, binding.verify_current_request(request))
+        current.assert_called_once_with(HEAD, family="comparator")
+        for actual in (replace(bound, reservation_revision=15), replace(bound, policy_revision="e" * 64),
+                       replace(bound, source_revision="e" * 40), source("nodes"), source("diagnostics"), source()):
+            with self.subTest(binding=actual), patch.object(binding, "current_binding", return_value=actual), \
+                    patch.object(binding, "git") as git:
+                with self.assertRaisesRegex(binding.PortError, "changed before"):
+                    binding.verify_current_request(request)
+                git.assert_not_called()
+        for published in ("", "e" * 40 + "\t" + binding.PUBLIC_REF, HEAD + "\trefs/heads/other"):
+            with self.subTest(published=published), patch.object(binding, "current_binding", return_value=bound), \
+                    patch.object(binding, "git", return_value=published):
+                with self.assertRaisesRegex(binding.PortError, "exact currently published"):
+                    binding.verify_current_request(request)
+
+    def test_comparator_exact_eleven_outcomes_not_pairs_or_other_families_require_positive_unforced_completion(self):
+        request = binding.request_for(source("comparator"), 37)
+        positive = transcript(family="comparator")
+        actual = binding.account_outcomes(positive, request, process_exit=0, forced_termination=False)
+        self.assertEqual((11, 11, 11, 11, 0, 0, 0), tuple(actual[key] for key in (
+            "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+        self.assertEqual("comparator", actual["family"])
+        self.assertEqual(request.operation_owner, actual["native_lane_operation_owner"])
+        self.assertFalse(actual["acceptance"])
+        for code in (-1, -2, -3, -4):
+            with self.subTest(code=code), self.assertRaises(binding.PortError):
+                binding.account_outcomes(transcript(code, family="comparator"), request,
+                                         process_exit=0, forced_termination=False)
+        for exit_code, forced in ((1, False), (True, False), (0, True), (0, None)):
+            with self.subTest(exit_code=exit_code, forced=forced), self.assertRaises(binding.PortError):
+                binding.account_outcomes(positive, request, process_exit=exit_code, forced_termination=forced)
+        missing = completed("".join(record(identity, 1, 11) + record(identity, 0, 11)
+                                    for identity in request.identities[:-1]), 11)
+        for value in ("", missing, transcript(), transcript(family="nodes"), transcript(family="diagnostics"),
+                      positive.replace("numtests=11", "numtests=13"),
+                      positive.replace(request.identities[0].partition("#")[2], request.identities[1].partition("#")[2]),
+                      positive.replace("NativeLocalizedCompareParityTest", "NativeLocalizedCompareLocalePreservationTest"),
+                      positive.replace("INSTRUMENTATION_CODE: -1", "")):
+            with self.subTest(value=value), self.assertRaises(RuntimeError):
+                binding.account_outcomes(value, request, process_exit=0, forced_termination=False)
+
+    def test_comparator_cli_prepares_original_us_eleven_api37_without_live_authority(self):
+        output = io.StringIO()
+        with patch.object(binding, "current_binding", return_value=source("comparator")) as current, \
+                patch("sys.stdout", output):
+            self.assertEqual(0, binding.main(["--head", HEAD, "--family", "comparator"]))
+        current.assert_called_once_with(HEAD, family="comparator")
+        result = json.loads(output.getvalue())
+        self.assertEqual([37], [request["api"] for request in result["requests"]])
+        self.assertEqual(list(binding.COMPARATOR.identities), result["requests"][0]["identities"])
+        self.assertFalse(result["authority"])
+        self.assertEqual(0, result["native_starts"])
+        self.assertFalse(result["apks_built"])
+
     def utf8_git_output(self, raw_for_command):
         check_output = subprocess.check_output
 

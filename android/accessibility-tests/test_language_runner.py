@@ -395,6 +395,134 @@ class LanguageRunnerTest(unittest.TestCase):
         self.package.assert_not_called()
         self.spawn.assert_not_called()
 
+    def configure_comparator(self, suffix="operation"):
+        self.request = runner.request_for(source("comparator"), 37)
+        self.device = SyntheticDevice(self.packaging["original"], 37)
+        self.config = replace(self.config, output=self.root / ("comparator-" + suffix))
+
+    def test_comparator_uses_same_shared_selection_preservation_and_positive_eleven_not_locale_pairs(self):
+        self.configure_comparator()
+        with patch("shared_device_runner.selected_methods", side_effect=AssertionError("Historical selector forbidden")):
+            result = self.execute()
+        self.assertEqual((11, 11, 11, 11, 0, 0, 0), tuple(result["cohort"][key] for key in (
+            "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+        self.assertEqual("comparator", result["family"])
+        self.assertEqual("comparator", result["cohort"]["cohort"])
+        self.assertFalse(result["acceptance"])
+        command = self.commands[-1]
+        self.assertEqual(",".join(runner.FAMILIES["comparator"].identities), command[command.index("class") + 1])
+        self.assertEqual("37", command[command.index("expectedApi") + 1])
+        self.assertNotIn("NativeLocalizedCompareLocalePreservationTest", str(command))
+        self.assertEqual("comparator-api37-11-original-methods",
+                         self.ledger.acquire_hard_lock.call_args.args[2]["purpose"])
+        self.assertTrue(self.request.operation_owner.startswith(
+            self.request.binding.canonical_session + ":comparator:"))
+        self.assert_original_restored()
+        self.ledger.release_hard_lock.assert_called_once_with("native-execution", self.request.operation_owner)
+        receipt = json.loads((self.config.output / "device-comparator37-recovery.json").read_text())
+        self.assertEqual(list(self.request.identities), receipt["original_identities"])
+        self.assertEqual(self.request.operation_owner, receipt["native_lane_operation_owner"])
+        self.assertEqual("VERIFIED_NORMAL_ALL_POSITIVE_COMPLETION", receipt["status"])
+        self.assertFalse(self.device.application_state_uncertain)
+
+    def test_comparator_stale_source_policy_scope_or_pause_stops_before_any_synthetic_device_build_or_lane(self):
+        self.configure_comparator()
+        for changed in ("source", "policy", "scope"):
+            self.verify.side_effect = runner.PortError("comparator " + changed + " stale")
+            with self.subTest(changed=changed), self.assertRaisesRegex(runner.PortError, "stale"):
+                self.execute()
+        self.verify.side_effect = None
+        self.policy["paused"] = True
+        with self.assertRaisesRegex(runner.PortError, "paused=true"):
+            self.execute()
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+        self.ledger.acquire_hard_lock.assert_not_called()
+        self.assertEqual([], self.device.calls)
+
+    def test_comparator_wrong_missing_duplicate_failed_skipped_or_count_outcomes_restore_packages_but_retain_lane(self):
+        positive = transcript(family="comparator")
+        identities = runner.FAMILIES["comparator"].identities
+        missing = completed("".join(record(identity, 1, 11) + record(identity, 0, 11)
+                                    for identity in identities[:-1]), 11)
+        values = (
+            transcript(), transcript(family="diagnostics"), transcript(family="nodes"), missing,
+            positive.replace("NativeLocalizedCompareParityTest", "NativeLocalizedCompareLocalePreservationTest"),
+            positive.replace(identities[0].partition("#")[2], identities[1].partition("#")[2]),
+            positive.replace("numtests=11", "numtests=13"),
+            transcript(-2, family="comparator"), transcript(-3, family="comparator"),
+        )
+        spawn = self.spawn.side_effect
+        for index, value in enumerate(values):
+            self.configure_comparator("negative-" + str(index))
+            self.ledger.reset_mock()
+
+            def wrong(command, **kwargs):
+                process = spawn(command, **kwargs)
+                if command[1] != "logcat":
+                    kwargs["stdout"].seek(0)
+                    kwargs["stdout"].truncate()
+                    kwargs["stdout"].write(value.encode())
+                return process
+
+            self.spawn.side_effect = wrong
+            with self.subTest(index=index), self.assertRaises(BaseExceptionGroup):
+                self.execute()
+            self.assert_original_restored()
+            self.assertTrue(self.device.application_state_uncertain)
+            self.ledger.release_hard_lock.assert_not_called()
+            receipt = json.loads((self.config.output / "device-comparator37-recovery.json").read_text())
+            self.assertEqual(list(self.request.identities), receipt["original_identities"])
+            self.assertIn("UNCERTAIN", receipt["status"])
+
+    def test_comparator_forced_termination_retains_lane_even_with_positive_eleven_transcript(self):
+        self.configure_comparator()
+        self.process.wait.side_effect = [subprocess.TimeoutExpired("synthetic comparator", 600), 0]
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.process.kill.assert_called_once()
+        self.assertEqual([600, 15], [call.kwargs["timeout"] for call in self.process.wait.call_args_list])
+        self.assert_original_restored()
+        self.assertTrue(self.device.application_state_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_comparator_effective_profile_uncertainty_retains_lane_after_positive_eleven_and_raw_equality(self):
+        self.configure_comparator()
+
+        def unresolved(original, record):
+            self.assertEqual(original, self.device.capture_profile())
+            self.device.profile_restoration_uncertain = True
+
+        self.device.restore_profile = unresolved
+        with self.assertRaises(BaseExceptionGroup) as caught:
+            self.execute()
+        self.assertIn("Original effective runtime profile unresolved", repr(caught.exception))
+        self.assert_original_restored()
+        self.assertFalse(self.device.application_state_uncertain)
+        self.assertTrue(self.device.profile_restoration_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_comparator_cli_readiness_reuses_configuration_but_rejects_api31_before_readiness(self):
+        with patch.object(runner, "current_binding", return_value=source("comparator")) as current, \
+                patch.object(runner, "Ledger", return_value=self.ledger), \
+                patch.object(runner, "shared_ledger", return_value=self.root / "synthetic-ledger"), \
+                patch.object(runner, "readiness") as readiness:
+            self.assertEqual(0, runner.main(["--head", source().source_revision, "--family", "comparator",
+                                           "--api", "37", "--readiness"]))
+            result = json.loads(self.print.call_args.args[0])
+            self.assertEqual(list(runner.FAMILIES["comparator"].identities), result["identities"])
+            self.assertEqual(0, result["native_starts"])
+            self.assertFalse(result["acceptance"])
+            readiness.assert_called_once()
+            readiness.reset_mock()
+            with patch("sys.stderr", io.StringIO()):
+                self.assertEqual(2, runner.main(["--head", source().source_revision, "--family", "comparator",
+                                               "--api", "31", "--readiness"]))
+            readiness.assert_not_called()
+        current.assert_called_with(source().source_revision, family="comparator")
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+
     def test_real_pause_fails_before_config_device_lane_or_build(self):
         self.policy["paused"] = True
         with patch.object(runner.RunConfig, "validate") as validate, self.assertRaisesRegex(runner.PortError, "paused=true"):

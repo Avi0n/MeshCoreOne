@@ -1116,3 +1116,70 @@ All original missing27 remain unexecuted in the current-source missing-only
 cohort; historical separate language2+2 subtracts zero. Actualb2/r21 native
 outcomes, original failed cleanup receipt and separate bounded recovery remain
 byte-preserved and source-bound, with no replay or rebinding.
+
+### Local original comparator11 software-only successor to reviewedad
+
+This increment is based on reviewed local Nodes source
+`ad165035d189f5f823bd7de6e7712d355488b31a`, above unchanged published
+`f3d3346c2e91f71ba69b6a1153fa1d80568f50bf`. Actual trusted main remainsdbb37206,
+manifest977b9e91/semantic policye8afe067/same canonical scope24 are unchanged.
+The five changed binding/test/README/evidence paths are within the same six-path
+trusted `wp-owned` admission already held for modify/test/record-evidence.
+No reservation evolution, identity change or authorization rewrite was needed.
+
+Actual existing Git inventory establishes exactly eleven ordered original
+`NativeLocalizedCompareParityTest` methods, unchanged from fixture producer
+`5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5`. The fixed comparator specification
+checks both current and original objects plus producer ancestry:
+
+| Path under repository root | Producer | Exact object |
+| --- | --- | --- |
+| `android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareParityTest.kt` | `5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5` | `79e7e12b950f1459f006bc72942539ecf07375e0` |
+| `android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text` (complete subtree) | `8a8c6348af1c98b3f11f21769800308cf302b8f9` | `b1fde2e38d54bb945364bbf27abd3c0c66f012b8` |
+| `android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt` | `8a8c6348af1c98b3f11f21769800308cf302b8f9` | `58af4467a85422c8d53cee7001a159cf56f31642` |
+| `docs/android/evidence/WP-316/oracle.swift.txt` | `d4cc34496decfa3b57c588cf208a9dc160ddf317` | `bbccc686e1414561fa7f9f7d8e11cd1846e4fcf5` |
+| `docs/android/evidence/WP-316/oracle-output.txt` | `d4cc34496decfa3b57c588cf208a9dc160ddf317` | `0064656ced61ca93fc541c3e3b070c3f2076263d` |
+
+The complete production subtree includes `LocalizedCompare.kt` blob
+`213866562c54c12d1f82f9c397b5cdcac7a4907c` and its existing Swift text/number
+helpers. The native fixture explicitly uses `Locale.US`, invokes the installed
+target class and retains its own pair/scalar/ErrorCollector helpers. It is a
+standalone fixture, not a DeviceAccessibilityHarness/Compose audit; no unrelated
+UI-helper dependency is invented. Supplemental tr/az2 fixture and producer cases
+remain separate and unselected, not substituted for the independent retained US
+oracle or counted as eleven methods. No oracle was generated or executed here.
+
+Only an immutable `comparator` family/API37/ordered11 and fixed
+`CANONICAL:comparator:UUID` owner are added to the current typed binding/request.
+The existing runner already derives purpose/identities/stem/events from that
+fixed request; **no runner implementation change** was needed. Its purpose is
+`comparator-api37-11-original-methods`. Language2/API31+37, diagnostics5/API37,
+Nodes7/API37, strict UTF-8, published source/main/policy/scope checks, normal
+positive completion and package/profile/uncertainty fences remain intact.
+
+`python -m unittest discover -s android\accessibility-tests -p test_*.py -v`
+passes **132 discovered/run/passed,0 failures/errors/skips**, including13
+comparator regressions. They verify real original/current Git pins and eleven
+identities, reject every pin/ancestor/count/order/family/API/identity/attribution
+boundary, and use real shared selection/lifecycle with synthetic transports for
+positive11, wrong/supplemental/missing/duplicate/failure/skip/count outcomes,
+stale source/policy/scope/publication, forced termination and retained effective
+profile uncertainty despite raw equality. No host/parameter-family proxy is
+counted as an original native method or acceptance.
+
+`python tools\android-port\controller\verification_config.py --check`,
+`python tools\android-port\controller\validate.py`,
+`python tools\android-port\controller\workflows.py`, and
+`python tools\android-port\portmap.py` each pass/exit0; whitespace passes.
+The exact local successor is the commit containing this section and its
+immutable SHA in the handoff. Publishedf3 and its healthy automatic39529850037
+verification remain unchanged while local comparison proceeds; there is no
+cancel, rerun, dispatch or copied CI-result bundle.
+
+All Kotlin fixtures/production/shared helpers, retained original oracle bytes
+and genuineb2/r21 native/failed-cleanup/separate-recovery evidence are unchanged.
+No actual Gradle/APK/build/ADB/install/instrumentation/native-lane operation
+occurred. Neither prepared family support nor historical language2+2 subtracts
+anything: all27 remain unexecuted in the current-source missing-only cohort.
+This is not native comparator/Nodes/diagnostics execution, goldens, source/native
+acceptance or whole-WP completion.

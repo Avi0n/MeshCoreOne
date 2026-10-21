@@ -115,17 +115,50 @@ NODES = FamilySpec(
          "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
     ),
 )
+COMPARATOR = FamilySpec(
+    "comparator", (37,),
+    "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest",
+    (
+        "asciiCaseMatchesSwiftEquality",
+        "sharpSMatchesSwiftEquality",
+        "canonicalAccentMatchesSwiftEquality",
+        "fullWidthMatchesSwiftEquality",
+        "nodeNameCaseMatchesSwiftEquality",
+        "digraphCaseMatchesSwiftEquality",
+        "ligatureMatchesSwiftEquality",
+        "accentRemainsUnequalAsInSwift",
+        "dotlessIRemainsUnequalAsInSwift",
+        "dottedIRemainsUnequalAsInSwift",
+        "equalNamesKeepTheirInputOrderWithTheProductionComparator",
+    ),
+    "5bbef0b2f29b9a96dd88b5e5a5d4584a6739c8c5",
+    "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text",
+    "b1fde2e38d54bb945364bbf27abd3c0c66f012b8",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareParityTest.kt",
+    "79e7e12b950f1459f006bc72942539ecf07375e0",
+    (
+        ("android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text",
+         "8a8c6348af1c98b3f11f21769800308cf302b8f9", "b1fde2e38d54bb945364bbf27abd3c0c66f012b8"),
+        ("android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+         "8a8c6348af1c98b3f11f21769800308cf302b8f9", "58af4467a85422c8d53cee7001a159cf56f31642"),
+        ("docs/android/evidence/WP-316/oracle.swift.txt",
+         "d4cc34496decfa3b57c588cf208a9dc160ddf317", "bbccc686e1414561fa7f9f7d8e11cd1846e4fcf5"),
+        ("docs/android/evidence/WP-316/oracle-output.txt",
+         "d4cc34496decfa3b57c588cf208a9dc160ddf317", "0064656ced61ca93fc541c3e3b070c3f2076263d"),
+    ),
+)
 FAMILIES = MappingProxyType({
     "language": FamilySpec("language", (31, 37), CLASS, METHODS, PRODUCER,
                            PRODUCTION, PRODUCTION_BLOB, FIXTURE, FIXTURE_BLOB),
     "diagnostics": DIAGNOSTICS,
     "nodes": NODES,
+    "comparator": COMPARATOR,
 })
 
 
 def family_spec(name):
     if not isinstance(name, str) or name not in FAMILIES:
-        raise PortError("Only the immutable language, diagnostics or nodes family is admitted")
+        raise PortError("Only the immutable language, diagnostics, nodes or comparator family is admitted")
     return FAMILIES[name]
 
 
@@ -183,6 +216,7 @@ def prepare_binding(revision, claim, *, family="language"):
             "language": "Language cohort must retain exactly the two original method identities",
             "diagnostics": "Diagnostics cohort must retain exactly the five original method identities",
             "nodes": "Nodes cohort must retain exactly the seven original method identities",
+            "comparator": "Comparator cohort must retain exactly the eleven original method identities",
         }[family])
     manifest = load_manifest(ROOT)
     policy = load_json(ROOT / "docs" / "android" / "automation-policy.json")

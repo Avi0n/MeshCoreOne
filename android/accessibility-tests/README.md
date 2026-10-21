@@ -187,6 +187,49 @@ original missing27, which remains27; separate language2+2 still subtracts zero.
 Keep the currently published candidate unchanged until its healthy automatic
 verification is terminal and this local increment has been reviewed.
 
+### Fixed original US comparator family: software-only preparation
+
+`--family comparator` admits API37 only and exactly the eleven original
+`NativeLocalizedCompareParityTest` methods, in original fixture/selector order:
+
+- `asciiCaseMatchesSwiftEquality`
+- `sharpSMatchesSwiftEquality`
+- `canonicalAccentMatchesSwiftEquality`
+- `fullWidthMatchesSwiftEquality`
+- `nodeNameCaseMatchesSwiftEquality`
+- `digraphCaseMatchesSwiftEquality`
+- `ligatureMatchesSwiftEquality`
+- `accentRemainsUnequalAsInSwift`
+- `dotlessIRemainsUnequalAsInSwift`
+- `dottedIRemainsUnequalAsInSwift`
+- `equalNamesKeepTheirInputOrderWithTheProductionComparator`
+
+Read-only source preparation:
+`python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family comparator`.
+The unchanged original native fixture at `5bbef0b2` explicitly invokes the
+installed production class with `Locale.US`; its pair/scalar/assertion helpers
+are contained in that pinned fixture. It does not inherit the Activity/Compose
+device harness or shared UI assertion helper. Pins retain the complete production
+`diagnostics/text` subtree and producer `SwiftTextParityTest` at `8a8c6348`, plus
+the original WP316 `oracle.swift.txt`/`oracle-output.txt` at `d4cc3449`.
+Current/original objects and producer ancestry are mandatory; a changed oracle
+or product is drift, not permission to advance a pin.
+
+The fixed owner is `CANONICAL:comparator:UUID`, and shared lifecycle purpose is
+`comparator-api37-11-original-methods`. Existing selection, exact positive11,
+normal completion, source/policy/scope/publication, package/profile restoration
+and uncertainty fences apply without another runner. No parameter-pair count,
+host collator or one proxy method substitutes for eleven original identities.
+Supplemental `NativeLocalizedCompareLocalePreservationTest` tr/az2 remains
+separate and unselected; its historical selectors are not current family names.
+All prior language/diagnostics/Nodes contracts and the language default remain.
+
+This preparation performs no native/build/device operation or new Swift oracle
+execution. It is not Android ICU parity, goldens or whole-WP acceptance. The
+comparator11 and supplemental tr/az2 remain part of missing27; local support and
+separate language2+2 subtract zero. Keep the published candidate unchanged while
+healthy CI runs, and obtain local source review before publishing this successor.
+
 The current consumer's Git helper explicitly decodes UTF-8 with strict errors
 for both fixture source and trusted policy JSON. It never uses the Windows
 default code page, replacement characters or a fallback; malformed Git output
