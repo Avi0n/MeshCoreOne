@@ -11,6 +11,7 @@ package com.meshcoreone.android.uitests
 
 import android.content.res.Configuration
 import android.provider.Settings
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
@@ -52,6 +53,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [31], qualifiers = "en-rUS-w360dp-h1400dp-mdpi")
@@ -483,8 +485,12 @@ class MessagePathComposeTest {
         assertRowsAndState()
         indicator().performSemanticsAction(SemanticsActions.OnClick) { assertTrue(it()) }
         assertExplanation()
-        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
-            .performSemanticsAction(SemanticsActions.Dismiss) { assertTrue(it()) }
+        compose.runOnIdle {
+            val dialog = requireNotNull(ShadowDialog.getLatestDialog())
+            assertTrue(dialog.isShowing)
+            dialog.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
+            dialog.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
+        }
         compose.onNode(isDialog()).assertDoesNotExist()
         assertRowsAndState()
         compose.runOnIdle { assertSame(retained, holder.state.value) }

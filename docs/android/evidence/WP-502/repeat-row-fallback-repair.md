@@ -65,7 +65,9 @@ the independent button and dialog title/explanation/Done. Actual button
 Role/48dp/stateDescription/ancestry are asserted; parent rows have no
 click action, and exact/unresolved rows have no fallback descendant.
 Both real pointer touch input and the actual button's accessible OnClick
-open the dialog. Done touch and actual Dismiss semantics close it.
+open the dialog. Done touch and actual Android dialog Back down/up events
+close it, following the existing SharedUiComposeTest native-dialog prior art;
+no nonexistent AlertDialog Dismiss semantics or callback shortcut is assumed.
 Open dialog survives observed route-tag recomposition; all row/state
 assertions repeat afterward with SAME holder snapshot/list identities,
 one contacts/discovery/repeats read and no other action/block/mute/reaction.
@@ -84,7 +86,7 @@ This is software accessibility semantics, not a physical TalkBack verdict.
 | ENTIRE inherited MessagePathComposeTest.kt | 0b041e7789d5748f0ca3cc16caf8d007dd776d0a |
 
 Inherited323-line mounted test/setup/bodies recover byte-for-byte by
-removing only the new166-line block and3 new header/import lines.
+removing only the new170-line block and5 new header/import lines.
 All41Rooms, strict helper939c/native observationa4b9/controls, CustomError,
 primary resolver tests, App configuration/lock and existing evidence
 remain unchanged. Product delta is only one frozen provenance header,
@@ -102,6 +104,17 @@ build dependency or control framework is changed.
 checks, not compile/test discovery. The installed serialized exact-commit
 preflight/scaffold lane is attempted after committing this candidate;
 no current compilation/execution verdict is claimed before that result.
+Actual committed attempt:
+`python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit bc253437148f1a20236ac9e37820a76712851911 --stages preflight,scaffold`
+returned exit1, `BLOCKED: Malformed installed reservation runtime manifest`.
+No Gradle/native/toolchain execution or test discovery occurred; the runtime
+interlock rejects before starting its serialized lane. No installed runtime,
+hook, retained receipt or foreign lock was replaced/cleared to force a pass.
+That earlier source candidate also assumed modal-sheet Dismiss semantics;
+the regression now uses the actual Android dialog Back contract instead.
+The repaired current source remains uncompiled/unrun pending its own hosted
+candidate CI. The tool-admission failure is not an assertion failure/pass,
+and it does not block processor-neutral feature-branch publication.
 Automatic candidate CI remains authoritative for reproducible hosted
 checks; no second result bundle is retained or accepted by this receipt.
 Full WP502/API31+37/targeted33+34+36/theme-window/device/golden/TalkBack/
