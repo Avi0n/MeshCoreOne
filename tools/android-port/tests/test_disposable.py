@@ -343,6 +343,65 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(self.rows(), before)
         guest.dispose(self.ledger)
 
+    def test_installed_base_api_metadata_reaches_private_data_copy_without_process_execution(self):
+        image = self.root / "image"
+        image.mkdir()
+        (image / "userdata.img").write_bytes(b"fixture initial userdata")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        for level in ("31", "37", "37.0"):
+            with self.subTest(level=level):
+                (image / "source.properties").write_text(
+                    f"AndroidVersion.ApiLevel={level}\nSystemImage.Abi=x86_64\nPkg.Revision=6\n",
+                    encoding="utf-8",
+                )
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                with patch.object(guest, "_prepare_supervisor"), \
+                        patch("controller.disposable.shutil.copyfile", side_effect=OSError("fixture stops before data copy")) as copyfile, \
+                        patch.object(guest, "_spawn") as spawn:
+                    with self.assertRaisesRegex(OSError, "fixture stops before data copy"):
+                        guest.start(self.ledger, emulator=emulator, adb=adb, image=image)
+                    copyfile.assert_called_once()
+                    self.assertEqual(copyfile.call_args.args[0], image / "userdata.img")
+                    spawn.assert_not_called()
+                self.assertEqual(self.rows(), before)
+                guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_minor_malformed_unselected_api_and_invalid_abi_fail_before_data_copy_or_process(self):
+        image = self.root / "image"
+        image.mkdir()
+        (image / "userdata.img").write_bytes(b"fixture initial userdata")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        for level, abi in [
+            *[(level, "x86_64") for level in
+              ("37.2", "37.1", "37.00", "37.0.0", "37.", "037", "+37", "3.7e1", "NaN", "", "32", "38", "31.2")],
+            ("37.0", "x86"), ("37.0", ""), ("37.0", "unknown"),
+        ]:
+            with self.subTest(level=level, abi=abi):
+                (image / "source.properties").write_text(
+                    f"AndroidVersion.ApiLevel={level}\nSystemImage.Abi={abi}\n", encoding="utf-8",
+                )
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                with patch.object(guest, "_prepare_supervisor"), \
+                        patch("controller.disposable.shutil.copyfile") as copyfile, \
+                        patch.object(guest, "_spawn") as spawn:
+                    with self.assertRaisesRegex(PortError, "image provenance"):
+                        guest.start(self.ledger, emulator=emulator, adb=adb, image=image)
+                    copyfile.assert_not_called()
+                    spawn.assert_not_called()
+                self.assertFalse((guest.root / "avds").exists())
+                self.assertEqual(self.rows(), before)
+                guest.dispose(self.ledger)
+                self.assert_legacy()
+
     def test_unsupported_live_entrance_refuses_before_ledger_runtime_or_allocation(self):
         with patch("controller.disposable.sys.platform", "darwin"), \
                 patch.object(PrivateGuest, "allocate") as allocate, \

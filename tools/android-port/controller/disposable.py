@@ -223,7 +223,7 @@ class PrivateGuest:
                       if "=" in line and not line.lstrip().startswith("#"))
         values = {k.strip(): v.strip() for k, v in values.items()}
         abi = values.get("SystemImage.Abi")
-        if abi not in ("x86_64", "arm64-v8a") or values.get("AndroidVersion.ApiLevel") not in ("31", "37"):
+        if abi not in ("x86_64", "arm64-v8a") or values.get("AndroidVersion.ApiLevel") not in ("31", "37", "37.0"):
             raise PortError("Disposable AVD requires installed API31/37 x86_64/arm64 image provenance")
         self.image_identity = hashlib.sha256(properties.read_bytes()).hexdigest()
         avds = self.root / "avds"
