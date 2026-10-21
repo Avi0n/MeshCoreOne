@@ -936,6 +936,190 @@ class LanguageBindingTest(unittest.TestCase):
         self.assertEqual(0, result["native_starts"])
         self.assertFalse(result["apks_built"])
 
+    def test_cached_chat_selects_original_resize_method_only_on_api37_with_unique_current_owner(self):
+        bound = self.prepare("cached-chat")
+        self.assertEqual(source("cached-chat"), bound)
+        spec = binding.CACHED_CHAT
+        first, second = [binding.request_for(bound, 37) for _ in range(2)]
+        self.assertEqual((spec.klass + "#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200",),
+                         first.identities)
+        self.assertEqual(10, len(spec.fixture_methods))
+        self.assertNotEqual(first.operation_owner, second.operation_owner)
+        self.assertTrue(first.operation_owner.startswith(binding.CANONICAL + ":cached-chat:"))
+        for api in (30, 31, 33, 34, 36, 38, True, "37", 37.0):
+            with self.subTest(api=api), self.assertRaises(binding.PortError):
+                binding.request_for(bound, api)
+        for changes in ({"producer_revision": "0" * 40}, {"production_blob": "0" * 40},
+                        {"fixture_blob": "0" * 40}, {"replacement_app_session": "retired"},
+                        {"replacement_cli_session": "retired"}, {"canonical_session": "retired"}):
+            with self.subTest(changes=changes), self.assertRaises(binding.PortError):
+                binding.request_for(replace(bound, **changes), 37)
+        for family in ("language", "diagnostics", "nodes", "comparator", "traz", "los"):
+            with self.subTest(family=family), self.assertRaises(binding.PortError):
+                binding.request_for(replace(source(family), family="cached-chat"), 37)
+            with self.assertRaises(binding.PortError):
+                binding.LanguageRequest(bound, 37, binding.CANONICAL + ":" + family + ":" + "a" * 32)
+
+    def test_cached_chat_actual_original_fixture_inputs_and_separate_current_delegates_are_pinned(self):
+        spec = binding.CACHED_CHAT
+        registration = "4f89d2168e03786588e760a2d8310fbe9edc89d0"
+        retained = "3f39a777376e322e2bc533f1d1caf92a87a44ed8"
+        current_producer = "03306ff125655f977d88c5b517ad4cab26d9e771"
+        self.assertEqual("", binding.git("merge-base", "--is-ancestor", registration, spec.producer))
+        initial = binding.git("show", registration + ":" + spec.fixture)
+        self.assertIn(spec.methods[0], re.findall(r"@Test fun (\w+)\(", initial))
+        self.assertEqual(spec.fixture_blob, binding.git("rev-parse", retained + ":" + spec.fixture))
+        for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            with self.subTest(path=path):
+                self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
+                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
+        for revision in (spec.producer, "HEAD"):
+            body = binding.git("show", revision + ":" + spec.fixture)
+            self.assertEqual(spec.fixture_methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
+            for fixed in ("UUID(0, 503001)", "UUID(0, 503002)", "UUID(0, 503100L + index)",
+                          "ByteArray(32) { 0x50 }", "ByteArray(32) { 0x51 }",
+                          'name = "Cached \\u4e2d\\u6587 peer"', 'val draft = "Draft \\u4e2d\\u6587 \\u0645\\u0631\\u062d\\u0628\\u0627"',
+                          "val history = List(36)", "1_700_000_000L + index", "val target = history[15]",
+                          "MessageDirection.INCOMING", "MessageStatus.DELIVERED, isRead = true",
+                          "val alignDelta = 12f - captureViewport().first", "24f, offsetOnly.first, 0.5f",
+                          'listOf("900x900" to "navigation-rail", "360x900" to "navigation-hidden")',
+                          "row.layoutInfo.isPlaced && coordinates.isAttached", "firstOffset.second, offsetOnly.second",
+                          "drafts.set(conversation, originalDraft)", "container.processStore.deleteDeviceAndData(device.id)",
+                          'shell("wm size ${override ?: "reset"}")'):
+                self.assertIn(fixed, body)
+        historical = (
+            ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatsContent.kt",
+             "2b5ccd083c536c981169543377919d3c8c1f1a95", "6e191c79de3a5cebf3f8e0603956e180f97bd014"),
+            ("android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt",
+             "ac0301b1b167a4f0f2a97fb2b522b51e68b67ced", "99ff02f5c15359e6260316d6411a5bac7a62518e"),
+        )
+        for path, old, current in historical:
+            self.assertEqual(old, binding.git("rev-parse", retained + ":" + path))
+            self.assertNotEqual(old, current)
+            self.assertIn((path, current_producer, current), spec.source_pins)
+            self.assertEqual(current, binding.git("rev-parse", "dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c:" + path))
+            def historical_as_current(*args):
+                if args == ("rev-parse", HEAD + ":" + path):
+                    return old
+                return self.family_git(*args, family="cached-chat")
+            with patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=historical_as_current):
+                with self.assertRaisesRegex(binding.PortError, "drifted"):
+                    binding.prepare_binding(HEAD, self.claim, family="cached-chat")
+        content = binding.git("show", current_producer + ":" + historical[0][0])
+        delegate = binding.git("show", current_producer + ":" + historical[1][0])
+        self.assertIn("LaunchedEffect(composer, notificationSource)", content)
+        self.assertIn("feature.restoreNotificationDraft(target, composer, notificationSource)", content)
+        self.assertIn("if (source !== notifications) return", delegate)
+        self.assertIn("consumeDraft(EntityKey(radio, target.contact.id)) ?: return", delegate)
+        self.assertEqual("", binding.git("merge-base", "--is-ancestor", current_producer,
+                                        "dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c"))
+
+    def test_cached_chat_every_original_current_pin_ancestor_inventory_and_selection_reject_drift(self):
+        spec = binding.CACHED_CHAT
+        for path, producer, _ in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            for revision in (HEAD, producer):
+                def changed(*args):
+                    if args == ("rev-parse", revision + ":" + path):
+                        return "0" * 40
+                    return self.family_git(*args, family="cached-chat")
+                with self.subTest(path=path, revision=revision), \
+                        patch.object(binding, "source_identity", return_value="b" * 64), \
+                        patch.object(binding, "git", side_effect=changed):
+                    with self.assertRaisesRegex(binding.PortError, "drifted"):
+                        binding.prepare_binding(HEAD, self.claim, family="cached-chat")
+            def missing(*args):
+                if args == ("merge-base", "--is-ancestor", producer, HEAD):
+                    raise subprocess.CalledProcessError(1, "missing cached-chat ancestor")
+                return self.family_git(*args, family="cached-chat")
+            with self.subTest(producer=producer), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=missing):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    binding.prepare_binding(HEAD, self.claim, family="cached-chat")
+        inventory = spec.fixture_methods
+        for methods in (spec.methods, inventory[:2], inventory[::-1], (*inventory, "extra"),
+                        (inventory[0],) * 10, (*inventory[:2], "genericChatProxy", *inventory[3:])):
+            def changed_methods(*args):
+                if args[0] == "show":
+                    return "\n".join("@Test fun " + method + "() {}" for method in methods)
+                return self.family_git(*args, family="cached-chat")
+            with self.subTest(methods=methods), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=changed_methods):
+                with self.assertRaisesRegex(binding.PortError, "one original"):
+                    binding.prepare_binding(HEAD, self.claim, family="cached-chat")
+        for selected in ((), (spec.methods[0],) * 2, ("genericChatProxy",)):
+            with self.subTest(selected=selected), \
+                    patch.object(binding, "FAMILIES", {**binding.FAMILIES, "cached-chat": replace(spec, methods=selected)}), \
+                    patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=lambda *args: self.family_git(*args, family="cached-chat")):
+                with self.assertRaisesRegex(binding.PortError, "one original"):
+                    binding.prepare_binding(HEAD, self.claim, family="cached-chat")
+
+    def test_cached_chat_reuses_current_source_policy_scope_family_and_publication_guards(self):
+        bound = source("cached-chat")
+        request = binding.request_for(bound, 37)
+        with patch.object(binding, "current_binding", return_value=bound) as current, \
+                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF), \
+                patch.object(binding, "trusted_execution_policy", return_value={"paused": True}):
+            self.assertEqual({"paused": True}, binding.verify_current_request(request))
+        current.assert_called_once_with(HEAD, family="cached-chat")
+        for actual in (replace(bound, reservation_revision=15), replace(bound, policy_revision="e" * 64),
+                       replace(bound, source_revision="e" * 40), *(source(family) for family in binding.FAMILIES if family != "cached-chat")):
+            with self.subTest(binding=actual), patch.object(binding, "current_binding", return_value=actual), \
+                    patch.object(binding, "git") as git:
+                with self.assertRaisesRegex(binding.PortError, "changed before"):
+                    binding.verify_current_request(request)
+                git.assert_not_called()
+        for published in ("", "e" * 40 + "\t" + binding.PUBLIC_REF, HEAD + "\trefs/heads/other"):
+            with self.subTest(published=published), patch.object(binding, "current_binding", return_value=bound), \
+                    patch.object(binding, "git", return_value=published):
+                with self.assertRaisesRegex(binding.PortError, "exact currently published"):
+                    binding.verify_current_request(request)
+
+    def test_cached_chat_positive_one_cannot_substitute_other_launcher_methods_class_or_bad_outcomes(self):
+        spec = binding.CACHED_CHAT
+        request = binding.request_for(source("cached-chat"), 37)
+        positive = transcript(family="cached-chat")
+        result = binding.account_outcomes(positive, request, process_exit=0, forced_termination=False)
+        self.assertEqual((1, 1, 1, 1, 0, 0, 0), tuple(result[key] for key in (
+            "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+        self.assertEqual("cached-chat", result["family"])
+        self.assertFalse(result["acceptance"])
+        for code in (-1, -2, -3, -4):
+            with self.subTest(code=code), self.assertRaises(binding.PortError):
+                binding.account_outcomes(transcript(code, family="cached-chat"), request,
+                                         process_exit=0, forced_termination=False)
+        for process_exit, forced in ((1, False), (True, False), (0, True), (0, None)):
+            with self.subTest(process_exit=process_exit, forced=forced), self.assertRaises(binding.PortError):
+                binding.account_outcomes(positive, request, process_exit=process_exit, forced_termination=forced)
+        identities = tuple(spec.klass + "#" + method for method in spec.fixture_methods)
+        whole_class = completed("".join(record(item, 1, 10) + record(item, 0, 10) for item in identities), 10)
+        for value in ("", transcript(family="los"), whole_class, positive.replace("numtests=1", "numtests=10"),
+                      completed(record(request.identities[0], 1, 1), 1),
+                      completed(record(request.identities[0], 1, 1) + record(request.identities[0], 0, 1) * 2, 1),
+                      positive.replace("INSTRUMENTATION_CODE: -1", ""),
+                      *(positive.replace(spec.methods[0], method) for method in spec.fixture_methods if method not in spec.methods)):
+            with self.subTest(value=value), self.assertRaises(RuntimeError):
+                binding.account_outcomes(value, request, process_exit=0, forced_termination=False)
+
+    def test_cached_chat_source_only_cli_exposes_fixed_one_and_never_arbitrary_selector_or_live_authority(self):
+        output = io.StringIO()
+        with patch.object(binding, "current_binding", return_value=source("cached-chat")) as current, \
+                patch("sys.stdout", output):
+            self.assertEqual(0, binding.main(["--head", HEAD, "--family", "cached-chat"]))
+        current.assert_called_once_with(HEAD, family="cached-chat")
+        result = json.loads(output.getvalue())
+        self.assertEqual([37], [request["api"] for request in result["requests"]])
+        self.assertEqual(list(binding.CACHED_CHAT.identities), result["requests"][0]["identities"])
+        self.assertFalse(result["authority"])
+        self.assertEqual(0, result["native_starts"])
+        self.assertFalse(result["apks_built"])
+        for option in ("--class", "--method"):
+            with self.subTest(option=option), patch("sys.stderr", io.StringIO()), self.assertRaises(SystemExit) as caught:
+                binding.main(["--head", HEAD, "--family", "cached-chat", option, "arbitrary"])
+            self.assertEqual(2, caught.exception.code)
+
     def utf8_git_output(self, raw_for_command):
         check_output = subprocess.check_output
 

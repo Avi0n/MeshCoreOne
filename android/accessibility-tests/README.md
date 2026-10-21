@@ -304,6 +304,63 @@ instrumentation/native-lane action or LoS/native/golden/whole-WP acceptance.
 All27 remain unexecuted in the current missing-only cohort; language2+2 and
 prepared families subtract zero. Cached-chat1 remains a separate software family.
 
+### Fixed original cached-chat family: software-only preparation
+
+`--family cached-chat` admits API37 and exactly the original identity
+`NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200`.
+Read-only source preparation:
+`python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family cached-chat`.
+Registration `4f89d216` is an ancestor of the retained final/current fixture
+at `e8fa6b29`, blob `698d649b230b7d7945a5d901d37f748427508986`.
+The full launcher fixture has **ten** original/control methods in fixed order.
+Only the cached-chat resize/draft method is selected; separate IME, framework,
+motion, appearance, navigation and intentional cleanup-fault methods are not
+selected, replayed or counted.
+
+The complete chats production subtree is pinned to `4b6629ac`, including actual
+composer/timeline UI and state, reverse-layout pixel-offset capture, saved-anchor
+restoration, message body and ordinary draft handling. Producer timeline tests,
+the mounted `ChatTimelineRestorationTest`, navigation/screen/message consumers,
+the complete rendering/draft-helper subtree, shared assertions and device
+harness retain independently checked exact producer/current objects and ancestry.
+
+There is an explicit **current-input distinction**, not historical equality:
+the current merged `03306ff1` `AppChatsContent`/`AppChatsFeature` consumer/delegate
+and five-case `NotificationDraftRestorationTest` are pinned separately. The
+retained `3f39a777` Content/Feature objects `2b5ccd083...`/`ac0301b1...` remain
+historical; current objects are `6e191c79d...`/`99ff02f5c...`, and regression
+`f076dceef...`. The current effect keys on composer plus notification-source
+identity; absent/wrong-radio service, stale identity or absent pending reply
+does not mutate the draft. These merged inputs are current software provenance,
+not a relabeling or revalidation of any old native proof. Both historical objects
+are asserted explicitly, and substituting either for a current pin is rejected.
+Frozen Swift, the original native fixture and every prior family pin are unchanged.
+
+The unchanged selected fixture uses radio/device503001, contact503002,
+32-byte0x50/0x51 public keys, the CJK cached-peer name and CJK/Arabic draft,
+36 incoming/delivered/read messages at Unix1700000000+index with UUID503100+index,
+target index15, real process persistence and disconnected state. It observes
+actual row placement/finite geometry and the full visible-message set, moves
+12px to24px without changing that set, then requires the same measured pixel
+offset, navigation entry/stacks/selection and draft through900x900 and360x900
+recreation. Window override, ordinary draft, onboarding flag, navigation and
+seeded store rows are restored by the original cleanup. No generic chat proxy,
+host text comparison or newly generated oracle substitutes for these inputs.
+
+The existing immutable inventory/selection and shared explicit lifecycle use
+`CANONICAL:cached-chat:UUID`, purpose `cached-chat-api37-1-original-methods`,
+exact positive1 and all source/main/policy/scope/publication/profile/package/
+uncertainty fences. Wrong launcher method or whole class, duplicate/missing/
+failed/skipped outcomes, incomplete/forced completion or unresolved effective
+profile cannot release uncertainty as a successful original method.
+
+Preparation and synthetic lifecycle tests do not execute the method or authorize
+host readiness/ADB/Gradle/APK/build/install/instrumentation/native-lane work.
+All six original missing-only families can now be selected by current software;
+all **27 remain unexecuted** in the current cohort. Language2+2, controls and
+preparation subtract zero. No native/golden/physical TalkBack/whole-WP acceptance
+or transfer of publishedf3 CI results is implied.
+
 The current consumer's Git helper explicitly decodes UTF-8 with strict errors
 for both fixture source and trusted policy JSON. It never uses the Windows
 default code page, replacement characters or a fallback; malformed Git output

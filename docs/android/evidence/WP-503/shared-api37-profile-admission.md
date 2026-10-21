@@ -1318,3 +1318,106 @@ and historical genuine native/failed cleanup/separate recovery remain unchanged.
 All27 remain unexecuted in the current missing-only cohort, with zero credit
 from prepared families or language2+2. Cached-chat1 remains a separate software
 family; no physical TalkBack/goldens/native/whole-WP acceptance is inferred.
+
+### Local original cached-chat1 software-only successor to reviewed43c8
+
+Prepared on reviewed `43c8eb25c8f8d3b060153814930d01a48f481a0d`, same actual
+canonical owner/scope24 and current trusted main dbb37206/manifest977b9e91/
+policye8afe067. All five changed Python/tests/README/WP503 evidence paths remain
+inside existing trusted `wp-owned` modify/test/record-evidence admission;
+no reservation, actor, authorization prose or policy is changed.
+
+The original registration `4f89d2168e03786588e760a2d8310fbe9edc89d0` precedes
+retained final fixture `e8fa6b2994177e09931925800ed7696222a65af7`.
+The selected identity is exactly
+`com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200`.
+`fixture_methods` pins the complete ten-method source inventory/order; only this
+one is selected. IME, framework, motion, appearance, navigation and intentional
+cleanup-fault cases remain intact, unselected and without missing-only credit.
+
+| Path (beneath repository root) | Actual producer | Exact current/producer object |
+| --- | --- | --- |
+| `android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLauncherFocusAccessibilityTest.kt` | `e8fa6b2994177e09931925800ed7696222a65af7` | `698d649b230b7d7945a5d901d37f748427508986` |
+| `android/feature/chats/src/main` (complete subtree) | `4b6629ac2bf215577ec1522530a77de61ed577fe` | `fbf18c35b67de68a6a1a19f6180ea7f2ea92fa06` |
+| `android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline` (complete subtree) | `2396ac64f9d3bcee7fa3a7e4f33e87956508d31d` | `331c0835addbb7102db51ea502233ca02134fd84` |
+| `android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatsContent.kt` | `03306ff125655f977d88c5b517ad4cab26d9e771` | `6e191c79de3a5cebf3f8e0603956e180f97bd014` |
+| `android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt` | `03306ff125655f977d88c5b517ad4cab26d9e771` | `99ff02f5c15359e6260316d6411a5bac7a62518e` |
+| `android/app/src/test/kotlin/com/meshcoreone/android/app/platform/NotificationDraftRestorationTest.kt` | `03306ff125655f977d88c5b517ad4cab26d9e771` | `f076dceef89d8f14efe9d3dad6af260e90133d98` |
+| `android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt` | `4b6629ac2bf215577ec1522530a77de61ed577fe` | `187e1a7e6fcd43c2494e0b036706d5f25cd9015f` |
+| `android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering` (complete subtree) | `70a48774cbd2eb9f4280f917c0cd126e881de679` | `0171a46786d18130414490b0e919752e5315f6a2` |
+| `android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatConversationScreen.kt` | `e9f0febc7e53b09adb00ac56928e7073366023f6` | `59bb797248d7ccf247dd69c3ee93fd8af5412ff9` |
+| `android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt` | `80ab59b14e23092080063664b234bb2a3166063d` | `c9a881fcdbf605784cbf2593d77c808b41c75083` |
+| `android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationCoordinator.kt` | `80ab59b14e23092080063664b234bb2a3166063d` | `26181519d9a0f8cb690e1ae1b38c08f2e05c45b9` |
+| `android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationState.kt` | `80ab59b14e23092080063664b234bb2a3166063d` | `f6b37d7f1cdef4b49378703ae5ced2d9ea607a7b` |
+| `android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationSavedState.kt` | `446607773ae4be3780f9029c0730e5e531eef945` | `d72e7573e37b5c9491aacd5e60a5f7b97643b5aa` |
+| `android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageContent.kt` | `a4e83853b5f9b5f2fa43c282b52fbc82b8a31761` | `699a6f9b48d70e86808dc132efbf2c0c23c4178f` |
+| `android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt` | `f7474bb1bd06c6df93a71c8664e9dacade7c8749` | `efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c` |
+| `android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt` | `7f24b57c1ab06437435b8938d166a5254fec0894` | `8768ee9c2b25fc1a7d43d0442980ff4deabb6d81` |
+
+Every listed original/current object and producer ancestry is checked through
+the existing strict binding. The complete relevant chats and rendering subtrees
+pin delegated composer/timeline/ordinary draft/text helpers rather than a chat
+proxy. Exact source/Android-tree binding retains the surrounding process graph.
+
+**Reported and resolved current-input drift, not historical equality:** retained
+`3f39a777376e322e2bc533f1d1caf92a87a44ed8` has Content
+`2b5ccd083c536c981169543377919d3c8c1f1a95` and Feature
+`ac0301b1b167a4f0f2a97fb2b522b51e68b67ced`, distinct from the current033 objects
+above. The coordinator independently reviewed the complete historical-to-current
+delta, complete five-case regression source and actual draft delegate, confirming
+033 trusted-main ancestry and equality at current43c8 and actualdbb. These are
+separately identified current software inputs, not an advance of frozen Swift,
+any prior family pin or any retained native proof. Tests preserve both historical
+objects explicitly and reject substituting them for current pins.
+
+Current restoration keys on composer and actual notification-source identity.
+The delegate returns without draft mutation for absent/wrong-radio service,
+stale source identity or absent pending reply; only a matching direct-contact
+pending draft is consumed. Its original producer regression source covers absent/
+empty pending reply, replacement source/no-pending retained typing, recomposition
+and radio/channel isolation. These Kotlin tests were read and pinned, **not run**
+as part of this software-only increment.
+
+Original native fixture inputs/predicates remain unchanged: radio/device503001,
+contact503002, 32x50/32x51 public keys, CJK peer and CJK/Arabic draft, 36 incoming/
+delivered/read messages at Unix1700000000+index/UUID503100+index, target15, real
+process store and ordinary draft, disconnected state, actual placed/attached/
+finite row geometry and unique visible-message set. It observes12px then24px
+without changing that set and requires the same actual within-row offset,
+draft and navigation entry/stacks/selection after900x900 then360x900 recreation.
+Original cleanup restores window override, navigation, ordinary draft, onboarding
+flag and seeded store rows. No fixture/production/helper/oracle byte is changed.
+
+`cached-chat` reuses immutable `FamilySpec`, typed request, unique
+`CANONICAL:cached-chat:UUID`, purpose `cached-chat-api37-1-original-methods` and
+unchanged explicit shared process/device preservation lifecycle. All preceding
+families/defaults/UTF-8/source/main/policy/scope/publication/profile/package/
+uncertainty guards remain intact. No arbitrary selector or copied runner exists.
+
+The declared
+`python -m unittest discover -s android\accessibility-tests -p test_*.py -v`
+passes **168 discovered/run/passed,0 failures/errors/skips**, including12 new
+cached-chat binding/selection/outcome/lifecycle regressions with synthetic
+transports. They exercise exact full-ten/selected-one inventory, every original/
+current pin and ancestor, explicit historical/current distinction, API/family/
+producer/attribution and stale source/policy/scope/publication fences, every
+unselected launcher method/whole class, missing/duplicate/failure/skip/incomplete
+outcomes, forced termination and unknown effective profile after raw equality.
+Package restoration covers originally present and originally absent states.
+
+The four declared commands
+`python tools\android-port\controller\verification_config.py --check`,
+`python tools\android-port\controller\validate.py`,
+`python tools\android-port\controller\workflows.py` and
+`python tools\android-port\portmap.py` each pass/exit0; whitespace passes.
+The containing commit and immutable handoff SHA identify the exact local source.
+
+This local successor awaits bounded source comparison before coherent normal
+publication. Publishedf3/39529850037 is terminal SUCCESS but does not verify this
+source; there is no old-run hold or verdict transfer. No real host readiness,
+ADB/Gradle/APK/build/install/instrumentation/native-lane operation, new actor,
+native authorization, oracle or CI-result bundle occurs. All six original
+missing-only families now have current software selection support; **all27
+remain unexecuted** in that cohort. Language2+2, controls and preparation subtract
+zero. Historical genuineb2/r21 native outcomes/failed cleanup/separate recovery
+remain byte-for-byte unchanged; no native/golden/whole-WP acceptance is inferred.

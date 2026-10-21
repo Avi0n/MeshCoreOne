@@ -784,6 +784,143 @@ class LanguageRunnerTest(unittest.TestCase):
         self.package.assert_not_called()
         self.spawn.assert_not_called()
 
+    def configure_cached_chat(self, suffix="operation", *, present=True):
+        self.request = runner.request_for(source("cached-chat"), 37)
+        self.device = SyntheticDevice(self.packaging["original"] if present else None, 37)
+        self.config = replace(self.config, output=self.root / ("cached-chat-" + suffix))
+
+    def test_cached_chat_same_shared_selection_runs_only_original_one_and_restores_present_or_absent_packages(self):
+        spec = runner.FAMILIES["cached-chat"]
+        for present in (True, False):
+            self.configure_cached_chat(str(present), present=present)
+            self.ledger.reset_mock()
+            with self.subTest(present=present), \
+                    patch("shared_device_runner.selected_methods", side_effect=AssertionError("Historical selector forbidden")):
+                result = self.execute()
+            self.assertEqual((1, 1, 1, 1, 0, 0, 0), tuple(result["cohort"][key] for key in (
+                "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+            self.assertEqual("cached-chat", result["family"])
+            self.assertEqual("cached-chat", result["cohort"]["cohort"])
+            self.assertFalse(result["acceptance"])
+            command = self.commands[-1]
+            self.assertEqual(self.request.identities[0], command[command.index("class") + 1])
+            for method in spec.fixture_methods:
+                if method not in spec.methods:
+                    self.assertNotIn(spec.klass + "#" + method, command)
+            self.assertEqual("37", command[command.index("expectedApi") + 1])
+            self.assertEqual("cached-chat-api37-1-original-methods",
+                             self.ledger.acquire_hard_lock.call_args.args[2]["purpose"])
+            self.assertTrue(self.request.operation_owner.startswith(self.request.binding.canonical_session + ":cached-chat:"))
+            self.assertEqual({APP: sha256(self.packaging["original"])} if present else {}, self.device.packages)
+            self.ledger.release_hard_lock.assert_called_once_with("native-execution", self.request.operation_owner)
+            receipt = json.loads((self.config.output / "device-cached-chat37-recovery.json").read_text())
+            self.assertEqual(list(self.request.identities), receipt["original_identities"])
+            self.assertEqual(self.request.operation_owner, receipt["native_lane_operation_owner"])
+            self.assertEqual("VERIFIED_NORMAL_ALL_POSITIVE_COMPLETION", receipt["status"])
+            self.assertFalse(self.device.application_state_uncertain)
+
+    def test_cached_chat_stale_source_policy_scope_or_pause_blocks_before_device_build_and_lane(self):
+        self.configure_cached_chat()
+        for changed in ("source", "policy", "scope"):
+            self.verify.side_effect = runner.PortError("cached-chat " + changed + " stale")
+            with self.subTest(changed=changed), self.assertRaisesRegex(runner.PortError, "stale"):
+                self.execute()
+        self.verify.side_effect = None
+        self.policy["paused"] = True
+        with self.assertRaisesRegex(runner.PortError, "paused=true"):
+            self.execute()
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+        self.ledger.acquire_hard_lock.assert_not_called()
+        self.assertEqual([], self.device.calls)
+
+    def test_cached_chat_ime_controls_whole_class_missing_duplicate_or_bad_outcomes_keep_uncertainty(self):
+        positive = transcript(family="cached-chat")
+        spec = runner.FAMILIES["cached-chat"]
+        identity = spec.identities[0]
+        all_identities = tuple(spec.klass + "#" + method for method in spec.fixture_methods)
+        whole_class = completed("".join(record(item, 1, 10) + record(item, 0, 10) for item in all_identities), 10)
+        values = (
+            transcript(family="los"), whole_class,
+            completed(record(identity, 1, 1), 1),
+            completed(record(identity, 1, 1) + record(identity, 0, 1) * 2, 1),
+            positive.replace("numtests=1", "numtests=10"),
+            positive.replace("INSTRUMENTATION_CODE: -1", ""),
+            transcript(-1, family="cached-chat"), transcript(-2, family="cached-chat"),
+            transcript(-3, family="cached-chat"), transcript(-4, family="cached-chat"),
+            *(positive.replace(spec.methods[0], method) for method in spec.fixture_methods if method not in spec.methods),
+        )
+        spawn = self.spawn.side_effect
+        for index, value in enumerate(values):
+            self.configure_cached_chat("negative-" + str(index))
+            self.ledger.reset_mock()
+
+            def wrong(command, **kwargs):
+                process = spawn(command, **kwargs)
+                if command[1] != "logcat":
+                    kwargs["stdout"].seek(0)
+                    kwargs["stdout"].truncate()
+                    kwargs["stdout"].write(value.encode())
+                return process
+
+            self.spawn.side_effect = wrong
+            with self.subTest(index=index), self.assertRaises(BaseExceptionGroup):
+                self.execute()
+            self.assert_original_restored()
+            self.assertTrue(self.device.application_state_uncertain)
+            self.ledger.release_hard_lock.assert_not_called()
+            receipt = json.loads((self.config.output / "device-cached-chat37-recovery.json").read_text())
+            self.assertEqual(list(self.request.identities), receipt["original_identities"])
+            self.assertIn("UNCERTAIN", receipt["status"])
+
+    def test_cached_chat_forced_termination_keeps_lane_even_after_positive_one_and_package_restoration(self):
+        self.configure_cached_chat()
+        self.process.wait.side_effect = [subprocess.TimeoutExpired("synthetic cached chat", 600), 0]
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.process.kill.assert_called_once()
+        self.assertEqual([600, 15], [call.kwargs["timeout"] for call in self.process.wait.call_args_list])
+        self.assert_original_restored()
+        self.assertTrue(self.device.application_state_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_cached_chat_unknown_effective_profile_keeps_lane_after_positive_one_and_raw_profile_equality(self):
+        self.configure_cached_chat()
+
+        def unresolved(original, record):
+            self.assertEqual(original, self.device.capture_profile())
+            self.device.profile_restoration_uncertain = True
+
+        self.device.restore_profile = unresolved
+        with self.assertRaises(BaseExceptionGroup) as caught:
+            self.execute()
+        self.assertIn("Original effective runtime profile unresolved", repr(caught.exception))
+        self.assert_original_restored()
+        self.assertFalse(self.device.application_state_uncertain)
+        self.assertTrue(self.device.profile_restoration_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_cached_chat_cli_uses_shared_mocked_readiness_and_blocks_api31_before_configuration(self):
+        with patch.object(runner, "current_binding", return_value=source("cached-chat")) as current, \
+                patch.object(runner, "Ledger", return_value=self.ledger), \
+                patch.object(runner, "shared_ledger", return_value=self.root / "synthetic-ledger"), \
+                patch.object(runner, "readiness") as readiness:
+            self.assertEqual(0, runner.main(["--head", source().source_revision, "--family", "cached-chat",
+                                           "--api", "37", "--readiness"]))
+            result = json.loads(self.print.call_args.args[0])
+            self.assertEqual(list(runner.FAMILIES["cached-chat"].identities), result["identities"])
+            self.assertEqual(0, result["native_starts"])
+            self.assertFalse(result["acceptance"])
+            readiness.assert_called_once()
+            readiness.reset_mock()
+            with patch("sys.stderr", io.StringIO()):
+                self.assertEqual(2, runner.main(["--head", source().source_revision, "--family", "cached-chat",
+                                               "--api", "31", "--readiness"]))
+            readiness.assert_not_called()
+        current.assert_called_with(source().source_revision, family="cached-chat")
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+
     def test_real_pause_fails_before_config_device_lane_or_build(self):
         self.policy["paused"] = True
         with patch.object(runner.RunConfig, "validate") as validate, self.assertRaisesRegex(runner.PortError, "paused=true"):

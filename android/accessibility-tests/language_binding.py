@@ -191,6 +191,60 @@ LOS = FamilySpec(
         "savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200",
     ),
 )
+CACHED_CHAT = FamilySpec(
+    "cached-chat", (37,),
+    "com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest",
+    ("realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200",),
+    "e8fa6b2994177e09931925800ed7696222a65af7",
+    "android/feature/chats/src/main",
+    "fbf18c35b67de68a6a1a19f6180ea7f2ea92fa06",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLauncherFocusAccessibilityTest.kt",
+    "698d649b230b7d7945a5d901d37f748427508986",
+    (
+        ("android/feature/chats/src/main",
+         "4b6629ac2bf215577ec1522530a77de61ed577fe", "fbf18c35b67de68a6a1a19f6180ea7f2ea92fa06"),
+        ("android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline",
+         "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d", "331c0835addbb7102db51ea502233ca02134fd84"),
+        ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatsContent.kt",
+         "03306ff125655f977d88c5b517ad4cab26d9e771", "6e191c79de3a5cebf3f8e0603956e180f97bd014"),
+        ("android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt",
+         "03306ff125655f977d88c5b517ad4cab26d9e771", "99ff02f5c15359e6260316d6411a5bac7a62518e"),
+        ("android/app/src/test/kotlin/com/meshcoreone/android/app/platform/NotificationDraftRestorationTest.kt",
+         "03306ff125655f977d88c5b517ad4cab26d9e771", "f076dceef89d8f14efe9d3dad6af260e90133d98"),
+        ("android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+         "4b6629ac2bf215577ec1522530a77de61ed577fe", "187e1a7e6fcd43c2494e0b036706d5f25cd9015f"),
+        ("android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering",
+         "70a48774cbd2eb9f4280f917c0cd126e881de679", "0171a46786d18130414490b0e919752e5315f6a2"),
+        ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatConversationScreen.kt",
+         "e9f0febc7e53b09adb00ac56928e7073366023f6", "59bb797248d7ccf247dd69c3ee93fd8af5412ff9"),
+        ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt",
+         "80ab59b14e23092080063664b234bb2a3166063d", "c9a881fcdbf605784cbf2593d77c808b41c75083"),
+        ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationCoordinator.kt",
+         "80ab59b14e23092080063664b234bb2a3166063d", "26181519d9a0f8cb690e1ae1b38c08f2e05c45b9"),
+        ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationState.kt",
+         "80ab59b14e23092080063664b234bb2a3166063d", "f6b37d7f1cdef4b49378703ae5ced2d9ea607a7b"),
+        ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationSavedState.kt",
+         "446607773ae4be3780f9029c0730e5e531eef945", "d72e7573e37b5c9491aacd5e60a5f7b97643b5aa"),
+        ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageContent.kt",
+         "a4e83853b5f9b5f2fa43c282b52fbc82b8a31761", "699a6f9b48d70e86808dc132efbf2c0c23c4178f"),
+        ("android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt",
+         "f7474bb1bd06c6df93a71c8664e9dacade7c8749", "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c"),
+        ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt",
+         "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
+    ),
+    fixture_methods=(
+        "actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample",
+        "realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft",
+        "realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200",
+        "actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride",
+        "realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+        "realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable",
+        "realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+        "frameworkControlCanAcquireRealNativeAccessibilityFocus",
+        "realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable",
+        "controlledPrimaryAndLateRestorationPreserveBothActualFailures",
+    ),
+)
 FAMILIES = MappingProxyType({
     "language": FamilySpec("language", (31, 37), CLASS, METHODS, PRODUCER,
                            PRODUCTION, PRODUCTION_BLOB, FIXTURE, FIXTURE_BLOB),
@@ -199,12 +253,13 @@ FAMILIES = MappingProxyType({
     "comparator": COMPARATOR,
     "traz": TRAZ,
     "los": LOS,
+    "cached-chat": CACHED_CHAT,
 })
 
 
 def family_spec(name):
     if not isinstance(name, str) or name not in FAMILIES:
-        raise PortError("Only the immutable language, diagnostics, nodes, comparator, traz or los family is admitted")
+        raise PortError("Only the immutable language, diagnostics, nodes, comparator, traz, los or cached-chat family is admitted")
     return FAMILIES[name]
 
 
@@ -269,6 +324,7 @@ def prepare_binding(revision, claim, *, family="language"):
             "comparator": "Comparator cohort must retain exactly the eleven original method identities",
             "traz": "Supplemental tr/az cohort must retain exactly the two original method identities",
             "los": "LoS cohort must retain the one original selected method and full two-method fixture inventory",
+            "cached-chat": "Cached-chat cohort must retain the one original selected method and full ten-method fixture inventory",
         }[family])
     manifest = load_manifest(ROOT)
     policy = load_json(ROOT / "docs" / "android" / "automation-policy.json")
