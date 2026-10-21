@@ -123,7 +123,14 @@ class RoomsComposeTest {
         },
     ).getString(id)
 
+    @Suppress("DEPRECATION")
     private fun mount(content: @Composable () -> Unit) {
+        // Dialog windows create their own Android density from host resources.
+        val resources = host.get().resources
+        resources.updateConfiguration(Configuration(resources.configuration).apply {
+            fontScale = frame.value.fontScale
+        }, resources.displayMetrics)
+        assertEquals(frame.value.fontScale, resources.configuration.fontScale, 0f)
         host.get().setContent {
             val case = frame.value
             val configuration = Configuration(LocalConfiguration.current).apply {
