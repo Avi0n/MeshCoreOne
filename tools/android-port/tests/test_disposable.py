@@ -317,6 +317,94 @@ class DisposableGuestTests(unittest.TestCase):
             run.assert_not_called()
         self.assert_legacy()
 
+    def test_exact_selected_wait_uses_private_endpoint_serial_and_finite_timeout_on_both_backends(self):
+        from unittest.mock import Mock
+
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        guest.phase = "running"
+        guest.adb_tool, guest.port = self.root / "adb", 5558
+        guest.environment = {"ADB_SERVER_SOCKET": "tcp:127.0.0.1:45321"}
+        expected = [str(guest.adb_tool), "-s", "emulator-5558", "wait-for-device"]
+        with patch.object(guest, "verify_transport") as verify, \
+                patch("controller.disposable.subprocess.run", return_value=subprocess.CompletedProcess(expected, 0)) as run:
+            guest.adb(self.ledger, ["wait-for-device"], timeout=19.5)
+            run.assert_called_once_with(expected, env=guest.environment, stdin=subprocess.DEVNULL,
+                                        capture_output=True, timeout=19.5, check=True)
+            self.assertEqual(verify.call_count, 2)
+        job, process = Mock(), Mock()
+        guest.job = job
+        job.spawn.return_value = process
+        process.wait.return_value = 0
+        with patch.object(guest, "verify_transport") as verify:
+            result = guest.adb(self.ledger, ["wait-for-device"], timeout=7.25)
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual(job.spawn.call_args.args[:2], (expected, guest.environment))
+            process.wait.assert_called_once_with(7.25)
+            self.assertEqual(verify.call_count, 2)
+        self.assertEqual(guest.phase, "running")
+        guest.job = None
+        guest.dispose(self.ledger)
+        self.assert_legacy()
+
+    def test_wait_rejects_variants_extra_selection_and_unbounded_timeouts_before_execution(self):
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        guest.phase = "running"
+        before = self.rows()
+        requests = [
+            (["wait-for-device", "shell"], 10), (["wait-for-device", "-s", "foreign"], 10),
+            (["wait-for-any-device"], 10), (["wait-for-usb-device"], 10),
+            (["-s", "foreign", "wait-for-device"], 10), (["start-server"], 10),
+            *[(["wait-for-device"], value) for value in (0, -1, 181, float("inf"), float("nan"), True, None)],
+        ]
+        with patch.object(guest, "verify_transport"), patch("controller.disposable.subprocess.run") as run:
+            for arguments, timeout in requests:
+                with self.subTest(arguments=arguments, timeout=timeout), self.assertRaises(PortError):
+                    guest.adb(self.ledger, arguments, timeout=timeout)
+            run.assert_not_called()
+        self.assertEqual(self.rows(), before)
+        guest.dispose(self.ledger)
+
+    def test_wait_nonzero_timeout_or_lost_owned_transport_retains_uncertainty_on_both_backends(self):
+        from unittest.mock import Mock
+
+        for windows in (False, True):
+            for failure in ("nonzero", "timeout", "transport"):
+                with self.subTest(windows=windows, failure=failure):
+                    guest = self.allocate()
+                    guest.acquire(self.ledger)
+                    guest.phase = "running"
+                    guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+                    before = self.rows()
+                    command = [str(guest.adb_tool), "-s", "emulator-5558", "wait-for-device"]
+                    job, process = Mock(), Mock()
+                    if windows:
+                        guest.job = job
+                        job.spawn.return_value = process
+                        process.wait.return_value = 1 if failure == "nonzero" else 0
+                        if failure == "timeout":
+                            process.wait.side_effect = subprocess.TimeoutExpired(command, 2)
+                    error = (subprocess.CalledProcessError(1, command) if failure == "nonzero"
+                             else subprocess.TimeoutExpired(command, 2))
+                    with patch.object(guest, "verify_transport", side_effect=(
+                        [None, PortError("owned transport lost")] if failure == "transport" else None
+                    )), patch("controller.disposable.subprocess.run",
+                              side_effect=error if failure != "transport" else None,
+                              return_value=subprocess.CompletedProcess(command, 0)):
+                        with self.assertRaises(PortError if failure == "transport" else subprocess.SubprocessError):
+                            guest.adb(self.ledger, ["wait-for-device"], timeout=2)
+                    self.assertEqual(guest.phase, "uncertain")
+                    self.assertEqual(self.rows(), before)
+                    with patch.object(guest, "_cleanup", side_effect=PortError("cleanup unproven")):
+                        with self.assertRaisesRegex(PortError, "cleanup unproven"):
+                            guest.dispose(self.ledger)
+                    self.assertEqual(self.rows(), before)
+                    guest.job = None
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
+                    self.assert_legacy()
+
     def test_active_packaging_prevents_guest_boot_before_any_process_or_supervisor_call(self):
         guest = self.allocate()
         guest.acquire(self.ledger)

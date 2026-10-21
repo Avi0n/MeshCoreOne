@@ -395,7 +395,8 @@ class PrivateGuest:
         self.verify_transport()
         if (
             not isinstance(arguments, list) or not arguments or not all(isinstance(a, str) for a in arguments)
-            or arguments[0] not in ("shell", "install", "push", "pull", "get-state", "logcat")
+            or (arguments != ["wait-for-device"]
+                and arguments[0] not in ("shell", "install", "push", "pull", "get-state", "logcat"))
             or type(timeout) not in (int, float) or not 0 < timeout <= 180
         ):
             raise PortError("Use a bounded selected-guest command, not adb server/global/device selection")
