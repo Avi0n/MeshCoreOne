@@ -104,7 +104,7 @@ and strictly newer update/delete events; lost, unchanged or ambiguous history
 fails closed rather than authorizing cleanup.
 Receipt failure still permits independent cleanup but remains an error.
 
-**Current mutation-bearing admission is blocked.** The real device implementation
+**Current shared-device mutation-bearing admission is blocked.** The real device implementation
 has neither genuine pre-mutation fixture/preferences/window originals nor a
 supported snapshot-consuming recovery operation. `require_fixture_recovery`
 therefore raises explicitly, with no availability flag, provider or operator
@@ -131,6 +131,33 @@ Output under the new private directory retains operations, original/public APKs,
 packaging log/binding and exact two-method transcripts/recovery receipts.
 Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
+
+`disposable_runner.py` is a separate, LOCAL source-only consumer of the reviewed
+WP-003 private-guest interface at `3490786a8b7ed099a42dbb0bbc4393dc61754ac3`.
+It does not remove the shared-device fence or adopt an existing guest. Before
+import/allocation it requires the reviewed producer bytes in actual trusted main
+and the actual checkout, and trusted capability/pause policy. The real factory
+then requires the existing canonical session/attempt, evolved disposable receipt
+and eligible claim state; it allocates a new private guest with independent
+transport plus disposable and global Gradle receipts. Current trusted main lacks
+that producer; this consumer therefore cannot currently execute.
+
+The consumer packages with `installed_apk=None, guest=guest` before boot, verifies
+concrete producer/Ledger identity, checks fresh package absence and the inherited
+user0/profile/source guards, and routes every command through `guest.adb`.
+Only the existing fixed family requests are accepted. Instrumentation uses the
+producer's explicit180s transport bound (the shared runner's600s is unchanged).
+Actual host exit and raw output are retained before terminal-proof rejection.
+Every owned exit independently attempts `guest.dispose`/`verify_disposed`;
+failed cleanup/evidence is an error, never restoration or acceptance. No old
+snapshot reconstruction is needed for a genuinely new disposable guest.
+
+`test_disposable_runner.py` uses explicitly unit-only concrete protocol models
+and a patched trust loader. It verifies consumer ordering and failure behavior,
+not real receipts, Windows Jobs/Linux supervision, provisioning or native tests.
+There is no runtime backend/availability override or alternate ledger/endpoint.
+This LOCAL implementation does not authorize execution or publication; see the
+[source-only evidence](../../docs/android/evidence/WP-503/shared-api37-profile-admission.md).
 
 The authorized pair actually passed2/2 on each API at immutable source
 `b2d9a00368432c04ccc40676417b2576bf472218`/reservation21. API31's initial cleanup

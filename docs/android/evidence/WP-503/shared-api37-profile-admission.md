@@ -1639,3 +1639,71 @@ SUCCESS, but its official controller/Linux logs did not run the186 Python runner
 tests. Those local results are not hosted proof. WP-003 owns that CI integration
 gap. Committed checks of this forward candidate are recorded separately; no
 compile, native/Gradle/device action or new native acceptance accompanies it.
+
+### LOCAL disposable consumer of the immutable WP-003 interface
+
+Parent `cb7b75453e52b4e5ee381f2c4ac23f77403a07ef`; producer input only
+`3490786a8b7ed099a42dbb0bbc4393dc61754ac3` (direct `6ca5e7b4`, direct `ad401`
+ancestry). Candidate producer code was read through immutable Git objects, never
+imported, copied into runtime or treated as trusted main. Exact reviewed inputs:
+
+| Producer path | Git blob |
+|---|---|
+| `tools/android-port/controller/disposable.py` | `fa859d030831882a7f3eb54d726c5fdf6751521b` |
+| `tools/android-port/controller/windows_guest.py` | `621612bb67e16432692e07a5a1b1056426747777` |
+| `tools/android-port/controller/ledger.py` | `6048cf50b275b85c9028781fd80a473ef06ca6f2` |
+| `tools/android-port/local/debug_packaging.py` | `7f8e5e9769c0f8d70a42678738280bf7209c17e9` |
+
+Before edits, supported same-owner trusted `wp-owned` scope evolution25-to26
+admitted only the consumer, its tests, README and this evidence. It did not admit
+live disposable execution, alter authorization history or release/recreate any
+reservation. `language_runner.py`, `shared_device_runner.py`, fixed family
+bindings, Kotlin/production UI and original assertions remain unchanged.
+
+The new consumer requires reviewed producer objects in actual trusted main and
+matching checkout/module origins before import/allocation. Actual
+`trusted_guest(repo,parent,owner,revision,session_id,attempt)` remains the authority
+for canonical claim identity/state, pause/capabilities, new private allocation and
+both disposable/globalGradle receipts. Packaging receives the actual guest and
+`installed_apk=None` before `guest.start`; commands use only `guest.adb`.
+Concrete type, canonical ledger, exact source/owner/session/reservation/private
+root, package absence, user0 and inherited profile/source checks cannot be
+replaced by a receipt dictionary, label, subclass, endpoint or availability flag.
+
+The fixed original requests use an explicit180s instrumentation transport bound
+supported by the producer; the old shared600s path is untouched. Actual host
+exit and raw transcript are retained before terminal parsing/all-positive proof.
+Evidence failures do not prevent independent disposal; primary execution and
+cleanup/retention failures remain visible. Verified new-guest disposal is not
+shared-state restoration, and all results retain `acceptance=false`.
+
+Unit regressions run the actual consumer and inherited ProcessDevice methods
+against explicitly bounded concrete protocol models, with the trust loader
+patched only in tests. Trust-rejection tests exercise the real loader before any
+import/factory/config work. These models do not acquire real receipts, import
+candidate producer code, allocate a real guest, execute SDK tools or verify
+backend/process isolation. All186 incumbent runner regressions are preserved.
+Exact local discovery/source-check results accompany the committed successor.
+
+Precommit `python -B -m unittest discover -s android\accessibility-tests -p
+test_*.py -v` passed224/224 (186 incumbent +38 consumer),0 failures/errors/skips.
+The consumer regressions include all fixed original request shapes, fail-closed
+trust/type/identity checks, user0/freshness/packaging guards, actual host exits
+versus a failed pre-instrumentation user-probe exit, negative/malformed proof,
+bounded boot timeout, cancellation, independent receipt/raw-output retention and
+owned disposal failures. The four declared source commands each passed/exit0:
+`python -B tools\android-port\controller\verification_config.py --check`,
+`python -B tools\android-port\controller\validate.py`,
+`python -B tools\android-port\controller\workflows.py`,
+`python -B tools\android-port\portmap.py`; `git diff --check` passed.
+Exact committed checks are recorded separately, not inferred from this precommit
+run or from published8b9's automatic CI.
+
+Current main lacks the trusted producer. Its real factory additionally requires
+an eligible existing claim state and evolved disposable-operation receipt.
+Neither live prerequisite was fabricated or exercised. No native/Gradle/WSL,
+provisioning, recovery, resource-lock action, deployment, publication or dispatch
+occurred. Published8b9/its CI binding, rejected IME history and retained473/66bd
+evidence remain untouched: original25 started are23PASS/2FAIL/0E/S, two unstarted,
+old Nodes host exit unknown. Clipboard/Save causes remain unresolved. Historical
+snapshot reconstruction is not the disposable delivery path.
