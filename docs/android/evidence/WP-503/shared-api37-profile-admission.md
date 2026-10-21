@@ -988,3 +988,18 @@ for this increment. Current reviewed35ee publication is preserved while its exac
 hosted verification is nonterminal. Diagnostics5 is part of original missing27;
 preparation clears none of27, and the separate historicalb2/r21 language2+2
 subtracts zero. All actual failed/recovery/native evidence remains untouched.
+
+The prepared six-file increment was retained as local302474d1 while reviewed
+35ee hosted verification continued. Its committed Windows controller run
+passed379/379,0 failures/errors/skips, separately from103/103 audit regressions.
+Then actual reviewed PR259 main
+`dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c` (parentsc9ed1f9b/475ffefa)
+was reconciled locally through the supported same-owner scope API, returning
+actual **23→24** for six incoming support paths. Manifest977b9e91 remains
+unchanged; exact deployed policy remains false/off/false and its actual
+`controller.gates.policy_revision` is
+`a657babfe74c12d1f5631e9ee1c306a0084d56badd5c48fe1dba7b3443dcfc1a`.
+The suppliede8afe067 value differed from that source-bound semantic calculation
+and was reported before scope mutation/integration; it is not substituted into
+receipts. No original authorization, nativeb2/r21 outcome or captured source/
+fixture/helper/production evidence is rebound to the new policy/scope.
