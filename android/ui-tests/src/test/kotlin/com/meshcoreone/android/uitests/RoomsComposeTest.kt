@@ -940,7 +940,9 @@ class RoomsComposeTest {
             assertEquals(expectedGlyph, layout.layoutInput.style.color)
             val glyphGeometry = "${case.id}: avatar=$avatar, size=${layout.size}, " +
                 "constraints=${layout.layoutInput.constraints}, lines=${layout.lineCount}, " +
-                "font=${layout.layoutInput.style.fontSize}, density=${layout.layoutInput.density}"
+                "font=${layout.layoutInput.style.fontSize}, paragraph=${layout.multiParagraph.width}, " +
+                "glyph=${layout.getBoundingBox(0)}, text=" +
+                compose.onNodeWithText("A", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
             assertFalse(glyphGeometry, layout.didOverflowWidth)
             assertFalse(glyphGeometry, layout.didOverflowHeight)
             compose.onAllNodesWithContentDescription("Alice: msg").assertCountEquals(2)
