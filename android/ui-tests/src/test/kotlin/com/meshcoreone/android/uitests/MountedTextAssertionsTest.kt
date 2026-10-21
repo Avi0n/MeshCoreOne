@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -87,6 +89,139 @@ class MountedTextAssertionsTest {
         val layouts = mutableListOf<TextLayoutResult>()
         compose.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
         return layouts.single()
+    }
+
+    private fun assertNativePaintAgreement(semantics: TextLayoutResult, native: TextLayoutResult, tag: String) {
+        val paint = compose.runOnIdle { mountedPaintLayout(semantics) }
+        val diagnostic = "native paint witness=$tag|semantics=$semantics|paint=$paint|native=$native"
+        assertEquals(diagnostic, native.layoutInput.text, paint.layoutInput.text)
+        assertEquals(diagnostic, native.layoutInput.style, paint.layoutInput.style)
+        assertEquals(diagnostic, native.layoutInput.density.density, paint.layoutInput.density.density, 0f)
+        assertEquals(diagnostic, native.layoutInput.density.fontScale, paint.layoutInput.density.fontScale, 0f)
+        assertEquals(diagnostic, native.layoutInput.layoutDirection, paint.layoutInput.layoutDirection)
+        assertEquals(diagnostic, native.layoutInput.softWrap, paint.layoutInput.softWrap)
+        assertEquals(diagnostic, native.layoutInput.maxLines, paint.layoutInput.maxLines)
+        assertEquals(diagnostic, native.layoutInput.overflow, paint.layoutInput.overflow)
+        assertEquals(diagnostic, native.size, paint.size)
+        assertEquals(diagnostic, native.multiParagraph.width, paint.multiParagraph.width, 0f)
+        assertEquals(diagnostic, native.multiParagraph.height, paint.multiParagraph.height, 0f)
+        assertEquals(diagnostic, native.firstBaseline, paint.firstBaseline, 0f)
+        assertEquals(diagnostic, native.lastBaseline, paint.lastBaseline, 0f)
+        assertEquals(diagnostic, native.lineCount, paint.lineCount)
+        for (line in 0 until native.lineCount) {
+            assertEquals(diagnostic, native.getLineStart(line), paint.getLineStart(line))
+            assertEquals(diagnostic, native.getLineEnd(line), paint.getLineEnd(line))
+            assertEquals(diagnostic, native.getLineLeft(line), paint.getLineLeft(line), 0f)
+            assertEquals(diagnostic, native.getLineRight(line), paint.getLineRight(line), 0f)
+            assertEquals(diagnostic, native.getLineTop(line), paint.getLineTop(line), 0f)
+            assertEquals(diagnostic, native.getLineBottom(line), paint.getLineBottom(line), 0f)
+            assertEquals(diagnostic, native.isLineEllipsized(line), paint.isLineEllipsized(line))
+        }
+        native.layoutInput.text.text.indices.forEach { offset ->
+            assertEquals("$diagnostic|UTF16=$offset", native.getBoundingBox(offset), paint.getBoundingBox(offset))
+        }
+    }
+
+    private fun mixedBidiPaintWitnesses(rtl: Boolean) {
+        val hebrewFirst = "\u05e9\u05dc\u05d5\u05dd Beta"
+        val latinFirst = "Beta \u05e9\u05dc\u05d5\u05dd"
+        val wrapped = "\u05e9\u05dc\u05d5\u05dd Beta \u4e2d\u6587 \u05e9\u05dc\u05d5\u05dd Beta \uD83D\uDC69\u200D\uD83D\uDCBB"
+        val native = mutableMapOf<String, TextLayoutResult>()
+        mount(scale = if (rtl) 2f else 1f, rtl = rtl) {
+            @Composable fun pair(tag: String, text: String, modifier: Modifier, align: TextAlign) {
+                Text(text, modifier.testTag(tag), fontSize = 16.sp, textAlign = align)
+                Text(text, modifier.testTag("$tag-native"), fontSize = 16.sp, textAlign = align,
+                    onTextLayout = { native[tag] = it })
+            }
+            pair("content-bidi", hebrewFirst, Modifier.widthIn(max = 280.dp), TextAlign.Start)
+            pair("center-bidi", latinFirst, Modifier.widthIn(max = 280.dp), TextAlign.Center)
+            pair("fixed-right-bidi", hebrewFirst, Modifier.width(260.dp), TextAlign.Right)
+            pair("wrapped-center-bidi", wrapped, Modifier.width(180.dp), TextAlign.Center)
+            pair("wrapped-right-bidi", wrapped, Modifier.width(180.dp), TextAlign.Right)
+        }
+        val samples = listOf(
+            "content-bidi" to hebrewFirst, "center-bidi" to latinFirst, "fixed-right-bidi" to hebrewFirst,
+            "wrapped-center-bidi" to wrapped, "wrapped-right-bidi" to wrapped,
+        )
+        for ((tag, text) in samples) {
+            val semantics = check(tag, text)
+            check("$tag-native", text)
+            val painted = compose.runOnIdle { native.getValue(tag) }
+            assertNativePaintAgreement(semantics, painted, tag)
+            if (tag.startsWith("wrapped-")) assertTrue("Native witness must actually wrap", painted.lineCount > 1)
+        }
+        val reconstructed = rawLayout("content-bidi")
+        assertTrue("Mixed-bidi witness must expose wider reconstructed workspace",
+            reconstructed.multiParagraph.width > reconstructed.size.width)
+        assertTrue("Mixed-bidi witness must expose shifted reconstructed line origin",
+            reconstructed.getLineRight(0) > reconstructed.size.width)
+        val centered = rawLayout("center-bidi")
+        assertTrue("Centered witness must expose wider reconstructed workspace",
+            centered.multiParagraph.width > centered.size.width)
+        assertTrue("Centered witness must expose shifted reconstructed line origin",
+            centered.getLineRight(0) > centered.size.width)
+        val fixed = compose.runOnIdle { native.getValue("fixed-right-bidi") }
+        assertEquals("Fixed-width right alignment must retain its real origin", 260, fixed.size.width)
+        assertTrue("Fixed-width native line must retain left-side free space", fixed.getLineLeft(0) > 0f)
+    }
+
+    @Test fun mixedHebrewLatinLtrPaintMatchesActualCallbacksForContentCenterRightAndWrappedText() {
+        mixedBidiPaintWitnesses(rtl = false)
+    }
+
+    @Test fun mixedHebrewLatinRtlAtTwoHundredPercentMatchesActualPaintCallbacksAndAlignment() {
+        mixedBidiPaintWitnesses(rtl = true)
+    }
+
+    @Test fun mixedBidiCenterAndRightClippedTextCannotPassByMovingItsCoordinateOrigin() {
+        val text = "\u05e9\u05dc\u05d5\u05dd Beta \u05e9\u05dc\u05d5\u05dd clipped suffix"
+        mount {
+            Text(AnnotatedString(text), Modifier.width(64.dp).testTag("bidi-center-clip"),
+                fontSize = 20.sp, textAlign = TextAlign.Center, softWrap = false, overflow = TextOverflow.Clip)
+            Text(AnnotatedString(text), Modifier.width(64.dp).testTag("bidi-right-clip"),
+                fontSize = 20.sp, textAlign = TextAlign.Right, softWrap = false, overflow = TextOverflow.Clip)
+        }
+        for (tag in listOf("bidi-center-clip", "bidi-right-clip")) {
+            val layout = rawLayout(tag)
+            assertTrue("Native clipped line must genuinely exceed its allocation",
+                layout.getLineLeft(0) < 0f || layout.getLineRight(0) > layout.size.width)
+            assertFalse(layout.didOverflowHeight)
+            assertFalse(layout.isLineEllipsized(0))
+            rejects(tag, text, "line outside measured text")
+        }
+    }
+
+    @Test fun mixedBidiRightAndCenterEllipsisCannotBecomeCompleteCopyThroughReconstruction() {
+        val text = "\u05e9\u05dc\u05d5\u05dd Beta \u05e9\u05dc\u05d5\u05dd hidden suffix"
+        mount {
+            Text(AnnotatedString(text), Modifier.width(64.dp).testTag("bidi-right-ellipsis"),
+                fontSize = 20.sp, textAlign = TextAlign.Right, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(AnnotatedString(text), Modifier.width(64.dp).testTag("bidi-center-ellipsis"),
+                fontSize = 20.sp, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        for (tag in listOf("bidi-right-ellipsis", "bidi-center-ellipsis")) {
+            assertTrue("Native bidi witness must actually ellipsize", rawLayout(tag).isLineEllipsized(0))
+            rejects(tag, text, "ellipsis line=")
+        }
+    }
+
+    @Test fun mixedBidiRightAlignedCopyStillRequiresRealTargetViewportContainmentAndScrolling() {
+        val text = "\u05e9\u05dc\u05d5\u05dd Beta"
+        mount {
+            Row(Modifier.width(120.dp).horizontalScroll(rememberScrollState())) {
+                Spacer(Modifier.width(112.dp))
+                Box(Modifier.width(96.dp).height(64.dp).clickable {}.testTag("bidi-viewport-target")) {
+                    Text(text, Modifier.width(96.dp), fontSize = 16.sp, textAlign = TextAlign.Right)
+                }
+            }
+        }
+        val target = compose.onNodeWithTag("bidi-viewport-target").assertIsDisplayed()
+            .assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+        val partial = target.fetchSemanticsNode()
+        assertTrue("Actual target must be only partially visible", partial.boundsInRoot.width < partial.size.width)
+        rejects("bidi-viewport-target", text, "WP502_TEXT_VIEWPORT")
+        target.performScrollTo()
+        check("bidi-viewport-target", text)
     }
 
     @Test fun unconstrainedParagraphWorkspaceDoesNotReplaceActualUtf16ContentBounds() {

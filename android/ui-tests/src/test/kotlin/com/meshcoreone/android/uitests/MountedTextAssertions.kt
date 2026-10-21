@@ -16,6 +16,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.unit.LayoutDirection
 import org.junit.Assert.*
 
@@ -75,6 +76,28 @@ internal fun assertMountedViewport(node: SemanticsNode, context: String) {
     assertTrue(windowDiagnostic, contains(window, screen) && contains(visibleWindow.toComposeRect(), screen))
 }
 
+internal fun mountedPaintLayout(semantics: TextLayoutResult): TextLayoutResult {
+    val input = semantics.layoutInput
+    assertTrue("Measured text cannot recover paint constraints: $semantics",
+        semantics.size.width in input.constraints.minWidth..input.constraints.maxWidth &&
+            semantics.size.height in input.constraints.minHeight..input.constraints.maxHeight)
+    // Simple-string semantics drops minimum constraints. Measured size restores them, not a glyph offset.
+    val constraints = input.constraints.copy(minWidth = semantics.size.width, minHeight = semantics.size.height)
+    return TextMeasurer(input.fontFamilyResolver, input.density, input.layoutDirection, cacheSize = 0).measure(
+        text = input.text,
+        style = input.style,
+        overflow = input.overflow,
+        softWrap = input.softWrap,
+        maxLines = input.maxLines,
+        placeholders = input.placeholders,
+        constraints = constraints,
+        layoutDirection = input.layoutDirection,
+        density = input.density,
+        fontFamilyResolver = input.fontFamilyResolver,
+        skipCache = true,
+    )
+}
+
 internal fun assertMountedText(
     compose: ComposeTestRule,
     target: SemanticsNodeInteraction,
@@ -98,7 +121,7 @@ internal fun assertMountedText(
     text.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(results)) }
     val layout = results.single()
     val actual = layout.layoutInput.text.text
-    // Compose 1.10.6 simple-string semantics can rebuild a wider workspace; check its content, not that width.
+    // Retain the reconstructed coordinates for diagnostics; they are not necessarily paint coordinates.
     val lines = (0 until layout.lineCount).map { line ->
         Rect(layout.getLineLeft(line), layout.getLineTop(line), layout.getLineRight(line), layout.getLineBottom(line))
     }
@@ -118,16 +141,34 @@ internal fun assertMountedText(
         assertFalse("$diagnostic|ellipsis line=$line", layout.isLineEllipsized(line))
     }
     assertFalse("$diagnostic|vertical", layout.didOverflowHeight)
-    var covered = 0
-    for (line in 0 until layout.lineCount) {
-        assertEquals("$diagnostic|missing text before line=$line", covered, layout.getLineStart(line))
-        covered = layout.getLineEnd(line)
-        assertTrue("$diagnostic|line outside measured text line=$line", contains(size, lines[line]))
+    val paint = compose.runOnIdle { mountedPaintLayout(layout) }
+    val paintLines = (0 until paint.lineCount).map { line ->
+        Rect(paint.getLineLeft(line), paint.getLineTop(line), paint.getLineRight(line), paint.getLineBottom(line))
     }
-    assertEquals("$diagnostic|missing UTF16 suffix", actual.length, covered)
-    val characters = actual.indices.associateWith { layout.getBoundingBox(it) }
-    val characterDiagnostic = "$diagnostic|characters=$characters"
-    if (layout.didOverflowWidth) println(characterDiagnostic)
+    val paintDiagnostic = "$diagnostic|paintInput=${paint.layoutInput}|paintSize=${paint.size}" +
+        "|paintParagraph=${paint.multiParagraph.width}x${paint.multiParagraph.height}|paintLines=$paintLines"
+    assertEquals("$paintDiagnostic|paint changed measured allocation", layout.size, paint.size)
+    assertEquals("$paintDiagnostic|paint changed full text", layout.layoutInput.text, paint.layoutInput.text)
+    assertEquals("$paintDiagnostic|paint changed style", layout.layoutInput.style, paint.layoutInput.style)
+    assertEquals("$paintDiagnostic|paint changed line count", layout.lineCount, paint.lineCount)
+    assertFalse("$paintDiagnostic|vertical", paint.didOverflowHeight)
+    for (line in 0 until paint.lineCount) {
+        assertEquals("$paintDiagnostic|paint changed line start=$line", layout.getLineStart(line), paint.getLineStart(line))
+        assertEquals("$paintDiagnostic|paint changed line end=$line", layout.getLineEnd(line), paint.getLineEnd(line))
+        assertFalse("$paintDiagnostic|ellipsis line=$line", paint.isLineEllipsized(line))
+    }
+    var covered = 0
+    for (line in 0 until paint.lineCount) {
+        assertEquals("$paintDiagnostic|missing text before line=$line", covered, paint.getLineStart(line))
+        covered = paint.getLineEnd(line)
+        assertTrue("$paintDiagnostic|line outside measured text line=$line", contains(size, paintLines[line]))
+    }
+    assertEquals("$paintDiagnostic|missing UTF16 suffix", actual.length, covered)
+    val characters = actual.indices.associateWith { paint.getBoundingBox(it) }
+    val characterDiagnostic = "$paintDiagnostic|paintCharacters=$characters"
+    if (layout.didOverflowWidth) {
+        println("$characterDiagnostic|semanticsCharacters=${actual.indices.associateWith { layout.getBoundingBox(it) }}")
+    }
     for ((offset, bounds) in characters) {
         assertTrue("$characterDiagnostic|character outside measured text UTF16=$offset", contains(size, bounds))
     }
