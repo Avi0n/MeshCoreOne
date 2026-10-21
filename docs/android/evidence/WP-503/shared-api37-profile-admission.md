@@ -2134,3 +2134,60 @@ command above. Also PASS:
 `python -B tools\android-port\controller\validate.py`,
 `python -B tools\android-port\controller\workflows.py`,
 `python -B tools\android-port\portmap.py`, and `git diff --check`.
+
+### Actual81b: selected transport and Android boot succeeded, animation contract failed
+
+Ordinary published `81bacae938a8a41a47122dea68b8cc21fcb7076e`, direct
+`71835ac6028066c4b0d23e7b509808cce274922b`, binds the actual merged759/858f
+producer and same-owner revision30. The actual committed declared Python
+suite passed234/234 in18.524s, separately from its precommit16.304s result.
+Own39693898918 official Controller119546576286 selected accessibility and
+ran737/OK in101.208s, with both new registration regressions explicitly passing.
+This is234 consumer/source models plus controller coverage, not backend/native
+acceptance. No overall CI success or parent build result is inferred.
+
+After an immediate actual5279.20MiB commit-headroom observation, a genuinely new
+private attempt used owner suffix `nodes:0d0cc9bd101548d0b6ff76512c0ad2ca`
+and root `private-avd-q96afixr`. Its own source-bound Windows pair was built/
+verified before startup. The real selected `wait-for-device` completed normally.
+Actual emulator log reports `Boot completed in 108371 ms`; all39 retained
+framework observations were `sys.boot_completed=1` and `init.svc.bootanim=""`.
+The unchanged120s deadline expired because completion still required the
+normal `stopped` animation service, not because Android never booted.
+
+The actual producer command contained `-no-boot-anim`; its process log
+explicitly set `androidboot.debug.sf.nobootanimation=1`. That flag suppresses
+the service which both `wait_boot` and inherited `ProcessDevice.capture_profile`
+require to have stopped. The surgical producer correction is removal of that
+flag, not accepting an invented/stopped value, relaxing either guard, starting
+the service manually, swallowing failure, retrying the disposed guest or
+extending120s. The selected registration correction itself genuinely worked.
+
+Actual hardware config recorded two CPUs and4096MiB RAM. Four CPUs belong to
+the fenced historical Pixel10 endpoint identity, not a current disposable
+requirement: the current private profile requires positive observed CPUs,
+and the original selected cases contain no CPU-count assertion. The earlier
+suggestion to set four was an inference from old observation, not an approved
+current contract. No CPU/config change is needed or claimed.
+
+Independent disposal verified true/no disposal error; zero instrumentation
+starts, profile/install mutations or cohort, and host instrumentation exit
+remains unknown. Exact actual logs/operations remain under
+`wp503-81ba-nodes37-disposable-a1`, with sanitized retained boot observations
+in `wp503-81ba-disabled-bootanim-evidence.json`. Original Nodes7/144 assertions,
+the unresolved clipboard/Save causes and old473/66bd remain unchanged.
+
+Reviewed producer `b67f3351843232032ba6809fb2cf8ff846f4de1b` actually
+merged as main `1be2e311457fcbb0abc0e1fdf5426b207b63a962`.
+Supported integration stayed at the existing revision30 and preserved every
+disjoint owned draft byte. Consumer code changes only its producer/input pins:
+actual disposable blob `5a85d26686fa6b151a91da5bc46f8c6b7e0d3cf4`;
+the other three API blobs are unchanged. The producer removes only the
+animation-suppression argument; CPU/config, source/transport/receipt/disposal
+guards and the original strict consumer predicates/deadlines are unchanged.
+Own producer39695174630 controller504/OK is source-model evidence, not native
+boot/flow proof. Local preparation explicitly rejected the unmerged input
+against old trusted main before factory/allocation; merged source must still
+pass all actual live admission and fresh-capacity checks.
+The pin-only integrated successor passed the same declared234-test suite
+in16.679s, all four declared source validators, and `git diff --check`.

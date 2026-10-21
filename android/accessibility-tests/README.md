@@ -133,7 +133,7 @@ Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
 
 `disposable_runner.py` is a separate consumer of the reviewed WP-003 private-guest
-interface, updated at `759f2d83b783834f802687ff0a42a8a57b1056e3`.
+interface, updated at `b67f3351843232032ba6809fb2cf8ff846f4de1b`.
 It does not remove the shared-device fence or adopt an existing guest. Before
 import/allocation it requires the reviewed producer bytes in actual trusted main
 and the actual checkout, and trusted capability/pause policy. The real factory
@@ -141,8 +141,9 @@ then requires the existing canonical session/attempt, evolved disposable receipt
 and eligible claim state; it allocates a new private guest with independent
 transport plus disposable and global Gradle receipts. The original LOCAL
 preparation predated trusted producer admission; actual merged main
-`2e0a1979b7d6f92e3de70095cee32e97a55aa58b` includes reviewed image,
-Windows listener and exact selected-transport registration repairs.
+`1be2e311457fcbb0abc0e1fdf5426b207b63a962` includes reviewed image,
+Windows listener, exact selected-transport registration and normal
+boot-animation lifecycle repairs.
 Actual source/runtime/claim/resource guards still run; merge is not guest readiness.
 The consumer accepts the installed base-image spelling `37.0` as API37
 (likewise integer base API plus `.0`), but rejects nonzero/ambiguous minor versions.
@@ -158,6 +159,9 @@ user0/profile/source guards, and routes every command through `guest.adb`.
 After owned listener startup, exact `["wait-for-device"]` must complete before
 framework getprop probes. This uses only the remaining existing120s boot
 deadline; failed registration is propagated, never swallowed or retried.
+The pinned producer must preserve the normal boot-animation lifecycle:
+both boot and inherited profile guards still require its observed `stopped`
+state. A suppressed/empty service is not substituted for that observation.
 Only the existing fixed family requests are accepted. Instrumentation uses the
 producer's explicit180s transport bound (the shared runner's600s is unchanged).
 Actual host exit and raw output are retained before terminal-proof rejection.
