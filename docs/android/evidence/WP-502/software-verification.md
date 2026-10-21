@@ -102,6 +102,12 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `independent300SecondPairKeepsOneClusterAndOneVisibleTimestampBeforeReload` | Independent frozen Alice/prefixAA `[1000,1300]`: explicit first-only name/last-only avatar flags and visible00:16 header with00:21 absent. Its own route/fixture/arrival; no third adjacent message. |
 | `independent301SecondPairSplitsBothBookendsAndVisibleTimestampsBeforeReload` | Separate frozen Alice/prefixAA `[1000,1301]`: both rows retain name/avatar/timestamp flags, two displayed names above their respective bubbles and literal00:16/00:21 headers. First row remains equal; no1300 neighbor. |
 | `selfMessageBreaksTheIncomingSamePrefixClusterBeforeReload` | Exact frozen Alice/prefixAA incoming100/self160/incoming220. Both incoming rows keep name/avatar flags; middle self row has neither despite the same raw name/prefix. Two displayed Alice names, original self/incoming parent labels, ordered keyed bubbles and unchanged first row survive one held coalesced reload. |
+| `originalIncomingFollowUpAnnouncesTheAuthorEvenWithoutAVisibleName` | Exact Alice/prefixAA/100/`follow up`, no timestamp/name, avatar flag true. Actual parent description is exactly `Alice: follow up`, visible name absent, raw text/keyed bubble present. |
+| `originalIncomingClusterStartAnnouncesTheAuthorOnlyOnce` | Exact Alice/prefixAA/100/`hello`, no timestamp, name/avatar flags true. One actual parent label `Alice: hello`, exactly one author occurrence in the returned actual semantics string, one displayed author but no separate spoken author node. |
+| `originalSentOutgoingAnnouncesItsStatusOnlyOnce` | Exact Me/prefix42/self100/`hello`/SENT, all chrome flags false. Actual `hello, <delivered accessibility label>` includes status once (frozen SENT uses delivered accessibility copy); visible Sent remains, no duplicate standalone status description. |
+| `originalFailedOutgoingCustomRetryInvokesTheExactMessageCallback` | Exact Me/prefix42/self100/`hello`/FAILED. Actual parent has exactly localized Retry custom action; invoking it returns true and calls the callback exactly once with original message ID, leaving original label/draft. Not service delivery. |
+| `originalSentOutgoingHasNoCustomRetryEvenWithACallback` | Original SENT vector with an explicitly supplied callback. Actual custom action list empty, visible Retry absent and callback untouched. |
+| `originalHttpsBodyExposesTheLocalizedHostActionAndDispatchesTheOriginalUrl` | Exact incoming Alice/prefixAA/100/`see https://example.com`. Actual formatter/resource name exposes example.com custom action; activation passes exact original URL through real dispatcher route then external ports once. Contact/radio/mention ports forbidden; no browser/network action. |
 
 Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
@@ -340,6 +346,59 @@ also SUCCESS. Source COMMENTED5593585260 remains3d743-only, not full review of
 these new five methods/helper. No result transfer, rerun/cancellation or CI
 bundle. Actual mainc9ed reconciliation preserves all owner/Android bytes as
 described above; new-source/current-main hosted verification remains separate.
+
+#### Six original Rooms accessibility label and action consumers
+
+Source **542097bbd409acbfdfc62ea00a9003fff57d89aa/basec9ed** implements every
+original in frozen `RoomMessageBubbleA11yLabelTests.swift` through production
+RoomConversationContent and its actual parent custom-action semantics.
+Source BubbleContent/status/View dispatch, Kotlin row renderer/formatter/
+MessageLinkDispatcher and localization resources were read before editing.
+Six methods plus two exclusively used helpers add119 lines/zero deletions;
+all17 incumbent bodies/helpers/Fixture/Region7 stay unchanged. Owned
+modification returns actual leased revision27 idempotently.
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit 542097bbd409acbfdfc62ea00a9003fff57d89aa --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalIncomingFollowUpAnnouncesTheAuthorEvenWithoutAVisibleName
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalIncomingClusterStartAnnouncesTheAuthorOnlyOnce
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalSentOutgoingAnnouncesItsStatusOnlyOnce
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalFailedOutgoingCustomRetryInvokesTheExactMessageCallback
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalSentOutgoingHasNoCustomRetryEvenWithACallback
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalHttpsBodyExposesTheLocalizedHostActionAndDispatchesTheOriginalUrl
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Installed exact preflight **PASS1.77s**; one strict invocation discovers/runs/
+passes **6,0 failures/errors/skips,1m21s build**. Actual fresh named XML
+2026-10-21T01:26:22.096Z matches all six exact selector identities as well
+as strict suite counts. Existing Ledger canonical-owner Gradle context and
+ext4 flock enforced; native absence checked before/after acquisition.
+Only own lock released normally; a later foreign Gradle resource is left alone.
+No healthy incumbent replay, manual CI dispatch or result bundle.
+
+The exact frozen six vectors/explicit row flags are in the table. Actual parent
+ContentDescription must contain exactly the original label, with one author/
+status occurrence and no standalone spoken name/status. Visible original raw
+message/keyed bubble, name presence/absence and CJK/RTL draft are checked at
+200% font. Retry activation uses the production parent's actual CustomActions
+and requires exactly original ID/one callback; no service success is invented.
+SENT's supplied callback cannot create a Retry custom/visible affordance.
+HTTPS custom action's actual localized host-bearing name and exact dispatched
+URL/host are asserted using real MessageLinkDispatcher and captured explicit
+route/external ports; it never resolves radio/contact/mention or starts a
+browser/network. All unrelated callbacks throw if reached. Source expected
+row flags are independently fixed, not generated by candidate `rows()`.
+Copying self/status does not modify fresh DTO deduplication inputs.
+
+This is new6 only: source23 is not local23/17+6, primary six-original acceptance,
+spoken TalkBack, actual service retry/browser/OS, avatar/golden/native or
+full-WP proof. Existing real-route Retry result remains separately bound.
+Currenta3c629/review5593825846/run39526597754 are preserved with their own
+identities; no transfer to this successor or premature publication cancelling
+healthy CI. Full sync/history/message actions/store/radio remain open.
 
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 
@@ -660,7 +719,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input/four-method Rooms history and thirteen dedicated mounted witnesses for twelve ordering originals across documented executions, most recently one actual new5 cohort atdc226 (source17, not combined17 execution or primary acceptance). Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Actual rendered-avatar253 and full Rooms sync/history/actions/store/radio, primary grouping equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input/four-method Rooms history, thirteen mounted witnesses for twelve ordering originals (actual new5 atdc226), and six original accessibility label/action consumers (actual new6 at542097). Source23 is not combined23 execution or primary equivalence approval. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Actual rendered-avatar253 and full Rooms sync/history/actions/store/radio, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |

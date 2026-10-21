@@ -84,7 +84,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six live-event methods pass together at d76a576af; strengthened timestamp method separately passes at2b478f7. Same-prefix burst and different-prefix/same-name methods pass separately at1f73d3daf/ed2276627. Remaining four ordering originals now have five focused mounted witnesses passing together atdc226292a: self-only, exact two-message follow-up, independent300s/301s pairs, self-interruption. All12 earlier methods/helpers/fixture remain unchanged. Source17 is not a local17-case/combined execution or primary all12 parity acceptance. State avatar flags are not rendered-avatar acceptance: actual consumer gap253 awaits the real reviewed renderer rule/admission. No actual RoomServerService/history sync/Room-database/radio/golden claim. |
+| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six live-event methods pass together at d76a576af; strengthened timestamp method separately passes at2b478f7. Same-prefix burst and different-prefix/same-name methods pass separately at1f73d3daf/ed2276627. Remaining four ordering originals have five mounted witnesses passing together atdc226292a. Six exact original accessibility label/action consumers pass together at542097bbd, including actual custom Retry target and HTTPS dispatcher ports. All17 incumbents/helpers/Fixture are unchanged by the latest slice; source23 is not a local23-case/combined execution or primary all12/six-original parity approval. State avatar flags are not rendered-avatar acceptance: actual consumer gap253 awaits the real reviewed renderer rule/admission. No actual RoomServerService/history sync/Room-database/radio/browser/TalkBack/golden claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -102,6 +102,50 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Next independent action-consumer family: six original accessibility cases
+
+After complete grouping source COMMENTED5593825846, the coordinator directs
+the next genuinely unrepresented coherent existing Rooms consumer family.
+Read the full six-case frozen RoomMessageBubbleA11yLabelTests and Bubble/
+status/View/action-dispatch consumers plus current renderer/formatter/
+dispatcher/resources. Code **542097bbd409acbfdfc62ea00a9003fff57d89aa/basec9ed**
+adds119 lines/zero deletions: all six original cases and two exclusively new
+content/label helpers. All17 incumbent bodies/helpers/Fixture and Region7
+remain unchanged. Same-owner modify is idempotent at actual revision27; no
+production/build/policy/manifest edit or renderer-rule assumption.
+
+Installed preflight **PASS1.77s**; one strict existing App invocation discovers/
+runs/passes **6,0 failures/errors/skips,1m21s build**. All six exact named XML
+identities are checked against selectors, fresh timestamp
+2026-10-21T01:26:22.096Z.
+[Exact commands and original mapping](software-verification.md#six-original-rooms-accessibility-label-and-action-consumers).
+Real canonical-owner shared Gradle lock and ext4 flock remain; only this
+worker's resource is normally released. A later different-owner Gradle hold
+is left unchanged, not misreported as an unreleased own lock or a test failure.
+
+Exact frozen prefixAA/Alice/100/`follow up`, prefixAA/Alice/100/`hello`,
+prefix42/Me/self100/`hello`/SENT or FAILED, and
+`see https://example.com` are preserved. Actual production content consumes
+the original explicit timestamp/name/avatar row flags. Its parent exposes
+exactly one original message description; actual author/status occurrence
+counts and absent duplicate spoken name/status, visible raw text/keyed bubble,
+displayed or absent author and unchanged CJK/RTL draft are asserted at200%.
+Failed Retry invokes exactly the original message ID once; SENT exposes
+neither custom nor visible Retry despite a supplied callback. HTTPS uses the
+real formatter/resource-backed named custom action and MessageLinkDispatcher:
+the exact original URL reaches the local route port then captured external
+port once, with example.com host. It never resolves contact/radio/mention
+ports or launches a browser/network request. Unexpected send/draft/auth/error/
+link/retry callbacks throw rather than default-success.
+
+These are mounted semantics/custom-action consumers, not spoken TalkBack,
+actual service retry/delivery, browser/OS integration, avatar rendering or
+primary equivalence approval. Earlier real-route failed-send/Retry evidence
+is separate, not replayed or credited as this six-case execution. Source23 is
+not local23/17+6; currenta3c629/run39526597754 and review5593825846 remain
+predecessor-bound and preserved. Full Rooms sync/history/actions/store/radio
+and current native/golden/physical/full-WP acceptance remain open.
 
 ### Remaining four ordering originals in one coherent increment
 
