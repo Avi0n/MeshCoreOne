@@ -93,6 +93,7 @@ coordinator integration.
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
 | `RoomsComposeTest` | Original four route/render methods, thirteen ordering witnesses, six label/action consumers and three renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure plus three Android-only defensive faults pass ata9a6; mounted retry passes1/1 atf4. Mention-status6949 and corrected-input a05 executions remain separately bound. New multiple-Alice matching-row selection at9072fa344 is UNVERIFIED/NOT RUN, preserving all34 incumbents/helpers/Fixture. Current source35 is not combined35 execution or primary original-case approval. No actual service/history/Room-store/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
 | `ContactMatchRowComposeTest` | Three new component definitions, Kotlin NOT RUN: actual public row consumes the complete original Relay advert input rather than recency/message date, full literal32-byte key, localized types/location/distance, Tap and both Toggle states. Sampled compact100%/200% CJK/RTL/default-light/Ember-forced-dark inputs assert actual text/row bounds and actions. Not another frozen original, repaired picker, GPS/formatter equivalence, complete avatar/glyph adaptation or a screenshot/golden verdict. All35 Rooms methods/helpers/Fixture remain byte-identical to ba. |
+| `NewChatSheetComposeTest` | Three LOCAL/UNVERIFIED mounted flow definitions use the real public NewChatSheet/NewChatStateHolder and held declared data port. Loading, source-order eligibility/routing labels, nickname/display-name CJK/accent/Hebrew search, no search/recomposition reload, exactly one original full DTO callback without sheet-owned dismissal, raw-empty/no-radio versus filtered-empty, and actual localized Cancel are asserted. Sampled English100%/Chinese200%-RTL/default-light/Ember-forced-dark text/action bounds only; no original recount, real store/radio, shell navigation, photo/avatar, failed-load presentation, device or golden acceptance. Incumbent Rooms276317/ContactMatchRowca8 are unchanged from corrective parent5b97. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -110,6 +111,72 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Mounted New Chat sheet flow: LOCAL UNVERIFIED
+
+This separate owned-only successor of published corrective parent
+**5b97e24ef2ebcb3cc69e2e7ee7fe7906aefd644e**, itself a direct child of published
+**8af5053c65b0400e9867f01fc40fd24a4a44d480**, actual main
+**dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c**, adds only
+`NewChatSheetComposeTest.kt` and these three owned evidence/deviation docs.
+The SAME canonical actor/attempt evolved actual reservation31 to returned32
+through `wp-owned`/`modify`; authorization context and all foreign leases remain
+unchanged. Subsequent separate correction evolution returned33; these previously
+admitted NewChat paths remain in that SAME scope. No shared support capability
+or candidate policy is consumed.
+New test blob: `20f60bbfa5e76273dc25d2f2a3a1ecf8772f91ad`.
+
+Complete frozen NewChatView, its containing selection/dismissal delegates and
+ContactDTO initializer, plus real native sheet/holder/dependency ports/search
+matching/row consumers/resources and existing modal harness were inspected.
+Three AndroidOnly definitions, not OriginalCase annotations, cover five mounted
+fixture instances: mixed successful load/search/selection; Chinese200%-RTL
+ineligible and mixed lists with Cancel; and fresh no-radio/successful raw-empty
+lists with Cancel. Source-derived names, types, paths and deterministic identities
+are documented individually; these are not invented frozen unit-test cases.
+
+The held real `fetchContacts` records exactly the route's radio while the real
+holder/sheet expose progress, no rows and no premature empty copy. Completion
+preserves raw contact order/fields, excludes blocked/repeater/room and displays
+both flood/direct and raw0 fallback-to-chat rows. Actual search tests case/accent,
+CJK and Hebrew display-name matching, does not match a hidden underlying name,
+and preserves raw contacts with no refetch through changed sheet modifier
+recomposition. Row click returns exactly the same full DTO once; it does not
+invoke the dismissal callback or invent a shell navigation result. Actual Cancel
+closes the controlled caller's mounted sheet once without selection or any
+unrelated service/write/navigation call.
+
+Raw-empty/no-radio retains source empty copy; nonempty ineligible and unmatched
+search lists do NOT borrow that copy. Successful raw-empty results are separate
+from `loadFailed`: this slice deliberately does not inject an error or accept
+the existing missing failed-load UI as parity. Existing generic-initial avatar/
+photo omission and the native-versus-Swift sheet/navigation adaptations remain
+open. Bounds/text-layout/48dp semantics are assertions, not observed device,
+TalkBack, keyboard, screenshot, all-pixel or golden results.
+
+**Kotlin/compiler/Gradle/native/preflight/advisory NOT RUN.** This candidate stays
+LOCAL/UNPUBLISHED for complete source comparison and predecessor CI isolation.
+Actual source-only traceability PASS (1732 mappings), controller PASS,
+whitespace PASS and exact-input/incumbent preservation PASS. An initial count
+wrapper incorrectly assumed predecessor1731; the actual portmap command
+succeeded with the additional mapping. Independent literal checking identified
+the missing explicit English placeholder assertion, which was added; final14
+resource vectors pass. Neither observation is a Kotlin failure/pass.
+Published8af's own automatic39553583719 subsequently completed FAILURE:
+Linux119068601317 reports826 tests completed/2 failed, specifically the two
+contact-match sampled-frame methods expecting DARK but observing LIGHT.
+SwiftData is SKIPPED and aggregate fails; no all-six success or successor
+verification is inferred. Prioritized separate commit5b97 first wraps the
+identical probe assertion in Compose runOnIdle; this NewChat child preserves
+that entire corrected component blobca8 and Rooms276317 without another edit.
+The364-line NewChat test remained byte-identical while that correction was
+committed first; only this new evidence's ancestry was reconciled afterward.
+[Separate correction and NOT-RUN limits](contact-match-theme-probe.md).
+No corrective execution, ba/App823 transfer or projected count.
+Only5b97 was normally published; its own automatic39555750774 is pending at
+handoff. This NewChat successor stays unpublished for complete combined source
+comparison and terminal5b97 evidence; no successor CI/result is invented.
+[Complete methods, pins, inputs, future selector and exclusions](software-verification.md#commeshcoreoneandroiduitestsnewchatsheetcomposetest).
 
 ### Mounted contact-match component: LOCAL UNVERIFIED
 

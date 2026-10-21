@@ -85,6 +85,175 @@ the incumbent41. Its four methods actually pass at
 `160ba7d3a4018278081c001319b8a6235859c689`; the two cohorts have not been
 combined/re-executed as a claimed45-case result in this resumption.
 
+### com.meshcoreone.android.uitests.NewChatSheetComposeTest
+
+**LOCAL UNPUBLISHED / UNVERIFIED; all three Kotlin definitions NOT RUN.**
+Direct predecessor is published corrective **5b97e24ef2ebcb3cc69e2e7ee7fe7906aefd644e**,
+itself a direct child of published **8af5053c65b0400e9867f01fc40fd24a4a44d480**;
+actual integrated main remains **dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c**.
+New364-line test blob: `20f60bbfa5e76273dc25d2f2a3a1ecf8772f91ad`.
+Same canonical session/attempt `3bc8c1b8-20ec-4647-88ae-db3775268489`
+evolves through existing `wp-owned`/`modify` from actual31 to returned32 for
+one new owned UI-test and three owned docs; no release/reclaim, authorization
+rewrite, policy candidate consumption or shared support/product edit. Subsequent
+separate correction returned33 and retains all these admitted paths. NewChat
+remained dirty and byte-preserved while that correction was committed FIRST;
+only this new family's evidence ancestry is now reconciled. Entire files are
+unchanged from5b97: Rooms `276317f4fe7521fe4c016bc55357372c85e09278`
+and corrected ContactMatchRow `ca8a9d0b7915f01d4628acb03d06d1997f8052ee`.
+
+| Complete defined method name (not execution) | Mounted boundaries and independent expectations |
+| --- | --- |
+| `heldLoadPreservesOrderThenRealSearchSelectsExactlyTheOriginalDisplayNameContactWithoutReload` | Real sheet/holder calls the suspended data port once with exact radio; progress/no rows/no premature empty copy. Resolving six raw DTOs displays exactly the expected eligible rows in supplied order with literal Flood routing/Direct labels, no blocked/repeater/room/hidden underlying name. Actual field queries CAFE, Chinese, underlying Elodie, missing, Hebrew and clear consume the real matcher; no fake filtered state. Changed modifier recomposition retains search/raw state, no reload. One row click captures exactly the full original direct DTO by equality AND object identity, zero dismissals, sheet remains. |
+| `ineligibleVersusEligibleListsKeepLocalizedCancelIndependentAtLargeRtlFont` | Two fresh Chinese200%-RTL/Ember-forced-dark mounted instances: successful raw[blocked,repeater,room] versus the mixed six. Both have nonempty raw data and no source empty copy; only mixed displays eligible Button rows with literal localized routing copy. Actual title/Cancel/placeholder/name/flood label layouts and48dp row/search/Cancel bounds; two literal direct labels. Repeater search excludes rows, retains raw list/no empty copy through modifier recomposition. Real Cancel dismisses exactly once, no selection, caller removes the sheet. |
+| `freshNoRadioAndSuccessfullyLoadedRawEmptyShowEmptyCopyWithoutSelectionOrServiceMutation` | Two fresh English100% instances: null radio returns before any fetch/progress; nonnull radio first shows held progress, then explicitly successful empty response. Both raw-empty branches display literal No Contacts/Contacts will appear when discovered, unaffected by Chinese query; actual Cancel closes once/no selection. Exactly0/1 fetches and unchanged radio/connection snapshots, no service or data mutation/navigation/diagnostic call. No error response is substituted for successful empty data. |
+
+There are **three definitions/five mounted fixture inputs**, not three/five
+executions or a combined Rooms/contact-match cohort. These are source-derived
+AndroidOnly/ReferenceInput consumers, no OriginalCase or primary accounting
+addition. Original view owner WP-306 retains provenance.
+
+Frozen reference **db14559b39d32322b06477c6ae676112f583db50**:
+
+| Inspected frozen input (current blob equals pin) | Blob |
+| --- | --- |
+| `MC1/Views/Chats/NewChatView.swift` (complete view/filter/load/label/selection/Cancel) | `adc82dcfb141f66640890b32c01dd741b768aef0` |
+| `MC1/Views/Chats/Sheets/ChatsConversationSheets.swift` (caller captures selected contact, dismisses, then navigates on dismissal) | `d27da1e0181ab553b982c4d3d5bdf40107623158` |
+| `MC1Services/Sources/MC1Services/Models/Contact.swift` (full DTO memberwise initializer/defaults, displayName/type/isFloodRouted) | `7b6ecd2e224c1b1651edeba8a0019426881e7db4` |
+
+Unchanged real native consumers at8af:
+
+| Native input | Blob |
+| --- | --- |
+| `list/ui/NewChatSheet.kt` | `92aad8e98a5bd33ff7e74dc86a6567a76950e0ac` |
+| `list/NewChatState.kt` | `e04e89f7277096caa34f635ea0f42803e8ab80d1` |
+| `list/ChatListDependencies.kt` | `e7aa83e0d9d1fa75e6540b68a01965d42d0988ef` |
+| `list/ChatTextMatching.kt` | `552a87f9cc022add223827b0fa511e55e8d9daf4` |
+
+Native paths above are relative to
+`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/`.
+The real `ChatsListRoot` owns the shell's dismiss/open delegate; the test does
+not mount/copy it. The new fixture mounts public `NewChatSheet` with a real
+`NewChatStateHolder(this)`. Only `ChatListDataSource.fetchContacts` succeeds,
+by awaiting an independently completed `CompletableDeferred<List<ContactDTO>>`.
+All unrelated declared data/service/navigation/reaction/link/reload/event
+ports fail explicitly with recorded AssertionError if accessed. Diagnostics
+record rather than discard; every defined success branch requires none.
+No private renderer/filter/state implementation or direct state injection.
+
+Independent selected data order is:
+
+| DTO | Type/path/nickname/blocked | Expected visible identity |
+| --- | --- | --- |
+| suffix371, Zulu | raw1/chat,255/empty flood path,nil,false | first Zulu/Flood routing |
+| suffix372, Blocked | raw1/chat,0/empty,nil,true | excluded |
+| suffix373, Repeater | raw2/repeater,0/empty,nil,false | excluded |
+| suffix374, Elodie Radio (initial E is U+00C9) | raw1/chat,1/[0x7F],nickname Chinese U+4E2D U+6587 +space+Cafe (e is U+00E9),false | second nickname/Direct; selected entire original DTO |
+| suffix375, Room | raw3/room,0/empty,nil,false | excluded |
+| suffix376, Hebrew U+05E9 U+05DC U+05D5 U+05DD +space+Beta | raw0/unknown fallback-to-chat,0/empty,nil,false | third original name/Direct |
+
+These are NEW deterministic predicate-derived samples, not pre-existing frozen
+test vectors. IDs use50200000-0000-0000-0000-{12-digit suffix}, common radio
+suffix370, keys repeat the suffix's low byte32 times (73/74/75/76/77/78 hex).
+All remaining memberwise fields are explicit and unchanged through each
+branch: flags0, advert1000, modified1000, lat/lon0, heardnil, muted/favoritefalse,
+messageDatenil, unread/unreadMention0, OCV/customOCV/avatarnil. Unknown raw0's
+source `type` falls back to chat; it is not an invented raw-value redesign.
+Repeated keys/IDs are controlled inputs, no production identity/randomness
+claim. The direct route's one-byte path is distinct from both zero-hop and flood.
+
+Expected visible order/labels/search results are independent literal vectors,
+not produced by calling `filteredContacts`, `eligibleContacts`, `newChatKind`
+or ChatTextMatching to calculate expected values. CAFE matches the accented
+nickname; Chinese and Hebrew search use actual display text. Underlying
+U+00C9lodie does NOT match the nickname: source searches displayName, not both
+fields. This is sampled native matcher behavior, not complete Foundation locale
+equivalence. English/Simplified-Chinese literals are checked against existing
+generated resources: title, Cancel, search placeholder, empty title/description,
+direct and flood labels. No localization/provider/resource edit.
+
+Recomposition changes ONLY an owned test tag modifier while retaining the
+same holder/radio/fixture scope and original loaded DTOs. A different fresh
+fixture is keyed separately, not a synthetic reload API. Every tested path
+requires fetches exactly[radio], except fresh no-radio requires[]; currentRadioId
+and DISCONNECTED connection snapshots remain unchanged. The controlled service
+port is never resolved, so no actual radio/database/notification operation or
+shell navigation is certified. The selection callback intentionally captures
+only: it does not dismiss or route on the sheet's behalf. Cancel's controlled
+caller records dismissal and removes its sheet; no swipe/Back/IME claim.
+
+The existing modal harness pattern supplies localized Context/Resources/
+Configuration, host/density fontScale/direction, theme/motionScale and an
+isolated Robolectric activity. Source defines actual modal title/row/search/
+Cancel bounds and TextLayoutResult fontScale/direction/no width-height overflow/
+ellipsis checks. Samples are real software-host360dp, English100%-LTR/default
+light and Chinese200%-RTL/Ember LIGHT request/effective dark; height1400dp is a
+test host, not a measured phone. No screenshot/golden/device/all-pixel or
+all-theme/window/OS acceptance. Existing ContactMatchRow component methods and
+their avatar/semantic limitations are not repurposed as NewChatRow results.
+
+Known gaps remain: original ContactAvatar receives full DTO while NewChatRow
+currently uses generic display-name initials and does not consume its avatarCache;
+photos/avatar identity/glyph parity is NOT accepted. Native NewChatStateHolder
+reports `loadFailed`, but the sheet currently shows empty copy instead of
+separate error/recovery UI, while frozen load uses try?/empty. No failing fetch
+is injected/labelled a successful empty state or silently accepted as full error
+integration. Shell deferred post-dismiss navigation, focus/keyboard, actual
+store/radio, real OS/locales/CLLocation, full original-family and full-WP
+acceptance remain outside this bounded slice.
+
+Source-only verification commands (not Kotlin):
+
+```text
+python tools\android-port\portmap.py                    PASS (1732 mappings)
+python tools\android-port\controller\validate.py        PASS (valid pinned manifest)
+git diff --check                                       PASS
+```
+
+Source-only independent14 resource vectors, six deterministic key samples,
+search input sanity, three frozen source equalities, three new definitions/no
+OriginalCase/no expected-value candidate calls, and both entire incumbent test
+blobs PASS. Initial reporting wrapper incorrectly required predecessor1731
+although the actual portmap command succeeded with1732; the new AndroidOnly
+file adds one mapping. A separate literal check exposed the missing explicit
+English search-placeholder assertion; the assertion was added, not a resource
+or threshold changed. Final source checks pass, no Kotlin result manufactured.
+
+Future existing App selector, **NOT RUN** while the retained foreign native
+lease/local-execution hold remains:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.NewChatSheetComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Future positive evidence requires all THREE complete method identities above
+in nonempty well-formed App JUnit XML,0 failures/errors/skips. Existing App
+source registration already includes the new file; no task/build/tooling
+addition. No local Kotlin/compiler/Gradle/native/preflight/advisory action,
+workflow dispatch/rerun, publication, main action or foreign lease change.
+Published8af's automatic39553583719 completed FAILURE while this bounded
+successor was being prepared. Authoritative Linux119068601317, read in memory
+only, reports826 tests completed/2 failed:
+`localizedKindsAndLocationMetadataConsumeOnlyTheCallerSuppliedDistance` and
+`toggleModesExposeLocalizedCheckboxSelectionWithoutImplicitlyChangingItOnClick`,
+both expected DARK but observed LIGHT in ContactMatchRowComposeTest's sampled
+frame checks. Aggregate fails and SwiftData is skipped; classifier/controller/
+codec succeed. The separate prioritized correction5b97 wraps ONLY the identical
+probe assertion in standard Compose runOnIdle before any new-family commit.
+This NewChat child preserves all corrective parent bytes; no second component
+edit or changed forced-dark oracle. Neither correction nor NewChat Kotlin has
+executed; the predecessor failure is not reclassified.
+[Exact separate correction and limits](contact-match-theme-probe.md).
+No second CI-result bundle, dispatch/rerun, transferred verdict, projected
+aggregate, focused3/3, native/golden or full-WP credit.
+Only reviewed5b97 was subsequently normally published; its own automatic
+39555750774 is pending at handoff. This separate NewChat successor remains
+LOCAL/UNPUBLISHED pending complete combined comparison and terminal5b97
+evidence; it has no automatic successor run or software verdict.
+
 ### com.meshcoreone.android.uitests.ContactMatchRowComposeTest
 
 **LOCAL UNVERIFIED; all three Kotlin definitions NOT RUN.** Direct predecessor
