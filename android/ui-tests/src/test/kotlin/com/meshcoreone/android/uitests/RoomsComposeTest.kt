@@ -1282,6 +1282,145 @@ class RoomsComposeTest {
         assertRetainedRoom()
     }
 
+    @Test fun bidiControlledAliceMentionKeepsRawTextButNavigatesToTheSanitizedOriginalContact() {
+        val alice = ContactDTO(
+            id = UUID(0, 371), radioId = radio, publicKey = Bytes(ByteArray(32) { 0x11 }),
+            name = "Alice", typeRawValue = 0u, flags = 0u, outPathLength = 0u, outPath = Bytes.EMPTY,
+            lastAdvertTimestamp = 0u, latitude = 0.0, longitude = 0.0, lastModified = 0u,
+            lastHeardTimestamp = null, nickname = null, isBlocked = false, isMuted = false,
+            isFavorite = false, lastMessageDate = null, unreadCount = 0, unreadMentionCount = 0,
+            ocvPreset = null, customOCVArrayString = null, avatarImageData = null,
+        )
+        val savedContacts = listOf(alice)
+        val mention = liveMessage(1, 100u, "@[Alice\u202e]", Bytes.of(0xaa), "Sender")
+        val fixture = Fixture().apply { stored = listOf(mention) }
+        val navigation = NavigationCoordinator(NavigationState(radioId = radio))
+        navigation.navigateToRoom(session)
+        val beforeNavigation = navigation.state.value
+        val contactReads = mutableListOf<List<ContactDTO>>()
+        val deviceNameReads = mutableListOf<String>()
+        val radioReads = mutableListOf<RadioId>()
+        val navigated = mutableListOf<ContactDTO>()
+        val redraw = mutableStateOf(false)
+        val links = ConversationLinkActions(
+            contacts = { savedContacts.also { contactReads.add(it) } },
+            connectedDeviceName = { "Me".also { deviceNameReads.add(it) } },
+            radioId = { radio.also { radioReads.add(it) } },
+            route = { error("Bidi mention must resolve locally, not through the URL router") },
+            openExternal = { error("Bidi mention must not open an external URL") },
+            navigateToContact = {
+                navigated += it
+                navigation.navigateToContactDetail(it)
+            },
+        )
+        mount {
+            RoomConversationRoute(
+                fixture.holder, links, modifier = Modifier.testTag("bidi-mention-route:${redraw.value}"),
+                failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val retained = RoomConversationState(
+            session, messages = listOf(mention), rows = listOf(RoomMessageRow(mention, true, true, true)),
+            draft = body, hasLoadedOnce = true,
+        )
+        fun assertRetainedRoom() {
+            assertEquals(retained, fixture.holder.state.value)
+            assertEquals(listOf(mention), fixture.stored)
+            assertSame(mention, fixture.holder.state.value.messages.single())
+            assertEquals("@[Alice\u202e]", fixture.stored.single().text)
+            assertEquals(listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed"), fixture.loads)
+            assertTrue(fixture.posts.isEmpty())
+            assertTrue(fixture.joins.isEmpty())
+            assertTrue(fixture.retries.isEmpty())
+            assertTrue(fixture.reported.isEmpty())
+        }
+        fun assertRetainedUi() {
+            val parent = compose.onAllNodesWithContentDescription("Sender: @[Alice\u202e]")
+                .assertCountEquals(1)[0].assertIsDisplayed()
+            assertEquals(
+                listOf("Sender: @[Alice\u202e]"),
+                parent.fetchSemanticsNode().config[SemanticsProperties.ContentDescription],
+            )
+            val bubble = compose.onNodeWithTag("room-bubble:${mention.id}", useUnmergedTree = true)
+            val layout = assertMountedText(
+                compose, bubble, "@Alice\u202e", 2f, LayoutDirection.Ltr, "original bidi mention raw UTF16 retained",
+            )
+            assertEquals(listOf(64, 65, 108, 105, 99, 101, 8238), layout.layoutInput.text.text.map { it.code })
+            val link = layout.layoutInput.text.getLinkAnnotations(0, 7).single()
+            assertEquals(0, link.start)
+            assertEquals(7, link.end)
+            when (val annotation = link.item) {
+                is androidx.compose.ui.text.LinkAnnotation.Clickable -> {
+                    assertEquals("meshcoreone://mention/Alice%E2%80%AE", annotation.tag)
+                    assertNotNull(annotation.linkInteractionListener)
+                }
+                else -> fail("Expected actual mention Clickable, found ${annotation.javaClass.name}")
+            }
+            compose.onNode(isDialog()).assertDoesNotExist()
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            compose.onNodeWithText(text(Chats.chatsInputSendMessage))
+                .assertIsEnabled().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+        }
+        assertRetainedRoom()
+        assertRetainedUi()
+        assertEquals(beforeNavigation, navigation.state.value)
+        assertTrue(navigated.isEmpty())
+        assertTrue(contactReads.isEmpty())
+        assertTrue(deviceNameReads.isEmpty())
+        assertTrue(radioReads.isEmpty())
+        assertEquals("Mention: Alice\u202e", Chats.chatsMessageActionOpenMention(host.get().resources, "Alice\u202e"))
+        val actions = compose.onAllNodesWithContentDescription("Sender: @[Alice\u202e]").assertCountEquals(1)[0]
+            .fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        assertEquals(listOf("Mention: Alice\u202e"), actions.map { it.label })
+        compose.runOnIdle { assertTrue(actions.single().action()) }
+        compose.waitUntil { navigated.size == 1 }
+        assertSame(alice, navigated.single())
+        assertEquals(UUID(0, 371), navigated.single().id)
+        assertEquals("Alice", navigated.single().name)
+        val selected = navigation.state.value
+        assertEquals(AppTab.NODES, selected.selectedTab)
+        assertSame(alice, selected.pendingContactDetail)
+        assertSame(alice, selected.selectedContact)
+        assertEquals(NavigationDestination.ContactDetail(alice), selected.activeStack.last().destination)
+        assertEquals(beforeNavigation.nextEntryId, selected.activeStack.last().id)
+        assertEquals(beforeNavigation.nextEntryId + 1, selected.nextEntryId)
+        assertEquals(beforeNavigation.stacks.getValue(AppTab.NODES), selected.activeStack.dropLast(1))
+        for (tab in AppTab.entries.filter { it != AppTab.NODES }) {
+            assertEquals(beforeNavigation.stacks.getValue(tab), selected.stacks.getValue(tab))
+        }
+        assertEquals(beforeNavigation.chatsSelectedRoute, selected.chatsSelectedRoute)
+        assertEquals(session, selected.pendingRoomSession)
+        assertEquals(radio, selected.radioId)
+        assertNull(selected.pendingChatContact)
+        fun assertExactlyOneResolution() {
+            assertEquals(selected, navigation.state.value)
+            assertEquals(listOf(alice), navigated)
+            assertSame(alice, navigated.single())
+            assertEquals(listOf(savedContacts), contactReads)
+            assertSame(savedContacts, contactReads.single())
+            assertEquals(listOf("Me"), deviceNameReads)
+            assertEquals(listOf(radio), radioReads)
+        }
+        assertRetainedUi()
+        assertRetainedRoom()
+        assertExactlyOneResolution()
+        compose.runOnIdle { redraw.value = true }
+        compose.onNodeWithTag("bidi-mention-route:true").assertIsDisplayed()
+        assertRetainedUi()
+        assertRetainedRoom()
+        assertExactlyOneResolution()
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        compose.runOnIdle {
+            scope.cancel()
+            assertEquals(0, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, mention.id)))
+        }
+        assertRetainedRoom()
+        assertExactlyOneResolution()
+    }
+
     @Test fun connectedUnmatchedCharlieShowsNotSavedWithoutSelectingAliceOrChangingTheRoom() {
         val alice = ContactDTO(
             id = UUID(0, 361), radioId = radio, publicKey = Bytes(ByteArray(32) { 0x11 }),
