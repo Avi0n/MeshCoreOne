@@ -134,6 +134,22 @@ twenty Kotlin witnesses and common firmware support bytes remain unchanged.
 This is an established merge-integration validator repair, not an inferred
 product, timeout or issue261 fix. The next automatic run owns the follow-up.
 
+At exact repair `2e81f2c9348177df196212b0cd3f1a723a5eddba`,
+`python tools\android-port\controller\test_runner.py --include-tests tools\android-port\local --include-tests android\parity-tests --quiet`
+PASS608 discovered/run/passed,0 failures/errors/skips, including the two new
+workflow regressions. Its own39686705312 reports controller119522569848 and
+scoped codec119523595481 success; Linux119523595263 was still running at this
+observation. This is parent-only evidence, not a final native verdict.
+
+While that exact local suite ran, main advanced to
+`35265173f2ae1765469c751d6d0eb66a82055c00` (PR262). After the suite completed,
+reservation113 admitted a disjoint merge of its three unchanged WP-003
+disposable-runner/test/deviation paths. Policy/manifest/workflow bytes did not
+change upstream. The resulting merge retains the entire2e product/validator/
+twenty-witness tree; only upstream's three paths and this WP's evidence/
+deviation differ. The merge candidate needs its own automatic exact-head
+execution; parent608 does not execute upstream's newly added cases.
+
 The following declared pure-source commands passed during preparation:
 
 | Command | Result |
