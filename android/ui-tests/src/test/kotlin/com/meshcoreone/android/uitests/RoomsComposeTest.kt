@@ -905,7 +905,7 @@ class RoomsComposeTest {
         val alice = ContactDTO(
             id = UUID.fromString("50200000-0000-0000-0000-000000000331"),
             radioId = radio, publicKey = Bytes(ByteArray(32) { 0x11 }),
-            name = "Alice", lastHeardTimestamp = null,
+            name = "Alice", outPathLength = 0u, lastHeardTimestamp = null,
         )
         var savedContacts = listOf(alice)
         var deviceName: String? = "MyDevice"
