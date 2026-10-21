@@ -1,6 +1,8 @@
 // AndroidOnly: WP-502 Production Rooms route/content with controlled service ports; not radio, Room database or golden evidence.
 // ReferenceInput: MC1/Views/RemoteNodes/Rooms/RoomConversationView.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Views/RemoteNodes/Rooms/RoomMessageBubble.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1Services/Sources/MC1Services/Services/RoomServerService.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1Services/Sources/MC1Services/Models/RoomMessage.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/Chats/Room/RoomAuthenticationSheet.swift@db14559b39d32322b06477c6ae676112f583db50
@@ -242,6 +244,127 @@ class RoomsComposeTest {
             .assertIsDisplayed()
         assertEquals(2, fixture.posts.size)
         assertTrue(fixture.joins.isEmpty())
+    }
+
+    @Test fun failedRoomRetryKeepsTheOriginalRowAndDraftThenReplacesOnlyThatRowAfterRecovery() {
+        val failed = RoomMessageDTO(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000313"),
+            sessionID = session.id, authorKeyPrefix = Bytes.of(0x42), authorName = "Me",
+            text = body, timestamp = 100u, createdAt = Instant.ofEpochSecond(100),
+            isFromSelf = true, statusRawValue = MessageStatus.FAILED.rawValue,
+        )
+        val other = liveMessage(1, 160u, "unchanged", Bytes.of(0xaa), "Alice")
+        val delivered = failed.copy(
+            statusRawValue = MessageStatus.DELIVERED.rawValue, retryAttempt = 1, maxRetryAttempts = 3,
+            ackCode = 0x04030201u, roundTripTime = 700u,
+        )
+        val fixture = Fixture().apply { stored = listOf(failed, other) }
+        val failure = RoomServerError.SessionNotFound()
+        var retryFailure: RoomServerError? = failure
+        var retryGate = CompletableDeferred<Unit>()
+        val dependencies = object : RoomConversationDependencies by fixture {
+            override val data = object : RoomConversationDataSource by fixture.data {
+                override suspend fun refreshSession(session: RemoteNodeSessionDTO): RemoteNodeSessionDTO? =
+                    error("Retry must not refresh authentication")
+                override suspend fun contactFor(session: RemoteNodeSessionDTO): ContactDTO? =
+                    error("Retry must not look up authentication")
+            }
+            override val service = object : RoomConversationService by fixture.service {
+                override suspend fun retry(session: RemoteNodeSessionDTO, messageId: UUID): RoomMessageDTO {
+                    assertEquals(this@RoomsComposeTest.session, session)
+                    assertEquals(failed.id, messageId)
+                    fixture.retries += session.id to messageId
+                    retryGate.await()
+                    retryFailure?.let { throw it }
+                    return delivered
+                }
+            }
+        }
+        val holder = RoomConversationStateHolder(session, dependencies, scope)
+        mount {
+            RoomConversationRoute(
+                holder, fixture.links, failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.waitUntil { holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val readEffects = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+        fun assertVisibleMessages(target: RoomMessageDTO, statusLabel: String) {
+            assertEquals(listOf(target, other), holder.state.value.messages)
+            assertEquals(
+                listOf(RoomMessageRow(target, true, false, false), RoomMessageRow(other, false, true, true)),
+                holder.state.value.rows,
+            )
+            assertSame(other, holder.state.value.messages[1])
+            compose.onAllNodesWithContentDescription("$body, $statusLabel")
+                .assertCountEquals(1)[0].assertIsDisplayed()
+            compose.onAllNodesWithContentDescription("Alice: unchanged").assertCountEquals(1)[0].assertIsDisplayed()
+            for (message in listOf(target, other)) {
+                compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true).assertIsDisplayed()
+            }
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            compose.onNodeWithText(text(Chats.chatsInputSendMessage)).assertIsEnabled()
+            compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
+            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
+            assertEquals(session, holder.state.value.session)
+            assertFalse(holder.state.value.isLoading)
+            assertFalse(holder.state.value.isSending)
+            assertFalse(holder.state.value.isAuthenticating)
+            assertEquals(readEffects, fixture.loads)
+        }
+        val failedLabel = text(Rooms.remoteNodesRoomMessageStatusFailedLabel)
+        assertVisibleMessages(failed, failedLabel)
+        compose.onNodeWithText(text(Chats.chatsMessageStatusRetry), useUnmergedTree = true)
+            .assertIsDisplayed().performClick()
+        compose.waitUntil { fixture.retries.size == 1 }
+        assertVisibleMessages(failed, failedLabel)
+        assertNull(holder.state.value.failure)
+        assertTrue(fixture.reported.isEmpty())
+        compose.runOnIdle { assertTrue(retryGate.complete(Unit)) }
+        compose.waitUntil { holder.state.value.failure === failure }
+        assertVisibleMessages(failed, failedLabel)
+        assertEquals(listOf("retry room message" to failure), fixture.reported)
+        compose.onNodeWithText(text(Strings.errorRoomServerSessionNotFound)).assertIsDisplayed().performClick()
+        assertNull(holder.state.value.failure)
+        assertEquals(listOf(session.id to failed.id), fixture.retries)
+        assertVisibleMessages(failed, failedLabel)
+        compose.runOnIdle {
+            retryFailure = null
+            retryGate = CompletableDeferred()
+        }
+        val actions = compose.onNodeWithContentDescription("$body, $failedLabel")
+            .fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        assertEquals(listOf(text(Chats.chatsMessageActionRetry)), actions.map { it.label })
+        compose.runOnIdle { assertTrue(actions.single().action()) }
+        compose.waitUntil { fixture.retries.size == 2 }
+        assertVisibleMessages(failed, failedLabel)
+        assertNull(holder.state.value.failure)
+        compose.onNodeWithText(text(Strings.errorRoomServerSessionNotFound)).assertDoesNotExist()
+        compose.runOnIdle { assertTrue(retryGate.complete(Unit)) }
+        compose.waitUntil { holder.state.value.messages.first() == delivered }
+        val deliveredLabel = text(Rooms.remoteNodesRoomMessageStatusDeliveredLabel)
+        assertVisibleMessages(delivered, deliveredLabel)
+        val recovered = compose.onNodeWithContentDescription("$body, $deliveredLabel").fetchSemanticsNode()
+        assertTrue(recovered.config[SemanticsActions.CustomActions].isEmpty())
+        compose.onNodeWithContentDescription("$body, $failedLabel").assertDoesNotExist()
+        compose.onNodeWithText(text(Chats.chatsMessageStatusRetry), useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithText(text(Strings.errorRoomServerSessionNotFound)).assertDoesNotExist()
+        assertEquals(List(2) { session.id to failed.id }, fixture.retries)
+        assertEquals(listOf("retry room message" to failure), fixture.reported)
+        assertNull(holder.state.value.failure)
+        assertEquals(body, holder.state.value.draft)
+        assertTrue(fixture.posts.isEmpty())
+        assertTrue(fixture.joins.isEmpty())
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        val settled = holder.state.value
+        compose.runOnIdle {
+            scope.cancel()
+            assertEquals(0, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, failed.id)))
+        }
+        assertEquals(settled, holder.state.value)
+        assertEquals(readEffects, fixture.loads)
+        assertEquals(2, fixture.retries.size)
     }
 
     @Test fun reconnectLookupAndRejectedJoinKeepTheSheetAndExactRememberChoiceUntilSuccess() {
