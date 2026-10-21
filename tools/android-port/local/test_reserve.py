@@ -112,13 +112,14 @@ class ReservationRuntimeTests(unittest.TestCase):
             self.assertEqual(first["manifest_sha256"], second["manifest_sha256"])
             self.assertTrue((target / "run.sh").is_file())
             self.assertEqual((target / "runtime-manifest.json").read_bytes(), first_manifest)
-            self.assertEqual(reserve.verify_runtime(target)["schema_version"], 1)
+            self.assertEqual(reserve.verify_runtime(target)["schema_version"], 2)
+            self.assertEqual(reserve.verify_runtime(target)["repository"], ledger.repository)
             self.assertEqual(ledger.hard_lock_records(), [])
 
     def test_runtime_verification_rejects_opaque_helper_drift(self):
         with tempfile.TemporaryDirectory() as temporary:
             target = Path(temporary)
-            reserve.write_runtime(target)
+            reserve.write_runtime(target, "fixture/repository")
             (target / "reserve.py").write_text("drift\n", encoding="utf-8")
             with self.assertRaisesRegex(Exception, "differs from manifest"):
                 reserve.verify_runtime(target)

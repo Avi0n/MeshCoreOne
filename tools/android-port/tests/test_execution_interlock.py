@@ -37,6 +37,60 @@ class ExecutionInterlockTests(unittest.TestCase):
                 patch.object(check, "execution_runtime", return_value=self.ledger):
             return check.run_owned(self.root, self.commit, None, check.ALL_STAGES, False, **kwargs)
 
+    @contextlib.contextmanager
+    def matching_runtime(self, *, candidate_repository="fixture/repository"):
+        common = self.root / "common"
+        target = common / "meshcore-reservations"
+        target.mkdir(parents=True)
+        reserve.write_runtime(target, "fixture/repository")
+        policy = self.root / "docs/android/automation-policy.json"
+        policy.parent.mkdir(parents=True)
+        policy.write_text(json.dumps({"repository": candidate_repository}), encoding="utf-8")
+        with patch.object(check, "capture", side_effect=lambda command, **kwargs:
+                          str(self.root if "--show-toplevel" in command else common)), \
+                patch.object(check, "binding", return_value=(self.commit, self.tree)), \
+                patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.root / "ledger.sqlite3")}):
+            yield
+
+    def test_actual_matching_runtime_rejects_candidate_namespace_drift_with_entire_native_row_unchanged(self):
+        self.own("native-execution")
+        before = self.ledger.hard_lock_records()
+        with self.matching_runtime(candidate_repository="candidate/incorrect"), \
+                patch.object(check, "transport") as transport, \
+                patch.object(check, "run_candidate") as candidate, \
+                patch.object(check, "run_adapter") as adapter, \
+                patch.object(check.subprocess, "run") as process:
+            with self.assertRaisesRegex(ValueError, "trusted installed runtime identity"):
+                check.run_owned(self.root, self.commit, None, check.ALL_STAGES, False)
+        for launch in (transport, candidate, adapter, process):
+            launch.assert_not_called()
+        self.assertEqual(self.other.hard_lock_records(), before)
+        with self.ledger.transaction() as connection:
+            self.assertEqual(connection.execute("SELECT COUNT(*) FROM hard_locks").fetchone()[0], 1)
+
+    def test_actual_missing_tool_is_pending_exact_nonblocking_push_without_any_poisoned_lease(self):
+        with self.matching_runtime(), patch.object(check.shutil, "which", return_value=None), \
+                patch.object(check.subprocess, "run") as process, \
+                patch.object(check, "run_candidate") as candidate, \
+                patch("sys.stdin", io.StringIO(f"refs/a {self.commit} refs/a {check.ZERO}\n")), \
+                contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(check.main(["--pre-push"]), 0)
+            record = json.loads(check.pending_file(self.root).read_text(encoding="utf-8"))
+        self.assertIn("unavailable", record["reason"])
+        self.assertEqual((record["commit"], record["tree"]), (self.commit, self.tree))
+        self.assertEqual(record["status"], "verification-pending")
+        process.assert_not_called()
+        candidate.assert_not_called()
+        self.assertEqual(self.other.hard_lock_records(), [])
+
+    def test_actual_prelaunch_worktree_refusal_releases_own_identity_without_launch(self):
+        with self.matching_runtime(), patch.object(check, "transport", return_value=[]), \
+                patch.object(check.subprocess, "run") as process:
+            with self.assertRaisesRegex(ValueError, "Working-tree overlays"):
+                check.run_owned(self.root, self.commit, None, check.ALL_STAGES, True)
+        process.assert_not_called()
+        self.assertEqual(self.other.hard_lock_records(), [])
+
     def test_held_native_blocks_advisory_and_manual_before_any_transport_or_bundle(self):
         self.own("native-execution")
         before = copy.deepcopy(self.ledger.hard_lock_records())
@@ -146,8 +200,55 @@ class ExecutionInterlockTests(unittest.TestCase):
                                          {"replacement": True}, 999.0)
         self.assertEqual(self.ledger.hard_lock_records(), before)
 
+    def test_explicit_exact_receipt_reentry_never_releases_live_outer_context(self):
+        payload = {"wp": "WP-503", "pre-mutation": True}
+        with self.ledger.hard_lock("native-execution", "exact-owner", payload, 123.0):
+            receipt, = self.ledger.hard_lock_records()
+            with self.other.hard_lock("native-execution", "exact-owner", payload, 999.0,
+                                      expected_existing=receipt) as recovered:
+                self.assertFalse(recovered["acquired_new"])
+                self.assertEqual(self.ledger.hard_lock_records(), [receipt])
+            self.assertEqual(self.ledger.hard_lock_records(), [receipt])
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+
+    def test_sequential_pre_mutation_retained_receipt_recovery_preserves_binding_until_explicit_release(self):
+        payload = {"wp": "WP-503", "pre-mutation": True}
+        self.ledger.acquire_hard_lock("native-execution", "exact-owner", payload, 123.0)
+        receipt, = self.ledger.hard_lock_records()
+        with self.assertRaisesRegex(ValueError, "fixture pre-mutation failure"):
+            with self.other.hard_lock("native-execution", "exact-owner", payload, 999.0,
+                                      expected_existing=receipt):
+                raise ValueError("fixture pre-mutation failure")
+        self.assertEqual(self.ledger.hard_lock_records(), [receipt])
+        with self.other.hard_lock("native-execution", "exact-owner", payload, 1000.0,
+                                  expected_existing=receipt):
+            self.assertEqual(self.ledger.hard_lock_records(), [receipt])
+        self.assertEqual(self.ledger.hard_lock_records(), [receipt])
+        self.ledger.release_hard_lock("native-execution", "exact-owner")
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+
+    def test_recovery_rejects_foreign_stale_changed_payload_or_missing_receipt(self):
+        self.own("native-execution")
+        receipt, = self.ledger.hard_lock_records()
+        for field, value in (("owner", "foreign"), ("acquired", 999.0),
+                             ("payload", {"changed": True}), ("repository", "other/repository")):
+            stale = {**receipt, field: value}
+            with self.assertRaises(PortError):
+                self.other.acquire_hard_lock("native-execution", "native-owner",
+                                             receipt["payload"], 999.0, expected_existing=stale)
+            self.assertEqual(self.ledger.hard_lock_records(), [receipt])
+        with self.assertRaises(PortError):
+            self.other.acquire_hard_lock("native-execution", "foreign", receipt["payload"], 999.0,
+                                         expected_existing=receipt)
+        self.ledger.release_hard_lock("native-execution", "native-owner")
+        with self.assertRaises(PortError):
+            self.other.acquire_hard_lock("native-execution", "native-owner", receipt["payload"], 999.0,
+                                         expected_existing=receipt)
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+
     def test_transport_failure_and_unacknowledged_exit_retain_real_ownership(self):
         def candidate(*args, **kwargs):
+            kwargs["execution"]["started"] = True
             locks = self.other.hard_lock_records()
             self.assertEqual(locks[0]["resource"], "gradle-execution")
             with self.assertRaises(PortError):
@@ -156,8 +257,13 @@ class ExecutionInterlockTests(unittest.TestCase):
             return subprocess.CompletedProcess(["fixture"], 0)
 
         for fails_transport in (True, False):
-            with patch.object(check, "transport", side_effect=OSError("transport uncertain")
-                              if fails_transport else None, return_value=[]), \
+            def transport(*args, **kwargs):
+                if fails_transport:
+                    kwargs["execution"]["started"] = True
+                    raise OSError("transport uncertain")
+                return []
+
+            with patch.object(check, "transport", side_effect=transport), \
                     patch.object(check, "run_candidate", side_effect=candidate), \
                     contextlib.redirect_stderr(io.StringIO()), \
                     self.assertRaises((OSError, ValueError)):
@@ -222,11 +328,16 @@ class ExecutionInterlockTests(unittest.TestCase):
         policy = self.root / "docs/android/automation-policy.json"
         policy.parent.mkdir(parents=True)
         policy.write_text('{"repository":"fixture/repository"}', encoding="utf-8")
-        for mode in ("missing", "old", "mismatched", "old-loaded-ledger", "matching"):
+        for mode in ("missing", "old-schema", "old", "mismatched", "old-loaded-ledger", "matching"):
             if mode != "missing":
                 target.mkdir(exist_ok=True)
-                reserve.write_runtime(target)
-                if mode == "old":
+                reserve.write_runtime(target, "fixture/repository")
+                if mode == "old-schema":
+                    data = json.loads((target / "runtime-manifest.json").read_text())
+                    data.pop("repository")
+                    data["schema_version"] = 1
+                    (target / "runtime-manifest.json").write_text(json.dumps(data), encoding="utf-8")
+                elif mode == "old":
                     (target / "controller/ledger.py").write_text("# old runtime\n", encoding="utf-8")
                     data = json.loads((target / "runtime-manifest.json").read_text())
                     data["files"]["controller/ledger.py"] = reserve.file_sha256(target / "controller/ledger.py")
@@ -237,7 +348,7 @@ class ExecutionInterlockTests(unittest.TestCase):
             with self.subTest(mode=mode), patch.object(check, "capture", return_value=str(common)), \
                     patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.root / "runtime-ledger.sqlite3")}), \
                     patch.object(loaded, "EXECUTION_INTERLOCK_VERSION",
-                                 0 if mode == "old-loaded-ledger" else 1):
+                                 1 if mode == "old-loaded-ledger" else 2):
                 if mode == "matching":
                     self.assertEqual(check.execution_runtime(self.root).repository, "fixture/repository")
                 else:
@@ -315,3 +426,6 @@ class ExecutionProcessFixtureTests(unittest.TestCase):
 
     def test_internal_mode_cannot_bypass_handoff_or_unsupported_platform_rejection(self):
         self.linux_fixture_or_fail_closed("test_owned_lock_mode_cannot_skip_real_lane_ownership")
+
+    def test_real_persistent_owned_manual_child_retains_or_unsupported_platform_rejection(self):
+        self.linux_fixture_or_fail_closed("test_owned_persistent_manual_child_retains_until_fixture_owner_reaps_it")

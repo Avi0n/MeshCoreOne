@@ -82,7 +82,8 @@ class LocalCheckTests(unittest.TestCase):
         self.assertIn("--build-cache", options)
         self.assertFalse(any("Evidence" in option or "evidence" in option for option in options))
         self.assertFalse(any("Invocation" in option or "invocation" in option for option in options))
-        self.assertNotIn("--no-daemon", options)
+        self.assertIn("--no-daemon", options)
+        self.assertIn("-Pkotlin.compiler.execution.strategy=in-process", options)
         self.assertIn("--no-daemon", fast.scaffold_options(advisory=True))
         self.assertIn("-Pkotlin.compiler.execution.strategy=in-process", fast.scaffold_options(advisory=True))
 
@@ -162,7 +163,7 @@ class LocalCheckTests(unittest.TestCase):
              patch("check.subprocess.run",
                    side_effect=subprocess.CalledProcessError(1, ["wsl"])):
             with self.assertRaises(subprocess.CalledProcessError):
-                check.transport("BrokenDistribution")
+                check.transport("BrokenDistribution", execution={"started": False})
 
     def test_unsupported_arm_push_is_pending_without_false_pass(self):
         sha = "a" * 40

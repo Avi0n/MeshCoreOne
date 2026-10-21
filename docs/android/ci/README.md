@@ -26,7 +26,15 @@ inside the same immediate SQLite transaction in both directions. Only EXACT
 owner equality permits distinct native+Gradle nesting (the existing debug
 packaging contract), not a session/prefix exemption. Reacquiring an execution
 resource cannot replace its incumbent payload/timestamp or accidentally release
-an outer context. Runtime installation conflicts with both execution resources,
+an outer context. Explicit retained-operation recovery passes the entire known
+`expected_existing` receipt (repository/resource/owner/payload/acquired/
+record_state) plus exact owner/payload to `hard_lock` or `acquire_hard_lock`.
+The transaction rejects stale/foreign/missing receipts; a match returns
+`acquired_new:false` without updating ANY stored byte/time. A borrowing context
+never auto-releases, including on failure or nested use. After actual cleanup,
+the original owner still explicitly releases via the existing gated consumer
+path; recovery is not cleanup proof or permission to release live work.
+Runtime installation conflicts with both execution resources,
 even under the same owner; unrelated resource behavior is unchanged.
 
 The actual advisory and full/manual entrance binds the requested commit/tree,
@@ -38,6 +46,9 @@ incumbent releases. The existing Linux flock queue remains 10s for advisory,
 unbounded for manual, and the advisory work deadline remains 180s.
 
 Missing/old/self-consistent-but-mismatched installed code fails closed. The
+schema-v2 runtime manifest binds the repository selected by the trusted protected
+installer, not the candidate policy. Candidate repository drift is rejected
+BEFORE opening a lock namespace. The
 manifest, executing launcher/helpers and loaded Ledger version/source must match
 the canonical runtime; revalidation under actual execution ownership prevents
 installation racing launch. The supported atomic installer already delivers
@@ -56,19 +67,32 @@ not CI results, acceptance or a second verification bundle.
 Missing/malformed/stale completion, abrupt transport/supervisor failure or
 unreapable children retains the actual owner AND its control/bundle/recovery
 inputs. There is no TTL, forced foreign release or exit-code-shaped cleanup
-success. Advisory TERM/KILL cleanup is bounded and signals only pinned owned
-descendants. Full/manual retains cache/daemon flags: existing daemons can be
-reused, but a failed manual run or newly persistent descendants cannot establish
-quiescence and retains ownership for authoritative reconciliation (no daemon
-kill, no automatic retry/adoption/release). A successful manual run without
-remaining descendants releases normally. Native contributor adapters without
+success. A proven PRELAUNCH refusal (absent wsl.exe/bash, unsupported adapter or
+worktree overlay) releases only its fresh lease. State is marked started
+immediately BEFORE an actual transport/bundle/adapter subprocess attempt, never
+merely because a helper was called. Attempted-but-unacknowledged execution retains
+ownership regardless of exception type or exit status. Advisory TERM/KILL cleanup
+is bounded and signals only pinned owned descendants.
+
+Full/manual has an explicit OWNED NON-DAEMON adaptation: local Gradle tasks use
+`--no-daemon` and Kotlin compilation in-process, including cold first use.
+Strict tasks/results, normal caches and task reuse remain unchanged; shared/
+foreign daemons are never stopped. This does not claim warm daemon reuse.
+Manual supervision waits briefly for children to self-reap: normal success AND
+nonzero verification failure with fully observed quiescence release ownership
+with the original status. Persistent descendants/unknown cleanup retain ownership
+for authoritative reconciliation, without daemon kill or automatic adoption/
+release. Native contributor adapters without
 the supported Linux pidfd supervisor fail before launch, not fake a result.
 
 Controller regressions use real TEMPORARY Ledgers, concurrent two-party races,
-exact payload preservation, owner/stale/runtime boundaries, actual command
-construction and pending commit/tree assertions. Six discovered process-fixture
+exact payload preservation, owner/stale/runtime boundaries, actual matching-runtime
+namespace drift, actual unavailable-tool/prelaunch refusal, retained-receipt
+borrowing, command construction and pending commit/tree assertions. Seven discovered process-fixture
 cases execute real isolated Linux launchers/children only on Linux; Windows
 instead proves unsupported-platform rejection without any WSL/native launch.
+Linux fixtures include first/next manual invocation, observed nonzero quiescence
+and persistent owned-child retention; they are not real Gradle cold builds.
 Source-local Windows results are not Linux/WSL/native proof. Original full/manual
 result validation and strict verification remain mandatory; fast-check failure
 never becomes a merge pass.

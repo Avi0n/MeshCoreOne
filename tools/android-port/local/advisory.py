@@ -146,7 +146,11 @@ def supervise(command, seconds=None, *, completion=None, token=None, preserve_da
             process.wait()
     if preserve_daemons:
         reap()
-        if status != 0 or descendants():
+        deadline = time.monotonic() + CLEANUP_SECONDS
+        while descendants() and time.monotonic() < deadline:
+            reap()
+            time.sleep(0.02)
+        if descendants():
             print("BLOCKED: manual execution or persistent children need reconciliation; "
                   "shared ownership retained (no daemon kill)", file=sys.stderr, flush=True)
             return status if status else 125
@@ -182,7 +186,7 @@ def main():
         admission = json.loads(args.admission.read_text(encoding="utf-8"))
         if (
             set(admission) != {"schema_version", "interlock_version", "owner", "token", "commit", "tree"}
-            or admission["schema_version"] != 1 or admission["interlock_version"] != 1
+            or admission["schema_version"] != 1 or admission["interlock_version"] != 2
             or admission["token"] != args.token or admission["owner"] != f"local-check:{args.token}"
             or admission["commit"] != args.commit
         ):

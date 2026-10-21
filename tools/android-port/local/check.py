@@ -45,7 +45,7 @@ def execution_runtime(repo):
     except ImportError as error:
         raise ValueError("Incomplete installed execution-interlock imports; reviewed installation required") from error
 
-    if (getattr(ledger_module, "EXECUTION_INTERLOCK_VERSION", None) != 1
+    if (getattr(ledger_module, "EXECUTION_INTERLOCK_VERSION", None) != 2
             or Path(reserve.__file__).resolve() != modules / "reserve.py"):
         raise ValueError("Unavailable exact execution-interlock runtime; reviewed installation required")
     try:
@@ -67,7 +67,9 @@ def execution_runtime(repo):
             raise ValueError(f"Local launcher differs from installed execution runtime: {name}")
     try:
         policy = reserve.load_json(repo / "docs/android/automation-policy.json")
-        return Ledger(reserve.shared_ledger(repo), policy["repository"])
+        if policy["repository"] != manifest["repository"]:
+            raise ValueError("Candidate repository differs from trusted installed runtime identity")
+        return Ledger(reserve.shared_ledger(repo), manifest["repository"])
     except PortError as error:
         raise ValueError(str(error)) from error
 
@@ -103,29 +105,29 @@ def run_owned(repo, revision, distribution, stages, worktree, *, advisory=False,
     except (PortError, sqlite3.Error) as error:
         directory.rmdir()
         raise ValueError(str(error)) from error
-    launched = False
+    execution = {"started": False}
     try:
         # Revalidate under ownership: installation and execution cannot cross here.
         execution_runtime(repo)
         if adapter and not sys.platform.startswith("linux"):
             raise ValueError("Full/manual adapter cleanup requires the supported Linux pidfd supervisor")
         admission.write_text(json.dumps({
-            "schema_version": 1, "interlock_version": 1, "owner": owner, "token": token,
+            "schema_version": 1, "interlock_version": 2, "owner": owner, "token": token,
             "commit": commit, "tree": tree,
         }) + "\n", encoding="utf-8")
-        launched = True
         if adapter:
             result = run_adapter(repo, commit, adapter, completion=completion, token=token,
-                                 admission=admission)
+                                 admission=admission, execution=execution)
         else:
-            prefix = transport(distribution)
+            prefix = transport(distribution, execution=execution)
             result = run_candidate(repo, commit, prefix, stages, worktree, advisory=advisory,
-                                   completion=completion, token=token, admission=admission)
+                                   completion=completion, token=token, admission=admission,
+                                   execution=execution)
         if not cleaned_execution(completion, token):
             raise ValueError("Execution returned without proven owned-child cleanup; ownership retained")
         return result
     finally:
-        if not launched or cleaned_execution(completion, token):
+        if not execution["started"] or cleaned_execution(completion, token):
             try:
                 ledger.release_hard_lock("gradle-execution", owner)
             except PortError as error:
@@ -171,7 +173,7 @@ def binding(repo, revision):
     return commit, tree
 
 
-def transport(distribution):
+def transport(distribution, *, execution=None):
     if os.name != "nt":
         if shutil.which("bash") is None:
             raise ValueError("Bash is unavailable")
@@ -183,6 +185,9 @@ def transport(distribution):
     if distribution:
         prefix.extend(["--distribution", distribution])
     prefix.append("--")
+    if execution is None:
+        raise ValueError("Transport requires actual shared execution admission")
+    execution["started"] = True
     subprocess.run([*prefix, "bash", "-c", "command -v git && command -v flock"], check=True)
     return prefix
 
@@ -194,10 +199,10 @@ def linux_path(path, prefix):
 
 
 def run_candidate(repo, revision, prefix, stages, worktree, *, advisory=False, completion=None,
-                  token=None, admission=None):
+                  token=None, admission=None, execution=None):
     if worktree:
         raise ValueError("Working-tree overlays are not supported by the installed merge verifier")
-    if completion is None or token is None or admission is None:
+    if completion is None or token is None or admission is None or execution is None:
         raise ValueError("Local execution requires actual shared ownership and cleanup binding")
     revision, _ = binding(repo, revision)
     key = hashlib.sha256(str(repo).encode("utf-8")).hexdigest()[:16]
@@ -209,6 +214,7 @@ def run_candidate(repo, revision, prefix, stages, worktree, *, advisory=False, c
         if source.is_file():
             (control / installed_name).write_bytes(source.read_bytes().replace(b"\r\n", b"\n"))
     bundle = completion.parent / "candidate.bundle"
+    execution["started"] = True
     subprocess.run(["git", "-C", str(repo), "bundle", "create", str(bundle), *bundle_revisions(revision)], check=True)
     command = [
         *prefix, "bash", linux_path(control / "run.sh", prefix),
@@ -294,7 +300,7 @@ def validate_result(path, expected_commit, expected_tree):
     return data
 
 
-def run_adapter(repo, revision, state_path, *, completion=None, token=None, admission=None):
+def run_adapter(repo, revision, state_path, *, completion=None, token=None, admission=None, execution=None):
     state = json.loads(Path(state_path).read_text(encoding="utf-8"))
     if set(state) != {"schema_version", "adapter"} or state["schema_version"] != 1:
         raise ValueError("Malformed contributor toolchain adapter state")
@@ -302,9 +308,10 @@ def run_adapter(repo, revision, state_path, *, completion=None, token=None, admi
     if not isinstance(adapter, list) or not adapter or not all(isinstance(item, str) and item for item in adapter):
         raise ValueError("Toolchain adapter command must be a non-empty argument list")
     commit, tree = binding(repo, revision)
-    if completion is None or token is None or admission is None:
+    if completion is None or token is None or admission is None or execution is None:
         raise ValueError("Adapter execution requires actual shared ownership and cleanup binding")
     result = completion.parent / "adapter-result.json"
+    execution["started"] = True
     subprocess.run([
         sys.executable, str(Path(__file__).with_name("advisory.py")),
         "--completion", str(completion), "--token", token, "--preserve-daemons",

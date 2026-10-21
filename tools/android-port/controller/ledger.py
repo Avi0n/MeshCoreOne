@@ -34,7 +34,7 @@ HARD_LOCK_RESOURCES = {
     "native-execution", "physical-device", "credentials-signing-release",
     "repository-settings",
 }
-EXECUTION_INTERLOCK_VERSION = 1
+EXECUTION_INTERLOCK_VERSION = 2
 EXECUTION_RESOURCES = {"native-execution", "gradle-execution"}
 
 
@@ -781,7 +781,8 @@ class Ledger:
                     migrated += 1
             return migrated
 
-    def acquire_hard_lock(self, resource: str, owner: str, payload: dict, now: float):
+    def acquire_hard_lock(self, resource: str, owner: str, payload: dict, now: float, *,
+                          expected_existing=None):
         if not resource or not owner:
             raise PortError("Hard-lock resource and owner are required")
         if resource not in HARD_LOCK_RESOURCES:
@@ -810,9 +811,20 @@ class Ledger:
                             f"Hard-lock collision for external resource {resource}: {peer['resource']} held"
                         )
             row = connection.execute(
-                "SELECT owner FROM hard_locks WHERE repository=? AND resource=?",
+                "SELECT * FROM hard_locks WHERE repository=? AND resource=?",
                 (self.repository, resource),
             ).fetchone()
+            if expected_existing is not None:
+                actual = (
+                    {**dict(row), "payload": decode_json(row["payload"]), "record_state": "hard"}
+                    if row else None
+                )
+                if (
+                    resource not in EXECUTION_RESOURCES or actual != expected_existing
+                    or actual is None or actual["owner"] != owner or actual["payload"] != payload
+                ):
+                    raise PortError("Missing, stale or foreign retained execution receipt")
+                return {"resource": resource, "owner": owner, "payload": actual["payload"], "acquired_new": False}
             if row and (
                 row["owner"] != owner
                 or resource in EXECUTION_RESOURCES | {"installed-git-common-runtime"}
@@ -822,7 +834,7 @@ class Ledger:
                 "INSERT OR REPLACE INTO hard_locks VALUES (?,?,?,?,?)",
                 (self.repository, resource, owner, json.dumps(payload), now),
             )
-            return {"resource": resource, "owner": owner, "payload": payload}
+            return {"resource": resource, "owner": owner, "payload": payload, "acquired_new": True}
 
     def release_hard_lock(self, resource: str, owner: str):
         with self.transaction() as connection:
@@ -834,13 +846,14 @@ class Ledger:
                 raise PortError("Missing or foreign hard lock")
 
     @contextmanager
-    def hard_lock(self, resource: str, owner: str, payload: dict, now: float):
-        """Acquire and always release one non-isolated external-resource lock."""
-        lock = self.acquire_hard_lock(resource, owner, payload, now)
+    def hard_lock(self, resource: str, owner: str, payload: dict, now: float, *, expected_existing=None):
+        """Release only a newly acquired lock; explicit retained-receipt reentry borrows it."""
+        lock = self.acquire_hard_lock(resource, owner, payload, now, expected_existing=expected_existing)
         try:
             yield lock
         finally:
-            self.release_hard_lock(resource, owner)
+            if lock["acquired_new"]:
+                self.release_hard_lock(resource, owner)
 
     def hard_lock_records(self):
         with self.transaction() as connection:

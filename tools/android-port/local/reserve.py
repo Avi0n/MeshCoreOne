@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -67,7 +68,9 @@ def file_sha256(path: Path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def write_runtime(directory: Path):
+def write_runtime(directory: Path, repository: str):
+    if not isinstance(repository, str) or re.fullmatch(r"[\w.-]+/[\w.-]+", repository) is None:
+        raise PortError("Runtime installation requires its trusted repository identity")
     manifest = {}
     for relative, source in runtime_sources().items():
         destination = directory / relative
@@ -75,7 +78,7 @@ def write_runtime(directory: Path):
         destination.write_bytes(source.read_bytes().replace(b"\r\n", b"\n"))
         manifest[relative] = file_sha256(destination)
     (directory / "runtime-manifest.json").write_text(
-        json.dumps({"schema_version": 1, "files": manifest}, indent=2) + "\n",
+        json.dumps({"schema_version": 2, "repository": repository, "files": manifest}, indent=2) + "\n",
         encoding="utf-8", newline="\n",
     )
     return manifest
@@ -86,7 +89,11 @@ def verify_runtime(directory: Path):
     if not manifest_path.is_file() or manifest_path.is_symlink():
         raise PortError("Installed reservation runtime manifest is missing or unsafe")
     manifest = load_json(manifest_path)
-    if set(manifest) != {"schema_version", "files"} or manifest["schema_version"] != 1:
+    if (
+        set(manifest) != {"schema_version", "repository", "files"} or manifest["schema_version"] != 2
+        or not isinstance(manifest["repository"], str)
+        or re.fullmatch(r"[\w.-]+/[\w.-]+", manifest["repository"]) is None
+    ):
         raise PortError("Malformed installed reservation runtime manifest")
     files = manifest["files"]
     if not isinstance(files, dict) or not files:
@@ -109,7 +116,7 @@ def install_runtime(target: Path, ledger: Ledger, owner: str, now: float):
         stage = Path(tempfile.mkdtemp(prefix=target.name + ".stage-", dir=target.parent))
         backup = target.with_name(target.name + ".previous")
         try:
-            write_runtime(stage)
+            write_runtime(stage, ledger.repository)
             expected = verify_runtime(stage)
             if backup.exists():
                 raise PortError(f"Stale runtime backup requires reconciliation: {backup}")

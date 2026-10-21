@@ -13,9 +13,8 @@ def scaffold_options(advisory=False):
     options = [
         "--console=plain", "--dependency-verification", "strict", "--build-cache",
         "--no-parallel", "--max-workers=4", "-PscaffoldTestHeap=512m",
+        "--no-daemon", "-Pkotlin.compiler.execution.strategy=in-process",
     ]
-    if advisory:
-        options.extend(["--no-daemon", "-Pkotlin.compiler.execution.strategy=in-process"])
     return options
 
 
