@@ -3,8 +3,9 @@
 ## Identity and previously missing boundary
 
 - Frozen source: `db14559b39d32322b06477c6ae676112f583db50`.
-- Candidate parent: `67df24d4095f621eaf49ec40826322f5fb969efc`;
-  actual main/base: `bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`.
+- Implementation/local-execution parent: `67df24d4095f621eaf49ec40826322f5fb969efc`;
+  its actual main/base: `bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`.
+  Later actual current-main reconciliation is separately bound below.
 - Manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
   semantic policy: `7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6`.
 - Same WP-501 attempt/stored session
@@ -128,6 +129,32 @@ unique invocation identity, WP501/reservation74 and exact selected source.
 Successful owner suffix: `unsigned-backup:3ae42694a2d94774afbfb403cde9c7aa`.
 No packaging helper, native lock, adb, install, instrumentation, main/205
 advancement or foreign resource release was used.
+
+## Actual current-main reconciliation and historical hosted failure
+
+Before publication, the freshness guard stopped on actual main
+`85871f40b1520a89ced6b9bec74aa8eec2f4f4de`, user-merged PR257 retaining
+producer `ce908230972a5504e913591c72f65e427735dae0`. Same reservation74->75
+admitted six incoming paths: CI README, WP003 deviation, ci_environment.py,
+debug_packaging.py and their two test files. No path overlaps a candidate
+edit. Merge `2b1a2c82be3f07a4ea81c6d3d49c4171163a9f32`, parents
+`364373d42f4bb835e8196db80bbe43f7a97b7795`/actual858 main, preserves all
+six exact producer/main blobs and all150 candidate-only paths. Entire
+Android tree is identical to364, including executed sourceae934e20.
+Local2/2 remains actual67df/bfd execution, not a new858 run. Frozen source,
+manifest, semantic policy and archived accounting are unchanged.
+
+Actual predecessor67df/run39517143447 is terminal **FAILURE**:
+Linux118953046503's quiet Gradle command timed out after1799.999985403s
+between23:51:00Z and00:21:00Z. The actual failed-step log has no original
+assertion failure or final App count. Classifier/controller/codec passed;
+SwiftData118963823960 skipped and aggregate118963823201 failed. This is
+not cancellation, passing Android execution or a proved test defect.
+The incoming process-local full-assembly heap change is not asserted to
+repair that Linux timeout. No timeout/expectation was relaxed, old CI
+manually rerun or result bundle copied/hashed/revalidated; the trusted
+wrapper diagnostic investigation belongs to its existing producer.
+Successor hosted verification remains exact-new-head/current-base work.
 
 ## Read inputs and limits
 
