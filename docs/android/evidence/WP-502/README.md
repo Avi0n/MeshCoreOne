@@ -91,7 +91,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four route/render methods, thirteen ordering witnesses, six label/action consumers and three renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure plus three Android-only defensive faults pass ata9a6; mounted retry passes1/1 atf4. Next one mounted mention-status consumer passes1/1 at6949, preserving all33 incumbents/helpers/Fixture. Source34 is not combined34 execution or primary original-case approval. No actual service/history/Room-store/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
+| `RoomsComposeTest` | Original four route/render methods, thirteen ordering witnesses, six label/action consumers and three renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure plus three Android-only defensive faults pass ata9a6; mounted retry passes1/1 atf4. Mention-status6949 and corrected-input a05 executions remain separately bound. New multiple-Alice matching-row selection at9072fa344 is UNVERIFIED/NOT RUN, preserving all34 incumbents/helpers/Fixture. Current source35 is not combined35 execution or primary original-case approval. No actual service/history/Room-store/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -109,6 +109,39 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Multiple-Alice matching-row selection: LOCAL UNVERIFIED
+
+Source **9072fa344fca13dd472331e41b371b3c3b04b14c**, direct parent
+**c6d853035d75913afda61505c8e69955d39e4ef1**, adds one mounted method,
+one reference header and four imports: **129 insertions/zero deletions**.
+All34 incumbent bodies/helpers/Fixture are byte-preserved; no production,
+build, fixture, primary accounting or policy edit. Final test blob is
+`276317f4fe7521fe4c016bc55357372c85e09278`.
+
+Complete frozen eight-case comparison identifies the missing multiple-match
+family: raw Alice, connected Me, contacts[Alice1,Alice2,Bob], same radio.
+Every original makeContact field is explicit, including zero-hop outPathLength0;
+fixed UUIDs and repeated32x11/22/33 keys represent source random identities,
+not literal original IDs. Actual bubble custom action opens the real shared
+picker with two ordered, clickable48dp Alice rows, no Bob/self/not-saved branch,
+and no eager navigation. Done closes without selection; reopening and clicking
+the second row invokes the real App NavigationCoordinator, producing exactly
+one Nodes ContactDetail for the full second DTO/identity while retaining the
+Room selection/stack and200% CJK/RTL composer draft. The source effect is
+contact-detail navigation, NOT composer mention insertion. Full independent
+Room state/rows, once-labels/keyed messages, read effects and teardown remain.
+
+Local Gradle/native/advisory and the new selector **NOT RUN** under retained
+WP503 native lease; no discovery/XML/pass claim. Trusted Python portmap,
+controller validation, whitespace and exact-incumbent preservation checks PASS,
+not software execution. Publishedc6/automatic39543591579 stays immutable;
+predecessor883/App821 and corrected a05's1/1 are not successor results.
+[Selector, complete original comparison and scope](software-verification.md#multiple-alice-matching-row-selection-local-unverified).
+Native matching rows still omit frozen ContactMatchRow advert/type/key details;
+this consumer does not certify that existing rendering gap, destination-screen
+rendering, opaque context.radioID, all eight originals or full-WP acceptance.
+The separate Room-actions product repair still awaits actual trusted admission.
 
 ### Mounted mention self-status versus absent device name
 

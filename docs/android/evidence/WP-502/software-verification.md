@@ -123,6 +123,7 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `roomConversationChangeFailureRemainsVisibleUntilDismissalAndSuccessfulReload` | Supplementary Android-only defensive port fault: frozen notifyConversationsChanged is nonthrowing. Injected native failure remains typed/visible once; dismissal cannot reload, and real live-event recovery completes the next sequence. |
 | `failedRoomRetryKeepsTheOriginalRowAndDraftThenReplacesOnlyThatRowAfterRecovery` | Mounted visible Retry reaches a held service port and source-reachable SessionNotFound; explicit localized-error dismissal then actual bubble custom Retry reaches held success. Original UUID/session, failed/delivered full row values, unchanged other row, once-labels/draft and no extra read/post/join/auth effects; callback removal and zero-subscriber teardown. Not a new frozen original or real service/store/ACK policy. |
 | `selfMentionAndMissingDeviceNameUseDistinctMountedStatusSheetsWithoutLosingTheRoomDraft` | One real route/bubble-action/modal consumer with two frozen predicates: mydevice/MyDevice/contacts[Alice] is self; Me/nil/contacts[] is not self. Actual localized self/not-saved title/subtitle/negative section/Done; fresh controlled ports and independently specified room rows/draft/effects/lifetime retained. Not all eight mention originals, real offline/contact-store refresh or primary accounting. |
+| `multipleAliceMatchesWaitForRowSelectionThenNavigateToTheSecondIdentityWithoutChangingTheRoomDraft` | LOCAL UNVERIFIED/NOT RUN. Original Alice/Me/[Alice1,Alice2,Bob]/same-radio inputs enter actual Room route/shared picker. Done is nonselecting; second ordered row alone reaches actual App NavigationCoordinator ContactDetail for the complete second DTO, one stack push, preserved Room state/stack/draft and zero-subscriber teardown. Not insertion, single-match navigation, rich ContactMatchRow metadata or full original-family acceptance. |
 
 Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
@@ -636,6 +637,74 @@ owned cleanup/no App count credited. Actual main/base dbb/reservation30/draft
 retained. New automatic39537138016/883 is IN_PROGRESS; no dispatch/cancel/rerun,
 result transfer or second CI-result bundle. New mention increment stays LOCAL.
 
+#### Multiple-Alice matching-row selection: LOCAL UNVERIFIED
+
+Read all eight ResolveMentionTap bodies/helper, full frozen evaluator,
+MentionTapHandler/Picker/ContactMatchRow and navigation effect. Compare all34
+current mounted consumers, WP503's actual single-Alice dispatcher/navigation
+method and existing LinkLogicTest evaluator-only checks. No incumbent opens
+the matching-contact branch and selects one of two Alice rows. Original-case
+ownership/accounting is unchanged; this is one new controlled mounted consumer.
+
+| Complete frozen comparison | Existing or selected consumer; not blanket acceptance |
+| --- | --- |
+| Single Alice among Alice/Bob | WP503 mounted single-contact navigation already exists; not duplicated. |
+| Multiple Alice1/Alice2 among Alice1/Alice2/Bob | Selected here: two real picker rows, no automatic navigation, second-row identity effect. |
+| Charlie absent among Alice | Not newly covered by this increment. |
+| mydevice/MyDevice among Alice | Prior c6/a05 self-status consumer, separately bound execution. |
+| Blocked single Alice | Not newly covered by this increment. |
+| Me with absent device name/empty contacts | Prior c6/a05 not-self-status consumer, separately bound execution. |
+| Bidi-control suffix on Alice | Not newly covered by this increment. |
+| Whitespace-only name | Not newly covered by this increment. |
+
+Code **9072fa344fca13dd472331e41b371b3c3b04b14c**, direct parentc6d853,
+adds129 lines/zero deletions: one method, one reference header, four imports.
+Final test blob **276317f4fe7521fe4c016bc55357372c85e09278**.
+Explicit source helper fields preserve typeRaw0/flags0/outPathLength0/empty
+path/zero advert, coordinates and modification/nil heard, nickname, last-message,
+OCV fields/false blocked, muted, favorite/zero unread. Native-only unread-mention
+and avatar fields retain zero/nil defaults. Deterministic UUIDs and repeated
+32-byte11/22/33 public keys are representative source random samples. The
+synthetic Room messages/200% CJK-Hebrew draft are controlled mounted envelopes,
+not original evaluator literal messages or a contact-store observation.
+
+Actual incoming bubble action resolves raw Alice with connected Me and exactly
+[Alice1,Alice2,Bob] through the real route/dispatcher. Two ordered Alice rows
+have real click actions and48dp targets; Bob, self and not-saved sections are
+absent. No eager navigation; Done dismisses without any coordinator mutation.
+The second opening rereads the same complete contacts/name/radio ports, then
+the actual second row click dismisses the sheet and calls the real
+App NavigationCoordinator, not a recording-only fake or direct evaluator.
+Assertions require the full Alice2 in pending/selected/contact destination,
+Nodes tab, exactly one entry allocation/push, unchanged Chats stack/Room
+selection/session/radio and no DM navigation. The frozen handler navigates
+to contact detail; inserting a mention would be an invented effect.
+Independent RoomConversationState/row literals/DTOs, draft, once-labels/keyed
+bubbles, original six read effects and no post/join/retry/diagnostic survive;
+owning-scope cancellation reaches zero subscribers and a late event is inert.
+
+**NOT RUN**: local Gradle/native/advisory/preflight/new selector. Actual retained
+WP503 native lease prevents local execution; no discovery, XML, pass or full35
+cohort is claimed. The existing declared App task can select this method:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.multipleAliceMatchesWaitForRowSelectionThenNavigateToTheSecondIdentityWithoutChangingTheRoomDraft
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+`python tools\android-port\portmap.py`, `python tools\android-port\controller\validate.py`,
+`git diff --check` and complete incumbent-byte preservation **PASS**. Those are
+source/traceability checks, NOT the selected software test. Same owner/attempt
+evolves idempotently at actualr30 for the four owned paths. Publishedc6 and
+automatic39543591579 remain unchanged; no predecessor verdict transfer.
+Source35 is inventory only. Native MentionSuggestionRow lacks frozen
+ContactMatchRow's advert/type/key metadata: this bounded test does not claim
+that row-rendering parity, opaque picker-context.radioID assertion, full shell/
+destination rendering, all eight-original acceptance or real App contact refresh.
+Room-actions implementation is separately blocked on actual trusted admission.
+
 #### Mounted mention self-status versus absent device name
 
 Read all eight frozen ResolveMentionTap tests in
@@ -1032,6 +1101,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
+| Mounted multiple-Alice matching-row selection | New9072fa344 is LOCAL UNVERIFIED/NOT RUN under retained native lease, source inventory35 not executed35. Exact original input/real Room-picker/actual App coordinator identity effect is defined, not accepted from headers or a predecessor result. Frozen ContactMatchRow advert/type/key rendering and full mention-original accounting remain open; not a substitute for Room-actions product repair. |
 | Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six label/action consumers, three renderer consumers/57 new host frames, three Swift-reachable load faults plus three Android-only defensive faults ata9a6, mounted retry passing1/1 atf4 and one mention-status consumer passing1/1 at6949 then separately1/1 with corrected Alice input ata05aa4. Source34 is not combined34 or primary equivalence approval; renderer results stay8PASS/1FAIL atacec then failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 exact52e review5594110568, clear boundedfc50/883 comparisons and new local mention review stay separate. Full Rooms sync/history/actions/store/radio, remaining mention families/app contact refresh, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
