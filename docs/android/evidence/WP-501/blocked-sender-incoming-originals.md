@@ -6,8 +6,9 @@
 - Implementation/execution parent: `6155fb43879e2d79bc423c792e010023bef11b64`;
   actual main/base: `85871f40b1520a89ced6b9bec74aa8eec2f4f4de`.
 - Manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
-  semantic policy, read through the trusted `gates.policy_revision`:
-  `50da0ea302772250097011b32987cba6418f3587f6e1f78ac8ed9eb8a3e94024`.
+  actual6155/835 semantic policy through trusted UTF-8 `schema.load_json`
+  and `gates.policy_revision`:
+  `7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6`.
 - Same WP-501 attempt/stored session
   `d6056690-3a5d-453e-b67e-36866c676ac5`, reservation75->76;
   existing issue134/PR165. No new actor, reservation replacement or scope change.
@@ -174,8 +175,8 @@ file; the bounded delta comparison resolves it, not a producer discrepancy.
 All151 other candidate-only paths match31dc exactly. The complete Android
 tree, frozen inputs, manifest and policy are unchanged across integration;
 the six-case local execution remains actual6155/base858, not a c9ed replay.
-The trusted semantic-policy calculation above corrects this new evidence's
-initial draft value; no policy file changed or pin advanced.
+The policy metadata correction below supersedes the initial diagnostic
+calculation; no policy file changed or pin advanced.
 
 Independently observed predecessor6155/run39522320785 terminal **SUCCESS**:
 classifier118968822400, controller118968876704, codec118969559859,
@@ -193,3 +194,24 @@ then **PASS379/379**, zero failures/errors/skips,268.453s, on the actual
 merged executor. Expected negative-fixture stderr is not a runner failure.
 This is controller software-fixture verification of the disjoint merge,
 not an Android cohort replay or the original timed-out hosted command.
+
+### Explicit Windows decoding correction
+
+Published835 initially claimed50da as the trusted revision. The diagnostic
+had called `gates.policy_revision` but fed it
+`json.loads(Path.read_text())` without an encoding. On this Windows host that
+decoded UTF-8 U+2014 in `unsupported_host_warning` as CP1252 mojibake and
+hashed different in-memory prose. It did not use the trusted UTF-8 JSON
+loader. Reproduction compares default-decoded, trusted-loaded and raw Git
+JSON: the default-decoded object alone differs. Exactc9ed/main/835 policy
+bytes and trusted UTF-8 loading yield7f757 above; the earlier draft7f757 was
+correct.50da is not a real semantic-policy revision or a scope amendment.
+
+After actual259 deployment, trusted UTF-8 policy loading on main
+`dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c` yields
+`e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3`;
+the same mistaken default decoder would yielda657, which is likewise
+rejected as metadata. Execution used unchanged repository wrappers and
+source predicates; the local lane lookup used only the unchanged repository
+identity. No policy or authorization file was rewritten, no test result
+changed, and this correction does not rebind6155/835 evidence to new policy.
