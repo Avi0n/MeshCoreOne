@@ -22,6 +22,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Screen-lifetime chat state. It never owns or tears down a radio session. Keep one instance per
@@ -32,6 +35,7 @@ class ChatViewModel(
     private val dependencies: ChatTimelineDependencies,
     private val scope: CoroutineScope,
     private val zoneId: ZoneId = ZoneId.systemDefault(),
+    private val prefetchTimeoutMillis: Long = 3_000,
 ) {
     private val mutableState = MutableStateFlow(
         ChatTimelineState(draft = dependencies.draftStore.get(conversation.id).orEmpty()),
@@ -87,11 +91,31 @@ class ChatViewModel(
                 }
                 didLoad = true
             }
-            if (!didLoad || generation != openGeneration) return
+        } catch (cancellation: CancellationException) {
+            if (generation == openGeneration) mutableState.update { it.copy(isLoading = false) }
+            throw cancellation
+        } catch (failure: Exception) {
+            if (generation == openGeneration) {
+                mutableState.update { it.copy(isLoading = false, hasLoadedOnce = true, loadError = failure) }
+            }
+            dependencies.diagnostics.report("open timeline", failure)
+        }
+        if (generation != openGeneration) return
+        currentCoroutineContext().ensureActive()
+        if (conversation is TimelineConversation.Channel) {
+            try {
+                dependencies.syncChannelFloodScope(conversation.channel)
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (failure: Exception) {
+                dependencies.diagnostics.report("set channel flood scope", failure)
+            }
+        }
+        if (!didLoad || generation != openGeneration) return
+        try {
             dependencies.data.clearUnread(conversation)
             dependencies.data.markFailedSendsSeen(conversation)
         } catch (cancellation: CancellationException) {
-            if (generation == openGeneration) mutableState.update { it.copy(isLoading = false) }
             throw cancellation
         } catch (failure: Exception) {
             if (generation == openGeneration) {
@@ -249,7 +273,21 @@ class ChatViewModel(
     private suspend fun handleEvent(event: TimelineEvent) {
         operationMutex.withLock {
             when (event) {
-                is TimelineEvent.MessageReceived -> admit(event.message)
+                is TimelineEvent.MessageReceived -> {
+                    val message = event.message
+                    if (mutableState.value.messages.any { it.id == message.id }) return
+                    val identity = dependencies.admissionIdentity()
+                    if (!dependencies.isCurrentAdmission(identity)) return
+                    if (message.direction == MessageDirection.INCOMING) {
+                        prefetch(message, bounded = true)
+                        currentCoroutineContext().ensureActive()
+                        if (!dependencies.isCurrentAdmission(identity)) return
+                        admit(message)
+                    } else {
+                        admit(message)
+                        scope.launch { prefetch(message, bounded = false) }
+                    }
+                }
                 is TimelineEvent.StatusChanged -> mutableState.update {
                     it.withStatus(
                         event.messageId,
@@ -273,6 +311,24 @@ class ChatViewModel(
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun prefetch(message: MessageDTO, bounded: Boolean) {
+        val content = dependencies.content ?: return
+        if (!content.enabled || !content.containsUrls(message.text)) return
+        try {
+            if (bounded) {
+                withTimeoutOrNull(prefetchTimeoutMillis) {
+                    content.prefetch(message.text, message.isChannelMessage)
+                }
+            } else {
+                content.prefetch(message.text, message.isChannelMessage)
+            }
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (failure: Exception) {
+            dependencies.diagnostics.report("prefetch message content", failure)
         }
     }
 

@@ -34,20 +34,22 @@ internal fun AppMessageContent(
     report: (String, Throwable?) -> Unit,
     onMap: (String) -> Unit,
 ) {
-    val urls = remember(message.text) { LinkDetection.detectUrls(message.text).map { it.url }.distinct() }
+    val resolutions by content.resolutions.collectAsState()
+    val media = remember(content, message.text, resolutions) { content.media(message.text) }
     val scope = rememberCoroutineScope()
     val uri = LocalUriHandler.current
     val context = androidx.compose.ui.platform.LocalContext.current
     val preferences by content.rendering.collectAsState()
     val autoResolve = preferences[if (message.isChannelMessage) AppStorageKey.linkPreviewsAutoResolveChannels else AppStorageKey.linkPreviewsAutoResolveDM]
-    (if (preferences[AppStorageKey.linkPreviewsEnabled]) urls else emptyList()).forEach { url ->
+    (if (preferences[AppStorageKey.linkPreviewsEnabled]) media else emptyList()).forEach { entry ->
+        val url = entry.url
         key(url, autoResolve) {
             var image by remember { mutableStateOf<ChatImage?>(null) }
             var failure by remember { mutableStateOf<Throwable?>(null) }
             var manualImage by remember { mutableStateOf(false) }
             var retry by remember { mutableIntStateOf(0) }
             var fullscreen by remember { mutableStateOf(false) }
-            val inline = remember(content, url) { content.isImage(url) }
+            val inline = entry.isImage
             val holder = remember(content, url, message.isChannelMessage,
                 preferences[AppStorageKey.linkPreviewsEnabled],
                 preferences[AppStorageKey.linkPreviewsAutoResolveDM], preferences[AppStorageKey.linkPreviewsAutoResolveChannels]) {
@@ -62,6 +64,10 @@ internal fun AppMessageContent(
                 })
             } else if (!autoResolve && !manualImage) {
                 TextButton(onClick = { manualImage = true }) { Text(stringResource(AppChatsStrings.chatsPreviewTapToLoad)) }
+            } else if (image == null) {
+                entry.aspect?.takeIf { it.isFinite() && it > 0 }?.let { aspect ->
+                    Spacer(Modifier.widthIn(max = InlineImageMetrics.MAX_WIDTH_DP.dp).fillMaxWidth().aspectRatio(aspect.toFloat()))
+                }
             }
             LaunchedEffect(content, url, autoResolve, manualImage, retry) {
                 if (!inline || (!autoResolve && !manualImage)) return@LaunchedEffect

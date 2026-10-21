@@ -18,6 +18,7 @@ import com.meshcoreone.android.feature.chats.composer.LinkPreviewData
 import java.net.URI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import com.meshcoreone.android.feature.chats.timeline.TimelineContent
 
 internal sealed interface ChatImage {
     data class Decoded(val handle: DecodedImageHandle) : ChatImage
@@ -34,14 +35,20 @@ class AppChatContent internal constructor(
     scope: CoroutineScope,
     internal val mapPreviews: AppChatMapPreviews = AppChatMapPreviews(context, scope,
         enabled = { preferenceStore.get(AppStorageKey.showMapPreviewThumbnails) }),
-) : AutoCloseable {
+    imageSafety: suspend (String) -> Boolean = { UrlSafetyChecker.isSafe(it) },
+) : AutoCloseable, TimelineContent {
     val rendering = preferenceStore.snapshots.catch { failure ->
         java.util.logging.Logger.getLogger("com.mc1.ChatContent").log(java.util.logging.Level.WARNING, "Chat rendering preferences unavailable", failure)
         throw failure
     }.stateIn(scope, SharingStarted.Eagerly, initialPreferences)
     private val previewCache = LinkPreviewCache(NativeLinkMetadataFetching(http), LinkPreviewPreferences(preferences), scope)
-    private val imageCache = InlineImageCache(http)
+    private val imageCache = InlineImageCache(http, isUrlSafe = imageSafety)
     private val dimensions = inlineImageDimensionsStore(context).also(imageCache::attachDimensionsStore)
+    private val mutableResolutions = MutableStateFlow(0L)
+    internal val resolutions: StateFlow<Long> = mutableResolutions.asStateFlow()
+    private val dimensionSubscription = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+        dimensions.resolutionUpdates.collect { invalidateMedia() }
+    }
     private val decoder = InlineImageDecoder()
     private val thumbnails = BitmapImageDecoder()
     private val emojiCatalog = AppEmojiCatalog(context.assets)
@@ -62,6 +69,51 @@ class AppChatContent internal constructor(
         )
     val malware = AndroidMalwareDomainFilter(context, com.meshcoreone.android.core.datastore.MeshCoreStorage.get(context).preferences, http, scope = scope)
 
+    private val prefetcher by lazy {
+        InlineImagePrefetcher(
+            InlineImageDimensionProbing { url ->
+                val host = URI(url).host
+                if (host != null && !malware.isBlocked(host)) imageCache.probeImageDimensions(url) else null
+            },
+            object : LinkPreviewCaching by previewCache {
+                override suspend fun preview(url: String, dataStore: com.meshcoreone.android.core.contracts.domain.LinkPreviewPersisting,
+                    isChannelMessage: Boolean): LinkPreviewResult {
+                    if (!automatic(isChannelMessage)) {
+                        val cached = previewCache.cachedPreview(url) ?: dataStore.fetchLinkPreview(url)
+                        return cached?.let(LinkPreviewResult::Loaded) ?: LinkPreviewResult.Disabled
+                    }
+                    val host = URI(url).host
+                    if (host == null || malware.isBlocked(host)) return LinkPreviewResult.NoPreviewAvailable
+                    return previewCache.preview(url, dataStore, isChannelMessage)
+                }
+            },
+            dimensions,
+            store,
+        )
+    }
+    override val enabled get() = rendering.value[AppStorageKey.linkPreviewsEnabled]
+    override fun containsUrls(text: String) = LinkUrlExtraction.extractAllUrls(text).isNotEmpty()
+    override suspend fun prefetch(text: String, isChannelMessage: Boolean) {
+        if (!enabled) return
+        prefetcher.prefetch(text, isChannelMessage, automatic(isChannelMessage))
+        invalidateMedia()
+    }
+    private fun automatic(isChannelMessage: Boolean) = rendering.value[
+        if (isChannelMessage) AppStorageKey.linkPreviewsAutoResolveChannels else AppStorageKey.linkPreviewsAutoResolveDM
+    ]
+    private fun invalidateMedia() {
+        mutableResolutions.update(Math::incrementExact)
+    }
+    internal data class Media(val url: String, val isImage: Boolean, val aspect: Double?)
+    internal fun media(text: String): List<Media> = LinkUrlExtraction.extractAllUrls(text).distinct().mapNotNull { url ->
+        val uri = try { URI(url) } catch (_: java.net.URISyntaxException) {
+            java.util.logging.Logger.getLogger("com.mc1.ChatContent").fine("Malformed extracted media URI; attachment skipped")
+            return@mapNotNull null
+        }
+        val resolved = ImageUrlClassifier.directImageUrl(uri).toString()
+        Media(url, ImageUrlClassifier.isImageUrl(uri) && !imageCache.servesHtmlPage(resolved),
+            dimensions.aspect(resolved) ?: dimensions.aspect(url))
+    }
     private val previews = object : LinkPreviewPort {
         override suspend fun cachedPreview(url: String) = previewCache.cachedPreview(url)?.forUi()
         override suspend fun preview(url: String, isChannelMessage: Boolean) = previewCache.preview(url, store, isChannelMessage).forUi()
@@ -93,8 +145,9 @@ class AppChatContent internal constructor(
             ImageDecodeOutcome.Cancelled -> throw CancellationException("Image decode cancelled")
         }
     }
-    fun isImage(url: String) = ImageUrlClassifier.isImageUrl(URI(url))
-    fun aspect(url: String) = dimensions.aspect(url)
+    fun isImage(url: String) = ImageUrlClassifier.isImageUrl(URI(url)) &&
+        !imageCache.servesHtmlPage(ImageUrlClassifier.directImageUrl(URI(url)).toString())
+    fun aspect(url: String) = dimensions.aspect(ImageUrlClassifier.directImageUrl(URI(url)).toString()) ?: dimensions.aspect(url)
     internal fun shareData(url: String): ByteArray = requireNotNull(
         imageCache.decoded(ImageUrlClassifier.directImageUrl(URI(url)).toString())?.data,
     ) { "The displayed image is no longer cached; reload it before sharing" }
@@ -130,7 +183,10 @@ class AppChatContent internal constructor(
                 is ImageDecodeOutcome.Unsupported -> throw IllegalStateException(decoded.reason)
                 ImageDecodeOutcome.Cancelled -> throw CancellationException("Image decode cancelled")
             }
-            InlineImageResult.NotImage -> ChatImage.HtmlPage
+            InlineImageResult.NotImage -> {
+                invalidateMedia()
+                ChatImage.HtmlPage
+            }
             InlineImageResult.Failed -> throw IllegalStateException("Image fetch failed")
             InlineImageResult.Loading -> error("Image fetch is still in flight")
         }
@@ -154,6 +210,7 @@ class AppChatContent internal constructor(
         mapPreviews.snapshots.clear()
     }
     override fun close() {
+        dimensionSubscription.cancel()
         mapPreviews.close()
         previewCache.close()
         malware.close()

@@ -33,6 +33,7 @@ import com.meshcoreone.android.core.services.contacts.AdvertisementService
 import com.meshcoreone.android.core.services.contacts.ChannelService
 import com.meshcoreone.android.core.services.contacts.ContactCleanupCoordinator
 import com.meshcoreone.android.core.services.contacts.ContactService
+import com.meshcoreone.android.core.services.contacts.ResolvedFloodScope
 import com.meshcoreone.android.core.services.device.DeviceService
 import com.meshcoreone.android.core.services.device.DeviceSettingsServiceFactory
 import com.meshcoreone.android.core.services.device.DeviceSettingsServices
@@ -115,6 +116,13 @@ class RadioSessionContainer private constructor(
         session.sendNodeDiscoverRequest(filter, prefixOnly)
 
     internal fun toolEvents(): Flow<MeshEvent> = session.events()
+
+    internal suspend fun applyChannelFloodScope(scope: ResolvedFloodScope) {
+        when (scope) {
+            ResolvedFloodScope.Unscoped -> session.setFloodScopeUnscoped()
+            is ResolvedFloodScope.Scope -> session.setFloodScope(scope.scope)
+        }
+    }
 
     override val dataStore: PersistenceStoreProtocol = env.store
 

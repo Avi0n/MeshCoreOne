@@ -1,0 +1,142 @@
+# WP-501 mounted channel scope and receive admission
+
+## Binding and scope
+
+Implementation follows the user-directed repair after PR260, not the earlier
+witness-only assignment. Merge `2594d3dedce0f742b507ffba48a476acc84bdf80`
+has parents `ec6bbb5b9ffef9f7e13480433ea8c2319579b566` and landed main
+`ea67cd867e7fc178046ee2829ff059b1734ef1b3`. Its single workflow conflict keeps
+both parity-test discovery and main's immutable candidate-event inputs.
+The product commit immediately following that merge contains this evidence.
+
+Frozen specification remains `db14559b39d32322b06477c6ae676112f583db50`.
+Manifest remains `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
+landed policy is `70f65b1205f1581c0f1a86107ccdc20f794421a6cf9b172e17d8a3e544569a66`.
+Same actual owner/attempt/session `d6056690-3a5d-453e-b67e-36866c676ac5`
+automatically evolved reservation104 through109 before the respective edits:
+`channel-open-flood-scope`, `receive-prefetch-admission`, narrow
+`app-build-launcher` support, and wp-owned tests/evidence. Historical identity,
+authorization and binding are retained, not rewritten.
+
+## Actual production consumers
+
+`ChatViewModel.open` populates first, then calls the channel scope seam even
+when population fails, before its loaded/unread/failed-send bookkeeping guard.
+Ordinary scope errors are reported through existing diagnostics; cancellation
+propagates without caching success. Direct-message open, refresh and send do
+not call this seam.
+
+`AppChatsFeature.timeline` reads the saved channel selection and actual
+connected device, calls the existing resolver, and reaches the private real
+protocol session through `RadioSessionContainer.applyChannelFloodScope`.
+The process adapter serializes commands and caches only acknowledged success,
+keyed by actual session token, preference, device default and capability.
+Sharing the cache across timeline adapters matters: A -> B -> retained A
+must restore A rather than deduplicate against A's obsolete private history.
+The cache is invalidated before attempting a new command. Foreign-radio,
+non-ready and superseded sessions cannot supply acknowledged success.
+
+`ChatTimelineDependencies.content` is bound to the already process-owned
+`AppChatContent`, not an additional fetcher/store. Incoming URL-bearing
+events await its real `InlineImagePrefetcher` with the production 3,000ms
+cancellable deadline; plain text, master-off and a genuinely absent optional
+seam retain the immediate path. Outgoing events append before launching
+screen-owned asynchronous prefetch. Conversation filtering and actual session
+identity are checked before and after suspended incoming admission.
+
+The prefetcher uses the existing image HTTP/cache/header decoder, shared
+dimensions file, real preview cache, DataStore preferences and Room persistence.
+Master and DM/channel auto-resolve gates remain separate. Disabled automatic
+card resolution can consult existing caches without triggering malware-feed
+or metadata requests. Enabled automatic requests retain the native malware
+filter and original URL-safety default. The constructor-only image safety
+seam delegates to the existing producer's test injection point; the production
+default is unchanged and the actual HTTP adapter retains redirect safety.
+
+The real Compose row now reads the shared extraction/classifier result,
+including Giphy shorthand, and the actual cached aspect. Process dimensions
+and HTML verdict updates invalidate that presentation. Known HTML image URLs
+take the existing card holder/port path on reentry instead of reconstructing
+an inline shimmer. The row reserves the cached aspect while image bytes load.
+Shared preview workers keep their existing process lifetime: cancellation of
+an admission waiter does not cancel another consumer's metadata fetch.
+
+## Source and executable witnesses
+
+Complete frozen `ChatViewModelAdmissionTests.swift`, all nine bodies and invoked
+setup/persistence/image/preview helpers, `ChatViewModel+Prefetch.swift`, and the
+channel loading/scope implementation were compared with the real native
+contracts/ViewModel/App adapter/session, cache/dimensions/extraction/preview
+services and mounted `AppMessageContent` consumer. The earlier resolver and
+seven-original orchestrator comparisons remain intact; they are not replaced
+by these mounted counterparts.
+
+`ChatPrefetchAdmissionAcceptanceTest` adds fourteen methods. The nine frozen
+admission scenarios retain their operative inputs and predicates:
+
+| Frozen scenario | Actual native witness |
+| --- | --- |
+| Plain text | `hello world, nothing to fetch`; exact row; zero HTTP collaborators |
+| Master off | `see https://example.com/cat.png`; zero HTTP/safety calls |
+| Fast URL probe | Same cat URL, 50ms; no row before completion |
+| Nil prefetcher | Same cat URL; genuine absent App content seam, immediate row |
+| Dimensions | `look` + same URL; real 200x100 PNG header, matching row media aspect2.0 and file reopen |
+| Slow probe | Same URL, 5s vs injected200ms; admission under1s, joined cancellation/no late dimensions |
+| Giphy | `g:abc123`, 5ms; literal `https://media.giphy.com/media/abc123/giphy.gif` |
+| HTML image reentry | `pasteboard.co/<UUID>.png`; real HTML verdict and persisted Pasteboard card; no repeated request |
+| Outgoing | `outgoing https://example.com/dog.png`; actual pending-send creation, immediate row before10ms probe |
+
+Incoming event fixtures retain timestamp/createdAt1000, delivered status,
+fresh UUID identities and DTO defaults. The outgoing witness intentionally
+uses the actual native pending-send clock/identity rather than replacing that
+production creator with a timestamp fake. HTTP bodies/suspension and DNS
+safety are deterministic test inputs; transactions, image/header decoding,
+dimensions writes, event adapter, resolver and protocol exchange are real.
+No external HTTP/DNS request is made by the fixtures.
+
+Additional methods prove the unmodified production 3s default, independent
+late preview completion into the actual native card holder and Room cache,
+screen cancellation/disconnection, distinct DM/channel privacy gates, and
+actual protocol polling -> Room -> App event -> delayed row admission.
+
+`ChatOpenScopeAcceptanceTest` adds six methods: real V12 `36 01` before unread
+clear; old-firmware zero-key reset; saved preference/default/capability and
+A/B/A changes; typed population failure; actual device-error retry; held
+command cancellation/new session; and foreign-radio/DM isolation. The
+`#test` key literal was independently derived with Python SHA-256:
+`36009cd8fcf22a47333b591d96a2b848b73f`. Disabled is `36 00` + sixteen zero
+bytes. Expectations are not generated by candidate packet/resolver code.
+
+The common firmware fake receives only one additional supported opcode:
+`0x36 -> 0x00` acknowledgement. It still records exact bytes and allows
+per-test held/error responses; no primary original test body/assertion changes.
+All incumbent originals, ec6 witnesses, rollback/writer fixtures, diagnostic
+support, deadlines/oracles and prior evidence/history remain unchanged.
+These twenty supplementary methods do not add original-family credit.
+
+## Actual verification and boundaries
+
+The following declared pure-source commands passed during preparation:
+
+| Command | Result |
+| --- | --- |
+| `python tools\android-port\controller\verification_config.py --check` | PASS |
+| `python tools\android-port\controller\validate.py` | PASS |
+| `python tools\android-port\portmap.py` | PASS, 1,800 records |
+| `python android\parity-tests\audit.py --check` | PASS; no archive regeneration |
+| `python android\parity-tests\semantic.py --check` | PASS; not execution |
+| `git diff --check` | PASS |
+
+`python tools\android-port\controller\ci.py preflight` exited2:
+`Explicit --state/ANDROID_CI_STATE is required; failed cloud setup is not readiness`.
+No local Android/Gradle/WSL/native/device/lease/recovery command was run.
+New Kotlin and UI assertions are UNCOMPILED/UNRUN locally; ordinary publication
+is an explicitly UNVERIFIED candidate pending its own automatic exact-head CI.
+Source/controller checks do not substitute for that execution.
+
+Parent ec6's own all-six run39666621137 proves only its earlier bytes, not
+these product changes. Its source5605564270 and execution5605880384 remain
+distinct. Historical timeout failures/root causes remain unresolved. This
+repair does not fix or accept correlation/quarantine issue261, close issue134,
+certify UI/device/hardware behavior, grant protected acceptance, or establish
+full WP-501/backup/release parity.
