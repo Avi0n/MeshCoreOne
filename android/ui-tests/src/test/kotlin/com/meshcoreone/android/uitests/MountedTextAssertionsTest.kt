@@ -4,6 +4,8 @@ package com.meshcoreone.android.uitests
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -26,6 +30,11 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -215,6 +224,76 @@ class MountedTextAssertionsTest {
         val fixed = compose.runOnIdle { native.getValue("fixed-right-bidi") }
         assertEquals("Fixed-width right alignment must retain its real origin", 260, fixed.size.width)
         assertTrue("Fixed-width native line must retain left-side free space", fixed.getLineLeft(0) > 0f)
+    }
+
+    @Test fun observedFullTextForegroundRetainsLinkPaintAndRejectsUnobservedOrClippedRuns() {
+        val text = "@Alice\u202e"
+        val clippedText = "@Alice\u202e with a genuinely clipped suffix"
+        val native = mutableMapOf<String, TextLayoutResult>()
+        val annotated = buildAnnotatedString {
+            append(text)
+            addStyle(SpanStyle(color = Color.Blue), 0, length)
+            addLink(
+                LinkAnnotation.Clickable(
+                    "meshcoreone://mention/Alice%E2%80%AE",
+                    TextLinkStyles(SpanStyle(color = Color.Red)),
+                ) { error("Paint control must not activate its link") },
+                0, length,
+            )
+        }
+        mount {
+            Box(Modifier.width(260.dp).background(Color.White)) {
+                BasicText(annotated, Modifier.testTag("span-foreground"), style = TextStyle(fontSize = 20.sp),
+                    onTextLayout = { native["span-foreground"] = it })
+            }
+            BasicText(AnnotatedString(text), Modifier.testTag("missing-foreground"), style = TextStyle(fontSize = 20.sp))
+            BasicText(
+                buildAnnotatedString {
+                    append(text)
+                    addStyle(SpanStyle(color = Color.Blue), 0, 6)
+                },
+                Modifier.testTag("partial-foreground"), style = TextStyle(fontSize = 20.sp),
+            )
+            BasicText(
+                buildAnnotatedString {
+                    append(text)
+                    addStyle(SpanStyle(brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))), 0, length)
+                },
+                Modifier.testTag("shader-foreground"), style = TextStyle(fontSize = 20.sp),
+            )
+            Box(Modifier.width(260.dp).background(Color.White)) {
+                BasicText(
+                    buildAnnotatedString {
+                        append(clippedText)
+                        addStyle(SpanStyle(color = Color.Blue), 0, length)
+                    },
+                    Modifier.width(64.dp).testTag("span-foreground-clip"),
+                    style = TextStyle(fontSize = 20.sp), softWrap = false, overflow = TextOverflow.Clip,
+                    onTextLayout = { native["span-foreground-clip"] = it },
+                )
+            }
+        }
+        val semantics = rawLayout("span-foreground")
+        val painted = compose.runOnIdle { native.getValue("span-foreground") }
+        assertEquals(Color.Unspecified, semantics.layoutInput.style.color)
+        assertEquals(listOf(64, 65, 108, 105, 99, 101, 8238), semantics.layoutInput.text.text.map { it.code })
+        assertNativePaintAgreement(semantics, painted, "span-foreground")
+        check("span-foreground", text)
+        observeMountedNativePaint(compose, compose.onNodeWithTag("span-foreground"), painted, text, "span-foreground")
+        rejects("missing-foreground", text, "observed explicit native color required")
+        rejects("partial-foreground", text, "observed explicit native color required across the complete raw text")
+        rejects("shader-foreground", text, "shader spans require a separate observed paint contract")
+        val clipped = compose.runOnIdle { native.getValue("span-foreground-clip") }
+        assertEquals(Color.Unspecified, clipped.layoutInput.style.color)
+        observeMountedNativePaint(
+            compose, compose.onNodeWithTag("span-foreground-clip"), clipped, clippedText, "span-foreground-clip",
+            requireClippingWitness = true,
+        )
+        val failure = assertThrows(AssertionError::class.java) {
+            compose.runOnIdle { assertNativeTextInkContained(clipped, "span foreground genuine clipping negative") }
+        }
+        assertTrue("Expected actual native ink rejection: ${failure.message}",
+            failure.message.orEmpty().contains("painted ink outside measured text"))
     }
 
     @Test fun mixedHebrewLatinLtrPaintMatchesActualCallbacksForContentCenterRightAndWrappedText() {

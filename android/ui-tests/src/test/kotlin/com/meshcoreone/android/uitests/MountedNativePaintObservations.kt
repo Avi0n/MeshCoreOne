@@ -4,6 +4,7 @@ package com.meshcoreone.android.uitests
 import android.graphics.Bitmap
 import android.graphics.Canvas as AndroidCanvas
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -17,12 +18,28 @@ import androidx.compose.ui.text.style.TextDecoration
 import org.junit.Assert.*
 import kotlin.math.ceil
 
-private data class NativePaintProbe(val width: Int, val height: Int, val margin: Int)
+private data class NativePaintProbe(val width: Int, val height: Int, val margin: Int, val color: Color)
+
+private fun observedNativePaintColor(native: TextLayoutResult, context: String): Color {
+    val style = native.layoutInput.style
+    assertNull("$context|controlled fixtures require the observed solid-color paint path", style.brush)
+    val text = native.layoutInput.text
+    assertTrue("$context|shader spans require a separate observed paint contract",
+        text.spanStyles.all { it.item.brush == null })
+    if (style.color.isSpecified) return style.color
+    val first = text.spanStyles.firstOrNull()
+    assertNotNull("$context|observed explicit native color required", first)
+    val base = requireNotNull(first)
+    assertTrue("$context|observed explicit native color required across the complete raw text",
+        base.start == 0 && base.end == text.length && base.item.color.isSpecified)
+    // MessageBody supplies its resolved base as a full-text span, not a paragraph color.
+    println("WP502_NATIVE_FOREGROUND|source=observed-first-full-text-span|range=${base.start}..${base.end}" +
+        "|color=${base.item.color}|spanCount=${text.spanStyles.size}|$context")
+    return base.item.color
+}
 
 private fun nativePaintProbe(native: TextLayoutResult, context: String): NativePaintProbe {
-    val style = native.layoutInput.style
-    assertTrue("$context|observed explicit native color required", style.color.isSpecified)
-    assertNull("$context|controlled fixtures require the observed solid-color paint path", style.brush)
+    val color = observedNativePaintColor(native, context)
     assertTrue("$context|diagnostic paragraph must be finite and bounded",
         native.multiParagraph.width.isFinite() && native.multiParagraph.height.isFinite() &&
             native.multiParagraph.width in 1f..4096f && native.multiParagraph.height in 1f..4096f)
@@ -32,19 +49,21 @@ private fun nativePaintProbe(native: TextLayoutResult, context: String): NativeP
         maxOf(native.size.width, ceil(native.multiParagraph.width).toInt()) + 2 * margin,
         maxOf(native.size.height, ceil(native.multiParagraph.height).toInt()) + 2 * margin,
         margin,
+        color,
     )
 }
 
-private fun paintNativeParagraph(canvas: Canvas, native: TextLayoutResult) {
+private fun paintNativeParagraph(canvas: Canvas, native: TextLayoutResult, color: Color) {
     val style = native.layoutInput.style
     native.multiParagraph.paint(
-        canvas = canvas, color = style.color, shadow = style.shadow ?: Shadow.None,
+        canvas = canvas, color = color, shadow = style.shadow ?: Shadow.None,
         decoration = style.textDecoration ?: TextDecoration.None, drawStyle = style.drawStyle ?: Fill,
     )
 }
 
 internal fun assertNativeTextInkContained(native: TextLayoutResult, context: String) {
-    val (width, height, margin) = nativePaintProbe(native, context)
+    val probe = nativePaintProbe(native, context)
+    val (width, height, margin) = probe
     assertFalse("$context|native ink cannot certify truncated lines", native.multiParagraph.didExceedMaxLines)
     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
     try {
@@ -52,7 +71,7 @@ internal fun assertNativeTextInkContained(native: TextLayoutResult, context: Str
         canvas.save()
         try {
             canvas.translate(margin.toFloat(), margin.toFloat())
-            paintNativeParagraph(canvas, native)
+            paintNativeParagraph(canvas, native, probe.color)
         } finally {
             canvas.restore()
         }
@@ -99,7 +118,8 @@ internal fun observeMountedNativePaint(
         assertEquals(context, expected, native.layoutInput.text.text)
         assertEquals("$context|actual measured text width", native.size.width, node.size.width)
         assertEquals("$context|actual measured text height", native.size.height, node.size.height)
-        val (width, height, margin) = nativePaintProbe(native, context)
+        val probe = nativePaintProbe(native, context)
+        val (width, height, margin) = probe
         val bitmaps = mutableListOf<Bitmap>()
         fun allocate(width: Int, height: Int): Bitmap =
             Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { bitmaps.add(it) }
@@ -112,7 +132,7 @@ internal fun observeMountedNativePaint(
                 try {
                     canvas.translate(margin.toFloat(), margin.toFloat())
                     if (clip) canvas.clipRect(0f, 0f, native.size.width.toFloat(), native.size.height.toFloat())
-                    paintNativeParagraph(canvas, native)
+                    paintNativeParagraph(canvas, native, probe.color)
                 } finally {
                     canvas.restore()
                 }
