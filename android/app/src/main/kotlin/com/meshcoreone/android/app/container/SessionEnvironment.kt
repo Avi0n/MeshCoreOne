@@ -14,6 +14,7 @@ import com.meshcoreone.android.core.protocol.session.SystemSessionClock
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
 import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.messaging.LoggingMessagingIssueReporter
 import com.meshcoreone.android.core.services.sync.SyncClock
 import com.meshcoreone.android.core.services.sync.SyncLogSink
 import java.time.Instant
@@ -53,7 +54,7 @@ class SessionEnvironment(
     val syncClock: SyncClock = SyncClock.SYSTEM,
     val sessionClock: SessionClock = SystemSessionClock(),
     val logSink: SyncLogSink = SyncLogSink.NONE,
-    val messagingReporter: MessagingIssueReporter = MessagingIssueReporter {},
+    val messagingReporter: MessagingIssueReporter = LoggingMessagingIssueReporter,
     val onSessionLifecycle: SessionLifecycleListener = SessionLifecycleListener.NONE,
     /**
      * The process bootstrap debug-log buffer: a session replaces the process-global buffer on construction and

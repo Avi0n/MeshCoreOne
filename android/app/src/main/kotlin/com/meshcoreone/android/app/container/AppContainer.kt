@@ -51,6 +51,7 @@ import com.meshcoreone.android.core.runtime.SystemRuntimeClock
 import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.device.RadioPresets
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.messaging.LoggingMessagingIssueReporter
 import com.meshcoreone.android.core.services.rendering.ChatCoordinatorRegistry
 import com.meshcoreone.android.core.services.rendering.DraftStore
 import com.meshcoreone.android.core.services.sync.SyncClock
@@ -105,7 +106,7 @@ class AppContainerDependencies(
     val primerFactory: ChatPrimerFactory = ChatPrimerFactory { null },
     val syncClock: SyncClock = SyncClock.SYSTEM,
     val logSink: SyncLogSink = SyncLogSink.NONE,
-    val messagingReporter: MessagingIssueReporter = MessagingIssueReporter {},
+    val messagingReporter: MessagingIssueReporter = LoggingMessagingIssueReporter,
     val runtimeReporter: RuntimeIssueReporter = RuntimeIssueReporter {},
     val connectivityDiagnostics: ConnectivityDiagnostics = ConnectivityDiagnostics.NONE,
     val sessionLifecycle: SessionLifecycleListener = SessionLifecycleListener.NONE,

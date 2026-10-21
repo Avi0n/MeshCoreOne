@@ -190,6 +190,7 @@ class RadioSessionContainer private constructor(
             reactionService.indexMessage(id, channelIndex, senderName, text, timestamp)
         },
         inputs.connection.signals, scope,
+        reporter = env.messagingReporter,
     )
     override val notificationActionHandler = NotificationActionHandler(
         dataStore, NotificationMessageSender(messageService), notificationService,
