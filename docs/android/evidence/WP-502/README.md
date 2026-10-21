@@ -44,7 +44,9 @@ Manifest/source remain unchanged. Current semantic policy revision is
 merged254 changes operational paused=true to false only, preserving
 dispatch_mode=off/activation_approved=false. Policy bytes equal actual maindbb,
 including normally merged259's bounded renderer capability, not candidate policy
-edits. The same typed reservation is now actual revision29: six-pathdbb
+edits. The same typed reservation is now actual revision30: the owned retry
+test/evidence reconciliation genuinely returned30 after the renderer's29.
+Earlier six-pathdbb
 reconciliation returned28, then the exact named renderer operation returned29.
 An initial expected27 renderer request correctly rejected stale revision before
 any edit; the retry used actual28. Earlier six-path858
@@ -88,7 +90,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four route/render methods, thirteen mounted ordering witnesses, six original label/action consumers and three actual-renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure consumers plus three supplementary Android-only defensive port-fault consumers pass together ata9a6be400; every26 incumbent source line/helper/Fixture is preserved. Source32 is not a combined32 or primary original-case approval. No actual RoomServerService/history sync/Room-database/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
+| `RoomsComposeTest` | Original four route/render methods, thirteen mounted ordering witnesses, six original label/action consumers and three actual-renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure plus three Android-only defensive port-fault consumers pass together ata9a6be400. Next one mounted retry failure/recovery consumer passes1/1 atf4fedec11; all32 incumbents/helpers/Fixture remain. Source33 is not combined33 execution or primary original-case approval. No actual RoomServerService/history sync/Room-database/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -106,6 +108,41 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Mounted Rooms retry failure and targeted recovery
+
+After bounded localfc50 classification comparison, the next missing consumer
+is frozen `retryMessage`'s reachable failure followed by successful replacement
+through the actual failed bubble/route. Existing32 contain a successful retry
+inside the post-failure flow and a bubble-only callback witness, but no mounted
+retry-service failure/recovery; the primary holder test is direct-holder-only.
+Code **f4fedec11833c486668ff0e0680a03327f2f9377/basedbb** adds one method/
+two reference-input headers,123 lines/zero deletions. All32 incumbent bodies,
+helpers/Fixture and production/core/build/policy/manifest/Region7 remain intact.
+
+Frozen RoomServerService.retryMessage can throw SessionNotFound before updating
+retry status; send errors inside its send block are caught and are not a
+substitute for that reachable thrown error. The new route uses the existing
+controlled service port: held visible Retry then the same SessionNotFound,
+localized error/identity/one diagnostic, explicit dismissal, held accessibility
+Retry then a fixed delivered response. Full original session and failed UUID
+are asserted on both calls. Failed/pending-call/delivered row values, unchanged
+other row, once-only labels/keyed bubbles,200% CJK/RTL draft and no false
+post/join/auth/read effects are checked. Successful callback removes both retry
+affordances; teardown reaches zero subscribers. No direct holder retry call.
+
+Initial launch stops before snapshot/preflight/Gradle on a real foreign
+Gradle hard-lock collision: zero tests, not a negative test result. After normal
+foreign release, one supported strict affected-selector invocation discovers/
+runs/passes **1,0 failures/errors/skips,34s build**, actual named XML
+**2026-10-21T02:51:44.150Z**,6.149s case; preflight **PASS0.65s**. Real Ledger
+Gradle context/ext4 flock/native absence checks enforced; only own lock normally
+released. Portmap/controller validation/diff checks **PASS**. No incumbent replay.
+[Exact selector and source boundaries](software-verification.md#mounted-rooms-retry-failure-and-targeted-recovery).
+Source33 is not combined33 execution, another frozen original, actual
+RoomServerService/store/retry/ACK/radio evidence, a frame/golden/device/spoken
+TalkBack or full-WP pass. Local-only source/results need bounded comparison
+before publication; published06a/39533421332 is not superseded while healthy.
 
 ### Rooms load failures: three Swift-reachable and three Android-only consumers
 

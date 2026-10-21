@@ -121,6 +121,7 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `roomNotificationRemovalFailureKeepsRowsAndDefersBadgeAndChangeUntilRecovery` | Supplementary Android-only defensive port fault: frozen notification removal is async, nonthrowing. Injected native fault retains row/draft/error identity; badge/change do not run before recovery. |
 | `roomBadgeFailureKeepsRowsAndDefersConversationChangeUntilRecovery` | Supplementary Android-only defensive port fault: frozen badge update is async, nonthrowing. Injected native fault leaves change callback untouched until recovery; actual row/label/draft remain. |
 | `roomConversationChangeFailureRemainsVisibleUntilDismissalAndSuccessfulReload` | Supplementary Android-only defensive port fault: frozen notifyConversationsChanged is nonthrowing. Injected native failure remains typed/visible once; dismissal cannot reload, and real live-event recovery completes the next sequence. |
+| `failedRoomRetryKeepsTheOriginalRowAndDraftThenReplacesOnlyThatRowAfterRecovery` | Mounted visible Retry reaches a held service port and source-reachable SessionNotFound; explicit localized-error dismissal then actual bubble custom Retry reaches held success. Original UUID/session, failed/delivered full row values, unchanged other row, once-labels/draft and no extra read/post/join/auth effects; callback removal and zero-subscriber teardown. Not a new frozen original or real service/store/ACK policy. |
 
 Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
@@ -575,6 +576,59 @@ are unchanged. No test replay, product/fixture/scope edit or current06a CI
 cancellation; the documentation correction is committed for comparison before
 any successor publication.
 
+#### Mounted Rooms retry failure and targeted recovery
+
+Coordinator directs the next genuinely missing mounted consumer after localfc50
+classification comparison addresses5594263557. Read frozen retryMessage,
+View.makeMessagesView/onRetry, failed Bubble/StatusIndicator and actual
+holder/route/contracts/unchanged Fixture/all32 existing consumers. The post
+failure case covers retry success, the original A11y case stops at its callback,
+and the primary holder case has no mounted failure. None duplicates this path.
+
+Frozen RoomServerService.retryMessage's missing-session guard actually throws
+SessionNotFound before retry status mutation. Its later transport-send failures
+are caught, so this test deliberately does not pretend those escape to the UI.
+After failure, explicit visible error dismissal precedes the second attempt;
+it does not infer that Swift retryMessage clears an undismissed old error.
+Controlled successful response is the original failed UUID/session/body/
+timestamp/createdAt/prefix/author/dedup key, delivered with retryAttempt1,
+maxRetryAttempts3, ACK0x04030201 and RTT700. Those are response-fixture values,
+not observations of real retry policy, persisted metadata or a radio ACK.
+An independent Alice/AA160 `unchanged` DTO remains the same object/value.
+
+Source **f4fedec11833c486668ff0e0680a03327f2f9377/basedbb** adds123 lines,
+zero deletions: one method/two frozen reference-input headers. Same attempt/
+session/branch/worktree, actual owned-modify reconciliation returns30; no
+production/fixture/primary-accounting/build/policy/scope boundary change.
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit f4fedec11833c486668ff0e0680a03327f2f9377 --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.failedRoomRetryKeepsTheOriginalRowAndDraftThenReplacesOnlyThatRowAfterRecovery
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Initial actual launcher stops on a foreign Gradle hard-lock collision BEFORE
+snapshot/preflight/Gradle: no tests, not a failed assertion. The supported
+wait does not release/alter the foreign owner. After its normal release,
+installed exact preflight **PASS0.65s** and one strict selected invocation
+discovers/runs/passes **1,0 failures/errors/skips,34s build**. Fresh exact
+classname/method XML is **2026-10-21T02:51:44.150Z**,6.149s case. Real canonical
+Ledger Gradle context/ext4 flock/native absence enforced; only own resource
+normally released. Portmap/controller validation/diff **PASS**, not extra
+App-test executions. Source33 is not a combined33/32+1 result, and no
+a9a6/52e/06a verdict transfers to this local source.
+Both mounted Retry entries preserve failed row/draft while suspended; failure
+has the original typed identity, one retry diagnostic/localized error, no
+reload on dismissal. Successful port completion replaces only the target,
+keeps independent row literals/other object/keyed once-labels/draft, removes
+visible/custom Retry and cannot post/join/authenticate or replay read effects.
+Owning-scope cancellation removes the subscriber; later changed event cannot
+mutate settled rows/effects. No new frame/device/golden/actual service/DB/radio
+or whole-WP claim; new source/results stay LOCAL for bounded comparison.
+Remote06a automatic39533421332 remains unchanged while healthy.
+
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 
 The same existing strict App task with
@@ -894,7 +948,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six original label/action consumers, three actual-renderer consumers with57 new host frames, and three Swift-reachable load-failure plus three Android-only defensive port-fault consumers ata9a6. Source32 is not combined32 execution or primary equivalence approval; renderer results stay8PASS/1FAIL atacec then failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 exact52e review5594110568 has no additional bounded blocker; its hosted result and new6 classification review are separate. Full Rooms sync/history/actions/store/radio, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six original label/action consumers, three actual-renderer consumers with57 new host frames, three Swift-reachable load-failure plus three Android-only defensive port-fault consumers ata9a6, and one mounted retry failure/recovery consumer actually passing1/1 atf4. Source33 is not combined33 execution or primary equivalence approval; renderer results stay8PASS/1FAIL atacec then failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 exact52e review5594110568 has no additional bounded blocker; its hosted result, new6 classification and new retry review are separate. Full Rooms sync/history/actions/store/radio, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |
