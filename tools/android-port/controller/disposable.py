@@ -217,8 +217,24 @@ class PrivateGuest:
             raise PortError("Installed emulator/adb/system image unavailable; no provisioning fallback")
         userdata = image / "userdata.img"
         properties = image / "source.properties"
-        if not userdata.is_file() or userdata.is_symlink() or not properties.is_file() or properties.is_symlink():
+        if not properties.is_file() or properties.is_symlink():
             raise PortError("Installed system image lacks regular initial userdata/provenance")
+        if userdata.exists() or userdata.is_symlink():
+            if not userdata.is_file() or userdata.is_symlink():
+                raise PortError("Installed system image lacks regular initial userdata/provenance")
+            copy_userdata = True
+        else:
+            initial_data = image / "data"
+            marker = initial_data / "empty_data_disk"
+            if (
+                not initial_data.is_dir() or initial_data.is_symlink()
+                or initial_data.resolve() != initial_data
+                or not marker.is_file() or marker.is_symlink()
+                or any(p.is_symlink() or p.resolve() != p or not (p.is_file() or p.is_dir())
+                       for p in initial_data.rglob("*"))
+            ):
+                raise PortError("Installed system image lacks regular empty-data initialization provenance")
+            copy_userdata = False
         values = dict(line.split("=", 1) for line in properties.read_text(encoding="utf-8").splitlines()
                       if "=" in line and not line.lstrip().startswith("#"))
         values = {k.strip(): v.strip() for k, v in values.items()}
@@ -230,8 +246,9 @@ class PrivateGuest:
         avds.mkdir()
         data = avds / (self.token + ".avd")
         data.mkdir()
-        # These are immutable image defaults copied into exclusively NEW mutable data.
-        shutil.copyfile(userdata, data / "userdata-qemu.img")
+        # Modern images let the emulator initialize this absent output from data/empty_data_disk.
+        if copy_userdata:
+            shutil.copyfile(userdata, data / "userdata-qemu.img")
         (avds / (self.token + ".ini")).write_text(f"path={data}\n", encoding="utf-8")
         (data / "config.ini").write_text(
             f"AvdId={self.token}\navd.ini.displayname={self.token}\nabi.type={abi}\n"
