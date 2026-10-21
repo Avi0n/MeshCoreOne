@@ -135,6 +135,20 @@ source/parent/base/current-policy payload. Final actual records empty.
 No device, native lock, packaging, foreign release, original-cohort replay,
 deadline increase or manual hosted cancellation/rerun.
 
+The incoming admission's documented focused command, with the repository
+tools/tests import roots:
+
+```powershell
+python -m unittest test_capabilities test_scope_amendment test_domain_room_evidence -q
+```
+
+**PASS72/72**, zero failures/errors/skips,154.192s on committed760f951e
+(same executed Android bytes), validates the current composite's newly
+inherited capability/projection/historical-evidence consumers. Expected
+argument/error-fixture stderr does not replace the runner's actual OK.
+This is not a rerun of the old379 controller cohort, new Android cases,
+mounted renderer evidence or grandfathered old-policy acceptance.
+
 ## Source bytes and limits
 
 | Actual read-only command | Result |
