@@ -35,6 +35,54 @@ DEBUG_PACKAGING_CAPABILITY = {
         "public certificate verification before any separately guarded install",
     ],
 }
+ROOMS_AVATAR_CAPABILITY = {
+    "id": "rooms-incoming-avatar-repair",
+    "work_packages": ["WP-502"],
+    "path_rules": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt",
+    ],
+    "operations": ["repair-room-incoming-avatar-bookends"],
+    "invariants": [
+        "issue-253-renderer-only", "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+        "WP-310-primary-provenance-unchanged", "existing-WP-502-owner-same-reservation",
+        "incoming-gutter-and-showAvatar-bookends-no-self-avatar", "reuse-shared-native-identity-and-theme",
+        "once-only-spoken-message-label", "no-auth-service-state-ordering-or-activation-change",
+        "semantic-collisions-serialize-or-transfer-current-producer",
+        "trusted-main-admission-before-product-edit",
+        "no-main-policy-landing-during-held-native-or-gradle-operation",
+    ],
+    "validation": [
+        "mounted Rooms renderer regression including same-prefix burst, retained-row reconfiguration and self rows",
+        "once-only accessibility label and shared identity/theme assertions",
+        "affected manifest-declared software verification", "trusted ownership and traceability validators",
+        "exact-head/current-base protected merge review after verified native cleanup",
+    ],
+}
+
+
+def rooms_avatar_predecessor(policy):
+    """Reverse only the exact Rooms support rule; never refresh historical acceptance."""
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result.get("reservation_policy")
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Rooms support amendment requires the canonical capability catalog")
+    selected = [index for index, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == ROOMS_AVATAR_CAPABILITY["id"]]
+    if not selected:
+        return result
+    if (
+        len(selected) != 1 or rules[selected[0]] != ROOMS_AVATAR_CAPABILITY
+        or selected[0] == 0 or rules[selected[0] - 1] != DEBUG_PACKAGING_CAPABILITY
+        or selected[0] + 1 >= len(rules)
+        or not isinstance(rules[selected[0] + 1], dict)
+        or rules[selected[0] + 1].get("id") != "merge-integration"
+    ):
+        raise PortError("Rooms support capability changed outside the exact authorized amendment")
+    rules.pop(selected[0])
+    return result
 
 
 def debug_packaging_predecessor(policy):
@@ -61,7 +109,7 @@ def debug_packaging_predecessor(policy):
 
 def review_policy_predecessor(policy):
     """Reverse exact authorized process deltas; historical policy receipts stay immutable."""
-    result = debug_packaging_predecessor(policy)
+    result = debug_packaging_predecessor(rooms_avatar_predecessor(policy))
     if "review_policy" not in result:
         return result
     if result.pop("review_policy") != REVIEW_POLICY:
