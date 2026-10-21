@@ -24,8 +24,9 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`;
-earlier bases `5714ba3be50618b8d946a21e0db15feb67f90eb6`,
+Current integrated base: `85871f40b1520a89ced6b9bec74aa8eec2f4f4de`;
+earlier bases `bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`,
+`5714ba3be50618b8d946a21e0db15feb67f90eb6`,
 `918af38472a43bf24f9a8bc4762c3c1fb45851b4`,
 `ec0a41e80ac8637baad524b777f774c10cf99f5b`,
 `680246f7914a5b4e5bf5167a916b620f83a79dee` and
@@ -39,11 +40,12 @@ The original binding is audit history, not rewritten to the newer policy.
 Manifest/source remain unchanged. Current semantic policy revision is
 `7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6`;
 merged254 changes operational paused=true to false only, preserving
-dispatch_mode=off/activation_approved=false. Policy bytes equal actual mainbfd,
+dispatch_mode=off/activation_approved=false. Policy bytes equal actual main858,
 not the earlier paused policy; controller/reserve retain tooling252 owner bytes.
-The same typed reservation remains actual revision26: real eight-path918
-evolution followed by idempotent five-path5714/four-pathbfd reconciliations; earlier
-ec0/Rooms operations were idempotent at25.
+The same typed reservation is now actual revision27 after the real six-path858
+reconciliation adds ci_environment.py and its test. Earlier real eight-path918
+evolution reached26, five-path5714/four-pathbfd reconciliations were idempotent
+at26, and ec0/Rooms operations were idempotent at25. No inferred revision.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -98,6 +100,23 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Actual main858 reconciliation after merged heap support257
+
+At publication preparation, fresh main ref/ancestry showed
+[PR257](https://github.com/cbattlegear/MeshCoreOne-Android/pull/257)
+actually merged at2026-10-21T00:17:44Z as
+**85871f40b1520a89ced6b9bec74aa8eec2f4f4de**, not cached PR basebfd.
+Same attempt's six-path `reconcile-current-base` genuinely evolves26->
+**actual returned27**, adding only ci_environment.py and its test to the
+existing scope. Identity/binding/immutable authorization survive.
+Ordinary merge **330e75108bdf408bfe531757d22bf65bfb631c70** preserves
+all six incoming owner files exactly. Android/manifest/policy equal executed
+ed227; its1/1 remains basebfd, not a new-base result or replay.
+This imports the existing003's real full-assembly heap support, not a WP502
+heap fix, packaging/native action or deployed Rooms renderer-admission rule.
+The latter remains separately pending; no foreign renderer edit or approval.
+Actual prior3f3 CI/review remains3f3/basebfd, not successor verification.
 
 ### Next original family: different prefixes with the same display name
 
