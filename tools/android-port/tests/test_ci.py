@@ -77,6 +77,92 @@ class SourceDispositionTests(unittest.TestCase):
             ci.execute(["fixture"], {}, Path(temporary) / "success.log")
             diagnostics.assert_not_called()
 
+    def test_timeout_closes_log_and_emits_failure_identities_reports_and_bounded_tail(self):
+        identity = "com.meshcoreone.android.FixtureTest > timedOutCase[31] FAILED"
+        content = identity + "\n    original failure\n" + ("later progress\n" * 2000) + "last Gradle progress\n"
+        failure = ci.subprocess.TimeoutExpired(["fixture-gradle"], 1800)
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / "gradle-timeout.log"
+            report = Path(temporary) / "junit"
+            report.mkdir()
+            (report / "TEST-Fixture.xml").write_text(
+                '<testsuite tests="1" failures="1" errors="0" skipped="0">'
+                '<testcase classname="Fixture" name="timedOutCase"><failure message="original"/>'
+                '</testcase></testsuite>', encoding="utf-8",
+            )
+            handles = []
+            def timeout(command, **kwargs):
+                self.assertEqual(kwargs["timeout"], 1800)
+                handles.append(kwargs["stdout"])
+                kwargs["stdout"].write(content)
+                raise failure
+            def reports():
+                self.assertTrue(handles[0].closed)
+                return [report]
+            with patch.object(ci.subprocess, "run", side_effect=timeout), \
+                    patch.object(Path, "read_text", side_effect=AssertionError("Whole-log reads forbidden")), \
+                    contextlib.redirect_stdout(io.StringIO()), \
+                    contextlib.redirect_stderr(io.StringIO()) as diagnostics:
+                with self.assertRaises(ci.subprocess.TimeoutExpired) as observed:
+                    ci.execute(["fixture-gradle"], {}, log, failure_reports=reports)
+            self.assertIs(observed.exception, failure)
+            self.assertTrue(handles[0].closed)
+            output = diagnostics.getvalue()
+            self.assertNotIn(identity, content[-12000:])
+            self.assertIn(identity, output)
+            self.assertIn("failed_command_report_totals", output)
+            self.assertIn("timedOutCase", output)
+            self.assertLess(output.index(identity), output.index("last Gradle progress"))
+            self.assertTrue(output.rstrip().endswith("last Gradle progress"))
+            self.assertLess(len(output), 16000)
+
+    def test_timeout_is_not_replaced_by_failure_diagnostic_errors(self):
+        for target, error in (
+            ("reports", PortError("partial report inventory")),
+            ("log", OSError("log unavailable")),
+            ("log", RuntimeError("unexpected diagnostic failure")),
+        ):
+            with self.subTest(target=target, error=type(error).__name__), \
+                    tempfile.TemporaryDirectory() as temporary:
+                failure = ci.subprocess.TimeoutExpired(["fixture"], 1800)
+                def timeout(command, **kwargs):
+                    kwargs["stdout"].write("retained timeout progress\n")
+                    raise failure
+                with patch.object(ci.subprocess, "run", side_effect=timeout), \
+                        patch.object(ci, "print_failed_command_log",
+                                     side_effect=error if target == "log" else None), \
+                        contextlib.redirect_stdout(io.StringIO()), \
+                        contextlib.redirect_stderr(io.StringIO()) as diagnostics:
+                    def reports():
+                        raise error
+                    with self.assertRaises(ci.subprocess.TimeoutExpired) as observed:
+                        ci.execute(["fixture"], {}, Path(temporary) / "timeout.log",
+                                   failure_reports=reports if target == "reports" else None)
+                self.assertIs(observed.exception, failure)
+                self.assertIn(str(error), diagnostics.getvalue())
+
+    def test_timeout_is_not_replaced_by_broken_stderr_during_diagnostics(self):
+        class BrokenDiagnostics(io.StringIO):
+            def write(self, value):
+                raise OSError("diagnostic output unavailable")
+
+        failure = ci.subprocess.TimeoutExpired(["fixture"], 1800)
+        handles = []
+        def timeout(command, **kwargs):
+            handles.append(kwargs["stdout"])
+            kwargs["stdout"].write("actual timeout progress\n")
+            raise failure
+        with tempfile.TemporaryDirectory() as temporary, \
+                patch.object(ci.subprocess, "run", side_effect=timeout), \
+                contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(BrokenDiagnostics()):
+            log = Path(temporary) / "timeout.log"
+            with self.assertRaises(ci.subprocess.TimeoutExpired) as observed:
+                ci.execute(["fixture"], {}, log)
+            self.assertIs(observed.exception, failure)
+            self.assertTrue(handles[0].closed)
+            self.assertEqual(log.read_text(), "actual timeout progress\n")
+
     def test_shared_candidate_executor_change_requires_broad_verification(self):
         self.assertTrue(all(classify(["tools/android-port/controller/ci.py"]).values()))
 

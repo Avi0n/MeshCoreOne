@@ -133,12 +133,8 @@ def print_failed_command_log(log: Path):
     print(tail, file=sys.stderr)
 
 
-def execute(command: list[str], environment: dict | None, log: Path, *, timeout=1800, failure_reports=None):
-    log.parent.mkdir(parents=True, exist_ok=True)
-    print("Executing " + " ".join(str(item) for item in command[:5]), flush=True)
-    with log.open("w", encoding="utf-8") as stream:
-        result = subprocess.run(command, cwd=REPO, env=environment, stdout=stream, stderr=subprocess.STDOUT, timeout=timeout)
-    if result.returncode:
+def print_failed_command_diagnostics(log: Path, failure_reports):
+    try:
         if failure_reports is not None:
             from controller.ci_evidence import failed_case_report
 
@@ -154,7 +150,29 @@ def execute(command: list[str], environment: dict | None, log: Path, *, timeout=
                     print("BLOCKED: failed-command JUnit evidence: " + str(error), file=sys.stderr)
             print(json.dumps({"failed_command_report_totals": totals,
                               "evidence_complete": not problems, "problems": problems}), file=sys.stderr)
+    finally:
         print_failed_command_log(log)
+
+
+def execute(command: list[str], environment: dict | None, log: Path, *, timeout=1800, failure_reports=None):
+    log.parent.mkdir(parents=True, exist_ok=True)
+    print("Executing " + " ".join(str(item) for item in command[:5]), flush=True)
+    try:
+        with log.open("w", encoding="utf-8") as stream:
+            result = subprocess.run(command, cwd=REPO, env=environment, stdout=stream, stderr=subprocess.STDOUT, timeout=timeout)
+    except subprocess.TimeoutExpired as timeout_error:
+        try:
+            print_failed_command_diagnostics(log, failure_reports)
+        finally:
+            # Diagnostics, including a broken stderr, must never replace the actual timeout.
+            try:
+                diagnostic_error = sys.exception()
+                if diagnostic_error is not timeout_error:
+                    print(f"BLOCKED: timed-out-command diagnostics failed: {diagnostic_error}", file=sys.stderr)
+            finally:
+                raise timeout_error
+    if result.returncode:
+        print_failed_command_diagnostics(log, failure_reports)
         raise PortError(f"Declared command failed with exit {result.returncode}; log: {log.name}")
 
 
