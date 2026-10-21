@@ -638,6 +638,13 @@ identity and test-count summary, with two bounded context lines on either side,
 before the rolling12000-character tail. It never loads the complete log into
 memory. Overlong physical diagnostic lines explicitly mark identity extraction
 incomplete; the original command still fails with its real exit code.
+Timeouts follow the same diagnostic path after the log is closed/flushed:
+available JUnit identities/totals, streamed Gradle failure identities and the
+bounded tail reach the authoritative hosted log even when `subprocess.run`
+raises `TimeoutExpired`. Report discovery cannot prevent the log attempt.
+Diagnostic failures are secondary and cannot replace the actual timeout, even
+if stderr is unavailable. The original deadline and failure/no-success semantics
+remain unchanged; this does not diagnose a test assertion from a timeout alone.
 
 ### Reference-oracle hosted capacity
 
