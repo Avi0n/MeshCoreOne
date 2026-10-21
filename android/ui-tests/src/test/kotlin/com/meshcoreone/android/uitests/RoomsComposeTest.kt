@@ -938,8 +938,11 @@ class RoomsComposeTest {
                 .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
             val layout = layouts.single()
             assertEquals(expectedGlyph, layout.layoutInput.style.color)
-            assertFalse(layout.didOverflowWidth)
-            assertFalse(layout.didOverflowHeight)
+            val glyphGeometry = "${case.id}: avatar=$avatar, size=${layout.size}, " +
+                "constraints=${layout.layoutInput.constraints}, lines=${layout.lineCount}, " +
+                "font=${layout.layoutInput.style.fontSize}, density=${layout.layoutInput.density}"
+            assertFalse(glyphGeometry, layout.didOverflowWidth)
+            assertFalse(glyphGeometry, layout.didOverflowHeight)
             compose.onAllNodesWithContentDescription("Alice: msg").assertCountEquals(2)
             compose.onAllNodesWithContentDescription("Alice").assertCountEquals(0)
             compose.onNodeWithContentDescription("hello, ${text(Rooms.remoteNodesRoomMessageStatusDeliveredLabel)}")
