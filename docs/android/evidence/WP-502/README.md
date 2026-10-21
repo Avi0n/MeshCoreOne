@@ -24,8 +24,9 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `85871f40b1520a89ced6b9bec74aa8eec2f4f4de`;
-earlier bases `bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`,
+Current integrated base: `c9ed1f9b78bcc322fb1ec281d211f99852cfec3b`;
+earlier bases `85871f40b1520a89ced6b9bec74aa8eec2f4f4de`,
+`bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`,
 `5714ba3be50618b8d946a21e0db15feb67f90eb6`,
 `918af38472a43bf24f9a8bc4762c3c1fb45851b4`,
 `ec0a41e80ac8637baad524b777f774c10cf99f5b`,
@@ -40,10 +41,11 @@ The original binding is audit history, not rewritten to the newer policy.
 Manifest/source remain unchanged. Current semantic policy revision is
 `7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6`;
 merged254 changes operational paused=true to false only, preserving
-dispatch_mode=off/activation_approved=false. Policy bytes equal actual main858,
+dispatch_mode=off/activation_approved=false. Policy bytes equal actual mainc9ed,
 not the earlier paused policy; controller/reserve retain tooling252 owner bytes.
 The same typed reservation is now actual revision27 after the real six-path858
-reconciliation adds ci_environment.py and its test. Earlier real eight-path918
+reconciliation adds ci_environment.py and its test; later four-pathc9ed
+reconciliation is idempotent at27. Earlier real eight-path918
 evolution reached26, five-path5714/four-pathbfd reconciliations were idempotent
 at26, and ec0/Rooms operations were idempotent at25. No inferred revision.
 `android/app/build.gradle.kts` is admitted through
@@ -142,8 +144,24 @@ across the documented sources, not a new combined17-case execution or
 primary-owner equivalence/acceptance. Rendered avatars253, full Rooms
 sync/history/actions/store/radio, current native/goldens and full WP135 remain
 open. The separately prepared renderer admission is not permission to edit
-RoomConversationScreen. Existing3d743/run39522836727 is preserved, not
-cancelled, replayed or transferred to this successor.
+RoomConversationScreen. Existing3d743/run39522836727 was preserved to terminal
+SUCCESS/all6; authoritative Linux118970922775 directly reports App800
+discovered/run/PASS,0 failures/errors/skips at01:01:31Z and the distinct-prefix
+method identity. SwiftData118977041858/aggregate118979177154 also SUCCESS.
+Bounded source COMMENTED5593585260 is3d743-only. No result/review transfer,
+manual replay, cancellation or duplicate result bundle.
+
+Actual258 merged2026-10-21T01:12:38Z as
+**c9ed1f9b78bcc322fb1ec281d211f99852cfec3b**. Same-attempt four-path
+`reconcile-current-base` returns **actual27** idempotently; merge
+**ab53bb70da9eb2858c8588fd72cac9e665b42913** preserves all incoming
+ci.py/test_ci.py/CI-doc/WP003 bytes exactly. All14 incoming owner paths since
+ec0 equal mainc9ed. Android/manifest/policy equal executeddc226; actual5
+remains dc226/base858, not a new-base execution. This imports real258 timeout
+diagnostic support, not a candidate tooling fix, altered deadline or deployed
+renderer-admission rule. The coherent new-source/current-main successor
+requires its own exact hosted CI and full source review; no successful cohort
+was replayed or source successor created solely to record CI.
 
 ### Actual main858 reconciliation after merged heap support257
 

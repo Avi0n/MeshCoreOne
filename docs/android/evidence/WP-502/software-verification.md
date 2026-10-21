@@ -4,7 +4,7 @@ This is a bounded command-to-behavior mapping for the existing WP-003 producer's
 verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
-`85871f40b1520a89ced6b9bec74aa8eec2f4f4de`. The same producer/reservation owns
+`c9ed1f9b78bcc322fb1ec281d211f99852cfec3b`. The same producer/reservation owns
 the adaptive, Rooms, mounted draft, onboarding WiFi, pairing and Region/preset regressions.
 Historical native observations remain untouched.
 Main918/tooling252 was reconciled as35fa6772 through the same attempt's real
@@ -27,6 +27,11 @@ environment-test paths), merged as330e75108 with all incoming owner bytes
 exact. Android/manifest/policy remain executeded227-exact; its local1/1
 remains basebfd, not a new-base UI result. No WP502 heap/packaging/native/
 renderer edit or future admission-rule activation.
+Actual258 subsequently merged at01:12:38Z as mainc9ed. Four-path same-owner
+reconciliation is idempotent at actual27; mergeab53bb70d preserves incoming
+ci.py/test_ci.py/CI-doc/WP003 exactly. All14 inherited paths equal mainc9ed;
+Android/manifest/policy remain executeddc226-exact, actual5/base858 unchanged.
+No new-base UI replay or renderer admission is inferred from timeout support.
 
 ## Existing task and source registration
 
@@ -326,9 +331,15 @@ into two methods). This is **only actual new5 execution**, not local17,
 old12+new5, primary all12 parity approval or a current-hosted verdict.
 Rendered-avatar253 still awaits real trusted renderer admission; flags/name
 are not that consumer's visual pass. Full sync/history/actions/store/wire,
-native/device/golden/physical/full-WP acceptance remain open. Preserve
-3d743/run39522836727 to its actual terminal outcome before successor push;
-do not rerun/cancel it or manufacture a future-head result.
+native/device/golden/physical/full-WP acceptance remain open.
+3d743/run39522836727 was preserved to **terminalSUCCESS/all6** before the
+successor. Authoritative completed Linux118970922775 directly reports
+**App800 discovered/run/PASS,0 failures/errors/skips**,01:01:31Z, and the
+actual distinct-prefix identity; SwiftData118977041858/aggregate118979177154
+also SUCCESS. Source COMMENTED5593585260 remains3d743-only, not full review of
+these new five methods/helper. No result transfer, rerun/cancellation or CI
+bundle. Actual mainc9ed reconciliation preserves all owner/Android bytes as
+described above; new-source/current-main hosted verification remains separate.
 
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 
