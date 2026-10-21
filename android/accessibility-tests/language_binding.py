@@ -231,6 +231,8 @@ CACHED_CHAT = FamilySpec(
          "f7474bb1bd06c6df93a71c8664e9dacade7c8749", "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c"),
         ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt",
          "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
+        ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityServiceSnapshot.kt",
+         "cc360e7bd8797bdb0847faadec5187862c093f8e", "3dee4f40c5aec6fb0adb1bb406a233fb223b43a4"),
     ),
     fixture_methods=(
         "actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample",

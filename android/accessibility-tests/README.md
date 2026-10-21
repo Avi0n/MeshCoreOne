@@ -323,6 +323,9 @@ restoration, message body and ordinary draft handling. Producer timeline tests,
 the mounted `ChatTimelineRestorationTest`, navigation/screen/message consumers,
 the complete rendering/draft-helper subtree, shared assertions and device
 harness retain independently checked exact producer/current objects and ancestry.
+The delegated timeout-only `NativeAccessibilityServiceSnapshot` is also pinned
+to unchanged producer `cc360e7b`/blob `3dee4f40c...`; diagnostic snapshots never
+replace the original failed deadline with a successful native result.
 
 There is an explicit **current-input distinction**, not historical equality:
 the current merged `03306ff1` `AppChatsContent`/`AppChatsFeature` consumer/delegate

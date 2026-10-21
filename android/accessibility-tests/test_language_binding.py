@@ -969,6 +969,10 @@ class LanguageBindingTest(unittest.TestCase):
         initial = binding.git("show", registration + ":" + spec.fixture)
         self.assertIn(spec.methods[0], re.findall(r"@Test fun (\w+)\(", initial))
         self.assertEqual(spec.fixture_blob, binding.git("rev-parse", retained + ":" + spec.fixture))
+        snapshot = "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityServiceSnapshot.kt"
+        self.assertEqual("3dee4f40c5aec6fb0adb1bb406a233fb223b43a4",
+                         binding.git("rev-parse", retained + ":" + snapshot))
+        self.assertIn("Public accessibility system snapshot failed", binding.git("show", "HEAD:" + snapshot))
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
@@ -986,6 +990,7 @@ class LanguageBindingTest(unittest.TestCase):
                           'listOf("900x900" to "navigation-rail", "360x900" to "navigation-hidden")',
                           "row.layoutInfo.isPlaced && coordinates.isAttached", "firstOffset.second, offsetOnly.second",
                           "drafts.set(conversation, originalDraft)", "container.processStore.deleteDeviceAndData(device.id)",
+                          'snapshotNativeServiceState(manager, "launcher-restoration-timeout", afterOriginalDeadline = true)',
                           'shell("wm size ${override ?: "reset"}")'):
                 self.assertIn(fixed, body)
         historical = (

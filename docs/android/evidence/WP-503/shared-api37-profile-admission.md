@@ -1421,3 +1421,19 @@ missing-only families now have current software selection support; **all27
 remain unexecuted** in that cohort. Language2+2, controls and preparation subtract
 zero. Historical genuineb2/r21 native outcomes/failed cleanup/separate recovery
 remain byte-for-byte unchanged; no native/golden/whole-WP acceptance is inferred.
+
+### Cached-chat direct timeout-helper pin correction
+
+Complete source comparison of a0f735ef found no bounded blocker. Before publication,
+the direct `withTouchExploration` failure-path delegate was additionally pinned:
+`android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityServiceSnapshot.kt`,
+producer `cc360e7bd8797bdb0847faadec5187862c093f8e`, exact producer/current/retained3f
+blob `3dee4f40c5aec6fb0adb1bb406a233fb223b43a4`. This raises the explicit cached-chat
+fixture/helper/production object inventory from16 to17 without changing the
+binding algorithm, selected identity/count, fixture, helper or native evidence.
+The existing every-pin/original/current/ancestor drift regressions now cover this
+delegate; an added assertion also preserves its historical object and explicit
+snapshot failure. The original failed1000ms deadline remains failed; diagnostic
+collection is not native acceptance. No replay, live readiness or native action.
+The same declared software suite passes168/168,0F/E/S; all four exact validator
+commands above pass/exit0 and whitespace passes for this correction.
