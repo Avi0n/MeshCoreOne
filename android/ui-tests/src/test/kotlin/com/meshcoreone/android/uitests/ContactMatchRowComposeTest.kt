@@ -131,7 +131,7 @@ class ContactMatchRowComposeTest {
     private fun row() = compose.onNodeWithTag("contact-match-row", useUnmergedTree = true)
 
     private fun assertRowBoundsAndAction(role: Role) {
-        assertEquals(frame.value.expectedScheme, effectiveScheme)
+        compose.runOnIdle { assertEquals(frame.value.expectedScheme, effectiveScheme) }
         val bounds = row().assertIsDisplayed().assertHasClickAction()
             .assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
             .assertContentDescriptionEquals(contact.value.displayName)
