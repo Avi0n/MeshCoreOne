@@ -1,6 +1,7 @@
 """AndroidOnly: WP-503 Fail-closed discovery for the missing-only shared-device adapter."""
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import json
+import runpy
 import subprocess
 import tempfile
 import unittest
@@ -74,6 +75,26 @@ class FakeDevice(Device):
 
 
 class SharedDeviceDiscoveryTest(unittest.TestCase):
+    def test_windows_signer_path_import_is_independent_of_host_path_flavour(self):
+        from shared_device_runner import ADB
+        source = Path(__file__).with_name("shared_device_runner.py")
+        with patch("pathlib.Path", side_effect=lambda value: PurePosixPath(value) if value == ADB else Path(value)), \
+                patch("subprocess.Popen") as spawn, patch("subprocess.check_output") as command:
+            imported = runpy.run_path(str(source))
+            spawn.assert_not_called()
+            command.assert_not_called()
+            expected = PureWindowsPath(
+                r"C:\Users\camer\AppData\Local\Android\Sdk\build-tools\37.0.0\apksigner.bat"
+            )
+            self.assertIsInstance(imported["SIGNER"], PureWindowsPath)
+            self.assertEqual(expected, imported["SIGNER"])
+            command.return_value = "certificate SHA-256 digest: " + "a" * 64
+            self.assertEqual("a" * 64, imported["certificate"](Path("candidate.apk")))
+            command.assert_called_once_with(
+                [str(expected), "verify", "--print-certs", "candidate.apk"],
+                text=True, stderr=subprocess.STDOUT,
+            )
+
     def test_unavailable_recovery_blocks_install_before_attempt_or_mutation(self):
         device = Device()
         device.install = Mock()

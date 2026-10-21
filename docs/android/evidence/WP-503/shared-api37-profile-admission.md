@@ -1863,3 +1863,81 @@ restart or wipe is required. Exact checks and subsequent source/publication
 results accompany the successor. No fresh allocation, build, boot or native
 start occurred at this configuration failure; both historical Nodes failures,
 25 original outcomes, two unstarted flows and retained66bd remain unchanged.
+
+### Published4936 actual disposable build and pre-launch image-format failure
+
+Exact `4936fbbd21e75cc70fac88bed5e7ceede2614013`, directbd0/main-baseea67,
+was ordinarily published to the existing ready PR205 head ref. Its corrected
+LOCAL source suite passed231/231,0F/E/S; four declared source validators and
+whitespace passed. The earlier230PASS/1FAIL integration result above remains
+separate. Source publication usedr28; no producer pin or original family changed.
+
+Supported trusted `disposable-native-guest` admission for
+`tools/android-port/controller/disposable.py` /
+`execute-private-disposable-avd` evolved the SAME canonical owner28-to29.
+Supported `Ledger.transition` moved that existing claim from leased to running.
+Identity, authorization context and audit history were preserved. The actual
+factory, not a consumer double, independently allocated the private guest and
+disposable/global-Gradle receipts for unique owner
+`1666502a-0420-46ef-930f-e78651ba8b9f:nodes:769ddaa08443430dbf5046695726a117`.
+No original guest/66bd action or claim of restoration accompanied this.
+
+The actual declared `disposable_runner.py --head 4936fbbd21e75cc70fac88bed5e7ceede2614013
+--api 37 --family nodes --execute` invocation used the existing environment,
+default debug-home, installed emulator/ADB/base37.0 image and exclusively new
+external output. Exact absolute arguments, owned process/receipt records and
+logs remain private under `wp503-4936-nodes37-disposable-a1`.
+Owned Windows `:app:assembleDebug :app:assembleDebugAndroidTest
+--dependency-verification strict --no-daemon
+-Pkotlin.compiler.execution.strategy=in-process --max-workers=1 --console=plain`
+completed **BUILD SUCCESSFUL**,2m23s,446 tasks:9 executed/437 up-to-date.
+The source-bound App/Test packages verified with the existing public certificate
+`000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7`;
+App SHA256 `d3490e09a2defed5ef6c0190bf1ca3b924e0617e7e2eb4f0f1725a272e0e84ae`,
+new Test `20f20334f3785fa48b31d23666917a0f14f3e3c8d403a0fc33b4e5f1cd029672`.
+The identical App digest does not transfer473 native acceptance: the actual
+new fixture compiled into the independently checked Test APK.
+
+CLI exit2 occurred at ACTUAL `guest.start`, producer `disposable.py:221`:
+`PortError: Installed system image lacks regular initial userdata/provenance`.
+The installed base37.0/revision6 package has no top-level `userdata.img`.
+Instead its regular107-byte `data/empty_data_disk` states:
+`This special file tells the host side to keep the data partition empty.`
+and references `b/326479561`. This is a concrete modern installed-image format,
+not permission to copy existing guest data or fabricate an image/default.
+The existing WP003 owner received this exact producer input alongside its
+separate literal37.0 correction. No local producer implementation was changed.
+
+Independent finally cleanup verified disposal of only the new Job/guest and
+its receipts: `disposal_verified=true`, no disposal error, instrumentation host
+exit null/UNKNOWN, no cohort,0 emulator/ADB/instrumentation starts or acceptance.
+The original Nodes failures/unknown exit,25 original outcomes, two unstarted
+flows and retained473/66bd remain unchanged. No snapshot/restart/wipe request.
+
+### Owned cross-platform signer import correction after4936 hosted failure
+
+Own automatic run39683578750 completedFAILURE for exact4936. Its official
+controller119512015394 log discovered506:502PASS/4 importERROR,0F/S.
+All four errors arose while importing `shared_device_runner.py:22` from
+`test_disposable_runner`, `test_language_binding`, `test_language_runner`
+and `test_shared_device_runner`. A Windows ADB literal becomes one PosixPath
+component on Linux, so `Path(ADB).parents[1]` raised `IndexError: 1`.
+Android/codec/SwiftData were dependency-skipped; aggregate failed. The official
+log was read in memory, not copied into another CI-result bundle.
+
+The surgical owned correction derives the historical Windows signer using
+`PureWindowsPath`, preserving its exact existing Windows location and argv.
+It does not claim a Linux SDK, add a tool fallback, suppress imports, skip a
+family or alter any native assertion/selection/deadline. Source/test/evidence
+admission was idempotent29-to29; no controller, policy or producer pin changed.
+One focused test in the existing suite imports the actual module with Posix
+interpretation of that Windows literal, checks no subprocess at import, and
+checks exact original Windows signer argv separately with a bounded model.
+It genuinely fails with1ERROR/IndexError against immutable4936 production bytes
+(negative-v2 traceback binds the Git object, not the changed local linecache).
+The corrected complete declared Python suite passed232/232,0F/E/S,17.195s:
+all231 incumbent regressions plus this one import regression. This is LOCAL
+source/command-construction evidence, not Linux SDK or native case credit.
+The four declared source commands (`verification_config.py --check`,
+`validate.py`, `workflows.py` and `portmap.py`, each via `python -B` at the
+existing documented path) and `git diff --check` also passed, exit0.

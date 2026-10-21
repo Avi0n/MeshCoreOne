@@ -4,7 +4,7 @@ from collections import Counter
 from contextlib import contextmanager
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import re
 import socket
 import subprocess
@@ -19,7 +19,7 @@ HEAD = "3f39a777376e322e2bc533f1d1caf92a87a44ed8"
 TREE = "7a9dd08e005e1e9cad79405dafecf325158d8b0c"
 OWNER = "1666502a-0420-46ef-930f-e78651ba8b9f"
 ADB = r"C:\Users\camer\AppData\Local\Android\Sdk\platform-tools\adb.exe"
-SIGNER = Path(ADB).parents[1] / "build-tools" / "37.0.0" / "apksigner.bat"
+SIGNER = PureWindowsPath(ADB).parents[1] / "build-tools" / "37.0.0" / "apksigner.bat"
 SERIAL = "emulator-5556"
 APP = "com.meshcoreone.android.debug"
 TEST = APP + ".test"
