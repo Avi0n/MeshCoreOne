@@ -149,6 +149,10 @@ class MountedTextAssertionsTest {
         }
         native.layoutInput.text.text.indices.forEach { offset ->
             assertEquals("$diagnostic|UTF16=$offset", native.getBoundingBox(offset), paint.getBoundingBox(offset))
+            val nativeEndpoints = native.getBoundingBox(offset)
+            val derivedEndpoints = paint.getBoundingBox(offset)
+            assertEquals("$diagnostic|UTF16=$offset|raw left endpoint", nativeEndpoints.left, derivedEndpoints.left, 0f)
+            assertEquals("$diagnostic|UTF16=$offset|raw right endpoint", nativeEndpoints.right, derivedEndpoints.right, 0f)
         }
     }
 

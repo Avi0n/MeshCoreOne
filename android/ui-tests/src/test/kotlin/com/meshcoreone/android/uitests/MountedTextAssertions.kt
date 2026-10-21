@@ -178,9 +178,10 @@ internal fun assertMountedText(
         val unitDiagnostic = "UTF16=$offset|unit=${actual[offset].code}|bounds=$bounds|allocation=$size|line=$line|$context"
         assertTrue("$unitDiagnostic|missing logical UTF16 line", line in 0 until paint.lineCount &&
             offset in paint.getLineStart(line) until paint.getLineEnd(line))
-        assertTrue("$unitDiagnostic|invalid native caret rectangle",
+        // Downstream/upstream insertion endpoints can cross at wrapped trailing spaces; retain them raw.
+        assertTrue("$unitDiagnostic|invalid native caret endpoints",
             listOf(bounds.left, bounds.top, bounds.right, bounds.bottom).all { it.isFinite() } &&
-                bounds.left <= bounds.right && bounds.top <= bounds.bottom)
+                bounds.top <= bounds.bottom)
         assertEquals("$unitDiagnostic|caret line top", paint.getLineTop(line), bounds.top, 0f)
         assertEquals("$unitDiagnostic|caret line bottom", paint.getLineBottom(line), bounds.bottom, 0f)
         for (boundary in offset..offset + 1) {
