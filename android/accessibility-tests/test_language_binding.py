@@ -965,6 +965,18 @@ class LanguageBindingTest(unittest.TestCase):
         registration = "4f89d2168e03786588e760a2d8310fbe9edc89d0"
         retained = "3f39a777376e322e2bc533f1d1caf92a87a44ed8"
         current_producer = "03306ff125655f977d88c5b517ad4cab26d9e771"
+        chats_producer = "32bb28c6ea08f697ee69222f775237c190460883"
+        self.assertEqual("ea4fbdfcd7100b5c48b48b6a5b5e5bbcd795134e", spec.production_blob)
+        self.assertIn((spec.production, chats_producer, spec.production_blob), spec.source_pins)
+        self.assertEqual(
+            "fbf18c35b67de68a6a1a19f6180ea7f2ea92fa06",
+            binding.git("rev-parse", "4b6629ac2bf215577ec1522530a77de61ed577fe:" + spec.production),
+        )
+        self.assertEqual([
+            spec.production + "/kotlin/com/meshcoreone/android/feature/chats/actions/MessageActionsUi.kt",
+            spec.production + "/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt",
+        ], binding.git("diff", "--name-only", "4b6629ac2bf215577ec1522530a77de61ed577fe",
+                       chats_producer, "--", spec.production).splitlines())
         self.assertEqual("", binding.git("merge-base", "--is-ancestor", registration, spec.producer))
         initial = binding.git("show", registration + ":" + spec.fixture)
         self.assertIn(spec.methods[0], re.findall(r"@Test fun (\w+)\(", initial))

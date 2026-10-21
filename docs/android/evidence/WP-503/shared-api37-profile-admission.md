@@ -1972,3 +1972,75 @@ The next owned attempt must still pass all actual source/publication/runtime/
 claim/receipt/process/transport/profile/install/instrumentation/disposal checks.
 Historical4936 build/start failure and verified disposal remain4936-only;
 473/66bd,25 original outcomes/two failures/two unstarted flows remain untouched.
+
+### Actual6deb continuation: modern initialization passed, private ADB listen failed
+
+Exact published `6deb1a6a7aabe3d38726a1588955bcabeaa188bd`, direct90e0962c,
+contains the actual reviewed b8 binding above and main352. Its declared source
+suite passed232/232,0F/E/S,15.730s; four source validators and whitespace passed.
+Independent readbacks confirmed existing PR205 OPEN/ready at6deb/base352.
+Own automatic39687254360 is distinct from every earlier result.
+
+The original seven-case Nodes CLI actually ran through the supported fresh
+factory under new exclusive owner
+`1666502a-0420-46ef-930f-e78651ba8b9f:nodes:37236ec861104e409173da402557eec0`.
+Its actual Windows debug pair again built/verified: BUILD SUCCESSFUL2m1s,
+446 tasks:5 executed/441 up-to-date. The reviewed37.0 and modern empty-data
+initialization checks passed, with no old data or SDK-image modification.
+
+Actual private ADB-server launch then exited before emulator spawn:
+`PortError: Owned Windows transport process exited`, producer `_owns_listener`
+line377. Its actual private `process.log` reports:
+`F adb.exe : main.cpp:168 could not install *smartsocket* listener: listening on specified hostname currently unsupported`.
+The producer uses `adb -L tcp:127.0.0.1:<private-port> nodaemon server`;
+this installed native Windows ADB rejects that hostname-bearing LISTEN syntax.
+The concrete bounded producer correction was routed to existing WP003: use
+supported hostless loopback-default listen syntax while retaining separate
+client endpoint/owned-PID validation. No local producer override or unchanged
+retry was used. Exact CLI/logs/receipts remain private under
+`wp503-6deb-nodes37-disposable-a1`.
+
+Independent finally disposal VERIFIED true, no disposal error. One private
+ADB-server start failed;0 emulator/instrumentation starts, host instrumentation
+exit null/UNKNOWN, no cohort/acceptance. Original473/66bd remains untouched.
+Separately, historical59f own39685529526 completedCANCELLED after newer source
+publication: controller726/OK and codecSUCCESS, Linux/SwiftDataCANCELLED,
+aggregateFAILURE; no manual cancel/rerun or overall59f success is claimed.
+
+### Actual merged263 listener binding and current-main continuation
+
+Reviewed producer `85d35dc3fc47e5fda5a0e08687ff7c9dfb84bd3c` actually merged
+as trusted main `e121fb8989a77f1c05d5bb5b767b4abd5b271d60`.
+Ordinary integration `6f05d57b42bc75cd1b3255451867e9715db2fe12` includes
+that producer and independently merged UI249/f3a3fa65, preserving its actual
+Rooms/RepeatRow changes. Supported `merge-integration` admission29-to30 covered
+the40 actual incoming paths and retained identity/authorization history.
+The owned6deb failure chronology draft was disjoint and preserved, not reverted.
+The complete accessibility subtree was unchanged by the main merge.
+
+The consumer advances only its actual producer revision and disposable runtime
+blob to `b16cb30d11e2e8fd0546164d471bdc53abfa0b77`. The other three API input
+blobs remain exactly `621612bb67e16432692e07a5a1b1056426747777`,
+`6048cf50b275b85c9028781fd80a473ef06ca6f2` and
+`7f8e5e9769c0f8d70a42678738280bf7209c17e9`, verified from actual85d objects.
+The trusted producer's sole production change is the server's supported
+hostless `-L tcp:PORT`; it keeps the explicit127.0.0.1 client, no `-a`, and all
+actual Job/listener/identity/transport/disposal checks. No local backend override
+or unchanged startup retry. The original Nodes7/default/144 assertions and59f
+portable signer remain unchanged; no language replay or old473/66bd operation.
+Each next source/pair/start/native result must bind its own new exact candidate.
+
+The first post-main232 check found231PASS/1FAIL at the existing cached-chat
+whole-Feature-tree provenance assertion, not a Nodes/native failure: approved
+UI249 genuinely changes `MessageActionsUi.kt` (RepeatRow fallback affordance)
+and `RoomConversationScreen.kt` (incoming avatar/bookend layout). Their complete
+actual83-line production delta was read before updating the owned binding.
+The cached-chat current production tree is now independently bound to actual
+reviewed producer `32bb28c6ea08f697ee69222f775237c190460883` /
+`ea4fbdfcd7100b5c48b48b6a5b5e5bbcd795134e`, not inferred from HEAD.
+Its original fixture producer/blob, all ten fixture methods, selected original
+one method, timeline/rendering/helper pins and separate033 current delegates are
+unchanged. The existing provenance test now also preserves the historical4b/
+fbf tree and verifies the exact two-file reviewed production delta. No assertion
+is removed or weakened, no native case is replayed and no old result is rebound.
+The actual failing first log remains separate from the corrected check.

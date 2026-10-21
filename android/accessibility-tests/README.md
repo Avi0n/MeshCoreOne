@@ -133,7 +133,7 @@ Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
 
 `disposable_runner.py` is a separate consumer of the reviewed WP-003 private-guest
-interface, updated at `b8eaf22c1ee6a0a467b9dbfc7d5504dcf3ca9b1b`.
+interface, updated at `85d35dc3fc47e5fda5a0e08687ff7c9dfb84bd3c`.
 It does not remove the shared-device fence or adopt an existing guest. Before
 import/allocation it requires the reviewed producer bytes in actual trusted main
 and the actual checkout, and trusted capability/pause policy. The real factory
@@ -141,13 +141,15 @@ then requires the existing canonical session/attempt, evolved disposable receipt
 and eligible claim state; it allocates a new private guest with independent
 transport plus disposable and global Gradle receipts. The original LOCAL
 preparation predated trusted producer admission; actual merged main
-`35265173f2ae1765469c751d6d0eb66a82055c00` includes the reviewed installed-image repair.
+`e121fb8989a77f1c05d5bb5b767b4abd5b271d60` includes reviewed image and Windows listener repairs.
 Actual source/runtime/claim/resource guards still run; merge is not guest readiness.
 The consumer accepts the installed base-image spelling `37.0` as API37
 (likewise integer base API plus `.0`), but rejects nonzero/ambiguous minor versions.
 The merged producer accepts base37.0 and the installed package's explicit
 `data/empty_data_disk` initialization layout, retaining legacy userdata copying
 only when that regular installed image exists. It never adopts old guest data.
+The private server uses hostless loopback-default `-L tcp:PORT`; the explicit
+client endpoint remains `127.0.0.1`, with actual owned-listener verification.
 
 The consumer packages with `installed_apk=None, guest=guest` before boot, verifies
 concrete producer/Ledger identity, checks fresh package absence and the inherited
