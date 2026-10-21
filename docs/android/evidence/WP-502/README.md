@@ -121,7 +121,7 @@ Code **6949d5f1ea4ae9f544697c37d12b55a81a078faa/basedbb** adds107 lines,
 zero deletions: one method/four reference headers, every33 incumbent line/
 helper/Fixture preserved. No product/core/build/policy/manifest/primary edit.
 
-Actual mounted incoming bubble custom actions use the exact selected originals:
+Actual mounted incoming bubble custom actions consume selected source-derived predicates:
 raw `mydevice`, device `MyDevice`, contacts[Alice] gives self with no matches;
 raw `Me`, absent device name, contacts[] must not infer self from fallback Me.
 The route's real modal presents the respective localized title/subtitle,
@@ -141,6 +141,23 @@ Source34/two input vectors are not combined34/two executed cases, all eight
 mention originals, primary equivalence approval, actual contact-store refresh/
 offline-device observation, navigation destination, golden/device/TalkBack or
 full-WP acceptance. This new increment stays LOCAL for bounded comparison.
+
+Bounded source review found that6949's Alice inherited native
+`outPathLength=255`, whereas frozen `makeContact` explicitly supplies0.
+Corrective source **a05aa4eed20a642ce3e5b8823ac86f2f946a1c34**, direct
+parentd4a929, changes only that argument to `outPathLength=0u`; no other method,
+helper, Fixture or product change. Fixed UUIDs/radio ID and repeated32x0x11
+key bytes are deterministic representatives of the original random identities/
+repeated random byte, not original literal identity values.
+
+Corrected-input preflight **PASS0.64s**; ONLY the changed selector discovers/
+runs/passes **1,0 failures/errors/skips,29s build**, exact named XML
+**2026-10-21T03:35:27.041Z**,5.797s case, under the same actual exclusive
+Ledger/ext4/native-absence safeguards/only-own release. Historical6949's
+33s/1PASS remains its own execution with the mismatched default, not corrected
+input evidence. These are separate one-case runs, not combined2/full34 or full
+eight-original acceptance; the new proof is controlled predicate-derived
+mounted status consumption. Published883/39537138016 remains unchanged.
 
 ### Mounted Rooms retry failure and targeted recovery
 

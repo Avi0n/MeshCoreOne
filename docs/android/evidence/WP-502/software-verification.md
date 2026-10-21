@@ -645,7 +645,7 @@ actual route/dispatcher/shared sheet and existing33/WP503 separate single-match
 test. Self/not-saved modal status has no existing mounted witness; this is not
 another single-Alice navigation or retry/load-fault duplicate.
 
-Selected original vectors are exact: `mydevice` with connected `MyDevice` and
+Selected source-derived predicate vectors: `mydevice` with connected `MyDevice` and
 contacts[Alice] must show self/no matches; `Me` with nil connected name and
 contacts[] must show not-saved/not-self, not a fallback-Me identity inference.
 These are the bodies named `Zero matches with self-name returns picker outcome
@@ -684,6 +684,34 @@ operation, golden/frame or original-case accounting. Source34 is not a
 combined34/33+1/two-case execution or all eight mention-original acceptance.
 Keep local source/results for comparison before publication; published883/
 39537138016 remains immutable while healthy, no06a/883 verdict transfer.
+
+**Corrected Alice source field, separate execution.** Bounded review found
+that original6949 omitted `outPathLength`, inheriting native255 instead of
+frozen `makeContact`'s explicit0. Code
+**a05aa4eed20a642ce3e5b8823ac86f2f946a1c34**, direct parentd4a929, changes
+only Alice's argument to `outPathLength=0u` (one insertion/one deletion).
+All incumbents/helpers/Fixture/product/evaluator/sheet remain unchanged.
+The fixed UUIDs/radio ID and repeated32x0x11 key are deterministic samples of
+the original random identities/repeated random byte, not original literals.
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit a05aa4eed20a642ce3e5b8823ac86f2f946a1c34 --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.selfMentionAndMissingDeviceNameUseDistinctMountedStatusSheetsWithoutLosingTheRoomDraft
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Corrected-input preflight **PASS0.64s**; actual **1 discovered/run/PASS,
+0 failures/errors/skips,29s build**, exact named XML
+**2026-10-21T03:35:27.041Z**,5.797s case. Same canonical r30 admission covers
+these paths; actual Ledger Gradle context/ext4 flock/native absence and
+only-own normal release enforced. This changed-selector run proves controlled
+predicate-derived mounted status consumption, not full eight-original
+acceptance. Historical6949's1PASS/33s remains bound to its then-mismatched
+input; no combined2/full34, old-verdict transfer, incumbent replay or native/
+golden/hardware claim. Portmap/controller/whitespace and exact single-argument
+preservation checks PASS. Corrective source stays LOCAL for bounded comparison.
 
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 
@@ -1004,7 +1032,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six label/action consumers, three renderer consumers/57 new host frames, three Swift-reachable load faults plus three Android-only defensive faults ata9a6, mounted retry passing1/1 atf4 and one mention-status consumer passing1/1 at6949. Source34 is not combined34 or primary equivalence approval; renderer results stay8PASS/1FAIL atacec then failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 exact52e review5594110568, clear boundedfc50/883 comparisons and new local mention review stay separate. Full Rooms sync/history/actions/store/radio, remaining mention families/app contact refresh, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six label/action consumers, three renderer consumers/57 new host frames, three Swift-reachable load faults plus three Android-only defensive faults ata9a6, mounted retry passing1/1 atf4 and one mention-status consumer passing1/1 at6949 then separately1/1 with corrected Alice input ata05aa4. Source34 is not combined34 or primary equivalence approval; renderer results stay8PASS/1FAIL atacec then failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 exact52e review5594110568, clear boundedfc50/883 comparisons and new local mention review stay separate. Full Rooms sync/history/actions/store/radio, remaining mention families/app contact refresh, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |
