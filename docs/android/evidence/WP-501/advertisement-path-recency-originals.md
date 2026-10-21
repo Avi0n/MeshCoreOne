@@ -1,6 +1,49 @@
 # WP-501 advertisement path recency: two original persistence destinations
 
-## Local candidate boundary
+## Current type-alignment successor: LOCAL, UNVERIFIED and UNPUBLISHED
+
+Direct parent is failed published
+`e6ff34ad778471da3a4d36647d003bf5b0ba41ad`.
+Its OWN automatic39614489755 is TERMINAL FAILURE: official Linux119272968239
+failed `:app:compileDebugUnitTestKotlin` at test L66:13 and L91:13 with
+`Type inference failed. The value of the type parameter T must be mentioned in input types`.
+The independently read job states also show classifier/controller/SwiftCodec
+SUCCESS, aggregate119275236589 FAILURE, and SwiftData119275239208 upstream
+SKIPPED, not a passed/scope-excluded oracle. No App discovery or either original
+method PASS is established; the available398 passing report cases are incomplete
+mandatory evidence and cannot substitute. Prior COMMENTED5601097716 was
+source comparison only, not compilation or acceptance clearance.
+
+The entire Kotlin correction is TWO explicit expected-list type arguments:
+`listOf<MeshEvent>(MeshEvent.PathResponse(path))` and
+`listOf<MeshEvent>(MeshEvent.PathUpdate(f.before.publicKey))`, matching the
+actual `MutableList<MeshEvent>`. Both independent full event objects, ordering,
+assertEquals predicates and actual-list operands are unchanged. No cast, Any,
+type erasure, boolean-assertion substitute, fixture/deadline/wire/clock/Room/
+consumer/lifecycle/product change or original recount.
+
+All coupled generic assertions in the complete222-line class were inspected:
+remaining expected/actual collections share Bytes, ContactDTO, DeviceDTO,
+Boolean or Diagnostic element types. Service-event predicates use ordinary
+equality, not the failed generic assertEquals call. No unrelated assertion
+change is needed. Reversing only the two `<MeshEvent>` insertions restores the
+ENTIRE failed-parent Kotlin blob `e03025ef6ab8ba42d7995dd2ae52940e067d31fe`.
+
+Fresh actor916234/exacte6-public-parent/mainDBB/trusted canonical977b/policy e8/
+paused=false and SAME owner/attempt d6056690 revision95 were checked before
+editing. All three existing wp-owned paths and modify/record-evidence
+operations are already reserved; no evolution, authorization rewrite, ledger
+mutation or resource action is required. All prior source bindings, frozen
+pin and disclosed unrelated reference drift below remain intact.
+
+This is ONE LOCAL successor for complete comparison, NOT COMPILED/RUN/DISCOVERED.
+Only the five declared source-safe validators and whitespace checks are allowed;
+their actual outcomes accompany the exact local handoff. Both2 exact identities,
+clean/nonempty App, complete mandatory selected reports and the successor's OWN
+all-required hosted success remain necessary. Failede6 is not rerun or relabeled;
+no second CI-result bundle, publication or other family is created.
+
+## Historical e6 pre-publication source boundary (retained)
 
 This is ONE LOCAL, UNPUBLISHED successor to
 `9ab524d567f8480792768c2f2f21337343c307c1` on the existing WP-501 branch/PR165.

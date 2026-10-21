@@ -63,7 +63,7 @@ class AdvertisementPathRecencyOriginalPredicateTest : RoomProcessTest() {
             assertTrue((updated.lastHeardTimestamp ?: 0u) > 0u)
             assertEquals(f.before.copy(lastHeardTimestamp = 1_704_067_200u), updated)
             assertEquals(updated, store.fetchContactByPrefix(f.radio, path.publicKeyPrefix))
-            assertEquals(listOf(MeshEvent.PathResponse(path)), f.protocolEvents)
+            assertEquals(listOf<MeshEvent>(MeshEvent.PathResponse(path)), f.protocolEvents)
             assertTrue(f.handlerFlags.isEmpty(), "A path response must not start a delta round")
             f.expected = updated
         }
@@ -88,7 +88,7 @@ class AdvertisementPathRecencyOriginalPredicateTest : RoomProcessTest() {
             val updated = assertNotNull(store.fetchContact(f.radio, f.before.publicKey))
             assertEquals(0u, updated.lastHeardTimestamp ?: 0u)
             assertEquals(f.before, updated)
-            assertEquals(listOf(MeshEvent.PathUpdate(f.before.publicKey)), f.protocolEvents)
+            assertEquals(listOf<MeshEvent>(MeshEvent.PathUpdate(f.before.publicKey)), f.protocolEvents)
             assertEquals(listOf(false, true), f.handlerFlags)
         }
     }
