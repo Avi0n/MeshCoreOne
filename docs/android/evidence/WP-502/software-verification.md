@@ -92,6 +92,11 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `liveMidInsertionReconfiguresTheRetainedLaterRowsTimestampBeforeReload` | Frozen same-prefix0xAA/Alice `[100,500]+250 -> [100,250,500]`; original later DTO/identity retained, its timestamp flag changes true-to-false and its actual visible header disappears before/during/after held reload. First header/visible row order/CJK-RTL draft remain, two exact read-side-effect sequences and no post/join/retry/error. Explicit US/UTC restored afterward; not full date-format/avatar parity. |
 | `samePrefixBurstKeepsTheVisibleNameOnFirstAndMovesTheAvatarFlagToLastBeforeReload` | Frozen prefix0xAA/nameAlice/textmsg/timestamps100,160,220. Actual mounted burst retains first-name-only rendering, three once-labelled/keyed visible bubbles, exact DTOs/draft and state-only last-avatar IDs before/during/after held50ms coalesced reload. First row's value changes but logical message ID remains. Not rendered-avatar acceptance; source-confirmed production gap253. |
 | `differentPrefixesKeepSeparateVisibleNamesEvenWhenDisplayNamesMatchBeforeReload` | Frozen0xAA/Alice/msg100 and0xBB/Alice/msg160. Real live arrival keeps both clusters' visible names above their respective keyed bubbles despite matching display names; original first row remains equal, exact name/avatar-flag IDs/DTOs/draft/labels/read effects survive optimistic/held50ms/reconciled phases. Flags only, not rendered-avatar acceptance. |
+| `selfOnlyMessagesNeverAcquireNamesOrAvatarFlagsBeforeReload` | Frozen prefixAA/Me/self100/160. Both rows keep name/avatar flags false and no displayed Me; original first row remains equal. Actual delivered parent labels, complete DTOs, draft and first-only timestamp survive live arrival/held reconciliation. |
+| `singleFollowUpReconfiguresTheRetainedFirstRowWithoutChangingItsLogicalIdentity` | Exact frozen Alice/prefixAA/incoming100/160, not the three-message burst. Actual before/after first row retains logical message ID/full DTO while value/avatar flag changes true-to-false; second avatar flag becomes true. First-only actual name/timestamp, both original labels and keyed bubbles persist. |
+| `independent300SecondPairKeepsOneClusterAndOneVisibleTimestampBeforeReload` | Independent frozen Alice/prefixAA `[1000,1300]`: explicit first-only name/last-only avatar flags and visible00:16 header with00:21 absent. Its own route/fixture/arrival; no third adjacent message. |
+| `independent301SecondPairSplitsBothBookendsAndVisibleTimestampsBeforeReload` | Separate frozen Alice/prefixAA `[1000,1301]`: both rows retain name/avatar/timestamp flags, two displayed names above their respective bubbles and literal00:16/00:21 headers. First row remains equal; no1300 neighbor. |
+| `selfMessageBreaksTheIncomingSamePrefixClusterBeforeReload` | Exact frozen Alice/prefixAA incoming100/self160/incoming220. Both incoming rows keep name/avatar flags; middle self row has neither despite the same raw name/prefix. Two displayed Alice names, original self/incoming parent labels, ordered keyed bubbles and unchanged first row survive one held coalesced reload. |
 
 Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
@@ -257,9 +262,73 @@ subscriber/no post/join/retry/diagnostic error persist before/during/after the
 held source50ms reload. No shared helper/production/policy/locale change.
 The actual avatar/gutter253 remains unimplemented here: flags are not rendered
 avatar, approved omission, native/device/golden or full-family acceptance.
-Four other ordering originals/full primary accounting still remain. Healthy
+Ated227, four other ordering originals/full primary accounting still remained. Healthy
 3f3 CI and source-only review retain3f3 bindings; no successful-cohort replay,
 CI cancellation, result bundle or future-head result transfer.
+
+#### Remaining four ordering originals: one five-case invocation
+
+Coordinator-directed continuation after bounded3d743 source review5593585260
+explicitly groups all four remaining originals into one increment. The full
+frozen twelve-case file, incomingBookends/tiledRows/shouldShowTimestamp,
+View/Bubble consumers and actual holder/DTO/default-key/renderer were read.
+Source **dc226292adc80f1a229b49d45fcebde7186a006d/base858** adds the five
+methods above plus their new `assertOriginalGroupingArrival` helper, leaving
+all12 incumbents/shared helpers/Fixture and Region7 byte-for-byte unchanged.
+Existing owned modification returns leased **revision27**, same identity/
+binding/authorization. No foreign production/build/manifest/policy edit.
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit dc226292adc80f1a229b49d45fcebde7186a006d --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.selfOnlyMessagesNeverAcquireNamesOrAvatarFlagsBeforeReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.singleFollowUpReconfiguresTheRetainedFirstRowWithoutChangingItsLogicalIdentity
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.independent300SecondPairKeepsOneClusterAndOneVisibleTimestampBeforeReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.independent301SecondPairSplitsBothBookendsAndVisibleTimestampsBeforeReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.selfMessageBreaksTheIncomingSamePrefixClusterBeforeReload
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Installed preflight **PASS0.72s**; the single existing App invocation actually
+discovers/runs/passes **5**, **0 failures/errors/skips,40s build**. All five
+fresh method identities are independently checked against the selector list;
+named XML timestamp2026-10-21T00:54:00.647Z. Missing/malformed/zero/mismatched/
+failed/errored/skipped evidence cannot pass. Existing Ledger hard-lock context
+owns the real shared Gradle resource during snapshot/preflight/selected task;
+native absence checked before/after acquisition, ext4 Gradle flock retained.
+Normal same-owner release leaves both lanes empty; no foreign lock action.
+
+The two boundary pairs use independent fresh methods/fixtures, preserving
+`[1000,1300]` and `[1000,1301]`, never `[1000,1300,1301]`.
+Self-only preserves Me/prefixAA100/160. Interruption deliberately preserves
+Alice/prefixAA even for self160, preventing display-name/prefix substitution
+from hiding the original identity condition. Copying only `isFromSelf`
+changes none of the initializer's timestamp/prefix/text deduplication inputs;
+those original fresh DTO fields/keys remain unchanged.
+
+Explicit row literals, not candidate `rows()` output, supply expected flags.
+Each case verifies initial and optimistic/held50ms/reconciled full DTO/row
+values, stable public message keys/visible bubble order, raw `msg`, exact
+once-per-message parent labels, visible name count/position or absence, and
+independent fixed UTC timestamp literals (including missing follow-up
+headers). Complete CJK/RTL draft, no spinner/empty/failure, one armed
+subscriber, exactly two ordered fetch/read/failed-seen/notification/badge/
+changed cycles and no post/join/retry/diagnostic errors are required.
+The follow-up additionally compares actual retained before/after row values,
+unchanged full message/logical ID, and the avatar-flag handoff. Global locale,
+FORMAT/DISPLAY defaults/timezone restore in finally; scope/activity teardown
+is unchanged. No internal Compose-node identity or arbitrary sleep.
+
+Source now17 methods: four earlier route/render cases plus thirteen mounted
+witnesses representing the twelve frozen ordering originals (boundary splits
+into two methods). This is **only actual new5 execution**, not local17,
+old12+new5, primary all12 parity approval or a current-hosted verdict.
+Rendered-avatar253 still awaits real trusted renderer admission; flags/name
+are not that consumer's visual pass. Full sync/history/actions/store/wire,
+native/device/golden/physical/full-WP acceptance remain open. Preserve
+3d743/run39522836727 to its actual terminal outcome before successor push;
+do not rerun/cancel it or manufacture a future-head result.
 
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 
@@ -580,7 +649,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input/four-method Rooms history plus five separately passing mounted live insertion/tie/duplicate/reconciliation methods (source now9, no invented9-case cohort), three WiFi, seven pairing and seven Region/preset methods passing together after canonical repair. Full Rooms sync/history/actions/store/radio and remaining grouping/avatar originals, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input/four-method Rooms history and thirteen dedicated mounted witnesses for twelve ordering originals across documented executions, most recently one actual new5 cohort atdc226 (source17, not combined17 execution or primary acceptance). Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Actual rendered-avatar253 and full Rooms sync/history/actions/store/radio, primary grouping equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |

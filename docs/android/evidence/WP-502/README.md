@@ -82,7 +82,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six live-event methods pass together at d76a576af; strengthened timestamp method separately passes at2b478f7. Same-prefix burst/name-first/avatar-flag-last method passes alone at1f73d3daf. Next different-prefix/same-display-name method passes alone ated2276627. Fresh DTO keys, held50ms reconciliation, exact identities/visible names/order/draft/read effects remain. Source now12 methods, not a manufactured local12-case cohort. State avatar flags are not rendered-avatar acceptance: actual consumer gap253 awaits the real reviewed renderer rule/admission. No actual RoomServerService/history sync/Room-database/radio/golden claim. |
+| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six live-event methods pass together at d76a576af; strengthened timestamp method separately passes at2b478f7. Same-prefix burst and different-prefix/same-name methods pass separately at1f73d3daf/ed2276627. Remaining four ordering originals now have five focused mounted witnesses passing together atdc226292a: self-only, exact two-message follow-up, independent300s/301s pairs, self-interruption. All12 earlier methods/helpers/fixture remain unchanged. Source17 is not a local17-case/combined execution or primary all12 parity acceptance. State avatar flags are not rendered-avatar acceptance: actual consumer gap253 awaits the real reviewed renderer rule/admission. No actual RoomServerService/history sync/Room-database/radio/golden claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -100,6 +100,50 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Remaining four ordering originals in one coherent increment
+
+After source-only review5593585260 of3d743/base858, the coordinator explicitly
+replaces the one-next-family stopping point with all four remaining frozen
+grouping/tiled-row originals together. Code
+**dc226292adc80f1a229b49d45fcebde7186a006d/base858** adds five methods and
+one new, exclusively used assertion helper:163 insertions/zero deletions.
+The300s/301s original becomes two independent mounted cases, not a three-row
+adjacency substitute. All12 incumbent methods/helpers/fixture and Region7
+are unchanged; no production/build/policy/manifest/screenshot edit.
+Same-attempt owned modification is idempotent at **actual revision27**.
+
+Installed exact-source preflight **PASS0.72s**. One strict invocation of the
+existing App task discovers/runs/passes **5**, with **0 failures/errors/skips**,
+**40s build**. Fresh named XML is2026-10-21T00:54:00.647Z; the runner checks
+all five exact executed method identities in addition to strict counts.
+[Exact selectors and four-original mapping](software-verification.md#remaining-four-ordering-originals-one-five-case-invocation).
+The canonical owner acquires/releases the real shared `gradle-execution`
+resource through the existing Ledger context; the ext4 runner also retains
+its actual exclusive Gradle flock. Native absence is checked before/after
+acquisition. Both resource lanes are empty after normal completion; no foreign
+lock action, new device operation or healthy-incumbent replay.
+
+Exact frozen vectors are preserved: prefixAA/Me/self100/160; prefixAA/Alice
+incoming100/160; independent Alice pairs `[1000,1300]` and `[1000,1301]`;
+Alice/prefixAA incoming/self/incoming100/160/220. Explicit independent
+RoomMessageRow expectations prove every timestamp/name/avatar flag.
+Actual keyed bubbles, original parent labels, raw `msg`, displayed name
+placement/absence and literal UTC timestamp presence/absence are checked
+before/optimistic/held50ms/reconciled. CJK/RTL draft, full DTOs, no empty/
+spinner/error, one subscriber and exactly two full read sequences persist;
+no false post/join/retry/diagnostic. Actual retained first-row value changes
+for the two-message follow-up while its logical ID/DTO remain. Locale,
+FORMAT/DISPLAY defaults and timezone restore in finally; existing scope/
+activity teardown remains.
+
+All12 frozen ordering originals now have these dedicated mounted witnesses
+across the documented sources, not a new combined17-case execution or
+primary-owner equivalence/acceptance. Rendered avatars253, full Rooms
+sync/history/actions/store/radio, current native/goldens and full WP135 remain
+open. The separately prepared renderer admission is not permission to edit
+RoomConversationScreen. Existing3d743/run39522836727 is preserved, not
+cancelled, replayed or transferred to this successor.
 
 ### Actual main858 reconciliation after merged heap support257
 
@@ -146,8 +190,8 @@ locale mutation, fake identity policy, golden or native observation.
 
 The actual avatar consumer remains source-confirmed253, not proved by flags.
 The coordinator assigned its typed admission-rule repair to existing003;
-no renderer edit until that real reviewed rule/ownership admission. Four other
-ordering originals and full source/native/golden/physical acceptance remain.
+no renderer edit until that real reviewed rule/ownership admission. Ated227,
+four other ordering originals and full source/native/golden/physical acceptance remained.
 At this local execution, healthy3f3/run39518219256 is preserved in progress,
 not cancelled or relabelled; old428f799/799 remains its own exact hosted result.
 
