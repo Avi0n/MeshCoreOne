@@ -996,10 +996,25 @@ Then actual reviewed PR259 main
 `dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c` (parentsc9ed1f9b/475ffefa)
 was reconciled locally through the supported same-owner scope API, returning
 actual **23→24** for six incoming support paths. Manifest977b9e91 remains
-unchanged; exact deployed policy remains false/off/false and its actual
-`controller.gates.policy_revision` is
-`a657babfe74c12d1f5631e9ee1c306a0084d56badd5c48fe1dba7b3443dcfc1a`.
-The suppliede8afe067 value differed from that source-bound semantic calculation
-and was reported before scope mutation/integration; it is not substituted into
-receipts. No original authorization, nativeb2/r21 outcome or captured source/
-fixture/helper/production evidence is rebound to the new policy/scope.
+unchanged; exact deployed policy remains false/off/false. An initial pre-merge
+diagnostic reporteda657babf rather than the suppliede8afe067; that failed
+historical diagnostic and its integration receipt are retained, not current
+authority. Fresh exact-Git JSON plus literal canonical hashing, loaded
+`controller.gates.policy_revision` and `schema.digest` subsequently agree on
+actual semantic revision
+`e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3`
+(payload10516 bytes, policy-semantics digest0780e523). Both loaded hashing
+functions' bytecode exactly matches freshly compiled source, and both sources
+match immutable trusted main. The historical one-off discrepancy is not
+reproduced; its cause is not claimed. Raw policy SHA256 and Git blob identifiers
+are distinct, not competing semantic revisions. A separate correction receipt
+supersedes the initial fingerprint without changing its original bytes.
+
+Actual read-only source preparation at local608ee222/r24 succeeds for precisely
+the five diagnostics identities on API37 with the verifiede8afe067 policy:
+`python android\accessibility-tests\language_binding.py --head 608ee222fb75ab601e7c2ac7dbe099a6944e0a21 --family diagnostics`.
+It reports `authority=false`, `native_starts=0`, `apks_built=false`, exact original
+source pins and current canonical/replacement attribution. This is not published
+host readiness or native admission. No original authorization, nativeb2/r21
+outcome or captured fixture/helper/production evidence is rebound to the new
+policy/scope.
