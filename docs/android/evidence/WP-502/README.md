@@ -11,7 +11,8 @@ that the installed Linux implementation lane is unavailable.
 Repository: `cbattlegear/MeshCoreOne-Android`; issue [#135](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135);
 [PR #206](https://github.com/cbattlegear/MeshCoreOne-Android/pull/206) is merged;
 remaining software work continues in
-[PR #244](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244).
+[PR #249](https://github.com/cbattlegear/MeshCoreOne-Android/pull/249)
+after actual PR244 merge.
 Owner: `test-parity-engineer`, canonical project/reservation session
 `3bc8c1b8-20ec-4647-88ae-db3775268489`; runtime alias
 `fb112832-0a71-4f6d-abc0-f07f80eaeb8b`.
@@ -23,15 +24,37 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
+Current integrated base: `dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c`;
+earlier bases `c9ed1f9b78bcc322fb1ec281d211f99852cfec3b`,
+`85871f40b1520a89ced6b9bec74aa8eec2f4f4de`,
+`bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`,
+`5714ba3be50618b8d946a21e0db15feb67f90eb6`,
+`918af38472a43bf24f9a8bc4762c3c1fb45851b4`,
+`ec0a41e80ac8637baad524b777f774c10cf99f5b`,
+`680246f7914a5b4e5bf5167a916b620f83a79dee` and
+`aae3b10dd78f3d3314f51291687932f42f7d0ac9`.
 Earlier software-command integration base:
 `9c430cb0f1666faacc443794899b68c01128a87a`.
 At the prior integrated base `574d440b5b05ba6609f60d7ba0913c2d8bdaea0d`,
 the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
-Current manifest/policy/controller bytes are unchanged from main9c430cb0.
-The existing typed reservation was evolved to revision 23, not replaced.
+Manifest/source remain unchanged. Current semantic policy revision is
+`e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3`;
+merged254 changes operational paused=true to false only, preserving
+dispatch_mode=off/activation_approved=false. Policy bytes equal actual maindbb,
+including normally merged259's bounded renderer capability, not candidate policy
+edits. The same typed reservation is now actual revision30: the owned retry
+test/evidence reconciliation genuinely returned30 after the renderer's29.
+The subsequent owned mention-status reconciliation is idempotent at actual30.
+Earlier six-pathdbb
+reconciliation returned28, then the exact named renderer operation returned29.
+An initial expected27 renderer request correctly rejected stale revision before
+any edit; the retry used actual28. Earlier six-path858
+reconciliation returned27; later four-pathc9ed reconciliation was idempotent at27.
+Earlier real eight-path918
+evolution reached26, five-path5714/four-pathbfd reconciliations were idempotent
+at26, and ec0/Rooms operations were idempotent at25. No inferred revision.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -62,12 +85,17 @@ coordinator integration.
 | `DraftInitializationComposeTest` | Two actual App/Room/service-queue/NativeNavigationShell mounted witnesses with independently divergent saved `"disk"` and visible `"in-progress"`/`"quick-reply"` inputs. Require visible Sending before actual terminal ERR2/refetch, retained focused field identity/entry/generation through seven adaptive widths at200% font, independent saved value and radio/contact isolation, and actual other-target initialization. Both pass at13de7b933 and actually execute within exact publishedccd App766/766. Primary WP-307 supports the bounded four-original no-notification native adaptation; not a privileged gate/full-WP verdict. |
 | `OnboardingWiFiComposeTest` | Actual production `OnboardingFlow` and coordinators/shared modal fields with controlled dependency ports. Mounted nine frozen host families, seven port boundaries, comma normalization/clear and keyboard submit; held attempt blocks duplicate IME and toolbar cancellation, failed CJK/RTL error retains inputs and Retry alone reaches Region; benign cancelled outcome stays on sheet, cancel/reopen restores empty host/default port. Denied optional permissions do not gate these paths. Three sampled scheme/locale/window/font cases, actual modal title density/direction asserted. Not socket/OS-permission/radio/device or full onboarding acceptance. |
 | `OnboardingPairingComposeTest` | Seven mounted production Flow/coordinator methods: four primary/held-recovery/Retry/benign-cancel/demo-priority methods, plus three just-in-time Bluetooth grant/denial/adapter-off recovery methods. Actual request-result callbacks refresh controlled snapshots; one grant resumes one held pair, repeated callbacks do not duplicate it, denial consumes intent without a prompt loop, Settings/WiFi remain reachable, and later grant/adapter recovery requires explicit Add. Optional location/notifications/LAN stay denied and independent. Controlled ports, not OS chooser/permission dialog/BLE/radio/device evidence. |
+| `OnboardingRegionPresetComposeTest` | Seven actual mounted methods pass together at16a060a03 after the real canonical WP305 repair: picker resets/commits, held apply/typed errors/Retry/cancellation/completion, retained negative-to-positive max-remedy/fallback/reset assertions, independent acknowledgement/reset and Back/country-change invalidation. All seven named XML identities pass. Historical679/598 failures remain recorded, not weakened/relabelled. Controlled ports, not geocoder/radio/firmware/full onboarding acceptance. |
 | `QueuedComposerIntegrationTest` | Real Room/app/service pending direct/channel, retry and Send Again queue ownership; terminal event count/cleanup, real enqueue transaction rejection and typed provider failure, unless-delivered failure/visible-thread seen state, observer cancellation and replacement-generation hydration. Newly defined assertions require positive execution before being credited. |
 | `ShortcutQueueIntegrationTest` | Real direct/channel durable acceptance, typed creation/enqueue/cleanup failure stages, cancellation provenance and generation replacement, SYNCING acceptance/drain, and actual file-store close/reopen. The resumed reopen case reconnects a fresh AppContainer to the same radio, requires both durable rows to drain through the real queue, exactly one wire command per message, terminal persistence/cleanup and no duplicate messages. The session-error conversion/presentation case separately injects synthetic port failures: six frozen MeshCore error families, both actual service-wrapper types and two locales require exact underlying identity, outer cause and localized presenter text, without persistence or wire sends. Its assertions are not evidence that the durable queue emitted those synthetic faults. |
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Production `RoomConversationRoute`/`RoomConversationStateHolder` with controlled service/data ports: held loading versus empty, guest/member/admin/disconnected transitions, focused draft across three widths, held/rejected post and exact-ID accessible Retry, held/missing contact and rejected/successful authentication with exact password/remember inputs. Separately renders production content in 57 effective-theme/window/font rows with 12 sampled locales and all nine width/permission-surface pairs. Not actual RoomServerService, Room-database persistence, radio or approved-golden evidence. |
+| `RoomsComposeTest` | Original four route/render methods, thirteen ordering witnesses, six label/action consumers and three renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure plus three Android-only defensive faults pass ata9a6; mounted retry passes1/1 atf4. Mention-status6949 and corrected-input a05 executions remain separately bound. New multiple-Alice matching-row selection at9072fa344 is UNVERIFIED/NOT RUN, preserving all34 incumbents/helpers/Fixture. Current source35 is not combined35 execution or primary original-case approval. No actual service/history/Room-store/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
+| `ContactMatchRowComposeTest` | Three new component definitions, Kotlin NOT RUN: actual public row consumes the complete original Relay advert input rather than recency/message date, full literal32-byte key, localized types/location/distance, Tap and both Toggle states. Sampled compact100%/200% CJK/RTL/default-light/Ember-forced-dark inputs assert actual text/row bounds and actions. Not another frozen original, repaired picker, GPS/formatter equivalence, complete avatar/glyph adaptation or a screenshot/golden verdict. All35 Rooms methods/helpers/Fixture remain byte-identical to ba. |
+| `NewChatSheetComposeTest` | Three LOCAL/UNVERIFIED mounted flow definitions use the real public NewChatSheet/NewChatStateHolder and held declared data port. Loading, source-order eligibility/routing labels, nickname/display-name CJK/accent/Hebrew search, no search/recomposition reload, exactly one original full DTO callback without sheet-owned dismissal, raw-empty/no-radio versus filtered-empty, and actual localized Cancel are asserted. Sampled English100%/Chinese200%-RTL/default-light/Ember-forced-dark text/action bounds only; no original recount, real store/radio, shell navigation, photo/avatar, failed-load presentation, device or golden acceptance. Incumbent Rooms276317/ContactMatchRowca8 are unchanged from corrective parent5b97. |
+| `EmojiComposerComposeTest` | Four LOCAL/UNVERIFIED AndroidOnly definitions mount production ComposerRoute with real composer/emoji holders: held catalog -> all eight ordered categories/frequent first, label/shortcode/CJK-tag search, Unicode accessibility fallback, loaded-empty versus failed, actual semantic dismissal/no mutation, real UTF16-selected ZWJ insertion/caret/targeted draft writes, one MRU normalization/write, cached reopen and failed-load reopen/cancellation. English100%/Ember-forced-dark200%-RTL/Chinese samples assert heading/copy layouts and48dp actions. Tiny controlled catalog, not full asset/glyph, reaction sending, OS/keyboard/global focus, original recount or whole-WP acceptance. |
+| `ReactionDetailsComposeTest` | Four LOCAL/UNVERIFIED AndroidOnly definitions/six fixtures drive real displayed preferred/stale/overflow badges through public MessageActionsRoute/real holder/private dialog. Independent count/earliest order, original DTO/sender rows, Selected/Role.Tab, tab changes, localized Done/reopen/exact message reads/no recomposition reload, successful empty and separate typed-failure/owner-cancellation diagnostics. English100%/Chinese200%-RTL/Ember forced-dark text/action bounds only. NOT another original-case count or reaction-sheet/error/accessibility/removed-scope/App send acceptance; loading/failure presentation, relative times, badge naming and ACTIVE Translate remain explicit owner-routed blockers. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -85,6 +113,1132 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Mounted badge to reaction-details dialog: LOCAL UNVERIFIED
+
+Priority hold: exact781 automatic39559686777 FAILED, official Linux119088339862
+App829 completed/826passed/3failed, all three NewChat methods at horizontal
+overflow guard; aggregateFAIL/SwiftData upstreamSKIPPED. Reaction work is paused
+at this coherent local boundary for separate NewChat diagnosis. No reaction/
+emoji publication or inferred layout/execution pass; preserve all drafted bytes.
+
+One separate LOCAL successor AFTER source-reviewed emoji
+**1be8668edf5469582fa038b8ebdd51b33541306d** adds only
+`ReactionDetailsComposeTest.kt` and three owned docs. Same canonical
+actor/attempt's trusted `wp-owned`/`modify` evolution returns actual35 from34
+before edits. Frozen db145/mainactualdbb/manifest977b/policye8 unchanged;
+entire Emoji61d52/NewChat20f/ContactMatchca8/Rooms276317 test files preserved.
+New398-line test blob `d5dabbe48b6b038a8ff15a2e5986d27edc9aee77`.
+
+Complete frozen four selection bodies/sheet/badges/emoji section/Reaction DTO,
+actual route/holder/models/directory/Message DTO/primary pure tests/App delegate,
+shared modal/theme/localization and nearby frozen accessibility/action consumers
+were inspected. WP-309's pure test already covers all four preferred-selection
+primitives; new definitions are mounted AndroidOnly consumers, not originals.
+Real badge -> real route onLoadReactions -> real holder -> private dialog and
+real tab/Done actions are used, no copied callback, fake renderer or new API.
+
+Independent seven full DTO rows yield thumb3/heart2/laugh2 despite input
+laugh/heart/thumb/heart/thumb/thumb/laugh. Earliest epochs900/800/1000 distinguish
+count precedence and tied-count ordering; heart sender1300/800 stays supplied
+CJK/Hebrew order, not sorted by time/name. Real preferred heart, stale party,
+actual overflow+1/nil and genuinely successful empty families retain source
+predicates. Switching a real tab cannot read again; Done closes, actual overflow
+reopen reads the exact message again and resolves nil instead of retaining heart.
+All unrelated contacts/discovery/repeats/block/mute/action callbacks record and
+throw; legitimate incoming zero-hop/no-repeat message needs no detail/map work.
+
+Failure/cancellation diagnostic is distinct: real read exception retains typed
+ReactionsLoadFailed, owning cancellation records/rethrows CancellationException
+without that failure; neither is credited as successful empty/loading/recovery.
+All boundary assertions occur before teardown. No App reaction send, picker
+deferred-onDismiss, radio/store/service/map/OS/glyph/device/golden acceptance.
+
+**UNRESOLVED PRODUCT BLOCKERS, not accepted adaptations:** native state has no
+reaction-loading field and dialog ignores ReactionsLoadFailed, so pending/failed
+reads can present empty copy. Relative sender times and original empty title
+are absent. Badge accessibility uses raw emoji/count, not frozen name/hints.
+ActionButtons unconditionally displays Translate; App handler errors
+`Message translation is not registered`. This ACTIVE removed-scope violation
+is not excused by the frozen button or an inert enum; no provider/model is added.
+Route to WP-309 component owner/WP-407 App graph owner or separately trusted
+exact-path product repair. Test-only reservation35 admits NONE of those edits.
+
+**LOCAL UNPUBLISHED / Kotlin/compiler/Gradle/WSL/native/preflight/advisory NOT
+RUN.** Source-safe portmap1734/controller1866-input validation and independent
+DTO/order/time/six resource-vector/incumbent-blob checks PASS; not software
+discovery. This family requires complete source comparison and predecessor
+serialization before publication. Standing conditional publication of ONLY1be
+after exact781/all-six success plus clean three NewChat identities is unchanged;
+no current/future verdict is inferred, no polling/wait process or further family.
+[Complete methods, pins, vectors and blocker routing](software-verification.md#commeshcoreoneandroiduitestsreactiondetailscomposetest).
+
+### Mounted emoji picker to composer: LOCAL UNVERIFIED
+
+One separate successor AFTER reviewed local NewChat
+**781fec26cbf4721577cd43a7726c471826872db7** adds only
+`EmojiComposerComposeTest.kt` and three owned evidence/deviation docs.
+SAME canonical actor/attempt evolves actual reservation33 to returned34 through
+`wp-owned`/`modify`; no new actor/claim, authorization rewrite or support/product
+admission. Existing NewChat20f, corrected ContactMatchca8 and Rooms276317 entire
+files/methods/helpers and all product/App/core/resources/build/goldens remain
+unchanged. New495-line test blob `61d52afa90d15b0a32340b955e8cf95f27517ca3`.
+
+Complete frozen picker/viewmodel/provider/recent-store/category header and
+relevant native route/holder/ports/bar/sheet/draft/selection/App reaction delegate
+and existing tests/modal harness were inspected. Four definitions/five fresh
+mounted fixture inputs, NOT OriginalCase annotations or frozen-unit recounts.
+The actual production route performs MRU -> UTF16 selection replacement ->
+field/caret update -> sheet close -> focus request; no test callback copies
+that sequence. Actual field edits, emoji entry and sheet Dismiss semantics
+drive it. A second radio/contact draft stays unchanged; forbidden send/enqueue/
+retry/location-fix/share/cooldown/diagnostic calls record and throw, never return
+empty success.
+
+Independent tiny catalog reverses all eight source groups and includes an
+unknown group; literal order, heading grid indices and Unicode button fallback
+are asserted. Actual CAFE label, TECHNOLOGIST shortcode and Chinese tag search
+hide frequent; unmatched stays Loaded/empty, not loading/failure. Clearing and
+modifier recomposition cannot refetch. Known failed catalog displays existing
+localized copy without raw reason; dismissal/reopen alone performs a real
+second load, no invented Retry. Owner cancellation propagates rather than
+becoming Failed or mutating draft/MRU.
+
+Literal initial `A + U+1F600 + BCZ`, selection UTF16[1,5), replaces the surrogate
+pair plus BC with U+1F469/U+200D/U+1F4BB. Full `A + emoji + Z`/caret6, subsequent
+`!` before Z/caret7, exact read/write target and write ordering are required.
+Controlled persisted22-entry frequent history includes two selected emoji;
+one write produces independent literal20-entry MRU/dedup/order/truncation.
+This is NOT RecentEmojis' separate max6 or an extra original unit case.
+
+Sampled software-host360dp English100%-LTR/default-light and Chinese200%-RTL/
+Ember forced-dark use synchronized probes, actual localized heading/failure
+layout and48dp controls. Emoji typography inputs/Unicode are checked, NOT full
+glyph fit/shape/font/asset parity. Simulated sheet Dismiss is not real OS Back,
+global focus/keyboard or spoken TalkBack. Reaction/App action consumer is read,
+not mounted; the native composer entry is an existing adaptation, not proof of
+an identical frozen Swift composer route.
+
+**LOCAL UNPUBLISHED / Kotlin/compiler/Gradle/native/preflight/advisory NOT RUN.**
+No workflow dispatch/rerun, host/lease/main/policy action or new-family
+publication. Reviewed781's conditional publication remains separately gated on
+exact5b97/all-six success plus official clean contact-match identities; no
+predecessor826/failed8af or guessed successor verdict is transferred.
+[Methods, pins, fixtures, declared source-safe checks and future selector](software-verification.md#commeshcoreoneandroiduitestsemojicomposercomposetest).
+
+### Mounted New Chat sheet flow: LOCAL UNVERIFIED
+
+This separate owned-only successor of published corrective parent
+**5b97e24ef2ebcb3cc69e2e7ee7fe7906aefd644e**, itself a direct child of published
+**8af5053c65b0400e9867f01fc40fd24a4a44d480**, actual main
+**dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c**, adds only
+`NewChatSheetComposeTest.kt` and these three owned evidence/deviation docs.
+The SAME canonical actor/attempt evolved actual reservation31 to returned32
+through `wp-owned`/`modify`; authorization context and all foreign leases remain
+unchanged. Subsequent separate correction evolution returned33; these previously
+admitted NewChat paths remain in that SAME scope. No shared support capability
+or candidate policy is consumed.
+New test blob: `20f60bbfa5e76273dc25d2f2a3a1ecf8772f91ad`.
+
+Complete frozen NewChatView, its containing selection/dismissal delegates and
+ContactDTO initializer, plus real native sheet/holder/dependency ports/search
+matching/row consumers/resources and existing modal harness were inspected.
+Three AndroidOnly definitions, not OriginalCase annotations, cover five mounted
+fixture instances: mixed successful load/search/selection; Chinese200%-RTL
+ineligible and mixed lists with Cancel; and fresh no-radio/successful raw-empty
+lists with Cancel. Source-derived names, types, paths and deterministic identities
+are documented individually; these are not invented frozen unit-test cases.
+
+The held real `fetchContacts` records exactly the route's radio while the real
+holder/sheet expose progress, no rows and no premature empty copy. Completion
+preserves raw contact order/fields, excludes blocked/repeater/room and displays
+both flood/direct and raw0 fallback-to-chat rows. Actual search tests case/accent,
+CJK and Hebrew display-name matching, does not match a hidden underlying name,
+and preserves raw contacts with no refetch through changed sheet modifier
+recomposition. Row click returns exactly the same full DTO once; it does not
+invoke the dismissal callback or invent a shell navigation result. Actual Cancel
+closes the controlled caller's mounted sheet once without selection or any
+unrelated service/write/navigation call.
+
+Raw-empty/no-radio retains source empty copy; nonempty ineligible and unmatched
+search lists do NOT borrow that copy. Successful raw-empty results are separate
+from `loadFailed`: this slice deliberately does not inject an error or accept
+the existing missing failed-load UI as parity. Existing generic-initial avatar/
+photo omission and the native-versus-Swift sheet/navigation adaptations remain
+open. Bounds/text-layout/48dp semantics are assertions, not observed device,
+TalkBack, keyboard, screenshot, all-pixel or golden results.
+
+**Kotlin/compiler/Gradle/native/preflight/advisory NOT RUN.** This candidate stays
+LOCAL/UNPUBLISHED for complete source comparison and predecessor CI isolation.
+Actual source-only traceability PASS (1732 mappings), controller PASS,
+whitespace PASS and exact-input/incumbent preservation PASS. An initial count
+wrapper incorrectly assumed predecessor1731; the actual portmap command
+succeeded with the additional mapping. Independent literal checking identified
+the missing explicit English placeholder assertion, which was added; final14
+resource vectors pass. Neither observation is a Kotlin failure/pass.
+Published8af's own automatic39553583719 subsequently completed FAILURE:
+Linux119068601317 reports826 tests completed/2 failed, specifically the two
+contact-match sampled-frame methods expecting DARK but observing LIGHT.
+SwiftData is SKIPPED and aggregate fails; no all-six success or successor
+verification is inferred. Prioritized separate commit5b97 first wraps the
+identical probe assertion in Compose runOnIdle; this NewChat child preserves
+that entire corrected component blobca8 and Rooms276317 without another edit.
+The364-line NewChat test remained byte-identical while that correction was
+committed first; only this new evidence's ancestry was reconciled afterward.
+[Separate correction and NOT-RUN limits](contact-match-theme-probe.md).
+No corrective execution, ba/App823 transfer or projected count.
+Only5b97 was normally published; its own automatic39555750774 is pending at
+handoff. This NewChat successor stays unpublished for complete combined source
+comparison and terminal5b97 evidence; no successor CI/result is invented.
+[Complete methods, pins, inputs, future selector and exclusions](software-verification.md#commeshcoreoneandroiduitestsnewchatsheetcomposetest).
+
+### Mounted contact-match component: LOCAL UNVERIFIED
+
+This separate four-file successor of reviewed/published
+**ba5073e6f5a67346b04317c858b39a8df1352b91**, actual main
+**dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c**, adds only
+`ContactMatchRowComposeTest.kt` and directly related owned documentation.
+Same actor/attempt evolves actual reservation30 to returned31 for these paths
+through `wp-owned`; no new claim, authorization rewrite or product admission.
+Component test blob: `c6380085dca2bd146f1f42e5b1bcb869606c5a12`.
+
+The complete frozen ContactMatchRow/ContactMatchRowTests/RelativeTimestampText/
+ContactDTO initializer and existing native row/time/localization/harness were
+read. Original single Relay input remains key32xAB/repeater/flags0/path0/empty
+path/advert1000/modified10000/heard1000/zero coordinates and every actual default.
+Fixed UUID/radio are deterministic samples. There is no `OriginalCase` annotation
+or duplication/recounting of the primary pure recency unit case.
+
+Three source-derived mounted component definitions assert source advert versus
+recency/last-message freshness, independent full key, actual localized
+Chat/Repeater/Room labels, location marker without invented caller distance,
+absent-location distance rejection, and exact preformatted-distance consumption.
+Tap returns the complete captured DTO once per click without selection state;
+Toggle false/true exposes native Checkbox/Selected/localized StateDescription
+without self-mutating before the caller changes its input. Real 48dp actions,
+row/text/marker bounds and primary text glyph/line layouts are checked at sampled
+compact200% CJK/Hebrew/RTL and effective themes. Full key visibility is asserted
+at744dp/100%; narrow200% asserts the complete semantic string, not that every
+key glyph fits the existing two-line limit. Existing row glyph/photo/chevron
+adaptations are explicitly not accepted by these component cases.
+
+**Kotlin/compiler/Gradle/native/preflight/advisory NOT RUN.** Actual source-only
+`python tools\android-port\portmap.py` PASS (1731 mappings),
+`python tools\android-port\controller\validate.py` PASS and `git diff --check`
+PASS; independent literal-key/date/resource checks and entire incumbent Rooms
+blob preservation PASS. These are not test discovery or software execution.
+Initial reporting wrapper incorrectly assumed portmap's JSON was an object;
+it returned a list. The wrapper was corrected; no Kotlin/source expectation
+was changed and no test failure/pass was manufactured.
+
+Predecessor ba's own automatic
+[39547007423](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39547007423)
+is SUCCESS/all six. Its authoritative Linux119047855225 reports App823/823
+passed,0 failures/errors/skips and lists its multiple-Alice method. That result
+does not execute or verify these three new definitions. Existing35 Rooms
+methods/helpers/Fixture and all product/core/App/build/resource/policy bytes are
+unchanged. Shared-picker three-path admission and Room-actions admission still
+await actual trusted deployment; no candidate policy is consumed.
+[Component methods, inputs, intended selector and exclusions](software-verification.md#commeshcoreoneandroiduitestscontactmatchrowcomposetest).
+
+### Multiple-Alice matching-row selection: LOCAL UNVERIFIED
+
+Source **9072fa344fca13dd472331e41b371b3c3b04b14c**, direct parent
+**c6d853035d75913afda61505c8e69955d39e4ef1**, adds one mounted method,
+one reference header and four imports: **129 insertions/zero deletions**.
+All34 incumbent bodies/helpers/Fixture are byte-preserved; no production,
+build, fixture, primary accounting or policy edit. Final test blob is
+`276317f4fe7521fe4c016bc55357372c85e09278`.
+
+Complete frozen eight-case comparison identifies the missing multiple-match
+family: raw Alice, connected Me, contacts[Alice1,Alice2,Bob], same radio.
+Every original makeContact field is explicit, including zero-hop outPathLength0;
+fixed UUIDs and repeated32x11/22/33 keys represent source random identities,
+not literal original IDs. Actual bubble custom action opens the real shared
+picker with two ordered, clickable48dp Alice rows, no Bob/self/not-saved branch,
+and no eager navigation. Done closes without selection; reopening and clicking
+the second row invokes the real App NavigationCoordinator, producing exactly
+one Nodes ContactDetail for the full second DTO/identity while retaining the
+Room selection/stack and200% CJK/RTL composer draft. The source effect is
+contact-detail navigation, NOT composer mention insertion. Full independent
+Room state/rows, once-labels/keyed messages, read effects and teardown remain.
+
+Local Gradle/native/advisory and the new selector **NOT RUN** under retained
+WP503 native lease; no discovery/XML/pass claim. Trusted Python portmap,
+controller validation, whitespace and exact-incumbent preservation checks PASS,
+not software execution. Publishedc6/automatic39543591579 stays immutable;
+predecessor883/App821 and corrected a05's1/1 are not successor results.
+[Selector, complete original comparison and scope](software-verification.md#multiple-alice-matching-row-selection-local-unverified).
+Native matching rows still omit frozen ContactMatchRow advert/type/key details;
+this consumer does not certify that existing rendering gap, destination-screen
+rendering, opaque context.radioID, all eight originals or full-WP acceptance.
+The separate Room-actions product repair still awaits actual trusted admission.
+
+### Mounted mention self-status versus absent device name
+
+After full bounded883/fc50 source comparison CLEAR (not approval), read all
+eight frozen ResolveMentionTap bodies, RoomConversationView.mentionTapHandling,
+MentionTapEvaluator/Handler/Picker and actual native route/dispatcher/sheet.
+Existing33 have no mention-status-sheet consumer; WP503's separate mounted
+single saved Alice navigation does not cover self/not-saved explanations.
+Code **6949d5f1ea4ae9f544697c37d12b55a81a078faa/basedbb** adds107 lines,
+zero deletions: one method/four reference headers, every33 incumbent line/
+helper/Fixture preserved. No product/core/build/policy/manifest/primary edit.
+
+Actual mounted incoming bubble custom actions consume selected source-derived predicates:
+raw `mydevice`, device `MyDevice`, contacts[Alice] gives self with no matches;
+raw `Me`, absent device name, contacts[] must not infer self from fallback Me.
+The route's real modal presents the respective localized title/subtitle,
+excludes the opposite explanation/matching-contact section, and Done dismisses.
+Two actual taps read fresh controlled snapshots/name/current-radio ports;
+independent full room state/DTOs/row flags, once-labels/keyed bubbles and200%
+CJK/RTL draft survive both sheets/closures. No URL/navigation/send/join/retry/
+read/error side effect; scope cancellation reaches zero subscribers.
+
+Exact installed preflight **PASS0.61s**; one strict new-selector invocation
+discovers/runs/passes **1,0 failures/errors/skips,33s build**. Fresh exact
+classname/method XML **2026-10-21T03:15:32.778Z**,6.359s case. Supported wait
+preserves foreign WP501 Gradle owner until normal release, then real Ledger/
+ext4/native-absence/only-own normal release. Portmap/controller/diff **PASS**.
+[Exact selector and scope](software-verification.md#mounted-mention-self-status-versus-absent-device-name).
+Source34/two input vectors are not combined34/two executed cases, all eight
+mention originals, primary equivalence approval, actual contact-store refresh/
+offline-device observation, navigation destination, golden/device/TalkBack or
+full-WP acceptance. This new increment stays LOCAL for bounded comparison.
+
+Bounded source review found that6949's Alice inherited native
+`outPathLength=255`, whereas frozen `makeContact` explicitly supplies0.
+Corrective source **a05aa4eed20a642ce3e5b8823ac86f2f946a1c34**, direct
+parentd4a929, changes only that argument to `outPathLength=0u`; no other method,
+helper, Fixture or product change. Fixed UUIDs/radio ID and repeated32x0x11
+key bytes are deterministic representatives of the original random identities/
+repeated random byte, not original literal identity values.
+
+Corrected-input preflight **PASS0.64s**; ONLY the changed selector discovers/
+runs/passes **1,0 failures/errors/skips,29s build**, exact named XML
+**2026-10-21T03:35:27.041Z**,5.797s case, under the same actual exclusive
+Ledger/ext4/native-absence safeguards/only-own release. Historical6949's
+33s/1PASS remains its own execution with the mismatched default, not corrected
+input evidence. These are separate one-case runs, not combined2/full34 or full
+eight-original acceptance; the new proof is controlled predicate-derived
+mounted status consumption. Published883/39537138016 remains unchanged.
+
+### Mounted Rooms retry failure and targeted recovery
+
+After bounded localfc50 classification comparison, the next missing consumer
+is frozen `retryMessage`'s reachable failure followed by successful replacement
+through the actual failed bubble/route. Existing32 contain a successful retry
+inside the post-failure flow and a bubble-only callback witness, but no mounted
+retry-service failure/recovery; the primary holder test is direct-holder-only.
+Code **f4fedec11833c486668ff0e0680a03327f2f9377/basedbb** adds one method/
+two reference-input headers,123 lines/zero deletions. All32 incumbent bodies,
+helpers/Fixture and production/core/build/policy/manifest/Region7 remain intact.
+
+Frozen RoomServerService.retryMessage can throw SessionNotFound before updating
+retry status; send errors inside its send block are caught and are not a
+substitute for that reachable thrown error. The new route uses the existing
+controlled service port: held visible Retry then the same SessionNotFound,
+localized error/identity/one diagnostic, explicit dismissal, held accessibility
+Retry then a fixed delivered response. Full original session and failed UUID
+are asserted on both calls. Failed/pending-call/delivered row values, unchanged
+other row, once-only labels/keyed bubbles,200% CJK/RTL draft and no false
+post/join/auth/read effects are checked. Successful callback removes both retry
+affordances; teardown reaches zero subscribers. No direct holder retry call.
+
+Initial launch stops before snapshot/preflight/Gradle on a real foreign
+Gradle hard-lock collision: zero tests, not a negative test result. After normal
+foreign release, one supported strict affected-selector invocation discovers/
+runs/passes **1,0 failures/errors/skips,34s build**, actual named XML
+**2026-10-21T02:51:44.150Z**,6.149s case; preflight **PASS0.65s**. Real Ledger
+Gradle context/ext4 flock/native absence checks enforced; only own lock normally
+released. Portmap/controller validation/diff checks **PASS**. No incumbent replay.
+[Exact selector and source boundaries](software-verification.md#mounted-rooms-retry-failure-and-targeted-recovery).
+Source33 is not combined33 execution, another frozen original, actual
+RoomServerService/store/retry/ACK/radio evidence, a frame/golden/device/spoken
+TalkBack or full-WP pass. Full bounded local883/fc50 comparison subsequently
+finds no additional blocker. After actual06a/39533421332 terminalSUCCESS/all6,
+ordinary installed push06a->reviewed883 succeeds; Python/preflightPASS, unchanged
+180s App advisoryUNVERIFIED/only owned cleanup, no completed App count credited.
+Fresh main/base dbb/reservation30/draft249 guarded. New automatic exact883
+[39537138016](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39537138016)
+is IN_PROGRESS, not a06a verdict transfer. Authoritative06a Linux119004929990
+reports App820 discovered/run/PASS0FES at02:59:34.203167Z; full06a workflow has
+all six jobs SUCCESS. Read in memory, no second CI-result bundle.
+Published883 remains immutable while healthy; new6949 is local-only.
+
+### Rooms load failures: three Swift-reachable and three Android-only consumers
+
+After actual52e source review COMMENTED5594110568 (no additional bounded
+blocker), the coordinator directs the next genuinely missing existing Rooms
+behavior family locally while preserving healthy published52e/39530338898.
+Full frozen ViewModel.loadMessages/View consumers and actual holder/route/
+existing Fixture were read. Frozen loadMessages has only three throwing calls:
+`try await fetchMessages`, `try await markAsRead` and
+`try await dataStore?.markFailedSendsSeen`. Those first three consumers exercise
+source-reachable load failures. Notification removal and badge update are
+nonthrowing `async` NotificationService methods, and
+`SyncCoordinator.notifyConversationsChanged()` is nonthrowing. Injected faults
+at those last three Android dependency callbacks are supplementary Android-only
+defensive behavior, not reachable frozen Swift load failures. None of these
+six consumers is an additional frozen test original or primary-case approval.
+Source **a9a6be400161c58a91f5c7660eae073ae9522727/basedbb** adds165 lines/
+zero deletions: six methods, one exclusive helper and coroutine-test imports.
+Same-owner owned modify genuinely returns29 idempotently.
+
+Each actual mounted route holds initial fetch (spinner, no empty flash), edits
+the original200% CJK/RTL draft, then injects the same typed PermissionDenied at
+exactly one of fetch/read/failed-seen/notification-removal/badge/change callbacks.
+The full original session DTO is asserted on every room-scoped call. Exact
+attempt prefix stops at the failing stage; for the last three stages this
+short circuit is Android-only defensive behavior, not a Swift-reachable catch.
+No later side effect is invented.
+Fetch failure shows empty/error without cached rows; later-stage failure retains
+the fetched/keyed/once-labelled row. Original failure identity, localized visible
+error, exactly one diagnostic, hasLoadedOnce/loading/draft and no false service/
+authentication actions are asserted. Dismissing error does not reload.
+
+One real incoming event appends before reload; injected StandardTestDispatcher/
+TestCoroutineScheduler asserts no new fetch at49ms and exactly one at50ms.
+The held retry retains optimistic rows/draft without spinner/empty/error; actual
+completion restores both history rows, exact independent row values and the
+complete six-call sequence once. Owning-scope cancellation reaches zero event
+subscribers; later event/50ms cannot mutate state/callbacks. Existing lifecycle
+cleanup, all26 incumbent source lines/helpers/Fixture, production, renderer,
+core, build, policy, manifest and Region7 remain unchanged.
+
+Initial **4dae366b46d8f00716d21c5e56fe399669b3abb7** discovers/runs6 with
+**0PASS/6FAIL,0errors/skips**,35s, XML02:14:17.607Z. Extra Compose idle/queries
+let the real Looper's50ms debounce fire before the optimistic-phase assertion.
+The new helper alone receives an injected event dispatcher/clock, retaining
+the existing scope Job/lifetime and strengthening exact49/50ms assertions;
+no delay threshold/product change. **e6fad1f835b868d2a3fa6e71a5ddb9270e85a689**
+passes6/6,32s, XML02:16:05.523Z/preflight0.73s. Finala9a6 strengthens all six
+with original-session and teardown guards, then one affected-six invocation
+passes **6 discovered/run,0failure/error/skip**,31s,
+XML2026-10-21T02:18:04.085Z/preflight **PASS0.61s**. Exact six XML identities
+match selectors, not just source counts. Real exclusive Ledger Gradle context/
+ext4 flock/native checks and only-own normal release remain.
+[Exact commands and classification](software-verification.md#rooms-load-failures-and-android-only-defensive-port-faults).
+
+This three-source/three-Android-defensive controlled-port family is not actual database/
+service/history/radio sync, cancellation of live platform services, new frames/
+goldens/device/TalkBack/full-WP acceptance. Published52e remains unchanged while
+its automatic CI is healthy; its bounded review does not approve these new six.
+At the latest read, completed exact52e Linux118995044121 is **SUCCESS** and its
+authoritative log explicitly reports **App814 discovered/run/PASS,0failures/
+errors/skips** at2026-10-21T02:20:15.456Z, including all three renderer and six
+original label/action method identities. Subsequent exact workflow read confirms
+**39530338898 terminalSUCCESS/all6**, including SwiftData119001327928 and
+aggregate119002400794 SUCCESS. This814 belongs only to52e/basedbb,
+not the new load-stage family. The log is consumed in memory, not a second bundle.
+Bounded06a source review found the earlier all-six source-fault classification
+incorrect; this documentation-only correction preserves all six tests and their
+actual a9a6 preflight/XML/results. No product, fixture, test, scope or acceptance
+change and no healthy-test replay. Published06a/39533421332 remains unchanged
+while its automatic verification runs; this correction needs its own comparison.
+
+### Admitted issue253 renderer repair and actual renderer observations
+
+Normally merged259 deploys trusted main
+**dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c** (parentsc9ed/475ffefa).
+Same-owner merge942f8bbed imports its six owner files exactly, actual receipt28.
+Fresh receipt29 admits only `RoomConversationScreen.kt` /
+`repair-room-incoming-avatar-bookends` through `rooms-incoming-avatar-repair`.
+No claim recreation, authorization rewrite, foreign release or policy edit.
+Primary WP310 provenance and state/order/service/auth/core sources are preserved.
+
+Production **acec78938d4328414954602134d9c460f886017e/basedbb** reuses shared
+ContactAvatar(name,size,modifier), not a photo lookup/provider/new asset/identity
+algorithm. Incoming diameter is28dp times max(fontScale,1), plus6dp gap; hidden
+incoming rows reserve that same width and the visible author uses the same inset.
+Only incoming showAvatar rows render the bottom-aligned decorative avatar.
+Self reserves no incoming column/avatar/name. Original once-only parent message
+label/custom actions remain intact. Frozen Rooms uses initials identity.
+
+Actual pre-repair source **63eda930769efea86e080a1402afdeff0d0de2ef** executes
+the live-burst selector: **1 discovered/run,0PASS/1FAIL,0errors/skips**,47s build,
+XML2026-10-21T01:44:09.856Z. The unchanged renderer lacks actual displayed `A`,
+not merely a new test tag. A prior real foreign-lock collision executed zero
+tests and remains only serialization history, not this negative result.
+
+Repairedacec executes one strict invocation of new3 plus directly affected6
+original label/action consumers: **9 discovered/run,8PASS/1FAIL,0errors/skips**,
+34s build, XML01:45:47.411Z. Live avatar handoff, self/no-gutter and all6 labels/
+actions pass. The frame method fails its initial paragraph-width proxy. Focused
+diagnosticsc805/e624 each execute only that failed selector,1FAIL: actual glyph
+is7x24 within28x28 avatar, while unused paragraph allocation is28 wide.
+Final **1e5ea4457eac0e5f50f06eeea4e0f91df17b64f5** replaces that proxy with actual single-glyph bounds inside
+both measured text and rendered avatar, exact font scale, retained height check
+and theme glyph/pixel assertions; no tolerance/golden/product change.
+Only failed frame selector is rerun: **1 discovered/run/PASS,0failure/error/skip**,
+38s build, XML2026-10-21T01:50:35.620Z; preflight **PASS0.63s**.
+
+All57 existing theme/window/font/direction inputs complete actual28/56dp
+diameter,6dp gap, hidden-row/name alignment including RTL, bottom alignment,
+shared theme identity fill/readable glyph, once-only labels and draft assertions.
+Each captures two identical settled nonblank native-host draws and checks actual
+avatar fill pixels. These57 new host render inputs are not approved goldens or
+API31/37 device observations. Live burst checks optimistic/held50ms/reconciled
+state, original keys/full DTOs/retained first-bubble leading edge, two read cycles,
+one subscriber and no false actions/errors. Self checks no incoming chrome at1x/2x.
+Existing healthy cohorts are not replayed; no invented9/9/26 execution.
+[Exact selectors and failure explanation](software-verification.md#admitted-rooms-avatar-renderer-and-directly-affected-consumers).
+
+Predecessor **a3c629cf2f487846807dfce74664597b8c90d9f7/basec9ed** was left
+published throughout its healthy automatic run. Actual
+[39526597754](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39526597754)
+is now terminalSUCCESS/all6. Authoritative Linux118983145710 explicitly reports
+**App805 discovered/run/PASS,0failures/errors/skips** at01:46:30.481Z and all
+five new ordering method identities. SwiftData118991144810 and
+aggregate118992266560 SUCCESS. This is a3c evidence only, not successor CI,
+renderer/golden/native/full-WP acceptance. No rerun/cancel/result bundle.
+Earlier admission-pending/flags-only sections below are historical, not a current
+renderer-admission blocker. Held renderer history/stashes remain untouched.
+`python tools\android-port\portmap.py`,
+`python tools\android-port\controller\validate.py` and `git diff --check`
+**PASS**. Exact comparison preserves all six incoming259 owner blobs, every
+a3c incumbent source line/helper/Fixture and Region7. This is traceability/
+preservation, not extra test executions or full feature equivalence.
+
+### Next independent action-consumer family: six original accessibility cases
+
+After complete grouping source COMMENTED5593825846, the coordinator directs
+the next genuinely unrepresented coherent existing Rooms consumer family.
+Read the full six-case frozen RoomMessageBubbleA11yLabelTests and Bubble/
+status/View/action-dispatch consumers plus current renderer/formatter/
+dispatcher/resources. Code **542097bbd409acbfdfc62ea00a9003fff57d89aa/basec9ed**
+adds119 lines/zero deletions: all six original cases and two exclusively new
+content/label helpers. All17 incumbent bodies/helpers/Fixture and Region7
+remain unchanged. Same-owner modify is idempotent at actual revision27; no
+production/build/policy/manifest edit or renderer-rule assumption.
+
+Installed preflight **PASS1.77s**; one strict existing App invocation discovers/
+runs/passes **6,0 failures/errors/skips,1m21s build**. All six exact named XML
+identities are checked against selectors, fresh timestamp
+2026-10-21T01:26:22.096Z.
+[Exact commands and original mapping](software-verification.md#six-original-rooms-accessibility-label-and-action-consumers).
+Real canonical-owner shared Gradle lock and ext4 flock remain; only this
+worker's resource is normally released. A later different-owner Gradle hold
+is left unchanged, not misreported as an unreleased own lock or a test failure.
+
+Exact frozen prefixAA/Alice/100/`follow up`, prefixAA/Alice/100/`hello`,
+prefix42/Me/self100/`hello`/SENT or FAILED, and
+`see https://example.com` are preserved. Actual production content consumes
+the original explicit timestamp/name/avatar row flags. Its parent exposes
+exactly one original message description; actual author/status occurrence
+counts and absent duplicate spoken name/status, visible raw text/keyed bubble,
+displayed or absent author and unchanged CJK/RTL draft are asserted at200%.
+Failed Retry invokes exactly the original message ID once; SENT exposes
+neither custom nor visible Retry despite a supplied callback. HTTPS uses the
+real formatter/resource-backed named custom action and MessageLinkDispatcher:
+the exact original URL reaches the local route port then captured external
+port once, with example.com host. It never resolves contact/radio/mention
+ports or launches a browser/network request. Unexpected send/draft/auth/error/
+link/retry callbacks throw rather than default-success.
+
+These are mounted semantics/custom-action consumers, not spoken TalkBack,
+actual service retry/delivery, browser/OS integration, avatar rendering or
+primary equivalence approval. Earlier real-route failed-send/Retry evidence
+is separate, not replayed or credited as this six-case execution. Source23 is
+not local23/17+6; currenta3c629/run39526597754 and review5593825846 remain
+predecessor-bound and preserved. Full Rooms sync/history/actions/store/radio
+and current native/golden/physical/full-WP acceptance remain open.
+
+### Remaining four ordering originals in one coherent increment
+
+After source-only review5593585260 of3d743/base858, the coordinator explicitly
+replaces the one-next-family stopping point with all four remaining frozen
+grouping/tiled-row originals together. Code
+**dc226292adc80f1a229b49d45fcebde7186a006d/base858** adds five methods and
+one new, exclusively used assertion helper:163 insertions/zero deletions.
+The300s/301s original becomes two independent mounted cases, not a three-row
+adjacency substitute. All12 incumbent methods/helpers/fixture and Region7
+are unchanged; no production/build/policy/manifest/screenshot edit.
+Same-attempt owned modification is idempotent at **actual revision27**.
+
+Installed exact-source preflight **PASS0.72s**. One strict invocation of the
+existing App task discovers/runs/passes **5**, with **0 failures/errors/skips**,
+**40s build**. Fresh named XML is2026-10-21T00:54:00.647Z; the runner checks
+all five exact executed method identities in addition to strict counts.
+[Exact selectors and four-original mapping](software-verification.md#remaining-four-ordering-originals-one-five-case-invocation).
+The canonical owner acquires/releases the real shared `gradle-execution`
+resource through the existing Ledger context; the ext4 runner also retains
+its actual exclusive Gradle flock. Native absence is checked before/after
+acquisition. Both resource lanes are empty after normal completion; no foreign
+lock action, new device operation or healthy-incumbent replay.
+
+Exact frozen vectors are preserved: prefixAA/Me/self100/160; prefixAA/Alice
+incoming100/160; independent Alice pairs `[1000,1300]` and `[1000,1301]`;
+Alice/prefixAA incoming/self/incoming100/160/220. Explicit independent
+RoomMessageRow expectations prove every timestamp/name/avatar flag.
+Actual keyed bubbles, original parent labels, raw `msg`, displayed name
+placement/absence and literal UTC timestamp presence/absence are checked
+before/optimistic/held50ms/reconciled. CJK/RTL draft, full DTOs, no empty/
+spinner/error, one subscriber and exactly two full read sequences persist;
+no false post/join/retry/diagnostic. Actual retained first-row value changes
+for the two-message follow-up while its logical ID/DTO remain. Locale,
+FORMAT/DISPLAY defaults and timezone restore in finally; existing scope/
+activity teardown remains.
+
+All12 frozen ordering originals now have these dedicated mounted witnesses
+across the documented sources, not a new combined17-case execution or
+primary-owner equivalence/acceptance. Rendered avatars253, full Rooms
+sync/history/actions/store/radio, current native/goldens and full WP135 remain
+open. The separately prepared renderer admission is not permission to edit
+RoomConversationScreen. Existing3d743/run39522836727 was preserved to terminal
+SUCCESS/all6; authoritative Linux118970922775 directly reports App800
+discovered/run/PASS,0 failures/errors/skips at01:01:31Z and the distinct-prefix
+method identity. SwiftData118977041858/aggregate118979177154 also SUCCESS.
+Bounded source COMMENTED5593585260 is3d743-only. No result/review transfer,
+manual replay, cancellation or duplicate result bundle.
+
+Actual258 merged2026-10-21T01:12:38Z as
+**c9ed1f9b78bcc322fb1ec281d211f99852cfec3b**. Same-attempt four-path
+`reconcile-current-base` returns **actual27** idempotently; merge
+**ab53bb70da9eb2858c8588fd72cac9e665b42913** preserves all incoming
+ci.py/test_ci.py/CI-doc/WP003 bytes exactly. All16 incoming owner paths since
+ec0 equal mainc9ed. Android/manifest/policy equal executeddc226; actual5
+remains dc226/base858, not a new-base execution. This imports real258 timeout
+diagnostic support, not a candidate tooling fix, altered deadline or deployed
+renderer-admission rule. The coherent new-source/current-main successor
+requires its own exact hosted CI and full source review; no successful cohort
+was replayed or source successor created solely to record CI.
+
+Coherent8e3c657ced2beb3740eb1a84492db42556a40dbf preflight passes0.68s;
+portmap/controller/diff and exact16 incoming-owner/all12 incumbent preservation
+pass. The pre-publication path comparison corrects the initial c9ed prose
+count14 to actual16; admission still genuinely returns27 idempotently because
+the two additional incoming paths were already in scope. No receipt or
+execution count is inferred from that file count.
+
+### Actual main858 reconciliation after merged heap support257
+
+At publication preparation, fresh main ref/ancestry showed
+[PR257](https://github.com/cbattlegear/MeshCoreOne-Android/pull/257)
+actually merged at2026-10-21T00:17:44Z as
+**85871f40b1520a89ced6b9bec74aa8eec2f4f4de**, not cached PR basebfd.
+Same attempt's six-path `reconcile-current-base` genuinely evolves26->
+**actual returned27**, adding only ci_environment.py and its test to the
+existing scope. Identity/binding/immutable authorization survive.
+Ordinary merge **330e75108bdf408bfe531757d22bf65bfb631c70** preserves
+all six incoming owner files exactly. Android/manifest/policy equal executed
+ed227; its1/1 remains basebfd, not a new-base result or replay.
+This imports the existing003's real full-assembly heap support, not a WP502
+heap fix, packaging/native action or deployed Rooms renderer-admission rule.
+The latter remains separately pending; no foreign renderer edit or approval.
+Actual prior3f3 CI/review remains3f3/basebfd, not successor verification.
+
+### Next original family: different prefixes with the same display name
+
+Coordinator's source-only COMMENTED5593292686 covers prior3f3/basebfd, not
+this next family. Subsequent instruction explicitly permits the next missing
+original locally; the actual503 native/Gradle lanes were released after its
+D8/daemon OOM, not held indefinitely. Use the existing exclusive software lane;
+do not change its heap/provider or touch the unadmitted foreign renderer.
+
+Code **ed2276627f7df94bcc5800f759185e9d5d2ae176/basebfd** adds only the
+frozen `different prefixes are two clusters even when display names match`:
+0xAA/Alice/msg100 and0xBB/Alice/msg160. Installed preflight **PASS0.69s**;
+smallest new-method-only App selector **1 discovered/run/PASS,0 failures/
+errors/skips,44s build**, named XML2026-10-21T00:13:53.923Z/suite6.688s.
+[Exact command and behavior inventory](software-verification.md#next-original-family-distinct-prefixes-with-matching-names).
+All11 incumbent bodies/helpers/fixture/Region7 are unchanged and not manually
+replayed; source12 is not a local12-case or combined cohort.
+
+Real route/armed subscriber receives the second message before a held actual
+data dependency can complete. Both original name/avatar-flag IDs are required
+even though the names match. Two displayed Alice nodes sit above their own
+keyed bubbles, with the second name below the first bubble; two original
+message labels, complete DTOs/unchanged first row/draft and literal timestamp
+flags survive optimistic/held50ms/reconciled phases. Exactly two full read
+sequences/one subscriber/no false actions or diagnostics. No new helper,
+locale mutation, fake identity policy, golden or native observation.
+
+The actual avatar consumer remains source-confirmed253, not proved by flags.
+The coordinator assigned its typed admission-rule repair to existing003;
+no renderer edit until that real reviewed rule/ownership admission. Ated227,
+four other ordering originals and full source/native/golden/physical acceptance remained.
+At this local execution, healthy3f3/run39518219256 is preserved in progress,
+not cancelled or relabelled; old428f799/799 remains its own exact hosted result.
+
+### Actual mainbfd reconciliation after merged packaging255/256
+
+While exact428f/base5714 CI finished, actual main advanced through
+[PR255](https://github.com/cbattlegear/MeshCoreOne-Android/pull/255)
+at23:24:21Z and [PR256](https://github.com/cbattlegear/MeshCoreOne-Android/pull/256)
+at23:36:30Z to **bfd7551565de3c5b1e5a71f3f16df1b72c7af00f**.
+Fresh GitHub main ref and fetched ancestry, not cached PR base5714, identify
+the four incoming debug-packaging/helper-test/CI-doc/WP003 paths.
+Same attempt's supported reconciliation is idempotent at **actual returned26**;
+identity/binding/authorization unchanged, no inferred27 or replacement.
+Ordinary merge **4a7f10acf8d49cce95c22d03de918ee16ab62d6c** preserves
+all four incoming files exactly; Android/manifest/policy bytes remain428f-exact.
+No packaging, APK assembly, key access, native/provider/device action or
+positive-cohort replay. The existing local1f73/baseec0 and exact428f/base5714
+hosted execution retain their own bindings, not successor verification.
+This is genuine current-main integration, not a source successor solely to
+record CI. The new exact-head result/review remains separate.
+
+### Actual main5714 reconciliation after user-merged pause correction254
+
+User-authorized [PR254](https://github.com/cbattlegear/MeshCoreOne-Android/pull/254)
+merged at23:00:39Z as **5714ba3be50618b8d946a21e0db15feb67f90eb6**.
+Fresh origin/main/merge ancestry and exact five-path delta inspected.
+Same attempt's `reconcile-current-base` returns **actual revision26** again:
+all five paths were already admitted, not an inferred27 or a replacement.
+Ordinary merge **e270dc7504602fbd8cfa16c7da6848678714e6ae** preserves
+the policy/CI-doc/WP003/gate-test/state-test owner bytes exactly. The only
+policy value delta is paused=false; dispatch remains off and activation false.
+Frozen pin/manifest, Android bytes and immutable authorization/binding survive.
+This imports the user's actual merged policy, not a candidate activation.
+No native/device/metadata action or unrelated positive-cohort replay.
+Local1f73/baseec0 and predecessor7ca execution bindings remain distinct from
+the successor's still-required exact-head hosted check and bounded review.
+
+### Actual main918 reconciliation after merged tooling252
+
+User merged [PR252](https://github.com/cbattlegear/MeshCoreOne-Android/pull/252)
+at22:44:27Z as **918af38472a43bf24f9a8bc4762c3c1fb45851b4**.
+Fresh origin/main/merge ancestry inspected, not cached PR base metadata.
+Existing same attempt evolves25->**actual returned26** under
+`merge-integration/reconcile-current-base` for the eight exact incoming
+controller/ledger/reserve/tests/CI-doc/WP003 paths. Unlike the earlier
+erroneously inferred26 at ec0, this is a real new receipt revision.
+No reservation replacement, authorization rewrite or candidate rule activation.
+Ordinary merge **35fa6772abec627451bb3a2b16d4a74b89054990** preserves
+all eight incoming owner files byte-for-byte, Android/manifest/policy unchanged.
+The bookend execution remains1f73/baseec0, not a new-base replay/pass;
+current successor needs its own automatic exact-head hosted result.
+Published7ca/run39508725617 and source review5592631796 remain7ca/baseec0.
+The independent WP503 native preparation/pause work is not this software
+increment's execution prerequisite, nor a claimed device observation.
+
+### One next original family: mounted same-prefix burst bookends
+
+Coordinator-directed single next family, code
+**1f73d3daf5c3ecbef958fcb6d04833213d15c2e6/baseec0**: installed preflight
+**PASS0.60s**, exact new-method-only App selector **1 discovered/run/PASS,
+0 failures/errors/skips,29s build**. Named fresh XML22:45:29.540Z/suite6.234s.
+[Exact command/family inventory](software-verification.md#next-single-original-family-same-prefix-burst).
+Only65 lines added; all10 incumbent methods/helpers/fixture are untouched
+and not manually replayed. Source11 is not an11-case or combined cohort.
+
+Frozen `same-prefix burst books name on first and avatar on last` keeps
+prefix0xAA/nameAlice/textmsg/timestamps100,160,220. Real route/subscriber/
+holder, two same-loop arrivals and held actual data dependency prove
+optimistic rows before reconciliation. Actual visible name count remains1;
+three once-labelled original bodies/keyed bubbles retain chronology.
+Its sole author node is explicitly displayed above the first keyed bubble,
+not just counted somewhere in semantics. Initial7525's1/1/30s is historical;
+strengthened1f73 reruns only the same changed method, not a second family.
+Complete DTOs/draft and first logical message ID survive its row-value
+change; name/last-avatar IDs and timestamp flags match independent original
+expectations before/during/after the50ms coalesced reload. Exactly two full
+read-side-effect sequences, one subscriber and no false actions/failures.
+No locale mutation, new production path, fake policy or native dependency.
+
+**Do not treat avatar state as rendered output.** Full frozen BubbleContent
+uses IncomingAvatarGutter; actual native RoomMessageRowContent never consumes
+`showAvatar`. No declared avatar omission was found in the WP-310 deviation.
+Deduplicated template [bug253](https://github.com/cbattlegear/MeshCoreOne-Android/issues/253)
+records the source-confirmed product prerequisite, primary118/146 and207/209
+provenance and the absence of an executed avatar-rendering negative/device
+claim. No foreign product fix or extra worker. Five other ordering families,
+actual avatar/gutter rendering and full source/native/golden acceptance
+remain open. Stop this bounded increment for review as directed.
+
+### Retained Room timestamp chrome and corrected derived fixture fields
+
+Code **d76a576af1960155931d12baa14a7e6e59554b28**, baseec0, installed
+preflight **PASS0.60s**. Same existing strict App task selects the five
+affected live-event methods plus
+`liveMidInsertionReconfiguresTheRetainedLaterRowsTimestampBeforeReload`:
+**6 discovered/run/PASS,0 failures/errors/skips,34s build**. Actual XML
+timestamp22:00:18.876Z contains all six identities, suite6.899s.
+[Inventory contains the exact selectors/options](software-verification.md#commeshcoreoneandroiduitestsroomscomposetest).
+No old four-method/57-render, Region7 or native/device replay.
+
+The next concrete frozen original is `mid-insert flips the next row timestamp
+flag`: same-prefix0xAA/Alice `[100,500]+250`. Real mounted route retains the
+original later DTO/identity while its timestamp flag changes true-to-false.
+Two actual visible US/UTC timestamp headers become one before the reload;
+the first header, exact visible row order and original CJK/RTL draft persist
+during a held actual data dependency and after release. The source50ms
+deadline is explicitly driven, two complete ordered read-side-effect
+sequences and no post/join/retry/diagnostic failure asserted. Default
+TimeZone and global/FORMAT/DISPLAY locales are restored in finally.
+This is not an internal Compose-node-ID, avatar or full date-format claim.
+
+While tracing this family, found a tightly coupled owned-fixture defect:
+new `liveMessage` copied a template after changing timestamp/prefix/text,
+retaining the old derived `deduplicationKey`. Read the frozen RoomMessage
+initializer and current DTO; both derive the key at initialization.
+Use a fresh RoomMessageDTO, also for same-ID150 replay, with distinct-key
+guards and a changed-key assertion. Production is unchanged; no independent
+codec/oracle or primary test-parity result is invented. The historical
+ece5/5 below remains its own actual execution, not proof of corrected fields.
+That shared correction genuinely affects all five previous consumers, so
+this is one required six-method execution, not a gratuitous successful
+cohort replay or an aggregate of the earlier five and a separate one.
+
+Current source has10 methods; only these6 were selected. Old four method
+blocks/fixtures and all Region/preset predicates remain unchanged.
+Portmap/controller/diff and production/build/policy/source preservation
+checks **PASS**. At that execution, existing owned modify admission is revision25.
+No new goldens, device observation, grouping/avatar/all12-original or
+whole-WP acceptance; exact successor hosted checks/source review remain separate.
+
+Latest source **2b478f7acd64405b305e963f7866aed9381f23fd** strengthens only
+this new timestamp method: one explicitly armed subscriber before emission
+and complete displayed-row DTO equality before/after, retaining original
+logical message IDs without internal Compose-node coupling.
+Exact preflight **PASS0.60s**; actual strict **single method1/1PASS,0 failures/
+errors/skips,31s build**, fresh XML22:12:00.252Z/suite6.075s.
+The preceding six-selector result remains bound to d76; unchanged other
+five methods/helper are not replayed, no combined7/ten-case result invented.
+Exact command is in the inventory. No production/assertion weakening.
+
+### Mounted Rooms live events and coalesced reconciliation
+
+Code **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2**, baseec0, installed
+preflight **PASS0.62s**. Same declared App task selects only the five new
+`RoomsComposeTest.live*` methods by their explicit full names in the inventory,
+with existing strict dependency/build-cache/no-parallel/4-worker/512m options:
+**5 discovered/run/PASS,0 failures/errors/skips,43s build**.
+Fresh XML contains all five identities, timestamp21:35:24.913Z.
+No legacy four-method/57-draw, Region/preset, old combined cohort or device rerun.
+
+Read the complete frozen RoomConversationView/ViewModel and all12
+RoomConversationViewModelOrderingTests, then actual primary Android
+route/holder/contracts/tests. First five original parameter families are
+preserved: `[100,200,300]+150`, `[200,300]+100`, `[100,200]+300`,
+`[100,200(first)]+200(second)` and duplicate existing200 ID replayed at150.
+Fixed independent UUIDs/createdAt and unique raw body labels permit actual
+rendered-order checks without a candidate-generated expected oracle.
+
+Real route starts its actual holder/subscriber/load. A same-loop duplicate
+received-event burst updates rendered rows optimistically, then the actual
+50ms looper deadline starts exactly one held data-source reload. Visible
+semantic bounds/order/full DTO identities and original draft survive before,
+during and after reconciliation; cached rows never become empty/spinner.
+Held fetch produces no read/notification/badge/change side effects until
+released, then completes exactly one second ordered sequence. No post/join/
+retry/diagnostic failure; one subscriber. Existing controlled ports are
+reused unchanged, no production edit/new fake policy or provider/device claim.
+At ece, actual already-owned modify admission is idempotent revision25.
+
+These were five actual mounted consumer witnesses at ece, not acceptance of all12
+ordering originals, grouping/avatar/reconfiguration, full history/store/wire,
+notifications or whole-WP parity. Old four Rooms methods remain byte-for-byte
+unchanged. That source has9 methods; no separate9-case execution is claimed.
+Portmap/controller/source-pin/old-witness preservation and diff checks pass.
+Earlier ea4 [COMMENTED5591884702](https://github.com/cbattlegear/MeshCoreOne-Android/pull/249#pullrequestreview-5591884702)
+is nonblocking bounded source review of the unchanged seven-Region increment,
+not this new Rooms delta, an approval or a transferred hosted/native result.
+
+### Actual canonical main landing and same-owner reconciliation
+
+PR251 actually merged **2026-10-20T20:44:12Z** as
+**ec0a41e80ac8637baad524b777f774c10cf99f5b**, exact54aa head.
+Fresh `origin/main` inspection confirms only the canonical renderer/WP305
+note changed from680; manifest/policy/frozen pin unchanged. Same WP502
+attempt **revision25**, existing `merge-integration/reconcile-current-base`,
+admits those exact two paths. Ordinary merge retains the seven-case source,
+all prior witnesses and producer ancestry. Android bytes remain identical to
+executed16a; this is no new test/native/hosted verdict.
+
+Renderer equals canonical54aa and current main exactly. **Full WP305 note
+does not equal main**: the earlier primary1ec9 nine-line Issue250 provenance
+section remains as a disjoint, attributed addition; main's canonical retry
+bullet/all existing lines are retained. No competing fix PR or claim that
+this whole support note is byte-identical to main. Both original owner
+contributions stay traceable, without rewriting live production.
+
+077 was normally published before this main landing: installed180s advisory
+times out **UNVERIFIED**, no completed cohort credited. Its actual automatic
+[run39493993907](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39493993907)
+binds077/base680, not the reconciled successor. Preserve that run/binding;
+the current-main successor needs its own automatic exact-head result,
+not a manual repeat of the existing local seven or producer five/56.
+Receipt correction: the reconcile request was idempotent; its actual returned
+JSON remains revision25, as does the subsequent already-owned Rooms modify
+admission. Earlier ea4 prose inferred26 incorrectly. No ledger reset,
+reservation replacement or extra authorization occurred.
+
+### Canonical producer repair and seven-case negative-to-positive execution
+
+User-directed primary routing replaces the earlier proposed support-policy
+route; no policy expansion was made. Actual ledger read verifies leased
+**WP-305 attempt6e503330-9c0f-426b-86c3-fa52f404dcab/revision1**. Its published
+1ec9ca8fa1a040346ef4ad871918e7c588dd4d13 was received first. Coordinator then
+designated [PR251](https://github.com/cbattlegear/MeshCoreOne-Android/pull/251) /
+**54aaab70bc01725376f0af712dab0ca26c361a5b** sole canonical repair; the same
+existing producer confirmed the transfer/no competing PR. Both have parent
+main680 and the same message selection, differing in formatting/provenance
+wording only.
+
+Same WP-502 attempt evolves24->**25** through the existing
+`merge-integration/merge-disjoint-semantic-edits` rule for the exact producer
+`PresetStepScreen.kt` and WP305 deviation note. No new reservation, rule,
+policy, source pin or producer implementation. Merge1d909 receives1ec9;
+merge **16a060a037860e524c062f3dfe49bfe52f414b77** receives requested54aa,
+retaining both ancestries and primary documentation. The single textual UI
+conflict is identical conditional semantics in one-line versus multiline
+format; resolved to **exact54aa UI bytes**, not a newly authored fix.
+Tests/threshold/actions/controller/manifest/policy remain unchanged.
+
+The earlier1d909 preflight was **queued/unexecuted**, with no targeted-test
+log or discovery. Only this session's own waiter was stopped to select54aa;
+no other holder/lock was modified and no old negative replayed.
+After the real shared lane became available, exact committed source16a060a03,
+base680, installed preflight **PASS0.76s** and existing strict task:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**7 discovered/run/PASS,0 failures/errors/skips,46s build**. Actual XML
+contains all seven method identities in the inventory as PASS, including
+`threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget`.
+The unchanged frozen remedy/no-raw-message predicate now passes, and its
+previously unreachable no-Retry/Cancel/OK-to-fallback/reset/retained-selection/
+same-ID explicit-success assertions actually execute/pass.
+This is **one seven-case cohort including the negative-to-positive method**,
+not separate manufactured1+7 executions or acceptance of whole original
+families. Other original Region cases and both independent followthroughs
+pass in this same actual cohort.
+
+`git diff --exit-code 54aaab70bc01725376f0af712dab0ca26c361a5b 16a060a037860e524c062f3dfe49bfe52f414b77 -- android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt`
+and exact owned test/screenshot comparison to2655 both **PASS**.
+[Producer result handoff](https://github.com/cbattlegear/MeshCoreOne-Android/issues/250#issuecomment-6300737908)
+records the exact command/source/counts. This is scoped local software proof,
+not approval/merge, current hosted success, native/device/radio or whole-WP
+acceptance. The canonical producer remains the owner of the fix.
+Historical [598 hosted39487023988/Linux118850747810](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39487023988/job/118850747810)
+actually fails: available App JUnit790 discovered/789 passed/1 failure/0 errors/
+skips, solely the same missing-remedy method. Controller/classification/Swift
+codec pass; mandatory SwiftData is **SKIPPED**, final android-ci fails.
+No unexecuted oracle test-failure claim, rerun or CI-result bundle.
+Those results are not rebound to16a; no new screenshot/golden/device run.
+
+### Back navigation invalidates the old visible preset
+
+At **2655e7a10e77dff5f0cef1fe8926482d28178dfd/base680**, seventh method
+`changingRegionThroughTheRealBackCallbackCannotApplyThePreviousPreset` selects
+real USA/us-ca, then invokes the callback registered by production
+`OnboardingFlow` through its real `InterceptBack` boundary. Actual Region
+heading returns and Preset disappears. Choosing Australia/Queensland and
+Continue commits exactly `[US/manual/US-CA, AU/manual/AU-QLD]`; old USA row/
+Use USA disappear, Australia/915.800 row is initially unselected, and Continue
+is disabled/no apply or completion occurs. New explicit Australia selection
+alone enables one held `au-915` apply; explicit Applied alone completes once.
+No resolver, duplicate call or reuse of the old preset.
+
+Installed preflight **PASS0.62s**; existing strict App method selector:
+
+```text
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest.changingRegionThroughTheRealBackCallbackCannotApplyThePreviousPreset
+```
+
+**1 discovered/run/PASS,0 failures/errors/skips,34s build**, actual named XML.
+No other cohort or known negative was replayed. Fixture captures the real
+enabled Back callback in SideEffect, reusing the existing pairing witness,
+not direct `flow.back`/coordinator test access or fabricated route state.
+This is a controlled platform callback, **not OS/predictive Back evidence**.
+Frozen PresetStepView resolves selected IDs against visible regional presets;
+primary `staleSelectionIsIgnoredAndApplyingBlocksReentry` is prior art. This
+asserts the mounted invalidated-selection controls, not the entire arbitrary
+invalid-ID/private coordinator parameter family. No preset identity reset or
+coordinator teardown is inferred from the correct visible state.
+Earlier primary/known-negative assertions stay intact; production at that
+execution remained unchanged. This witness was retained locally until the
+canonical repair; that individual run was not a seven-case result. The later
+actual full seven-case execution is recorded above.
+
+### Independent max-retry acknowledgement and budget reset
+
+At **381726bd751c3fe98640d78b87861b487d0a76cf/base680**, sixth method
+`acknowledgingRetryLimitShowsFallbackAndResetsTheNextAttemptWithoutCompleting`
+reaches the production third-failure dialog through the same individually
+held calls/real Retry controls, independently of the retained missing-copy
+negative. Real max dialog has no Retry/Cancel; OK surfaces the exact generic
+fallback without creating another attempt or completing. Dismissing that
+error retains USA selection. New explicit apply4/Retryable shows first-failure
+Connection Error/original message with Retry/Cancel again, not the exhausted
+title, proving acknowledgement reset the actual remembered counter. Cancel
+does not complete; explicit apply5/Applied alone writes the flag/calls completion
+once. Exactly five `us-ca` calls and one original manual commit.
+This additional witness was retained locally until coalescing with the real
+canonical repair; original published249/598 contained five methods. No new
+head/CI run was made merely to repeat the known failure during routing.
+
+Installed preflight **PASS0.51s**. Existing strict App task with:
+
+```text
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest.acknowledgingRetryLimitShowsFallbackAndResetsTheNextAttemptWithoutCompleting
+```
+
+**1 discovered/run/PASS,0 failures/errors/skips,28s build**, actual named XML.
+No other feature cohort, four-method selector or known negative was replayed.
+Shared helpers extract the existing real-action prefix/followthrough without
+removing the fifth test's frozen `ensureConnected`/no-raw-message assertions.
+The fifth test still requires the actual WP-305 copy repair; its own failed
+execution remains679-bound, and its later assertions were not retroactively
+executed. The sixth proves the separate control/state path, not missing-copy
+parity, source-family completion or a current six-case green result.
+No production, threshold, golden, dependency or native-device change.
+
+### Retry-exhaustion unchanged-production negative
+
+The next genuinely uncovered branch is the third retryable preset failure,
+not another four-case replay. Same reservation24 owned/modify admission is
+idempotent; one method was added to the same real mounted class:
+`threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget`.
+Actual production Flow/Region/preset ownership, US/manual/US-CA, real USA row
+and five original fixture boundaries remain unchanged. Three individually
+held same-ID outcomes use explicit `Retryable("radio temporarily busy")`,
+the real Retry button and no false completion. First/second connection-error
+dialogs expose their original message and Retry/Cancel. The third actual
+Unable To Save title appears, but its required connection-remedy text does not.
+
+At **`679c099b2af75d2c226eb675280439c2af55d665` / baseaae3**:
+installed preflight **PASS0.66s**; exact existing App task:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest.threeRetryableFailuresShowConnectionRemedyThenFallbackAndResetTheRetryBudget
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**1 discovered/run,0 passed,1 failure,0 errors/skips;33s build**.
+Actual named JUnit XML fails at test line274:
+`Please ensure your device is connected.` is not displayed.
+The four earlier methods were **not** rerun or combined with this negative.
+No threshold/expectation, ignored test, fake policy or production edit hides it.
+`git diff --exit-code aae3b10dd78f3d3314f51291687932f42f7d0ac9 679c099b2af75d2c226eb675280439c2af55d665 -- android/feature/onboarding android/app`
+**PASS** proves unchanged production. This is host software evidence, not
+actual radio/Settings/firmware or native device evidence.
+
+Frozen `RetryAlertModifier.swift@db14559b39d32322b06477c6ae676112f583db50`
+uses `ensureConnected` at retryCount >=3, retaining the original failure
+message only below that threshold. At679/598 `PresetStepScreen.kt` changed the
+title/buttons at the limit but **unconditionally** rendered `alert.message`.
+Existing WP-305 `retryableFailureOffersRetryThenFallsBackAfterThree` checks
+counter/fallback state, not this mounted copy. WP-305 deviations preserve
+three attempts/fallback and authorize no omission of the first remedy.
+The bounded production prerequisite was **WP-305 modify
+`android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt`**,
+retry-alert text branch; historical producer is PR72/issue113. It was routed
+to the coordinator/primary owner, not edited by WP-502. Deduplicated template
+bug [#250](https://github.com/cbattlegear/MeshCoreOne-Android/issues/250)
+tracks this exact copy defect/negative, not whole-WP closure. Producer/transfer
+admission was still required then; an old closed issue was not an active-owner receipt.
+Earlier actual WP-303 admission rejected this foreign feature-UI modify path.
+The later **user-directed routing correction** assigns existing onboarding
+worker6e503330-9c0f-426b-86c3-fa52f404dcab the bounded **primary WP-305**
+repair through normal WP-owned admission/real initial reservation. WP-003
+support-policy work is on hold; no rule expansion/new worker is requested.
+Assignment alone was not successful admission or an already-published fix.
+WP-502 retained the negative pending actual producer publication. The later
+canonical integration/seven-case execution above provides that receipt and
+negative-to-positive evidence without a foreign reimplementation.
+The test's subsequent no-Retry/Cancel, OK-to-generic-fallback, budget reset,
+retained selection and final explicit success assertions were **unexecuted**
+after the679/598 failure, not accepted by those runs. They later execute/pass
+at canonical16a as recorded above.
+
+The publication hold was honored until PR244 actually merged at
+2026-10-20T19:41:40Z as **680246f7914a5b4e5bf5167a916b620f83a79dee**.
+Main680 has exactly the e317 tree. Ordinary same-owner merge10145ab50531c1af79b2c6b9416e4bc874fa839f
+integrates that landing without changing any Android bytes relative to679.
+At598 relative to main only this new owned test file/three owned docs differed.
+No prior execution is rebound to main680, no CI replay/bundle is created.
+At598 this candidate was **not green/completed** pending the real primary
+repair/result. The later16a seven-case proof above resolves this bounded
+software regression only; broader WP-502/#135 remain unfinished.
+
+### Bounded mounted Region selection and preset recovery
+
+Same reservation24 admits one owned `OnboardingRegionPresetComposeTest`.
+The initial four-method increment was local/unpublished while the coordinator
+offered e317/baseaae3 for maintainer merge. That explicit publication hold was
+honored until actual PR244 merge; its offered head/body were never replaced.
+The newer retry-exhaustion negative above is a separate execution/blocker.
+The remaining-family inventory previously had **no mounted Region selection
+or preset apply assertions**: earlier WiFi/pairing methods only reached Region,
+and their catalog/preset ports could not apply. Existing WP-305 coordinator
+tests and WP-303 adapter tests are reused as prior art, not duplicated as policy
+tests. The new host mounts actual `OnboardingFlow` from Welcome/Permissions/
+Pair Continue with an explicitly already-ready connection snapshot. No pairing
+call is synthesized; only real Region/preset controls drive subsequent state.
+
+| Frozen consumer / existing primary witness | Actual mounted predicate |
+| --- | --- |
+| `RegionPickerRows`/`RegionSelection.afterChoosingCountry`/`afterChoosingSubdivision`, `RegionStepView` manual commit; owner `manualSelectionRequiredToCommit` | Empty/cancelled picker cannot Continue; US/California remains on choosing the same US again. Canada has no subdivision catalog and hides both state/province rows. Australia restores an empty State row, Queensland is selected, and Continue commits exactly `AU/manual/AU-QLD` once. Production catalog exposes Australia/915.800 MHz; selecting its row and a true `canApply` are required. One held `au-915` apply rejects duplicate CTA attempts through canApply recomposition; explicit Applied alone writes completion true once/calls completion once. |
+| `PresetStepView.apply`, `RetryAlertModifier` Cancel/Retry below the max threshold; owner `notConnectedSurfacesErrorWithoutCompleting` and retry/apply cases | US/manual/US-CA commits once; production USA/910.525 MHz row remains selected across typed NotConnected, explicit CJK/RTL Failed, Retryable/Cancel, then new Retryable/Retry. Each held call disables duplicate CTA attempts, exact localized dialogs appear/dismiss, no failure/cancel completes onboarding, and all five apply calls retain `us-ca`. Only explicitly accepted Retry completes once. German834dp/200%. |
+| Native `PresetStepCoordinator.apply` cancellation propagation and owner App adapter cancellation contract; frozen demo no-radio completion branch | Complete the held apply exceptionally with CancellationException; the actual production launch Job becomes cancelled, loading clears, selection survives, no error/Retry/completion is fabricated. A new intentional same-ID apply and explicit NoRadioToConfigure result alone complete. This is real coroutine cancellation of the consumer job, not a benign enum result or actual demo/radio execution. |
+| `RegionStepView` automatic fallback, `useMyLocation` clear/spinner/error and detected commit; owner `noInternetOrTimeoutFallsSilentlyToManual`, `userRetryFailureSurfacesErrorOnlyThen`, `grantedLocationResolvesAndCommitsDetected` | First held resolver shows Resolving, null silently yields disabled empty manual picker. Explicit location retry shows Resolving before second null produces the localized failure dialog. Dismiss/retry then explicit `US/location/US-CA/los angeles` exposes detected controls; Use This Region commits the original full value once and reaches production USA/WCMesh rows without applying/completing. |
+
+The catalog is the **actual merged ServicesRegionCatalog/RegionalAreas/
+RadioPresets**, fixed to Locale.US for deterministic catalog labels, not a
+decorative or manufactured fixture. Independent frozen catalog constants
+`au-915/Australia/915.800`, `us-ca/USA/910.525`, US-CA, AU-QLD and Los Angeles
+county drive expectations; candidate functions do not manufacture expected
+IDs/selections. The German host localizes UI controls while catalog locale
+is explicitly US, not full catalog-localization parity.
+All four use200% font, native SDK31 graphics and actual Region/preset heading
+density/height checks where reached; English360dp/German834dp at1400dp height
+are sampled, not OS resize/device evidence.
+
+Controlled ports suspend each resolver/apply until a separate explicit result.
+No default success, port-internal policy, standalone test coordinator or fake
+UI navigation is introduced. Exact selection writes, apply IDs/counts, held
+busy controls, flag writes and completion callbacks are asserted; unrelated
+pairing/WiFi/demo/settings/permission effects fail the test. In-memory flag
+completion is a bounded Flow callback assertion, not physical preferences,
+App gate-to-Chats navigation or complete onboarding acceptance.
+
+At code **`da45bc8c5d4a30de0e19c1e9f9d547c28aeaf733` / baseaae3**:
+installed Git-bundle/ext4 preflight **PASS0.55s**, then existing strict task:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+**4 discovered/run/passed, zero failure/error/skip,31s build**, all four named
+JUnit XML identities read. Failure history is retained:5d92b9c78 passes1/
+fails3 in58s because the country query also matches the editable search;
+1f2890a8a passes3/fails1 in32s because reselecting a country also matches the
+underlying selected row. Scoped74a23c74b passes3/fails1 in30s, exposing the
+test's false assumption of a Canadian subdivision catalog. Frozen/current
+RegionalAreas both explicitly have no Canadian subdivisions. Finalda45 uses
+the source-faithful Canada-hidden/Australia-Queensland transition. These are
+harness/input corrections, not weakened assertions or product fixes.
+Those first four methods found no product defect; the later negative above
+must not be confused with these passing observations. No foreign edit.
+Portmap/controller validation, `git diff --check`, exact five earlier owned
+test/screenshot and inherited-main owner-byte comparisons all **PASS**.
+
+The frozen four `SettingsServiceApplyPresetTests` originals (RF/path hash/
+catalog-stamp ordering/failure/firmware versions) were read but **are not**
+satisfied by these controlled apply results. Resolver/geocoder algorithms,
+OS location/permission lifecycle, real SettingsService/radio/firmware writes,
+three-failure max/fallback copy, locale-fallback/stale-ID families, full
+picker/search locale policy, process/reentry, haptics, device/golden and full
+original-case/onboarding/WP-502 acceptance remain separate.
+Prior Bluetooth [COMMENTED source review5590546770](https://github.com/cbattlegear/MeshCoreOne-Android/pull/244#pullrequestreview-5590546770)
+finds no bounded blocker at e317, not a review/approval of these new methods.
+Actual [e317 hosted39480142662](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39480142662)
+has since completed **SUCCESS/all six jobs**; it does not execute/certify this successor.
+No earlier green feature/native cohort is replayed or combined into a new
+execution, no CI-result bundle or new screenshot/golden is produced.
 
 ### Consolidated current-main integration after Bluetooth implementation
 
