@@ -1558,7 +1558,7 @@ disposition remains an explicit maintainer blocker.
 
 ### Native harness IME-inset parity (LOCAL only)
 
-Direct parent: `8b9ecad8b37e431613eb4f042c7b9c7a511ca64e`. At that source,
+Local comparison base: `8b9ecad8b37e431613eb4f042c7b9c7a511ca64e`. At that source,
 `NativeNavigationShell.kt:252-263` (blob
 `c9a881fcdbf605784cbf2593d77c808b41c75083`) applies outer
 `fillMaxSize().imePadding()` before the inner Scaffold's `WindowInsets.safeDrawing`.
@@ -1582,7 +1582,22 @@ No native resource operation, provisioning, build, compile, installation, device
 probe, publication or original473 evidence rebinding occurred. Published8b9 and
 retained native66bd remain untouched.
 
-Software-only checks: `python -B -m unittest discover -s
+The initial precommit Python run passed186/186 while source-pin tests still read
+old committed8b9; that is not successor proof. Committed harness producer
+`ad9a4486fddcf8a7f3b68f7c0c4bf306b8635e4b` genuinely failed four existing
+current-HEAD pin assertions:182 passed,4 failed,0 errors/skips. Their expected
+old harness blob no longer matched the changed fixture. No assertion was removed.
+
+The local follow-up changes only the four diagnostics/Nodes/LoS/cached-chat
+harness pins to that actual producer and its actual blob
+`cd687f679c6b4dde56624f35d72e5e1344aa02af`. The original producer/blob remains in
+the immutable8b9 history. This requires two local commits, not a fictitious
+self-referential producer hash or an amended published commit. Before the binding
+edit, its trusted `wp-owned` admission used supported idempotent25-to25 evolution.
+Original family identities/order, other producer/fixture/production pins and all
+test assertions are unchanged; original473 results are not rebound.
+
+With the new real producer pins, `python -B -m unittest discover -s
 android\accessibility-tests -p test_*.py -v` passed186/186,0 failures/errors/skips.
 `python -B tools\android-port\controller\verification_config.py --check`,
 `python -B tools\android-port\controller\validate.py`,
@@ -1590,8 +1605,7 @@ android\accessibility-tests -p test_*.py -v` passed186/186,0 failures/errors/ski
 `python -B tools\android-port\portmap.py` and `git diff --check` each passed/exit0.
 These checks do not compile or execute Kotlin.
 
-Diagnostics/Nodes/LoS/cached-chat still pin the original harness blob/producer;
-their unchanged source guards intentionally reject this new harness until its
-reviewed producer/blob is admitted. No pin was weakened or historical result
-rebound. Native validation awaits the separately owned WP-003 disposable-resource
+No provenance guard was weakened. This entire local candidate, including its new
+fixture producer pins, awaits source review before publication or native
+admission. Native validation awaits the separately owned WP-003 disposable-resource
 contract; reconstructing the old guest's snapshots is not this delivery path.
