@@ -29,7 +29,7 @@ remains basebfd, not a new-base UI result. No WP502 heap/packaging/native/
 renderer edit or future admission-rule activation.
 Actual258 subsequently merged at01:12:38Z as mainc9ed. Four-path same-owner
 reconciliation is idempotent at actual27; mergeab53bb70d preserves incoming
-ci.py/test_ci.py/CI-doc/WP003 exactly. All14 inherited paths equal mainc9ed;
+ci.py/test_ci.py/CI-doc/WP003 exactly. All16 inherited paths equal mainc9ed;
 Android/manifest/policy remain executeddc226-exact, actual5/base858 unchanged.
 No new-base UI replay or renderer admission is inferred from timeout support.
 

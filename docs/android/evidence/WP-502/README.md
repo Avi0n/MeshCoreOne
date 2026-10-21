@@ -155,13 +155,20 @@ Actual258 merged2026-10-21T01:12:38Z as
 **c9ed1f9b78bcc322fb1ec281d211f99852cfec3b**. Same-attempt four-path
 `reconcile-current-base` returns **actual27** idempotently; merge
 **ab53bb70da9eb2858c8588fd72cac9e665b42913** preserves all incoming
-ci.py/test_ci.py/CI-doc/WP003 bytes exactly. All14 incoming owner paths since
+ci.py/test_ci.py/CI-doc/WP003 bytes exactly. All16 incoming owner paths since
 ec0 equal mainc9ed. Android/manifest/policy equal executeddc226; actual5
 remains dc226/base858, not a new-base execution. This imports real258 timeout
 diagnostic support, not a candidate tooling fix, altered deadline or deployed
 renderer-admission rule. The coherent new-source/current-main successor
 requires its own exact hosted CI and full source review; no successful cohort
 was replayed or source successor created solely to record CI.
+
+Coherent8e3c657ced2beb3740eb1a84492db42556a40dbf preflight passes0.68s;
+portmap/controller/diff and exact16 incoming-owner/all12 incumbent preservation
+pass. The pre-publication path comparison corrects the initial c9ed prose
+count14 to actual16; admission still genuinely returns27 idempotently because
+the two additional incoming paths were already in scope. No receipt or
+execution count is inferred from that file count.
 
 ### Actual main858 reconciliation after merged heap support257
 
