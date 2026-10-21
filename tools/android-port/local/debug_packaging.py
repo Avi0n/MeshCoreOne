@@ -110,7 +110,7 @@ def assemble_debug_pair(*, manifest, policy, ledger, owner, revision, state,
     native_lane(ledger, owner)
     source = source_identity(repo, revision)
     verify_wrapper()
-    environment = candidate_environment(state, local=True)
+    environment = candidate_environment(state, local=True, full_assembly=True)
     environment["ANDROID_USER_HOME"] = str(debug_home)
     versions = {item["id"].split(";", 1)[1] for item in toolchain_lock()["archives"]
                 if item["id"].startswith("build-tools;")}
