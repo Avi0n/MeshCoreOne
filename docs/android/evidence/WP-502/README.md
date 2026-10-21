@@ -94,6 +94,7 @@ coordinator integration.
 | `RoomsComposeTest` | Original four route/render methods, thirteen ordering witnesses, six label/action consumers and three renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure plus three Android-only defensive faults pass ata9a6; mounted retry passes1/1 atf4. Mention-status6949 and corrected-input a05 executions remain separately bound. New multiple-Alice matching-row selection at9072fa344 is UNVERIFIED/NOT RUN, preserving all34 incumbents/helpers/Fixture. Current source35 is not combined35 execution or primary original-case approval. No actual service/history/Room-store/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
 | `ContactMatchRowComposeTest` | Three new component definitions, Kotlin NOT RUN: actual public row consumes the complete original Relay advert input rather than recency/message date, full literal32-byte key, localized types/location/distance, Tap and both Toggle states. Sampled compact100%/200% CJK/RTL/default-light/Ember-forced-dark inputs assert actual text/row bounds and actions. Not another frozen original, repaired picker, GPS/formatter equivalence, complete avatar/glyph adaptation or a screenshot/golden verdict. All35 Rooms methods/helpers/Fixture remain byte-identical to ba. |
 | `NewChatSheetComposeTest` | Three LOCAL/UNVERIFIED mounted flow definitions use the real public NewChatSheet/NewChatStateHolder and held declared data port. Loading, source-order eligibility/routing labels, nickname/display-name CJK/accent/Hebrew search, no search/recomposition reload, exactly one original full DTO callback without sheet-owned dismissal, raw-empty/no-radio versus filtered-empty, and actual localized Cancel are asserted. Sampled English100%/Chinese200%-RTL/default-light/Ember-forced-dark text/action bounds only; no original recount, real store/radio, shell navigation, photo/avatar, failed-load presentation, device or golden acceptance. Incumbent Rooms276317/ContactMatchRowca8 are unchanged from corrective parent5b97. |
+| `EmojiComposerComposeTest` | Four LOCAL/UNVERIFIED AndroidOnly definitions mount production ComposerRoute with real composer/emoji holders: held catalog -> all eight ordered categories/frequent first, label/shortcode/CJK-tag search, Unicode accessibility fallback, loaded-empty versus failed, actual semantic dismissal/no mutation, real UTF16-selected ZWJ insertion/caret/targeted draft writes, one MRU normalization/write, cached reopen and failed-load reopen/cancellation. English100%/Ember-forced-dark200%-RTL/Chinese samples assert heading/copy layouts and48dp actions. Tiny controlled catalog, not full asset/glyph, reaction sending, OS/keyboard/global focus, original recount or whole-WP acceptance. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -111,6 +112,59 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Mounted emoji picker to composer: LOCAL UNVERIFIED
+
+One separate successor AFTER reviewed local NewChat
+**781fec26cbf4721577cd43a7726c471826872db7** adds only
+`EmojiComposerComposeTest.kt` and three owned evidence/deviation docs.
+SAME canonical actor/attempt evolves actual reservation33 to returned34 through
+`wp-owned`/`modify`; no new actor/claim, authorization rewrite or support/product
+admission. Existing NewChat20f, corrected ContactMatchca8 and Rooms276317 entire
+files/methods/helpers and all product/App/core/resources/build/goldens remain
+unchanged. New495-line test blob `61d52afa90d15b0a32340b955e8cf95f27517ca3`.
+
+Complete frozen picker/viewmodel/provider/recent-store/category header and
+relevant native route/holder/ports/bar/sheet/draft/selection/App reaction delegate
+and existing tests/modal harness were inspected. Four definitions/five fresh
+mounted fixture inputs, NOT OriginalCase annotations or frozen-unit recounts.
+The actual production route performs MRU -> UTF16 selection replacement ->
+field/caret update -> sheet close -> focus request; no test callback copies
+that sequence. Actual field edits, emoji entry and sheet Dismiss semantics
+drive it. A second radio/contact draft stays unchanged; forbidden send/enqueue/
+retry/location-fix/share/cooldown/diagnostic calls record and throw, never return
+empty success.
+
+Independent tiny catalog reverses all eight source groups and includes an
+unknown group; literal order, heading grid indices and Unicode button fallback
+are asserted. Actual CAFE label, TECHNOLOGIST shortcode and Chinese tag search
+hide frequent; unmatched stays Loaded/empty, not loading/failure. Clearing and
+modifier recomposition cannot refetch. Known failed catalog displays existing
+localized copy without raw reason; dismissal/reopen alone performs a real
+second load, no invented Retry. Owner cancellation propagates rather than
+becoming Failed or mutating draft/MRU.
+
+Literal initial `A + U+1F600 + BCZ`, selection UTF16[1,5), replaces the surrogate
+pair plus BC with U+1F469/U+200D/U+1F4BB. Full `A + emoji + Z`/caret6, subsequent
+`!` before Z/caret7, exact read/write target and write ordering are required.
+Controlled persisted22-entry frequent history includes two selected emoji;
+one write produces independent literal20-entry MRU/dedup/order/truncation.
+This is NOT RecentEmojis' separate max6 or an extra original unit case.
+
+Sampled software-host360dp English100%-LTR/default-light and Chinese200%-RTL/
+Ember forced-dark use synchronized probes, actual localized heading/failure
+layout and48dp controls. Emoji typography inputs/Unicode are checked, NOT full
+glyph fit/shape/font/asset parity. Simulated sheet Dismiss is not real OS Back,
+global focus/keyboard or spoken TalkBack. Reaction/App action consumer is read,
+not mounted; the native composer entry is an existing adaptation, not proof of
+an identical frozen Swift composer route.
+
+**LOCAL UNPUBLISHED / Kotlin/compiler/Gradle/native/preflight/advisory NOT RUN.**
+No workflow dispatch/rerun, host/lease/main/policy action or new-family
+publication. Reviewed781's conditional publication remains separately gated on
+exact5b97/all-six success plus official clean contact-match identities; no
+predecessor826/failed8af or guessed successor verdict is transferred.
+[Methods, pins, fixtures, declared source-safe checks and future selector](software-verification.md#commeshcoreoneandroiduitestsemojicomposercomposetest).
 
 ### Mounted New Chat sheet flow: LOCAL UNVERIFIED
 

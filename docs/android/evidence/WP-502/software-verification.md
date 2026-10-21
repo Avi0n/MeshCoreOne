@@ -85,6 +85,157 @@ the incumbent41. Its four methods actually pass at
 `160ba7d3a4018278081c001319b8a6235859c689`; the two cohorts have not been
 combined/re-executed as a claimed45-case result in this resumption.
 
+### com.meshcoreone.android.uitests.EmojiComposerComposeTest
+
+**LOCAL UNPUBLISHED / UNVERIFIED; all four definitions NOT RUN.**
+Direct parent is reviewed local **781fec26cbf4721577cd43a7726c471826872db7**.
+Actual main remains **dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c**,
+source pin **db14559b39d32322b06477c6ae676112f583db50**, manifest977b/policye8.
+SAME canonical session/attempt `3bc8c1b8-20ec-4647-88ae-db3775268489` evolves
+actual33 to returned34 through `wp-owned`/`modify` before edits, admitting only
+one new owned test and three owned docs. No new claim/actor, authorization
+rewrite, candidate policy or shared/product/build/resource support edit.
+Actual advisory receipt retains null issue/PR fields; external draft249/branch
+identity is checked separately, not invented in that ledger. No ledger/lease
+mutation is used for these source guards.
+Test495-line blob: `61d52afa90d15b0a32340b955e8cf95f27517ca3`.
+
+| Complete defined method name (not execution) | Real mounted contract |
+| --- | --- |
+| `heldCatalogRendersSourceOrderedHeadingsAndRealSearchWithoutRefetchOrCancellationMutation` | Real ComposerRoute entry opens real sheet/holder; held source shows progress/no headers/buttons. Completed reversed-input map yields frequent plus all eight groups in independent literal order, unknown omitted. Actual grid indices0/2/5/7/9/11/13/15/17 render Heading copy, Unicode fallback buttons/48dp targets. Real CAFE/TECHNOLOGIST/Chinese-tag searches use label/shortcode/tag, hide frequent; unmatched is Loaded/empty grid/no spinner/failure. Clear/recompose restores source order, exactly1 load/2 frequent reads. Real sheet Dismiss leaves original draft/caret, MRU, effects and forbidden ports unchanged. |
+| `realSelectionReplacesUtf16RangePersistsDraftAndNormalizesFrequentOnceBeforeReopening` | Chinese200%-RTL/Ember forced-dark. Real field selection[1,5) in six-unit initial draft, then actual emoji entry/search/button. Real route does one MRU write before exact target draft write, closes sheet and requests focus once. ZWJ result/caret6 and subsequent literal! inserted before suffix/caret7 in actual field/holder/store, other-radio/contact untouched, exactly one draft read. Overfull stored22 vector with selected duplicate normalizes to exact independent20; no max6 substitution. Actual reopen is cached/no new catalog load; clear shows updated frequent-first Unicode label/48dp action,3 total frequent reads. Dismiss adds no write/selection/focus/send. |
+| `failedCatalogShowsLocalizedFailureAndOnlyRealDismissReopenStartsAnotherLoad` | Separate English100% and Chinese200%-RTL fresh fixtures. Actual catalog exception -> existing localized Services-not-available copy/no spinner/grid/raw reason; Failed state, unchanged draft/MRU/ports. Recomposition cannot retry. Actual Dismiss and real entry reopen create precisely a second held load; explicit successful response renders real categories, no fake fallback success or invented Retry control. |
+| `ownerCancellationPropagatesFromHeldCatalogWithoutFailedCopyDraftOrFrequentMutation` | Cancel the real injected owner's scope while source awaits; source records/rethrows CancellationException,1 cancelled load/0 active, no Failed conversion/copy. Actual sheet Dismiss remains independent, draft/caret/store/MRU/forbidden ports unchanged. This is owner cancellation, not a claim that native sheet dismissal cancels an externally owned catalog job. |
+
+Four AndroidOnly/ReferenceInput definitions/five fresh fixture inputs, NOT
+software execution, OriginalCase or duplicate primary unit accounting. Existing
+EmojiPickerTest already covers pure order/search/MRU/cancel logic; these add
+actual mounted production consumers. All incumbent whole-file blobs remain:
+NewChat20f60bbfa5e76273dc25d2f2a3a1ecf8772f91ad,
+ContactMatchca8a9d0b7915f01d4628acb03d06d1997f8052ee and
+Rooms276317f4fe7521fe4c016bc55357372c85e09278.
+
+Inspected complete frozen inputs, current blobs equal the immutable pin:
+
+| File under `MC1/Views/Chats/Reactions/` | Blob |
+| --- | --- |
+| `EmojiPickerSheet.swift` | `168cae941bbf4bba12b758671ab691457a9aa65c` |
+| `EmojiPickerViewModel.swift` | `4b0485e1c91b30adb0a684bad9442d28dd6d180a` |
+| `EmojiProvider.swift` | `d78373b021102fa3c6711d6f714b9d9b104480bb` |
+| `RecentEmojisStore.swift` | `6b7c42dec9976d6957688cd587f832c6a8b54714` |
+| `EmojiCategoryHeader.swift` | `f8498d64bb130389db25ad4c5a085cbc96799760` |
+
+Unchanged native inputs under
+`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/`:
+
+| File | Blob |
+| --- | --- |
+| `EmojiPicker.kt` | `39fbc0b1ad3a77127d447bcc7dfa2cb7a07effcd` |
+| `ComposerPorts.kt` | `d2866fe2c8d8ca74a21680d39102825fcdfb36c5` |
+| `ComposerStateHolder.kt` | `60fde443c13a37322e8a98ed7f18cacf3e1f5968` |
+| `ui/EmojiPickerSheet.kt` | `b4d243138642455c65746d87a9883531da27e42c` |
+| `ui/ComposerRoute.kt` | `e249edf3904e719ba9f5b89d6b289b4e3d90c52d` |
+| `ui/ComposerBar.kt` | `cdd4b7bfe85d974b88e83c9c724ec7c0d17e680f` |
+
+Also inspected actual TimelineDraftStore/ChatConversationID, primary
+EmojiPickerTest/ComposerStateHolderTest, full relevant AppMessageActions picker
+delegate and existing native modal/theme/localization harness. Frozen picker
+marks frequent -> onSelect -> dismiss; native real ComposerRoute distributes
+that as frequent -> holder.insertAtSelection -> actual TextFieldValue/caret ->
+close -> requestFocus. The test supplies NO copied onPick sequence. Native
+composer entry is an existing adaptation, not proof that Swift has this
+identical composer route. Separate reaction/App consumer was read only, not
+mounted; no reaction send, RecentEmojis max6 or reaction onDismiss acceptance.
+
+Tiny self-authored catalog's insertion order is flags/symbols/objects/places/
+activity/foods/nature/unknown/people. Standard groups each have one named
+Unicode, people has woman-technologist and empty-label heart. Independent
+expected source order is frequent/people/nature/foods/activity/places/objects/
+symbols/flags, not derived from candidate CATEGORY_ORDER or helpers.
+Frequent thumb and empty-label heart expose their exact Unicode; named
+woman-technologist exposes literal Cafe coder (e=U+00E9). Queries CAFE matches
+accented label, TECHNOLOGIST the supplied woman_technologist shortcode, and
+U+7F16 U+7A0B the Chinese tag. Unmatched-zzz has no candidates but remains
+Loaded, not an error/spinner. No Foundation-all-locales equality, full licensed
+Emojibase asset/dataset or platform-glyph claim.
+
+Independent UTF16 input is A/U+1F600/B/C/Z (six code units), selection[1,5)
+replaces the surrogate pair plus BC. Selected U+1F469/U+200D/U+1F4BB has five
+units, giving A/selected/Z and literal caret6. Subsequent real text input!
+must land BEFORE Z, producing A/selected/!/Z and caret7. Expected strings and
+offsets are explicit literals, never computed using candidate insertion code.
+Target radio/contact IDs end380/381, other radio/contact382/383 holds untouched;
+full DTO/path0/defaults are explicit deterministic samples. Only target get is
+allowed/recorded once; writes require exact target identity and full content,
+with global effects ordered frequent then draft then subsequent-input draft.
+
+The22-entry stored vector is explicitly an overfull/duplicate controlled
+persisted input, not normally emitted provider output or a frozen fixture:
+heart, selected, U+1F600..U+1F612, selected. Expected20 is INDEPENDENTLY LISTED
+selected,heart,U+1F600..U+1F611. Exactly one real frequent write removes both
+selected duplicates, moves it first and drops final U+1F612; reopen shows this
+actual state. This does not run or substitute RecentEmojis' distinct max6.
+
+Fixture allowed seams are actual catalog load gates, recorded frequent/draft
+reads/writes and simple environment StateFlows. A constant denied-location
+capability snapshot is necessarily read by ComposerRoute's share availability;
+location fix/currentCoordinate, share-contact callback, all create/enqueue/retry/
+failure-record/cooldown/diagnostic operations instead record and throw explicit
+AssertionError. Every defined path requires zero forbidden calls and no sends.
+No success-shaped empty send stub, hidden service/GPS provider or unused fake
+store result. Composer gets READY and requires actual canSend true, so the
+no-send witness is not a disabled-send substitute. All no-mutation endpoints
+also require zero active catalog loads. Owning scopes/activity/holder disposal
+retain normal cancellation.
+
+Samples are software-host360dp/1400dp, English100%-LTR/default-light and
+Chinese200%-RTL/Ember LIGHT request -> forced DARK. Probe is synchronized via
+Compose runOnIdle. Actual Heading semantics/copy layout inputs/no overflow/
+ellipsis and48dp entry/search/emoji actions are assertions, not observations.
+ZWJ TextLayoutResult checks Unicode/fontScale/direction/positive measured
+bounds ONLY; full glyph fit/shape/fallback-font/asset/accessibility remains
+unaccepted and is not silently waived as visual parity. Semantic TextSelection
+and holder focusRequest are not a claim of actual OS/global keyboard/focus.
+Invoked ModalBottomSheet Dismiss semantics is not real OS Back/swipe/TalkBack.
+Native failed-load reopen retry is actual current behavior; not proof that
+Swift reuses a failed provider identically. No fabricated Retry button.
+
+Actual source-only checks PASS: portmap1733 mappings includes exactly one new
+AndroidOnly mapping; controller validates1866 pinned inputs/1786 owned/80
+excluded/64 WPs/178 edges at exact977b; whitespace clean. Independent Python
+source assertions validate literal MRU22->20/dedup/truncation, six/five-unit
+UTF16 input/insertion/caret vectors, all five current/frozen blob equalities,
+all three entire incumbent test blobs and19 actual en/zh resource strings.
+These inspect source/data only, not Kotlin compilation/discovery/execution or
+glyph layout. Actual canonical r34, actor cbattlegear, mainactualdbb, policye8,
+installed pre-push checksum/absent commit-time hooks and retained foreign native
+lock are read-only guards. Source-safe commands only; no local Kotlin execution:
+
+```text
+python tools\android-port\portmap.py
+python tools\android-port\controller\validate.py
+git diff --check
+```
+
+Declared future EXISTING selector, **NOT RUN**, requires all FOUR complete
+method identities above in nonempty well-formed App XML/0 failures/errors/skips:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.EmojiComposerComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+No new task/build/resource/asset/golden/policy/native dependency. This increment
+stays LOCAL/UNPUBLISHED after781 for complete source comparison. Conditional
+publication authorizes ONLY already-reviewed781, after actual5b97/all-six
+success and official three clean ContactMatch identities plus fresh guards.
+No predecessor failed826 or guessed successor execution/result transfer, no
+second CI bundle, polling/watch/sleep, dispatch/rerun, native/host/lease/main
+action or additional family. Real reaction, radio, global focus/keyboard, OS/
+device/font/asset/golden/full-family/full-WP acceptance remains open.
+
 ### com.meshcoreone.android.uitests.NewChatSheetComposeTest
 
 **LOCAL UNPUBLISHED / UNVERIFIED; all three Kotlin definitions NOT RUN.**
