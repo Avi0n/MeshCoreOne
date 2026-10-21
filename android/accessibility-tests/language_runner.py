@@ -204,6 +204,10 @@ class ProcessDevice(Device):
                 result[key] = self.shell("settings get " + namespace + " " + name)
             if result[key] == "null":
                 self.confirm_unset_setting(namespace, name)
+        if self.api == 37:
+            result["effective_font_scale"] = self.font_configuration()[1]
+            require(0 < result["effective_font_scale"] < float("inf"),
+                    "Actual effective font scale is not finite and positive")
         result["app_language"] = self.app_language() if self.installed(APP) is not None else None
         require(not self.active_instrumentations(), "Another instrumentation consumer is active")
         return result
@@ -230,6 +234,8 @@ class ProcessDevice(Device):
             require(observed == expected, f"Actual {key} setting is {result[key]!r}; required {expected}")
 
         require_scale("font", 2)
+        if self.api == 37:
+            require(result["effective_font_scale"] == 2, "Actual effective font profile is not 200%")
         require(result["ime"] == "0", "Actual IME profile is not present")
         for key, label, expected in (("size", "size", "360x900"), ("density", "density", "160")):
             values = re.findall(r"(?:Physical|Override) " + label + r": ([^\n]+)", result[key])
@@ -322,6 +328,8 @@ class ProcessDevice(Device):
 
     def prepare_profile(self, original, record):
         require(self.capture_profile() == original, "Actual original profile changed before preparation")
+        if self.api == 37:
+            self.profile_restoration_uncertain = True
         plan = []
         for name, (namespace, key, value) in self.SETTINGS.items():
             previous = None if original[name] == "null" else original[name]
@@ -343,6 +351,8 @@ class ProcessDevice(Device):
             self.write_profile_value(item, item["temporary"])
 
     def restore_profile(self, original, record):
+        if self.api == 37:
+            self.profile_restoration_uncertain = True
         errors = []
 
         def record_restore(item):
@@ -364,11 +374,24 @@ class ProcessDevice(Device):
             except (OSError, RuntimeError, subprocess.SubprocessError) as error:
                 errors.append(error)
         try:
-            require(self.capture_profile() == original, "Actual original runtime profile was not restored")
+            if self.api == 37:
+                scale = original.get("effective_font_scale")
+                require(type(scale) is float and 0 < scale < float("inf"),
+                        "Actual original effective font baseline is missing or invalid; retain the native lane")
+            for delay in ((0, 0.1, 0.2) if self.api == 37 else (0,)):
+                if delay:
+                    time.sleep(delay)
+                observed = self.capture_profile()
+                if self.api == 37:
+                    record_restore({"phase": "verify-original-effective-font", "delay_seconds": delay,
+                                    "observed_profile": observed})
+                require(observed == original, "Actual original runtime profile was not restored")
         except (OSError, RuntimeError, subprocess.SubprocessError, ValueError) as error:
             errors.append(error)
         if errors:
             raise ExceptionGroup("Original runtime profile restoration failed", errors)
+        if self.api == 37:
+            self.profile_restoration_uncertain = False
 
 
 def readiness(request, config, ledger):

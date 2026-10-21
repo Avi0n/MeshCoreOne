@@ -1437,3 +1437,60 @@ snapshot failure. The original failed1000ms deadline remains failed; diagnostic
 collection is not native acceptance. No replay, live readiness or native action.
 The same declared software suite passes168/168,0F/E/S; all four exact validator
 commands above pass/exit0 and whitespace passes for this correction.
+
+### API37 original effective-font release correction (software only)
+
+Direct parent: `7afa4a38e1d0309052c66b98df3748996498f2ca`, still the published
+PR205 candidate. The authorized comparator11 preparation exposed a concrete
+pre-release defect: API37 restoration compared only raw settings/profile state,
+unlike the API31 unset-font branch's effective/stability proof. Configuration-only
+readiness passed on7afa with current main `dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c`,
+manifest `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`,
+policy `e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3` and
+same canonical reservation24. A later bounded public-host read-only probe was
+stopped without a result; it establishes no fresh device/profile authentication.
+No resource lane was acquired and no build, install or instrumentation started.
+
+The coordinator directed a narrow local safety correction, not a runtime-only
+subclass, monkeypatch, external adapter, provider/permission gate or CI wait.
+Existing `wp-owned` modify/test/record-evidence capability rules cover these same
+four Python/tests/README/evidence paths under the same canonical reservation24;
+no evolution, actor change or authorization-prose edit was necessary.
+
+The existing `ProcessDevice.capture_profile` now includes API37's finite positive
+effective font scale from the actual held-lane `mGlobalConfiguration` observation,
+before packaging or temporary setup. It retains the font component, not volatile
+Activity configuration sequence counters. There is no inferred1.0, raw-equality
+proxy or assumed original2.0. Native profile validation additionally requires
+effective200%. Temporary preparation and restoration set effective-profile
+uncertainty. Restoration independently reverses the existing journaled mutations,
+then requires a valid original effective baseline and three exact whole-profile
+observations: immediate, after0.1s, after a further0.2s. Each capture checks guest
+instrumentation quiescence; each observation is journaled before its comparison.
+Only error-free completion clears uncertainty. Missing/wrong/unstable effective
+state, raw drift, failed reads/writes/journaling or active instrumentation retain
+uncertainty and the lane. The unchanged supported release guard also recaptures
+the profile, including effective font, catching drift after the stability proof.
+
+`python -m unittest discover -s android\accessibility-tests -p test_*.py -v`:
+**180 discovered/run/passed,0 failures/errors/skips**, including12 new API37
+regressions through real profile methods and the real shared lane context with
+synthetic transports. Cases cover actual nondefault/unset baselines, harmless
+configuration sequence changes, three spaced quiescent proofs before clearing
+and release, wrong/missing/invalid/unstable effective state despite raw equality,
+raw drift, active instrumentation, independent restoration after probe/receipt
+failure, final release-time recheck and raw200% with wrong effective font.
+Existing API31 materialization/history/one-extra-deletion/deadline/diagnostic
+and recovery regressions remain passing; that implementation is unchanged.
+
+`python tools\android-port\controller\verification_config.py --check`,
+`python tools\android-port\controller\validate.py`,
+`python tools\android-port\controller\workflows.py` and
+`python tools\android-port\portmap.py`: each passed/exit0. Whitespace passed.
+This is local source/software evidence only, not a hosted or native verdict.
+Published7afa and automatic39536160679 are untouched; no push, dispatch, replay,
+real host mutation/build/install/instrumentation or new native authorization
+occurred during correction. Comparator11 awaits source comparison and fresh
+admission. All27 remain unexecuted; language2+2/control/preparation subtract zero.
+Original Kotlin/fixtures/oracles/family pins/selections, package/schema/certificate
+guards and historical genuineb2/r21 evidence remain unchanged.

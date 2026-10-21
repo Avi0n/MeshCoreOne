@@ -81,6 +81,15 @@ private data or admits non-owner execution.
 Only this run's verified newly introduced packages may be removed to restore
 original absence; an originally present target is never uninstalled or cleared.
 
+API37 captures the actual effective font scale from `mGlobalConfiguration` in the
+original held-lane profile, not an assumed1.0 or a raw-setting proxy. Native entry
+also requires effective200%. Restoration keeps uncertainty set until immediate,
+then0.1s- and0.2s-spaced observations match every original raw/profile field and
+that original effective font scale, with no active instrumentation at each
+observation. Each observation is journaled; missing/invalid baselines, read/write/
+journal failures or instability retain the lane. Volatile Activity configuration
+sequence counters are not font state. The release guard rechecks the full profile.
+
 API31 can persist a framework-owned `font_scale=1.0` after deleting the owned
 temporary2.0 from an originally unset setting. Cleanup waits for effective
 configuration settlement and permits only one further deletion, after strict

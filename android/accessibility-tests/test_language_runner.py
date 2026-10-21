@@ -1174,6 +1174,7 @@ class LanguageRunnerTest(unittest.TestCase):
                 "settings get global animator_duration_scale": "0",
                 "settings get global window_animation_scale": "0",
                 "settings get global transition_animation_scale": "0",
+                "dumpsys activity | grep -F mGlobalConfiguration": "mGlobalConfiguration: {2.0 synthetic configuration}",
             }
             device.run = Mock(side_effect=lambda *command: "device" if command == ("get-state",) else "0")
             device.shell = Mock(side_effect=lambda command: values.get(command, "0"))
@@ -1403,6 +1404,218 @@ class LanguageRunnerTest(unittest.TestCase):
         device.shell.side_effect = OSError("Actual settings read failed")
         with self.assertRaisesRegex(OSError, "settings read failed"):
             device.capture_profile()
+
+    def api37_profile_device(self, *, raw="1.25", scale=1.25):
+        self.request = runner.request_for(source("comparator"), 37)
+        device = runner.ProcessDevice(self.config, 37)
+        values = {
+            "getprop ro.build.version.sdk": "37", "getprop ro.build.version.release": "synthetic",
+            "getprop sys.boot_completed": "1", "getprop init.svc.bootanim": "stopped",
+            "getconf _NPROCESSORS_ONLN": "4", "settings get system font_scale": raw,
+            "settings get secure show_ime_with_hard_keyboard": "0",
+            "wm size": "Physical size: 1344x2992\nOverride size: 360x900",
+            "wm density": "Physical density: 480\nOverride density: 160",
+            "getprop ro.build.fingerprint": "synthetic-api37",
+            **{"settings get global " + key: "0" for key in (
+                "animator_duration_scale", "window_animation_scale", "transition_animation_scale")},
+        }
+        state = {"scale": scale, "configuration": None, "sequence": 1}
+
+        def shell(command):
+            if command == "dumpsys activity | grep -F mGlobalConfiguration":
+                return state["configuration"] if state["configuration"] is not None else (
+                    f"mGlobalConfiguration: {{{state['scale']} synthetic s.{state['sequence']}}}")
+            if command == "settings list system":
+                value = values["settings get system font_scale"]
+                return "" if value == "null" else "font_scale=" + value
+            if command.startswith("settings put system font_scale "):
+                value = command.removeprefix("settings put system font_scale ")
+                values["settings get system font_scale"], state["scale"] = value, float(value)
+                return ""
+            return values[command]
+
+        device.run = Mock(side_effect=lambda *command: "device" if command == ("get-state",) else "0")
+        device.shell = Mock(side_effect=shell)
+        device.installed = Mock(return_value=None)
+        device.active_instrumentations = Mock(return_value=[])
+        device.write_profile_value = Mock(wraps=device.write_profile_value)
+        return device, values, state
+
+    def profile_lane(self, device):
+        return runner.execution_lane(
+            self.ledger, device, lock_owner=self.request.operation_owner,
+            canonical=self.request.binding.canonical_session, endpoint=self.config.endpoint,
+            purpose="synthetic-api37-effective-font", source=self.request.binding.source_revision,
+        )
+
+    def test_api37_baseline_captures_actual_effective_font_not_unset_default_or_configuration_sequence(self):
+        device, _, state = self.api37_profile_device(raw="null")
+        with self.profile_lane(device):
+            original = device.capture_profile()
+            device.original_runtime_profile = original
+            self.assertEqual("null", original["font"])
+            self.assertEqual(1.25, original["effective_font_scale"])
+            state["sequence"] = 99
+            self.assertEqual(original, device.capture_profile())
+        device.write_profile_value.assert_not_called()
+        self.ledger.release_hard_lock.assert_called_once_with("native-execution", self.request.operation_owner)
+
+    def test_api37_valid_restoration_proves_three_quiescent_samples_before_clearing_and_release(self):
+        device, values, _ = self.api37_profile_device()
+        events = []
+        device.active_instrumentations.side_effect = lambda: events.append("quiescent") or []
+
+        def record(item):
+            self.assertTrue(device.profile_restoration_uncertain)
+            self.ledger.release_hard_lock.assert_not_called()
+            if item.get("phase") == "verify-original-effective-font":
+                self.assertEqual("quiescent", events[-1])
+                self.assertEqual(original, item["observed_profile"])
+
+        receipt = Mock(side_effect=record)
+        with self.profile_lane(device), patch.object(runner.time, "sleep") as sleep:
+            original = device.capture_profile()
+            device.original_runtime_profile = original
+            device.prepare_profile(original, receipt)
+            self.assertTrue(device.profile_restoration_uncertain)
+            self.assertEqual("2.0", values["settings get system font_scale"])
+            device.restore_profile(original, receipt)
+            self.assertFalse(device.profile_restoration_uncertain)
+            self.ledger.release_hard_lock.assert_not_called()
+            self.assertEqual([0.1, 0.2], [call.args[0] for call in sleep.call_args_list])
+        proofs = [call.args[0] for call in receipt.call_args_list
+                  if call.args[0].get("phase") == "verify-original-effective-font"]
+        self.assertEqual([0, 0.1, 0.2], [proof["delay_seconds"] for proof in proofs])
+        self.assertEqual("1.25", values["settings get system font_scale"])
+        self.assertEqual(2, device.write_profile_value.call_count)
+        self.ledger.release_hard_lock.assert_called_once_with("native-execution", self.request.operation_owner)
+        self.assertFalse(any("dumpsys settings" in call.args[0] for call in device.shell.call_args_list))
+
+    def test_api37_equal_raw_profile_with_wrong_effective_font_retains_uncertainty_and_lane(self):
+        device, _, state = self.api37_profile_device()
+        record = Mock()
+        with self.assertRaises(BaseExceptionGroup), self.profile_lane(device):
+            original = device.capture_profile()
+            device.original_runtime_profile = original
+            state["scale"] = 2.0
+            device.restore_profile(original, record)
+        observed = record.call_args.args[0]["observed_profile"]
+        self.assertEqual(original, {**observed, "effective_font_scale": original["effective_font_scale"]})
+        self.assertEqual(2.0, observed["effective_font_scale"])
+        self.assertTrue(device.profile_restoration_uncertain)
+        device.write_profile_value.assert_not_called()
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_api37_missing_or_invalid_original_effective_baseline_cannot_clear_or_release(self):
+        for invalid in ("missing", None, True, 2, "1.25", 0.0, -1.0, float("nan"), float("inf")):
+            device, _, _ = self.api37_profile_device()
+            self.ledger.reset_mock()
+            with self.subTest(invalid=invalid), self.assertRaises(BaseExceptionGroup), self.profile_lane(device):
+                original = device.capture_profile()
+                if invalid == "missing":
+                    original.pop("effective_font_scale")
+                else:
+                    original["effective_font_scale"] = invalid
+                device.original_runtime_profile = original
+                device.restore_profile(original, Mock())
+            self.assertTrue(device.profile_restoration_uncertain)
+            device.write_profile_value.assert_not_called()
+            self.ledger.release_hard_lock.assert_not_called()
+
+    def test_api37_missing_malformed_or_nonpositive_effective_observation_retains_lane(self):
+        for invalid in ("", "unknown configuration", "mGlobalConfiguration: {NaN synthetic}",
+                        "mGlobalConfiguration: {0.0 synthetic}", "mGlobalConfiguration: {1.25 one}\nextra",
+                        "mGlobalConfiguration: {" + "9" * 400 + ".0 synthetic}"):
+            device, _, state = self.api37_profile_device()
+            self.ledger.reset_mock()
+            with self.subTest(invalid=invalid), self.assertRaises(BaseExceptionGroup), self.profile_lane(device):
+                original = device.capture_profile()
+                device.original_runtime_profile = original
+                state["configuration"] = invalid
+                device.restore_profile(original, Mock())
+            self.assertTrue(device.profile_restoration_uncertain)
+            device.write_profile_value.assert_not_called()
+            self.ledger.release_hard_lock.assert_not_called()
+
+    def test_api37_effective_instability_after_first_matching_sample_retains_lane(self):
+        device, _, _ = self.api37_profile_device()
+        record = Mock()
+        with self.assertRaises(BaseExceptionGroup), self.profile_lane(device), patch.object(runner.time, "sleep") as sleep:
+            original = device.capture_profile()
+            device.original_runtime_profile = original
+            device.font_configuration = Mock(side_effect=[("synthetic", 1.25), ("synthetic", 2.0), ("synthetic", 1.25)])
+            device.restore_profile(original, record)
+        self.assertEqual([0, 0.1], [call.args[0]["delay_seconds"] for call in record.call_args_list])
+        sleep.assert_called_once_with(0.1)
+        self.assertTrue(device.profile_restoration_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_api37_raw_drift_between_effective_stability_samples_retains_lane(self):
+        device, values, _ = self.api37_profile_device()
+        with self.assertRaises(BaseExceptionGroup), self.profile_lane(device), patch.object(
+            runner.time, "sleep", side_effect=lambda delay: values.update({"settings get secure show_ime_with_hard_keyboard": "1"})
+        ):
+            original = device.capture_profile()
+            device.original_runtime_profile = original
+            device.restore_profile(original, Mock())
+        self.assertTrue(device.profile_restoration_uncertain)
+        device.write_profile_value.assert_not_called()
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_api37_instrumentation_during_stability_is_not_quiescence_or_release(self):
+        device, _, _ = self.api37_profile_device()
+        with self.assertRaises(BaseExceptionGroup), self.profile_lane(device), patch.object(runner.time, "sleep"):
+            original = device.capture_profile()
+            device.original_runtime_profile = original
+            device.active_instrumentations.side_effect = [[], ["foreign"], ["foreign"]]
+            device.restore_profile(original, Mock())
+        self.assertTrue(device.profile_restoration_uncertain)
+        device.write_profile_value.assert_not_called()
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_api37_failed_effective_read_does_not_prevent_independent_raw_restoration(self):
+        device, values, _ = self.api37_profile_device()
+        with self.assertRaises(BaseExceptionGroup), self.profile_lane(device):
+            original = device.capture_profile()
+            device.original_runtime_profile = original
+            device.prepare_profile(original, Mock())
+            device.font_configuration = Mock(side_effect=OSError("Effective probe unavailable"))
+            device.restore_profile(original, Mock())
+        self.assertEqual("1.25", values["settings get system font_scale"])
+        self.assertEqual(2, device.write_profile_value.call_count)
+        self.assertTrue(device.profile_restoration_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_api37_journal_failure_cannot_skip_restoration_proofs_or_release_lane(self):
+        device, values, _ = self.api37_profile_device()
+        record = Mock(side_effect=OSError("Profile receipt unavailable"))
+        with self.assertRaises(BaseExceptionGroup), self.profile_lane(device), patch.object(runner.time, "sleep") as sleep:
+            original = device.capture_profile()
+            device.original_runtime_profile = original
+            device.prepare_profile(original, Mock())
+            device.restore_profile(original, record)
+        self.assertEqual("1.25", values["settings get system font_scale"])
+        self.assertEqual(4, record.call_count)
+        self.assertEqual([0.1, 0.2], [call.args[0] for call in sleep.call_args_list])
+        self.assertTrue(device.profile_restoration_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_api37_supported_release_rechecks_effective_profile_after_stability_proof(self):
+        device, _, state = self.api37_profile_device()
+        with self.assertRaises(BaseExceptionGroup), self.profile_lane(device), patch.object(runner.time, "sleep"):
+            original = device.capture_profile()
+            device.original_runtime_profile = original
+            device.restore_profile(original, Mock())
+            self.assertFalse(device.profile_restoration_uncertain)
+            state["scale"] = 2.0
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_api37_native_profile_rejects_raw_font200_without_effective_font200(self):
+        device, _, _ = self.api37_profile_device(raw="2.0")
+        with self.assertRaisesRegex(RuntimeError, "effective font profile is not 200%"):
+            device.profile()
+        device.write_profile_value.assert_not_called()
+        self.spawn.assert_not_called()
 
     def test_temporary_profile_restores_exact_absence_and_survives_receipt_write_failure(self):
         device = runner.ProcessDevice(self.config, 31)
