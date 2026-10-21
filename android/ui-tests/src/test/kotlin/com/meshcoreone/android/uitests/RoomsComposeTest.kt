@@ -1131,6 +1131,150 @@ class RoomsComposeTest {
         assertRetainedRoom()
     }
 
+    @Test fun singleAliceMentionNavigatesDirectlyWithoutAPickerOrRoomMutation() {
+        assertSingletonMentionNavigation(blocked = false)
+    }
+
+    @Test fun blockedSingleAliceMentionStillNavigatesWithoutUnblockingOrRoomMutation() {
+        assertSingletonMentionNavigation(blocked = true)
+    }
+
+    private fun assertSingletonMentionNavigation(blocked: Boolean) {
+        fun sourceContact(id: Long, octet: Int, name: String, isBlocked: Boolean = false) = ContactDTO(
+            id = UUID(0, id), radioId = radio, publicKey = Bytes(ByteArray(32) { octet.toByte() }),
+            name = name, typeRawValue = 0u, flags = 0u, outPathLength = 0u, outPath = Bytes.EMPTY,
+            lastAdvertTimestamp = 0u, latitude = 0.0, longitude = 0.0, lastModified = 0u,
+            lastHeardTimestamp = null, nickname = null, isBlocked = isBlocked, isMuted = false,
+            isFavorite = false, lastMessageDate = null, unreadCount = 0, unreadMentionCount = 0,
+            ocvPreset = null, customOCVArrayString = null, avatarImageData = null,
+        )
+        val alice = sourceContact(351, 0x11, "Alice", isBlocked = blocked)
+        val savedContacts = if (blocked) listOf(alice) else listOf(alice, sourceContact(352, 0x22, "Bob"))
+        val mention = liveMessage(1, 100u, "@[Alice]", Bytes.of(0xaa), "Sender")
+        val other = liveMessage(2, 160u, "unchanged", Bytes.of(0xbb), "Other")
+        val fixture = Fixture().apply { stored = listOf(mention, other) }
+        val navigation = NavigationCoordinator(NavigationState(radioId = radio))
+        navigation.navigateToRoom(session)
+        val beforeNavigation = navigation.state.value
+        val contactReads = mutableListOf<List<ContactDTO>>()
+        val deviceNameReads = mutableListOf<String>()
+        val radioReads = mutableListOf<RadioId>()
+        val navigated = mutableListOf<ContactDTO>()
+        val redraw = mutableStateOf(false)
+        val links = ConversationLinkActions(
+            contacts = { savedContacts.also { contactReads.add(it) } },
+            connectedDeviceName = { "Me".also { deviceNameReads.add(it) } },
+            radioId = { radio.also { radioReads.add(it) } },
+            route = { error("Singleton mention must not use the URL router") },
+            openExternal = { error("Singleton mention must not open an external URL") },
+            navigateToContact = {
+                navigated += it
+                navigation.navigateToContactDetail(it)
+            },
+        )
+        mount {
+            RoomConversationRoute(
+                fixture.holder, links, modifier = Modifier.testTag("singleton-mention-route:${redraw.value}"),
+                failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val retained = RoomConversationState(
+            session, messages = listOf(mention, other),
+            rows = listOf(RoomMessageRow(mention, true, true, true), RoomMessageRow(other, false, true, true)),
+            draft = body, hasLoadedOnce = true,
+        )
+        val readEffects = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+        fun assertRetainedRoom() {
+            assertEquals(retained, fixture.holder.state.value)
+            assertEquals(listOf(mention, other), fixture.stored)
+            assertEquals(readEffects, fixture.loads)
+            assertTrue(fixture.posts.isEmpty())
+            assertTrue(fixture.joins.isEmpty())
+            assertTrue(fixture.retries.isEmpty())
+            assertTrue(fixture.reported.isEmpty())
+        }
+        fun assertRetainedUi() {
+            for (message in listOf(mention, other)) {
+                val parent = compose.onAllNodesWithContentDescription("${message.authorDisplayName}: ${message.text}")
+                    .assertCountEquals(1)[0].assertIsDisplayed()
+                assertEquals(
+                    listOf("${message.authorDisplayName}: ${message.text}"),
+                    parent.fetchSemanticsNode().config[SemanticsProperties.ContentDescription],
+                )
+                val bubble = compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true)
+                    .assertIsDisplayed().fetchSemanticsNode()
+                compose.runOnIdle { assertMountedViewport(bubble, "singleton mention blocked=$blocked id=${message.id}") }
+            }
+            compose.onNode(
+                hasText("@Alice") and SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult),
+                useUnmergedTree = true,
+            ).assertIsDisplayed().assertTextEquals("@Alice")
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            compose.onNodeWithText(text(Chats.chatsInputSendMessage)).assertIsEnabled().assertHeightIsAtLeast(48.dp)
+            compose.onNodeWithText(Chats.chatsMentionPickerTitle(host.get().resources, "Alice")).assertDoesNotExist()
+            compose.onNodeWithText(text(Chats.chatsMentionPickerMatchingContacts)).assertDoesNotExist()
+            compose.onNodeWithText(text(Chats.chatsMentionPickerSelfTitle)).assertDoesNotExist()
+            compose.onNodeWithText(text(Chats.chatsMentionPickerNotSavedTitle)).assertDoesNotExist()
+        }
+        assertRetainedRoom()
+        assertRetainedUi()
+        assertEquals(beforeNavigation, navigation.state.value)
+        assertTrue(navigated.isEmpty())
+        assertTrue(contactReads.isEmpty())
+        assertTrue(deviceNameReads.isEmpty())
+        assertTrue(radioReads.isEmpty())
+        val parent = compose.onAllNodesWithContentDescription("Sender: @[Alice]").assertCountEquals(1)[0]
+        val actions = parent.fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        assertEquals(
+            listOf(Chats.chatsMessageActionOpenMention(host.get().resources, "Alice")),
+            actions.map { it.label },
+        )
+        compose.runOnIdle { assertTrue(actions.single().action()) }
+        compose.waitUntil { navigated.size == 1 }
+        assertSame(alice, navigated.single())
+        assertEquals(blocked, navigated.single().isBlocked)
+        val selected = navigation.state.value
+        assertEquals(AppTab.NODES, selected.selectedTab)
+        assertSame(alice, selected.pendingContactDetail)
+        assertSame(alice, selected.selectedContact)
+        assertEquals(NavigationDestination.ContactDetail(alice), selected.activeStack.last().destination)
+        assertEquals(beforeNavigation.nextEntryId, selected.activeStack.last().id)
+        assertEquals(beforeNavigation.nextEntryId + 1, selected.nextEntryId)
+        assertEquals(beforeNavigation.stacks.getValue(AppTab.NODES), selected.activeStack.dropLast(1))
+        for (tab in AppTab.entries.filter { it != AppTab.NODES }) {
+            assertEquals(beforeNavigation.stacks.getValue(tab), selected.stacks.getValue(tab))
+        }
+        assertEquals(beforeNavigation.chatsSelectedRoute, selected.chatsSelectedRoute)
+        assertEquals(session, selected.pendingRoomSession)
+        assertEquals(radio, selected.radioId)
+        assertNull(selected.pendingChatContact)
+        assertEquals(listOf(savedContacts), contactReads)
+        assertEquals(listOf("Me"), deviceNameReads)
+        assertEquals(listOf(radio), radioReads)
+        assertRetainedRoom()
+        assertRetainedUi()
+        compose.runOnIdle { redraw.value = true }
+        compose.onNodeWithTag("singleton-mention-route:true").assertIsDisplayed()
+        assertRetainedUi()
+        assertRetainedRoom()
+        assertEquals(selected, navigation.state.value)
+        assertEquals(listOf(alice), navigated)
+        assertEquals(listOf(savedContacts), contactReads)
+        assertEquals(listOf("Me"), deviceNameReads)
+        assertEquals(listOf(radio), radioReads)
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        compose.runOnIdle {
+            scope.cancel()
+            assertEquals(0, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, mention.id)))
+        }
+        assertEquals(selected, navigation.state.value)
+        assertEquals(listOf(alice), navigated)
+        assertRetainedRoom()
+    }
+
     private fun mountOriginalRoomBubble(
         row: RoomMessageRow,
         onRetry: (UUID) -> Unit = { error("Unexpected original bubble retry") },
