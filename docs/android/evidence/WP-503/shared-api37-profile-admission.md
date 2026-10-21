@@ -1941,3 +1941,34 @@ source/command-construction evidence, not Linux SDK or native case credit.
 The four declared source commands (`verification_config.py --check`,
 `validate.py`, `workflows.py` and `portmap.py`, each via `python -B` at the
 existing documented path) and `git diff --check` also passed, exit0.
+
+### Binding actual merged producer262 for the next original Nodes7 attempt
+
+PR262 actually merged reviewed producer
+`b8eaf22c1ee6a0a467b9dbfc7d5504dcf3ca9b1b` into trusted main
+`35265173f2ae1765469c751d6d0eb66a82055c00`.
+Ordinary merge `90e0962cd3a24014bdc9a2c7e7b746a349b8b3d2` integrates only
+its three actual incoming paths under supported idempotent29-to29
+`merge-integration` admission. The entire accessibility subtree was unchanged
+by that merge; reviewed144 fixture,59f portable signer correction, all original
+assertions and seven-case Nodes default remain intact.
+
+The actual b8 producer changes only the disposable runtime input to
+`e5875aadd94c81aedd359aed87bcf3fed8b088cb`. Its Windows guest, canonical ledger
+and packaging blobs remain respectively `621612bb67e16432692e07a5a1b1056426747777`,
+`6048cf50b275b85c9028781fd80a473ef06ca6f2` and
+`7f8e5e9769c0f8d70a42678738280bf7209c17e9`, directly verified from actual objects.
+The owned consumer pins only that changed runtime blob plus its actual producer
+revision; no untrusted branch code, alternate ledger, availability flag or
+local producer implementation is substituted.
+
+The reviewed producer accepts exact base37.0 while retaining37.2/malformed
+rejection. Its fresh private output can now be initialized by the emulator from
+the installed package's explicit regular `data/empty_data_disk` layout; legacy
+regular `userdata.img` copying remains separately supported. Both paths require
+new exclusive data, not a copied old guest, fabricated userdata or wipe.
+Merged source is a genuine executable prerequisite, not a native pass.
+The next owned attempt must still pass all actual source/publication/runtime/
+claim/receipt/process/transport/profile/install/instrumentation/disposal checks.
+Historical4936 build/start failure and verified disposal remain4936-only;
+473/66bd,25 original outcomes/two failures/two unstarted flows remain untouched.
