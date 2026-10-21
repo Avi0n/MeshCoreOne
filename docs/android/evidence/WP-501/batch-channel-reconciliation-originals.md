@@ -173,8 +173,10 @@ mounted renderer evidence or grandfathered old-policy acceptance.
 | Unchanged `ContainerHarness.kt` | `c6fb962fca19d1ff87c48eaa05868514a08d614a` |
 
 This is real native in-memory persistence reconciliation, not physical
-process death, API37/hardware, BLE circuit-breaker execution, later slot
-history/rollback or contact-family acceptance. The source's complete
-remaining nine bodies are not excluded or manufactured as passed.
+process death, API37/hardware, BLE circuit-breaker execution or later slot
+history/rollback acceptance. The later nine bodies were not credited to
+this channel execution. The separate [contact-family evidence](batch-contact-originals.md)
+now accounts for its four originals/three new executions without replaying
+these six; five history/rollback originals remain assigned software work.
 Independent full source review, exact successor hosted checks, reviewed
 merge and broader assigned WP501 software/feature/resource work remain open.
