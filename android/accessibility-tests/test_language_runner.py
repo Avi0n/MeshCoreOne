@@ -656,6 +656,134 @@ class LanguageRunnerTest(unittest.TestCase):
         self.package.assert_not_called()
         self.spawn.assert_not_called()
 
+    def configure_los(self, suffix="operation"):
+        self.request = runner.request_for(source("los"), 37)
+        self.device = SyntheticDevice(self.packaging["original"], 37)
+        self.config = replace(self.config, output=self.root / ("los-" + suffix))
+
+    def test_los_shared_lifecycle_selects_only_original_saved_endpoint_method_and_restores_packages(self):
+        self.configure_los()
+        with patch("shared_device_runner.selected_methods", side_effect=AssertionError("Historical selector forbidden")):
+            result = self.execute()
+        self.assertEqual((1, 1, 1, 1, 0, 0, 0), tuple(result["cohort"][key] for key in (
+            "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+        self.assertEqual("los", result["family"])
+        self.assertEqual("los", result["cohort"]["cohort"])
+        self.assertFalse(result["acceptance"])
+        command = self.commands[-1]
+        self.assertEqual(self.request.identities[0], command[command.index("class") + 1])
+        self.assertNotIn(runner.FAMILIES["los"].fixture_methods[0], str(command))
+        self.assertEqual("37", command[command.index("expectedApi") + 1])
+        self.assertEqual("los-api37-1-original-methods", self.ledger.acquire_hard_lock.call_args.args[2]["purpose"])
+        self.assertTrue(self.request.operation_owner.startswith(self.request.binding.canonical_session + ":los:"))
+        self.assert_original_restored()
+        self.ledger.release_hard_lock.assert_called_once_with("native-execution", self.request.operation_owner)
+        receipt = json.loads((self.config.output / "device-los37-recovery.json").read_text())
+        self.assertEqual(list(self.request.identities), receipt["original_identities"])
+        self.assertEqual(self.request.operation_owner, receipt["native_lane_operation_owner"])
+        self.assertEqual("VERIFIED_NORMAL_ALL_POSITIVE_COMPLETION", receipt["status"])
+        self.assertFalse(self.device.application_state_uncertain)
+
+    def test_los_stale_source_policy_scope_or_pause_blocks_before_any_device_build_or_lane(self):
+        self.configure_los()
+        for changed in ("source", "policy", "scope"):
+            self.verify.side_effect = runner.PortError("los " + changed + " stale")
+            with self.subTest(changed=changed), self.assertRaisesRegex(runner.PortError, "stale"):
+                self.execute()
+        self.verify.side_effect = None
+        self.policy["paused"] = True
+        with self.assertRaisesRegex(runner.PortError, "paused=true"):
+            self.execute()
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+        self.ledger.acquire_hard_lock.assert_not_called()
+        self.assertEqual([], self.device.calls)
+
+    def test_los_control_or_whole_class_wrong_missing_duplicate_failed_and_skip_outcomes_retain_lane(self):
+        self.configure_los()
+        positive = transcript(family="los")
+        identity = self.request.identities[0]
+        spec = runner.FAMILIES["los"]
+        both = tuple(spec.klass + "#" + method for method in spec.fixture_methods)
+        whole_class = completed("".join(record(item, 1, 2) + record(item, 0, 2) for item in both), 2)
+        values = (
+            transcript(), whole_class, positive.replace(spec.methods[0], spec.fixture_methods[0]),
+            completed(record(identity, 1, 1), 1),
+            completed(record(identity, 1, 1) + record(identity, 0, 1) * 2, 1),
+            positive.replace(spec.methods[0], "genericLosProxy"),
+            transcript(-2, family="los"), transcript(-3, family="los"),
+        )
+        spawn = self.spawn.side_effect
+        for index, value in enumerate(values):
+            self.configure_los("negative-" + str(index))
+            self.ledger.reset_mock()
+
+            def wrong(command, **kwargs):
+                process = spawn(command, **kwargs)
+                if command[1] != "logcat":
+                    kwargs["stdout"].seek(0)
+                    kwargs["stdout"].truncate()
+                    kwargs["stdout"].write(value.encode())
+                return process
+
+            self.spawn.side_effect = wrong
+            with self.subTest(index=index), self.assertRaises(BaseExceptionGroup):
+                self.execute()
+            self.assert_original_restored()
+            self.assertTrue(self.device.application_state_uncertain)
+            self.ledger.release_hard_lock.assert_not_called()
+            receipt = json.loads((self.config.output / "device-los37-recovery.json").read_text())
+            self.assertEqual(list(self.request.identities), receipt["original_identities"])
+            self.assertIn("UNCERTAIN", receipt["status"])
+
+    def test_los_forced_termination_retains_lane_despite_positive_one_transcript_and_restored_packages(self):
+        self.configure_los()
+        self.process.wait.side_effect = [subprocess.TimeoutExpired("synthetic los", 600), 0]
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.process.kill.assert_called_once()
+        self.assertEqual([600, 15], [call.kwargs["timeout"] for call in self.process.wait.call_args_list])
+        self.assert_original_restored()
+        self.assertTrue(self.device.application_state_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_los_unknown_effective_profile_retains_lane_even_after_positive_one_and_equal_raw_profile(self):
+        self.configure_los()
+
+        def unresolved(original, record):
+            self.assertEqual(original, self.device.capture_profile())
+            self.device.profile_restoration_uncertain = True
+
+        self.device.restore_profile = unresolved
+        with self.assertRaises(BaseExceptionGroup) as caught:
+            self.execute()
+        self.assertIn("Original effective runtime profile unresolved", repr(caught.exception))
+        self.assert_original_restored()
+        self.assertFalse(self.device.application_state_uncertain)
+        self.assertTrue(self.device.profile_restoration_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_los_cli_reuses_readiness_but_blocks_api31_before_configuration_or_device_work(self):
+        with patch.object(runner, "current_binding", return_value=source("los")) as current, \
+                patch.object(runner, "Ledger", return_value=self.ledger), \
+                patch.object(runner, "shared_ledger", return_value=self.root / "synthetic-ledger"), \
+                patch.object(runner, "readiness") as readiness:
+            self.assertEqual(0, runner.main(["--head", source().source_revision, "--family", "los",
+                                           "--api", "37", "--readiness"]))
+            result = json.loads(self.print.call_args.args[0])
+            self.assertEqual(list(runner.FAMILIES["los"].identities), result["identities"])
+            self.assertEqual(0, result["native_starts"])
+            self.assertFalse(result["acceptance"])
+            readiness.assert_called_once()
+            readiness.reset_mock()
+            with patch("sys.stderr", io.StringIO()):
+                self.assertEqual(2, runner.main(["--head", source().source_revision, "--family", "los",
+                                               "--api", "31", "--readiness"]))
+            readiness.assert_not_called()
+        current.assert_called_with(source().source_revision, family="los")
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+
     def test_real_pause_fails_before_config_device_lane_or_build(self):
         self.policy["paused"] = True
         with patch.object(runner.RunConfig, "validate") as validate, self.assertRaisesRegex(runner.PortError, "paused=true"):

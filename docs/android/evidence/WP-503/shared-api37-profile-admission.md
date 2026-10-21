@@ -1249,3 +1249,72 @@ new native authorization occurs. Historical US/tr/az andb2/r21 language/failed
 cleanup/separate recovery retain their exact bindings. All27 remain unexecuted
 in the current missing-only cohort; neither prepared family support nor separate
 language2+2 clears anything. No native/golden/whole-WP acceptance is inferred.
+
+### Local original LoS1 software-only successor to reviewed45ca
+
+Prepared on reviewed
+`45ca12f44b2eb0c220db6f42fd12cc3023c8dacc`, same canonical scope24 and trusted
+main dbb37206/manifest977b9e91/policye8afe067. Existing trusted `wp-owned`
+modify/test/record-evidence admission covers the five changed Python/test/
+README/WP503 evidence paths without scope/identity/auth changes.
+
+Original registration `e4c1aa7aa3b2c759524f198f5cfa09024143c062` and retained
+final fixture `3f39a777376e322e2bc533f1d1caf92a87a44ed8` establish the original
+missing-only identity:
+`com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200`.
+The full current/final fixture also retains
+`frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton`, a separate
+platform control that is not selected, replayed or credited to LoS1.
+
+| Path under repository root | Producer | Exact object |
+| --- | --- | --- |
+| `android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest.kt` | `3f39a777376e322e2bc533f1d1caf92a87a44ed8` | `f8c2cab5dc964548e938f1e023f72912874fc2a8` |
+| `android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los` (complete subtree) | `c6cdac39e89081647ea6475e6bcae800f2531109` | `46d415e10269ea22e520cbf35f82467c778956a8` |
+| `android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt` | `c6cdac39e89081647ea6475e6bcae800f2531109` | `e6bac5fc92755ca3a104928e6969586af3c2709b` |
+| `android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt` | `f7474bb1bd06c6df93a71c8664e9dacade7c8749` | `efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c` |
+| `android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt` | `7f24b57c1ab06437435b8938d166a5254fec0894` | `8768ee9c2b25fc1a7d43d0442980ff4deabb6d81` |
+
+Current/original objects and producer ancestry match. The current saved-endpoint
+screen and producer semantics-test blobs also match the unchanged actual final
+LoS source-import record; no producer pin is silently advanced. The pinned full
+fixture contains all native tree/ancestor/endpoint/layout helpers. Its actual
+fixed inputs remain radio/contact UUIDs301/302/303; public keys32x55/32x66; East
+37.8/-122.4 and CJK West37.7/-122.3; elevation100m; frequency906000kHz. Dependencies
+require one catalog fetch/two ordered endpoint elevation fetches and reject
+terrain/path analysis. Native named clicks/show-on-screen, exact single spoken
+name/action, localized selected/checked state and actual rendered name/role
+GetTextLayoutResult/font/paint assertions are unchanged.
+
+`FamilySpec` now optionally records the full immutable fixture method inventory,
+separate from its fixed selected identities. LoS pins both methods/order but
+selects only the original1. Existing families retain their full-inventory
+defaults. Binding rejects altered inventory, empty/duplicate/nonexistent or
+misordered selection; no selector is exposed to caller input. Existing typed
+requests and unchanged shared runner derive unique `CANONICAL:los:UUID`,
+purpose `los-api37-1-original-methods`, stem/events and exact positive1.
+All previous family/default/UTF-8/source/policy/scope/publication and cleanup/
+uncertainty contracts remain intact.
+
+`python -m unittest discover -s android\accessibility-tests -p test_*.py -v`
+passes **156 discovered/run/passed,0 failures/errors/skips**, including12 LoS
+regressions. Tests cover actual registration/current/original objects and
+fixed inputs, every pin/ancestor, fixture inventory/order/selection, wrong
+family/API/producer/attribution/source/policy/scope/publication, control-only or
+whole-class substitution, missing/duplicate/failure/skip/terminal outcomes,
+forced termination and unknown effective profile despite raw equality. Real
+shared selection/lifecycle uses synthetic transports and preserves packages/
+uncertainty/lane behavior; this is not a native LoS result or new oracle.
+
+The four declared verification_config/validate/workflows/portmap Python commands
+recorded above each pass/exit0; whitespace passes. The containing commit and
+handoff SHA identify this local successor. Previous publishedf3 automatic
+CI39529850037 is now **COMPLETED/SUCCESS**; it does not include or accept this
+local source. Publication is no longer held by that old run; this increment is
+local for bounded source comparison and coherent clean normal publication.
+
+No actual host readiness/Gradle/APK/ADB/install/instrumentation/native-lane action
+or new native authorization occurs. All Kotlin/production/helpers/vectors/oracles
+and historical genuine native/failed cleanup/separate recovery remain unchanged.
+All27 remain unexecuted in the current missing-only cohort, with zero credit
+from prepared families or language2+2. Cached-chat1 remains a separate software
+family; no physical TalkBack/goldens/native/whole-WP acceptance is inferred.

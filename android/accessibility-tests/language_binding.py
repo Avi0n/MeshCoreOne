@@ -53,6 +53,7 @@ class FamilySpec:
     fixture: str
     fixture_blob: str
     source_pins: tuple[tuple[str, str, str], ...] = ()
+    fixture_methods: tuple[str, ...] = ()
 
     @property
     def identities(self):
@@ -166,6 +167,30 @@ TRAZ = FamilySpec(
          "8a8c6348af1c98b3f11f21769800308cf302b8f9", "58af4467a85422c8d53cee7001a159cf56f31642"),
     ),
 )
+LOS = FamilySpec(
+    "los", (37,),
+    "com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest",
+    ("savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200",),
+    "3f39a777376e322e2bc533f1d1caf92a87a44ed8",
+    "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los",
+    "46d415e10269ea22e520cbf35f82467c778956a8",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest.kt",
+    "f8c2cab5dc964548e938f1e023f72912874fc2a8",
+    (
+        ("android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los",
+         "c6cdac39e89081647ea6475e6bcae800f2531109", "46d415e10269ea22e520cbf35f82467c778956a8"),
+        ("android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+         "c6cdac39e89081647ea6475e6bcae800f2531109", "e6bac5fc92755ca3a104928e6969586af3c2709b"),
+        ("android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt",
+         "f7474bb1bd06c6df93a71c8664e9dacade7c8749", "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c"),
+        ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt",
+         "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
+    ),
+    fixture_methods=(
+        "frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton",
+        "savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200",
+    ),
+)
 FAMILIES = MappingProxyType({
     "language": FamilySpec("language", (31, 37), CLASS, METHODS, PRODUCER,
                            PRODUCTION, PRODUCTION_BLOB, FIXTURE, FIXTURE_BLOB),
@@ -173,12 +198,13 @@ FAMILIES = MappingProxyType({
     "nodes": NODES,
     "comparator": COMPARATOR,
     "traz": TRAZ,
+    "los": LOS,
 })
 
 
 def family_spec(name):
     if not isinstance(name, str) or name not in FAMILIES:
-        raise PortError("Only the immutable language, diagnostics, nodes, comparator or traz family is admitted")
+        raise PortError("Only the immutable language, diagnostics, nodes, comparator, traz or los family is admitted")
     return FAMILIES[name]
 
 
@@ -231,13 +257,18 @@ def prepare_binding(revision, claim, *, family="language"):
             if git("rev-parse", revision + ":" + path) != blob or git("rev-parse", producer + ":" + path) != blob:
                 raise PortError("Exact " + spec.name + " fixture/helper/production provenance drifted: " + path)
     methods = tuple(re.findall(r"@Test fun (\w+)\(", git("show", revision + ":" + spec.fixture)))
-    if methods != spec.methods:
+    if (
+        methods != (spec.fixture_methods or spec.methods)
+        or not spec.methods or len(spec.methods) != len(set(spec.methods))
+        or tuple(method for method in methods if method in spec.methods) != spec.methods
+    ):
         raise PortError({
             "language": "Language cohort must retain exactly the two original method identities",
             "diagnostics": "Diagnostics cohort must retain exactly the five original method identities",
             "nodes": "Nodes cohort must retain exactly the seven original method identities",
             "comparator": "Comparator cohort must retain exactly the eleven original method identities",
             "traz": "Supplemental tr/az cohort must retain exactly the two original method identities",
+            "los": "LoS cohort must retain the one original selected method and full two-method fixture inventory",
         }[family])
     manifest = load_manifest(ROOT)
     policy = load_json(ROOT / "docs" / "android" / "automation-policy.json")

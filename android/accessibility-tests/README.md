@@ -265,6 +265,45 @@ missing-only cohort; language2+2 and prepared families subtract zero. Historical
 US/tr/az native outcomes keep their own immutable source/APK/evidence bindings.
 Keep this successor local for review while the published candidate verifies.
 
+### Fixed original LoS saved-endpoint family: software-only preparation
+
+`--family los` admits API37 and exactly one original identity:
+`NativeLineOfSightAccessibilityTest#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200`.
+Read-only source preparation:
+`python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family los`.
+The actual registration at `e4c1aa7a` is an ancestor of the unchanged final
+fixture at `3f39a777`. That full fixture also contains the separate platform
+button control `frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton`;
+it is retained and pinned but **not selected or counted** in LoS1.
+
+`FamilySpec.fixture_methods` preserves this exact full two-method inventory while
+`methods` selects only the fixed original saved-endpoint identity. Default
+inventory behavior remains unchanged for all preceding families. Full source
+inventory/order and a nonempty distinct ordered selection are mandatory; no
+arbitrary subset/class/method argument is exposed. Original/current fixture,
+complete LoS production subtree and producer saved-endpoint semantics test at
+`c6cdac39`, shared assertions at `f7474bb1` and device harness at `7f24b57c`
+must match their exact objects and ancestry.
+
+The original fixture retains radio/contact UUIDs301/302/303, East and CJK West
+repeaters at37.8/-122.4 and37.7/-122.3, fixed public keys, elevation100m and
+device frequency906000kHz. Its deterministic dependencies require one catalog
+read, two ordered elevation reads and no terrain/path analysis. Actual native
+named-ancestor actions, selected/checked/state descriptions and rendered
+name/role layout assertions remain intact, not replaced with a generic LoS
+proxy, map gesture or new oracle.
+
+The same typed request/shared lifecycle uses `CANONICAL:los:UUID` and
+`los-api37-1-original-methods`, exact positive1 and all existing source/main/
+policy/scope/publication/package/profile/uncertainty fences. The platform control,
+whole two-method class, missing/duplicate/wrong outcomes or forced termination
+cannot substitute for the original selected method.
+
+This preparation is software-only: no live host readiness, ADB/build/install/
+instrumentation/native-lane action or LoS/native/golden/whole-WP acceptance.
+All27 remain unexecuted in the current missing-only cohort; language2+2 and
+prepared families subtract zero. Cached-chat1 remains a separate software family.
+
 The current consumer's Git helper explicitly decodes UTF-8 with strict errors
 for both fixture source and trusted policy JSON. It never uses the Windows
 default code page, replacement characters or a fallback; malformed Git output

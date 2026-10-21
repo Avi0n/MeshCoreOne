@@ -60,7 +60,7 @@ class LanguageBindingTest(unittest.TestCase):
         if arguments[0] == "merge-base":
             return ""
         if arguments[0] == "show":
-            return "\n".join("@Test fun " + method + "() {}" for method in spec.methods)
+            return "\n".join("@Test fun " + method + "() {}" for method in (spec.fixture_methods or spec.methods))
         if arguments[0] == "rev-parse":
             path = arguments[1].partition(":")[2]
             if path == "android":
@@ -785,6 +785,156 @@ class LanguageBindingTest(unittest.TestCase):
         with patch("sys.stderr", io.StringIO()), self.assertRaises(SystemExit) as caught:
             binding.main(["--head", HEAD, "--family", "traz", "--locale", "en-US"])
         self.assertEqual(2, caught.exception.code)
+
+    def test_los_binds_only_original_saved_endpoint_method_not_the_separate_platform_control(self):
+        bound = self.prepare("los")
+        self.assertEqual(source("los"), bound)
+        first, second = [binding.request_for(bound, 37) for _ in range(2)]
+        self.assertEqual((binding.LOS.klass + "#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200",),
+                         first.identities)
+        self.assertEqual(1, len(first.identities))
+        self.assertNotEqual(first.operation_owner, second.operation_owner)
+        self.assertTrue(first.operation_owner.startswith(binding.CANONICAL + ":los:"))
+        self.assertNotIn(binding.LOS.klass + "#" + binding.LOS.fixture_methods[0], first.identities)
+        for api in (30, 31, 33, 34, 36, 38, True, "37", 37.0):
+            with self.subTest(api=api), self.assertRaises(binding.PortError):
+                binding.request_for(bound, api)
+        for changes in ({"producer_revision": "0" * 40}, {"production_blob": "0" * 40},
+                        {"fixture_blob": "0" * 40}, {"replacement_app_session": "retired"},
+                        {"replacement_cli_session": "retired"}, {"canonical_session": "retired"}):
+            with self.subTest(changes=changes), self.assertRaises(binding.PortError):
+                binding.request_for(replace(bound, **changes), 37)
+        for family in ("language", "diagnostics", "nodes", "comparator", "traz"):
+            with self.subTest(family=family), self.assertRaises(binding.PortError):
+                binding.request_for(replace(source(family), family="los"), 37)
+            with self.assertRaises(binding.PortError):
+                binding.LanguageRequest(bound, 37, binding.CANONICAL + ":" + family + ":" + "a" * 32)
+
+    def test_los_original_current_git_objects_fixed_inputs_dependencies_and_full_inventory_are_unchanged(self):
+        spec = binding.LOS
+        registration = "e4c1aa7aa3b2c759524f198f5cfa09024143c062"
+        self.assertEqual("", binding.git("merge-base", "--is-ancestor", registration, spec.producer))
+        initial = binding.git("show", registration + ":" + spec.fixture)
+        self.assertIn(spec.methods[0], re.findall(r"@Test fun (\w+)\(", initial))
+        for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            with self.subTest(path=path):
+                self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
+                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
+        for revision in (spec.producer, "HEAD"):
+            body = binding.git("show", revision + ":" + spec.fixture)
+            self.assertEqual(spec.fixture_methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
+            for fixed in ("UUID(0, 301)", "UUID(0, 302)", "UUID(0, 303)", "latitude = 37.8, longitude = -122.4",
+                          "latitude = 37.7, longitude = -122.3", "deviceFrequencyKHz = { 906000u }",
+                          "return 100.0", 'error("No terrain analysis requested")',
+                          "LineOfSightEntry(dependencies)", "nativeSavedEndpoint", "assertEndpointState"):
+                self.assertIn(fixed, body)
+        retained = json.loads(binding.git(
+            "show", "HEAD:docs/android/evidence/WP-503/device-losendpoints-traversal-integration.json",
+        ))
+        self.assertEqual(spec.fixture_blob, retained["audit_fixture_blobs"][spec.fixture])
+        for item in retained["source_import"]["exact_producer_files"]:
+            self.assertEqual(item["producer_blob"], binding.git("rev-parse", "HEAD:" + item["path"]))
+
+    def test_los_all_original_current_pins_ancestors_and_full_two_method_inventory_fail_on_drift(self):
+        spec = binding.LOS
+        for path, producer, _ in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            for revision in (HEAD, producer):
+                def changed(*args):
+                    if args == ("rev-parse", revision + ":" + path):
+                        return "0" * 40
+                    return self.family_git(*args, family="los")
+                with self.subTest(path=path, revision=revision), \
+                        patch.object(binding, "source_identity", return_value="b" * 64), \
+                        patch.object(binding, "git", side_effect=changed):
+                    with self.assertRaisesRegex(binding.PortError, "drifted"):
+                        binding.prepare_binding(HEAD, self.claim, family="los")
+            def missing(*args):
+                if args == ("merge-base", "--is-ancestor", producer, HEAD):
+                    raise subprocess.CalledProcessError(1, "missing LoS ancestor")
+                return self.family_git(*args, family="los")
+            with self.subTest(producer=producer), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=missing):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    binding.prepare_binding(HEAD, self.claim, family="los")
+        inventory = spec.fixture_methods
+        for methods in (spec.methods, inventory[:1], inventory[::-1], (*inventory, "extra"),
+                        (inventory[0], inventory[0]), (inventory[0], "genericLosProxy")):
+            def changed_methods(*args):
+                if args[0] == "show":
+                    return "\n".join("@Test fun " + method + "() {}" for method in methods)
+                return self.family_git(*args, family="los")
+            with self.subTest(methods=methods), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=changed_methods):
+                with self.assertRaisesRegex(binding.PortError, "one original"):
+                    binding.prepare_binding(HEAD, self.claim, family="los")
+        for selected in ((), (spec.methods[0], spec.methods[0]), ("genericLosProxy",)):
+            with self.subTest(selected=selected), \
+                    patch.object(binding, "FAMILIES", {**binding.FAMILIES, "los": replace(spec, methods=selected)}), \
+                    patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=lambda *args: self.family_git(*args, family="los")):
+                with self.assertRaisesRegex(binding.PortError, "one original"):
+                    binding.prepare_binding(HEAD, self.claim, family="los")
+
+    def test_los_reuses_source_policy_scope_family_and_publication_rechecks(self):
+        bound = source("los")
+        request = binding.request_for(bound, 37)
+        with patch.object(binding, "current_binding", return_value=bound) as current, \
+                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF), \
+                patch.object(binding, "trusted_execution_policy", return_value={"paused": True}):
+            self.assertEqual({"paused": True}, binding.verify_current_request(request))
+        current.assert_called_once_with(HEAD, family="los")
+        for actual in (replace(bound, reservation_revision=15), replace(bound, policy_revision="e" * 64),
+                       replace(bound, source_revision="e" * 40), source("traz"), source("nodes"), source()):
+            with self.subTest(binding=actual), patch.object(binding, "current_binding", return_value=actual), \
+                    patch.object(binding, "git") as git:
+                with self.assertRaisesRegex(binding.PortError, "changed before"):
+                    binding.verify_current_request(request)
+                git.assert_not_called()
+        for published in ("", "e" * 40 + "\t" + binding.PUBLIC_REF, HEAD + "\trefs/heads/other"):
+            with self.subTest(published=published), patch.object(binding, "current_binding", return_value=bound), \
+                    patch.object(binding, "git", return_value=published):
+                with self.assertRaisesRegex(binding.PortError, "exact currently published"):
+                    binding.verify_current_request(request)
+
+    def test_los_exact_positive_one_never_substitutes_control_or_class_count_and_requires_normal_completion(self):
+        request = binding.request_for(source("los"), 37)
+        positive = transcript(family="los")
+        result = binding.account_outcomes(positive, request, process_exit=0, forced_termination=False)
+        self.assertEqual((1, 1, 1, 1, 0, 0, 0), tuple(result[key] for key in (
+            "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+        self.assertEqual("los", result["family"])
+        self.assertFalse(result["acceptance"])
+        for code in (-1, -2, -3, -4):
+            with self.subTest(code=code), self.assertRaises(binding.PortError):
+                binding.account_outcomes(transcript(code, family="los"), request,
+                                         process_exit=0, forced_termination=False)
+        for process_exit, forced in ((1, False), (True, False), (0, True), (0, None)):
+            with self.subTest(process_exit=process_exit, forced=forced), self.assertRaises(binding.PortError):
+                binding.account_outcomes(positive, request, process_exit=process_exit, forced_termination=forced)
+        both = tuple(binding.LOS.klass + "#" + method for method in binding.LOS.fixture_methods)
+        whole_class = completed("".join(record(identity, 1, 2) + record(identity, 0, 2) for identity in both), 2)
+        for value in ("", transcript(), transcript(family="comparator"), whole_class,
+                      positive.replace(binding.LOS.methods[0], binding.LOS.fixture_methods[0]),
+                      positive.replace("numtests=1", "numtests=2"),
+                      completed(record(request.identities[0], 1, 1), 1),
+                      completed(record(request.identities[0], 1, 1) + record(request.identities[0], 0, 1) * 2, 1),
+                      positive.replace("INSTRUMENTATION_CODE: -1", "")):
+            with self.subTest(value=value), self.assertRaises(RuntimeError):
+                binding.account_outcomes(value, request, process_exit=0, forced_termination=False)
+
+    def test_los_preparation_cli_selects_only_original_api37_method_without_native_authority(self):
+        output = io.StringIO()
+        with patch.object(binding, "current_binding", return_value=source("los")) as current, \
+                patch("sys.stdout", output):
+            self.assertEqual(0, binding.main(["--head", HEAD, "--family", "los"]))
+        current.assert_called_once_with(HEAD, family="los")
+        result = json.loads(output.getvalue())
+        self.assertEqual([37], [request["api"] for request in result["requests"]])
+        self.assertEqual(list(binding.LOS.identities), result["requests"][0]["identities"])
+        self.assertFalse(result["authority"])
+        self.assertEqual(0, result["native_starts"])
+        self.assertFalse(result["apks_built"])
 
     def utf8_git_output(self, raw_for_command):
         check_output = subprocess.check_output
