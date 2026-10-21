@@ -116,6 +116,24 @@ These twenty supplementary methods do not add original-family credit.
 
 ## Actual verification and boundaries
 
+The first product publication `398187037fa09c51476110503ee78f6e3598ed29`
+owns failed run39685755510. Its complete official controller119519331850 log
+was read in memory:606 discovered/run,603 passed,3 errors,0 failures/skips.
+The local declared controller/local/parity command independently reports the
+same606/603/3. All three errors are the strict workflow validator rejecting the
+merged command that contains both the inherited parity inclusion and landed
+candidate-event arguments. The scope job succeeded; Android and both oracles
+were skipped and aggregate119520286092 failed. No Kotlin execution occurred.
+
+The same-owner support follow-up (reservations110->112) changes only that
+validator, two regressions and this evidence/deviation. It accepts exactly one
+of the trusted main command or its bounded parity-inclusive form, rejects
+duplicate runner lines/arguments, unknown families and ignored failures, and
+retains immutable candidate selection. The actual workflow and all398 product,
+twenty Kotlin witnesses and common firmware support bytes remain unchanged.
+This is an established merge-integration validator repair, not an inferred
+product, timeout or issue261 fix. The next automatic run owns the follow-up.
+
 The following declared pure-source commands passed during preparation:
 
 | Command | Result |
