@@ -88,7 +88,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four route/render methods and thirteen mounted ordering witnesses remain. Six exact original accessibility/action consumers pass together at542097bbd. Three new actual-renderer consumers cover live avatar handoff/stable gutter,57 shared identity/theme/window/font/RTL frames and self-without-gutter. Repairedacec selected9 is honestly8PASS/1FAIL; only failed frame selector is corrected and passes at1e5ea4457. Source26 is not a combined26 or all9-pass invocation. Actual initial glyph-negative at63eda is1FAIL. No RoomServerService/history/Room-database/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
+| `RoomsComposeTest` | Original four route/render methods, thirteen mounted ordering witnesses, six original label/action consumers and three actual-renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Next six source-defined load-stage failure/recovery methods pass together ata9a6be400; every26 incumbent source line/helper/Fixture is preserved. Source32 is not a combined32 or primary original-case approval. No actual RoomServerService/history sync/Room-database/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -106,6 +106,56 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Next local source-defined family: all six load-stage failure consumers
+
+After actual52e source review COMMENTED5594110568 (no additional bounded
+blocker), the coordinator directs the next genuinely missing existing Rooms
+behavior family locally while preserving healthy published52e/39530338898.
+Full frozen ViewModel.loadMessages/View consumers and actual holder/route/
+existing Fixture were read; these are six source-defined fault boundaries,
+not six additional frozen test originals or primary-case accounting.
+Source **a9a6be400161c58a91f5c7660eae073ae9522727/basedbb** adds165 lines/
+zero deletions: six methods, one exclusive helper and coroutine-test imports.
+Same-owner owned modify genuinely returns29 idempotently.
+
+Each actual mounted route holds initial fetch (spinner, no empty flash), edits
+the original200% CJK/RTL draft, then injects the same typed PermissionDenied at
+exactly one of fetch/read/failed-seen/notification-removal/badge/change callbacks.
+The full original session DTO is asserted on every room-scoped call. Exact
+attempt prefix stops at the failing stage; no later side effect is invented.
+Fetch failure shows empty/error without cached rows; later-stage failure retains
+the fetched/keyed/once-labelled row. Original failure identity, localized visible
+error, exactly one diagnostic, hasLoadedOnce/loading/draft and no false service/
+authentication actions are asserted. Dismissing error does not reload.
+
+One real incoming event appends before reload; injected StandardTestDispatcher/
+TestCoroutineScheduler asserts no new fetch at49ms and exactly one at50ms.
+The held retry retains optimistic rows/draft without spinner/empty/error; actual
+completion restores both history rows, exact independent row values and the
+complete six-call sequence once. Owning-scope cancellation reaches zero event
+subscribers; later event/50ms cannot mutate state/callbacks. Existing lifecycle
+cleanup, all26 incumbent source lines/helpers/Fixture, production, renderer,
+core, build, policy, manifest and Region7 remain unchanged.
+
+Initial **4dae366b46d8f00716d21c5e56fe399669b3abb7** discovers/runs6 with
+**0PASS/6FAIL,0errors/skips**,35s, XML02:14:17.607Z. Extra Compose idle/queries
+let the real Looper's50ms debounce fire before the optimistic-phase assertion.
+The new helper alone receives an injected event dispatcher/clock, retaining
+the existing scope Job/lifetime and strengthening exact49/50ms assertions;
+no delay threshold/product change. **e6fad1f835b868d2a3fa6e71a5ddb9270e85a689**
+passes6/6,32s, XML02:16:05.523Z/preflight0.73s. Finala9a6 strengthens all six
+with original-session and teardown guards, then one affected-six invocation
+passes **6 discovered/run,0failure/error/skip**,31s,
+XML2026-10-21T02:18:04.085Z/preflight **PASS0.61s**. Exact six XML identities
+match selectors, not just source counts. Real exclusive Ledger Gradle context/
+ext4 flock/native checks and only-own normal release remain.
+[Exact commands and source mapping](software-verification.md#source-defined-rooms-load-stage-failure-and-recovery-consumers).
+
+This source-defined controlled-port load/recovery family is not actual database/
+service/history/radio sync, cancellation of live platform services, new frames/
+goldens/device/TalkBack/full-WP acceptance. Published52e remains unchanged while
+its automatic CI is healthy; its bounded review does not approve these new six.
 
 ### Admitted issue253 renderer repair and actual renderer observations
 

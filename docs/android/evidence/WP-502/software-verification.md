@@ -115,6 +115,12 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `liveSamePrefixBurstMovesTheRenderedAvatarAndPreservesTheFirstBubbleGutter` | Actual shared `A` glyph and28*fontScale avatar move from original first row to third for frozen AA/Alice/msg100/160/220. Hidden rows retain same gutter/name inset, exact6dp gap and bottom alignment before/held50ms/reconciled; original DTOs/draft/labels/read cycles/one subscriber/no false actions. |
 | `incomingAvatarFramesMatchSharedIdentityThemeAndScaledGutterAcrossCurrentWindows` | All57 existing matrix cases assert shared identity fill/readable glyph, exact28/56dp diameter,6dp gap, stable hidden-row/name inset/RTL/bottom geometry, actual glyph bounds, labels/draft and two identical settled nonblank native draws with actual fill pixel. Not a golden/device oracle. |
 | `selfRoomRowsNeverRenderAnIncomingAvatarOrReserveAnIncomingColumn` | Me/self100/hello at1x/2x has no incoming avatar, M/name or gutter; original label and right bubble edge at root minus16dp persist. |
+| `initialRoomFetchFailureShowsTheTypedErrorThenRestoresHistoryOnTheNextLiveReload` | Fetch fault shows localized typed failure and true loaded-empty state without completing read effects; next live event/held50ms reload restores missed cached history and incoming row. |
+| `roomReadFailureKeepsFetchedRowsThenRepeatsAllReadEffectsOnRecovery` | Read fault retains actual fetched/keyed row and draft; attempts stop at read, and recovery performs the complete original sequence once. |
+| `roomFailedSendSeenFailureStopsLaterReadEffectsUntilRecovery` | Exact fetch/read/failed-seen attempt prefix, no notifications/badge/change until actual successful held reload. |
+| `roomNotificationRemovalFailureKeepsRowsAndDefersBadgeAndChangeUntilRecovery` | Notification-removal fault retains row/draft/error identity; badge/change do not run before recovery. |
+| `roomBadgeFailureKeepsRowsAndDefersConversationChangeUntilRecovery` | Badge fault leaves conversation-change callback untouched until successful recovery; actual row/once-label/draft remain. |
+| `roomConversationChangeFailureRemainsVisibleUntilDismissalAndSuccessfulReload` | Last-stage failure remains typed/visible once with all prior attempts; dismissal alone does not reload, real live-event recovery alone performs the next complete sequence. |
 
 Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
@@ -485,6 +491,69 @@ not transferred to this renderer successor. Spoken TalkBack, approved goldens,
 actual current-candidate API31/37/targeted33/34/36 and full Rooms sync/history/
 message actions/store/radio/full-WP acceptance remain open.
 
+#### Source-defined Rooms load-stage failure and recovery consumers
+
+Actual52e bounded source review5594110568 is COMMENTED/no additional blocker;
+the next coordinator-directed local family covers all six sequential fault
+boundaries in frozen RoomConversationViewModel.loadMessages and its View
+consumer, not new frozen test originals. Same actual reservation29 owned modify
+is idempotent. Full ViewModel/View and actual native holder/route/Fixture read.
+Only owned RoomsComposeTest changes165 added lines: new6/helper/two imports;
+all26 incumbent source lines/helpers/Fixture, Region7 and product bytes remain.
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit a9a6be400161c58a91f5c7660eae073ae9522727 --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.initialRoomFetchFailureShowsTheTypedErrorThenRestoresHistoryOnTheNextLiveReload
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.roomReadFailureKeepsFetchedRowsThenRepeatsAllReadEffectsOnRecovery
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.roomFailedSendSeenFailureStopsLaterReadEffectsUntilRecovery
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.roomNotificationRemovalFailureKeepsRowsAndDefersBadgeAndChangeUntilRecovery
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.roomBadgeFailureKeepsRowsAndDefersConversationChangeUntilRecovery
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.roomConversationChangeFailureRemainsVisibleUntilDismissalAndSuccessfulReload
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+At **a9a6be400161c58a91f5c7660eae073ae9522727/basedbb**, installed preflight
+**PASS0.61s**; one strict invocation discovers/runs/passes **6,0failure/error/
+skip**,31s build. All six named XML identities match selectors, fresh timestamp
+**2026-10-21T02:18:04.085Z**. Canonical-owner real Ledger Gradle context/ext4
+flock/native absence enforced; only own lock normally released.
+
+Source **4dae366b46d8f00716d21c5e56fe399669b3abb7** previously executes6 with
+**0PASS/6FAIL,0errors/skips**,35s, XML02:14:17.607Z: Compose idle/queries
+advance the real Looper past50ms before the exact optimistic call-prefix check.
+Source **e6fad1f835b868d2a3fa6e71a5ddb9270e85a689** injects only the new
+helper's event dispatcher/TestCoroutineScheduler, preserving its existing parent
+scope Job/lifetime: **6PASS/0FES**,32s, XML02:16:05.523Z/preflight0.73s.
+Finala9a6 adds original full-session assertions for every room-scoped call and
+actual consumer teardown guards; all six newly affected cases execute together.
+No healthy old cohort replay, Looper sleep/deadline change or product edit.
+
+The independent stage list is fetch/read/failed-seen/notifications/badge/changed.
+One held initial fetch asserts loading without empty flash and permits original
+200% CJK/RTL draft entry. Identical typed PermissionDenied is injected separately
+at each attempted stage: exact prefix, failure identity/localized error/one
+diagnostic, loading/hasLoadedOnce and later-side-effect short circuit are checked.
+Fetch failure has no fetched row; every later fault retains the actual fetched
+row/key/original parent label. Error dismissal cannot trigger a reload.
+
+One actual incoming RoomConversationEvent appends optimistically; the injected
+clock explicitly asserts **no new fetch at49ms, exactly one at50ms**. Held
+recovery preserves optimistic rows/draft with no empty/error/progress flash.
+Completed fetch restores original cached100/AA/Alice/`cached` and incoming160/
+AA/Alice/`arrived` with independent row literals, original IDs/full DTOs and one
+full six-call sequence. Posts/joins/retries/auth/send state remain untouched.
+Cancelling the actual owning scope yields0 event subscribers; another event/
+50ms cannot change settled state or effect log. Authentication lookup/refresh
+ports throw if incorrectly reached. Core production/native/service code remains
+unchanged; no original-case annotation or primary accounting is added.
+
+Published52e/39530338898 stays immutable and healthy during this local source/
+execution. Its review5594110568 is not review or result transfer to new6.
+Source32 is not combined32/26+6 execution, actual Room database/service/history/
+radio sync, new screenshot/golden/device/spoken-TalkBack or full-WP acceptance.
+
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 
 The same existing strict App task with
@@ -804,7 +873,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six original label/action consumers, and three admitted actual-renderer consumers with57 new host frames. Source26 is not combined26 execution or primary equivalence approval; new renderer results are8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 final review/current exact hosted proof and full Rooms sync/history/actions/store/radio, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six original label/action consumers, three admitted actual-renderer consumers with57 new host frames, and six source-defined load-stage failure/recovery consumers ata9a6. Source32 is not combined32 execution or primary equivalence approval; renderer results stay8PASS/1FAIL atacec then failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 exact52e review5594110568 has no additional bounded blocker; its hosted result and new6 source review are separate. Full Rooms sync/history/actions/store/radio, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |
