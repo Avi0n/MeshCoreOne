@@ -4,7 +4,7 @@ This is a bounded command-to-behavior mapping for the existing WP-003 producer's
 verification-config amendment, not approval, a CI-result bundle, original-case
 parity accounting or whole-WP acceptance. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`; integrated main is
-`c9ed1f9b78bcc322fb1ec281d211f99852cfec3b`. The same producer/reservation owns
+`dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c`. The same producer/reservation owns
 the adaptive, Rooms, mounted draft, onboarding WiFi, pairing and Region/preset regressions.
 Historical native observations remain untouched.
 Main918/tooling252 was reconciled as35fa6772 through the same attempt's real
@@ -32,6 +32,10 @@ reconciliation is idempotent at actual27; mergeab53bb70d preserves incoming
 ci.py/test_ci.py/CI-doc/WP003 exactly. All16 inherited paths equal mainc9ed;
 Android/manifest/policy remain executeddc226-exact, actual5/base858 unchanged.
 No new-base UI replay or renderer admission is inferred from timeout support.
+Subsequent actual259/main dbb is integrated as942f8bbed, importing all six
+owner paths exactly. Actual receipt28 then fresh named renderer receipt29
+admit the bounded issue253 repair; see the current renderer section below.
+Earlier admission-pending statements remain bound to their historical sources.
 
 ## Existing task and source registration
 
@@ -108,6 +112,9 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `originalFailedOutgoingCustomRetryInvokesTheExactMessageCallback` | Exact Me/prefix42/self100/`hello`/FAILED. Actual parent has exactly localized Retry custom action; invoking it returns true and calls the callback exactly once with original message ID, leaving original label/draft. Not service delivery. |
 | `originalSentOutgoingHasNoCustomRetryEvenWithACallback` | Original SENT vector with an explicitly supplied callback. Actual custom action list empty, visible Retry absent and callback untouched. |
 | `originalHttpsBodyExposesTheLocalizedHostActionAndDispatchesTheOriginalUrl` | Exact incoming Alice/prefixAA/100/`see https://example.com`. Actual formatter/resource name exposes example.com custom action; activation passes exact original URL through real dispatcher route then external ports once. Contact/radio/mention ports forbidden; no browser/network action. |
+| `liveSamePrefixBurstMovesTheRenderedAvatarAndPreservesTheFirstBubbleGutter` | Actual shared `A` glyph and28*fontScale avatar move from original first row to third for frozen AA/Alice/msg100/160/220. Hidden rows retain same gutter/name inset, exact6dp gap and bottom alignment before/held50ms/reconciled; original DTOs/draft/labels/read cycles/one subscriber/no false actions. |
+| `incomingAvatarFramesMatchSharedIdentityThemeAndScaledGutterAcrossCurrentWindows` | All57 existing matrix cases assert shared identity fill/readable glyph, exact28/56dp diameter,6dp gap, stable hidden-row/name inset/RTL/bottom geometry, actual glyph bounds, labels/draft and two identical settled nonblank native draws with actual fill pixel. Not a golden/device oracle. |
+| `selfRoomRowsNeverRenderAnIncomingAvatarOrReserveAnIncomingColumn` | Me/self100/hello at1x/2x has no incoming avatar, M/name or gutter; original label and right bubble edge at root minus16dp persist. |
 
 Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
@@ -399,6 +406,84 @@ full-WP proof. Existing real-route Retry result remains separately bound.
 Currenta3c629/review5593825846/run39526597754 are preserved with their own
 identities; no transfer to this successor or premature publication cancelling
 healthy CI. Full sync/history/message actions/store/radio remain open.
+
+#### Admitted Rooms avatar renderer and directly affected consumers
+
+Trusted main dbb/merged259 genuinely deploys the operation before editing.
+Same canonical attempt evolves28 for integration then29 for exact
+`RoomConversationScreen.kt` / `repair-room-incoming-avatar-bookends`;
+capability `rooms-incoming-avatar-repair`. Initial expected27 admission rejects
+stale revision before mutation. Manifest977b9/source pin/original authorization
+remain unchanged; semantic policy is e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3.
+Shared core ContactAvatar is read-only. Productionacec reuses its ICU identity/
+theme/font-scaled diameter, decorative avatar, same scaled gutter/name inset,
+incoming showAvatar bookends/noSELF and original parent semantics/actions.
+
+Exact snapshot preflights use the installed command with each SHA below:
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit <exact-source-SHA> --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.liveSamePrefixBurstMovesTheRenderedAvatarAndPreservesTheFirstBubbleGutter
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.incomingAvatarFramesMatchSharedIdentityThemeAndScaledGutterAcrossCurrentWindows
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.selfRoomRowsNeverRenderAnIncomingAvatarOrReserveAnIncomingColumn
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalIncomingFollowUpAnnouncesTheAuthorEvenWithoutAVisibleName
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalIncomingClusterStartAnnouncesTheAuthorOnlyOnce
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalSentOutgoingAnnouncesItsStatusOnlyOnce
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalFailedOutgoingCustomRetryInvokesTheExactMessageCallback
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalSentOutgoingHasNoCustomRetryEvenWithACallback
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.originalHttpsBodyExposesTheLocalizedHostActionAndDispatchesTheOriginalUrl
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+This nine-selector command actually executes at
+**acec78938d4328414954602134d9c460f886017e/basedbb**:
+**9 discovered/run,8PASS/1FAIL,0errors/skips**,34s build,
+XML2026-10-21T01:45:47.411Z. The failed method is only the frame selector;
+live burst/self/no-gutter and all six original label/action consumers pass.
+
+Pre-repair **63eda930769efea86e080a1402afdeff0d0de2ef/basedbb** uses just
+the first selector: **1discovered/run,0PASS/1FAIL,0errors/skips**,47s build,
+XML01:44:09.856Z. Independently read named XML shows missing actual displayed
+`A` glyph on unchanged production, not missing test instrumentation. Earlier
+foreign Gradle contention exits before any test and is not counted here.
+
+Only failed frame selector runs at
+**c8058d9ab31e2a53d26b97fc2ae9ac883767761d** and
+**e6246a3f2e9** for diagnosis: each1FAIL,0errors/skips,37s/30s builds.
+Actual first-frame text/glyph is7x24, fully inside28x28 avatar; paragraph width
+is28 even though measured Text width is7. `didOverflowWidth` compares unused
+paragraph allocation, not glyph fit. Source
+**1e5ea4457eac0e5f50f06eeea4e0f91df17b64f5** replaces only that proxy with exact actual glyph bounds inside
+measured text AND rendered avatar, one line, exact fontScale, retained
+didOverflowHeight plus shared glyph-color/pixel assertions. No geometric
+tolerance/threshold/golden/core/product change. The frame-only command is:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.incomingAvatarFramesMatchSharedIdentityThemeAndScaledGutterAcrossCurrentWindows
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+At1e5, preflight **PASS0.63s**, exact named fresh XML
+**2026-10-21T01:50:35.620Z** proves **1discovered/run/PASS,0failure/error/skip**,
+38s build. All57 cases complete. Actual captures under
+`sdk31/room-avatars/room-avatar-<case.id>.png` use two identical settled nonblank
+draws plus sampled real shared identity fill; not approved goldens. Existing
+real shared canonical-owner Gradle lock/ext4 flock and native checks are used
+for each execution; only own resources normally released. Source26 is not
+local26 or a combined9/9 verdict. No healthy unrelated cohort replay.
+
+Actual a3c/basec9ed automatic39526597754 is now terminalSUCCESS/all6;
+authoritative Linux118983145710 reports App805 discovered/run/PASS,0FES,
+01:46:30.481Z with all five ordering identities. SwiftData118991144810 and
+aggregate118992266560 SUCCESS. Read logs in memory, no second CI-result
+bundle. Healthy predecessor was never superseded/cancelled; its proof is
+not transferred to this renderer successor. Spoken TalkBack, approved goldens,
+actual current-candidate API31/37/targeted33/34/36 and full Rooms sync/history/
+message actions/store/radio/full-WP acceptance remain open.
 
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 
@@ -719,7 +804,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs have a bounded57-input/four-method Rooms history, thirteen mounted witnesses for twelve ordering originals (actual new5 atdc226), and six original accessibility label/action consumers (actual new6 at542097). Source23 is not combined23 execution or primary equivalence approval. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Actual rendered-avatar253 and full Rooms sync/history/actions/store/radio, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six original label/action consumers, and three admitted actual-renderer consumers with57 new host frames. Source26 is not combined26 execution or primary equivalence approval; new renderer results are8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 final review/current exact hosted proof and full Rooms sync/history/actions/store/radio, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |

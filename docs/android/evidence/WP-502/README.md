@@ -24,8 +24,9 @@ Original manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c51532361
 Deployed versioned manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
 the WP-003 amendment preserves the exact inverse/original receipt lineage.
 Original reservation policy binding: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-Current integrated base: `c9ed1f9b78bcc322fb1ec281d211f99852cfec3b`;
-earlier bases `85871f40b1520a89ced6b9bec74aa8eec2f4f4de`,
+Current integrated base: `dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c`;
+earlier bases `c9ed1f9b78bcc322fb1ec281d211f99852cfec3b`,
+`85871f40b1520a89ced6b9bec74aa8eec2f4f4de`,
 `bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`,
 `5714ba3be50618b8d946a21e0db15feb67f90eb6`,
 `918af38472a43bf24f9a8bc4762c3c1fb45851b4`,
@@ -39,13 +40,16 @@ the trusted policy revision was
 `c1e87cc1e69400e25d035b40349ec62cf3bd14143ce0bb17932e04d46e9dadb0`.
 The original binding is audit history, not rewritten to the newer policy.
 Manifest/source remain unchanged. Current semantic policy revision is
-`7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6`;
+`e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3`;
 merged254 changes operational paused=true to false only, preserving
-dispatch_mode=off/activation_approved=false. Policy bytes equal actual mainc9ed,
-not the earlier paused policy; controller/reserve retain tooling252 owner bytes.
-The same typed reservation is now actual revision27 after the real six-path858
-reconciliation adds ci_environment.py and its test; later four-pathc9ed
-reconciliation is idempotent at27. Earlier real eight-path918
+dispatch_mode=off/activation_approved=false. Policy bytes equal actual maindbb,
+including normally merged259's bounded renderer capability, not candidate policy
+edits. The same typed reservation is now actual revision29: six-pathdbb
+reconciliation returned28, then the exact named renderer operation returned29.
+An initial expected27 renderer request correctly rejected stale revision before
+any edit; the retry used actual28. Earlier six-path858
+reconciliation returned27; later four-pathc9ed reconciliation was idempotent at27.
+Earlier real eight-path918
 evolution reached26, five-path5714/four-pathbfd reconciliations were idempotent
 at26, and ec0/Rooms operations were idempotent at25. No inferred revision.
 `android/app/build.gradle.kts` is admitted through
@@ -84,7 +88,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four methods retain loading/permissions/draft/post/Retry/authentication and57 render inputs. Six live-event methods pass together at d76a576af; strengthened timestamp method separately passes at2b478f7. Same-prefix burst and different-prefix/same-name methods pass separately at1f73d3daf/ed2276627. Remaining four ordering originals have five mounted witnesses passing together atdc226292a. Six exact original accessibility label/action consumers pass together at542097bbd, including actual custom Retry target and HTTPS dispatcher ports. All17 incumbents/helpers/Fixture are unchanged by the latest slice; source23 is not a local23-case/combined execution or primary all12/six-original parity approval. State avatar flags are not rendered-avatar acceptance: actual consumer gap253 awaits the real reviewed renderer rule/admission. No actual RoomServerService/history sync/Room-database/radio/browser/TalkBack/golden claim. |
+| `RoomsComposeTest` | Original four route/render methods and thirteen mounted ordering witnesses remain. Six exact original accessibility/action consumers pass together at542097bbd. Three new actual-renderer consumers cover live avatar handoff/stable gutter,57 shared identity/theme/window/font/RTL frames and self-without-gutter. Repairedacec selected9 is honestly8PASS/1FAIL; only failed frame selector is corrected and passes at1e5ea4457. Source26 is not a combined26 or all9-pass invocation. Actual initial glyph-negative at63eda is1FAIL. No RoomServerService/history/Room-database/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -102,6 +106,69 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Admitted issue253 renderer repair and actual renderer observations
+
+Normally merged259 deploys trusted main
+**dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c** (parentsc9ed/475ffefa).
+Same-owner merge942f8bbed imports its six owner files exactly, actual receipt28.
+Fresh receipt29 admits only `RoomConversationScreen.kt` /
+`repair-room-incoming-avatar-bookends` through `rooms-incoming-avatar-repair`.
+No claim recreation, authorization rewrite, foreign release or policy edit.
+Primary WP310 provenance and state/order/service/auth/core sources are preserved.
+
+Production **acec78938d4328414954602134d9c460f886017e/basedbb** reuses shared
+ContactAvatar(name,size,modifier), not a photo lookup/provider/new asset/identity
+algorithm. Incoming diameter is28dp times max(fontScale,1), plus6dp gap; hidden
+incoming rows reserve that same width and the visible author uses the same inset.
+Only incoming showAvatar rows render the bottom-aligned decorative avatar.
+Self reserves no incoming column/avatar/name. Original once-only parent message
+label/custom actions remain intact. Frozen Rooms uses initials identity.
+
+Actual pre-repair source **63eda930769efea86e080a1402afdeff0d0de2ef** executes
+the live-burst selector: **1 discovered/run,0PASS/1FAIL,0errors/skips**,47s build,
+XML2026-10-21T01:44:09.856Z. The unchanged renderer lacks actual displayed `A`,
+not merely a new test tag. A prior real foreign-lock collision executed zero
+tests and remains only serialization history, not this negative result.
+
+Repairedacec executes one strict invocation of new3 plus directly affected6
+original label/action consumers: **9 discovered/run,8PASS/1FAIL,0errors/skips**,
+34s build, XML01:45:47.411Z. Live avatar handoff, self/no-gutter and all6 labels/
+actions pass. The frame method fails its initial paragraph-width proxy. Focused
+diagnosticsc805/e624 each execute only that failed selector,1FAIL: actual glyph
+is7x24 within28x28 avatar, while unused paragraph allocation is28 wide.
+Final **1e5ea4457eac0e5f50f06eeea4e0f91df17b64f5** replaces that proxy with actual single-glyph bounds inside
+both measured text and rendered avatar, exact font scale, retained height check
+and theme glyph/pixel assertions; no tolerance/golden/product change.
+Only failed frame selector is rerun: **1 discovered/run/PASS,0failure/error/skip**,
+38s build, XML2026-10-21T01:50:35.620Z; preflight **PASS0.63s**.
+
+All57 existing theme/window/font/direction inputs complete actual28/56dp
+diameter,6dp gap, hidden-row/name alignment including RTL, bottom alignment,
+shared theme identity fill/readable glyph, once-only labels and draft assertions.
+Each captures two identical settled nonblank native-host draws and checks actual
+avatar fill pixels. These57 new host render inputs are not approved goldens or
+API31/37 device observations. Live burst checks optimistic/held50ms/reconciled
+state, original keys/full DTOs/retained first-bubble leading edge, two read cycles,
+one subscriber and no false actions/errors. Self checks no incoming chrome at1x/2x.
+Existing healthy cohorts are not replayed; no invented9/9/26 execution.
+[Exact selectors and failure explanation](software-verification.md#admitted-rooms-avatar-renderer-and-directly-affected-consumers).
+
+Predecessor **a3c629cf2f487846807dfce74664597b8c90d9f7/basec9ed** was left
+published throughout its healthy automatic run. Actual
+[39526597754](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39526597754)
+is now terminalSUCCESS/all6. Authoritative Linux118983145710 explicitly reports
+**App805 discovered/run/PASS,0failures/errors/skips** at01:46:30.481Z and all
+five new ordering method identities. SwiftData118991144810 and
+aggregate118992266560 SUCCESS. This is a3c evidence only, not successor CI,
+renderer/golden/native/full-WP acceptance. No rerun/cancel/result bundle.
+Earlier admission-pending/flags-only sections below are historical, not a current
+renderer-admission blocker. Held renderer history/stashes remain untouched.
+`python tools\android-port\portmap.py`,
+`python tools\android-port\controller\validate.py` and `git diff --check`
+**PASS**. Exact comparison preserves all six incoming259 owner blobs, every
+a3c incumbent source line/helper/Fixture and Region7. This is traceability/
+preservation, not extra test executions or full feature equivalence.
 
 ### Next independent action-consumer family: six original accessibility cases
 
