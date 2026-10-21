@@ -602,6 +602,53 @@ class DisposableGuestTests(unittest.TestCase):
                 guest.dispose(self.ledger)
         self.assert_legacy()
 
+    def test_new_guest_launch_preserves_boot_animation_for_strict_observed_boot_profile(self):
+        from unittest.mock import Mock
+
+        image = self.root / "image"
+        image.mkdir()
+        (image / "source.properties").write_text(
+            "AndroidVersion.ApiLevel=37.0\nSystemImage.Abi=x86_64\n", encoding="utf-8",
+        )
+        (image / "userdata.img").write_bytes(b"fixture immutable initial data")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        before = self.rows()
+        server = Mock()
+
+        def launch(command):
+            if command[0] == str(adb):
+                self.assertEqual(command, [str(adb), "-L", f"tcp:{guest.server_port}", "nodaemon", "server"])
+                return server
+            data = guest.root / "avds" / (guest.token + ".avd")
+            self.assertEqual(command, [
+                str(emulator), "-avd", guest.token, "-datadir", str(data),
+                "-data", str(data / "userdata-qemu.img"), "-ports", f"{guest.port},{guest.port + 1}",
+                "-no-snapshot", "-no-window", "-no-audio", "-gpu", "swiftshader_indirect",
+            ])
+            config = (data / "config.ini").read_text()
+            self.assertIn("hw.cpu.arch=x86_64\n", config)
+            self.assertIn("disk.dataPartition.size=2048M\n", config)
+            self.assertNotIn("hw.cpu.ncore=", config)
+            self.assertNotIn("boot", config.lower())
+            raise RuntimeError("fixture stops before emulator spawn")
+
+        with patch.object(guest, "_prepare_supervisor"), \
+                patch.object(guest, "_owns_listener", return_value=True) as owns, \
+                patch.object(guest, "_spawn", side_effect=launch) as spawn:
+            try:
+                with self.assertRaisesRegex(RuntimeError, "fixture stops before emulator spawn"):
+                    guest.start(self.ledger, emulator=emulator, adb=adb, image=image, timeout=120)
+                self.assertEqual(spawn.call_count, 2)
+                owns.assert_called_once_with(server, guest.server_port)
+                self.assertEqual(self.rows(), before)
+            finally:
+                guest.dispose(self.ledger)
+        self.assert_legacy()
+
     def test_exited_private_windows_adb_never_launches_emulator_and_retains_uncertain_ownership(self):
         from unittest.mock import Mock
 
