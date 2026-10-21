@@ -4,6 +4,7 @@
 // PortedFrom: MC1/Views/Chats/Components/MessagePathContent.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Components/MessagePathMapView.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Components/RepeatRowView.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/Components/FallbackMatchIndicatorView.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Sheets/BlockSenderSheet.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.feature.chats.actions
 
@@ -51,6 +52,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -519,6 +521,35 @@ private fun RepeatRow(
         Column(Modifier.weight(1f)) {
             Text("${repeat.repeaterHashFormatted}  ${resolution.displayName}")
             Text(hops, style = MaterialTheme.typography.labelSmall)
+            if (resolution.isFallback) {
+                var showExplanation by rememberSaveable(repeat.id) { mutableStateOf(false) }
+                val label = stringResource(AppChatsStrings.chatsPathHopPossibleMatch)
+                val explanation = stringResource(AppChatsStrings.chatsPathHopPossibleMatchExplanation)
+                TextButton(
+                    onClick = { showExplanation = true },
+                    modifier = Modifier.sharedTouchTarget().semantics {
+                        contentDescription = label
+                        stateDescription = explanation
+                    },
+                ) {
+                    Text(stringResource(AppChatsStrings.chatsPathHopPossibleMatchTitle))
+                }
+                if (showExplanation) {
+                    AlertDialog(
+                        onDismissRequest = { showExplanation = false },
+                        title = { Text(stringResource(AppChatsStrings.chatsPathHopPossibleMatchTitle)) },
+                        text = { Text(explanation, Modifier.verticalScroll(rememberScrollState())) },
+                        confirmButton = {
+                            TextButton(
+                                onClick = { showExplanation = false },
+                                modifier = Modifier.sharedTouchTarget(),
+                            ) {
+                                Text(stringResource(AppLocalizableStrings.commonDone))
+                            }
+                        },
+                    )
+                }
+            }
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(quality.qualityLabel)

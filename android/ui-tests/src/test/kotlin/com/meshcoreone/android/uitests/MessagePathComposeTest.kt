@@ -6,6 +6,7 @@
 // AndroidOnly: WP-502 Additional exact zero-extra canonical arrival through the real details consumer; no primary-case or device acceptance.
 // ReferenceInput: MC1Tests/Views/Chats/Components/MessagePathArrivalTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // ReferenceInput: MC1/Views/Chats/Components/MessagePathArrival.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Views/Chats/Components/FallbackMatchIndicatorView.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.uitests
 
 import android.content.res.Configuration
@@ -18,10 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.meshcoreone.android.core.designsystem.AppColorSchemePreference
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings
@@ -318,6 +321,172 @@ class MessagePathComposeTest {
         compose.onNodeWithTag("single-first-route-1").assertExists()
         compose.onNodeWithTag("single-first-route-0").assertDoesNotExist()
         assertOriginalAndCanonicalHop()
+        compose.runOnIdle { assertSame(retained, holder.state.value) }
+    }
+
+    @Test fun repeatFallbackHasIndependentAccessibleExplanationWithoutChangingExactOrUnresolvedRows() {
+        val radio = RadioId(UUID.fromString("50200000-0000-0000-0000-000000000706"))
+        val ridge = ContactDTO(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000707"),
+            radioId = radio, publicKey = Bytes.of(0x3F, 0x01, *IntArray(30)), name = "Ridge",
+            typeRawValue = ContactType.REPEATER.rawValue, flags = 0u, outPathLength = 0u,
+            outPath = Bytes.EMPTY, lastAdvertTimestamp = 10u, latitude = 0.0, longitude = 0.0,
+            lastModified = 0u, lastHeardTimestamp = null, nickname = null,
+            isBlocked = false, isMuted = false, isFavorite = false, lastMessageDate = null, unreadCount = 0,
+        )
+        val valley = ridge.copy(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000708"),
+            publicKey = Bytes.of(0x3F, 0x02, *IntArray(30)), name = "Valley",
+        )
+        val contacts = listOf(ridge, valley)
+        val message = MessageDTO(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000709"),
+            radioId = radio, contactID = ridge.id, text = "Repeat uncertainty", timestamp = 1_700_000_000u,
+            createdAt = Instant.ofEpochSecond(1_700_000_000), direction = MessageDirection.INCOMING,
+            status = MessageStatus.DELIVERED, pathLength = 0u, pathNodes = Bytes.EMPTY, heardRepeats = 3,
+        )
+        val fallback = MessageRepeatDTO(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000710"),
+            messageID = message.id, receivedAt = Instant.ofEpochSecond(1_700_000_001),
+            pathNodes = Bytes.of(0x3F), pathLength = 1u, snr = 7.0, rssi = -80L,
+        )
+        val exact = fallback.copy(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000711"),
+            receivedAt = Instant.ofEpochSecond(1_700_000_002), pathNodes = Bytes.of(0x3F, 0x01), pathLength = 0x41u,
+        )
+        val unresolved = fallback.copy(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000712"),
+            receivedAt = Instant.ofEpochSecond(1_700_000_003), pathNodes = Bytes.of(0xAA),
+        )
+        val repeats = listOf(fallback, exact, unresolved)
+        val gate = CompletableDeferred<List<MessageRepeatDTO>>()
+        val reads = mutableListOf<String>()
+        val forbiddenCalls = mutableListOf<String>()
+        fun forbidden(operation: String): Nothing {
+            forbiddenCalls += operation
+            throw AssertionError("Forbidden repeat uncertainty interaction: $operation")
+        }
+        val source = object : MessageActionsDataSource {
+            override suspend fun contacts(radioId: RadioId): List<ContactDTO> {
+                assertEquals(radio, radioId)
+                reads += "contacts"
+                return contacts
+            }
+            override suspend fun discoveredNodes(radioId: RadioId): List<DiscoveredNodeDTO> {
+                assertEquals(radio, radioId)
+                reads += "discoveredNodes"
+                return emptyList()
+            }
+            override suspend fun repeats(messageId: UUID): List<MessageRepeatDTO> {
+                assertEquals(message.id, messageId)
+                reads += "repeats"
+                return gate.await()
+            }
+            override suspend fun reactions(messageId: UUID): List<ReactionDTO> = forbidden("reactions")
+            override suspend fun blockChannelSender(radioId: RadioId, senderName: String): Unit = forbidden("blockChannelSender")
+            override suspend fun blockContacts(contactIds: Set<UUID>): Unit = forbidden("blockContacts")
+            override suspend fun setMuted(contactId: UUID, muted: Boolean): Unit = forbidden("setMuted")
+        }
+        val holder = MessageActionsStateHolder(source, scope)
+        val revision = mutableStateOf(0)
+        host.get().setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                MeshCoreTheme(
+                    colorSchemePreference = AppColorSchemePreference.LIGHT,
+                    systemDark = false, highContrast = false, motionScale = 0f,
+                ) {
+                    MessageActionsRoute(
+                        message, holder, localDevice = null, userLocation = null, recentEmojis = emptyList(),
+                        onAction = { forbidden("action:$it") }, modifier = Modifier.testTag("uncertainty-route-${revision.value}"),
+                    )
+                }
+            }
+        }
+        val label = "Possible match, matched by short prefix"
+        val title = "Possible Match"
+        val explanation = "Multiple nodes share this prefix. The displayed name may not be correct."
+        compose.runOnIdle {
+            assertMountedProfile(host.get(), ScreenCase("repeat-uncertainty", heightDp = 1400, locale = "en-US", fontScale = 2f))
+            assertEquals(listOf("contacts", "discoveredNodes", "repeats"), reads)
+            assertTrue(holder.state.value.isLoadingDetails)
+            assertNull(holder.state.value.repeats)
+            assertNull(holder.state.value.failure)
+        }
+        compose.onNodeWithContentDescription(label).assertDoesNotExist()
+        compose.runOnIdle { assertTrue(gate.complete(repeats)) }
+
+        fun row(hashAndName: String, name: String) = compose.onNode(
+            hasContentDescription("$name. Excellent. SNR 7.0 dB. RSSI -80 dBm") and
+                hasAnyDescendant(hasText(hashAndName)),
+            useUnmergedTree = true,
+        )
+        fun indicator() = compose.onNodeWithContentDescription(label)
+        fun assertRowsAndState() {
+            for ((text, name) in listOf("3F  Ridge" to "Ridge", "3F01  Ridge" to "Ridge", "AA  <unknown repeater>" to "<unknown repeater>")) {
+                val observed = row(text, name).performScrollTo().assertIsDisplayed().assertHasNoClickAction()
+                for (copy in listOf(text, "1 Hop", "Excellent", "SNR 7.0 dB", "RSSI -80 dBm")) {
+                    assertMountedText(compose, observed, copy, 2f, LayoutDirection.Ltr, "real repeat uncertainty row")
+                }
+            }
+            compose.onAllNodesWithContentDescription(label).assertCountEquals(1)
+            val button = indicator().performScrollTo().assertIsDisplayed().assertHasClickAction()
+                .assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, explanation))
+            assertMountedText(compose, button, title, 2f, LayoutDirection.Ltr, "independent repeat uncertainty control")
+            val fallbackRowId = row("3F  Ridge", "Ridge").fetchSemanticsNode().id
+            val buttonNode = button.fetchSemanticsNode()
+            assertNotEquals(fallbackRowId, buttonNode.id)
+            assertTrue(generateSequence(buttonNode.parent) { it.parent }.any { it.id == fallbackRowId })
+            for ((text, name) in listOf("3F01  Ridge" to "Ridge", "AA  <unknown repeater>" to "<unknown repeater>")) {
+                row(text, name).assert(hasAnyDescendant(hasContentDescription(label)).not())
+            }
+            compose.runOnIdle {
+                val state = holder.state.value
+                assertFalse(state.isLoadingDetails)
+                assertNull(state.failure)
+                assertSame(contacts, state.directory.contacts)
+                assertSame(repeats, state.repeats)
+                val kinds = repeats.map { repeat ->
+                    PathNodeResolver.repeatResolution(
+                        repeat.repeaterHash, state.directory.repeaters, state.directory.discoveredRepeaters, null,
+                        host.get().getString(AppChatsStrings.chatsRepeatsUnknownRepeater),
+                    ).matchKind
+                }
+                assertEquals(listOf(NodeNameMatchKind.FALLBACK, NodeNameMatchKind.EXACT, NodeNameMatchKind.UNRESOLVED), kinds)
+                assertEquals(listOf("contacts", "discoveredNodes", "repeats"), reads)
+                assertTrue(forbiddenCalls.isEmpty())
+                assertNull(state.blockedSender)
+                assertTrue(state.mutedContactIds.isEmpty())
+                assertTrue(state.reactionGroups.isEmpty())
+            }
+        }
+        fun assertExplanation() {
+            compose.onNode(isDialog()).assertExists()
+            for (copy in listOf(title, explanation, "Done")) {
+                val node = compose.onNode(hasText(copy) and hasAnyAncestor(isDialog()), useUnmergedTree = true)
+                assertMountedText(compose, node, copy, 2f, LayoutDirection.Ltr, "localized repeat uncertainty explanation")
+            }
+            compose.onNode(hasText("Done") and hasClickAction() and hasAnyAncestor(isDialog()))
+                .assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+        }
+        assertRowsAndState()
+        val retained = compose.runOnIdle { holder.state.value }
+        indicator().performTouchInput { click() }
+        assertExplanation()
+        compose.runOnIdle { revision.value++ }
+        compose.onNodeWithTag("uncertainty-route-1").assertExists()
+        compose.onNodeWithTag("uncertainty-route-0").assertDoesNotExist()
+        assertExplanation()
+        compose.onNode(hasText("Done") and hasClickAction() and hasAnyAncestor(isDialog())).performTouchInput { click() }
+        compose.onNode(isDialog()).assertDoesNotExist()
+        assertRowsAndState()
+        indicator().performSemanticsAction(SemanticsActions.OnClick) { assertTrue(it()) }
+        assertExplanation()
+        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
+            .performSemanticsAction(SemanticsActions.Dismiss) { assertTrue(it()) }
+        compose.onNode(isDialog()).assertDoesNotExist()
+        assertRowsAndState()
         compose.runOnIdle { assertSame(retained, holder.state.value) }
     }
 }
