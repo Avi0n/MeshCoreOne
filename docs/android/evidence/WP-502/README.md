@@ -92,6 +92,7 @@ coordinator integration.
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
 | `RoomsComposeTest` | Original four route/render methods, thirteen ordering witnesses, six label/action consumers and three renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure plus three Android-only defensive faults pass ata9a6; mounted retry passes1/1 atf4. Mention-status6949 and corrected-input a05 executions remain separately bound. New multiple-Alice matching-row selection at9072fa344 is UNVERIFIED/NOT RUN, preserving all34 incumbents/helpers/Fixture. Current source35 is not combined35 execution or primary original-case approval. No actual service/history/Room-store/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
+| `ContactMatchRowComposeTest` | Three new component definitions, Kotlin NOT RUN: actual public row consumes the complete original Relay advert input rather than recency/message date, full literal32-byte key, localized types/location/distance, Tap and both Toggle states. Sampled compact100%/200% CJK/RTL/default-light/Ember-forced-dark inputs assert actual text/row bounds and actions. Not another frozen original, repaired picker, GPS/formatter equivalence, complete avatar/glyph adaptation or a screenshot/golden verdict. All35 Rooms methods/helpers/Fixture remain byte-identical to ba. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -109,6 +110,55 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Mounted contact-match component: LOCAL UNVERIFIED
+
+This separate four-file successor of reviewed/published
+**ba5073e6f5a67346b04317c858b39a8df1352b91**, actual main
+**dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c**, adds only
+`ContactMatchRowComposeTest.kt` and directly related owned documentation.
+Same actor/attempt evolves actual reservation30 to returned31 for these paths
+through `wp-owned`; no new claim, authorization rewrite or product admission.
+Component test blob: `c6380085dca2bd146f1f42e5b1bcb869606c5a12`.
+
+The complete frozen ContactMatchRow/ContactMatchRowTests/RelativeTimestampText/
+ContactDTO initializer and existing native row/time/localization/harness were
+read. Original single Relay input remains key32xAB/repeater/flags0/path0/empty
+path/advert1000/modified10000/heard1000/zero coordinates and every actual default.
+Fixed UUID/radio are deterministic samples. There is no `OriginalCase` annotation
+or duplication/recounting of the primary pure recency unit case.
+
+Three source-derived mounted component definitions assert source advert versus
+recency/last-message freshness, independent full key, actual localized
+Chat/Repeater/Room labels, location marker without invented caller distance,
+absent-location distance rejection, and exact preformatted-distance consumption.
+Tap returns the complete captured DTO once per click without selection state;
+Toggle false/true exposes native Checkbox/Selected/localized StateDescription
+without self-mutating before the caller changes its input. Real 48dp actions,
+row/text/marker bounds and primary text glyph/line layouts are checked at sampled
+compact200% CJK/Hebrew/RTL and effective themes. Full key visibility is asserted
+at744dp/100%; narrow200% asserts the complete semantic string, not that every
+key glyph fits the existing two-line limit. Existing row glyph/photo/chevron
+adaptations are explicitly not accepted by these component cases.
+
+**Kotlin/compiler/Gradle/native/preflight/advisory NOT RUN.** Actual source-only
+`python tools\android-port\portmap.py` PASS (1731 mappings),
+`python tools\android-port\controller\validate.py` PASS and `git diff --check`
+PASS; independent literal-key/date/resource checks and entire incumbent Rooms
+blob preservation PASS. These are not test discovery or software execution.
+Initial reporting wrapper incorrectly assumed portmap's JSON was an object;
+it returned a list. The wrapper was corrected; no Kotlin/source expectation
+was changed and no test failure/pass was manufactured.
+
+Predecessor ba's own automatic
+[39547007423](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39547007423)
+is SUCCESS/all six. Its authoritative Linux119047855225 reports App823/823
+passed,0 failures/errors/skips and lists its multiple-Alice method. That result
+does not execute or verify these three new definitions. Existing35 Rooms
+methods/helpers/Fixture and all product/core/App/build/resource/policy bytes are
+unchanged. Shared-picker three-path admission and Room-actions admission still
+await actual trusted deployment; no candidate policy is consumed.
+[Component methods, inputs, intended selector and exclusions](software-verification.md#commeshcoreoneandroiduitestscontactmatchrowcomposetest).
 
 ### Multiple-Alice matching-row selection: LOCAL UNVERIFIED
 

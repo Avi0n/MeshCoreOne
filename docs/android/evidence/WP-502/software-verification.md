@@ -85,6 +85,120 @@ the incumbent41. Its four methods actually pass at
 `160ba7d3a4018278081c001319b8a6235859c689`; the two cohorts have not been
 combined/re-executed as a claimed45-case result in this resumption.
 
+### com.meshcoreone.android.uitests.ContactMatchRowComposeTest
+
+**LOCAL UNVERIFIED; all three Kotlin definitions NOT RUN.** Direct predecessor
+is published **ba5073e6f5a67346b04317c858b39a8df1352b91**, actual main
+**dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c**. New test blob
+`c6380085dca2bd146f1f42e5b1bcb869606c5a12`; same canonical actor/attempt
+`3bc8c1b8-20ec-4647-88ae-db3775268489`, actual returned reservation31.
+Only one new owned UI-test file and three owned docs change. Existing35 Rooms
+methods/helpers/Fixture retain entire blob
+`276317f4fe7521fe4c016bc55357372c85e09278`; product/App/core/build/resources,
+fixtures, primary tests/accounting, manifest and policy remain unchanged.
+
+| Defined component method (not execution) | Source-derived assertions |
+| --- | --- |
+| `sourceRelayAdvertWinsOverRecencyAndLastMessageWhileTapReturnsTheFullContact` | Complete original Relay fields/defaults, then a separately qualified lastMessageDate-only rendering variation. Fixed epoch700000/display offset-01:00 makes advert1000 show literal Dec31; modified10000 would show Jan1, and the variation's message date would show Now. Actual public row must display Dec31 and neither wrong literal; no candidate formatter creates expectations. At744dp/100% full literal Key/32xAB, name/type/date layouts fit; Tap is Button, own unmerged name label, no Selected/ToggleableState/StateDescription and one complete captured DTO per actual click. |
+| `localizedKindsAndLocationMetadataConsumeOnlyTheCallerSuppliedDistance` | Three raw types1/2/3 x two sampled locale/font/direction/effective-theme frames x three location/distance states =18 defined component inputs, NOT18 executions. Literal localized Chat/Repeater/Room/Now/key/location strings; present coordinates with nil distance, absent coordinates with forbidden distance, present coordinates with exact caller literal25m away. Marker/row/text bounds, full semantic key and text-node count reject invented/leaked distance; no implicit click. |
+| `toggleModesExposeLocalizedCheckboxSelectionWithoutImplicitlyChangingItOnClick` | False/true in each sampled frame: actual Checkbox role, Selected boolean and literal localized Selected/Not selected StateDescription, accessible48dp action, primary CJK/Hebrew text bounds, one captured full DTO per click. Caller-owned selected input stays unchanged after the click; no fabricated internal toggle policy. |
+
+Source pin **db14559b39d32322b06477c6ae676112f583db50** is unchanged.
+All four inspected source blobs equal the pin:
+
+- `MC1Tests/Views/Chats/ContactMatchRowTests.swift`:
+  `643c8839bf464242e39feb61b501125e33edd887`.
+- `MC1/Views/Chats/ContactMatchRow.swift`:
+  `c77abfab7091d69c93466a2a1faef215f9fe2811`.
+- `MC1/Views/Components/RelativeTimestampText.swift`:
+  `bc51a2bb267e2c9b67ac579ed6610f30780d5bc8`.
+- `MC1Services/Sources/MC1Services/Models/Contact.swift`:
+  `7b6ecd2e224c1b1651edeba8a0019426881e7db4`.
+
+Frozen row/test primary owner remains WP-306. The existing feature
+`ContactMatchRowTest` already ports the single pure-value
+`recencyTimestamp tracks lastModified not lastAdvertTimestamp` original.
+This new AndroidOnly component consumer does NOT annotate/recount that original.
+It preserves Relay/repeated32xAB/repeater/flags0/outPathLength0/empty path/
+advert1000/modified10000/heard1000/zero latitude-longitude/nil nickname/
+false blocked-muted-favorite/nil lastMessageDate/zero unread. Actual omitted
+Swift initializer defaults unreadMention0/OCVnil/customOCVnil/avatarnil are also
+explicit. Fixed UUIDs ending360/361 are deterministic samples of source UUID().
+Only the explicitly separate message-date variation changes lastMessageDate;
+additional type/location/CJK-Hebrew contacts are rendering inputs, not new frozen
+unit cases.
+
+Independent literal key is the full32 uppercase AB octets separated by single
+spaces, not computed using candidate Bytes formatting/chunking. Civil date
+expectations follow epoch1000 =1969-12-31T23:16:40-01:00 versus
+epoch10000 =1970-01-01T01:46:40-01:00, both older than604800 seconds at
+epoch700000. Remaining components use fixed epoch1000 with advert1000 for the
+literal localized Now. Expectations do not call TimestampFormatting or another
+candidate formatting helper. English/Simplified-Chinese literal type/key/
+selection/location/Now vectors were checked against the existing pinned-input
+generated resources; no resource or translation-provider edit.
+
+Existing ScreenCase/theme/localized-context/density/direction mounting patterns
+are reused without modifying their harnesses. Samples are360dp/en-US/100%/LTR/
+default-light and360dp/zh-Hans/200%/RTL/Ember (light request, effective dark).
+The source-specific key visibility case uses744dp/100%. Actual layout direction,
+fontScale, row/text/marker containment, positive glyph bounds, no primary-text
+height overflow/ellipsis and48dp click bounds are assertions, not screenshots
+or all-pixel visual evidence. At narrow200% the full key semantics is checked,
+not all glyph visibility beyond the incumbent two-line constraint.
+
+The real public `ContactMatchRow` from `NewChatSheet.kt` is mounted unchanged;
+no copied renderer, fake DTO wrapper, product/helper/layout replacement or
+service is introduced. Its native Toggle uses clickable Checkbox plus Selected/
+StateDescription, not an invented ToggleableState. Tap assertions inspect the
+row's own unmerged label, not once-only merged avatar/descendant speech.
+Distance literal `"25 m away"` is controlled preformatted caller data even in
+the Chinese sample: verbatim consumption, NOT formatting/CLLocation equality.
+Coordinates37/-122 are known contact coordinates only, never inferred user GPS;
+zero coordinates hide marker/distance. Text-node counts include the incumbent
+avatar text but do not accept its glyph/photo/category behavior. Native generic
+initials/SIGNAL marker/no Tap chevron or Toggle selection glyph are not repaired,
+approved or silently claimed source-equivalent by these tests.
+
+Actual source-only commands:
+
+```text
+python tools\android-port\portmap.py                    PASS (1731 mappings)
+python tools\android-port\controller\validate.py        PASS (valid pinned manifest)
+git diff --check                                       PASS
+```
+
+Independent source checks also verify full literal32-byte key/date/resource
+vectors, exactly three Android-only definitions/no OriginalCase/candidate
+expected formatter, and exact entire Rooms-file preservation. An initial
+reporting wrapper failed on portmap's list-shaped JSON; corrected wrapper reads
+the real successful output. No test or threshold was changed to hide a failure.
+
+**NOT RUN** intended selector on the existing declared App task, no new task:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.ContactMatchRowComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Future execution must discover/run all three methods with0 failures/errors/skips
+and actual nonempty XML; no current discovery/XML/count/pass is asserted.
+No local compiler/Gradle/native/preflight/advisory/host/lease/main action occurs.
+Predecessor ba/automatic39547007423 is genuinely all-six SUCCESS, authoritative
+Linux119047855225 App823 discovered/run/passed0FES at05:22:39.2650777Z,
+explicit multiple-Alice method at05:22:39.3492607Z. These three new component
+definitions are not in that result; no predecessor verdict or focused1/1/35/38
+cohort is transferred. Only the authoritative hosted log was read in memory.
+
+Shared-picker caller forwarding/scroll/navigation, real GPS/CLLocation/Foundation
+equality, missing app-wide phone cache, row glyph/avatar adaptations, full-row/
+full8/original-family accounting, native/golden/device/whole-WP acceptance
+remain excluded/open. Actual trusted three-feature-path admission is still
+required before shared-picker product edits; candidate support is not admission.
+The separate Room-actions repair remains required.
+
 ### com.meshcoreone.android.uitests.RoomsComposeTest
 
 | Method | Actual family |
@@ -1101,6 +1215,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
+| Mounted ContactMatchRow component rendering | Three new owned definitions LOCAL UNVERIFIED/Kotlin NOT RUN. Complete source Relay plus source-derived type/location/Tap/Toggle/font/direction inputs mount the real existing row. No new original-case credit or repaired picker/App propagation/avatar/GPS/golden/full-family verdict. Publishedba/App823 remains predecessor-only; shared-picker product admission and Room-actions repair remain separate. |
 | Mounted multiple-Alice matching-row selection | New9072fa344 is LOCAL UNVERIFIED/NOT RUN under retained native lease, source inventory35 not executed35. Exact original input/real Room-picker/actual App coordinator identity effect is defined, not accepted from headers or a predecessor result. Frozen ContactMatchRow advert/type/key rendering and full mention-original accounting remain open; not a substitute for Room-actions product repair. |
 | Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six label/action consumers, three renderer consumers/57 new host frames, three Swift-reachable load faults plus three Android-only defensive faults ata9a6, mounted retry passing1/1 atf4 and one mention-status consumer passing1/1 at6949 then separately1/1 with corrected Alice input ata05aa4. Source34 is not combined34 or primary equivalence approval; renderer results stay8PASS/1FAIL atacec then failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 exact52e review5594110568, clear boundedfc50/883 comparisons and new local mention review stay separate. Full Rooms sync/history/actions/store/radio, remaining mention families/app contact refresh, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
