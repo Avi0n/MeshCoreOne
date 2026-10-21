@@ -566,6 +566,39 @@ canonical ready/current-base metadata, and the coordinator must provide the
 actual issue-scoped contract and exact receipt from real affected evidence.
 This support neither publishes those receipts nor reruns their native cohorts.
 
+### Bounded Rooms renderer support admission
+
+The `rooms-incoming-avatar-repair` capability admits only WP-502's
+`repair-room-incoming-avatar-bookends` operation on
+`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt`
+for issue #253. It does not admit generic `modify`, siblings, directories, auth,
+services, state-holder changes or feature activation. WP-310 remains the primary
+source owner; keep its frozen-source provenance and existing shared identity/theme
+components, incoming gutter/bookends, self-row exclusion and once-only spoken label.
+
+This candidate policy is not live authority. After independent protected review
+and actual trusted-main deployment, the existing WP-502 producer must perform fresh
+admission using that exact operation and evolve its same reservation with the actual
+stored attempt/session/branch/worktree and current revision. Preserve original
+authorization, identities and evidence; do not release/recreate or resume the retired
+WP-310 producer. Reconcile disjoint intents; serialize/transfer real semantic overlap.
+Transfer/reconciliation alone never grants renderer modification.
+
+Mounted renderer assertions must cover the same-prefix burst, retained-row
+reconfiguration, incoming gutter/avatar and self rows, plus once-only accessibility
+and shared identity/theme behavior. State-only `showAvatar` assertions are not
+rendered-avatar acceptance. Existing source, CI, original-case, human/protected and
+exact-head/current-base gates remain. **Do not land this policy or alter native input
+source while WP-503 holds either authorized native/Gradle operation; verified cleanup
+must precede serialized landing.** Feature-branch preparation is not native authority.
+Pause remains false, dispatch off and activation false.
+
+The historical-policy reader reverses only this exact rule (including its
+canonical position) before the existing debug/review projections. Original
+policy receipts and acceptance remain historical; current bindings still hash
+the full current policy. Broadened/duplicate/reordered rules or unrelated policy
+changes fail rather than being silently projected away.
+
 ### Narrow WP-503 standard debug packaging support
 
 The `debug-test-packaging` typed capability admits exactly the support adapter
