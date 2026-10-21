@@ -1548,6 +1548,143 @@ class RoomsComposeTest {
         assertRetainedRoom(1)
     }
 
+    @Test fun threeSpaceMentionShowsEmptyNotSelfStatusWithoutSelectingAliceOrChangingTheRoom() {
+        val alice = ContactDTO(
+            id = UUID(0, 381), radioId = radio, publicKey = Bytes(ByteArray(32) { 0x11 }),
+            name = "Alice", typeRawValue = 0u, flags = 0u, outPathLength = 0u, outPath = Bytes.EMPTY,
+            lastAdvertTimestamp = 0u, latitude = 0.0, longitude = 0.0, lastModified = 0u,
+            lastHeardTimestamp = null, nickname = null, isBlocked = false, isMuted = false,
+            isFavorite = false, lastMessageDate = null, unreadCount = 0, unreadMentionCount = 0,
+            ocvPreset = null, customOCVArrayString = null, avatarImageData = null,
+        )
+        val savedContacts = listOf(alice)
+        val mention = liveMessage(1, 100u, "@[   ]", Bytes.of(0xaa), "Sender")
+        val fixture = Fixture().apply { stored = listOf(mention) }
+        val navigation = NavigationCoordinator(NavigationState(radioId = radio))
+        navigation.navigateToRoom(session)
+        val beforeNavigation = navigation.state.value
+        val contactReads = mutableListOf<List<ContactDTO>>()
+        val deviceNameReads = mutableListOf<String>()
+        val radioReads = mutableListOf<RadioId>()
+        val navigated = mutableListOf<ContactDTO>()
+        val redraw = mutableStateOf(false)
+        val links = ConversationLinkActions(
+            contacts = { savedContacts.also { contactReads.add(it) } },
+            connectedDeviceName = { "Me".also { deviceNameReads.add(it) } },
+            radioId = { radio.also { radioReads.add(it) } },
+            route = { error("Blank mention must resolve locally") },
+            openExternal = { error("Blank mention must not open an external URL") },
+            navigateToContact = {
+                navigated += it
+                navigation.navigateToContactDetail(it)
+            },
+        )
+        mount {
+            RoomConversationRoute(
+                fixture.holder, links, modifier = Modifier.testTag("whitespace-mention-route:${redraw.value}"),
+                failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val retained = RoomConversationState(
+            session, messages = listOf(mention), rows = listOf(RoomMessageRow(mention, true, true, true)),
+            draft = body, hasLoadedOnce = true,
+        )
+        fun assertRetainedRoom(expectedReads: Int) {
+            assertEquals(retained, fixture.holder.state.value)
+            assertEquals(listOf(mention), fixture.stored)
+            assertSame(mention, fixture.holder.state.value.messages.single())
+            assertEquals("@[   ]", fixture.stored.single().text)
+            assertEquals(listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed"), fixture.loads)
+            assertTrue(fixture.posts.isEmpty())
+            assertTrue(fixture.joins.isEmpty())
+            assertTrue(fixture.retries.isEmpty())
+            assertTrue(fixture.reported.isEmpty())
+            assertTrue(navigated.isEmpty())
+            assertEquals(beforeNavigation, navigation.state.value)
+            assertEquals(List(expectedReads) { savedContacts }, contactReads)
+            assertEquals(List(expectedReads) { "Me" }, deviceNameReads)
+            assertEquals(List(expectedReads) { radio }, radioReads)
+        }
+        fun assertVisibleRoom() {
+            val parent = compose.onAllNodesWithContentDescription("Sender: @[   ]")
+                .assertCountEquals(1)[0].assertIsDisplayed()
+            assertEquals(
+                listOf("Sender: @[   ]"),
+                parent.fetchSemanticsNode().config[SemanticsProperties.ContentDescription],
+            )
+            val layout = assertMountedText(
+                compose, compose.onNodeWithTag("room-bubble:${mention.id}", useUnmergedTree = true),
+                "@   ", 2f, LayoutDirection.Ltr, "three-space mention raw text",
+            )
+            assertEquals(listOf(64, 32, 32, 32), layout.layoutInput.text.text.map { it.code })
+            val link = layout.layoutInput.text.getLinkAnnotations(0, 4).single()
+            assertEquals(0, link.start)
+            assertEquals(4, link.end)
+            when (val annotation = link.item) {
+                is androidx.compose.ui.text.LinkAnnotation.Clickable ->
+                    assertEquals("meshcoreone://mention/%20%20%20", annotation.tag)
+                else -> fail("Expected actual blank-name mention Clickable")
+            }
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            compose.onNodeWithText(text(Chats.chatsInputSendMessage))
+                .assertIsEnabled().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+        }
+        val title = "Mention:    "
+        val notSaved = "Not a saved contact"
+        val subtitle = "@    doesn't match any contact on this radio."
+        assertEquals(title, Chats.chatsMentionPickerTitle(host.get().resources, "   "))
+        assertEquals(notSaved, text(Chats.chatsMentionPickerNotSavedTitle))
+        assertEquals(subtitle, Chats.chatsMentionPickerNotSavedSubtitle(host.get().resources, "   "))
+        assertEquals("Done", text(Chats.chatsCommonDone))
+        fun assertStatusSheet() {
+            compose.onNode(isDialog()).assertExists()
+            compose.onNodeWithText(title).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            for (copy in listOf(title, notSaved, subtitle, "Done")) {
+                assertMountedText(
+                    compose, compose.onNodeWithText(copy), copy, 2f, LayoutDirection.Ltr,
+                    "original three-space empty/not-self sheet copy=$copy",
+                )
+            }
+            compose.onNodeWithText(text(Chats.chatsMentionPickerSelfTitle)).assertDoesNotExist()
+            compose.onNodeWithText(text(Chats.chatsMentionPickerMatchingContacts)).assertDoesNotExist()
+            compose.onNodeWithText("Alice", useUnmergedTree = true).assertDoesNotExist()
+            compose.onAllNodesWithContentDescription(
+                Chats.chatsMentionAccessibilityLabel(host.get().resources, "Alice"),
+            ).assertCountEquals(0)
+            compose.onNodeWithText("Done").assertHasClickAction().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+        }
+        assertVisibleRoom()
+        compose.onNode(isDialog()).assertDoesNotExist()
+        assertRetainedRoom(0)
+        assertEquals("Mention:    ", Chats.chatsMessageActionOpenMention(host.get().resources, "   "))
+        val actions = compose.onAllNodesWithContentDescription("Sender: @[   ]").assertCountEquals(1)[0]
+            .fetchSemanticsNode().config[SemanticsActions.CustomActions]
+        assertEquals(listOf("Mention:    "), actions.map { it.label })
+        compose.runOnIdle { assertTrue(actions.single().action()) }
+        assertStatusSheet()
+        assertRetainedRoom(1)
+        assertSame(savedContacts, contactReads.single())
+        assertSame(alice, contactReads.single().single())
+        compose.runOnIdle { redraw.value = true }
+        compose.onNodeWithTag("whitespace-mention-route:true").assertExists()
+        assertStatusSheet()
+        assertRetainedRoom(1)
+        compose.onNodeWithText("Done").performClick()
+        compose.onNode(isDialog()).assertDoesNotExist()
+        for (copy in listOf(title, notSaved, subtitle, "Done")) compose.onNodeWithText(copy).assertDoesNotExist()
+        assertVisibleRoom()
+        assertRetainedRoom(1)
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        compose.runOnIdle {
+            scope.cancel()
+            assertEquals(0, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, mention.id)))
+        }
+        assertRetainedRoom(1)
+    }
+
     private fun mountOriginalRoomBubble(
         row: RoomMessageRow,
         onRetry: (UUID) -> Unit = { error("Unexpected original bubble retry") },
