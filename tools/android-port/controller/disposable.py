@@ -302,7 +302,7 @@ class PrivateGuest:
             self.emulator = self._spawn([
                 str(emulator), "-avd", self.token, "-datadir", str(data),
                 "-data", str(data / "userdata-qemu.img"), "-ports", f"{port},{port + 1}",
-                "-no-snapshot", "-no-window", "-no-audio", "-no-boot-anim",
+                "-no-snapshot", "-no-window", "-no-audio",
                 "-gpu", "swiftshader_indirect",
             ])
             while not self._owns_listener(self.emulator, port + 1):
