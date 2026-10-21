@@ -1,4 +1,4 @@
-"""AndroidOnly: WP-503 Pure language source/publication guards, not native acceptance."""
+"""AndroidOnly: WP-503 Pure fixed-family source/publication guards, not native acceptance."""
 
 from dataclasses import replace
 import hashlib
@@ -55,8 +55,8 @@ class LanguageBindingTest(unittest.TestCase):
             return "a" * 40
         self.fail(arguments)
 
-    def diagnostics_git(self, *arguments):
-        spec = binding.DIAGNOSTICS
+    def family_git(self, *arguments, family="diagnostics"):
+        spec = binding.family_spec(family)
         if arguments[0] == "merge-base":
             return ""
         if arguments[0] == "show":
@@ -72,7 +72,8 @@ class LanguageBindingTest(unittest.TestCase):
     def prepare(self, family="language"):
         manifest = Mock(sha256="c" * 64)
         manifest.wp.return_value = {"write_paths": ["android/accessibility-tests/"]}
-        with patch.object(binding, "git", side_effect=self.fake_git if family == "language" else self.diagnostics_git), \
+        with patch.object(binding, "git", side_effect=self.fake_git if family == "language"
+                          else lambda *args: self.family_git(*args, family=family)), \
                 patch.object(binding, "source_identity", return_value="b" * 64) as identity, \
                 patch.object(binding, "load_manifest", return_value=manifest), \
                 patch.object(binding, "load_json", return_value={"repository": source().repository}), \
@@ -244,7 +245,7 @@ class LanguageBindingTest(unittest.TestCase):
         self.assertEqual(5, len(request.identities))
         self.assertTrue(request.operation_owner.startswith(binding.CANONICAL + ":diagnostics:"))
         self.assertNotIn(":language:", request.operation_owner)
-        for name in ("nodes", "other", None, True):
+        for name in ("other", "Nodes", None, True):
             with self.subTest(family=name), patch.object(binding, "source_identity") as identity:
                 with self.assertRaises(binding.PortError):
                     binding.prepare_binding(HEAD, self.claim, family=name)
@@ -278,7 +279,7 @@ class LanguageBindingTest(unittest.TestCase):
                 def changed(*args):
                     if args == ("rev-parse", revision + ":" + path):
                         return "0" * 40
-                    return self.diagnostics_git(*args)
+                    return self.family_git(*args)
                 with self.subTest(path=path, revision=revision), \
                         patch.object(binding, "source_identity", return_value="b" * 64), \
                         patch.object(binding, "git", side_effect=changed):
@@ -291,7 +292,7 @@ class LanguageBindingTest(unittest.TestCase):
             def changed(*args):
                 if args[0] == "show":
                     return "\n".join("@Test fun " + method + "() {}" for method in actual)
-                return self.diagnostics_git(*args)
+                return self.family_git(*args)
             with self.subTest(methods=actual), patch.object(binding, "source_identity", return_value="b" * 64), \
                     patch.object(binding, "git", side_effect=changed):
                 with self.assertRaisesRegex(binding.PortError, "five original"):
@@ -355,6 +356,143 @@ class LanguageBindingTest(unittest.TestCase):
         result = json.loads(output.getvalue())
         self.assertEqual([37], [request["api"] for request in result["requests"]])
         self.assertEqual(list(binding.DIAGNOSTICS.identities), result["requests"][0]["identities"])
+        self.assertFalse(result["authority"])
+        self.assertEqual(0, result["native_starts"])
+        self.assertFalse(result["apks_built"])
+
+    def test_nodes_binding_restricts_api_producer_and_truthful_unique_owner_to_original_seven(self):
+        bound = self.prepare("nodes")
+        self.assertEqual(source("nodes"), bound)
+        first, second = (binding.request_for(bound, 37) for _ in range(2))
+        self.assertEqual(binding.NODES.identities, first.identities)
+        self.assertEqual(7, len(first.identities))
+        self.assertNotEqual(first.operation_owner, second.operation_owner)
+        self.assertTrue(first.operation_owner.startswith(binding.CANONICAL + ":nodes:"))
+        for api in (30, 31, 33, 34, 36, 38, True, "37", 37.0):
+            with self.subTest(api=api), self.assertRaises(binding.PortError):
+                binding.request_for(bound, api)
+        for changes in ({"producer_revision": "0" * 40}, {"production_blob": "0" * 40},
+                        {"fixture_blob": "0" * 40}, {"replacement_app_session": "retired"},
+                        {"replacement_cli_session": "retired"}, {"canonical_session": "retired"}):
+            with self.subTest(changes=changes), self.assertRaises(binding.PortError):
+                binding.request_for(replace(bound, **changes), 37)
+        for family in ("language", "diagnostics"):
+            with self.subTest(family=family), self.assertRaises(binding.PortError):
+                binding.request_for(replace(source(family), family="nodes"), 37)
+            with self.assertRaises(binding.PortError):
+                binding.LanguageRequest(bound, 37, binding.CANONICAL + ":" + family + ":" + "a" * 32)
+
+    def test_nodes_specification_matches_initial_seven_current_original_pins_and_ancestry(self):
+        spec = binding.NODES
+        initial = "fc9188ab1dc1549be8788cbc3c180c895d5d5def"
+        self.assertEqual("", binding.git("merge-base", "--is-ancestor", initial, spec.producer))
+        for revision in (initial, spec.producer, "HEAD"):
+            body = binding.git("show", revision + ":" + spec.fixture)
+            self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
+        for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            with self.subTest(path=path):
+                self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
+                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
+        self.assertEqual("android/feature/nodes/src/main", spec.production)
+        self.assertIn("AndroidManifest.xml", binding.git("ls-tree", "--name-only", "HEAD:" + spec.production))
+        with self.assertRaises(TypeError):
+            binding.FAMILIES["nodes"] = binding.DIAGNOSTICS
+
+    def test_nodes_rejects_each_current_or_original_fixture_helper_and_complete_production_pin_drift(self):
+        spec = binding.NODES
+        for path, producer, _ in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            for revision in (HEAD, producer):
+                def changed(*args):
+                    if args == ("rev-parse", revision + ":" + path):
+                        return "0" * 40
+                    return self.family_git(*args, family="nodes")
+                with self.subTest(path=path, revision=revision), \
+                        patch.object(binding, "source_identity", return_value="b" * 64), \
+                        patch.object(binding, "git", side_effect=changed):
+                    with self.assertRaisesRegex(binding.PortError, "drifted"):
+                        binding.prepare_binding(HEAD, self.claim, family="nodes")
+
+    def test_nodes_missing_duplicate_extra_wrong_order_identity_or_ancestor_fails_closed(self):
+        methods = binding.NODES.methods
+        for actual in (methods[:-1], (*methods, "extra"), methods[::-1],
+                       (*methods[:-1], methods[0]), (*methods[:-1], "wrongIdentity")):
+            def changed(*args):
+                if args[0] == "show":
+                    return "\n".join("@Test fun " + method + "() {}" for method in actual)
+                return self.family_git(*args, family="nodes")
+            with self.subTest(methods=actual), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=changed):
+                with self.assertRaisesRegex(binding.PortError, "seven original"):
+                    binding.prepare_binding(HEAD, self.claim, family="nodes")
+        for _, producer, _ in ((binding.NODES.fixture, binding.NODES.producer, binding.NODES.fixture_blob),
+                               *binding.NODES.source_pins):
+            def missing(*args):
+                if args == ("merge-base", "--is-ancestor", producer, HEAD):
+                    raise subprocess.CalledProcessError(1, "missing Nodes ancestor")
+                return self.family_git(*args, family="nodes")
+            with self.subTest(producer=producer), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=missing):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    binding.prepare_binding(HEAD, self.claim, family="nodes")
+
+    def test_nodes_reuses_exact_source_scope_policy_family_publication_guards(self):
+        bound = source("nodes")
+        request = binding.request_for(bound, 37)
+        with patch.object(binding, "current_binding", return_value=bound) as current, \
+                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF), \
+                patch.object(binding, "trusted_execution_policy", return_value={"paused": True}):
+            self.assertEqual({"paused": True}, binding.verify_current_request(request))
+        current.assert_called_once_with(HEAD, family="nodes")
+        for actual in (replace(bound, reservation_revision=15), replace(bound, policy_revision="e" * 64),
+                       replace(bound, source_revision="e" * 40), source("diagnostics"), source()):
+            with self.subTest(binding=actual), patch.object(binding, "current_binding", return_value=actual), \
+                    patch.object(binding, "git") as git:
+                with self.assertRaisesRegex(binding.PortError, "changed before"):
+                    binding.verify_current_request(request)
+                git.assert_not_called()
+        for published in ("", "e" * 40 + "\t" + binding.PUBLIC_REF, HEAD + "\trefs/heads/other"):
+            with self.subTest(published=published), patch.object(binding, "current_binding", return_value=bound), \
+                    patch.object(binding, "git", return_value=published):
+                with self.assertRaisesRegex(binding.PortError, "exact currently published"):
+                    binding.verify_current_request(request)
+
+    def test_nodes_exact_seven_outcomes_require_all_positive_normal_completion_without_acceptance(self):
+        request = binding.request_for(source("nodes"), 37)
+        result = binding.account_outcomes(transcript(family="nodes"), request,
+                                         process_exit=0, forced_termination=False)
+        self.assertEqual((7, 7, 7, 7, 0, 0, 0), tuple(result[k] for k in (
+            "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+        self.assertEqual("nodes", result["family"])
+        self.assertEqual(request.operation_owner, result["native_lane_operation_owner"])
+        self.assertFalse(result["acceptance"])
+        for code in (-1, -2, -3, -4):
+            with self.subTest(code=code), self.assertRaises(binding.PortError):
+                binding.account_outcomes(transcript(code, family="nodes"), request,
+                                         process_exit=0, forced_termination=False)
+        for exit_code, forced in ((1, False), (True, False), (0, True), (0, None)):
+            with self.subTest(exit_code=exit_code, forced=forced), self.assertRaises(binding.PortError):
+                binding.account_outcomes(transcript(family="nodes"), request,
+                                         process_exit=exit_code, forced_termination=forced)
+        missing = completed("".join(record(identity, 1, 7) + record(identity, 0, 7)
+                                    for identity in request.identities[:-1]), 7)
+        for value in ("", missing, transcript(), transcript(family="diagnostics"),
+                      transcript(family="nodes").replace("numtests=7", "numtests=8"),
+                      transcript(family="nodes").replace(binding.NODES.methods[0], "unknownMethod"),
+                      transcript(family="nodes").replace(binding.NODES.methods[0], binding.NODES.methods[1]),
+                      transcript(family="nodes").replace("INSTRUMENTATION_CODE: -1", "")):
+            with self.subTest(value=value), self.assertRaises(RuntimeError):
+                binding.account_outcomes(value, request, process_exit=0, forced_termination=False)
+
+    def test_nodes_cli_prepares_only_ordered_api37_seven_without_native_or_build_authority(self):
+        output = io.StringIO()
+        with patch.object(binding, "current_binding", return_value=source("nodes")) as current, \
+                patch("sys.stdout", output):
+            self.assertEqual(0, binding.main(["--head", HEAD, "--family", "nodes"]))
+        current.assert_called_once_with(HEAD, family="nodes")
+        result = json.loads(output.getvalue())
+        self.assertEqual([37], [request["api"] for request in result["requests"]])
+        self.assertEqual(list(binding.NODES.identities), result["requests"][0]["identities"])
         self.assertFalse(result["authority"])
         self.assertEqual(0, result["native_starts"])
         self.assertFalse(result["apks_built"])

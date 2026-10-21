@@ -16,7 +16,7 @@ import zipfile
 import language_runner as runner
 from controller.ci_environment import host_name
 from test_language_binding import source, transcript
-from test_shared_device_runner import FakeDevice
+from test_shared_device_runner import FakeDevice, completed, record
 from shared_device_runner import APP, TEST, SCHEMA, sha256
 
 
@@ -265,6 +265,133 @@ class LanguageRunnerTest(unittest.TestCase):
                                                "--api", "31", "--readiness"]))
             readiness.assert_not_called()
         self.assertEqual(2, current.call_count)
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+
+    def configure_nodes(self, suffix="operation"):
+        self.request = runner.request_for(source("nodes"), 37)
+        self.device = SyntheticDevice(self.packaging["original"], 37)
+        self.config = replace(self.config, output=self.root / ("nodes-" + suffix))
+
+    def test_nodes_reuses_real_shared_selection_and_preservation_lifecycle_for_exact_original_seven(self):
+        self.configure_nodes()
+        with patch("shared_device_runner.selected_methods", side_effect=AssertionError("Historical selector forbidden")):
+            result = self.execute()
+        self.assertEqual((7, 7, 7, 7, 0, 0, 0), tuple(result["cohort"][key] for key in (
+            "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+        self.assertEqual("nodes", result["family"])
+        self.assertEqual("nodes", result["cohort"]["cohort"])
+        self.assertFalse(result["acceptance"])
+        command = self.commands[-1]
+        self.assertEqual(",".join(runner.FAMILIES["nodes"].identities), command[command.index("class") + 1])
+        self.assertEqual("37", command[command.index("expectedApi") + 1])
+        self.assertEqual("nodes-api37-7-original-methods",
+                         self.ledger.acquire_hard_lock.call_args.args[2]["purpose"])
+        self.assertTrue(self.request.operation_owner.startswith(self.request.binding.canonical_session + ":nodes:"))
+        self.assert_original_restored()
+        self.ledger.release_hard_lock.assert_called_once_with("native-execution", self.request.operation_owner)
+        receipt = json.loads((self.config.output / "device-nodes37-recovery.json").read_text())
+        self.assertEqual(list(self.request.identities), receipt["original_identities"])
+        self.assertEqual(self.request.operation_owner, receipt["native_lane_operation_owner"])
+        self.assertEqual(self.request.binding.source_revision, receipt["source_head"])
+        self.assertEqual("VERIFIED_NORMAL_ALL_POSITIVE_COMPLETION", receipt["status"])
+        self.assertFalse(self.device.application_state_uncertain)
+
+    def test_nodes_stale_source_policy_scope_or_pause_blocks_before_device_build_or_lane(self):
+        self.configure_nodes()
+        for changed in ("source", "policy", "scope"):
+            self.verify.side_effect = runner.PortError("nodes " + changed + " stale")
+            with self.subTest(changed=changed), self.assertRaisesRegex(runner.PortError, "stale"):
+                self.execute()
+        self.verify.side_effect = None
+        self.policy["paused"] = True
+        with self.assertRaisesRegex(runner.PortError, "paused=true"):
+            self.execute()
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+        self.ledger.acquire_hard_lock.assert_not_called()
+        self.assertEqual([], self.device.calls)
+
+    def test_nodes_negative_wrong_missing_duplicate_and_count_outcomes_retain_lane_after_package_cleanup(self):
+        positive = transcript(family="nodes")
+        identities = runner.FAMILIES["nodes"].identities
+        missing = completed("".join(record(identity, 1, 7) + record(identity, 0, 7)
+                                    for identity in identities[:-1]), 7)
+        values = (
+            transcript(), transcript(family="diagnostics"), missing,
+            positive.replace(identities[0].partition("#")[2], identities[1].partition("#")[2]),
+            positive.replace(identities[0].partition("#")[2], "wrongIdentity"),
+            positive.replace("numtests=7", "numtests=6"),
+            transcript(-2, family="nodes"), transcript(-3, family="nodes"),
+        )
+        spawn = self.spawn.side_effect
+        for index, value in enumerate(values):
+            self.configure_nodes("negative-" + str(index))
+            self.ledger.reset_mock()
+
+            def wrong(command, **kwargs):
+                process = spawn(command, **kwargs)
+                if command[1] != "logcat":
+                    kwargs["stdout"].seek(0)
+                    kwargs["stdout"].truncate()
+                    kwargs["stdout"].write(value.encode())
+                return process
+
+            self.spawn.side_effect = wrong
+            with self.subTest(index=index), self.assertRaises(BaseExceptionGroup):
+                self.execute()
+            self.assert_original_restored()
+            self.assertTrue(self.device.application_state_uncertain)
+            self.ledger.release_hard_lock.assert_not_called()
+            receipt = json.loads((self.config.output / "device-nodes37-recovery.json").read_text())
+            self.assertEqual(list(self.request.identities), receipt["original_identities"])
+            self.assertIn("UNCERTAIN", receipt["status"])
+
+    def test_nodes_forced_termination_cannot_clear_uncertainty_or_release_after_positive_transcript(self):
+        self.configure_nodes()
+        self.process.wait.side_effect = [subprocess.TimeoutExpired("synthetic nodes", 600), 0]
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.process.kill.assert_called_once()
+        self.assertEqual([600, 15], [call.kwargs["timeout"] for call in self.process.wait.call_args_list])
+        self.assert_original_restored()
+        self.assertTrue(self.device.application_state_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_nodes_effective_profile_uncertainty_retains_lane_even_with_positive_seven_and_equal_raw_profile(self):
+        self.configure_nodes()
+
+        def unresolved(original, record):
+            self.assertEqual(original, self.device.capture_profile())
+            self.device.profile_restoration_uncertain = True
+
+        self.device.restore_profile = unresolved
+        with self.assertRaises(BaseExceptionGroup) as caught:
+            self.execute()
+        self.assertIn("Original effective runtime profile unresolved", repr(caught.exception))
+        self.assert_original_restored()
+        self.assertFalse(self.device.application_state_uncertain)
+        self.assertTrue(self.device.profile_restoration_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_nodes_cli_reuses_process_readiness_and_rejects_api31_before_readiness(self):
+        with patch.object(runner, "current_binding", return_value=source("nodes")) as current, \
+                patch.object(runner, "Ledger", return_value=self.ledger), \
+                patch.object(runner, "shared_ledger", return_value=self.root / "synthetic-ledger"), \
+                patch.object(runner, "readiness") as readiness:
+            self.assertEqual(0, runner.main(["--head", source().source_revision, "--family", "nodes",
+                                           "--api", "37", "--readiness"]))
+            result = json.loads(self.print.call_args.args[0])
+            self.assertEqual(list(runner.FAMILIES["nodes"].identities), result["identities"])
+            self.assertEqual(0, result["native_starts"])
+            self.assertFalse(result["acceptance"])
+            readiness.assert_called_once()
+            readiness.reset_mock()
+            with patch("sys.stderr", io.StringIO()):
+                self.assertEqual(2, runner.main(["--head", source().source_revision, "--family", "nodes",
+                                               "--api", "31", "--readiness"]))
+            readiness.assert_not_called()
+        current.assert_called_with(source().source_revision, family="nodes")
         self.package.assert_not_called()
         self.spawn.assert_not_called()
 

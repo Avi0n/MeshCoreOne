@@ -85,16 +85,47 @@ DIAGNOSTICS = FamilySpec(
          "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
     ),
 )
+NODES = FamilySpec(
+    "nodes", (37,),
+    "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest",
+    (
+        "offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable",
+        "offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable",
+        "actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable",
+        "offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting",
+        "offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction",
+        "actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200",
+        "offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail",
+    ),
+    "9101b45f3939bdb82af5c93cc77149c47bf34996",
+    "android/feature/nodes/src/main",
+    "d478d0ecc746c76e384dbdd62c3b17990a760601",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest.kt",
+    "3f50d6c80dab380e0e7883016295a16510604921",
+    (
+        ("android/feature/nodes/src/main",
+         "fd9fa8e16c8a74043387010a192c3a9e36abd783", "d478d0ecc746c76e384dbdd62c3b17990a760601"),
+        ("android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt",
+         "9101b45f3939bdb82af5c93cc77149c47bf34996", "29a0f83dd33c57e1304e822b5a394cfc05db3b3e"),
+        ("android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/OfflineNodesAudit.kt",
+         "41bdbfac45b4d3690f29a5363da02047642e2716", "5fd9340c847780b0a4cb1df4b0fc4dd7fae36f45"),
+        ("android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt",
+         "f7474bb1bd06c6df93a71c8664e9dacade7c8749", "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c"),
+        ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt",
+         "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
+    ),
+)
 FAMILIES = MappingProxyType({
     "language": FamilySpec("language", (31, 37), CLASS, METHODS, PRODUCER,
                            PRODUCTION, PRODUCTION_BLOB, FIXTURE, FIXTURE_BLOB),
     "diagnostics": DIAGNOSTICS,
+    "nodes": NODES,
 })
 
 
 def family_spec(name):
     if not isinstance(name, str) or name not in FAMILIES:
-        raise PortError("Only the immutable language or diagnostics family is admitted")
+        raise PortError("Only the immutable language, diagnostics or nodes family is admitted")
     return FAMILIES[name]
 
 
@@ -145,11 +176,14 @@ def prepare_binding(revision, claim, *, family="language"):
         for path, producer, blob in pins:
             git("merge-base", "--is-ancestor", producer, revision)
             if git("rev-parse", revision + ":" + path) != blob or git("rev-parse", producer + ":" + path) != blob:
-                raise PortError("Exact diagnostics fixture/helper/production provenance drifted: " + path)
+                raise PortError("Exact " + spec.name + " fixture/helper/production provenance drifted: " + path)
     methods = tuple(re.findall(r"@Test fun (\w+)\(", git("show", revision + ":" + spec.fixture)))
     if methods != spec.methods:
-        raise PortError("Language cohort must retain exactly the two original method identities" if family == "language"
-                        else "Diagnostics cohort must retain exactly the five original method identities")
+        raise PortError({
+            "language": "Language cohort must retain exactly the two original method identities",
+            "diagnostics": "Diagnostics cohort must retain exactly the five original method identities",
+            "nodes": "Nodes cohort must retain exactly the seven original method identities",
+        }[family])
     manifest = load_manifest(ROOT)
     policy = load_json(ROOT / "docs" / "android" / "automation-policy.json")
     CapabilityEngine(policy).admit("WP-503", manifest.wp("WP-503")["write_paths"], ADAPTER, OPERATION)

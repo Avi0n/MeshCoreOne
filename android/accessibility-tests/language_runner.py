@@ -1,4 +1,4 @@
-"""AndroidOnly: WP-503 Current-source language audit using the existing local process/device lifecycle."""
+"""AndroidOnly: WP-503 Current-source fixed-family audit using the existing local process/device lifecycle."""
 
 import argparse
 from dataclasses import asdict, dataclass
@@ -416,7 +416,7 @@ def execute_language(request, config, ledger, *, device=None):
         ledger, device, lock_owner=request.operation_owner,
         canonical=request.binding.canonical_session, endpoint=config.endpoint,
         purpose=(f"language-api{request.api}-two-original-methods" if request.binding.family == "language"
-                 else f"diagnostics-api{request.api}-5-original-methods"),
+                 else f"{request.binding.family}-api{request.api}-{len(request.identities)}-original-methods"),
         source=request.binding.source_revision,
     ):
         before = device.installed(APP)

@@ -1052,3 +1052,67 @@ including its Linux/SwiftData/aggregate jobs. This clears only the planned
 serialization hold before ordinary feature-branch publication; none of its
 hosted/native evidence transfers to the diagnostics/decoding successor, and no
 CI result bundle or successful native cohort is duplicated.
+
+### Local Nodes7 software-only selection successor to publishedf3
+
+Base/source boundary: published
+`f3d3346c2e91f71ba69b6a1153fa1d80568f50bf`, integrated trusted main
+`dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c`, unchanged manifest977b9e91,
+semantic policye8afe067 and canonical scope24. Publishedf3/exact automatic
+run39529850037 is held immutable while verification runs; this preparation is
+local only and is not its CI/native verdict. The successor is identified by
+the commit containing this section and its immutable SHA in the handoff.
+
+Trusted capability admission confirmed all six edited Python/test/README/WP503
+evidence paths already belong to the held owner's `wp-owned` capability and
+modify/test/record-evidence operations. Scope remains24; no transfer, new actor,
+authorization rewrite, release/reacquire or raw ledger edit was needed.
+
+Actual immutable Git objects establish exactly seven ordered original methods
+at initial registration `fc9188ab1dc1549be8788cbc3c180c895d5d5def`, retained by
+current fixture producer `9101b45f3939bdb82af5c93cc77149c47bf34996`. The fixed
+`nodes` family pins:
+
+| Path under repository root | Producer | Exact object |
+| --- | --- | --- |
+| `android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest.kt` | `9101b45f3939bdb82af5c93cc77149c47bf34996` | `3f50d6c80dab380e0e7883016295a16510604921` |
+| `android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt` | `9101b45f3939bdb82af5c93cc77149c47bf34996` | `29a0f83dd33c57e1304e822b5a394cfc05db3b3e` |
+| `android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/OfflineNodesAudit.kt` | `41bdbfac45b4d3690f29a5363da02047642e2716` | `5fd9340c847780b0a4cb1df4b0fc4dd7fae36f45` |
+| `android/feature/nodes/src/main` (complete tree including manifest) | `fd9fa8e16c8a74043387010a192c3a9e36abd783` | `d478d0ecc746c76e384dbdd62c3b17990a760601` |
+| `android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt` | `f7474bb1bd06c6df93a71c8664e9dacade7c8749` | `efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c` |
+| `android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt` | `7f24b57c1ab06437435b8938d166a5254fec0894` | `8768ee9c2b25fc1a7d43d0442980ff4deabb6d81` |
+
+The binding checks original/current objects and producer ancestry, exact ordered
+fixture methods, API37 only and truthful `CANONICAL:nodes:UUID` attribution.
+Selection uses the same typed request and real shared process/preservation
+lifecycle, not historical default selection or another runner. Purpose is
+`nodes-api37-7-original-methods`. Language2/API31+37 and diagnostics5/API37,
+their pins/defaults, strict UTF-8 decoding and original native evidence are
+unchanged. No production Kotlin, fixture or shared audit helper was edited.
+
+`python -m unittest discover -s android\accessibility-tests -p test_*.py -v`
+passes **119 discovered/run/passed,0 failures/errors/skips**, including13 new
+Nodes tests. Synthetic process transports exercise original ordered selection,
+positive seven discovery/outcomes, exact restoration/release, wrong family/API/
+producer/count/identity/order, each original/current pin and ancestor, stale
+source/policy/scope/publication, failure/skip/missing/duplicate outcomes, forced
+host termination and unresolved effective profile despite equal raw profile.
+The first119-test pass attempt had118 passes/one test expectation error:
+the existing lane correctly wrapped retained-profile uncertainty in an
+ExceptionGroup rather than a bare RuntimeError. The test now asserts that
+actual grouped failure and preserved inner error; the guard was not weakened.
+
+The four declared validators
+`python tools\android-port\controller\verification_config.py --check`,
+`python tools\android-port\controller\validate.py`,
+`python tools\android-port\controller\workflows.py`, and
+`python tools\android-port\portmap.py` each pass/exit0.
+`git diff --check` passes; staged whitespace is also checked before commit.
+These are local software results, not a hosted successor verdict.
+
+No real Gradle/APK/build/ADB/install/instrumentation/native-lane operation
+occurred. This is not Nodes execution, golden evidence or WP acceptance.
+All original missing27 remain unexecuted in the current-source missing-only
+cohort; historical separate language2+2 subtracts zero. Actualb2/r21 native
+outcomes, original failed cleanup receipt and separate bounded recovery remain
+byte-preserved and source-bound, with no replay or rebinding.

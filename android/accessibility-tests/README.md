@@ -148,6 +148,45 @@ until genuinely executed with original identities. The separate language2+2
 subtracts zero. Historical shared-runner selectors/default actor and all prior
 evidence retain their original source bindings.
 
+### Fixed Nodes family: software-only preparation
+
+The same immutable specification, typed binding/request and shared process
+lifecycle accept `--family nodes` on API37 only. Selection retains precisely the
+seven original `NativeNodesFlowAccessibilityTest` identities in fixture order:
+
+- `offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable`
+- `offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable`
+- `actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable`
+- `offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting`
+- `offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction`
+- `actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200`
+- `offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail`
+
+Read-only source preparation:
+`python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family nodes`.
+The initial seven-method registration at `fc9188ab` has the same ordered method
+inventory as the unchanged current fixture/audit producer `9101b45f`. The binding
+pins that fixture and Nodes audit, the delegated offline audit at `41bdbfac`,
+the complete Nodes production `src/main` tree (including its manifest) at
+`fd9fa8e1`, and the same original assertion/device-harness pins used above.
+Each current and original object and producer ancestry is checked; drift is an
+error, not permission to advance a pin or edit Kotlin.
+
+The unique owner is `CANONICAL:nodes:UUID`, with canonical/replacement identities
+kept separate. Existing source/publication/main/policy/reservation, exact positive
+count/identity, normal unforced completion, package preservation and unresolved
+effective-profile fences are reused. Ordered fixture/selector checks do not
+change AndroidJUnit's method scheduling or weaken strict outcome accounting.
+Language remains the two-method default on API31/37; diagnostics remains exactly
+five on API37. No arbitrary family/class/method interface or copied runner exists.
+
+This increment has software-only binding/selection/lifecycle tests, not actual
+Nodes execution, goldens or full-WP acceptance. It authorizes no native lane,
+Gradle/APK build, ADB, install or instrumentation action. Nodes7 belongs to the
+original missing27, which remains27; separate language2+2 still subtracts zero.
+Keep the currently published candidate unchanged until its healthy automatic
+verification is terminal and this local increment has been reviewed.
+
 The current consumer's Git helper explicitly decodes UTF-8 with strict errors
 for both fixture source and trusted policy JSON. It never uses the Windows
 default code page, replacement characters or a fallback; malformed Git output
