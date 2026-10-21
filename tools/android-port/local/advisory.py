@@ -2,6 +2,7 @@
 
 import argparse
 import ctypes
+import json
 import os
 from pathlib import Path
 import signal
@@ -97,14 +98,17 @@ def cleanup():
     while descendants() and time.monotonic() < deadline:
         reap()
         time.sleep(0.02)
-    while descendants():
+    deadline = time.monotonic() + CLEANUP_SECONDS
+    while descendants() and time.monotonic() < deadline:
         signal_owned(signal.SIGKILL)
         reap()
         time.sleep(0.02)
     reap()
+    if descendants():
+        raise RuntimeError("Owned descendants could not be reaped; shared execution ownership retained")
 
 
-def supervise(command, seconds):
+def supervise(command, seconds=None, *, completion=None, token=None, preserve_daemons=False):
     if not sys.platform.startswith("linux"):
         raise ValueError("Bounded advisory cleanup requires the supported Linux pidfd runner")
     libc = ctypes.CDLL(None, use_errno=True)
@@ -119,28 +123,85 @@ def supervise(command, seconds):
     finally:
         os.close(descriptor)
     Path(f"/proc/{os.getpid()}/task/{os.getpid()}/children").read_text()
-    process = subprocess.Popen(command, start_new_session=True, pass_fds=(9,))
+    descriptors = []
+    for descriptor in (8, 9):
+        try:
+            os.fstat(descriptor)
+            descriptors.append(descriptor)
+        except OSError:
+            continue
+    process = subprocess.Popen(command, start_new_session=True, pass_fds=descriptors)
+    status = None
     try:
         try:
-            return process.wait(timeout=seconds)
+            status = process.wait(timeout=seconds)
         except subprocess.TimeoutExpired:
             print(f"UNVERIFIED: advisory fast check exceeded {seconds:g}s; cleaning owned descendants",
                   file=sys.stderr, flush=True)
-            return 124
+            status = 124
     finally:
-        # The inherited lane FD stays in this supervisor until all owned work is gone.
-        cleanup()
-        process.wait()
+        if not preserve_daemons:
+            # The inherited lane FD stays here until all owned work is gone.
+            cleanup()
+            process.wait()
+    if preserve_daemons:
+        reap()
+        deadline = time.monotonic() + CLEANUP_SECONDS
+        while descendants() and time.monotonic() < deadline:
+            reap()
+            time.sleep(0.02)
+        if descendants():
+            print("BLOCKED: manual execution or persistent children need reconciliation; "
+                  "shared ownership retained (no daemon kill)", file=sys.stderr, flush=True)
+            return status if status else 125
+    if completion is not None:
+        if not token:
+            raise ValueError("Cleanup completion requires the exact invocation token")
+        temporary = completion.with_suffix(".next")
+        temporary.write_text(json.dumps({
+            "schema_version": 1, "token": token, "status": "owned-children-reaped",
+            "returncode": status,
+        }) + "\n", encoding="utf-8")
+        os.replace(temporary, completion)
+    return status
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--seconds", type=float, required=True)
+    parser.add_argument("--seconds", type=float)
+    parser.add_argument("--completion", type=Path)
+    parser.add_argument("--token")
+    parser.add_argument("--preserve-daemons", action="store_true")
+    parser.add_argument("--admission", type=Path)
+    parser.add_argument("--commit")
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
-    if args.seconds <= 0 or not args.command or args.command[0] != "--":
+    if (args.seconds is not None and args.seconds <= 0
+            or not args.command or args.command[0] != "--"
+            or (args.completion is None) != (args.token is None)):
         parser.error("A positive deadline and an explicit command are required")
-    return supervise(args.command[1:], args.seconds)
+    if args.completion is not None:
+        if args.admission is None or not args.commit or args.admission.is_symlink():
+            parser.error("Shared execution admission is required")
+        admission = json.loads(args.admission.read_text(encoding="utf-8"))
+        if (
+            set(admission) != {"schema_version", "interlock_version", "owner", "token", "commit", "tree"}
+            or admission["schema_version"] != 1 or admission["interlock_version"] != 2
+            or admission["token"] != args.token or admission["owner"] != f"local-check:{args.token}"
+            or admission["commit"] != args.commit
+        ):
+            parser.error("Shared execution admission differs from this exact invocation")
+        # Internal shell modes require this actual inherited handoff, not a mode-name bypass.
+        descriptor = os.open(args.admission, os.O_RDONLY)
+        if descriptor != 8:
+            os.dup2(descriptor, 8)
+            os.close(descriptor)
+        try:
+            return supervise(args.command[1:], args.seconds, completion=args.completion, token=args.token,
+                             preserve_daemons=args.preserve_daemons)
+        finally:
+            os.close(8)
+    return supervise(args.command[1:], args.seconds, preserve_daemons=args.preserve_daemons)
 
 
 if __name__ == "__main__":
