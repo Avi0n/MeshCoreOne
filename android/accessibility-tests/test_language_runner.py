@@ -154,6 +154,29 @@ class LanguageRunnerTest(unittest.TestCase):
     def assert_original_restored(self):
         self.assertEqual({APP: sha256(self.packaging["original"])}, self.device.packages)
 
+    def test_real_device_rejects_every_family_before_readiness_packaging_or_mutation(self):
+        for family in runner.FAMILIES:
+            for api in ((31, 37) if family == "language" else (37,)):
+                with self.subTest(family=family, api=api):
+                    request = runner.request_for(source(family), api)
+                    device = runner.ProcessDevice(self.config, api)
+                    device.run = Mock()
+                    device.prepare_profile = Mock()
+                    device.install = Mock()
+                    with patch.object(runner, "readiness") as readiness:
+                        with self.assertRaisesRegex(
+                                RuntimeError, "genuine pre-mutation.*supported snapshot-based recovery"):
+                            runner.execute_language(request, self.config, self.ledger, device=device)
+                    readiness.assert_not_called()
+                    device.run.assert_not_called()
+                    device.prepare_profile.assert_not_called()
+                    device.install.assert_not_called()
+                    self.assertFalse(self.config.output.exists())
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+        self.ledger.acquire_hard_lock.assert_not_called()
+        self.ledger.release_hard_lock.assert_not_called()
+
     def test_positive_full_process_lifecycle_on_each_api_uses_only_the_two_real_methods(self):
         for api in (31, 37):
             self.request = runner.request_for(source(), api)

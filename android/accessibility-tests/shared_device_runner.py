@@ -66,6 +66,7 @@ def install_succeeded(output):
 
 
 def install_pair(device, paths, record_attempt):
+    device.require_fixture_recovery()
     for package, kind in ((APP, "app"), (TEST, "test")):
         record_attempt(package)
         device.install(paths[kind])
@@ -125,6 +126,12 @@ def parse_outcomes(text, expected):
 
 
 class Device:
+    def require_fixture_recovery(self):
+        raise RuntimeError(
+            "Native mutation admission blocked: genuine pre-mutation fixture/preferences/window "
+            "originals and a supported snapshot-based recovery operation are unavailable"
+        )
+
     def command(self, *args):
         # Never let an absent historical server turn into an implicit server launch.
         with socket.create_connection(("127.0.0.1", 5037), timeout=2):
@@ -398,6 +405,7 @@ def execute_cohort(device, directory, cohort, profile, app_digest, test_digest):
 def execute_selection(device, directory, cohort, profile, app_digest, test_digest, *,
                       expected, api, source, android_tree, canonical, endpoint,
                       stem_name, event_prefix):
+    device.require_fixture_recovery()
     require(not getattr(device, "application_state_uncertain", False),
             "Prior fixture state is uncertain; no subsequent cohort may start")
     require(device.profile() == profile, "Runtime profile changed between cohorts")
@@ -417,6 +425,8 @@ def execute_selection(device, directory, cohort, profile, app_digest, test_diges
         "profile_before": profile,
         "original_target_sha256": getattr(device, "original_target_digest", None),
         "original_fixture_rows_and_preferences_snapshot_available": False,
+        "status": "UNCERTAIN_APPLICATION_STATE_NATIVE_LANE_RETAINED",
+        "fixture_preferences_and_window_restoration_verified": False,
         "required_recovery": (
             "Retain native lane and uncertainty receipt. Independently verify exact owned fixture rows, "
             "saved preferences/draft/onboarding and original window restoration through a supported "
@@ -455,6 +465,8 @@ def execute_selection(device, directory, cohort, profile, app_digest, test_diges
                 if len(failures) > 1:
                     raise BaseExceptionGroup("Native wait and host/receipt cleanup failures", failures)
                 raise failures[0]
+            device.fixture_recovery_context["host_instrumentation_process_exit"] = code
+            device.fixture_recovery_path.write_text(json.dumps(device.fixture_recovery_context, indent=2) + "\n")
             require(stream.poll() is None, "Scoped log consumer exited during instrumentation")
         finally:
             primary = sys.exception()
@@ -510,6 +522,9 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
+    if args.execute:
+        device = Device()
+        device.require_fixture_recovery()
     binding, fixtures, paths, products = verify_binding(args.apks)
     selections = {name: selected_methods(name) for name in COHORTS}
     require(sum(map(len, selections.values())) == 27, "Only original missing27 are authorized")
@@ -531,7 +546,6 @@ def main():
               "reservation_revision": 8, "cohorts": [], "published_head_results_transfer": False,
               "runner_sha256": sha256(Path(__file__)), "audit_publication_parent": git("rev-parse", "HEAD"),
               "profile_adaptation": "actual4CPU/IME0; no assertion/deadline/settings/source change"}
-    device = Device()
     with native_lane(ledger, device):
         result["native_lane_operation_owner"] = device.native_lane_owner
         result["profile_before"] = profile = device.profile()

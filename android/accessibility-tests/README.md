@@ -104,6 +104,24 @@ and strictly newer update/delete events; lost, unchanged or ambiguous history
 fails closed rather than authorizing cleanup.
 Receipt failure still permits independent cleanup but remains an error.
 
+**Current mutation-bearing admission is blocked.** The real device implementation
+has neither genuine pre-mutation fixture/preferences/window originals nor a
+supported snapshot-consuming recovery operation. `require_fixture_recovery`
+therefore raises explicitly, with no availability flag, provider or operator
+override. The current-source execution entry checks this before readiness,
+packaging, lane acquisition, profile setup or installation; direct pair-install
+and instrumentation entrypoints and the historical execution CLI also check it.
+Read-only source preparation remains separate. Synthetic devices admit only
+in-memory downstream regressions; they are not native recovery evidence.
+
+For future admitted instrumentation, the existing recovery receipt records the
+actual `host_instrumentation_process_exit` immediately after the bounded wait,
+before transcript parsing or all-positive proof can reject the result. This is
+not the CLI exit or terminal instrumentation status. Receipt failures still
+attempt independent cleanup and retain uncertainty. This does not backfill the
+missing host exit in the original473 Nodes failure, recover its fixture state,
+or authorize releasing its retained lane.
+
 Normal all-positive completion and original packages/profile must be verified
 before releasing the actual operation owner. Spawn/wait/receipt/read/decode/
 terminal-proof failures retain uncertainty, independently attempt bounded host

@@ -432,8 +432,9 @@ def retained_pair(packaging, directory, request):
 
 def execute_language(request, config, ledger, *, device=None):
     """Retain the original entrypoint while sharing one lifecycle across the fixed families."""
-    policy, state = readiness(request, config, ledger)
     device = ProcessDevice(config, request.api) if device is None else device
+    device.require_fixture_recovery()
+    policy, state = readiness(request, config, ledger)
     manifest = load_manifest(ROOT)
     with execution_lane(
         ledger, device, lock_owner=request.operation_owner,

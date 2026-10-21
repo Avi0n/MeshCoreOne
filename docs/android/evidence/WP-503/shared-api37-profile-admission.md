@@ -1494,3 +1494,64 @@ occurred during correction. Comparator11 awaits source comparison and fresh
 admission. All27 remain unexecuted; language2+2/control/preparation subtract zero.
 Original Kotlin/fixtures/oracles/family pins/selections, package/schema/certificate
 guards and historical genuineb2/r21 evidence remain unchanged.
+
+### Future mutation admission and failed-proof exit retention (LOCAL only)
+
+Direct parent: `473f3860829fc0e33305c39517aef650d88b2d57`. The coordinator
+authorized one local runner-only safety successor after actual473 execution
+discovered25 original API37 methods:23 passed,2 failed,0 errors/skips. LoS1 and
+cached-chat1 did not start. Both original Nodes assertions remain unchanged.
+Original473 operations, bindings and raw artifacts are not edited or rebound.
+This successor does not recover or release retained native operation
+`1666502a-0420-46ef-930f-e78651ba8b9f:nodes:66bd32eca2a449ac969a53a90b384c9c`.
+
+Trusted `wp-owned` modify/test/record-evidence admission was evaluated for the
+six runner/test/README/evidence paths before editing, through the supported
+same-owner `Ledger.evolve_scope` transaction. It was idempotent: canonical
+reservation24 already covered these paths and operations. Canonical owner,
+historical owner context, source/policy bindings and authorization prose were
+preserved; actual replacement attribution remains separate. No native resource
+lease operation was performed. Policy remains
+`e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3`,
+manifest `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`.
+
+The current real `Device.require_fixture_recovery` raises an explicit error:
+genuine pre-mutation fixture/preferences/window originals and a supported
+snapshot-based recovery operation are unavailable. It is intentionally closed
+for the current implementation, with no availability flag, new provider,
+default/original reconstruction or operator override. Current-source execution
+checks this before readiness, packaging, resource acquisition, profile setup,
+installation or instrumentation. Direct forward pair installation and native
+selection, and the historical execution CLI, also reject before their mutations.
+Existing cleanup/release code is unchanged; this is not a recovery implementation.
+Only the in-memory test device admits downstream synthetic lifecycle regressions.
+
+After a future admitted instrumentation wait returns, its actual integer exit is
+written immediately into the existing recovery receipt as
+`host_instrumentation_process_exit`, before transcript parsing/all-positive proof.
+The receipt still declares application state uncertain until genuine completion
+proof succeeds. Write failures remain explicit and do not skip independent
+owned cleanup. CLI exits, terminal instrumentation status and host process exits
+are not interchangeable. The original473 failed-proof path did not retain its
+host exit: that historical value remains unknown, not backfilled from CLI2 or
+terminal instrumentation-1.
+
+`python -m unittest discover -s android\accessibility-tests -p test_*.py -v`:
+**186 discovered/run/passed,0 failures/errors/skips**, including six new focused
+regressions. They prove real device admission rejects every fixed family/API
+before readiness/packaging/lane/profile/install activity, standalone install and
+selection reject without mutations/spawn, the legacy CLI rejects before binding
+or lane work, actual host0/failed-test and host7/positive-test exits exist on disk
+before proof parsing, and an exit-receipt write failure still performs independent
+owned cleanup and retains uncertainty/lane. All transports/processes are
+temporary in-memory fakes; no native evidence is claimed.
+
+The four existing declared source validators each passed/exit0:
+`python tools\android-port\controller\verification_config.py --check`,
+`python tools\android-port\controller\validate.py`,
+`python tools\android-port\controller\workflows.py`,
+`python tools\android-port\portmap.py`. No actual device/toolchain/readiness,
+native/Gradle/resource-lease probe or action, publication, dispatch or new result
+bundle occurred. This is a local source/software candidate for source review,
+not native acceptance. Genuine-history-backed fixture recovery/unknown-state
+disposition remains an explicit maintainer blocker.

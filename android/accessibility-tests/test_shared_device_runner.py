@@ -8,7 +8,7 @@ import uuid
 from unittest.mock import Mock, patch
 
 from shared_device_runner import (
-    APP, TEST, Device, execute_cohort, install_pair, install_succeeded,
+    APP, TEST, Device, execute_cohort, execute_selection, install_pair, install_succeeded,
     native_lane, parse_outcomes, restore_packages, selected_methods,
 )
 
@@ -32,6 +32,9 @@ class FakeDevice(Device):
         self.fail_install = fail_install
         self.calls = []
         self.active = []
+
+    def require_fixture_recovery(self):
+        """Admit only this in-memory fake to exercise downstream lifecycle regressions."""
 
     def installed(self, package):
         return {"sha256": self.packages[package]} if package in self.packages else None
@@ -71,6 +74,45 @@ class FakeDevice(Device):
 
 
 class SharedDeviceDiscoveryTest(unittest.TestCase):
+    def test_unavailable_recovery_blocks_install_before_attempt_or_mutation(self):
+        device = Device()
+        device.install = Mock()
+        attempt = Mock()
+        with self.assertRaisesRegex(RuntimeError, "genuine pre-mutation.*supported snapshot-based recovery"):
+            install_pair(device, {"app": Path("app"), "test": Path("test")}, attempt)
+        device.install.assert_not_called()
+        attempt.assert_not_called()
+
+    def test_unavailable_recovery_blocks_instrumentation_before_device_or_process_access(self):
+        device = Device()
+        device.profile = Mock()
+        device.installed = Mock()
+        device.command = Mock()
+        with tempfile.TemporaryDirectory() as directory, patch("shared_device_runner.subprocess.Popen") as spawn:
+            with self.assertRaisesRegex(RuntimeError, "genuine pre-mutation.*supported snapshot-based recovery"):
+                execute_selection(
+                    device, Path(directory), "nodes", {}, "candidate", "test",
+                    expected=["example.Test#original"], api=37, source="synthetic",
+                    android_tree="synthetic", canonical="synthetic", endpoint="synthetic",
+                    stem_name="synthetic", event_prefix="SYNTHETIC",
+                )
+            self.assertEqual([], list(Path(directory).iterdir()))
+        device.profile.assert_not_called()
+        device.installed.assert_not_called()
+        device.command.assert_not_called()
+        spawn.assert_not_called()
+
+    def test_legacy_execute_blocks_before_binding_output_or_lane(self):
+        from shared_device_runner import main
+        with patch("sys.argv", ["shared_device_runner.py", "--apks", "synthetic",
+                              "--output", "synthetic", "--execute"]), \
+                patch("shared_device_runner.verify_binding") as binding, \
+                patch("shared_device_runner.native_lane") as lane:
+            with self.assertRaisesRegex(RuntimeError, "genuine pre-mutation.*supported snapshot-based recovery"):
+                main()
+        binding.assert_not_called()
+        lane.assert_not_called()
+
     def test_exact_installer_success_forms_and_failures(self):
         install_succeeded("Success")
         install_succeeded("Performing Streamed Install\nSuccess")
@@ -383,6 +425,66 @@ class SharedDeviceDiscoveryTest(unittest.TestCase):
                 self.assertTrue(device.application_state_uncertain)
                 self.assertTrue(device.fixture_completion_untrusted)
                 ledger.release_hard_lock.assert_not_called()
+
+    def test_actual_host_exit_is_persisted_before_failed_positive_proof(self):
+        identity = "example.Test#original"
+        for host_exit, status in ((0, -2), (7, 0)):
+            with self.subTest(host_exit=host_exit, status=status):
+                device, ledger = FakeDevice(), Mock()
+                device.packages = {APP: "candidate", TEST: "test"}
+                stream, process = Mock(), Mock()
+                stream.poll.return_value = None
+                process.wait.return_value = host_exit
+                raw = completed(record(identity, 1) + record(identity, status))
+                read_text = Path.read_text
+
+                def parse_after_exit_receipt(text, expected):
+                    recovery = json.loads(read_text(device.fixture_recovery_path))
+                    self.assertEqual(host_exit, recovery["host_instrumentation_process_exit"])
+                    self.assertFalse(recovery["fixture_preferences_and_window_restoration_verified"])
+                    parsed = parse_outcomes(text, expected)
+                    self.assertEqual(-1, parsed["terminal_instrumentation_code"])
+                    return parsed
+
+                with tempfile.TemporaryDirectory() as directory, \
+                        patch("shared_device_runner.subprocess.Popen", side_effect=[stream, process]), \
+                        patch("shared_device_runner.selected_methods", return_value=[identity]), \
+                        patch("shared_device_runner.parse_outcomes", side_effect=parse_after_exit_receipt), \
+                        patch("pathlib.Path.read_text", return_value=raw), patch("builtins.print"):
+                    with self.assertRaises(BaseExceptionGroup), native_lane(ledger, device):
+                        execute_cohort(device, Path(directory), "nodes", {}, "candidate", "test")
+                    receipt = Path(directory) / "device-shared37-nodes-recovery.json"
+                    recovery = json.loads(read_text(receipt))
+                    self.assertEqual(host_exit, recovery["host_instrumentation_process_exit"])
+                    self.assertEqual("UNCERTAIN_APPLICATION_STATE_NATIVE_LANE_RETAINED", recovery["status"])
+                    self.assertFalse(recovery["fixture_preferences_and_window_restoration_verified"])
+                    self.assertFalse((Path(directory) / "device-shared37-nodes.json").exists())
+                self.assertTrue(device.application_state_uncertain)
+                ledger.release_hard_lock.assert_not_called()
+                process.kill.assert_not_called()
+
+    def test_exit_receipt_failure_still_finishes_owned_guest_and_retains_lane(self):
+        device, ledger = FakeDevice(), Mock()
+        device.packages = {APP: "candidate", TEST: "test"}
+        device.active = [f"ActiveInstrumentation{{abc {TEST}/androidx.test.runner.AndroidJUnitRunner 1 procs}}"]
+        stream, process = Mock(), Mock()
+        stream.poll.return_value = None
+        process.wait.return_value = 0
+        with tempfile.TemporaryDirectory() as directory, \
+                patch("shared_device_runner.subprocess.Popen", side_effect=[stream, process]), \
+                patch("shared_device_runner.selected_methods", return_value=["example.Test#original"]), \
+                patch("pathlib.Path.write_text", side_effect=OSError("Exit receipt unavailable")), \
+                patch("builtins.print"):
+            with self.assertRaises(BaseExceptionGroup), native_lane(ledger, device):
+                execute_cohort(device, Path(directory), "nodes", {}, "candidate", "test")
+        self.assertEqual(0, device.fixture_recovery_context["host_instrumentation_process_exit"])
+        self.assertTrue(device.application_state_uncertain)
+        self.assertEqual([], device.active)
+        self.assertIn(("shell", "am force-stop " + APP), device.calls)
+        stream.terminate.assert_called_once()
+        process.wait.assert_called_once_with(timeout=600)
+        process.kill.assert_not_called()
+        ledger.release_hard_lock.assert_not_called()
 
     def test_spawn_and_preproof_interruptions_retain_uncertainty(self):
         for failure in ("spawn", "wait", "log-consumer"):
