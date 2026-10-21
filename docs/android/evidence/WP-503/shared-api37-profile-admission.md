@@ -1555,3 +1555,43 @@ native/Gradle/resource-lease probe or action, publication, dispatch or new resul
 bundle occurred. This is a local source/software candidate for source review,
 not native acceptance. Genuine-history-backed fixture recovery/unknown-state
 disposition remains an explicit maintainer blocker.
+
+### Native harness IME-inset parity (LOCAL only)
+
+Direct parent: `8b9ecad8b37e431613eb4f042c7b9c7a511ca64e`. At that source,
+`NativeNavigationShell.kt:252-263` (blob
+`c9a881fcdbf605784cbf2593d77c808b41c75083`) applies outer
+`fillMaxSize().imePadding()` before the inner Scaffold's `WindowInsets.safeDrawing`.
+`DeviceAccessibilityHarness.kt:65-69` (original blob
+`8768ee9c2b25fc1a7d43d0442980ff4deabb6d81`) omitted that explicit outer IME
+padding. The native `AuditSurface` now applies `imePadding()` before its existing
+safe-drawing padding, matching that inset-consumption order without copying the
+app shell or changing production UI.
+
+Original473 showed the focused nickname editor's IME reducing the viewport to
+y52..475 while Save occupied y485..539. This source-contract correction does not
+prove the sole failure cause, a changed measured viewport, or a native pass.
+Actual IME visibility, long CJK text, font200, RTL/window measurements, Save/Cancel
+scroll/visibility/geometry assertions and production Nodes files are unchanged.
+The separate clipboard failure remains unresolved and unmodified.
+
+Before edits, supported same-owner `Ledger.evolve_scope` admitted only the harness
+and this evidence path through trusted `wp-owned` modify/test/record-evidence
+rules, reservation24 to25. Historical identity/authorization context is preserved.
+No native resource operation, provisioning, build, compile, installation, device
+probe, publication or original473 evidence rebinding occurred. Published8b9 and
+retained native66bd remain untouched.
+
+Software-only checks: `python -B -m unittest discover -s
+android\accessibility-tests -p test_*.py -v` passed186/186,0 failures/errors/skips.
+`python -B tools\android-port\controller\verification_config.py --check`,
+`python -B tools\android-port\controller\validate.py`,
+`python -B tools\android-port\controller\workflows.py`,
+`python -B tools\android-port\portmap.py` and `git diff --check` each passed/exit0.
+These checks do not compile or execute Kotlin.
+
+Diagnostics/Nodes/LoS/cached-chat still pin the original harness blob/producer;
+their unchanged source guards intentionally reject this new harness until its
+reviewed producer/blob is admitted. No pin was weakened or historical result
+rebound. Native validation awaits the separately owned WP-003 disposable-resource
+contract; reconstructing the old guest's snapshots is not this delivery path.
