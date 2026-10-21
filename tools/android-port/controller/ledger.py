@@ -34,6 +34,8 @@ HARD_LOCK_RESOURCES = {
     "native-execution", "physical-device", "credentials-signing-release",
     "repository-settings",
 }
+EXECUTION_INTERLOCK_VERSION = 1
+EXECUTION_RESOURCES = {"native-execution", "gradle-execution"}
 
 
 @dataclass(frozen=True)
@@ -787,11 +789,34 @@ class Ledger:
         if not isinstance(payload, dict) or type(now) not in (int, float) or not math.isfinite(now):
             raise PortError("Malformed hard-lock payload or acquisition time")
         with self.transaction() as connection:
+            if resource in EXECUTION_RESOURCES | {"installed-git-common-runtime"}:
+                peers = connection.execute(
+                    "SELECT resource,owner FROM hard_locks WHERE repository=?",
+                    (self.repository,),
+                ).fetchall()
+                for peer in peers:
+                    same_execution_owner = (
+                        resource in EXECUTION_RESOURCES and peer["resource"] in EXECUTION_RESOURCES
+                        and peer["owner"] == owner
+                    )
+                    conflicts = (
+                        resource in EXECUTION_RESOURCES
+                        and peer["resource"] in EXECUTION_RESOURCES | {"installed-git-common-runtime"}
+                        or resource == "installed-git-common-runtime"
+                        and peer["resource"] in EXECUTION_RESOURCES
+                    )
+                    if conflicts and not same_execution_owner:
+                        raise PortError(
+                            f"Hard-lock collision for external resource {resource}: {peer['resource']} held"
+                        )
             row = connection.execute(
                 "SELECT owner FROM hard_locks WHERE repository=? AND resource=?",
                 (self.repository, resource),
             ).fetchone()
-            if row and row["owner"] != owner:
+            if row and (
+                row["owner"] != owner
+                or resource in EXECUTION_RESOURCES | {"installed-git-common-runtime"}
+            ):
                 raise PortError(f"Hard-lock collision for external resource {resource}")
             connection.execute(
                 "INSERT OR REPLACE INTO hard_locks VALUES (?,?,?,?,?)",

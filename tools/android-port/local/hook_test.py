@@ -44,12 +44,12 @@ class LocalCheckTests(unittest.TestCase):
     def test_benchmark_is_optional_and_cannot_replace_complete_merge_verification(self):
         self.assertEqual(check.ALL_STAGES, ["python", "preflight", "scaffold", "inspect"])
         self.assertEqual(check.OPTIONAL_STAGES, {"benchmark", "benchmark-dependencies"})
-        with patch.object(check, "transport", return_value=[]), patch.object(check, "run_candidate") as run:
+        with patch.object(check, "run_owned") as run:
             self.assertEqual(check.main(["--stages", "benchmark"]), 0)
         self.assertEqual(run.call_args.args[3], ["benchmark"])
 
     def test_pre_push_rejects_dependency_generation_stage(self):
-        with patch.object(check, "run_candidate") as run:
+        with patch.object(check, "run_owned") as run:
             self.assertEqual(check.main(["--pre-push", "--stages", "benchmark-dependencies"]), 1)
         run.assert_not_called()
 
@@ -125,7 +125,7 @@ class LocalCheckTests(unittest.TestCase):
         with patch("sys.stdin", io.StringIO(f"refs/a {sha} refs/a {check.ZERO}\n")), \
              patch("check.capture", return_value=str(Path.cwd())), \
              patch("check.transport", return_value=[]), \
-             patch("check.run_candidate",
+             patch("check.run_owned",
                    side_effect=subprocess.CalledProcessError(1, ["checks"])), \
              patch("check.record_pending") as pending, \
              contextlib.redirect_stderr(io.StringIO()):
@@ -150,7 +150,7 @@ class LocalCheckTests(unittest.TestCase):
         with patch("sys.stdin", io.StringIO(text)), \
              patch("check.capture", return_value=str(Path.cwd())), \
              patch("check.transport", return_value=[]), \
-             patch("check.run_candidate") as run:
+             patch("check.run_owned") as run:
             self.assertEqual(check.main(["--pre-push"]), 0)
             self.assertEqual([call.args[1] for call in run.call_args_list], [first, second])
 
@@ -169,7 +169,7 @@ class LocalCheckTests(unittest.TestCase):
         text = f"refs/heads/feature {sha} refs/heads/feature {check.ZERO}\n"
         with patch("sys.stdin", io.StringIO(text)), \
              patch("check.capture", return_value=str(Path.cwd())), \
-             patch("check.transport", side_effect=ValueError("unsupported Darwin arm64")), \
+             patch("check.run_owned", side_effect=ValueError("unsupported Darwin arm64")), \
              patch("check.record_pending") as pending:
             self.assertEqual(check.main(["--pre-push"]), 0)
             pending.assert_called_once_with(Path.cwd(), sha, unittest.mock.ANY)
@@ -220,7 +220,9 @@ class LocalCheckTests(unittest.TestCase):
             hooks = Path(temporary)
             hook = hooks / "pre-push"
             hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+            ledger = Ledger(hooks / "ledger.sqlite3", "fixture/repository")
             with patch("check.capture", return_value=str(hooks)), \
+                 patch.object(check, "execution_runtime", return_value=ledger), \
                  patch("check.subprocess.run") as run:
                 run.return_value.returncode = 1
                 with self.assertRaisesRegex(ValueError, "Existing pre-push"):

@@ -14,6 +14,65 @@ guarded execution; a candidate checkout is not live authority.
 
 ## Candidate execution contract
 
+### Source-only local/native execution interlock correction
+
+The unpublished successor to `67a225dbaf00d712710a82cededa9a9311f17f8a`
+closes the advisory/manual launcher gap; it does not deploy either candidate
+capability or alter the held native473 operation/runtime. Both independent
+Room7/picker3 rules and historical projections remain unchanged.
+
+`Ledger.acquire_hard_lock` arbitrates native-execution and gradle-execution
+inside the same immediate SQLite transaction in both directions. Only EXACT
+owner equality permits distinct native+Gradle nesting (the existing debug
+packaging contract), not a session/prefix exemption. Reacquiring an execution
+resource cannot replace its incumbent payload/timestamp or accidentally release
+an outer context. Runtime installation conflicts with both execution resources,
+even under the same owner; unrelated resource behavior is unchanged.
+
+The actual advisory and full/manual entrance binds the requested commit/tree,
+uses a fresh invocation owner and acquires the canonical `shared_ledger` Gradle
+resource BEFORE transport/WSL probes, path conversion, bundle or adapter launch.
+An atomic admission collision runs nothing: advisory records exact pending and
+remains nonblocking; manual returns an explicit failure for retry after the
+incumbent releases. The existing Linux flock queue remains 10s for advisory,
+unbounded for manual, and the advisory work deadline remains 180s.
+
+Missing/old/self-consistent-but-mismatched installed code fails closed. The
+manifest, executing launcher/helpers and loaded Ledger version/source must match
+the canonical runtime; revalidation under actual execution ownership prevents
+installation racing launch. The supported atomic installer already delivers
+helpers before check.py; hook installation now uses the same runtime-install
+interlock and no unnecessary WSL probe. Installation still needs separately
+authorized, quiescent deployment; no install occurs in this source assignment.
+
+Windows retains its native SQLite ownership while WSL receives an exact private
+invocation handoff. Linux does not open the Windows database or substitute its
+flock for the shared Ledger. Internal shell modes require the actual inherited
+handoff descriptor; advisory recursion also checks the inherited flock.
+The pidfd/live-ancestry subreaper emits an invocation-bound completion ONLY
+after observed child termination/reaping. These transient lifecycle records are
+not CI results, acceptance or a second verification bundle.
+
+Missing/malformed/stale completion, abrupt transport/supervisor failure or
+unreapable children retains the actual owner AND its control/bundle/recovery
+inputs. There is no TTL, forced foreign release or exit-code-shaped cleanup
+success. Advisory TERM/KILL cleanup is bounded and signals only pinned owned
+descendants. Full/manual retains cache/daemon flags: existing daemons can be
+reused, but a failed manual run or newly persistent descendants cannot establish
+quiescence and retains ownership for authoritative reconciliation (no daemon
+kill, no automatic retry/adoption/release). A successful manual run without
+remaining descendants releases normally. Native contributor adapters without
+the supported Linux pidfd supervisor fail before launch, not fake a result.
+
+Controller regressions use real TEMPORARY Ledgers, concurrent two-party races,
+exact payload preservation, owner/stale/runtime boundaries, actual command
+construction and pending commit/tree assertions. Six discovered process-fixture
+cases execute real isolated Linux launchers/children only on Linux; Windows
+instead proves unsupported-platform rejection without any WSL/native launch.
+Source-local Windows results are not Linux/WSL/native proof. Original full/manual
+result validation and strict verification remain mandatory; fast-check failure
+never becomes a merge pass.
+
 ### Reservation mutation and merge-intent fences
 
 Local `reserve.py evolve` (also `reconcile`) now requires the caller's stored

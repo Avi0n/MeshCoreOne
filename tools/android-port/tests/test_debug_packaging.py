@@ -46,7 +46,9 @@ class DebugPackagingTests(unittest.TestCase):
             packaging.native_lane(self.ledger, "session")
             with self.assertRaises(PortError):
                 packaging.native_lane(self.ledger, "foreign")
-            with self.ledger.hard_lock("gradle-execution", "other", {}, NOW), self.assertRaises(PortError):
+            with self.assertRaises(PortError):
+                self.ledger.acquire_hard_lock("gradle-execution", "other", {}, NOW)
+            with self.ledger.hard_lock("gradle-execution", "session", {}, NOW), self.assertRaises(PortError):
                 packaging.native_lane(self.ledger, "session")
         with self.ledger.hard_lock("native-execution", "session", {"wp": "WP-316"}, NOW), self.assertRaises(PortError):
             packaging.native_lane(self.ledger, "session")
