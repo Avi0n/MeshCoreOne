@@ -156,17 +156,38 @@ class NewChatSheetComposeTest {
         val node = compose.onNodeWithText(text, useUnmergedTree = true).assertIsDisplayed()
         val bounds = node.fetchSemanticsNode().boundsInRoot
         val sheet = compose.onNodeWithTag("new-chat-sheet-${revision.value}").fetchSemanticsNode().boundsInRoot
-        assertTrue("$text outside sheet", bounds.left >= sheet.left && bounds.right <= sheet.right)
-        assertTrue("$text outside sheet", bounds.top >= sheet.top && bounds.bottom <= sheet.bottom)
+        assertTrue("$text outside sheet: frame=$frame node=$bounds sheet=$sheet", bounds.left >= sheet.left && bounds.right <= sheet.right)
+        assertTrue("$text outside sheet: frame=$frame node=$bounds sheet=$sheet", bounds.top >= sheet.top && bounds.bottom <= sheet.bottom)
         val layouts = mutableListOf<TextLayoutResult>()
         node.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
         val layout = layouts.single()
+        val actualText = layout.layoutInput.text.text
+        val glyphs = actualText.indices.associateWith { layout.getBoundingBox(it) }
+        val outside = glyphs.filterValues {
+            it.left < 0f || it.top < 0f || it.right > layout.size.width || it.bottom > layout.size.height
+        }
+        val lines = (0 until layout.lineCount).map { line ->
+            "$line:${layout.getLineStart(line)}..${layout.getLineEnd(line)}" +
+                " left=${layout.getLineLeft(line)} right=${layout.getLineRight(line)}" +
+                " top=${layout.getLineTop(line)} bottom=${layout.getLineBottom(line)}" +
+                " ellipsized=${layout.isLineEllipsized(line)}"
+        }
+        val diagnostic = "WP502_NEW_CHAT_LAYOUT|expected=$text|actual=$actualText|frame=$frame" +
+            "|effectiveScheme=$effectiveScheme|node=$bounds|sheet=$sheet|size=${layout.size}" +
+            "|constraints=${layout.layoutInput.constraints}" +
+            "|paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}" +
+            "|density=${layout.layoutInput.density.density}|fontScale=${layout.layoutInput.density.fontScale}" +
+            "|direction=${layout.layoutInput.layoutDirection}|style=${layout.layoutInput.style}" +
+            "|softWrap=${layout.layoutInput.softWrap}|maxLines=${layout.layoutInput.maxLines}" +
+            "|overflow=${layout.layoutInput.overflow}|didOverflowWidth=${layout.didOverflowWidth}" +
+            "|didOverflowHeight=${layout.didOverflowHeight}|lines=$lines|glyphs=$glyphs|outside=$outside"
+        if (layout.didOverflowWidth || layout.didOverflowHeight || outside.isNotEmpty()) println(diagnostic)
         assertEquals(text, layout.layoutInput.text.text)
         assertEquals(frame.fontScale, layout.layoutInput.density.fontScale, 0f)
         assertEquals(if (frame.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr, layout.layoutInput.layoutDirection)
-        assertFalse("$text clipped vertically", layout.didOverflowHeight)
-        assertFalse("$text clipped horizontally", layout.didOverflowWidth)
-        for (line in 0 until layout.lineCount) assertFalse("$text ellipsized", layout.isLineEllipsized(line))
+        assertFalse("$text clipped vertically; $diagnostic", layout.didOverflowHeight)
+        assertFalse("$text clipped horizontally; $diagnostic", layout.didOverflowWidth)
+        for (line in 0 until layout.lineCount) assertFalse("$text ellipsized; $diagnostic", layout.isLineEllipsized(line))
     }
 
     private fun assertEmptyCopyAbsent() {
