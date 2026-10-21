@@ -71,7 +71,7 @@ services and mounted `AppMessageContent` consumer. The earlier resolver and
 seven-original orchestrator comparisons remain intact; they are not replaced
 by these mounted counterparts.
 
-`ChatPrefetchAdmissionAcceptanceTest` adds fourteen methods. The nine frozen
+`ChatPrefetchAdmissionAcceptanceTest` initially added fourteen methods. The nine frozen
 admission scenarios retain their operative inputs and predicates:
 
 | Frozen scenario | Actual native witness |
@@ -113,6 +113,33 @@ per-test held/error responses; no primary original test body/assertion changes.
 All incumbent originals, ec6 witnesses, rollback/writer fixtures, diagnostic
 support, deadlines/oracles and prior evidence/history remain unchanged.
 These twenty supplementary methods do not add original-family credit.
+
+### Post-admission dimensions review correction
+
+Exact5f source review5607099115 identified that the original
+`Dimension resolution rebuilds matching message` appends first, then saves
+200x100 dimensions and rebuilds the matching item. The existing pre-admission
+header/aspect test is preserved as a useful positive control, but its revision
+assertion alone did not establish that original's late stream predicate:
+end-of-prefetch invalidation could make it pass with the subscription broken.
+
+One additional focused method, `lateDimensionsStreamRebuildsTheAdmittedMatchingRowBeforePrefetchCompletes`,
+admits the exact `look https://example.com/cat.png` message before dimensions
+exist. A different admitted dog-image row supplies a matching-key negative
+control. After enabling automatic probes, it observes the actual process
+resolution flow while a real second HTTP dimension probe keeps the actual
+prefetch operation suspended. The real cat PNG header saves200x100 into the
+process dimensions store; the observer must advance and the matching native
+row media must become aspect2.0 while prefetch is still incomplete and its
+unconditional completion invalidation is unreachable. The other row remains
+unresolved. Actual Room identity/content and reopening the dimensions file
+are also checked; held work and the observer are joined in cleanup.
+
+Only the owned test/helper and this evidence/deviation change. All fourteen
+earlier method bodies, their assertions and all production bytes remain
+unchanged. There are now fifteen admission methods plus six scope methods,
+not another original-family credit. Native execution remains pending this
+successor's own CI; source review is not execution or protected acceptance.
 
 ## Actual verification and boundaries
 

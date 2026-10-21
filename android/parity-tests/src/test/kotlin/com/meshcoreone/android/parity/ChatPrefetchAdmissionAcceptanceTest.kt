@@ -25,6 +25,7 @@ import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.*
 import kotlin.test.*
 import org.junit.Test
@@ -92,6 +93,62 @@ class ChatPrefetchAdmissionAcceptanceTest : RoomProcessTest() {
             assertEquals(2.0, com.meshcoreone.android.app.content.inlineImageDimensionsStore(f.context).aspect(CAT),
                 "Reopening the actual file store must retain the probed dimensions")
             assertEquals(message, store.fetchMessage(EntityKey(f.radio, message.id)))
+        }
+    }
+
+    @Test fun lateDimensionsStreamRebuildsTheAdmittedMatchingRowBeforePrefetchCompletes() = runTest {
+        withApp(autoDM = false) { f ->
+            val matching = f.message("look $CAT")
+            val other = f.message("other https://example.com/dog.png")
+            f.emit(matching)
+            f.awaitMessage(matching)
+            f.emit(other)
+            f.awaitMessage(other)
+            val content = assertNotNull(f.content)
+            fun media(message: MessageDTO) =
+                content.media(f.viewModel.state.value.messages.single { it.id == message.id }.text).single()
+            assertEquals(CAT, media(matching).url)
+            assertTrue(media(matching).isImage)
+            assertNull(media(matching).aspect)
+            assertNull(media(other).aspect)
+            assertTrue(f.http.requests.isEmpty())
+
+            f.storage.preferences.set(AppStorageKey.linkPreviewsAutoResolveDM, true)
+            f.harness.eventually("automatic probes enabled", virtualBudgetMillis = 0) {
+                content.rendering.value[AppStorageKey.linkPreviewsAutoResolveDM]
+            }
+            val beforeResolution = content.resolutions.value
+            val updated = f.screenScope.async(start = CoroutineStart.UNDISPATCHED) {
+                val revision = content.resolutions.first { it > beforeResolution }
+                revision to media(matching)
+            }
+            val held = "https://example.com/held.png"
+            f.http.heldProbeUrl = held
+            val prefetch = f.screenScope.async { content.prefetch("$CAT $held", isChannelMessage = false) }
+            try {
+                f.harness.eventually("post-admission dimensions stream", virtualBudgetMillis = 0) {
+                    updated.isCompleted && f.http.completedProbes == 1 && held in f.http.probes
+                }
+                assertFalse(prefetch.isCompleted, "Completion invalidation must still be unreachable")
+                assertFalse(f.http.releaseHeldProbe.isCompleted)
+                val (revision, rebuilt) = updated.await()
+                assertTrue(revision > beforeResolution)
+                assertEquals(CAT, rebuilt.url)
+                assertTrue(rebuilt.isImage)
+                assertEquals(2.0, rebuilt.aspect)
+                assertEquals(rebuilt, media(matching))
+                assertNull(media(other).aspect, "A different admitted row must not acquire the resolved aspect")
+                assertEquals(listOf(matching, other), f.viewModel.state.value.messages)
+                assertEquals(matching, store.fetchMessage(EntityKey(f.radio, matching.id)))
+                assertEquals(2.0, com.meshcoreone.android.app.content.inlineImageDimensionsStore(f.context).aspect(CAT))
+                f.http.releaseHeldProbe.complete(Unit)
+                prefetch.await()
+            } finally {
+                withContext(NonCancellable) {
+                    prefetch.cancelAndJoin()
+                    updated.cancelAndJoin()
+                }
+            }
         }
     }
 
@@ -401,6 +458,8 @@ class ChatPrefetchAdmissionAcceptanceTest : RoomProcessTest() {
         var probeDelay = 0L
         var completedProbes = 0
         var cancelledProbes = 0
+        var heldProbeUrl: String? = null
+        val releaseHeldProbe = CompletableDeferred<Unit>()
         var htmlUrl: String? = null
         var pageDelay = 0L
         override suspend fun fetch(url: String, timeoutMs: Long, rangeHeader: String?): HttpFetchAttempt {
@@ -408,7 +467,10 @@ class ChatPrefetchAdmissionAcceptanceTest : RoomProcessTest() {
             if (rangeHeader != null) {
                 assertEquals("bytes=0-65535", rangeHeader)
                 probes += url
-                try { delay(probeDelay) }
+                try {
+                    if (url == heldProbeUrl) releaseHeldProbe.await()
+                    delay(probeDelay)
+                }
                 catch (cancelled: CancellationException) { cancelledProbes++; throw cancelled }
                 completedProbes++
             } else {
