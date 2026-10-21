@@ -518,6 +518,169 @@ class RoomsComposeTest {
         assertTrue(fixture.reported.isEmpty())
     }
 
+    @Test fun selfOnlyMessagesNeverAcquireNamesOrAvatarFlagsBeforeReload() {
+        val first = liveMessage(1, 100u, "msg", Bytes.of(0xaa), "Me").copy(isFromSelf = true)
+        val second = liveMessage(2, 160u, "msg", Bytes.of(0xaa), "Me").copy(isFromSelf = true)
+        val (before, after) = assertOriginalGroupingArrival(
+            listOf(RoomMessageRow(first, true, false, false)),
+            listOf(RoomMessageRow(first, true, false, false), RoomMessageRow(second, false, false, false)),
+        )
+        assertEquals(before.single(), after.first())
+    }
+
+    @Test fun singleFollowUpReconfiguresTheRetainedFirstRowWithoutChangingItsLogicalIdentity() {
+        val first = liveMessage(1, 100u, "msg", Bytes.of(0xaa), "Alice")
+        val second = liveMessage(2, 160u, "msg", Bytes.of(0xaa), "Alice")
+        val (before, after) = assertOriginalGroupingArrival(
+            listOf(RoomMessageRow(first, true, true, true)),
+            listOf(RoomMessageRow(first, true, true, false), RoomMessageRow(second, false, false, true)),
+        )
+        assertEquals(first.id, before.single().message.id)
+        assertEquals(before.single().message.id, after.first().message.id)
+        assertEquals(before.single().message, after.first().message)
+        assertTrue(before.single().showAvatar)
+        assertFalse(after.first().showAvatar)
+        assertTrue(after[1].showAvatar)
+        assertNotEquals(before.single(), after.first())
+    }
+
+    @Test fun independent300SecondPairKeepsOneClusterAndOneVisibleTimestampBeforeReload() {
+        val first = liveMessage(1, 1000u, "msg", Bytes.of(0xaa), "Alice")
+        val second = liveMessage(2, 1300u, "msg", Bytes.of(0xaa), "Alice")
+        assertOriginalGroupingArrival(
+            listOf(RoomMessageRow(first, true, true, true)),
+            listOf(RoomMessageRow(first, true, true, false), RoomMessageRow(second, false, false, true)),
+        )
+    }
+
+    @Test fun independent301SecondPairSplitsBothBookendsAndVisibleTimestampsBeforeReload() {
+        val first = liveMessage(1, 1000u, "msg", Bytes.of(0xaa), "Alice")
+        val second = liveMessage(2, 1301u, "msg", Bytes.of(0xaa), "Alice")
+        val (before, after) = assertOriginalGroupingArrival(
+            listOf(RoomMessageRow(first, true, true, true)),
+            listOf(RoomMessageRow(first, true, true, true), RoomMessageRow(second, true, true, true)),
+        )
+        assertEquals(before.single(), after.first())
+    }
+
+    @Test fun selfMessageBreaksTheIncomingSamePrefixClusterBeforeReload() {
+        val first = liveMessage(1, 100u, "msg", Bytes.of(0xaa), "Alice")
+        val self = liveMessage(2, 160u, "msg", Bytes.of(0xaa), "Alice").copy(isFromSelf = true)
+        val third = liveMessage(3, 220u, "msg", Bytes.of(0xaa), "Alice")
+        val (before, after) = assertOriginalGroupingArrival(
+            listOf(RoomMessageRow(first, true, true, true)),
+            listOf(
+                RoomMessageRow(first, true, true, true),
+                RoomMessageRow(self, false, false, false),
+                RoomMessageRow(third, false, true, true),
+            ),
+        )
+        assertEquals(before.single(), after.first())
+    }
+
+    private fun assertOriginalGroupingArrival(
+        initialRows: List<RoomMessageRow>,
+        expectedRows: List<RoomMessageRow>,
+    ): Pair<List<RoomMessageRow>, List<RoomMessageRow>> {
+        val locale = Locale.getDefault()
+        val formatLocale = Locale.getDefault(Locale.Category.FORMAT)
+        val displayLocale = Locale.getDefault(Locale.Category.DISPLAY)
+        val zone = TimeZone.getDefault()
+        try {
+            Locale.setDefault(Locale.US)
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+            val timestampLabels = mapOf(
+                100u to "Jan 1, 00:01", 160u to "Jan 1, 00:02", 220u to "Jan 1, 00:03",
+                1000u to "Jan 1, 00:16", 1300u to "Jan 1, 00:21", 1301u to "Jan 1, 00:21",
+            )
+            val fixture = Fixture()
+            fixture.stored = initialRows.map { it.message }
+            mountRoute(fixture)
+            compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+            compose.onNode(hasSetTextAction()).performTextReplacement(body)
+            fun assertVisibleRows(expected: List<RoomMessageRow>) {
+                val state = fixture.holder.state.value
+                assertEquals(expected.map { it.message }, state.messages)
+                assertEquals(expected, state.rows)
+                assertEquals(body, state.draft)
+                assertTrue(state.hasLoadedOnce)
+                assertNull(state.failure)
+                val bubbles = expected.map { row ->
+                    compose.onNodeWithTag("room-bubble:${row.message.id}", useUnmergedTree = true).assertIsDisplayed()
+                        .fetchSemanticsNode().boundsInRoot
+                }
+                assertTrue(bubbles.zipWithNext().all { (a, b) -> a.bottom <= b.top })
+                compose.onAllNodesWithText("msg", useUnmergedTree = true).assertCountEquals(expected.size)
+                val labels = expected.map { row ->
+                    if (row.message.isFromSelf) "msg, ${text(Rooms.remoteNodesRoomMessageStatusDeliveredLabel)}"
+                    else "${row.message.authorDisplayName}: msg"
+                }
+                for ((label, count) in labels.groupingBy { it }.eachCount()) {
+                    val nodes = compose.onAllNodesWithContentDescription(label).assertCountEquals(count)
+                    for (index in 0 until count) nodes[index].assertIsDisplayed()
+                }
+                for (name in expected.map { it.message.authorDisplayName }.distinct()) {
+                    val namedRows = expected.withIndex().filter { it.value.showSenderName && it.value.message.authorDisplayName == name }
+                    val names = compose.onAllNodesWithText(name, useUnmergedTree = true).assertCountEquals(namedRows.size)
+                    val bounds = namedRows.indices.map { names[it].assertIsDisplayed().fetchSemanticsNode().boundsInRoot }
+                        .sortedBy { it.top }
+                    for ((index, row) in namedRows.withIndex()) {
+                        assertTrue(bounds[index].bottom <= bubbles[row.index].top)
+                        if (row.index > 0) assertTrue(bubbles[row.index - 1].bottom <= bounds[index].top)
+                    }
+                    compose.onAllNodesWithContentDescription(name).assertCountEquals(0)
+                }
+                for (label in expected.map { timestampLabels.getValue(it.message.timestamp) }.distinct()) {
+                    val count = expected.count { it.showTimestamp && timestampLabels.getValue(it.message.timestamp) == label }
+                    val nodes = compose.onAllNodesWithText(label).assertCountEquals(count)
+                    for (index in 0 until count) nodes[index].assertIsDisplayed()
+                }
+                compose.onNode(hasSetTextAction()).assertTextContains(body)
+                compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
+                compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
+            }
+            assertVisibleRows(initialRows)
+            val before = fixture.holder.state.value.rows
+            val load = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+            assertEquals(load, fixture.loads)
+            val expectedMessages = expectedRows.map { it.message }
+            assertEquals(expectedMessages.size, expectedMessages.map { it.deduplicationKey }.distinct().size)
+            val held = CompletableDeferred<Unit>()
+            compose.runOnIdle {
+                fixture.fetchGate = held
+                fixture.stored = expectedMessages
+                for (row in expectedRows.drop(initialRows.size)) {
+                    assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageReceived(session.id, row.message)))
+                }
+            }
+            compose.waitUntil { fixture.holder.state.value.messages == expectedMessages }
+            assertFalse(fixture.holder.state.value.isLoading)
+            assertEquals(load, fixture.loads)
+            assertVisibleRows(expectedRows)
+            org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
+            compose.waitUntil { fixture.loads.count { it == "fetch" } == 2 }
+            assertTrue(fixture.holder.state.value.isLoading)
+            assertEquals(load + "fetch", fixture.loads)
+            assertVisibleRows(expectedRows)
+            compose.runOnIdle { assertTrue(held.complete(Unit)) }
+            compose.waitUntil { !fixture.holder.state.value.isLoading && fixture.loads.count { it == "changed" } == 2 }
+            assertVisibleRows(expectedRows)
+            org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
+            assertEquals(load + load, fixture.loads)
+            assertEquals(1, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.posts.isEmpty())
+            assertTrue(fixture.joins.isEmpty())
+            assertTrue(fixture.retries.isEmpty())
+            assertTrue(fixture.reported.isEmpty())
+            return before to fixture.holder.state.value.rows
+        } finally {
+            TimeZone.setDefault(zone)
+            Locale.setDefault(locale)
+            Locale.setDefault(Locale.Category.FORMAT, formatLocale)
+            Locale.setDefault(Locale.Category.DISPLAY, displayLocale)
+        }
+    }
+
     private fun liveMessage(
         id: Long,
         timestamp: UInt,
