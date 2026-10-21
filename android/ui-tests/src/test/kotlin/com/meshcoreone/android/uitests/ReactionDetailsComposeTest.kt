@@ -18,6 +18,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -26,6 +27,7 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -145,55 +147,112 @@ class ReactionDetailsComposeTest {
         hasText(text) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab),
     )
 
+    private fun fullBounds(node: SemanticsNode): Rect {
+        val position = node.positionInRoot
+        return Rect(position.x, position.y, position.x + node.size.width, position.y + node.size.height)
+    }
+
+    private fun contains(outer: Rect, inner: Rect) =
+        inner.left >= outer.left && inner.top >= outer.top && inner.right <= outer.right && inner.bottom <= outer.bottom
+
+    private fun assertFullyVisible(node: SemanticsNode, expected: String) {
+        val full = fullBounds(node)
+        val visible = node.boundsInRoot
+        val ancestors = generateSequence(node) { it.parent }.toList()
+        val viewports = listOf(ancestors.last().boundsInRoot) + ancestors.drop(1).filter {
+            it.config.contains(SemanticsProperties.HorizontalScrollAxisRange) ||
+                it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
+        }.map { it.boundsInRoot }
+        val diagnostic = "$expected frame=$frame full=$full visible=$visible viewports=$viewports"
+        assertTrue(diagnostic, full.width > 0f && full.height > 0f)
+        assertTrue(diagnostic, contains(visible, full) && viewports.all { contains(it, full) })
+    }
+
     private fun assertCopyLayout(node: SemanticsNodeInteraction, expected: String) {
-        val bounds = node.assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val semantics = node.assertIsDisplayed().fetchSemanticsNode()
+        val bounds = semantics.boundsInRoot
         assertTrue(bounds.width > 0f && bounds.height > 0f)
+        compose.runOnIdle { assertFullyVisible(semantics, expected) }
         val layouts = mutableListOf<TextLayoutResult>()
         node.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
         val layout = layouts.single()
+        val diagnostic = "$expected frame=$frame node=$bounds size=${layout.size}" +
+            " constraints=${layout.layoutInput.constraints}" +
+            " paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}"
         assertEquals(expected, layout.layoutInput.text.text)
         assertEquals(frame.fontScale, layout.layoutInput.density.fontScale, 0f)
         assertEquals(if (frame.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr, layout.layoutInput.layoutDirection)
-        assertFalse(layout.didOverflowWidth)
-        assertFalse(layout.didOverflowHeight)
-        for (line in 0 until layout.lineCount) assertFalse(layout.isLineEllipsized(line))
+        assertFalse(diagnostic, layout.didOverflowWidth)
+        assertFalse(diagnostic, layout.didOverflowHeight)
+        for (line in 0 until layout.lineCount) assertFalse(diagnostic, layout.isLineEllipsized(line))
+    }
+
+    private fun clickVisibleTarget(node: SemanticsNodeInteraction, expected: String) {
+        node.assertHasClickAction().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+        assertCopyLayout(node, expected)
+        node.performClick()
+    }
+
+    private fun clickTab(label: String) {
+        clickVisibleTarget(tab(label).performScrollTo(), label)
     }
 
     private fun openBadge(emoji: String, count: Int) {
-        compose.onNodeWithContentDescription("$emoji, $count")
+        val badge = compose.onNodeWithContentDescription("$emoji, $count").performScrollTo()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
-            .assertHasClickAction().assertIsDisplayed().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
-            .performClick()
+        clickVisibleTarget(badge, if (count > 1) "$emoji $count" else emoji)
         compose.onNode(isDialog()).assertExists()
         assertCopyLayout(dialogText(title()), title())
     }
 
     private fun assertTabs(labels: List<String>, selected: String) {
         compose.onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)).assertCountEquals(labels.size)
-        val centers = labels.map { label ->
-            val node = tab(label).assertHasClickAction().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+        for (label in labels) {
+            val node = tab(label).performScrollTo().assertHasClickAction().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
                 .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, label == selected))
                 .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ToggleableState))
             assertCopyLayout(node, label)
-            node.fetchSemanticsNode().boundsInRoot.center.x
         }
-        assertTrue(centers.zipWithNext().all { (left, right) -> if (frame.rtl) left > right else left < right })
+        val observed = compose.onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)).fetchSemanticsNodes()
+        compose.runOnIdle {
+            val ordered = labels.map { label ->
+                observed.single { node -> node.config[SemanticsProperties.Text].any { it.text == label } }
+            }
+            val scrollParents = ordered.map { node ->
+                generateSequence(node.parent) { it.parent }.first { it.config.contains(SemanticsProperties.HorizontalScrollAxisRange) }
+            }
+            assertEquals(1, scrollParents.map { it.id }.distinct().size)
+            val viewport = scrollParents.first().boundsInRoot
+            val centers = ordered.map { fullBounds(it).center.x }
+            assertTrue(
+                "$labels frame=$frame same-viewport=$viewport tab centers=$centers",
+                centers.zipWithNext().all { (left, right) -> if (frame.rtl) left > right else left < right },
+            )
+        }
     }
 
     private fun assertSenders(expected: List<String>) {
-        val centers = expected.map { name ->
-            val node = dialogText(name)
+        for (name in expected) {
+            val node = dialogText(name).performScrollTo()
             assertCopyLayout(node, name)
-            node.fetchSemanticsNode().boundsInRoot.center.y
         }
-        assertTrue(centers.zipWithNext().all { (top, bottom) -> top < bottom })
+        val observed = expected.map { dialogText(it).fetchSemanticsNode() }
+        compose.runOnIdle {
+            val scrollParents = observed.map { node ->
+                generateSequence(node.parent) { it.parent }.first { it.config.contains(SemanticsProperties.VerticalScrollAxisRange) }
+            }
+            assertEquals(1, scrollParents.map { it.id }.distinct().size)
+            val viewport = scrollParents.first().boundsInRoot
+            val centers = observed.map { fullBounds(it).center.y }
+            assertTrue("$expected frame=$frame same-viewport=$viewport sender centers=$centers", centers.zipWithNext().all { (top, bottom) -> top < bottom })
+        }
         for (name in listOf("Laugh later", "\u7231\u4e3d\u4e1d", "Zulu", "\u05d0\u05d3\u05dd", "Beta", "Alpha", "Laugh first") - expected.toSet()) {
             dialogText(name).assertDoesNotExist()
         }
     }
 
     private fun finishDialog() {
-        dialogText(done()).assertHasClickAction().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp).performClick()
+        clickVisibleTarget(dialogText(done()), done())
         compose.onNode(isDialog()).assertDoesNotExist()
     }
 
@@ -236,7 +295,7 @@ class ReactionDetailsComposeTest {
         }
         compose.onNodeWithTag("reaction-route-1").assertExists()
         assertTabs(listOf("$THUMB 3", "$HEART 2", "$LAUGH 2"), "$HEART 2")
-        tab("$THUMB 3").performClick()
+        clickTab("$THUMB 3")
         assertTabs(listOf("$THUMB 3", "$HEART 2", "$LAUGH 2"), "$THUMB 3")
         assertSenders(listOf("Zulu", "Beta", "Alpha"))
         compose.runOnIdle { assertEquals(THUMB, fixture.holder.state.value.selectedEmoji) }
@@ -253,15 +312,14 @@ class ReactionDetailsComposeTest {
         assertTabs(listOf("$THUMB 3", "$HEART 2"), "$THUMB 3")
         assertSenders(listOf("Zulu", "Beta", "Alpha"))
         compose.runOnIdle { assertEquals(THUMB, fixture.holder.state.value.selectedEmoji) }
-        tab("$HEART 2").performClick()
+        clickTab("$HEART 2")
         assertTabs(listOf("$THUMB 3", "$HEART 2"), "$HEART 2")
         assertSenders(listOf("\u7231\u4e3d\u4e1d", "\u05d0\u05d3\u05dd"))
         finishDialog()
         assertBoundary(fixture, listOf(MESSAGE_ID))
         compose.runOnIdle { assertEquals(HEART, fixture.holder.state.value.selectedEmoji); revision.value += 1 }
         compose.onNodeWithTag("reaction-route-1").assertExists()
-        compose.onNode(hasText("+1") and hasClickAction())
-            .assertIsDisplayed().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp).performClick()
+        clickVisibleTarget(compose.onNode(hasText("+1") and hasClickAction()).performScrollTo(), "+1")
         compose.onNode(isDialog()).assertExists()
         compose.runOnIdle {
             assertEquals(listOf(MESSAGE_ID, MESSAGE_ID), fixture.reads)
