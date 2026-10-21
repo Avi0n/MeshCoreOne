@@ -95,6 +95,7 @@ coordinator integration.
 | `ContactMatchRowComposeTest` | Three new component definitions, Kotlin NOT RUN: actual public row consumes the complete original Relay advert input rather than recency/message date, full literal32-byte key, localized types/location/distance, Tap and both Toggle states. Sampled compact100%/200% CJK/RTL/default-light/Ember-forced-dark inputs assert actual text/row bounds and actions. Not another frozen original, repaired picker, GPS/formatter equivalence, complete avatar/glyph adaptation or a screenshot/golden verdict. All35 Rooms methods/helpers/Fixture remain byte-identical to ba. |
 | `NewChatSheetComposeTest` | Three LOCAL/UNVERIFIED mounted flow definitions use the real public NewChatSheet/NewChatStateHolder and held declared data port. Loading, source-order eligibility/routing labels, nickname/display-name CJK/accent/Hebrew search, no search/recomposition reload, exactly one original full DTO callback without sheet-owned dismissal, raw-empty/no-radio versus filtered-empty, and actual localized Cancel are asserted. Sampled English100%/Chinese200%-RTL/default-light/Ember-forced-dark text/action bounds only; no original recount, real store/radio, shell navigation, photo/avatar, failed-load presentation, device or golden acceptance. Incumbent Rooms276317/ContactMatchRowca8 are unchanged from corrective parent5b97. |
 | `EmojiComposerComposeTest` | Four LOCAL/UNVERIFIED AndroidOnly definitions mount production ComposerRoute with real composer/emoji holders: held catalog -> all eight ordered categories/frequent first, label/shortcode/CJK-tag search, Unicode accessibility fallback, loaded-empty versus failed, actual semantic dismissal/no mutation, real UTF16-selected ZWJ insertion/caret/targeted draft writes, one MRU normalization/write, cached reopen and failed-load reopen/cancellation. English100%/Ember-forced-dark200%-RTL/Chinese samples assert heading/copy layouts and48dp actions. Tiny controlled catalog, not full asset/glyph, reaction sending, OS/keyboard/global focus, original recount or whole-WP acceptance. |
+| `ReactionDetailsComposeTest` | Four LOCAL/UNVERIFIED AndroidOnly definitions/six fixtures drive real displayed preferred/stale/overflow badges through public MessageActionsRoute/real holder/private dialog. Independent count/earliest order, original DTO/sender rows, Selected/Role.Tab, tab changes, localized Done/reopen/exact message reads/no recomposition reload, successful empty and separate typed-failure/owner-cancellation diagnostics. English100%/Chinese200%-RTL/Ember forced-dark text/action bounds only. NOT another original-case count or reaction-sheet/error/accessibility/removed-scope/App send acceptance; loading/failure presentation, relative times, badge naming and ACTIVE Translate remain explicit owner-routed blockers. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -112,6 +113,65 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Mounted badge to reaction-details dialog: LOCAL UNVERIFIED
+
+Priority hold: exact781 automatic39559686777 FAILED, official Linux119088339862
+App829 completed/826passed/3failed, all three NewChat methods at horizontal
+overflow guard; aggregateFAIL/SwiftData upstreamSKIPPED. Reaction work is paused
+at this coherent local boundary for separate NewChat diagnosis. No reaction/
+emoji publication or inferred layout/execution pass; preserve all drafted bytes.
+
+One separate LOCAL successor AFTER source-reviewed emoji
+**1be8668edf5469582fa038b8ebdd51b33541306d** adds only
+`ReactionDetailsComposeTest.kt` and three owned docs. Same canonical
+actor/attempt's trusted `wp-owned`/`modify` evolution returns actual35 from34
+before edits. Frozen db145/mainactualdbb/manifest977b/policye8 unchanged;
+entire Emoji61d52/NewChat20f/ContactMatchca8/Rooms276317 test files preserved.
+New398-line test blob `d5dabbe48b6b038a8ff15a2e5986d27edc9aee77`.
+
+Complete frozen four selection bodies/sheet/badges/emoji section/Reaction DTO,
+actual route/holder/models/directory/Message DTO/primary pure tests/App delegate,
+shared modal/theme/localization and nearby frozen accessibility/action consumers
+were inspected. WP-309's pure test already covers all four preferred-selection
+primitives; new definitions are mounted AndroidOnly consumers, not originals.
+Real badge -> real route onLoadReactions -> real holder -> private dialog and
+real tab/Done actions are used, no copied callback, fake renderer or new API.
+
+Independent seven full DTO rows yield thumb3/heart2/laugh2 despite input
+laugh/heart/thumb/heart/thumb/thumb/laugh. Earliest epochs900/800/1000 distinguish
+count precedence and tied-count ordering; heart sender1300/800 stays supplied
+CJK/Hebrew order, not sorted by time/name. Real preferred heart, stale party,
+actual overflow+1/nil and genuinely successful empty families retain source
+predicates. Switching a real tab cannot read again; Done closes, actual overflow
+reopen reads the exact message again and resolves nil instead of retaining heart.
+All unrelated contacts/discovery/repeats/block/mute/action callbacks record and
+throw; legitimate incoming zero-hop/no-repeat message needs no detail/map work.
+
+Failure/cancellation diagnostic is distinct: real read exception retains typed
+ReactionsLoadFailed, owning cancellation records/rethrows CancellationException
+without that failure; neither is credited as successful empty/loading/recovery.
+All boundary assertions occur before teardown. No App reaction send, picker
+deferred-onDismiss, radio/store/service/map/OS/glyph/device/golden acceptance.
+
+**UNRESOLVED PRODUCT BLOCKERS, not accepted adaptations:** native state has no
+reaction-loading field and dialog ignores ReactionsLoadFailed, so pending/failed
+reads can present empty copy. Relative sender times and original empty title
+are absent. Badge accessibility uses raw emoji/count, not frozen name/hints.
+ActionButtons unconditionally displays Translate; App handler errors
+`Message translation is not registered`. This ACTIVE removed-scope violation
+is not excused by the frozen button or an inert enum; no provider/model is added.
+Route to WP-309 component owner/WP-407 App graph owner or separately trusted
+exact-path product repair. Test-only reservation35 admits NONE of those edits.
+
+**LOCAL UNPUBLISHED / Kotlin/compiler/Gradle/WSL/native/preflight/advisory NOT
+RUN.** Source-safe portmap1734/controller1866-input validation and independent
+DTO/order/time/six resource-vector/incumbent-blob checks PASS; not software
+discovery. This family requires complete source comparison and predecessor
+serialization before publication. Standing conditional publication of ONLY1be
+after exact781/all-six success plus clean three NewChat identities is unchanged;
+no current/future verdict is inferred, no polling/wait process or further family.
+[Complete methods, pins, vectors and blocker routing](software-verification.md#commeshcoreoneandroiduitestsreactiondetailscomposetest).
 
 ### Mounted emoji picker to composer: LOCAL UNVERIFIED
 

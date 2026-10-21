@@ -85,6 +85,164 @@ the incumbent41. Its four methods actually pass at
 `160ba7d3a4018278081c001319b8a6235859c689`; the two cohorts have not been
 combined/re-executed as a claimed45-case result in this resumption.
 
+### com.meshcoreone.android.uitests.ReactionDetailsComposeTest
+
+**LOCAL UNPUBLISHED / UNVERIFIED; Kotlin definitions NOT RUN.**
+Direct parent is source-reviewed local **1be8668edf5469582fa038b8ebdd51b33541306d**,
+itself direct781. Same canonical actor/attempt
+`3bc8c1b8-20ec-4647-88ae-db3775268489` evolves trusted `wp-owned`/`modify`
+actual34 to returned35 before edits for one owned test/three owned docs.
+Advisory receipt's null issue/PR fields remain unchanged, external managed
+branch/draft249/issue135 identity is separate. Mainactualdbb/source
+**db14559b39d32322b06477c6ae676112f583db50**/manifest977b/policye8 unchanged.
+New398-line test blob `d5dabbe48b6b038a8ff15a2e5986d27edc9aee77`.
+
+| Complete new definition (not execution) | Mounted input/actions and independent assertions |
+| --- | --- |
+| `preferredBadgeLoadsOrderedTabsAndTabSwitchUsesOriginalSenderRowsWithoutAnotherRead` | Real heart2 badge -> real holder held read for exact message400. Completed seven DTOs produce thumb3/heart2/laugh2; heart selected, original Chinese/Hebrew rows in supplied1300/800 order. Actual group DTO lists/object identity retained. Modifier recomposition preserves selected tab/no load, real thumb tab changes to Zulu/Beta/Alpha without read, actual Done dismisses; exactly one reaction read/no other ports. |
+| `staleBadgeAndRealOverflowResolveToFirstAndDoneReopenReloadsOnlyTheExactMessage` | Chinese200%-RTL/Ember forced-dark. Visible stale party1 has no returned group; available thumb/heart selects thumb. Real heart tab -> Chinese/Hebrew sender rows, Done closes without actions; modifier recompose cannot load. Actual displayed+1 overflow -> nil preference -> second held exact message400 read. Same returned DTOs now select first thumb rather than stale previous heart. Real ordered/count tabs, Selected/Role.Tab/no checkbox semantics, localized title/Done and48dp bounds, sender rows and exact two reads. |
+| `successfulEmptyReturnedGroupsShowLocalizedEmptyCopyOnlyAfterTheReadCompletes` | Separate English100%/Chinese200%-RTL fresh fixtures. Real thumb badge starts a held read; explicitly complete with successful empty list THEN require no tabs/null selection/actual localized empty description and Done. Recomposition cannot refetch. NO assertion declares premature empty during held/failed read correct loading. |
+| `diagnosticFailureAndOwnerCancellationDoNotBecomeSuccessfulReactionDataOrInvokeActions` | Separate failure and owner-cancellation fixtures use actual displayed badge. Explicit exception -> one recorded failed read/typed ReactionsLoadFailed, no success data. Owner scope cancellation -> one recorded/rethrown CancellationException/zero failed reads/no typed failure. Dialog remains closable via actual Done, private reason not visible; boundaries asserted before teardown. Diagnostic state/cancellation evidence ONLY, not loading/error/empty UI parity or error recovery. |
+
+Four AndroidOnly definitions/six fresh fixture inputs; **zero OriginalCase
+annotations/recounts**. Frozen primary owner WP-309 remains owner of all four
+ReactionDetailsSelectionTests bodies; existing ReactionsAndStateTest's
+`reaction selection uses preferred or first` already asserts preferred heart
+present/missing party/nil/empty available. New mounted consumers retain those
+four predicates without copying selection logic or becoming primary passes.
+
+Full inspected frozen inputs; current blobs equal immutable db145:
+
+| Source | Blob |
+| --- | --- |
+| `MC1Tests/Views/Chats/Components/ReactionDetailsSelectionTests.swift` | `cafcd068b3b78b30794538726476b4f8af660a11` |
+| `MC1/Views/Chats/Reactions/ReactionDetailsSheet.swift` | `1df5bb805e5b08ee9792823ca9e9d33dc54f3b5e` |
+| `MC1/Views/Chats/Reactions/ReactionBadgesView.swift` | `691f556edc4b999b797aee23e476679121cf80bd` |
+| `MC1/Views/Chats/Reactions/Sections/ActionsEmojiSection.swift` | `c973508b61297cf9f5f308ed0420f6dac38d1ea7` |
+| `MC1Services/Sources/MC1Services/Models/Reaction.swift` | `fed9026236e4cac1d37fd4491cb9f6c80303467c` |
+| `MC1/Views/Chats/Reactions/MessageActionsSheet.swift` | `40a0e4033e3206018fe67f79a87acbd6b1a503c7` |
+| `MC1/Views/Chats/Reactions/Sections/ActionsButtonsSection.swift` | `3f26628ec02a4fe173d915c64b5a8ae825c06be3` |
+| `MC1/Views/Chats/Reactions/String+EmojiAccessibilityName.swift` | `355146cde98fe2a5f274d617c1b98ef554f0656c` |
+
+Complete actual native inputs below are unchanged from parent1be/mainactualdbb.
+Feature paths are relative to
+`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/actions/`:
+
+| Consumer | Blob |
+| --- | --- |
+| `MessageActionsUi.kt` (full public route/content/badges/private dialog/action/path consumers) | `675960ac2359c88b593fff47a92ec985d91d62dc` |
+| `MessageActionsState.kt` (ports/holder/groups/selection/failures/cancellation) | `20a3b0d64dfef7e27791f306f266b4f78f3be810` |
+| `MessageActionModels.kt` (availability/summary parser/action enum) | `ba137531d4019ea71092116e4eee62e76c1537d1` |
+| `MessagePathModels.kt` (local arrivals/directory/no network) | `a79d9c65a17306f84b4fbf3f7c3fa195d8f5787a` |
+| `android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/actions/ReactionsAndStateTest.kt` | `fa514c52875299ccd05fd37abedbcb8eb73fa211` |
+| `android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt` | `73e9e78d5c6ac11560a84521e49e07f509e54099` |
+| `android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DiagnosticDTOs.kt` (full ReactionDTO) | `439a39d0a49c3be28e26e4b829a419e82502d332` |
+| `android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageActions.kt` | `e6dcbb07bff39c1912ec08c1c9bf9c2ab2263218` |
+
+Also read full relevant frozen ReactionParser/ReactionsFragmentView/
+ActionsPreviewHeader, native shared touch target/theme/localized resources and
+existing mounted modal harness. This test mounts public MessageActionsRoute,
+NOT content with a copied onLoad/select callback and NOT AppMessageActions.
+Only actual badge/overflow/tab/Done semantics drive the private dialog; no
+test-only product API. Frozen ActionsEmojiSection's deferred child-picker
+onDismiss and AppMessageActions feature.react/send/store actions are separate
+unmounted consumers, not proven by this family or the reviewed composer test.
+
+Full MessageDTO fields/defaults are explicit: message400/radio401, incoming
+delivered channel0, source text Reaction target, timestamp700/created-sort710,
+zero-hop empty immutable path/no repeats/no sender prefix, Target parent,
+read=true, all unrelated reply/ack/retry/preview/mention/route/region fields
+explicit. Legitimate no-path-detail predicate makes automatic loadDetails a
+no-op; contacts/discovery/repeat reads must throw if it unexpectedly stops
+being one. No injected false availability, fake map renderer or service stub.
+
+Seven independent ReactionDTOs all bind full message400/radio401/channel0/
+nil contact, IDs410..416, exact raw text/hash and supplied receipt instants:
+
+| Input index/ID suffix | Emoji | Sender | Receipt epoch |
+| --- | --- | --- | --- |
+| 0/410 | U+1F602 | Laugh later | 1400 |
+| 1/411 | U+2764 U+FE0F | U+7231 U+4E3D U+4E1D | 1300 |
+| 2/412 | U+1F44D | Zulu | 1200 |
+| 3/413 | U+2764 U+FE0F | U+05D0 U+05D3 U+05DD | 800 |
+| 4/414 | U+1F44D | Beta | 1100 |
+| 5/415 | U+1F44D | Alpha | 900 |
+| 6/416 | U+1F602 | Laugh first | 1000 |
+
+Expected order/count is independently thumb3/heart2/laugh2, earliest900/800/
+1000. Count beats earlier heart800; tied heart2 beats laugh2 by800<1000,
+despite input encountering laugh first. Expected sender rows preserve input
+subsequence, deliberately not time/alphabet sorting. Raw text is literal
+emoji + @[Target parent] + newline + 0123abcd; that opaque chosen hash/raw
+DTO input is NOT a derived target hash, protocol/codec or radio-send oracle.
+Missing preferred sample returns original input indices2/1/4/3/5 (thumb/heart
+only), clicked party remains recognizable as original missing family;
+actual+1 overflow supplies nil after previously selected heart. Empty family
+completes a real successful empty read, never converts exception into success.
+
+Recorded MessageActionsDataSource permits only reactions(message400) to await
+an explicit response. Wrong message/contacts/discovery/repeats/block/mute and
+EVERY MessageAction callback record+throw AssertionError, not swallowed
+Exception/empty success. Exact one/two message-ID read lists,0 active reads,
+empty directory/null repeats/no detail loading/no blocked or muted state and
+zero forbidden calls are required. Explicit failed read records/rethrows
+IllegalStateException; owner cancellation records/rethrows CancellationException
+separately. Typed failure/no typed cancellation state is asserted before
+Done/teardown, no cleanup success conceals the primary diagnostic.
+
+Frames are software-host360dp/1400dp, English100%-LTR/default-light and
+Chinese200%-RTL/Ember LIGHT request -> forced DARK, synchronized theme probe.
+UTC display zone is fixed/restored; all fixture timestamps are literal, no
+now/delay oracle. Actual Selected/Role.Tab/no toggle semantics, logical count
+order and physical LTR/RTL tab order, sender vertical order, localized title/
+empty description/Done, positive bounds/no text overflow/ellipsis and48dp badge/
+tab/overflow/Done targets are defined assertions. Not platform glyph/emoji name
+pronunciation/font/asset/TalkBack/OS Back/swipe/device/golden approval.
+
+**Product-owner blockers remain OPEN; test success cannot clear them:**
+
+| Exact producer surface | Source-backed unresolved behavior / required owner action |
+| --- | --- |
+| WP-309 `MessageActionsState.kt` / `MessageActionsUi.kt` | No reaction-loading field; dialog reads groups/selection only and ignores ReactionsLoadFailed. Held/failed reads can therefore render successful-empty description. Frozen sheet has isLoading/ProgressView; no precompletion empty assertion is accepted here. Add real loading/typed failure presentation through the owner or separately trusted exact-path product admission, not a copied test renderer. |
+| WP-309 `MessageActionsUi.kt` | Dialog emits senderName only, lacks frozen receivedAt relative text and original empty-state title. Supplied time/count fixtures prove state grouping, not relative-time UI/Foundation equality. |
+| WP-309 `MessageActionsUi.kt` ReactionBadges | Raw emoji/comma/count contentDescription and raw+N rather than frozen emojiAccessibilityName/localized badge/overflow names and hints. Raw selector is NOT accessibility acceptance. |
+| WP-309 `MessageActionsUi.kt` ActionButtons / WP-407 `AppMessageActions.kt` graph | Translate button is unconditional and active; onAction reaches Translate -> error Message translation is not registered, then App failure handling. ACTIVE removed-scope violation, unlike inert MessageAction.Translate enum. Remove reachable affordance through owner/trusted admission; do not restore providers/models, advance pin or call this deferred/approved because frozen ActionsButtonsSection contains it. |
+
+NONE of those product/App paths is admitted by reservation35 or edited.
+No full reaction sheet/error/accessibility/removed-scope, original family,
+App reaction sending/picker dismissal/service/database/radio/map/OS/asset/
+glyph/device/golden/full-WP acceptance is manufactured.
+
+Actual source-safe checks PASS: portmap1734 mappings/one new AndroidOnly map;
+controller1866 frozen inputs/1786 owned/80 excluded/64WPs/178 edges at977b;
+whitespace clean; independent seven-row/count-vs-earliest/input-subsequence/
+six exact en/zh resource vectors and entire incumbent blobs. Commands:
+
+```text
+python tools\android-port\portmap.py
+python tools\android-port\controller\validate.py
+git diff --check
+```
+
+Future EXISTING task/selector **NOT RUN**; require all FOUR named definitions
+in nonempty well-formed App XML/0 failures/errors/skips, retaining the fourth's
+diagnostic-not-UI-acceptance meaning:
+
+```text
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.ReactionDetailsComposeTest
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+No compiler/Gradle/WSL/native/host/guest/advisory/runtime/hook/main/policy action,
+dispatch/rerun/poll/watch/sleep/wait process or new actor/family. Full Emoji61d52,
+NewChat20f, ContactMatchca8, Rooms276317 preserved. This new family stays LOCAL/
+UNPUBLISHED for complete source comparison and predecessor serialization.
+ONLY already-reviewed1be retains conditional publication after exact781/
+all-six success and official clean three NewChat identities plus fresh guards;
+no known/running/predecessor verdict transfers to this new candidate.
+
 ### com.meshcoreone.android.uitests.EmojiComposerComposeTest
 
 **LOCAL UNPUBLISHED / UNVERIFIED; all four definitions NOT RUN.**
