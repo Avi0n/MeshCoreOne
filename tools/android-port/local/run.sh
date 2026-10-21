@@ -10,21 +10,38 @@ overlay="$6"
 mode="${7:-manual}"
 queue_seconds="${8:-10}"
 fast_seconds="${9:-180}"
+completion="${10:-}"
+token="${11:-}"
+admission="${12:-}"
 work="${ANDROID_LOCAL_HOME:-$HOME/meshcoreone-work}"
 mkdir -p "$work/local-checks"
 py="${ANDROID_LOCAL_PYTHON:-$work/venv312/bin/python}"
 [[ -x "$py" ]] || { echo "BLOCKED: provision pinned Python at $py" >&2; exit 1; }
+if [[ "$mode" == "manual" || "$mode" == "advisory" ]]; then
+  [[ -n "$completion" && -n "$token" && -f "$admission" ]] || {
+    echo "BLOCKED: actual shared execution ownership and cleanup binding required" >&2; exit 1;
+  }
+  options=()
+  [[ "$mode" != "manual" ]] || options+=(--preserve-daemons)
+  exec "$py" "$tool/advisory.py" --completion "$completion" --token "$token" \
+    --admission "$admission" --commit "$revision" "${options[@]}" -- \
+    bash "$0" "$bundle" "$revision" "$key" "$tool" "$stages" "$overlay" "$mode-lane" \
+    "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission"
+fi
+[[ -f "$admission" && "$admission" -ef /proc/self/fd/8 ]] || {
+  echo "BLOCKED: runner did not inherit actual shared execution admission" >&2; exit 1;
+}
 if [[ "$mode" == "owned-lock" ]]; then
   [[ "$work/local-checks/gradle.lock" -ef /proc/self/fd/9 ]] && flock -n 9 || {
     echo "BLOCKED: bounded runner did not inherit its actual lane lock" >&2; exit 1;
   }
 else
-  [[ "$mode" == "manual" || "$mode" == "advisory" ]] || {
+  [[ "$mode" == "manual-lane" || "$mode" == "advisory-lane" ]] || {
     echo "BLOCKED: unknown local launcher mode: $mode" >&2; exit 1;
   }
   echo "Waiting for shared local Gradle lane (other workstreams may be running)..."
   exec 9>"$work/local-checks/gradle.lock"
-  if [[ "$mode" == "advisory" ]]; then
+  if [[ "$mode" == "advisory-lane" ]]; then
     if flock -E 75 -w "$queue_seconds" 9; then
       :
     else
@@ -37,7 +54,8 @@ else
       exit "$status"
     fi
     exec "$py" "$tool/advisory.py" --seconds "$fast_seconds" -- \
-      bash "$0" "$bundle" "$revision" "$key" "$tool" "$stages" "$overlay" owned-lock
+      bash "$0" "$bundle" "$revision" "$key" "$tool" "$stages" "$overlay" owned-lock \
+      "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission"
   fi
   flock 9
 fi

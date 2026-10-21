@@ -8,9 +8,12 @@ from pathlib import Path
 import platform
 import re
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
+import time
+import uuid
 
 
 SHA = re.compile(r"[0-9a-f]{40}")
@@ -20,6 +23,130 @@ OPTIONAL_STAGES = {"benchmark", "benchmark-dependencies"}
 REQUIRED_TOOLCHAIN = {"python", "jdk", "android_sdk", "gradle"}
 ADVISORY_QUEUE_SECONDS = 10
 ADVISORY_FAST_SECONDS = 180
+
+
+def execution_runtime(repo):
+    common = Path(capture([
+        "git", "-C", str(repo), "rev-parse", "--path-format=absolute", "--git-common-dir",
+    ]))
+    target = common / "meshcore-reservations"
+    if not (target / "runtime-manifest.json").is_file():
+        raise ValueError("Missing installed execution-interlock runtime; reviewed installation required")
+    source = Path(__file__).resolve().parent
+    modules = source if source.name == "local" else target
+    if not (modules / "reserve.py").is_file() or not (target / "controller/ledger.py").is_file():
+        raise ValueError("Incomplete installed execution-interlock runtime")
+    sys.path.insert(0, str(modules))
+    try:
+        import reserve
+        from controller.ledger import Ledger
+        from controller import ledger as ledger_module
+        from controller.errors import PortError
+    except ImportError as error:
+        raise ValueError("Incomplete installed execution-interlock imports; reviewed installation required") from error
+
+    if (getattr(ledger_module, "EXECUTION_INTERLOCK_VERSION", None) != 2
+            or Path(reserve.__file__).resolve() != modules / "reserve.py"):
+        raise ValueError("Unavailable exact execution-interlock runtime; reviewed installation required")
+    try:
+        manifest = reserve.verify_runtime(target)
+    except PortError as error:
+        raise ValueError(str(error)) from error
+    # A self-consistent old manifest is not evidence of current two-sided arbitration.
+    sources = reserve.runtime_sources()
+    for name, path in sources.items():
+        expected = hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+        if manifest["files"].get(name) != expected:
+            raise ValueError(f"Installed execution runtime is old or mismatched: {name}")
+    if (Path(ledger_module.__file__).read_bytes().replace(b"\r\n", b"\n")
+            != (target / "controller/ledger.py").read_bytes()):
+        raise ValueError("Loaded Ledger differs from the installed execution interlock")
+    for name, _ in runtime_files():
+        if ((source / name).read_bytes().replace(b"\r\n", b"\n")
+                != (target / name).read_bytes()):
+            raise ValueError(f"Local launcher differs from installed execution runtime: {name}")
+    try:
+        policy = reserve.load_json(repo / "docs/android/automation-policy.json")
+        repository = reserve.repository_identity(manifest, "Installed runtime")
+        if reserve.repository_identity(policy, "Candidate policy") != repository:
+            raise ValueError("Candidate repository differs from trusted installed runtime identity")
+        return Ledger(reserve.shared_ledger(repo), repository)
+    except PortError as error:
+        raise ValueError(str(error)) from error
+
+
+def cleaned_execution(path, token):
+    if not path.is_file() or path.is_symlink():
+        return False
+    try:
+        proof = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    return (
+        isinstance(proof, dict) and set(proof) == {"schema_version", "token", "status", "returncode"}
+        and type(proof["schema_version"]) is int and proof["schema_version"] == 1 and proof["token"] == token
+        and proof["status"] == "owned-children-reaped" and type(proof["returncode"]) is int
+    )
+
+
+def run_owned(repo, revision, distribution, stages, worktree, *, advisory=False, adapter=None):
+    if worktree:
+        raise ValueError("Working-tree overlays are not supported by the installed merge verifier")
+    if (
+        not isinstance(stages, list) or not stages or not all(isinstance(stage, str) for stage in stages)
+        or len(stages) != len(set(stages)) or set(stages) - (set(ALL_STAGES) | OPTIONAL_STAGES)
+        or adapter is not None and (advisory or stages != ALL_STAGES)
+    ):
+        raise ValueError("Invalid exact committed execution request")
+    commit, tree = binding(repo, revision)
+    # Never invoke transport, bundle construction or an adapter before atomic admission.
+    ledger = execution_runtime(repo)
+    from controller.errors import PortError
+    token = uuid.uuid4().hex
+    owner = f"local-check:{token}"
+    directory = Path(tempfile.mkdtemp(prefix="meshcore-execution-"))
+    completion = directory / "cleanup.json"
+    admission = directory / "admission.json"
+    payload = {"commit": commit, "tree": tree, "pid": os.getpid(), "token": token,
+               "completion": str(completion), "mode": "advisory" if advisory else "manual"}
+    try:
+        ledger.acquire_hard_lock("gradle-execution", owner, payload, time.time())
+    except (PortError, sqlite3.Error) as error:
+        directory.rmdir()
+        raise ValueError(str(error)) from error
+    execution = {"started": False}
+    try:
+        # Revalidate under ownership: installation and execution cannot cross here.
+        execution_runtime(repo)
+        if adapter and not sys.platform.startswith("linux"):
+            raise ValueError("Full/manual adapter cleanup requires the supported Linux pidfd supervisor")
+        admission.write_text(json.dumps({
+            "schema_version": 1, "interlock_version": 2, "owner": owner, "token": token,
+            "commit": commit, "tree": tree,
+        }) + "\n", encoding="utf-8")
+        if adapter:
+            result = run_adapter(repo, commit, adapter, completion=completion, token=token,
+                                 admission=admission, execution=execution)
+        else:
+            prefix = transport(distribution, execution=execution)
+            result = run_candidate(repo, commit, prefix, stages, worktree, advisory=advisory,
+                                   completion=completion, token=token, admission=admission,
+                                   execution=execution)
+        if not cleaned_execution(completion, token):
+            raise ValueError("Execution returned without proven owned-child cleanup; ownership retained")
+        return result
+    finally:
+        if not execution["started"] or cleaned_execution(completion, token):
+            try:
+                ledger.release_hard_lock("gradle-execution", owner)
+            except PortError as error:
+                raise ValueError("Own execution release failed; retain recovery inputs") from error
+            shutil.rmtree(directory)
+        else:
+            print(f"BLOCKED: execution cleanup unproven; retained {owner}, recovery input {directory}",
+                  file=sys.stderr)
+
+
 def runtime_files():
     return (
         ("check.py", "check.py"), ("fast.py", "fast.py"),
@@ -55,7 +182,7 @@ def binding(repo, revision):
     return commit, tree
 
 
-def transport(distribution):
+def transport(distribution, *, execution=None):
     if os.name != "nt":
         if shutil.which("bash") is None:
             raise ValueError("Bash is unavailable")
@@ -67,6 +194,9 @@ def transport(distribution):
     if distribution:
         prefix.extend(["--distribution", distribution])
     prefix.append("--")
+    if execution is None:
+        raise ValueError("Transport requires actual shared execution admission")
+    execution["started"] = True
     subprocess.run([*prefix, "bash", "-c", "command -v git && command -v flock"], check=True)
     return prefix
 
@@ -77,36 +207,40 @@ def linux_path(path, prefix):
     return capture([*prefix, "wslpath", "-u", str(path).replace("\\", "/")])
 
 
-def run_candidate(repo, revision, prefix, stages, worktree, *, advisory=False):
+def run_candidate(repo, revision, prefix, stages, worktree, *, advisory=False, completion=None,
+                  token=None, admission=None, execution=None):
     if worktree:
         raise ValueError("Working-tree overlays are not supported by the installed merge verifier")
+    if completion is None or token is None or admission is None or execution is None:
+        raise ValueError("Local execution requires actual shared ownership and cleanup binding")
     revision, _ = binding(repo, revision)
     key = hashlib.sha256(str(repo).encode("utf-8")).hexdigest()[:16]
     tool = Path(__file__).resolve().parent
-    with tempfile.TemporaryDirectory(prefix="meshcore-local-") as temporary:
-        directory = Path(temporary)
-        control = directory / "control"
-        control.mkdir()
-        for source_name, installed_name in runtime_files():
-            source = tool / source_name
-            if source.is_file():
-                (control / installed_name).write_bytes(source.read_bytes().replace(b"\r\n", b"\n"))
-        bundle = directory / "candidate.bundle"
-        subprocess.run(["git", "-C", str(repo), "bundle", "create", str(bundle), *bundle_revisions(revision)], check=True)
-        command = [
-            *prefix, "bash", linux_path(control / "run.sh", prefix),
-            linux_path(bundle, prefix), revision, key, linux_path(control, prefix),
-            ",".join(stages), "",
-        ]
-        if advisory:
-            command.extend(["advisory", str(ADVISORY_QUEUE_SECONDS), str(ADVISORY_FAST_SECONDS)])
-        result = subprocess.run(command)
-        if advisory and result.returncode in (75, 124):
-            reason = (f"shared local Gradle lane queued beyond {ADVISORY_QUEUE_SECONDS}s"
-                      if result.returncode == 75 else
-                      f"advisory fast check exceeded {ADVISORY_FAST_SECONDS}s; owned work cleaned")
-            raise ValueError(reason + "; exact full/manual merge verification still required")
-        result.check_returncode()
+    control = completion.parent / "control"
+    control.mkdir()
+    for source_name, installed_name in runtime_files():
+        source = tool / source_name
+        if source.is_file():
+            (control / installed_name).write_bytes(source.read_bytes().replace(b"\r\n", b"\n"))
+    bundle = completion.parent / "candidate.bundle"
+    execution["started"] = True
+    subprocess.run(["git", "-C", str(repo), "bundle", "create", str(bundle), *bundle_revisions(revision)], check=True)
+    command = [
+        *prefix, "bash", linux_path(control / "run.sh", prefix),
+        linux_path(bundle, prefix), revision, key, linux_path(control, prefix),
+        ",".join(stages), "", "advisory" if advisory else "manual",
+        str(ADVISORY_QUEUE_SECONDS), str(ADVISORY_FAST_SECONDS),
+        linux_path(completion, prefix), token, linux_path(admission, prefix),
+    ]
+    result = subprocess.run(command)
+    if not cleaned_execution(completion, token):
+        raise ValueError("Local runner exited without proven owned-child cleanup; ownership retained")
+    if advisory and result.returncode in (75, 124):
+        reason = (f"shared local Gradle lane queued beyond {ADVISORY_QUEUE_SECONDS}s"
+                  if result.returncode == 75 else
+                  f"advisory fast check exceeded {ADVISORY_FAST_SECONDS}s; owned work cleaned")
+        raise ValueError(reason + "; exact full/manual merge verification still required")
+    result.check_returncode()
 
 
 def pending_file(repo):
@@ -175,7 +309,7 @@ def validate_result(path, expected_commit, expected_tree):
     return data
 
 
-def run_adapter(repo, revision, state_path):
+def run_adapter(repo, revision, state_path, *, completion=None, token=None, admission=None, execution=None):
     state = json.loads(Path(state_path).read_text(encoding="utf-8"))
     if set(state) != {"schema_version", "adapter"} or state["schema_version"] != 1:
         raise ValueError("Malformed contributor toolchain adapter state")
@@ -183,16 +317,33 @@ def run_adapter(repo, revision, state_path):
     if not isinstance(adapter, list) or not adapter or not all(isinstance(item, str) and item for item in adapter):
         raise ValueError("Toolchain adapter command must be a non-empty argument list")
     commit, tree = binding(repo, revision)
-    with tempfile.TemporaryDirectory(prefix="meshcore-adapter-") as temporary:
-        result = Path(temporary) / "result.json"
-        subprocess.run([
-            *adapter, "--repo", str(repo), "--commit", commit, "--tree", tree,
-            "--stages", ",".join(ALL_STAGES), "--output", str(result),
-        ], check=True)
-        return validate_result(result, commit, tree)
+    if completion is None or token is None or admission is None or execution is None:
+        raise ValueError("Adapter execution requires actual shared ownership and cleanup binding")
+    result = completion.parent / "adapter-result.json"
+    execution["started"] = True
+    subprocess.run([
+        sys.executable, str(Path(__file__).with_name("advisory.py")),
+        "--completion", str(completion), "--token", token, "--preserve-daemons",
+        "--admission", str(admission), "--commit", commit, "--",
+        *adapter, "--repo", str(repo), "--commit", commit, "--tree", tree,
+        "--stages", ",".join(ALL_STAGES), "--output", str(result),
+    ], check=True)
+    return validate_result(result, commit, tree)
 
 
 def install(repo, prefix, distribution):
+    ledger = execution_runtime(repo)
+    from controller.errors import PortError
+
+    try:
+        with ledger.hard_lock("installed-git-common-runtime", f"hook-install:{uuid.uuid4().hex}",
+                              {"hook_source": str(Path(__file__).resolve())}, time.time()):
+            install_hook_files(repo, distribution)
+    except PortError as error:
+        raise ValueError(str(error)) from error
+
+
+def install_hook_files(repo, distribution):
     hooks = Path(capture(["git", "-C", str(repo), "rev-parse", "--path-format=absolute", "--git-path", "hooks"]))
     hooks.mkdir(parents=True, exist_ok=True)
     hook = hooks / "pre-push"
@@ -245,7 +396,7 @@ def main(argv=None):
             print(f"Merge verification valid for {commit} ({tree}).")
             return 0
         if args.install_hook:
-            install(repo, transport(args.distribution), args.distribution)
+            install(repo, [], args.distribution)
             return 0
         for commit in commits:
             try:
@@ -257,16 +408,17 @@ def main(argv=None):
                             "Bounded advisory cleanup is unavailable for contributor adapters; "
                             "run the exact full/manual adapter verification before merge"
                         )
-                    run_adapter(repo, commit, args.toolchain_state)
+                    run_owned(repo, commit, args.distribution, stages, args.worktree,
+                              adapter=args.toolchain_state)
                 else:
-                    run_candidate(repo, commit, transport(args.distribution), stages, args.worktree,
-                                  advisory=args.pre_push)
-            except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+                    run_owned(repo, commit, args.distribution, stages, args.worktree,
+                              advisory=args.pre_push)
+            except (OSError, ValueError, KeyError, sqlite3.Error, subprocess.SubprocessError) as error:
                 if not args.pre_push:
                     raise
                 record_pending(repo, commit, error)
         return 0
-    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, KeyError, sqlite3.Error, subprocess.SubprocessError) as error:
         print(f"BLOCKED: {error}", file=sys.stderr)
         return 1
 

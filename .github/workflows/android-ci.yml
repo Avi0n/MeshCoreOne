@@ -36,11 +36,9 @@ jobs:
           persist-credentials: false
       - id: changed
         name: Classify changed inputs with fail-safe defaults
-        run: >-
-          python tools/android-port/oracle/workflow_scope.py
-          --event-name "${{ github.event_name }}"
-          --event-path "${{ github.event_path }}"
-          --output "$GITHUB_OUTPUT"
+        run: |
+          python tools/android-port/oracle/workflow_scope.py --event-name "${{ github.event_name }}" --event-path "${{ github.event_path }}" --output "$GITHUB_OUTPUT"
+          python tools/android-port/controller/test_runner.py --candidate-event-name "${{ github.event_name }}" --candidate-event-path "${{ github.event_path }}" --scope-output "$GITHUB_OUTPUT"
 
   controller:
     name: Controller and workflow policy
@@ -69,7 +67,7 @@ jobs:
       - name: Run controller tests once
         if: ${{ needs.scope.outputs.controller == 'true' }}
         run: |
-          python tools/android-port/controller/test_runner.py --include-tests tools/android-port/local
+          python tools/android-port/controller/test_runner.py --include-tests tools/android-port/local --candidate-event-name "${{ github.event_name }}" --candidate-event-path "${{ github.event_path }}"
           python tools/android-port/controller/verification_config.py --check
           python tools/android-port/controller/validate.py
           python tools/android-port/portmap.py

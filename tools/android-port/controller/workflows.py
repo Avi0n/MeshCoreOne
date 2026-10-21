@@ -106,8 +106,34 @@ def validate_candidate(value: dict, text: str):
     all_runs = "\n".join(
         step.get("run", "") for job in jobs.values() for step in job.get("steps", [])
     )
-    if all_runs.count("controller/test_runner.py") != 1:
-        raise PortError("Controller tests must execute exactly once")
+    if all_runs.count("controller/test_runner.py") != 2:
+        raise PortError("Controller requires one scope-only selector and exactly one strict test invocation")
+    event_arguments = (
+        '--candidate-event-name "${{ github.event_name }}" '
+        '--candidate-event-path "${{ github.event_path }}"'
+    )
+    runner_command = (
+        "python tools/android-port/controller/test_runner.py --include-tests tools/android-port/local "
+        + event_arguments
+    )
+    selector_command = (
+        "python tools/android-port/controller/test_runner.py " + event_arguments + ' --scope-output "$GITHUB_OUTPUT"'
+    )
+    selectors = [step for step in jobs["scope"]["steps"] if "controller/test_runner.py" in step.get("run", "")]
+    if (
+        len(selectors) != 1 or "if" in selectors[0] or selectors[0].get("continue-on-error")
+        or selector_command not in selectors[0].get("run", "").splitlines()
+    ):
+        raise PortError("Candidate scope must select the committed native family without conditional or ignored failure")
+    runners = [
+        step for step in jobs["controller"]["steps"] if "controller/test_runner.py" in step.get("run", "")
+    ]
+    if (
+        len(runners) != 1 or runners[0].get("if") != "${{ needs.scope.outputs.controller == 'true' }}"
+        or runners[0].get("continue-on-error")
+        or runner_command not in runners[0].get("run", "").splitlines()
+    ):
+        raise PortError("Controller CI must discover the real native accessibility runner regressions once and fail closed")
     for name in ("build", "external-oracle", "backup-oracle"):
         job = jobs[name]
         if job.get("if") == "${{ always() }}" or "scope" not in job.get("needs", []):
