@@ -88,7 +88,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four route/render methods, thirteen mounted ordering witnesses, six original label/action consumers and three actual-renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Next six source-defined load-stage failure/recovery methods pass together ata9a6be400; every26 incumbent source line/helper/Fixture is preserved. Source32 is not a combined32 or primary original-case approval. No actual RoomServerService/history sync/Room-database/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
+| `RoomsComposeTest` | Original four route/render methods, thirteen mounted ordering witnesses, six original label/action consumers and three actual-renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure consumers plus three supplementary Android-only defensive port-fault consumers pass together ata9a6be400; every26 incumbent source line/helper/Fixture is preserved. Source32 is not a combined32 or primary original-case approval. No actual RoomServerService/history sync/Room-database/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -107,14 +107,21 @@ height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
 
-### Next local source-defined family: all six load-stage failure consumers
+### Rooms load failures: three Swift-reachable and three Android-only consumers
 
 After actual52e source review COMMENTED5594110568 (no additional bounded
 blocker), the coordinator directs the next genuinely missing existing Rooms
 behavior family locally while preserving healthy published52e/39530338898.
 Full frozen ViewModel.loadMessages/View consumers and actual holder/route/
-existing Fixture were read; these are six source-defined fault boundaries,
-not six additional frozen test originals or primary-case accounting.
+existing Fixture were read. Frozen loadMessages has only three throwing calls:
+`try await fetchMessages`, `try await markAsRead` and
+`try await dataStore?.markFailedSendsSeen`. Those first three consumers exercise
+source-reachable load failures. Notification removal and badge update are
+nonthrowing `async` NotificationService methods, and
+`SyncCoordinator.notifyConversationsChanged()` is nonthrowing. Injected faults
+at those last three Android dependency callbacks are supplementary Android-only
+defensive behavior, not reachable frozen Swift load failures. None of these
+six consumers is an additional frozen test original or primary-case approval.
 Source **a9a6be400161c58a91f5c7660eae073ae9522727/basedbb** adds165 lines/
 zero deletions: six methods, one exclusive helper and coroutine-test imports.
 Same-owner owned modify genuinely returns29 idempotently.
@@ -123,7 +130,9 @@ Each actual mounted route holds initial fetch (spinner, no empty flash), edits
 the original200% CJK/RTL draft, then injects the same typed PermissionDenied at
 exactly one of fetch/read/failed-seen/notification-removal/badge/change callbacks.
 The full original session DTO is asserted on every room-scoped call. Exact
-attempt prefix stops at the failing stage; no later side effect is invented.
+attempt prefix stops at the failing stage; for the last three stages this
+short circuit is Android-only defensive behavior, not a Swift-reachable catch.
+No later side effect is invented.
 Fetch failure shows empty/error without cached rows; later-stage failure retains
 the fetched/keyed/once-labelled row. Original failure identity, localized visible
 error, exactly one diagnostic, hasLoadedOnce/loading/draft and no false service/
@@ -150,9 +159,9 @@ passes **6 discovered/run,0failure/error/skip**,31s,
 XML2026-10-21T02:18:04.085Z/preflight **PASS0.61s**. Exact six XML identities
 match selectors, not just source counts. Real exclusive Ledger Gradle context/
 ext4 flock/native checks and only-own normal release remain.
-[Exact commands and source mapping](software-verification.md#source-defined-rooms-load-stage-failure-and-recovery-consumers).
+[Exact commands and classification](software-verification.md#rooms-load-failures-and-android-only-defensive-port-faults).
 
-This source-defined controlled-port load/recovery family is not actual database/
+This three-source/three-Android-defensive controlled-port family is not actual database/
 service/history/radio sync, cancellation of live platform services, new frames/
 goldens/device/TalkBack/full-WP acceptance. Published52e remains unchanged while
 its automatic CI is healthy; its bounded review does not approve these new six.
@@ -163,6 +172,11 @@ original label/action method identities. Subsequent exact workflow read confirms
 **39530338898 terminalSUCCESS/all6**, including SwiftData119001327928 and
 aggregate119002400794 SUCCESS. This814 belongs only to52e/basedbb,
 not the new load-stage family. The log is consumed in memory, not a second bundle.
+Bounded06a source review found the earlier all-six source-fault classification
+incorrect; this documentation-only correction preserves all six tests and their
+actual a9a6 preflight/XML/results. No product, fixture, test, scope or acceptance
+change and no healthy-test replay. Published06a/39533421332 remains unchanged
+while its automatic verification runs; this correction needs its own comparison.
 
 ### Admitted issue253 renderer repair and actual renderer observations
 
