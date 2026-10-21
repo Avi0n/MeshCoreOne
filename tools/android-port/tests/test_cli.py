@@ -275,7 +275,10 @@ class CliTests(unittest.TestCase):
         candidate = (directory / "android-ci.yml").read_text(encoding="utf-8")
         self.assertIn("pull_request:", candidate)
         self.assertIn("merge_group:", candidate)
-        self.assertEqual(candidate.count("test_runner.py"), 1)
+        invocations = [line for line in candidate.splitlines() if "python tools/android-port/controller/test_runner.py" in line]
+        self.assertEqual(len(invocations), 2)
+        self.assertEqual(sum("--scope-output" in line for line in invocations), 1)
+        self.assertEqual(sum("--scope-output" not in line for line in invocations), 1)
         self.assertNotIn("secrets.", candidate)
         from controller.workflows import validate_workflows
 

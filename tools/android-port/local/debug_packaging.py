@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import time
 
 from controller.capabilities import CapabilityEngine
@@ -39,33 +40,47 @@ def source_identity(repo, revision):
     return digest({path: blob for path, blob in tree(repo, revision).items() if path.startswith("android/")})
 
 
-def native_lane(ledger, owner, *, gradle_free=True):
+def native_lane(ledger, owner, *, gradle_free=True, guest=None):
     if not isinstance(owner, str) or not owner:
         raise PortError("Debug packaging requires the existing native execution owner")
     locks = ledger.hard_lock_records()
-    if not any(
+    if guest is not None:
+        from controller.disposable import PrivateGuest
+
+        if not isinstance(guest, PrivateGuest):
+            raise PortError("Packaging requires the actual allocated private guest, not an endpoint label")
+        guest.assert_held(ledger, owner)
+        if guest.phase != "prepared":
+            raise PortError("Disposable packaging must precede guest boot")
+    elif not any(
         lock["resource"] == "native-execution" and lock["owner"] == owner
         and lock["payload"].get("wp") == "WP-503" for lock in locks
     ):
         raise PortError("Debug packaging requires the caller's held native-execution lane")
-    if gradle_free and any(lock["resource"] == "gradle-execution" for lock in locks):
+    if gradle_free and guest is None and any(lock["resource"] == "gradle-execution" for lock in locks):
         raise PortError("Debug packaging waits for the existing exclusive Gradle lane")
 
 
-def apk_identity(apk, tools, environment):
+def apk_identity(apk, tools, environment, *, guest=None):
     apk = Path(apk)
     if not apk.is_file() or apk.is_symlink():
         raise PortError("Actual regular debug APK is missing")
     try:
-        certs = subprocess.check_output(
+        def read(command):
+            if guest is not None and guest.job is not None:
+                return guest.capture(command, environment, 120).decode("utf-8", errors="strict")
+            return subprocess.check_output(
+                command, env=environment, encoding="utf-8", errors="strict",
+                stderr=subprocess.STDOUT, timeout=120,
+            )
+
+        certs = read(
             [str(Path(environment["JAVA_HOME"]) / "bin" / ("java.exe" if os.name == "nt" else "java")),
              "-Xmx128m", "-Dfile.encoding=UTF-8", "-jar", str(tools / "lib/apksigner.jar"),
              "verify", "--print-certs", str(apk)],
-            env=environment, encoding="utf-8", errors="strict", stderr=subprocess.STDOUT, timeout=120,
         )
-        badging = subprocess.check_output(
+        badging = read(
             [str(tools / ("aapt2.exe" if os.name == "nt" else "aapt2")), "dump", "badging", str(apk)],
-            env=environment, encoding="utf-8", errors="strict", stderr=subprocess.STDOUT, timeout=120,
         )
     except (OSError, subprocess.SubprocessError, UnicodeError) as error:
         raise PortError("Public debug APK signature/package verification failed") from error
@@ -94,7 +109,7 @@ def verify_pair(installed, app, tests):
 
 
 def assemble_debug_pair(*, manifest, policy, ledger, owner, revision, state,
-                        debug_home, installed_apk, output, wp_id="WP-503"):
+                        debug_home, installed_apk, output, wp_id="WP-503", guest=None):
     """Called within WP-503's guarded native lane; returns packaging evidence, not test acceptance."""
     repo, output, debug_home = REPO.resolve(), Path(output), Path(debug_home)
     if wp_id != "WP-503" or ledger.repository != policy["repository"]:
@@ -107,7 +122,9 @@ def assemble_debug_pair(*, manifest, policy, ledger, owner, revision, state,
         or not (debug_home / "debug.keystore").is_file() or (debug_home / "debug.keystore").is_symlink()
     ):
         raise PortError("Use a new private output and the existing default local debug identity; no key creation/copy")
-    native_lane(ledger, owner)
+    native_lane(ledger, owner, guest=guest)
+    if guest is not None and (installed_apk is not None or guest.revision != revision):
+        raise PortError("Fresh disposable packaging has no historical installed APK and must bind the exact revision")
     source = source_identity(repo, revision)
     verify_wrapper()
     environment = candidate_environment(state, local=True, full_assembly=True)
@@ -122,7 +139,9 @@ def assemble_debug_pair(*, manifest, policy, ledger, owner, revision, state,
     if installed is not None and installed["package"] != PACKAGES[0]:
         raise PortError("Preserved installed APK is not the debug application")
     command = [str(repo / "android" / ("gradlew.bat" if os.name == "nt" else "gradlew")),
-               *TASKS, "--dependency-verification", "strict", "--no-daemon", "--max-workers=1", "--console=plain"]
+               *TASKS, "--dependency-verification", "strict", "--no-daemon",
+               *(["-Pkotlin.compiler.execution.strategy=in-process"] if guest is not None else []),
+               "--max-workers=1", "--console=plain"]
     if os.name == "nt":
         import shutil
 
@@ -133,22 +152,40 @@ def assemble_debug_pair(*, manifest, policy, ledger, owner, revision, state,
         write_json(invocation, {"wrapper": command[0], "project": str(repo / "android"), "arguments": command[1:]})
         command = [shell, "-NoLogo", "-NoProfile", "-NonInteractive", "-File",
                    str(repo / "tools/android-port/controller/gradle_windows.ps1"), "-InvocationFile", str(invocation)]
-    with ledger.hard_lock("gradle-execution", owner, {"wp": wp_id, "revision": revision, "tasks": list(TASKS)}, time.time()):
-        preflight(state, output / "readiness", local=True)
+    payload = {"wp": wp_id, "revision": revision, "tasks": list(TASKS)}
+    lane = (
+        ledger.hard_lock("gradle-execution", owner, payload, time.time()) if guest is None
+        else guest.packaging_lane(ledger, owner)
+    )
+    with lane:
+        if guest is not None and guest.job is not None:
+            readiness_state = output / "readiness-input.json"
+            write_json(readiness_state, state)
+            with (output / "readiness-owned.log").open("wb") as stream:
+                guest.run_build([
+                    sys.executable, str(repo / "tools/android-port/controller/ci.py"),
+                    "preflight", "--state", str(readiness_state), "--output", str(output / "readiness"), "--local",
+                ], cwd=repo, env=environment, stream=stream, timeout=120)
+        else:
+            preflight(state, output / "readiness", local=True)
         with (output / "debug-build.log").open("wb") as stream:
             try:
-                subprocess.run(command, cwd=repo / "android", env=environment,
-                               stdout=stream, stderr=subprocess.STDOUT, timeout=1800, check=True)
+                if guest is None:
+                    subprocess.run(command, cwd=repo / "android", env=environment,
+                                   stdout=stream, stderr=subprocess.STDOUT, timeout=1800, check=True)
+                else:
+                    guest.run_build(command, cwd=repo / "android", env=environment, stream=stream, timeout=1800)
             except (OSError, subprocess.SubprocessError) as error:
                 raise PortError("Standard DEBUG assembly failed; retain actual build log, never install fallback APKs") from error
-        app = apk_identity(repo / "android/app/build/outputs/apk/debug/app-debug.apk", tools, environment)
-        tests = apk_identity(repo / "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk", tools, environment)
+        options = {"guest": guest} if guest is not None else {}
+        app = apk_identity(repo / "android/app/build/outputs/apk/debug/app-debug.apk", tools, environment, **options)
+        tests = apk_identity(repo / "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk", tools, environment, **options)
         verify_pair(installed, app, tests)
         if source_identity(repo, revision) != source or (
             installed is not None and apk_identity(installed_apk, tools, environment) != installed
         ):
             raise PortError("Android source/fixtures or preserved installed APK changed during packaging")
-    native_lane(ledger, owner, gradle_free=False)
+    native_lane(ledger, owner, gradle_free=False, guest=guest)
     result = {
         "schema_version": 1, "kind": "standard-debug-packaging", "work_package": wp_id,
         "owner": owner, "repository": policy["repository"], "source_revision": revision,
@@ -158,6 +195,8 @@ def assemble_debug_pair(*, manifest, policy, ledger, owner, revision, state,
         "preservation_mode": "originally-absent" if installed is None else "originally-present",
         "build_log_sha256": sha256(output / "debug-build.log"),
         "tests_started": 0, "installed": False, "acceptance": False,
+        **({"disposable_guest": {"root": str(guest.root), "token": guest.token,
+                                 "revision": guest.revision}} if guest is not None else {}),
     }
     write_json(output / "debug-packaging.json", result)
     return result

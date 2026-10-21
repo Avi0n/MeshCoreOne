@@ -14,7 +14,279 @@ guarded execution; a candidate checkout is not live authority.
 
 ## Candidate execution contract
 
+### Local-only disposable WP-503 guest contract
+
+The successor to published `ad40165c93d1bc21e073f91102971719b078ad02`
+is a source proposal, not present admission, deployment or execution authority.
+Recovery of the original guest/snapshot is NOT a prerequisite for this fresh
+guest path. Its existing native row, receipt, runtime and history remain intact;
+this is neither recovery/reentry nor a relabelled physical/existing device.
+
+The proposed `disposable-native-guest` capability admits only WP-503,
+`tools/android-port/controller/disposable.py`,
+`execute-private-disposable-avd`. The only additional closed resource is
+`disposable-native-execution`. Actual admission comes from the immutable trusted
+origin default-base policy/manifest, never the candidate's policy. All existing
+product rules and the manifest remain unchanged; removing this exact rule and
+resource restores the entire ad40165 policy, including its canonical Git blob.
+
+After separate source/trust admission and same-owner typed reservation evolution
+for that exact path/operation, a dedicated fresh native worker can use:
+
+```python
+from controller.disposable import trusted_guest
+from local.debug_packaging import assemble_debug_pair
+
+ledger, guest = trusted_guest(
+    repo, private_parent, owner=fresh_execution_owner, revision=exact_head,
+    session_id=existing_wp503_session, attempt=existing_wp503_attempt,
+)
+try:
+    packaging = assemble_debug_pair(
+        manifest=trusted_manifest, policy=trusted_policy, ledger=ledger,
+        owner=guest.owner, revision=exact_head, state=readiness_state,
+        debug_home=existing_debug_home, installed_apk=None, output=new_output,
+        guest=guest,
+    )
+    guest.start(ledger, emulator=installed_emulator, adb=installed_adb,
+                image=installed_api31_or_37_image)
+    guest.adb(ledger, ["get-state"])
+    # WP-503 supplies its separately admitted real runner and acceptance evidence.
+finally:
+    guest.dispose(ledger)
+```
+
+This is an interface example, NOT permission to invoke it. `trusted_guest`
+requires the existing WP-503 session/attempt and admitted receipt revision,
+an exact HEAD, a distinct execution
+owner, the canonical shared Ledger/repository and a canonical private parent.
+It verifies the loaded source checkout and runtime helper bytes, packaging
+adapter and Windows launcher against ONE immutable default-base tree, and binds
+policy/manifest to that same revision before allocation. Candidate-only code
+fails closed. It verifies the retained installed runtime's integrity/namespace
+without executing or replacing it; no canonical runtime installation is needed.
+Missing/malformed/unadmitted authority is not a disposable availability flag.
+Low-level `PrivateGuest.allocate/acquire` are implementation/fixture primitives,
+not a second live authorization entrance.
+
+One immediate SQLite transaction inserts BOTH the private guest row and the
+real global `gradle-execution` host guard. The legacy native row is not rewritten
+or borrowed. The new owner cannot equal its retained owner. The real global
+guard is visible even to the original main Ledger implementation: a different
+endpoint or newly named resource alone cannot bypass its existing Gradle check.
+The guard lasts THROUGH packaging, guest startup, testing and observed disposal,
+not merely the build. Current native/Gradle/runtime-install acquisitions conflict;
+packaging borrows the exact outer receipt without changing its payload/time.
+Generic release cannot remove that guard while the private guest exists.
+
+Packaging keeps the existing tasks, strict dependencies, build/cache reuse,
+source/package/App-Test-certificate/default-debug-key checks and no-install/no-
+acceptance result. The guest path additionally uses in-process Kotlin compilation
+with `--no-daemon`, following the existing owned manual/CI adaptation; persistent
+or unobserved children fail rather than manufacturing quiescence. Historical
+installed APK/snapshot reads are absent ONLY for this genuinely fresh guest.
+The original non-guest packaging contract is unchanged.
+
+Native Windows uses an unnamed non-breakaway Job: suspended process creation,
+assignment BEFORE resume, an explicit inherited-handle allowlist, current-user/
+SYSTEM protected fresh data and Job/PID TCP-listener ownership. Linux uses a
+single-threaded pidfd/subreaper worker, pinned descendant identities and owned
+socket inodes; WSL cannot emulate the canonical Windows Ledger. Only installed
+tools/images are used. A fresh exclusive data directory, image-default userdata,
+AVD home, console/adb ports and private adb server/environment never select an
+existing AVD/server/device. Selected commands require the owned live transport.
+
+`dispose` signals only pinned owned descendants or the exact owned Windows Job,
+has bounded cleanup, and requires observed zero/exited processes and closed
+owned handles before atomically removing BOTH exact receipts. Unknown cleanup
+retains both rows/data and returns failure; there is no force-release, guessed
+idle acknowledgment, foreign-daemon kill, wipe or recursive data deletion.
+Even success intentionally retains terminal private data for inspection.
+
+The existing candidate controller job retains ONE strict `test_runner.py` test
+invocation alongside controller/local tests. Its candidate-event arguments bind
+native-family selection to actual HEAD and immutable GitHub base/head trees.
+`android/accessibility-tests` is explicitly **NOT SELECTED** only when absent
+from BOTH trees and untouched by relevant family changes. The filesystem's
+absence alone never decides selection, and an uncommitted family cannot be
+reported absent. This lets the never-present WP-003 producer obtain its own
+source CI before WP-503 consumes the contract, without fabricating producer tests.
+
+Presence in either immutable endpoint, or changes under that suite,
+`docs/android/accessibility/`, `docs/android/evidence/WP-503/` or the WP-503
+deviation file, makes the real committed suite mandatory. The scope job performs
+selection ONLY (no discovery/tests) and forces the controller job when selected;
+the test invocation independently rechecks the same endpoints. Missing/deleted
+suite, malformed authority, stale HEAD, checkout/file-byte drift, zero discovery,
+failures/errors/skips all fail closed. Selected files must match the head tree;
+ignored Python bytecode is not producer source. Unknown/missing immutable
+endpoints block selection rather than inventing an absence baseline.
+
+The one strict suite prints actual method names and requires nonzero
+discovered=run with zero failures/errors/skips. Read-only tokens, ephemeral
+runners and default-base trusted controller boundaries are unchanged; no new
+workflow, dispatch, result bundle or fabricated runner is added. The genuine
+producer suite is absent at both endpoints of this local proposal and its
+execution is NOT SELECTED, not passed. WP-503 runner code is not modified here.
+Python fixtures do not prove actual Win32/emulator, Linux process branches,
+cold Gradle, native acceptance or deployment.
+
+### Local-only active Translate removal proposal
+
+The successor to published `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
+proposes ONE independent `message-actions-translation-removal` capability,
+WP-502 only, operation `remove-active-message-translation-affordance` only,
+exactly `android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/actions/MessageActionsUi.kt`.
+This is not present trusted-main admission or a product edit. App/State/core/
+build/resources receive no new path or operation. Inert Translate enum/handler/
+helpers may remain; no provider/model/backend/billing/service is introduced.
+
+The actual public MessageActionsRoute currently reaches unconditional Translate
+in ActionButtons, and AppMessageActions reports "Message translation is not
+registered". Removing this ACTIVE entry implements the already-approved
+PORTING_PLAN section 2.2 scope removal; the frozen Swift button remains read-only,
+WP-309 primary provenance unchanged. All other real action availability, theme,
+localized labels, 48dp, dismissal, state/side effects and original text must remain.
+
+Future product evidence must mount the REAL public MessageActionsRoute in
+English AND Chinese, prove no reachable Translate dispatch (not just absent,
+hidden or renamed label text), and independently render/dispatch retained actions
+according to their original availability. A fake renderer or deleting the action
+section cannot satisfy this. No mounted/native proof is claimed by Python tests.
+
+Exact reverse removes only the new rule and recovers the ENTIRE reviewed aa4
+policy/Git blob; Room7/picker3/avatar rules and manifest stay unchanged. Current
+binding includes the new rule; old historical projections retain their identities.
+Workers must obtain actual trusted-main admission and evolve the SAME WP-502
+reservation only after separately reviewed deployment/verified native cleanup;
+candidate policy cannot supply that authority. Semantic overlap serializes or
+transfers to the current producer. This proposal remains LOCAL/UNPUBLISHED:
+no publication, main/policy/runtime landing or product consumption is authorized.
+
+### Source-only local/native execution interlock correction
+
+The source successor published as `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
+closes the advisory/manual launcher gap; it does not deploy either candidate
+capability or alter the held native473 operation/runtime. Both independent
+Room7/picker3 rules and historical projections remain unchanged.
+
+`Ledger.acquire_hard_lock` arbitrates native-execution and gradle-execution
+inside the same immediate SQLite transaction in both directions. Only EXACT
+owner equality permits distinct native+Gradle nesting (the existing debug
+packaging contract), not a session/prefix exemption. Reacquiring an execution
+resource cannot replace its incumbent payload/timestamp or accidentally release
+an outer context. Explicit retained-operation recovery passes the entire known
+`expected_existing` receipt (repository/resource/owner/payload/acquired/
+record_state) plus exact owner/payload to `hard_lock` or `acquire_hard_lock`.
+The transaction rejects stale/foreign/missing receipts; a match returns
+`acquired_new:false` without updating ANY stored byte/time. A borrowing context
+never auto-releases, including on failure or nested use. After actual cleanup,
+the original owner still explicitly releases via the existing gated consumer
+path; recovery is not cleanup proof or permission to release live work.
+Runtime installation conflicts with both execution resources,
+even under the same owner; unrelated resource behavior is unchanged.
+
+The actual advisory and full/manual entrance binds the requested commit/tree,
+uses a fresh invocation owner and acquires the canonical `shared_ledger` Gradle
+resource BEFORE transport/WSL probes, path conversion, bundle or adapter launch.
+An atomic admission collision runs nothing: advisory records exact pending and
+remains nonblocking; manual returns an explicit failure for retry after the
+incumbent releases. The existing Linux flock queue remains 10s for advisory,
+unbounded for manual, and the advisory work deadline remains 180s.
+
+Missing/old/self-consistent-but-mismatched installed code fails closed. The
+schema-v2 runtime manifest binds the repository selected by the trusted protected
+installer, not the candidate policy. Candidate repository drift is rejected
+BEFORE opening a lock namespace. The
+manifest, executing launcher/helpers and loaded Ledger version/source must match
+the canonical runtime; revalidation under actual execution ownership prevents
+installation racing launch. The supported atomic installer already delivers
+helpers before check.py; hook installation now uses the same runtime-install
+interlock and no unnecessary WSL probe. Installation still needs separately
+authorized, quiescent deployment; no install occurs in this source assignment.
+
+The actual `reserve.py install-runtime` CLI resolves the host-controlled
+`refs/remotes/origin/HEAD` default-base commit and reads THAT committed policy's
+repository before creating a Ledger or writing anything. It rejects candidate
+repository drift and disagreement with an existing schema-v2 runtime identity.
+Initial installation and integrity-verified schema-v1 upgrades use this same
+default-base authority; schema-v1 never authorizes a candidate-selected namespace.
+Missing/malformed default-base authority or non-object/invalid candidate/runtime
+metadata fails explicitly, with no guessed namespace or candidate fallback.
+This does not fetch, set a default ref, install or authorize deployment by itself.
+
+Windows retains its native SQLite ownership while WSL receives an exact private
+invocation handoff. Linux does not open the Windows database or substitute its
+flock for the shared Ledger. Internal shell modes require the actual inherited
+handoff descriptor; advisory recursion also checks the inherited flock.
+The pidfd/live-ancestry subreaper emits an invocation-bound completion ONLY
+after observed child termination/reaping. These transient lifecycle records are
+not CI results, acceptance or a second verification bundle.
+
+Missing/malformed/stale completion, abrupt transport/supervisor failure or
+unreapable children retains the actual owner AND its control/bundle/recovery
+inputs. There is no TTL, forced foreign release or exit-code-shaped cleanup
+success. A proven PRELAUNCH refusal (absent wsl.exe/bash, unsupported adapter or
+worktree overlay) releases only its fresh lease. State is marked started
+immediately BEFORE an actual transport/bundle/adapter subprocess attempt, never
+merely because a helper was called. Attempted-but-unacknowledged execution retains
+ownership regardless of exception type or exit status. Advisory TERM/KILL cleanup
+is bounded and signals only pinned owned descendants.
+
+Unsupported worktree overlays and malformed structural requests are rejected
+before even binding/admission/transport, not inside a runner after WSL discovery.
+Malformed namespace inputs become explicit blockers/pending candidates rather
+than uncaught TypeError or an alternate partition.
+
+Full/manual has an explicit OWNED NON-DAEMON adaptation: local Gradle tasks use
+`--no-daemon` and Kotlin compilation in-process, including cold first use.
+Strict tasks/results, normal caches and task reuse remain unchanged; shared/
+foreign daemons are never stopped. This does not claim warm daemon reuse.
+Manual supervision waits briefly for children to self-reap: normal success AND
+nonzero verification failure with fully observed quiescence release ownership
+with the original status. Persistent descendants/unknown cleanup retain ownership
+for authoritative reconciliation, without daemon kill or automatic adoption/
+release. Native contributor adapters without
+the supported Linux pidfd supervisor fail before launch, not fake a result.
+
+Controller regressions use real TEMPORARY Ledgers, concurrent two-party races,
+exact payload preservation, owner/stale/runtime boundaries, actual matching-runtime
+namespace drift, actual unavailable-tool/prelaunch refusal, retained-receipt
+borrowing, command construction and pending commit/tree assertions. Seven discovered process-fixture
+cases execute real isolated Linux launchers/children only on Linux; Windows
+instead proves unsupported-platform rejection without any WSL/native launch.
+Linux fixtures include first/next manual invocation, observed nonzero quiescence
+and persistent owned-child retention; they are not real Gradle cold builds.
+Source-local Windows results are not Linux/WSL/native proof. Original full/manual
+result validation and strict verification remain mandatory; fast-check failure
+never becomes a merge pass.
+
 ### Reservation mutation and merge-intent fences
+
+The actual reservation CLI now selects capability policy, manifest write paths
+and exclusions from ONE immutable host-controlled origin default-base commit.
+Manifest/exclusion/schema inputs use bounded Git object reads. It validates the
+source pin/catalog/DAG/paths and any installed namespace before opening Ledger.
+`admit`, `claim`, `evolve`/`reconcile` and `transfer` never authorize from checkout
+policy or manifest; status and other Ledger consumers use the same namespace.
+Missing/malformed trusted metadata fails explicitly with no candidate fallback.
+The aa4 installer retains its distinct candidate-identity rejection and atomic
+installation/execution exclusion.
+
+This fixes a real gap in the first Translate proposal: manually feeding an old
+policy to CapabilityEngine did NOT prove the CLI chose that policy. Real
+temporary-Git CLI tests now use a complete valid trusted checkout/default ref,
+an actual same-owner claim, a same-repository candidate-only rule and a separate
+candidate manifest widening. Hypothetical engine calls admit each candidate
+change, while actual CLI admit/claim/evolve/reconcile/transfer reject it and
+preserve the entire raw receipt/revision/binding/capabilities/authorization and
+product bytes, with no foreign partition.
+
+Existing trusted WP-owned/support development remains usable even with malformed
+candidate policy/manifest drafts: actual WP-003 policy admission and typed support
+evolution succeed under trusted authority, preserving historical receipt fields.
+This is not blanket refusal of policy-development edits or candidate simulation.
+These tests use private Git/SQLite/runtime fixtures, not host runtime/lease actions.
 
 Local `reserve.py evolve` (also `reconcile`) now requires the caller's stored
 `--attempt` and `--session-id` as well as `--expected-revision`. It no longer
@@ -34,6 +306,97 @@ closed here; their identities/history must be reconciled through the existing
 trusted lifecycle path, not release/recreate or hand-edited ledger rows.
 The trusted controller's `evolve_reservation` similarly requires an explicit
 `attempt` keyword; missing/stale attempt never adopts the current owner.
+
+### LOCAL receive-prefetch admission proposal after b677 (not live authority)
+
+The separate candidate-only `receive-prefetch-admission` capability admits only
+assigned WP-501 / `repair-receive-prefetch-admission`, for exactly:
+
+- `android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/TimelineContracts.kt`
+- `android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt`
+- `android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt`
+- `android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatContent.kt`
+
+It does NOT extend channel-open, fallback, Rooms or generic App authority. It
+does not grant primer, core/service, primary-test, build or unrelated App edits.
+The current incoming event immediately admits/builds the row, while the mounted
+App caches never construct the existing prefetcher; those source facts remain
+unfixed by this proposal. Future repair requires the real App/feature/cache
+consumer, not a cloned evaluator or fake renderer. Tests/evidence remain in
+already-owned parity paths; WP-307/WP-407/WP-218 provenance/accounting is unchanged.
+
+The rule carries all nine frozen admission cases: immediate plain/master-off
+with zero collaborator calls; URL prefetch before incoming admission; optional
+nil fast path without permission to omit production wiring; positive 200x100
+dimensions yielding aspect2.0 in the matching actual row; the bounded production
+3s race with injected200ms/<1s against a cancellable5s probe; `g:abc123` expanding
+to `https://media.giphy.com/media/abc123/giphy.gif`; HTML-image/card re-entry
+without stranded loading; outgoing immediate visibility plus async prefetch.
+Master/DM/channel privacy, independent process-store/cache/worker lifetime,
+actual late-content refresh or reviewed native equivalent, cancellation without
+stale conversation/radio admission, original text/identity/order/unread/send,
+explicit errors and ZERO radio commands remain required.
+
+The exact single-rule inverse restores the ENTIRE b677 object and raw Git blob
+before the retained6b/ad40165 inverses. Real private Git/SQLite CLI tests keep
+immutable default-main authority while candidate evaluation accepts each tuple:
+actual admit/evolve MUST reject it without altering receipts, products or runtime.
+No candidate policy can self-admit a product repair.
+
+Protected trusted-main admission and same-owner scope evolution precede product
+edits; real semantic overlap serializes/transfers to the current producer.
+Active conflicting native/Gradle operations remain excluded. Old473/66bd guest/
+receipt/history are untouched and need not be restored, released or cleaned for
+these disjoint source/repair paths; no inactivity/disposition is inferred.
+The disposable consumer loads the trusted-main checkout: this proposal invents
+no global-runtime-install prerequisite and changes none of its pinned APIs or
+actual execution/install interlocks. Source review, protected policy admission
+and future product/native acceptance remain distinct. Publication is HELD.
+
+### LOCAL parity-support proposal after 6b (not live admission)
+
+Two candidate-only rules propose bounded support for existing parity owners:
+WP-502 / `repeat-row-fallback-affordance` / operation
+`repair-repeat-row-fallback-affordance` admits only
+`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/actions/MessageActionsUi.kt`;
+WP-501 / `channel-open-flood-scope` / operation
+`repair-channel-open-flood-scope` admits only the chats timeline
+`TimelineContracts.kt`, `ChatViewModel.kt` and App container `AppChatsFeature.kt`
+at their full canonical `src/main/kotlin/com/meshcoreone/android/...` paths in
+the rule. The generic App rule does not admit that named operation and is not
+broadened. No Room rule, whole directory, generic modify, resolver or primary
+test authority is reused to smuggle either repair.
+
+These proposals require trusted-main admission BEFORE product edits, existing
+producer identity/reservation, preserved WP-309/WP-307/WP-407 provenance,
+semantic-overlap serialization/current-producer transfer, real mounted consumer
+evidence and protected review excluding active conflicting native/Gradle
+operations. The old retained guest/receipt/history are untouched: no restoration,
+release or cleanup of that guest is a prerequisite for these disjoint repairs
+or their trusted policy proposal landing. This does not assert that the old
+guest is idle or dispose of any receipt. Product
+tests/evidence stay in existing parity-owned paths. The two-rule inverse
+restores the entire reviewed6b policy, not an approximate digest or rewritten
+historical receipt. The actual reserve CLI continues reading trusted default-
+base policy/manifest; candidate rules cannot admit or evolve themselves.
+
+RepeatRow evidence must demonstrate fallback-only tappable/localized explanation
+and an independent accessibility action through the real public route, retaining
+exact/unresolved behavior and all other actions. Channel-open evidence must
+exercise the actual timeline-to-App-to-same-radio/session command, original
+population/scope/unread ordering, firmware capability, success-only deduplication,
+error/cancellation/retry behavior and zero prefetch radio effects, not merely
+repeat the already-passing resolver cases. Details and exact input revisions:
+`docs/android/deviations/WP-003.md`. Until protected admission, these are still
+product prerequisites, not implemented features or live execution permission.
+
+This clarification applies ONLY to the two new proposed rules; incumbent rules
+and actual execution/runtime-install interlocks are unchanged. In particular,
+`Ledger.acquire_hard_lock` still rejects an `installed-git-common-runtime`
+acquisition while an execution receipt is held. This proposal does not install
+that runtime or bypass its exclusion. The inspected controller merge/gate and
+native-review paths do not impose an old-guest recovery prerequisite for this
+source-policy proposal; protected/current-head/semantic gates still apply.
 
 Merge-lane acquisition checks the current attempt, reservation revision,
 implementation PR, complete historical binding, base/policy and review/merge
@@ -598,6 +961,98 @@ canonical position) before the existing debug/review projections. Original
 policy receipts and acceptance remain historical; current bindings still hash
 the full current policy. Broadened/duplicate/reordered rules or unrelated policy
 changes fail rather than being silently projected away.
+
+### Room message actions support (separate from avatar permission)
+
+`rooms-message-actions` admits only WP-502's
+`implement-room-message-actions` operation on seven explicitly named files in
+`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/`:
+the existing `RoomConversationScreen.kt`, `RoomConversationStateHolder.kt`,
+`RoomContracts.kt`, and new `RoomMessageAction.kt`,
+`RoomMessageActionAvailability.kt`, `RoomMessageActionsSheet.kt`,
+`RoomSendDMSheet.kt`. The operation covers directly necessary creation/modification
+only; it is not generic `modify`/`create`/`delete`, a directory wildcard or authority
+over App/services/shared models. These exact names were confirmed by the existing
+producer in PR249 comment 6307954067. Existing App/resource capabilities stay
+separate; primary WP-310 provenance and avatar-only authority are unchanged.
+
+Preserve frozen Copy, Reply/Mention, Send DM and Send Again availability captured
+at presentation, original incoming/outgoing/optional-RTT metadata, original text,
+localized accessible presentation, dismissal/focus timing and long-press link
+suppression. Consumer assertions must prove real clipboard, quote preference,
+composer/focus, radio-scoped fresh blocked-excluding contact selection/navigation,
+and original-text Room post without clearing an existing draft. Do not convert
+Room messages to DM DTOs or add removed translation/actions/providers. No unrelated
+auth, service, ordering, theme or activation changes are admitted.
+
+The candidate is not live product authority. After reviewed trusted-main deployment,
+the existing WP-502 owner must freshly admit the named operation and evolve the
+same reservation using actual stored identity/attempt/current revision. Do not
+rewrite authorization, release/recreate or infer permission from transfer. Semantic
+overlap must serialize/transfer to the current producer. The exact new rule is
+reversibly projected before avatar/debug/review history; old acceptance remains
+historical while current bindings include the complete current semantic policy.
+
+**The retained WP-503 native operation blocks main/policy landing.** This producer
+performs no host/device/lease/recovery/local Gradle action. Publication may record
+the exact candidate through `local.check.record_pending` and use an invocation-only
+empty hooks path to avoid starting advisory Gradle under that hold, as explicitly
+authorized for this repair. Installed hook configuration and normal nonforce
+fast-forward push are unchanged. This is locally **UNVERIFIED**, never a successful
+fast check or waived merge gate; exact isolated hosted CI and protected review
+remain required. No runtime installation or native acceptance follows from admission.
+
+### Mention picker contact metadata: local support successor
+
+The independent `shared-mention-picker-repair` rule admits WP-502 only,
+operation `repair-shared-mention-picker` only, and exactly three existing files
+under `android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/`:
+`composer/ui/MentionSuggestions.kt`, `composer/ui/ChatConversationScreen.kt` and
+`rooms/RoomConversationScreen.kt`. It does not expand either Room capability,
+App/core paths or the shared `ContactMatchRow` implementation. Primary picker WP-308 and match-row
+WP-306 provenance stay unchanged at frozen `db14559`.
+
+Use the real Tap-style `ContactMatchRow` for matching picker rows: actual on-air
+LAST_ADVERT (not recency), localized contact type, spaced key and location marker.
+Preserve original contact order/identities, callbacks, dismissal, self/unknown/Done
+and focus behavior, and source scrolling/large-font reachability with existing
+theme/localization/identity/48dp semantics. Editor `MentionSuggestionList` and
+`MentionSuggestionRow` bytes and behavior must remain unchanged. No fabricated
+user location, distance or time; nil location does not establish full location
+parity. No auth/service/radio/state/activation/provider change is admitted.
+
+The actual WP-502 consumer report is issue135 comment6308826188 (source
+`ba5073e6`, base dbb, same attempt/reservation r30). All three shared-sheet
+callers must forward presentation inputs, including the actual App DM/channel
+wrapper. Existing `app-build-launcher`/`update-launcher-or-composition` already
+admits `AppChatConversationScreen.kt` and `AppChatsContent.kt`; no App path is
+added here. Use actual `listFor(radio).clock` instants with the system display
+zone, not forced UTC dates. Reuse actual authorized screen-local phone then
+same-radio hasLocation node then nil; opening requests no permission/fix.
+Room exposes only node fallback, not an app-wide phone cache: that integration
+gap remains explicit. Bind existing approximate road-distance/away formatting
+at App with current location/permission/device/locale inputs; no cross-feature
+dependency or stale capture. Never claim exact Foundation/WGS-84 parity.
+
+Preserve all matches (not the editor's 20-item cap), full keys and order; no
+blocked-contact filtering or recency sorting. Require compact/200%/CJK/RTL
+reachability, independent Done, dismissal before once-only full-contact-detail
+navigation, no composer insertion/autofocus or Room/draft side effects. Keep all
+35 incumbent methods/helpers/Fixture and frozen multiple-Alice test identities.
+
+**Local and unpublished:** hold the successor for full bounded comparison and
+current-base/consumer guards. No additional path is inferred; an actual newly required path needs
+its own exact trusted mapping. Neither the existing seven Room paths nor generic
+reconciliation/transfer admits this renderer. Candidate registration is not live
+authority; reviewed deployment then fresh same-owner admission/evolution remain
+required. Retained native/Gradle holds block all landing and local Gradle.
+
+The exact picker-only reverse projection recovers the previous `ae583338`
+candidate policy, and then reversing the unchanged Room-actions delta recovers
+the entire actual dbb/e8 trusted policy. Current semantic bindings still hash all
+rules; historical acceptance is never refreshed. Unknown/malformed/broad/
+duplicate/reordered rules or unrelated semantic changes fail closed. Prior source
+clearance and CI for ae583338 do not transfer to this successor.
 
 ### Narrow WP-503 standard debug packaging support
 
