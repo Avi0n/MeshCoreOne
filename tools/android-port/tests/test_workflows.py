@@ -56,7 +56,8 @@ class WorkflowTests(unittest.TestCase):
         workflow, text = self.read("android-ci.yml")
         runner = next(step for step in workflow["jobs"]["controller"]["steps"]
                       if "controller/test_runner.py" in step.get("run", ""))
-        self.assertIn("--include-tests android/accessibility-tests", runner["run"])
+        self.assertIn("--candidate-event-name", runner["run"])
+        self.assertIn("--candidate-event-path", runner["run"])
         self.assertNotIn("test -d", runner["run"])
         self.assertNotIn("|| true", runner["run"])
         for mode in ("missing", "conditional", "ignored", "unittest-only"):
@@ -64,15 +65,29 @@ class WorkflowTests(unittest.TestCase):
             step = next(step for step in changed["jobs"]["controller"]["steps"]
                         if "controller/test_runner.py" in step.get("run", ""))
             if mode == "missing":
-                step["run"] = step["run"].replace(" --include-tests android/accessibility-tests", "")
+                step["run"] = step["run"].replace(' --candidate-event-path "${{ github.event_path }}"', "")
             elif mode == "conditional":
                 step["if"] += " && false"
             elif mode == "ignored":
                 step["continue-on-error"] = "true"
             else:
                 step["run"] = step["run"].replace(
-                    "--include-tests android/accessibility-tests", "--include-tests synthetic-tests",
+                    "--candidate-event-name", "--include-tests synthetic-tests --candidate-event-name",
                 )
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                validate_candidate(changed, text)
+
+    def test_scope_only_family_selector_cannot_be_removed_conditioned_or_ignored(self):
+        original, text = self.read("android-ci.yml")
+        for mode in ("missing", "conditional", "ignored"):
+            changed = copy.deepcopy(original)
+            selector = changed["jobs"]["scope"]["steps"][1]
+            if mode == "missing":
+                selector["run"] = selector["run"].splitlines()[0]
+            elif mode == "conditional":
+                selector["if"] = "false"
+            else:
+                selector["continue-on-error"] = True
             with self.subTest(mode=mode), self.assertRaises(PortError):
                 validate_candidate(changed, text)
 

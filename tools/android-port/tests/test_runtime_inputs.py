@@ -29,6 +29,7 @@ class RuntimeInputTests(unittest.TestCase):
                      "tools/android-port/controller/windows_guest.py",
                      "tools/android-port/tests/test_disposable.py",
                      "tools/android-port/tests/test_windows_guest.py",
+                     "tools/android-port/tests/test_runner.py",
                      "docs/android/evidence/WP-201/collect_evidence.py",
                      "tools/android-port/tests/test_domain_room_evidence.py"):
             changed = copy.deepcopy(entries)

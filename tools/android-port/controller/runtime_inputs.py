@@ -53,6 +53,7 @@ FIXED_INPUTS = (
     "tools/android-port/tests/test_debug_packaging.py",
     "tools/android-port/tests/test_disposable.py",
     "tools/android-port/tests/test_windows_guest.py",
+    "tools/android-port/tests/test_runner.py",
 )
 
 

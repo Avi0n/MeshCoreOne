@@ -103,17 +103,33 @@ retains both rows/data and returns failure; there is no force-release, guessed
 idle acknowledgment, foreign-daemon kill, wipe or recursive data deletion.
 Even success intentionally retains terminal private data for inspection.
 
-The existing candidate controller job now includes `android/accessibility-tests`
-in its ONE strict `test_runner.py` invocation alongside controller/local tests.
-This discovers the real declared unittest suite, prints actual method names and
-requires nonzero discovered=run with zero failures/errors/skips. Missing suite
-fails closed, never green/skipped. Read-only tokens, ephemeral runners and
-default-base trusted controller boundaries are unchanged; no new workflow,
-dispatch, result bundle or fabricated runner is added. The producer suite is
-absent on this branch, so its actual execution remains BLOCKED until genuine
-WP-503 sources/tests are composed into the reviewed candidate. WP-503 runner
-code is not modified here. Python fixtures do not prove actual Win32/emulator,
-Linux process branches, cold Gradle, native acceptance or deployment.
+The existing candidate controller job retains ONE strict `test_runner.py` test
+invocation alongside controller/local tests. Its candidate-event arguments bind
+native-family selection to actual HEAD and immutable GitHub base/head trees.
+`android/accessibility-tests` is explicitly **NOT SELECTED** only when absent
+from BOTH trees and untouched by relevant family changes. The filesystem's
+absence alone never decides selection, and an uncommitted family cannot be
+reported absent. This lets the never-present WP-003 producer obtain its own
+source CI before WP-503 consumes the contract, without fabricating producer tests.
+
+Presence in either immutable endpoint, or changes under that suite,
+`docs/android/accessibility/`, `docs/android/evidence/WP-503/` or the WP-503
+deviation file, makes the real committed suite mandatory. The scope job performs
+selection ONLY (no discovery/tests) and forces the controller job when selected;
+the test invocation independently rechecks the same endpoints. Missing/deleted
+suite, malformed authority, stale HEAD, checkout/file-byte drift, zero discovery,
+failures/errors/skips all fail closed. Selected files must match the head tree;
+ignored Python bytecode is not producer source. Unknown/missing immutable
+endpoints block selection rather than inventing an absence baseline.
+
+The one strict suite prints actual method names and requires nonzero
+discovered=run with zero failures/errors/skips. Read-only tokens, ephemeral
+runners and default-base trusted controller boundaries are unchanged; no new
+workflow, dispatch, result bundle or fabricated runner is added. The genuine
+producer suite is absent at both endpoints of this local proposal and its
+execution is NOT SELECTED, not passed. WP-503 runner code is not modified here.
+Python fixtures do not prove actual Win32/emulator, Linux process branches,
+cold Gradle, native acceptance or deployment.
 
 ### Local-only active Translate removal proposal
 
