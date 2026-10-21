@@ -452,6 +452,72 @@ class RoomsComposeTest {
         assertTrue(fixture.reported.isEmpty())
     }
 
+    @Test fun differentPrefixesKeepSeparateVisibleNamesEvenWhenDisplayNamesMatchBeforeReload() {
+        val first = liveMessage(1, 100u, "msg", Bytes.of(0xaa), "Alice")
+        val second = liveMessage(2, 160u, "msg", Bytes.of(0xbb), "Alice")
+        val expected = listOf(first, second)
+        assertNotEquals(first.authorKeyPrefix, second.authorKeyPrefix)
+        assertNotEquals(first.deduplicationKey, second.deduplicationKey)
+        val fixture = Fixture()
+        fixture.stored = listOf(first)
+        mountRoute(fixture)
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val originalRow = fixture.holder.state.value.rows.single()
+        assertEquals(first, originalRow.message)
+        assertTrue(originalRow.showSenderName)
+        assertTrue(originalRow.showAvatar)
+        compose.onAllNodesWithText("Alice", useUnmergedTree = true).assertCountEquals(1)
+        val load = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+        assertEquals(load, fixture.loads)
+        val held = CompletableDeferred<Unit>()
+        compose.runOnIdle {
+            fixture.fetchGate = held
+            fixture.stored = expected
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageReceived(session.id, second)))
+        }
+        compose.waitUntil { fixture.holder.state.value.messages == expected }
+        fun assertSeparateClusters() {
+            val state = fixture.holder.state.value
+            assertEquals(expected, state.messages)
+            assertEquals(expected, state.rows.map { it.message })
+            assertEquals(listOf(first.id, second.id), state.rows.filter { it.showSenderName }.map { it.message.id })
+            assertEquals(listOf(first.id, second.id), state.rows.filter { it.showAvatar }.map { it.message.id })
+            assertEquals(listOf(true, false), state.rows.map { it.showTimestamp })
+            assertEquals(originalRow, state.rows.first())
+            val names = compose.onAllNodesWithText("Alice", useUnmergedTree = true).assertCountEquals(2)
+            val nameBounds = (0..1).map {
+                names[it].assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+            }.sortedBy { it.top }
+            compose.onAllNodesWithContentDescription("Alice: msg").assertCountEquals(2)
+            val bubbles = expected.map { message ->
+                compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true).assertIsDisplayed()
+                    .fetchSemanticsNode().boundsInRoot
+            }
+            assertTrue(nameBounds[0].bottom <= bubbles[0].top)
+            assertTrue(bubbles[0].bottom <= nameBounds[1].top)
+            assertTrue(nameBounds[1].bottom <= bubbles[1].top)
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
+            compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
+        }
+        assertSeparateClusters()
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
+        compose.waitUntil { fixture.loads.count { it == "fetch" } == 2 }
+        assertTrue(fixture.holder.state.value.isLoading)
+        assertEquals(load + "fetch", fixture.loads)
+        assertSeparateClusters()
+        compose.runOnIdle { assertTrue(held.complete(Unit)) }
+        compose.waitUntil { !fixture.holder.state.value.isLoading && fixture.loads.count { it == "changed" } == 2 }
+        assertSeparateClusters()
+        assertEquals(load + load, fixture.loads)
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        assertTrue(fixture.posts.isEmpty())
+        assertTrue(fixture.joins.isEmpty())
+        assertTrue(fixture.retries.isEmpty())
+        assertTrue(fixture.reported.isEmpty())
+    }
+
     private fun liveMessage(
         id: Long,
         timestamp: UInt,
