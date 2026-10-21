@@ -938,12 +938,19 @@ class RoomsComposeTest {
                 .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
             val layout = layouts.single()
             assertEquals(expectedGlyph, layout.layoutInput.style.color)
+            assertEquals(case.fontScale, layout.layoutInput.density.fontScale, 0f)
+            val glyph = layout.getBoundingBox(0)
+            val textBounds = compose.onNodeWithText("A", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
             val glyphGeometry = "${case.id}: avatar=$avatar, size=${layout.size}, " +
                 "constraints=${layout.layoutInput.constraints}, lines=${layout.lineCount}, " +
                 "font=${layout.layoutInput.style.fontSize}, paragraph=${layout.multiParagraph.width}, " +
-                "glyph=${layout.getBoundingBox(0)}, text=" +
-                compose.onNodeWithText("A", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-            assertFalse(glyphGeometry, layout.didOverflowWidth)
+                "glyph=$glyph, text=$textBounds"
+            assertEquals(glyphGeometry, 1, layout.lineCount)
+            assertTrue(glyphGeometry, glyph.left >= 0f && glyph.right <= layout.size.width)
+            assertTrue(glyphGeometry, glyph.top >= 0f && glyph.bottom <= layout.size.height)
+            assertTrue(glyphGeometry, textBounds.left + glyph.left >= avatar.left &&
+                textBounds.left + glyph.right <= avatar.right &&
+                textBounds.top + glyph.top >= avatar.top && textBounds.top + glyph.bottom <= avatar.bottom)
             assertFalse(glyphGeometry, layout.didOverflowHeight)
             compose.onAllNodesWithContentDescription("Alice: msg").assertCountEquals(2)
             compose.onAllNodesWithContentDescription("Alice").assertCountEquals(0)
