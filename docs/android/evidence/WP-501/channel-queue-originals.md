@@ -1,5 +1,137 @@
 # WP-501: persisted channel-drain originals and a blocked real-query boundary
 
+## Bounded diagnostic correction after exact586 failure (2026-10-21)
+
+**LOCAL CORRECTION, NOT COMPILED/RUN/DISCOVERED.** Its direct parent is
+`dea433c5c99b8ee36bbb5c75040bc0c7418b709b`; reviewed localDEA remains
+unchanged and unpublished. This increment changes only the existing
+channel fixture, diagnostic assertion messages, this evidence and the
+WP-501 deviation. The three complete channel original bodies, fixture
+construction/DTOs/wire inputs/timing/configuration and all DEA test and
+evidence bytes remain unchanged. No new family or product change.
+Same owner/attempt/session and existing modify capabilities were checked
+through normal `reserve.py evolve`; admission was already complete, so
+the reservation correctly remains92, without release/recreation.
+
+### Authoritative failed execution, not a source-only guess
+
+[Exact586 automatic39555279222](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39555279222)
+is completed/FAILURE. Linux119074319252 and aggregate119081271631 failed;
+classifier119073498241, controller119073558483 and Swift codec119074319188
+succeeded. SwiftData119081272420 was SKIPPED after upstream failure,
+not a passed or scope-excluded oracle. Official available-report evidence
+reports App1105 completed,1104 passed,1 failed,0 errors/skips.
+
+The sole reported failing identity is
+`ChannelQueryCorrelationDiagnosticTest.blockedCounterOriginalExposesTheRealQueryCorrelationBoundaryWithoutClaimingParity`.
+Its stack points to fixture53 from finalizer80, not a demonstrated body
+completion. The outer ConnectionLost assertion preceded the failing
+direct-cause UnresolvedReply assertion. The log does NOT expose the
+actual nested cause class or establish that earlier body predicates or
+the second park were reached. Cleanup could replace a body failure.
+No diagnostic pass or named positive3/3-original inventory is inferred
+from the aggregate. No failed586 rerun or second CI-result bundle.
+
+### Actual consumer trace and bounded assertion repair
+
+`ExchangeOwner.match` checks correlation before registration/write. Its
+finally marks an unresolved sent/nonterminal request with the requested
+family AND `error`, even when its matcher ignores ERROR2.
+`SessionCore.checkCorrelation` constructs
+`MeshCoreException.ConnectionLost(SessionCorrelationException.UnresolvedReply(generation, family))`.
+The exception constructor preserves the Java cause. ChannelService
+retries a Timeout, but wraps a subsequent ConnectionLost as its typed
+`ChannelServiceError.SessionError(error)` without another wire write.
+MessageService's real failure path wraps a protocol exception in
+`MessageServiceException(MessageServiceError.SessionError(underlying))`.
+
+The queue reports the query exception, counts it, and parks the same
+object. A non-storage query diagnostic alone is not retained; this
+unrecognized ChannelService wrapper IS retained by the first park.
+A subsequent transient MessageService/ConnectionLost park is reported
+without replacing that retained issue. Shutdown maps the retained
+failure object directly to a STOP_SERVICES issue. The correction adds
+an `assertSame` between that issue and the original query diagnostic.
+It does not accept the second park's error as a substitute.
+
+Existing protocol `TcpOwnershipParityTest.correlationCause` already
+traverses at most16 cause nodes specifically for coroutine exception
+stack recovery. `SessionBoundaryCasesTest` and
+`ReviewedSessionRegressionTest` likewise locate typed correlation
+causes through the chain. Therefore one fixed Java cause depth is not
+a reliable assertion of the protocol's typed semantic contract.
+This source/prior-art explanation is NOT an observed cause-chain dump
+from586; actual recovery-copy depth is still unobserved.
+
+The corrected helper requires the outer ConnectionLost and allows only
+consecutive ConnectionLost wrappers before the exact UnresolvedReply.
+An unrelated intermediate exception, absent typed cause, typed cause
+outside the first16 nodes, or wrong literal family still fails. It does not scan past
+arbitrary wrappers or replace the typed assertion with non-null.
+Assertion messages print the bounded class/message chain, including
+the correlation generation/family, so a different runtime shape is
+actionable. Query and second-park wrapper assertions also print their
+actual throwable stacks on failure.
+
+All original body predicates remain: complete A/B DTOs and rows,
+A attempt8 then9/B2, PENDING state, queue length2, three sends/one
+GET_CHANNEL, original query/first-park identity, one real wake, no new
+query/write, exact second MessageService wrapper and `error` family,
+no terminal events. The first query still requires `channel:0`.
+The actual phase/row/wire/identity predicates must still execute.
+No quarantine/generation reset, synthetic Timeout/null, new product
+hook, or production/protocol/consumer-contract edit.
+
+The fixture now retains the first body/assertion/cancellation failure,
+attempts every owned cleanup stage under NonCancellable, attaches each
+later cleanup failure as suppressed without replacing the primary, and
+rethrows the original object. If the body succeeds, the first cleanup
+failure itself is thrown. Queue report/type/family/identity and complete
+message close assertions are retained; session/store/job/database
+cleanup all still run. Broad Throwable capture is confined to this
+test-resource finalization boundary and always ends in rethrow of the
+retained failure, never a success-shaped fallback or lost cancellation.
+
+### Correction execution requirements and source checks
+
+The existing focused command below remains **NOT RUN** for this
+correction. Required positive identities remain exactly the unchanged
+three original/adapted methods and the separate diagnostic; their
+defined existence is not discovery or4/4. The fourth original remains
+BLOCKED even if the corrected diagnostic passes. Current native hold
+forbids local Gradle/compiler/native/host/guest/lane/reentry/release/
+restart actions. No dispatch, manual rerun, publication or merge.
+
+The four additional source inputs below were individually verified
+equal at actualmainDBB, directparentDEA and current working bytes.
+The existing21 frozen/28 native input table remains the original input
+binding, not an execution report.
+
+| Additional native source input under android/ | Git blob |
+| --- | --- |
+| core/protocol config/MeshCoreException.kt | `439055a72ff9ae6c775c861c91cb934b21b8945f` |
+| core/protocol test parity/TcpOwnershipParityTest.kt | `fe4141efd2f7a1080565a22b1cccffc81cf86575` |
+| core/protocol test session/SessionBoundaryCasesTest.kt | `0f1de64cdd96e1a6f297ec084593018e1531a85b` |
+| core/protocol test session/ReviewedSessionRegressionTest.kt | `d638ed26d273aebf9ef3770caf31e711620b48b6` |
+
+All six declared source-only commands actually PASSED for this
+correction with exactly four paths staged:
+
+| Source command | Actual correction result |
+| --- | --- |
+| `python tools\android-port\controller\verification_config.py --check` | PASS |
+| `python tools\android-port\controller\validate.py` | PASS |
+| `python tools\android-port\portmap.py` | PASS |
+| `python android\parity-tests\audit.py --check` | PASS |
+| `python android\parity-tests\semantic.py --check` | PASS |
+| `git diff --check` | PASS |
+
+`git diff --cached --check` also passed. These are not Kotlin compilation
+or positive execution/discovery. The older sections below are the historical
+586 source-preparation record; their NOT RUN statements and older
+predecessor CI must not override the actual exact586 failure above or
+be reinterpreted as execution of this correction or localDEA.
+
 ## Exact binding and actual status
 
 **UNVERIFIED SOFTWARE SOURCE.** Three original/adapted channel destinations

@@ -48,10 +48,14 @@ internal fun assertOriginalChannelDeviceError2(cause: Throwable) {
 }
 
 internal fun assertChannelQueryUnresolved(cause: Throwable, family: String) {
-    assertTrue(cause is MeshCoreException.ConnectionLost)
-    val correlation = cause.cause
-    assertTrue(correlation is SessionCorrelationException.UnresolvedReply)
-    assertEquals(family, (correlation as SessionCorrelationException.UnresolvedReply).responseFamily)
+    val chain = generateSequence(cause) { it.cause }.take(16).toList()
+    val shape = chain.joinToString(" -> ") { "${it.javaClass.name}(${it.message})" }
+    assertTrue("Expected ConnectionLost for $family; cause chain: $shape", cause is MeshCoreException.ConnectionLost)
+    val correlation = chain.dropWhile { it is MeshCoreException.ConnectionLost }.firstOrNull()
+    assertTrue("Expected UnresolvedReply after ConnectionLost/recovery copies for $family; cause chain: $shape",
+        correlation is SessionCorrelationException.UnresolvedReply)
+    assertEquals("Wrong unresolved family; cause chain: $shape",
+        family, (correlation as SessionCorrelationException.UnresolvedReply).responseFamily)
 }
 
 internal suspend fun TestScope.withChannelQueueFixture(
@@ -63,32 +67,42 @@ internal suspend fun TestScope.withChannelQueueFixture(
     body: suspend (ChannelQueueOriginalFixture) -> Unit,
 ) {
     val f = ChannelQueueOriginalFixture(this, attempts, config, gone, queueConfig)
-    try {
+    var primaryFailure: Throwable? = null
+    suspend fun retainFailure(action: suspend () -> Unit) {
+        try { action() } catch (failure: Throwable) {
+            val primary = primaryFailure
+            if (primary == null) primaryFailure = failure
+            else if (primary !== failure) primary.addSuppressed(failure)
+        }
+    }
+    retainFailure {
         f.seed()
         body(f)
         assertEquals(listOf(f.device), f.store.fetchDevices())
         assertEquals(listOf(f.channel), f.store.fetchChannels(f.radio))
         assertTrue(f.store.fetchContacts(f.radio).isEmpty())
-    } finally {
-        try {
+    }
+    withContext(NonCancellable) {
+        retainFailure {
             val report = f.queue.shutdown()
             if (expectQueryIssue) {
                 assertEquals(1, report.issues.size)
                 assertEquals(LifecycleStage.STOP_SERVICES, report.issues.single().stage)
                 val issue = report.issues.single().cause
-                assertTrue(issue is ChannelServiceError.SessionError)
+                assertSame("Shutdown must retain the original channel-query failure, not the later send failure",
+                    f.failures("channelQuery", f.messageA.id).single(), issue)
+                assertTrue("Expected retained ChannelService SessionError; got ${issue.stackTraceToString()}",
+                    issue is ChannelServiceError.SessionError)
                 assertChannelQueryUnresolved((issue as ChannelServiceError.SessionError).error, "channel:0")
             } else assertTrue(report.isComplete)
-        } finally {
-            try { assertTrue(f.messages.close().isComplete) } finally {
-                try { f.session.stop() } finally {
-                    try { f.store.close() } finally {
-                        try { f.job.cancelAndJoin() } finally { f.database.close() }
-                    }
-                }
-            }
         }
+        retainFailure { assertTrue(f.messages.close().isComplete) }
+        retainFailure { f.session.stop() }
+        retainFailure { f.store.close() }
+        retainFailure { f.job.cancelAndJoin() }
+        retainFailure { f.database.close() }
     }
+    primaryFailure?.let { throw it }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

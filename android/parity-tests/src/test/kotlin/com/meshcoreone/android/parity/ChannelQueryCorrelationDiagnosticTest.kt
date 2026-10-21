@@ -36,7 +36,8 @@ class ChannelQueryCorrelationDiagnosticTest {
             assertEquals(3, f.sends(3).size)
             assertEquals(listOf(Bytes.of(31, 0)), f.sends(31))
             val queryFailure = f.failures("channelQuery", f.messageA.id).single()
-            assertTrue(queryFailure is ChannelServiceError.SessionError)
+            assertTrue("Expected the real ChannelService query wrapper; got ${queryFailure.stackTraceToString()}",
+                queryFailure is ChannelServiceError.SessionError)
             assertChannelQueryUnresolved((queryFailure as ChannelServiceError.SessionError).error, "channel:0")
             assertSame(queryFailure, f.failures("park", f.messageA.id).single())
 
@@ -51,9 +52,11 @@ class ChannelQueryCorrelationDiagnosticTest {
             val parks = f.failures("park", f.messageA.id)
             assertEquals(2, parks.size)
             val second = parks[1]
-            assertTrue(second is MessageServiceException)
+            assertTrue("Expected the second park's MessageServiceException; got ${second.stackTraceToString()}",
+                second is MessageServiceException)
             val failure = (second as MessageServiceException).error
-            assertTrue(failure is MessageServiceError.SessionError)
+            assertTrue("Expected the second park's MessageService SessionError; got ${second.stackTraceToString()}",
+                failure is MessageServiceError.SessionError)
             assertChannelQueryUnresolved((failure as MessageServiceError.SessionError).underlying, "error")
             assertTrue(f.failures("terminal", f.messageA.id).isEmpty())
             assertTrue(f.failures("terminal", f.messageB.id).isEmpty())
