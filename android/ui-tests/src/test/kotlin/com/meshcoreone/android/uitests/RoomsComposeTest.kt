@@ -62,6 +62,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -1004,6 +1006,7 @@ class RoomsComposeTest {
     @Test fun roomConversationChangeFailureRemainsVisibleUntilDismissalAndSuccessfulReload() =
         assertRoomLoadStageFailure("changed")
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private fun assertRoomLoadStageFailure(failingStage: String) {
         val stages = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
         assertTrue(failingStage in stages)
@@ -1041,12 +1044,15 @@ class RoomsComposeTest {
             override suspend fun updateBadgeCount() = step("badge")
             override fun conversationsChanged() = step("changed")
         }
-        val holder = RoomConversationStateHolder(session, dependencies, scope)
+        val clock = TestCoroutineScheduler()
+        val holderScope = CoroutineScope(scope.coroutineContext + StandardTestDispatcher(clock))
+        val holder = RoomConversationStateHolder(session, dependencies, holderScope)
         mount {
             RoomConversationRoute(
                 holder, fixture.links, failureText = { uiString(UiErrorMapper().message(it)) },
             )
         }
+        compose.runOnIdle { clock.runCurrent() }
         compose.waitUntil { calls == listOf("fetch") && fixture.events.subscriptionCount.value == 1 }
         assertTrue(holder.state.value.isLoading)
         assertFalse(holder.state.value.hasLoadedOnce)
@@ -1087,18 +1093,29 @@ class RoomsComposeTest {
             gate = recoveryGate
             stored = listOf(cached, arrival)
             assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageReceived(session.id, arrival)))
+            clock.runCurrent()
         }
         val optimistic = cachedBeforeRecovery + arrival
         compose.waitUntil { holder.state.value.messages == optimistic }
         assertVisibleMessages(optimistic)
         assertEquals(failedCalls, calls)
-        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
+        compose.runOnIdle {
+            clock.advanceTimeBy(49)
+            clock.runCurrent()
+            assertEquals(failedCalls, calls)
+            assertFalse(holder.state.value.isLoading)
+            clock.advanceTimeBy(1)
+            clock.runCurrent()
+        }
         compose.waitUntil { calls == failedCalls + "fetch" }
         assertTrue(holder.state.value.isLoading)
         assertTrue(holder.state.value.hasLoadedOnce)
         assertVisibleMessages(optimistic)
         compose.onNodeWithText(text(Strings.errorRoomServerPermissionDenied)).assertDoesNotExist()
-        compose.runOnIdle { assertTrue(recoveryGate.complete(Unit)) }
+        compose.runOnIdle {
+            assertTrue(recoveryGate.complete(Unit))
+            clock.runCurrent()
+        }
         compose.waitUntil { !holder.state.value.isLoading && calls == failedCalls + stages }
         assertVisibleMessages(listOf(cached, arrival))
         assertEquals(
