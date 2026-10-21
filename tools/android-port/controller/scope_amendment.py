@@ -97,12 +97,14 @@ ROOMS_MESSAGE_ACTIONS_CAPABILITY = {
 
 
 MENTION_PICKER_CAPABILITY = {
-    "id": "mention-picker-contact-metadata",
+    "id": "shared-mention-picker-repair",
     "work_packages": ["WP-502"],
     "path_rules": [
         "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ui/MentionSuggestions.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ui/ChatConversationScreen.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt",
     ],
-    "operations": ["repair-mention-picker-contact-metadata"],
+    "operations": ["repair-shared-mention-picker"],
     "invariants": [
         "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
         "WP-308-picker-and-WP-306-match-row-primary-provenance-unchanged",
@@ -111,6 +113,16 @@ MENTION_PICKER_CAPABILITY = {
         "source-scroll-and-large-font-reachability", "existing-theme-localization-identity-48dp-Tap-semantics",
         "editor-MentionSuggestionList-and-MentionSuggestionRow-byte-and-behavior-unchanged",
         "no-fabricated-location-distance-or-clock-no-full-location-parity-from-nil",
+        "all-three-shared-sheet-callers-forward-clock-and-optional-preformatted-distance",
+        "real-radio-wall-clock-instants-with-system-display-zone-and-fixed-clock-tests",
+        "authorized-valid-screen-local-phone-then-same-radio-hasLocation-device-then-nil-no-opening-permission-or-fix",
+        "Room-node-only-fallback-no-app-wide-phone-cache-parity-claim",
+        "App-existing-location-policy-road-distance-and-localized-away-wrapper-no-feature-dependency",
+        "current-location-permission-device-locale-inputs-no-stale-formatter-capture",
+        "all-matches-no-editor-cap-block-filter-recency-sort-or-key-truncation",
+        "bounded-scroll-over20-compact-200percent-CJK-RTL-independently-reachable-Done",
+        "dismiss-before-once-only-full-contact-detail-navigation-no-insertion-autofocus-or-draft-effects",
+        "existing-App-support-separate-authority-no-new-App-core-provider-dependency-or-service-paths",
         "no-auth-service-radio-state-activation-or-provider-change",
         "rooms-actions-and-avatar-capabilities-unchanged",
         "semantic-collisions-serialize-or-transfer-current-producer",
@@ -118,9 +130,11 @@ MENTION_PICKER_CAPABILITY = {
         "no-main-policy-landing-during-held-native-or-gradle-operation",
     ],
     "validation": [
-        "mounted picker real contact-row LAST_ADVERT, localized type, spaced key and location-marker metadata assertions",
-        "ordered callback identities, self/unknown/Done/dismiss/focus and scroll/large-font reachability assertions",
-        "editor suggestion source/behavior unchanged and no fabricated optional location/distance/time assertions",
+        "mounted Room action through holder/dispatcher/route/shared picker: real LAST_ADVERT not recency, localized type, full spaced key, location marker and Tap button 48dp assertions",
+        "all three real call sites including App DM/channel forward fixed clock with system display zone and actual optional formatted distance",
+        "App actual authorized cached phone/same-radio node/nil selection: denied invalid cross-radio absent inputs, no opening fix/prompt, independent zero-distance and Swift-derived metric/US/UK approximate road vectors with localized away wrapper",
+        "over20 compact/200percent/CJK/RTL ordered identities scroll to final DTO once through NavigationCoordinator contact detail; independently reachable Done/Back/outside zero navigation and unchanged Room/draft/effects",
+        "self/unknown/focus containment and byte/behavior-unchanged editor suggestions; all35 incumbent methods/helpers/Fixture and frozen multiple-Alice defaults/test identities retained",
         "affected manifest-declared software verification and trusted ownership/traceability validators",
         "exact-head/current-base protected merge review after verified native cleanup",
     ],

@@ -247,7 +247,8 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
 
     def test_picker_projection_rejects_any_rule_drift_or_unrelated_semantic_change(self):
         current = load_json(REPO / "docs/android/automation-policy.json")
-        for mode in ("owner", "path", "operation", "invariant", "validation", "duplicate",
+        for mode in ("owner", "path", "duplicate-path", "reordered-paths", "missing-caller",
+                     "operation", "invariant", "validation", "duplicate",
                      "reordered", "unknown", "malformed-neighbor", "rooms", "gate"):
             changed = copy.deepcopy(current)
             rules = changed["reservation_policy"]["capabilities"]
@@ -256,6 +257,12 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
                 rule["work_packages"].append("WP-308")
             elif mode == "path":
                 rule["path_rules"].append("android/feature/chats/**")
+            elif mode == "duplicate-path":
+                rule["path_rules"].append(rule["path_rules"][0])
+            elif mode == "reordered-paths":
+                rule["path_rules"].reverse()
+            elif mode == "missing-caller":
+                rule["path_rules"].pop()
             elif mode == "operation":
                 rule["operations"].append("modify")
             elif mode == "invariant":

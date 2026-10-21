@@ -641,11 +641,12 @@ remain required. No runtime installation or native acceptance follows from admis
 
 ### Mention picker contact metadata: local support successor
 
-The independent `mention-picker-contact-metadata` rule admits WP-502 only,
-operation `repair-mention-picker-contact-metadata` only, and exactly
-`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ui/MentionSuggestions.kt`.
-It does not expand either Room capability, App/core/location propagation or
-the shared `ContactMatchRow` implementation. Primary picker WP-308 and match-row
+The independent `shared-mention-picker-repair` rule admits WP-502 only,
+operation `repair-shared-mention-picker` only, and exactly three existing files
+under `android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/`:
+`composer/ui/MentionSuggestions.kt`, `composer/ui/ChatConversationScreen.kt` and
+`rooms/RoomConversationScreen.kt`. It does not expand either Room capability,
+App/core paths or the shared `ContactMatchRow` implementation. Primary picker WP-308 and match-row
 WP-306 provenance stay unchanged at frozen `db14559`.
 
 Use the real Tap-style `ContactMatchRow` for matching picker rows: actual on-air
@@ -657,9 +658,27 @@ theme/localization/identity/48dp semantics. Editor `MentionSuggestionList` and
 user location, distance or time; nil location does not establish full location
 parity. No auth/service/radio/state/activation/provider change is admitted.
 
-**Local and unpublished:** hold the successor for the actual WP-502 consumer
-report tracing optional-location/caller needs and bounded comparison/current
-guards. No additional path is inferred; an actual newly required path needs
+The actual WP-502 consumer report is issue135 comment6308826188 (source
+`ba5073e6`, base dbb, same attempt/reservation r30). All three shared-sheet
+callers must forward presentation inputs, including the actual App DM/channel
+wrapper. Existing `app-build-launcher`/`update-launcher-or-composition` already
+admits `AppChatConversationScreen.kt` and `AppChatsContent.kt`; no App path is
+added here. Use actual `listFor(radio).clock` instants with the system display
+zone, not forced UTC dates. Reuse actual authorized screen-local phone then
+same-radio hasLocation node then nil; opening requests no permission/fix.
+Room exposes only node fallback, not an app-wide phone cache: that integration
+gap remains explicit. Bind existing approximate road-distance/away formatting
+at App with current location/permission/device/locale inputs; no cross-feature
+dependency or stale capture. Never claim exact Foundation/WGS-84 parity.
+
+Preserve all matches (not the editor's 20-item cap), full keys and order; no
+blocked-contact filtering or recency sorting. Require compact/200%/CJK/RTL
+reachability, independent Done, dismissal before once-only full-contact-detail
+navigation, no composer insertion/autofocus or Room/draft side effects. Keep all
+35 incumbent methods/helpers/Fixture and frozen multiple-Alice test identities.
+
+**Local and unpublished:** hold the successor for full bounded comparison and
+current-base/consumer guards. No additional path is inferred; an actual newly required path needs
 its own exact trusted mapping. Neither the existing seven Room paths nor generic
 reconciliation/transfer admits this renderer. Candidate registration is not live
 authority; reviewed deployment then fresh same-owner admission/evolution remain

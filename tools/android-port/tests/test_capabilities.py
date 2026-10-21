@@ -31,8 +31,11 @@ PICKER_PATH = (
     "android/feature/chats/src/main/kotlin/com/meshcoreone/android/"
     "feature/chats/composer/ui/MentionSuggestions.kt"
 )
-PICKER_OPERATION = "repair-mention-picker-contact-metadata"
-PICKER_CAPABILITY = "mention-picker-contact-metadata"
+PICKER_PATHS = [
+    PICKER_PATH, PICKER_PATH.replace("MentionSuggestions.kt", "ChatConversationScreen.kt"), ROOM_RENDERER,
+]
+PICKER_OPERATION = "repair-shared-mention-picker"
+PICKER_CAPABILITY = "shared-mention-picker-repair"
 
 
 class CapabilityReservationTests(unittest.TestCase):
@@ -296,15 +299,18 @@ class CapabilityReservationTests(unittest.TestCase):
 
     def test_picker_exact_admission_does_not_repurpose_rooms_or_editor_permission(self):
         assigned = test_manifest("WP-502").wp("WP-502")["write_paths"]
-        admission = self.engine.admit("WP-502", assigned, PICKER_PATH, PICKER_OPERATION)
-        self.assertEqual(admission.capability_id, PICKER_CAPABILITY)
+        for path in PICKER_PATHS:
+            admission = self.engine.admit("WP-502", assigned, path, PICKER_OPERATION)
+            self.assertEqual(admission.capability_id, PICKER_CAPABILITY)
         for wp, path, operation in (
             *[(wp, PICKER_PATH, PICKER_OPERATION) for wp in ("WP-003", "WP-306", "WP-308", "WP-501", "WP-503")],
             *[("WP-502", path, PICKER_OPERATION) for path in (
                 PICKER_PATH.rsplit("/", 1)[0], PICKER_PATH + ".backup",
                 PICKER_PATH.replace("MentionSuggestions.kt", "MentionPickerSheet.kt"),
                 PICKER_PATH.replace("composer/ui/MentionSuggestions.kt", "list/ui/NewChatSheet.kt"),
-                "android/app/src/main/kotlin/AppChatsContent.kt", *ROOM_ACTIONS_PATHS,
+                "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatsContent.kt",
+                "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatConversationScreen.kt",
+                *[p for p in ROOM_ACTIONS_PATHS if p != ROOM_RENDERER],
             )],
             *[("WP-502", PICKER_PATH, operation) for operation in
               ("modify", "create", "delete", ROOM_REPAIR, ROOM_ACTIONS_OPERATION, "unknown-operation")],
@@ -318,13 +324,25 @@ class CapabilityReservationTests(unittest.TestCase):
         self.assertEqual(rules["rooms-message-actions"], ROOMS_MESSAGE_ACTIONS_CAPABILITY)
         trusted = copy.deepcopy(self.rules)
         trusted["reservation_policy"]["capabilities"].remove(rules[PICKER_CAPABILITY])
-        with self.assertRaises(PortError):
-            CapabilityEngine(trusted).admit("WP-502", assigned, PICKER_PATH, PICKER_OPERATION)
+        for path in PICKER_PATHS:
+            with self.subTest(path=path), self.assertRaises(PortError):
+                CapabilityEngine(trusted).admit("WP-502", assigned, path, PICKER_OPERATION)
+            for wp in ("WP-003", "WP-306", "WP-308", "WP-310", "WP-501", "WP-503"):
+                with self.subTest(path=path, wp=wp), self.assertRaises(PortError):
+                    self.engine.admit(wp, [], path, PICKER_OPERATION)
+            for operation in ("modify", "create", "delete", "repair-mention-picker-contact-metadata"):
+                with self.subTest(path=path, operation=operation), self.assertRaises(PortError):
+                    self.engine.admit("WP-502", assigned, path, operation)
+        for name in ("AppChatsContent.kt", "AppChatConversationScreen.kt"):
+            path = "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/" + name
+            self.assertEqual(self.engine.admit(
+                "WP-502", assigned, path, "update-launcher-or-composition",
+            ).capability_id, "app-build-launcher")
 
     def test_picker_invariants_preserve_real_metadata_callbacks_and_editor_without_fake_location(self):
         rule = next(r for r in self.rules["reservation_policy"]["capabilities"] if r["id"] == PICKER_CAPABILITY)
         self.assertEqual(rule["work_packages"], ["WP-502"])
-        self.assertEqual(rule["path_rules"], [PICKER_PATH])
+        self.assertEqual(rule["path_rules"], PICKER_PATHS)
         self.assertEqual(rule["operations"], [PICKER_OPERATION])
         self.assertEqual(set(rule["invariants"]), {
             "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
@@ -334,13 +352,23 @@ class CapabilityReservationTests(unittest.TestCase):
             "source-scroll-and-large-font-reachability", "existing-theme-localization-identity-48dp-Tap-semantics",
             "editor-MentionSuggestionList-and-MentionSuggestionRow-byte-and-behavior-unchanged",
             "no-fabricated-location-distance-or-clock-no-full-location-parity-from-nil",
+            "all-three-shared-sheet-callers-forward-clock-and-optional-preformatted-distance",
+            "real-radio-wall-clock-instants-with-system-display-zone-and-fixed-clock-tests",
+            "authorized-valid-screen-local-phone-then-same-radio-hasLocation-device-then-nil-no-opening-permission-or-fix",
+            "Room-node-only-fallback-no-app-wide-phone-cache-parity-claim",
+            "App-existing-location-policy-road-distance-and-localized-away-wrapper-no-feature-dependency",
+            "current-location-permission-device-locale-inputs-no-stale-formatter-capture",
+            "all-matches-no-editor-cap-block-filter-recency-sort-or-key-truncation",
+            "bounded-scroll-over20-compact-200percent-CJK-RTL-independently-reachable-Done",
+            "dismiss-before-once-only-full-contact-detail-navigation-no-insertion-autofocus-or-draft-effects",
+            "existing-App-support-separate-authority-no-new-App-core-provider-dependency-or-service-paths",
             "no-auth-service-radio-state-activation-or-provider-change",
             "rooms-actions-and-avatar-capabilities-unchanged",
             "semantic-collisions-serialize-or-transfer-current-producer",
             "trusted-main-admission-before-product-edit",
             "no-main-policy-landing-during-held-native-or-gradle-operation",
         })
-        self.assertEqual(len(rule["validation"]), 5)
+        self.assertEqual(len(rule["validation"]), 7)
 
     def test_picker_same_owner_evolution_stale_foreign_and_semantic_collision_fences(self):
         wp = test_manifest("WP-502").wp("WP-502")
@@ -353,8 +381,8 @@ class CapabilityReservationTests(unittest.TestCase):
                           branch=owner["branch"], worktree=owner["worktree"],
                           authorization_context={"authorization": "immutable original"})
         before = self.ledger.get("WP-502")
-        admission = self.engine.admit("WP-502", wp["write_paths"], PICKER_PATH, PICKER_OPERATION)
-        caps = {admission.capability_id: [admission.path]}
+        admissions = self.engine.admit_scope("WP-502", wp["write_paths"], PICKER_PATHS, [PICKER_OPERATION])
+        caps = {PICKER_CAPABILITY: [a.path for a in admissions]}
         for attempt, context in (
             ("foreign-attempt", owner),
             ("same-attempt", {**owner, "session_id": "foreign"}),
@@ -363,22 +391,22 @@ class CapabilityReservationTests(unittest.TestCase):
         ):
             with self.subTest(attempt=attempt, context=context), self.assertRaises(PortError):
                 self.ledger.evolve_scope("WP-502", attempt, before["revision"], caps,
-                                         [PICKER_OPERATION], [PICKER_PATH], owner_context=context)
+                                         [PICKER_OPERATION], PICKER_PATHS, owner_context=context)
             self.assertEqual(self.ledger.get("WP-502"), before)
         evolved = self.ledger.evolve_scope(
             "WP-502", before["attempt"], before["revision"], caps,
-            [PICKER_OPERATION], [PICKER_PATH], owner_context=owner,
+            [PICKER_OPERATION], PICKER_PATHS, owner_context=owner,
         )
         for key in ("identity", "binding", "authorization_context", "attempt", "branch", "worktree", "state", "repairs"):
             self.assertEqual(evolved[key], before[key])
-        self.assertEqual(evolved["capabilities"][PICKER_CAPABILITY], [PICKER_PATH])
+        self.assertEqual(evolved["capabilities"][PICKER_CAPABILITY], sorted(PICKER_PATHS))
         with self.assertRaisesRegex(PortError, "Stale capability reservation"):
             self.ledger.evolve_scope("WP-502", before["attempt"], before["revision"], caps,
-                                     [PICKER_OPERATION], [PICKER_PATH], owner_context=owner)
+                                     [PICKER_OPERATION], PICKER_PATHS, owner_context=owner)
         self.assertEqual(self.ledger.get("WP-502"), evolved)
         self.assertEqual(self.ledger.evolve_scope(
             "WP-502", before["attempt"], evolved["revision"], caps,
-            [PICKER_OPERATION], [PICKER_PATH], owner_context=owner,
+            [PICKER_OPERATION], PICKER_PATHS, owner_context=owner,
         ), evolved)
         intent = {"owner": "existing-502", "semantic_key": "picker-row",
                   "value_digest": "a" * 64, "evidence": "mounted-picker"}
