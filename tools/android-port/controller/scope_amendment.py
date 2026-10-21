@@ -255,11 +255,80 @@ CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY = {
 }
 
 
+RECEIVE_PREFETCH_ADMISSION_CAPABILITY = {
+    "id": "receive-prefetch-admission",
+    "work_packages": ["WP-501"],
+    "path_rules": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/TimelineContracts.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatContent.kt",
+    ],
+    "operations": ["repair-receive-prefetch-admission"],
+    "invariants": [
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+        "WP-307-WP-407-WP-218-primary-provenance-and-original-accounting-unchanged",
+        "existing-WP-501-owner-same-reservation",
+        "real-mounted-App-feature-process-cache-receive-admission-no-substitute-consumer",
+        "plain-text-or-master-off-immediate-admission-zero-prefetch-collaborator-calls",
+        "URL-prefetch-before-incoming-admission-production-3s-bounded-cancellable-race",
+        "nil-optional-seam-fast-path-not-unwired-production-permission",
+        "g-abc123-expands-to-https-media-giphy-com-media-abc123-giphy-gif",
+        "positive-200x100-dimensions-update-matching-actual-row-aspect-2point0",
+        "outgoing-immediate-visibility-with-asynchronous-prefetch",
+        "HTML-image-card-reentry-not-stranded-and-actual-late-content-row-refresh-or-reviewed-native-equivalent",
+        "master-DM-channel-privacy-process-store-cache-independent-worker-lifetime-preserved",
+        "cancellation-no-stale-conversation-or-radio-admission",
+        "original-text-identity-order-unread-send-semantics-and-zero-radio-commands",
+        "no-core-service-primary-test-build-unrelated-App-or-primer-authority",
+        "no-broad-catches-fabricated-network-Room-device-claims-or-primary-accounting-inflation",
+        "all-incumbent-including-fallback-and-channel-open-rules-unchanged",
+        "semantic-collisions-serialize-or-transfer-current-producer",
+        "trusted-main-admission-before-product-edit",
+        "exclude-active-conflicting-native-or-gradle-operations-no-inactivity-inferred-from-retained-receipt",
+        "old-retained-guest-receipt-history-untouched-no-restore-release-or-cleanup-prerequisite",
+    ],
+    "validation": [
+        "future owned WP-501 tests mount real App feature cache chain and preserve all nine frozen ChatViewModelAdmissionTests cases/helpers/stubs without primary rewrites",
+        "plain/master-off zero collaborator calls; URL prefetch precedes incoming row; injected 200ms timeout admits in under1s against 5s cancellable probe while production remains3s",
+        "g:abc123 probes https://media.giphy.com/media/abc123/giphy.gif; positive200x100 dimensions produce2.0 in matching actual row; nil seam not unwired production",
+        "outgoing immediate plus asynchronous prefetch; HTML-serving image card reentry and actual late-content refresh; master/DM/channel privacy and independent process-cache lifetime",
+        "cancelled or stale conversation/radio cannot admit; original text/identity/order/unread/send and zero radio commands; no fake renderer cloned evaluator fabricated network Room or device evidence",
+        "affected manifest-declared verification and trusted ownership/traceability validators; exact-head/current-base protected review excluding active conflicts without old guest recovery prerequisite",
+    ],
+}
+
+
+def receive_prefetch_predecessor(policy):
+    """Remove only the exact appended receive-admission rule, restoring the whole b677 policy object."""
+    if not isinstance(policy, dict):
+        raise PortError("Receive prefetch amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result.get("reservation_policy")
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Receive prefetch amendment requires the canonical capability catalog")
+    selected = [r for r in rules if isinstance(r, dict)
+                and r.get("id") == RECEIVE_PREFETCH_ADMISSION_CAPABILITY["id"]]
+    if not selected:
+        return result
+    if (
+        selected != [RECEIVE_PREFETCH_ADMISSION_CAPABILITY]
+        or rules[-1] != RECEIVE_PREFETCH_ADMISSION_CAPABILITY
+        or len(rules) < 2 or rules[-2] != CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY
+    ):
+        raise PortError("Receive prefetch capability changed outside the exact single-rule amendment")
+    rules.pop()
+    return result
+
+
 def parity_support_predecessor(policy):
     """Reverse only the exact two-rule parity-support proposal appended after 6b."""
     if not isinstance(policy, dict):
         raise PortError("Parity support amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = receive_prefetch_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result.get("reservation_policy")

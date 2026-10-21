@@ -307,6 +307,52 @@ trusted lifecycle path, not release/recreate or hand-edited ledger rows.
 The trusted controller's `evolve_reservation` similarly requires an explicit
 `attempt` keyword; missing/stale attempt never adopts the current owner.
 
+### LOCAL receive-prefetch admission proposal after b677 (not live authority)
+
+The separate candidate-only `receive-prefetch-admission` capability admits only
+assigned WP-501 / `repair-receive-prefetch-admission`, for exactly:
+
+- `android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/TimelineContracts.kt`
+- `android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt`
+- `android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt`
+- `android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatContent.kt`
+
+It does NOT extend channel-open, fallback, Rooms or generic App authority. It
+does not grant primer, core/service, primary-test, build or unrelated App edits.
+The current incoming event immediately admits/builds the row, while the mounted
+App caches never construct the existing prefetcher; those source facts remain
+unfixed by this proposal. Future repair requires the real App/feature/cache
+consumer, not a cloned evaluator or fake renderer. Tests/evidence remain in
+already-owned parity paths; WP-307/WP-407/WP-218 provenance/accounting is unchanged.
+
+The rule carries all nine frozen admission cases: immediate plain/master-off
+with zero collaborator calls; URL prefetch before incoming admission; optional
+nil fast path without permission to omit production wiring; positive 200x100
+dimensions yielding aspect2.0 in the matching actual row; the bounded production
+3s race with injected200ms/<1s against a cancellable5s probe; `g:abc123` expanding
+to `https://media.giphy.com/media/abc123/giphy.gif`; HTML-image/card re-entry
+without stranded loading; outgoing immediate visibility plus async prefetch.
+Master/DM/channel privacy, independent process-store/cache/worker lifetime,
+actual late-content refresh or reviewed native equivalent, cancellation without
+stale conversation/radio admission, original text/identity/order/unread/send,
+explicit errors and ZERO radio commands remain required.
+
+The exact single-rule inverse restores the ENTIRE b677 object and raw Git blob
+before the retained6b/ad40165 inverses. Real private Git/SQLite CLI tests keep
+immutable default-main authority while candidate evaluation accepts each tuple:
+actual admit/evolve MUST reject it without altering receipts, products or runtime.
+No candidate policy can self-admit a product repair.
+
+Protected trusted-main admission and same-owner scope evolution precede product
+edits; real semantic overlap serializes/transfers to the current producer.
+Active conflicting native/Gradle operations remain excluded. Old473/66bd guest/
+receipt/history are untouched and need not be restored, released or cleaned for
+these disjoint source/repair paths; no inactivity/disposition is inferred.
+The disposable consumer loads the trusted-main checkout: this proposal invents
+no global-runtime-install prerequisite and changes none of its pinned APIs or
+actual execution/install interlocks. Source review, protected policy admission
+and future product/native acceptance remain distinct. Publication is HELD.
+
 ### LOCAL parity-support proposal after 6b (not live admission)
 
 Two candidate-only rules propose bounded support for existing parity owners:

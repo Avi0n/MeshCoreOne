@@ -14,6 +14,7 @@ from controller.scope_amendment import (
     MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY,
     REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY,
     parity_support_predecessor,
+    RECEIVE_PREFETCH_ADMISSION_CAPABILITY, receive_prefetch_predecessor,
 )
 from portmap import capability_support_admitted
 
@@ -58,6 +59,115 @@ class CapabilityReservationTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="meshcore-capability-tests-")
         self.addCleanup(self.temporary.cleanup)
         self.ledger = Ledger(Path(self.temporary.name) / "ledger.sqlite", self.rules["repository"])
+
+    def test_receive_prefetch_exact_four_paths_only_assigned_wp_and_named_operation(self):
+        rule = RECEIVE_PREFETCH_ADMISSION_CAPABILITY
+        operation = "repair-receive-prefetch-admission"
+        self.assertEqual(rule["work_packages"], ["WP-501"])
+        self.assertEqual(rule["operations"], [operation])
+        timeline = "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/"
+        app = "android/app/src/main/kotlin/com/meshcoreone/android/app/container/"
+        self.assertEqual(rule["path_rules"], [
+            timeline + "TimelineContracts.kt", timeline + "ChatViewModel.kt",
+            app + "AppChatsFeature.kt", app + "AppChatContent.kt",
+        ])
+        actual = next(r for r in self.rules["reservation_policy"]["capabilities"] if r["id"] == rule["id"])
+        self.assertEqual(actual, rule)
+        manifest = test_manifest("WP-501")
+        for path in rule["path_rules"]:
+            admitted = self.engine.admit("WP-501", manifest.wp("WP-501")["write_paths"], path, operation)
+            self.assertEqual((admitted.capability_id, admitted.path, admitted.operation), (rule["id"], path, operation))
+            for wp in ("WP-003", "WP-502", "WP-503", "WP-307", "WP-407", "WP-218"):
+                with self.subTest(wp=wp, path=path), self.assertRaises(PortError):
+                    self.engine.admit(wp, manifest.wp(wp)["write_paths"], path, operation)
+            for wrong in ("modify", "create", "delete", "repair-channel-open-flood-scope",
+                          "prime-initial-messages", "unknown"):
+                if wrong == "repair-channel-open-flood-scope" and path != app + "AppChatContent.kt":
+                    self.assertEqual(self.engine.admit("WP-501", [], path, wrong).capability_id,
+                                     "channel-open-flood-scope")
+                    continue
+                with self.subTest(path=path, operation=wrong), self.assertRaises(PortError):
+                    self.engine.admit("WP-501", manifest.wp("WP-501")["write_paths"], path, wrong)
+            for sibling in (path + ".backup", path.rsplit("/", 1)[0],
+                            path.rsplit("/", 1)[0] + "/Other.kt",
+                            path.replace("/src/main/", "/src/test/"),
+                            path.replace("/src/main/", "/src/androidTest/")):
+                with self.subTest(path=sibling), self.assertRaises(PortError):
+                    self.engine.admit("WP-501", [], sibling, operation)
+        for path in (
+            app + "AppContainer.kt", app + "AppChatMapPreviews.kt",
+            timeline + "ChatTimelineState.kt",
+            "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/content/InlineImagePrefetcher.kt",
+            "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModelTest.kt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ChatPrewarmTest.kt",
+            "android/app/build.gradle.kts", "MC1Tests/Views/Chats/ChatViewModelAdmissionTests.swift",
+        ):
+            with self.subTest(path=path), self.assertRaises(PortError):
+                self.engine.admit("WP-501", manifest.wp("WP-501")["write_paths"], path, operation)
+        trusted = CapabilityEngine(receive_prefetch_predecessor(self.rules))
+        for path in rule["path_rules"]:
+            with self.assertRaises(PortError):
+                trusted.admit("WP-501", [], path, operation)
+
+    def test_receive_prefetch_preserves_predicates_primary_attribution_and_semantic_fences(self):
+        rule = RECEIVE_PREFETCH_ADMISSION_CAPABILITY
+        self.assertTrue({
+            "plain-text-or-master-off-immediate-admission-zero-prefetch-collaborator-calls",
+            "URL-prefetch-before-incoming-admission-production-3s-bounded-cancellable-race",
+            "nil-optional-seam-fast-path-not-unwired-production-permission",
+            "positive-200x100-dimensions-update-matching-actual-row-aspect-2point0",
+            "outgoing-immediate-visibility-with-asynchronous-prefetch",
+            "original-text-identity-order-unread-send-semantics-and-zero-radio-commands",
+            "trusted-main-admission-before-product-edit",
+            "exclude-active-conflicting-native-or-gradle-operations-no-inactivity-inferred-from-retained-receipt",
+            "old-retained-guest-receipt-history-untouched-no-restore-release-or-cleanup-prerequisite",
+        }.issubset(rule["invariants"]))
+        self.assertIn("injected 200ms timeout admits in under1s against 5s cancellable probe", " ".join(rule["validation"]))
+        self.assertIn("https://media.giphy.com/media/abc123/giphy.gif", " ".join(rule["validation"]))
+        manifest = test_manifest("WP-501")
+        for path, owner in (
+            ("MC1/Views/Chats/ViewModel/ChatViewModel+Prefetch.swift", "WP-307"),
+            ("MC1Tests/Views/Chats/ChatViewModelAdmissionTests.swift", "WP-307"),
+            ("MC1/Services/InlineImagePrefetcher.swift", "WP-218"),
+        ):
+            self.assertEqual(next(e for e in manifest.data["inventory"] if e["path"] == path)["primary_owner"], owner)
+        origin = {"wp": "WP-307", "session": "primary", "evidence": "frozen-prefetch-and-nine-originals"}
+        producer = {"wp": "WP-501", "session": "existing-parity", "evidence": "future-mounted-App-cache"}
+        for path in rule["path_rules"]:
+            transfer = self.engine.transfer_intent(origin, producer, path, rule["id"])
+            self.assertEqual(transfer["origin"], origin)
+            self.assertEqual(transfer["producer"], producer)
+            intent = {"owner": origin["wp"], "semantic_key": "receive-admission",
+                      "value_digest": "a" * 64, "evidence": origin["evidence"]}
+            with self.assertRaisesRegex(PortError, "Unresolved semantic ownership collision"):
+                self.engine.reconcile_intents(BASE, BASE, path, rule["id"], [
+                    intent, {**intent, "owner": "WP-501", "value_digest": "b" * 64},
+                ])
+            with self.assertRaisesRegex(PortError, "Current base changed"):
+                self.engine.reconcile_intents(BASE, "9" * 40, path, rule["id"], [intent])
+            for wrong_rule in (ROOM_CAPABILITY, "rooms-message-actions", "channel-open-flood-scope"):
+                if wrong_rule == "channel-open-flood-scope" and path in CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY["path_rules"]:
+                    continue
+                with self.subTest(rule=wrong_rule, path=path), self.assertRaises(PortError):
+                    self.engine.transfer_intent(origin, producer, path, wrong_rule)
+
+    def test_receive_prefetch_source_proposal_does_not_recover_retained_guest_or_weaken_active_conflicts(self):
+        self.ledger.acquire_hard_lock(
+            "native-execution", "unknown-retained-fixture-owner", {"state": "unverified-not-idle"}, NOW,
+        )
+        with self.ledger.transaction() as connection:
+            before = [tuple(row) for row in connection.execute("SELECT rowid,* FROM hard_locks")]
+        rule = RECEIVE_PREFETCH_ADMISSION_CAPABILITY
+        self.assertNotIn("no-main-policy-landing-during-held-native-or-gradle-operation", rule["invariants"])
+        self.assertTrue(all("after verified native cleanup" not in text for text in rule["validation"]))
+        for path in rule["path_rules"]:
+            self.assertEqual(self.engine.admit("WP-501", [], path, rule["operations"][0]).capability_id, rule["id"])
+        with self.ledger.transaction() as connection:
+            self.assertEqual([tuple(row) for row in connection.execute("SELECT rowid,* FROM hard_locks")], before)
+        with self.assertRaisesRegex(PortError, "held|conflict"):
+            self.ledger.acquire_hard_lock("gradle-execution", "foreign-fixture-owner", {}, NOW + 1)
+        with self.ledger.transaction() as connection:
+            self.assertEqual([tuple(row) for row in connection.execute("SELECT rowid,* FROM hard_locks")], before)
 
     def test_parity_support_exact_tuples_do_not_authorize_wrong_owner_path_operation_or_primary_tests(self):
         manifest = test_manifest("WP-501")

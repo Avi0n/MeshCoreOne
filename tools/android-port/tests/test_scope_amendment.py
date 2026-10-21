@@ -25,6 +25,7 @@ from controller.scope_amendment import (
     message_actions_translation_predecessor, MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY,
     disposable_predecessor,
     parity_support_predecessor, REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY,
+    receive_prefetch_predecessor, RECEIVE_PREFETCH_ADMISSION_CAPABILITY,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -36,8 +37,73 @@ from controller.software_verification import project as project_software
 
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
-    def test_parity_support_inverse_restores_entire_exact_6b_policy_and_manifest(self):
+    def test_receive_prefetch_single_rule_inverse_restores_entire_b677_object_and_raw_git_blob(self):
         current = load_json(REPO / "docs/android/automation-policy.json")
+        before = copy.deepcopy(current)
+        previous = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "b677fd681533fbbe461a07ddf7fcf237d61885dc:docs/android/automation-policy.json",
+        ]))
+        self.assertEqual(receive_prefetch_predecessor(current), previous)
+        self.assertEqual(receive_prefetch_predecessor(previous), previous)
+        self.assertEqual(current, before)
+        restored = copy.deepcopy(previous)
+        restored["reservation_policy"]["capabilities"].append(copy.deepcopy(RECEIVE_PREFETCH_ADMISSION_CAPABILITY))
+        self.assertEqual(restored, current)
+        text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index(',\n      {\n        "id": "receive-prefetch-admission",')
+        end = text.index("\n    ]", start)
+        reversed_text = text[:start] + text[end:]
+        self.assertEqual(json.loads(reversed_text), previous)
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=reversed_text.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "b677fd681533fbbe461a07ddf7fcf237d61885dc:docs/android/automation-policy.json",
+        ]).strip())
+        self.assertEqual((REPO / "docs/android/port-manifest.json").read_bytes().replace(b"\r\n", b"\n"),
+                         subprocess.check_output([
+                             "git", "-C", str(REPO), "show",
+                             "b677fd681533fbbe461a07ddf7fcf237d61885dc:docs/android/port-manifest.json",
+                         ]).replace(b"\r\n", b"\n"))
+        self.assertEqual(content_scope_revisions(base_manifest(), current)["policy_revision"],
+                         policy_revision(base_manifest(), current))
+
+    def test_receive_prefetch_inverse_rejects_widening_weakened_predicates_and_order_drift(self):
+        current = load_json(REPO / "docs/android/automation-policy.json")
+        for mode in ("wp", "path", "operation", "invariant", "validation", "duplicate", "reorder", "predecessor"):
+            changed = copy.deepcopy(current)
+            rules = changed["reservation_policy"]["capabilities"]
+            rule = rules[-1]
+            if mode == "wp":
+                rule["work_packages"].append("WP-502")
+            elif mode == "path":
+                rule["path_rules"].append("android/app/**")
+            elif mode == "operation":
+                rule["operations"].append("modify")
+            elif mode == "invariant":
+                rule["invariants"].remove("nil-optional-seam-fast-path-not-unwired-production-permission")
+            elif mode == "validation":
+                rule["validation"] = []
+            elif mode == "duplicate":
+                rules.append(copy.deepcopy(rule))
+            elif mode == "reorder":
+                rules.remove(rule)
+                rules.insert(0, rule)
+            else:
+                rules[-2]["operations"].append("repair-receive-prefetch-admission")
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                receive_prefetch_predecessor(changed)
+        for malformed in (None, [], {"reservation_policy": None}, {"reservation_policy": {"capabilities": None}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                receive_prefetch_predecessor(malformed)
+        changed = copy.deepcopy(current)
+        changed["admin_bypass"] = True
+        with self.assertRaises(PortError):
+            content_scope_revisions(base_manifest(), changed)
+
+    def test_parity_support_inverse_restores_entire_exact_6b_policy_and_manifest(self):
+        current = receive_prefetch_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
         before = copy.deepcopy(current)
         previous = json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",
@@ -76,7 +142,7 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         self.assertFalse(current["activation_approved"])
 
     def test_parity_support_projection_rejects_widening_partial_reordering_and_unrelated_drift(self):
-        current = load_json(REPO / "docs/android/automation-policy.json")
+        current = receive_prefetch_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
         for index in (-2, -1):
             for mode in ("owner", "path", "operation", "invariant", "validation", "duplicate", "missing", "order"):
                 changed = copy.deepcopy(current)
