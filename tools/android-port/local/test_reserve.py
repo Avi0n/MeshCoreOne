@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import io
+import hashlib
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
@@ -244,6 +245,107 @@ class CapabilityAuthorityCliTests(unittest.TestCase):
             )
             self.assertEqual(hypothetical.capability_id, "wp-owned")
             self.assert_rejected(repo, ledger, cli, "modify")
+
+    def test_real_cli_disposable_rule_and_resource_cannot_authorize_the_candidate(self):
+        with authority_fixture() as (repo, ledger, git, cli):
+            self.claim(cli, "WP-503")
+            before = self.snapshot(ledger)
+            source = Path(__file__).resolve().parents[3]
+            policy_path = repo / "docs/android/automation-policy.json"
+            policy_path.write_bytes((source / "docs/android/automation-policy.json").read_bytes())
+            git("add", "docs")
+            git("commit", "--quiet", "-m", "candidate-only disposable resource and capability")
+            path = "tools/android-port/controller/disposable.py"
+            operation = "execute-private-disposable-avd"
+            admission = CapabilityEngine(reserve.load_json(policy_path)).admit("WP-503", [], path, operation)
+            self.assertEqual(admission.capability_id, "disposable-native-guest")
+            for command, options in (
+                ("admit", []),
+                ("evolve", ["--attempt", "existing-owner", "--session-id", "existing-owner",
+                            "--expected-revision", "1"]),
+            ):
+                result, _, errors = cli(command, "--wp", "WP-503", "--path", path, "--operation", operation, *options)
+                self.assertEqual(result, 1, errors)
+                self.assertIn("no trusted path+operation rule", errors)
+                self.assertEqual(self.snapshot(ledger), before)
+
+    def test_real_disposable_entry_requires_trusted_code_and_preserves_legacy_runtime_without_replacement(self):
+        with authority_fixture() as (repo, ledger, git, cli):
+            self.claim(cli, "WP-503")
+            ledger.transition("WP-503", "existing-owner", "running")
+            ledger.acquire_hard_lock("native-execution", "retained", {"wp": "WP-503", "old": 473}, 123)
+            history = self.snapshot(ledger)
+            legacy = ledger.hard_lock_records()
+            target = reserve.runtime_target(repo)
+            target.mkdir()
+            (target / "legacy.py").write_bytes(b"retained runtime fixture, never executed\n")
+            (target / "runtime-manifest.json").write_text(json.dumps({
+                "schema_version": 1, "files": {
+                    "legacy.py": hashlib.sha256((target / "legacy.py").read_bytes()).hexdigest(),
+                },
+            }), encoding="utf-8")
+            installed = {p.name: p.read_bytes() for p in target.iterdir()}
+            source = Path(__file__).resolve().parents[3]
+            for path in reserve.runtime_sources().values():
+                relative = path.relative_to(source)
+                destination = repo / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(path.read_bytes())
+            (repo / "docs/android/automation-policy.json").write_bytes(
+                (source / "docs/android/automation-policy.json").read_bytes(),
+            )
+            git("add", "tools", "docs")
+            git("commit", "--quiet", "-m", "private current source and disposable policy candidate")
+            script = r'''
+import pathlib,sys
+sys.path.insert(0,str(pathlib.Path.cwd()/"tools/android-port"))
+from controller.disposable import trusted_guest
+from controller.errors import PortError
+try:
+    ledger,guest=trusted_guest(pathlib.Path.cwd(),pathlib.Path(sys.argv[2]),
+        owner="fresh-private-owner",revision=sys.argv[1],session_id="existing-owner",attempt="existing-owner")
+except PortError as error:
+    print("BLOCKED:",error)
+    raise SystemExit(2)
+assert len(ledger.hard_lock_records())==3
+guest.dispose(ledger)
+print("fresh prepared fixture disposed; no emulator/adb/job/pidfd launched")
+'''
+            candidate = git("rev-parse", "HEAD")
+            result = subprocess.run(
+                [sys.executable, "-c", script, candidate, str(repo.parent)], cwd=repo,
+                capture_output=True, encoding="utf-8", timeout=60,
+            )
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("differs from immutable trusted default-base", result.stdout)
+            self.assertEqual(self.snapshot(ledger), history)
+            self.assertEqual(ledger.hard_lock_records(), legacy)
+            git("update-ref", "refs/remotes/origin/main", "HEAD")
+            result = subprocess.run(
+                [sys.executable, "-c", script, candidate, str(repo.parent)], cwd=repo,
+                capture_output=True, encoding="utf-8", timeout=60,
+            )
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("must first evolve", result.stdout)
+            self.assertEqual(self.snapshot(ledger), history)
+            self.assertEqual(ledger.hard_lock_records(), legacy)
+            code, evolved, errors = cli(
+                "evolve", "--wp", "WP-503", "--attempt", "existing-owner", "--session-id", "existing-owner",
+                "--expected-revision", "1", "--path", "tools/android-port/controller/disposable.py",
+                "--operation", "execute-private-disposable-avd",
+            )
+            self.assertEqual(code, 0, errors)
+            self.assertEqual(evolved["revision"], 2)
+            history = self.snapshot(ledger)
+            result = subprocess.run(
+                [sys.executable, "-c", script, candidate, str(repo.parent)], cwd=repo,
+                capture_output=True, encoding="utf-8", timeout=60,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("no emulator/adb/job/pidfd launched", result.stdout)
+            self.assertEqual(self.snapshot(ledger), history)
+            self.assertEqual(ledger.hard_lock_records(), legacy)
+            self.assertEqual({p.name: p.read_bytes() for p in target.iterdir()}, installed)
 
     def test_real_cli_trusted_owned_and_support_development_survives_candidate_metadata_edits(self):
         with authority_fixture() as (repo, ledger, git, cli):

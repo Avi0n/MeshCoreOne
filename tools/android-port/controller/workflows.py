@@ -108,6 +108,19 @@ def validate_candidate(value: dict, text: str):
     )
     if all_runs.count("controller/test_runner.py") != 1:
         raise PortError("Controller tests must execute exactly once")
+    runner_command = (
+        "python tools/android-port/controller/test_runner.py --include-tests tools/android-port/local "
+        "--include-tests android/accessibility-tests"
+    )
+    runners = [
+        step for step in jobs["controller"]["steps"] if "controller/test_runner.py" in step.get("run", "")
+    ]
+    if (
+        len(runners) != 1 or runners[0].get("if") != "${{ needs.scope.outputs.controller == 'true' }}"
+        or runners[0].get("continue-on-error")
+        or runner_command not in runners[0].get("run", "").splitlines()
+    ):
+        raise PortError("Controller CI must discover the real native accessibility runner regressions once and fail closed")
     for name in ("build", "external-oracle", "backup-oracle"):
         job = jobs[name]
         if job.get("if") == "${{ always() }}" or "scope" not in job.get("needs", []):

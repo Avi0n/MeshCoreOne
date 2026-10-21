@@ -19,6 +19,51 @@ REVIEW_POLICY = {
         "android/**/signing*", "android/**/keystore*", "**/*license*", "**/*LICENSE*", "**/*legal*",
     ],
 }
+DISPOSABLE_CAPABILITY = {
+    "id": "disposable-native-guest",
+    "work_packages": ["WP-503"],
+    "path_rules": ["tools/android-port/controller/disposable.py"],
+    "operations": ["execute-private-disposable-avd"],
+    "invariants": [
+        "fresh-exclusive-private-data-not-a-disposable-label", "canonical-repository-ledger-and-exact-owner-revision",
+        "legacy-native-row-and-history-unchanged", "atomic-host-gradle-runtime-exclusion",
+        "native-Windows-Job-or-Linux-pidfd-worker-and-private-adb-endpoint", "owned-live-emulator-transport-before-selected-guest-command",
+        "bounded-owned-disposal-unknown-cleanup-retains-ownership", "no-old-guest-snapshot-wipe-or-force-release",
+        "trusted-main-admission-and-reviewed-runtime-before-live-use",
+    ],
+    "validation": [
+        "disposable lifecycle and legacy preservation regressions", "packaging exact source-task-certificate invariants",
+        "source-safe declared controller verification", "separate actual native readiness and execution evidence",
+    ],
+}
+
+
+def disposable_predecessor(policy):
+    """Reverse only the exact disposable resource/capability pair."""
+    result = copy.deepcopy(policy)
+    if not isinstance(result, dict):
+        raise PortError("Disposable amendment requires a policy object")
+    reservation = result.get("reservation_policy")
+    if reservation is None and "reservation_policy" not in result:
+        return result
+    if not isinstance(reservation, dict):
+        raise PortError("Malformed disposable reservation policy")
+    resources, rules = reservation.get("hard_lock_resources"), reservation.get("capabilities")
+    if not isinstance(resources, list) or not isinstance(rules, list):
+        raise PortError("Disposable amendment requires the canonical resource/capability catalog")
+    selected = [r for r in rules if isinstance(r, dict) and r.get("id") == DISPOSABLE_CAPABILITY["id"]]
+    if not selected and "disposable-native-execution" not in resources:
+        return result
+    if (
+        selected != [DISPOSABLE_CAPABILITY] or rules[0] != DISPOSABLE_CAPABILITY
+        or resources[-1] != "disposable-native-execution" or resources.count("disposable-native-execution") != 1
+    ):
+        raise PortError("Disposable contract changed outside its exact resource/capability amendment")
+    rules.pop(0)
+    resources.pop()
+    return result
+
+
 DEBUG_PACKAGING_CAPABILITY = {
     "id": "debug-test-packaging",
     "work_packages": ["WP-003", "WP-503"],
@@ -301,7 +346,7 @@ def review_policy_predecessor(policy):
     """Reverse exact authorized process deltas; historical policy receipts stay immutable."""
     result = debug_packaging_predecessor(rooms_avatar_predecessor(
         rooms_message_actions_predecessor(mention_picker_predecessor(
-            message_actions_translation_predecessor(policy)))))
+            message_actions_translation_predecessor(disposable_predecessor(policy))))))
     if "review_policy" not in result:
         return result
     if result.pop("review_policy") != REVIEW_POLICY:

@@ -15,6 +15,7 @@ from controller.capabilities import CapabilityEngine
 from controller.ci_environment import host_name
 from controller.errors import PortError
 from controller.ledger import Ledger
+from controller.disposable import PrivateGuest
 from local import debug_packaging as packaging
 
 
@@ -121,6 +122,12 @@ class DebugPackagingTests(unittest.TestCase):
     def test_originally_absent_packaging_has_no_fabricated_snapshot_or_preserved_apk_read(self):
         self.exercise(originally_absent=True)
 
+    def test_fresh_guest_packaging_preserves_foreign_legacy_and_all_existing_build_invariants(self):
+        self.exercise(originally_absent=True, disposable=True)
+
+    def test_fresh_guest_failed_build_remains_failed_and_retains_outer_guard_until_disposal(self):
+        self.exercise(originally_absent=True, disposable=True, build_error=True)
+
     def test_originally_absent_still_requires_both_exact_packages_and_public_certificate_match(self):
         app = {"package": packaging.PACKAGES[0], "certificate_sha256": "a" * 64}
         tests = {**app, "package": packaging.PACKAGES[1]}
@@ -151,7 +158,7 @@ class DebugPackagingTests(unittest.TestCase):
         self.exercise(certificate_error=True)
 
     def exercise(self, *, build_error=False, certificate_error=False, originally_absent=False,
-                 snapshot_drift=False):
+                 snapshot_drift=False, disposable=False):
         home = self.root / "existing-debug-home"
         home.mkdir(exist_ok=True)
         (home / "debug.keystore").touch()
@@ -188,11 +195,23 @@ class DebugPackagingTests(unittest.TestCase):
             runner = stack.enter_context(patch.object(packaging.subprocess, "run"))
             if build_error:
                 runner.side_effect = subprocess.CalledProcessError(1, ["fixture"])
-            stack.enter_context(self.ledger.hard_lock("native-execution", "session", {"wp": "WP-503"}, NOW))
+            stack.enter_context(self.ledger.hard_lock(
+                "native-execution", "foreign-legacy" if disposable else "session", {"wp": "WP-503"}, NOW,
+            ))
+            guest = None
+            if disposable:
+                guest = PrivateGuest.allocate(
+                    self.root.resolve(), repository=self.ledger.repository, owner="session", revision=BASE,
+                )
+                guest.acquire(self.ledger)
+                stack.enter_context(patch.object(guest, "_prepare_supervisor"))
+                backend = stack.enter_context(patch("controller.disposable.supervisor"))
+                backend.return_value.descendants.return_value = set()
             arguments = dict(
                 manifest=self.manifest, policy=policy(), ledger=self.ledger, owner="session",
                 revision=BASE, state=state,
                 debug_home=home, installed_apk=None if originally_absent else self.root / "preserved.apk", output=output,
+                guest=guest,
             )
             if build_error or certificate_error or snapshot_drift:
                 with self.assertRaises(PortError):
@@ -220,6 +239,9 @@ class DebugPackagingTests(unittest.TestCase):
             self.assertIn("--dependency-verification", arguments)
             self.assertEqual(arguments[arguments.index("--dependency-verification") + 1], "strict")
             self.assertIn("--max-workers=1", arguments)
+            if disposable:
+                self.assertIn("--no-daemon", arguments)
+                self.assertIn("-Pkotlin.compiler.execution.strategy=in-process", arguments)
             self.assertNotIn("--no-build-cache", arguments)
             self.assertFalse(any("release" in item.lower() or "install" in item.lower() for item in command))
             environment = runner.call_args.kwargs["env"]
@@ -241,4 +263,6 @@ class DebugPackagingTests(unittest.TestCase):
                                  {key.casefold() for key in allowed["allowed_names"]})
             readiness.assert_called_once_with(state, output / "readiness", local=True)
             self.assertEqual(dict(os.environ), inherited)
+            if guest is not None:
+                guest.dispose(self.ledger)
             self.assertEqual([lock["resource"] for lock in self.ledger.hard_lock_records()], ["native-execution"])

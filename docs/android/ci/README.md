@@ -14,6 +14,107 @@ guarded execution; a candidate checkout is not live authority.
 
 ## Candidate execution contract
 
+### Local-only disposable WP-503 guest contract
+
+The successor to published `ad40165c93d1bc21e073f91102971719b078ad02`
+is a source proposal, not present admission, deployment or execution authority.
+Recovery of the original guest/snapshot is NOT a prerequisite for this fresh
+guest path. Its existing native row, receipt, runtime and history remain intact;
+this is neither recovery/reentry nor a relabelled physical/existing device.
+
+The proposed `disposable-native-guest` capability admits only WP-503,
+`tools/android-port/controller/disposable.py`,
+`execute-private-disposable-avd`. The only additional closed resource is
+`disposable-native-execution`. Actual admission comes from the immutable trusted
+origin default-base policy/manifest, never the candidate's policy. All existing
+product rules and the manifest remain unchanged; removing this exact rule and
+resource restores the entire ad40165 policy, including its canonical Git blob.
+
+After separate source/trust admission and same-owner typed reservation evolution
+for that exact path/operation, a dedicated fresh native worker can use:
+
+```python
+from controller.disposable import trusted_guest
+from local.debug_packaging import assemble_debug_pair
+
+ledger, guest = trusted_guest(
+    repo, private_parent, owner=fresh_execution_owner, revision=exact_head,
+    session_id=existing_wp503_session, attempt=existing_wp503_attempt,
+)
+try:
+    packaging = assemble_debug_pair(
+        manifest=trusted_manifest, policy=trusted_policy, ledger=ledger,
+        owner=guest.owner, revision=exact_head, state=readiness_state,
+        debug_home=existing_debug_home, installed_apk=None, output=new_output,
+        guest=guest,
+    )
+    guest.start(ledger, emulator=installed_emulator, adb=installed_adb,
+                image=installed_api31_or_37_image)
+    guest.adb(ledger, ["get-state"])
+    # WP-503 supplies its separately admitted real runner and acceptance evidence.
+finally:
+    guest.dispose(ledger)
+```
+
+This is an interface example, NOT permission to invoke it. `trusted_guest`
+requires the existing WP-503 session/attempt and admitted receipt revision,
+an exact HEAD, a distinct execution
+owner, the canonical shared Ledger/repository and a canonical private parent.
+It verifies the loaded source checkout and runtime helper bytes, packaging
+adapter and Windows launcher against ONE immutable default-base tree, and binds
+policy/manifest to that same revision before allocation. Candidate-only code
+fails closed. It verifies the retained installed runtime's integrity/namespace
+without executing or replacing it; no canonical runtime installation is needed.
+Missing/malformed/unadmitted authority is not a disposable availability flag.
+Low-level `PrivateGuest.allocate/acquire` are implementation/fixture primitives,
+not a second live authorization entrance.
+
+One immediate SQLite transaction inserts BOTH the private guest row and the
+real global `gradle-execution` host guard. The legacy native row is not rewritten
+or borrowed. The new owner cannot equal its retained owner. The real global
+guard is visible even to the original main Ledger implementation: a different
+endpoint or newly named resource alone cannot bypass its existing Gradle check.
+The guard lasts THROUGH packaging, guest startup, testing and observed disposal,
+not merely the build. Current native/Gradle/runtime-install acquisitions conflict;
+packaging borrows the exact outer receipt without changing its payload/time.
+Generic release cannot remove that guard while the private guest exists.
+
+Packaging keeps the existing tasks, strict dependencies, build/cache reuse,
+source/package/App-Test-certificate/default-debug-key checks and no-install/no-
+acceptance result. The guest path additionally uses in-process Kotlin compilation
+with `--no-daemon`, following the existing owned manual/CI adaptation; persistent
+or unobserved children fail rather than manufacturing quiescence. Historical
+installed APK/snapshot reads are absent ONLY for this genuinely fresh guest.
+The original non-guest packaging contract is unchanged.
+
+Native Windows uses an unnamed non-breakaway Job: suspended process creation,
+assignment BEFORE resume, an explicit inherited-handle allowlist, current-user/
+SYSTEM protected fresh data and Job/PID TCP-listener ownership. Linux uses a
+single-threaded pidfd/subreaper worker, pinned descendant identities and owned
+socket inodes; WSL cannot emulate the canonical Windows Ledger. Only installed
+tools/images are used. A fresh exclusive data directory, image-default userdata,
+AVD home, console/adb ports and private adb server/environment never select an
+existing AVD/server/device. Selected commands require the owned live transport.
+
+`dispose` signals only pinned owned descendants or the exact owned Windows Job,
+has bounded cleanup, and requires observed zero/exited processes and closed
+owned handles before atomically removing BOTH exact receipts. Unknown cleanup
+retains both rows/data and returns failure; there is no force-release, guessed
+idle acknowledgment, foreign-daemon kill, wipe or recursive data deletion.
+Even success intentionally retains terminal private data for inspection.
+
+The existing candidate controller job now includes `android/accessibility-tests`
+in its ONE strict `test_runner.py` invocation alongside controller/local tests.
+This discovers the real declared unittest suite, prints actual method names and
+requires nonzero discovered=run with zero failures/errors/skips. Missing suite
+fails closed, never green/skipped. Read-only tokens, ephemeral runners and
+default-base trusted controller boundaries are unchanged; no new workflow,
+dispatch, result bundle or fabricated runner is added. The producer suite is
+absent on this branch, so its actual execution remains BLOCKED until genuine
+WP-503 sources/tests are composed into the reviewed candidate. WP-503 runner
+code is not modified here. Python fixtures do not prove actual Win32/emulator,
+Linux process branches, cold Gradle, native acceptance or deployment.
+
 ### Local-only active Translate removal proposal
 
 The successor to published `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`

@@ -33,6 +33,7 @@ HARD_LOCK_RESOURCES = {
     "installed-git-common-runtime", "canonical-ledger", "gradle-execution",
     "native-execution", "physical-device", "credentials-signing-release",
     "repository-settings",
+    "disposable-native-execution",
 }
 EXECUTION_INTERLOCK_VERSION = 2
 EXECUTION_RESOURCES = {"native-execution", "gradle-execution"}
@@ -787,9 +788,17 @@ class Ledger:
             raise PortError("Hard-lock resource and owner are required")
         if resource not in HARD_LOCK_RESOURCES:
             raise PortError(f"Unsupported external hard-lock resource: {resource}")
+        if resource == "disposable-native-execution":
+            raise PortError("Disposable execution requires a freshly allocated private guest, not a resource label")
         if not isinstance(payload, dict) or type(now) not in (int, float) or not math.isfinite(now):
             raise PortError("Malformed hard-lock payload or acquisition time")
         with self.transaction() as connection:
+            private = connection.execute(
+                "SELECT * FROM hard_locks WHERE repository=? AND resource='disposable-native-execution'",
+                (self.repository,),
+            ).fetchone()
+            if private is not None and resource in EXECUTION_RESOURCES | {"installed-git-common-runtime"}:
+                raise PortError("Private guest owns the host execution lane")
             if resource in EXECUTION_RESOURCES | {"installed-git-common-runtime"}:
                 peers = connection.execute(
                     "SELECT resource,owner FROM hard_locks WHERE repository=?",
@@ -837,7 +846,14 @@ class Ledger:
             return {"resource": resource, "owner": owner, "payload": payload, "acquired_new": True}
 
     def release_hard_lock(self, resource: str, owner: str):
+        if resource == "disposable-native-execution":
+            raise PortError("Private guest release requires observed owned disposal")
         with self.transaction() as connection:
+            if resource == "gradle-execution" and connection.execute(
+                "SELECT 1 FROM hard_locks WHERE repository=? AND resource='disposable-native-execution'",
+                (self.repository,),
+            ).fetchone():
+                raise PortError("Private guest host/Gradle guard releases only after observed disposal")
             result = connection.execute(
                 "DELETE FROM hard_locks WHERE repository=? AND resource=? AND owner=?",
                 (self.repository, resource, owner),
@@ -854,6 +870,70 @@ class Ledger:
         finally:
             if lock["acquired_new"]:
                 self.release_hard_lock(resource, owner)
+
+    def acquire_disposable(self, guest, owner, now):
+        """One host lane, independently allocated guest; never rewrite the legacy native row."""
+        from .disposable import PrivateGuest
+
+        if not isinstance(guest, PrivateGuest):
+            raise PortError("Disposable ownership requires the allocated guest handle")
+        payload = guest.fresh_payload(self, owner)
+        if type(now) not in (int, float) or not math.isfinite(now):
+            raise PortError("Malformed private guest acquisition time")
+        with self.transaction() as connection:
+            held = connection.execute(
+                "SELECT resource FROM hard_locks WHERE repository=? AND resource IN (?,?,?)",
+                (self.repository, "gradle-execution", "installed-git-common-runtime", "disposable-native-execution"),
+            ).fetchall()
+            if held:
+                raise PortError("Private guest waits for the host/Gradle/runtime lane")
+            legacy = connection.execute(
+                "SELECT owner FROM hard_locks WHERE repository=? AND resource='native-execution'",
+                (self.repository,),
+            ).fetchone()
+            if legacy is not None and legacy["owner"] == owner:
+                raise PortError("Fresh guest needs a distinct execution owner, not the retained legacy owner")
+            connection.execute(
+                "INSERT INTO hard_locks VALUES (?,?,?,?,?)",
+                (self.repository, "disposable-native-execution", owner, json.dumps(payload), now),
+            )
+            connection.execute(
+                "INSERT INTO hard_locks VALUES (?,?,?,?,?)",
+                (self.repository, "gradle-execution", owner, json.dumps({
+                    "kind": "private-guest-host-guard", "token": guest.token, "revision": guest.revision,
+                }), now),
+            )
+            return {
+                "repository": self.repository, "resource": "disposable-native-execution",
+                "owner": owner, "payload": json.dumps(payload), "acquired": now,
+            }
+
+    def finish_disposable(self, guest, owner):
+        from .disposable import PrivateGuest
+
+        if not isinstance(guest, PrivateGuest):
+            raise PortError("Disposable ownership requires the allocated guest handle")
+        guest.verify_disposed()
+        with self.transaction() as connection:
+            row = connection.execute(
+                "SELECT * FROM hard_locks WHERE repository=? AND resource='disposable-native-execution'",
+                (self.repository,),
+            ).fetchone()
+            guest.verify_lease(self, owner, dict(row) if row else None, disposed=True)
+            gradle = connection.execute(
+                "SELECT * FROM hard_locks WHERE repository=? AND resource='gradle-execution'",
+                (self.repository,),
+            ).fetchone()
+            if gradle is None or guest.gradle_receipt != dict(gradle) or gradle["owner"] != owner:
+                raise PortError("Private guest cannot finish with missing/foreign/stale host Gradle guard")
+            connection.execute(
+                "DELETE FROM hard_locks WHERE repository=? AND resource='gradle-execution' AND owner=?",
+                (self.repository, owner),
+            )
+            connection.execute(
+                "DELETE FROM hard_locks WHERE repository=? AND resource='disposable-native-execution' AND owner=?",
+                (self.repository, owner),
+            )
 
     def hard_lock_records(self):
         with self.transaction() as connection:

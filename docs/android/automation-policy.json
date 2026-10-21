@@ -60,7 +60,8 @@
       "native-execution",
       "physical-device",
       "credentials-signing-release",
-      "repository-settings"
+      "repository-settings",
+      "disposable-native-execution"
     ],
     "migration": {
       "preserve_historical_authorization_bytes": true,
@@ -72,6 +73,14 @@
       "legacy_read_compatibility_required": true
     },
     "capabilities": [
+      {
+        "id": "disposable-native-guest",
+        "work_packages": ["WP-503"],
+        "path_rules": ["tools/android-port/controller/disposable.py"],
+        "operations": ["execute-private-disposable-avd"],
+        "invariants": ["fresh-exclusive-private-data-not-a-disposable-label", "canonical-repository-ledger-and-exact-owner-revision", "legacy-native-row-and-history-unchanged", "atomic-host-gradle-runtime-exclusion", "native-Windows-Job-or-Linux-pidfd-worker-and-private-adb-endpoint", "owned-live-emulator-transport-before-selected-guest-command", "bounded-owned-disposal-unknown-cleanup-retains-ownership", "no-old-guest-snapshot-wipe-or-force-release", "trusted-main-admission-and-reviewed-runtime-before-live-use"],
+        "validation": ["disposable lifecycle and legacy preservation regressions", "packaging exact source-task-certificate invariants", "source-safe declared controller verification", "separate actual native readiness and execution evidence"]
+      },
       {
         "id": "wp-owned",
         "path_rules": ["manifest.work_packages[assigned_wp].write_paths"],

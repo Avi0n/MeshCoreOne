@@ -70,11 +70,13 @@ def trusted_install_repository(repo):
     return repository
 
 
-def trusted_capability_authority(repo):
+def trusted_capability_authority(repo, *, expected_revision=None):
     from controller.capabilities import CapabilityEngine
     from controller.staging import object_bytes
 
     revision, policy = trusted_default_policy(repo)
+    if expected_revision is not None and revision != expected_revision:
+        raise PortError("Trusted default-base changed during capability authority binding")
     repository = repository_identity(policy, "Trusted default-base policy")
     verify_installed_repository(repo, repository)
     CapabilityEngine(policy)

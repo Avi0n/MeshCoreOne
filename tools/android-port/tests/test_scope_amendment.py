@@ -23,6 +23,7 @@ from controller.scope_amendment import (
     rooms_message_actions_predecessor, ROOMS_MESSAGE_ACTIONS_CAPABILITY,
     mention_picker_predecessor, MENTION_PICKER_CAPABILITY,
     message_actions_translation_predecessor, MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY,
+    disposable_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -47,7 +48,8 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
 
     def test_debug_support_projection_is_exact_reversible_and_never_rebinds_history(self):
         manifest = base_manifest()
-        current = message_actions_translation_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
+        current = message_actions_translation_predecessor(disposable_predecessor(
+            load_json(REPO / "docs/android/automation-policy.json")))
         current = rooms_avatar_predecessor(rooms_message_actions_predecessor(mention_picker_predecessor(current)))
         before = copy.deepcopy(current)
         previous = debug_packaging_predecessor(current)
@@ -90,7 +92,8 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
 
     def test_rooms_support_projection_matches_real_predecessor_and_preserves_historical_binding(self):
         manifest = base_manifest()
-        current = message_actions_translation_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
+        current = message_actions_translation_predecessor(disposable_predecessor(
+            load_json(REPO / "docs/android/automation-policy.json")))
         current = rooms_message_actions_predecessor(mention_picker_predecessor(current))
         before = copy.deepcopy(current)
         previous = rooms_avatar_predecessor(current)
@@ -152,8 +155,8 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
 
     def test_rooms_actions_projection_is_exact_reversible_and_keeps_actual_and_historical_bindings(self):
         manifest = base_manifest()
-        current = mention_picker_predecessor(message_actions_translation_predecessor(
-            load_json(REPO / "docs/android/automation-policy.json")))
+        current = mention_picker_predecessor(message_actions_translation_predecessor(disposable_predecessor(
+            load_json(REPO / "docs/android/automation-policy.json"))))
         before = copy.deepcopy(current)
         previous = rooms_message_actions_predecessor(current)
         historical = json.loads(subprocess.check_output([
@@ -218,7 +221,8 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
 
     def test_picker_projection_restores_exact_reviewed_candidate_then_real_trusted_policy(self):
         manifest = base_manifest()
-        current = message_actions_translation_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
+        current = message_actions_translation_predecessor(disposable_predecessor(
+            load_json(REPO / "docs/android/automation-policy.json")))
         before = copy.deepcopy(current)
         previous = mention_picker_predecessor(current)
         candidate = json.loads(subprocess.check_output([
@@ -295,7 +299,7 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
 
     def test_active_translation_affordance_projection_restores_entire_reviewed_aa4_and_binding(self):
         manifest = base_manifest()
-        current = load_json(REPO / "docs/android/automation-policy.json")
+        current = disposable_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
         before = copy.deepcopy(current)
         previous = message_actions_translation_predecessor(current)
         historical_bytes = subprocess.check_output([
@@ -310,7 +314,10 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         rules.insert(next(i for i, rule in enumerate(rules) if rule["id"] == "merge-integration"),
                      copy.deepcopy(MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY))
         self.assertEqual(restored, current)
-        text = (REPO / "docs/android/automation-policy.json").read_bytes()
+        text = subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "ad40165c93d1bc21e073f91102971719b078ad02:docs/android/automation-policy.json",
+        ])
         newline = b"\r\n" if b"\r\n" in text else b"\n"
         start = text.index(b'      {' + newline + b'        "id": "message-actions-translation-removal",')
         end = text.index(b'      {' + newline + b'        "id": "merge-integration",', start)
