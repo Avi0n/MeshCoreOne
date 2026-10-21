@@ -14,7 +14,7 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 
-from language_binding import ROOT, current_binding, request_for, verify_current_request
+from language_binding import ROOT, FAMILIES, current_binding, request_for, verify_current_request
 from shared_device_runner import (
     APP, TEST, Device, execute_selection, execution_lane, has_original_schema,
     install_pair, require, restore_packages, sha256,
@@ -408,13 +408,16 @@ def retained_pair(packaging, directory, request):
 
 
 def execute_language(request, config, ledger, *, device=None):
+    """Retain the original entrypoint while sharing one lifecycle across the fixed families."""
     policy, state = readiness(request, config, ledger)
     device = ProcessDevice(config, request.api) if device is None else device
     manifest = load_manifest(ROOT)
     with execution_lane(
         ledger, device, lock_owner=request.operation_owner,
         canonical=request.binding.canonical_session, endpoint=config.endpoint,
-        purpose=f"language-api{request.api}-two-original-methods", source=request.binding.source_revision,
+        purpose=(f"language-api{request.api}-two-original-methods" if request.binding.family == "language"
+                 else f"diagnostics-api{request.api}-5-original-methods"),
+        source=request.binding.source_revision,
     ):
         before = device.installed(APP)
         require(device.installed(TEST) is None, "Existing test package must not be overwritten")
@@ -452,6 +455,7 @@ def execute_language(request, config, ledger, *, device=None):
             device.confirm_original_absence(APP)
         result = {
             "binding": asdict(request.binding), "api": request.api, "identities": request.identities,
+            "family": request.binding.family,
             "native_lane_operation_owner": device.native_lane_owner, "endpoint": config.endpoint,
             "original_profile": original_profile, "installed_before": before, "packaging": packaging,
             "preservation_mode": "originally-absent" if before is None else "originally-present",
@@ -480,12 +484,13 @@ def execute_language(request, config, ledger, *, device=None):
             result["profile_before"] = profile
             save()
             result["cohort"] = execute_selection(
-                device, config.output, "language", profile,
+                device, config.output, request.binding.family, profile,
                 packaging["app"]["sha256"], packaging["tests"]["sha256"],
                 expected=list(request.identities), api=request.api,
                 source=request.binding.source_revision, android_tree=request.binding.android_tree,
                 canonical=request.binding.canonical_session, endpoint=config.endpoint,
-                stem_name=f"device-language{request.api}", event_prefix="WP503_LANGUAGE",
+                stem_name=f"device-{request.binding.family}{request.api}",
+                event_prefix="WP503_" + request.binding.family.upper(),
             )
         finally:
             primary = sys.exception()
@@ -527,6 +532,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--head", required=True)
     parser.add_argument("--api", required=True, type=int, choices=(31, 37))
+    parser.add_argument("--family", choices=tuple(FAMILIES), default="language")
     modes = parser.add_mutually_exclusive_group(required=True)
     modes.add_argument("--readiness", action="store_true")
     modes.add_argument("--execute", action="store_true")
@@ -539,7 +545,9 @@ def main(argv=None):
     parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
     try:
-        request = request_for(current_binding(args.head), args.api)
+        binding = (current_binding(args.head) if args.family == "language"
+                   else current_binding(args.head, family=args.family))
+        request = request_for(binding, args.api)
         config = RunConfig(args.adb, args.host, args.port, args.serial, args.state, args.debug_home, args.output)
         ledger = Ledger(shared_ledger(ROOT), request.binding.repository)
         if args.execute:

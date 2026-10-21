@@ -126,7 +126,7 @@ class LanguageRunnerTest(unittest.TestCase):
                 kwargs["stdout"].write(b"WP503_SYNTHETIC_ONLY\n")
                 return self.stream
             self.assertTrue(self.device.application_state_uncertain)
-            kwargs["stdout"].write(transcript().encode())
+            kwargs["stdout"].write(transcript(family=self.request.binding.family).encode())
             return self.process
 
         self.spawn = self.stack.enter_context(patch("shared_device_runner.subprocess.Popen", side_effect=spawn))
@@ -175,6 +175,98 @@ class LanguageRunnerTest(unittest.TestCase):
             self.assertEqual(self.request.operation_owner, recovery["native_lane_operation_owner"])
             self.assertEqual("VERIFIED_NORMAL_ALL_POSITIVE_COMPLETION", recovery["status"])
             self.assertFalse(self.device.application_state_uncertain)
+
+    def configure_diagnostics(self):
+        self.request = runner.request_for(source("diagnostics"), 37)
+        self.device = SyntheticDevice(self.packaging["original"], 37)
+        self.config = replace(self.config, output=self.root / "diagnostics-operation")
+
+    def test_diagnostics_reuses_real_lifecycle_with_only_original_five_and_no_historical_selection(self):
+        self.configure_diagnostics()
+        with patch("shared_device_runner.selected_methods", side_effect=AssertionError("Historical selector forbidden")):
+            result = self.execute()
+        self.assertEqual((5, 5, 5, 5), tuple(result["cohort"][key] for key in (
+            "discovered", "started", "matching_outcomes", "passed")))
+        self.assertEqual("diagnostics", result["family"])
+        self.assertEqual("diagnostics", result["cohort"]["cohort"])
+        self.assertEqual(",".join(self.request.identities), self.commands[-1][self.commands[-1].index("class") + 1])
+        self.assertEqual("37", self.commands[-1][self.commands[-1].index("expectedApi") + 1])
+        self.assertEqual("diagnostics-api37-5-original-methods",
+                         self.ledger.acquire_hard_lock.call_args.args[2]["purpose"])
+        self.assert_original_restored()
+        self.ledger.release_hard_lock.assert_called_once_with("native-execution", self.request.operation_owner)
+        receipt = json.loads((self.config.output / "device-diagnostics37-recovery.json").read_text())
+        self.assertEqual(list(self.request.identities), receipt["original_identities"])
+        self.assertEqual(self.request.operation_owner, receipt["native_lane_operation_owner"])
+        self.assertEqual("VERIFIED_NORMAL_ALL_POSITIVE_COMPLETION", receipt["status"])
+        self.assertFalse(result["acceptance"])
+
+    def test_diagnostics_stale_binding_and_pause_stop_before_synthetic_device_build_or_lane(self):
+        self.configure_diagnostics()
+        self.verify.side_effect = runner.PortError("diagnostics source/policy/reservation stale")
+        with self.assertRaisesRegex(runner.PortError, "stale"):
+            self.execute()
+        self.verify.side_effect = None
+        self.policy["paused"] = True
+        with self.assertRaisesRegex(runner.PortError, "paused=true"):
+            self.execute()
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+        self.ledger.acquire_hard_lock.assert_not_called()
+        self.assertEqual([], self.device.calls)
+
+    def test_diagnostics_language_transcript_or_missing_identity_retains_lane_and_restores_packages(self):
+        self.configure_diagnostics()
+        spawn = self.spawn.side_effect
+
+        def wrong(command, **kwargs):
+            process = spawn(command, **kwargs)
+            if command[1] != "logcat":
+                kwargs["stdout"].seek(0)
+                kwargs["stdout"].truncate()
+                kwargs["stdout"].write(transcript().encode())
+            return process
+
+        self.spawn.side_effect = wrong
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.assert_original_restored()
+        self.assertTrue(self.device.application_state_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+        receipt = json.loads((self.config.output / "device-diagnostics37-recovery.json").read_text())
+        self.assertEqual(list(self.request.identities), receipt["original_identities"])
+        self.assertIn("UNCERTAIN", receipt["status"])
+
+    def test_diagnostics_forced_process_cannot_clear_uncertainty_or_release_lane(self):
+        self.configure_diagnostics()
+        self.process.wait.side_effect = [subprocess.TimeoutExpired("synthetic diagnostics", 600), 0]
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.process.kill.assert_called_once()
+        self.assert_original_restored()
+        self.assertTrue(self.device.application_state_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_diagnostics_cli_uses_same_process_configuration_and_rejects_wrong_api_before_readiness(self):
+        with patch.object(runner, "current_binding", return_value=source("diagnostics")) as current, \
+                patch.object(runner, "Ledger", return_value=self.ledger), \
+                patch.object(runner, "shared_ledger", return_value=self.root / "synthetic-ledger"), \
+                patch.object(runner, "readiness") as readiness:
+            self.assertEqual(0, runner.main(["--head", source().source_revision, "--family", "diagnostics",
+                                           "--api", "37", "--readiness"]))
+            result = json.loads(self.print.call_args.args[0])
+            self.assertEqual(0, result["native_starts"])
+            self.assertEqual(list(runner.FAMILIES["diagnostics"].identities), result["identities"])
+            self.assertFalse(result["acceptance"])
+            readiness.assert_called_once()
+            readiness.reset_mock()
+            with patch("sys.stderr", io.StringIO()):
+                self.assertEqual(2, runner.main(["--head", source().source_revision, "--family", "diagnostics",
+                                               "--api", "31", "--readiness"]))
+            readiness.assert_not_called()
+        self.assertEqual(2, current.call_count)
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
 
     def test_real_pause_fails_before_config_device_lane_or_build(self):
         self.policy["paused"] = True

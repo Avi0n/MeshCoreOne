@@ -1,4 +1,4 @@
-"""AndroidOnly: WP-503 Current-source language selection/binding, never live host authority."""
+"""AndroidOnly: WP-503 Immutable current-source native family binding, never live host authority."""
 
 import argparse
 from dataclasses import asdict, dataclass
@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from types import MappingProxyType
 import uuid
 
 from shared_device_runner import parse_outcomes
@@ -40,6 +41,62 @@ METHODS = (
 )
 IDENTITIES = tuple(CLASS + "#" + method for method in METHODS)
 
+@dataclass(frozen=True)
+class FamilySpec:
+    name: str
+    apis: tuple[int, ...]
+    klass: str
+    methods: tuple[str, ...]
+    producer: str
+    production: str
+    production_blob: str
+    fixture: str
+    fixture_blob: str
+    source_pins: tuple[tuple[str, str, str], ...] = ()
+
+    @property
+    def identities(self):
+        return tuple(self.klass + "#" + method for method in self.methods)
+
+
+DIAGNOSTICS = FamilySpec(
+    "diagnostics", (37,),
+    "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest",
+    (
+        "noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200",
+        "shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200",
+        "disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph",
+        "disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection",
+    ),
+    "ff42476614d07588eb17f1df58b4f9e0e479b3ff",
+    "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics",
+    "c9f4bfeb12dd02729dbf080e6bb5e513d170e73b",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeDiagnosticsFlowAccessibilityTest.kt",
+    "e31edcf50c08532465ad3254919ff13eefbd8d7f",
+    (
+        ("android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics",
+         "8a8c6348af1c98b3f11f21769800308cf302b8f9", "c9f4bfeb12dd02729dbf080e6bb5e513d170e73b"),
+        ("android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/DiagnosticsAccessibilityAudit.kt",
+         "ff42476614d07588eb17f1df58b4f9e0e479b3ff", "3b81cb7808bebee6bcbb2e15eadd5cb7a77e58b5"),
+        ("android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt",
+         "f7474bb1bd06c6df93a71c8664e9dacade7c8749", "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c"),
+        ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt",
+         "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
+    ),
+)
+FAMILIES = MappingProxyType({
+    "language": FamilySpec("language", (31, 37), CLASS, METHODS, PRODUCER,
+                           PRODUCTION, PRODUCTION_BLOB, FIXTURE, FIXTURE_BLOB),
+    "diagnostics": DIAGNOSTICS,
+})
+
+
+def family_spec(name):
+    if not isinstance(name, str) or name not in FAMILIES:
+        raise PortError("Only the immutable language or diagnostics family is admitted")
+    return FAMILIES[name]
+
 
 def git(*arguments):
     return subprocess.check_output(["git", "-C", str(ROOT), *arguments], text=True).strip()
@@ -60,9 +117,11 @@ class LanguageBinding:
     producer_revision: str = PRODUCER
     production_blob: str = PRODUCTION_BLOB
     fixture_blob: str = FIXTURE_BLOB
+    family: str = "language"
 
 
-def prepare_binding(revision, claim):
+def prepare_binding(revision, claim, *, family="language"):
+    spec = family_spec(family)
     if (
         not isinstance(revision, str) or re.fullmatch(r"[0-9a-f]{40}", revision) is None
         or claim["wp"] != "WP-503"
@@ -71,17 +130,24 @@ def prepare_binding(revision, claim):
     ):
         raise PortError("Language binding requires the actual canonical WP503 claim and exact current revision")
     source = source_identity(ROOT, revision)
-    if git("merge-base", "--is-ancestor", PRODUCER, revision):
+    if git("merge-base", "--is-ancestor", spec.producer, revision):
         raise PortError("Unexpected producer ancestry output")
     if (
-        git("rev-parse", revision + ":" + PRODUCTION) != PRODUCTION_BLOB
-        or git("rev-parse", PRODUCER + ":" + PRODUCTION) != PRODUCTION_BLOB
-        or git("rev-parse", revision + ":" + FIXTURE) != FIXTURE_BLOB
+        git("rev-parse", revision + ":" + spec.production) != spec.production_blob
+        or (family == "language" and git("rev-parse", PRODUCER + ":" + spec.production) != spec.production_blob)
+        or git("rev-parse", revision + ":" + spec.fixture) != spec.fixture_blob
     ):
-        raise PortError("Exact producer language repair or unchanged strict fixture binding drifted")
-    methods = tuple(re.findall(r"@Test fun (\w+)\(", git("show", revision + ":" + FIXTURE)))
-    if methods != METHODS:
-        raise PortError("Language cohort must retain exactly the two original method identities")
+        raise PortError("Exact producer repair or unchanged strict fixture binding drifted")
+    if family != "language":
+        pins = ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins)
+        for path, producer, blob in pins:
+            git("merge-base", "--is-ancestor", producer, revision)
+            if git("rev-parse", revision + ":" + path) != blob or git("rev-parse", producer + ":" + path) != blob:
+                raise PortError("Exact diagnostics fixture/helper/production provenance drifted: " + path)
+    methods = tuple(re.findall(r"@Test fun (\w+)\(", git("show", revision + ":" + spec.fixture)))
+    if methods != spec.methods:
+        raise PortError("Language cohort must retain exactly the two original method identities" if family == "language"
+                        else "Diagnostics cohort must retain exactly the five original method identities")
     manifest = load_manifest(ROOT)
     policy = load_json(ROOT / "docs" / "android" / "automation-policy.json")
     CapabilityEngine(policy).admit("WP-503", manifest.wp("WP-503")["write_paths"], ADAPTER, OPERATION)
@@ -89,6 +155,7 @@ def prepare_binding(revision, claim):
         policy["repository"], revision, git("rev-parse", revision + ":android"), source,
         manifest.sha256, policy_revision(manifest, policy), CANONICAL,
         CURRENT_APP_SESSION, CURRENT_CLI_SESSION, claim["revision"],
+        spec.producer, spec.production_blob, spec.fixture_blob, family,
     )
 
 
@@ -99,9 +166,14 @@ class LanguageRequest:
     operation_owner: str
 
     def __post_init__(self):
-        if type(self.api) is not int or self.api not in (31, 37):
-            raise PortError("Only the affected API31/API37 language cohort is selected")
-        prefix = self.binding.canonical_session + ":language:"
+        spec = family_spec(self.binding.family)
+        if type(self.api) is not int or self.api not in spec.apis:
+            raise PortError("API is not admitted for the immutable " + spec.name + " family")
+        if (self.binding.producer_revision, self.binding.production_blob, self.binding.fixture_blob) != (
+            spec.producer, spec.production_blob, spec.fixture_blob,
+        ):
+            raise PortError("Request family differs from its immutable producer/fixture binding")
+        prefix = self.binding.canonical_session + ":" + spec.name + ":"
         if (
             self.binding.canonical_session != CANONICAL
             or self.binding.replacement_app_session != CURRENT_APP_SESSION
@@ -113,23 +185,25 @@ class LanguageRequest:
 
     @property
     def identities(self):
-        return IDENTITIES
+        return family_spec(self.binding.family).identities
 
 
 def request_for(binding, api):
-    return LanguageRequest(binding, api, CANONICAL + ":language:" + uuid.uuid4().hex)
+    return LanguageRequest(binding, api, CANONICAL + ":" + family_spec(binding.family).name + ":" + uuid.uuid4().hex)
 
 
-def current_binding(revision):
+def current_binding(revision, *, family="language"):
     policy = load_json(ROOT / "docs" / "android" / "automation-policy.json")
     claim = Ledger(shared_ledger(ROOT), policy["repository"]).get("WP-503")
     if claim is None:
         raise PortError("Missing actual canonical WP503 reservation")
-    return prepare_binding(revision, claim)
+    return prepare_binding(revision, claim, family=family)
 
 
 def verify_current_request(request):
-    if current_binding(request.binding.source_revision) != request.binding:
+    actual = (current_binding(request.binding.source_revision) if request.binding.family == "language"
+              else current_binding(request.binding.source_revision, family=request.binding.family))
+    if actual != request.binding:
         raise PortError("Source, policy, current owner or reservation revision changed before execution")
     published = git("ls-remote", "origin", PUBLIC_REF).split()
     if published != [request.binding.source_revision, PUBLIC_REF]:
@@ -151,12 +225,13 @@ def trusted_execution_policy():
 
 def account_outcomes(transcript, request, *, process_exit, forced_termination):
     if type(process_exit) is not int or process_exit != 0 or forced_termination is not False:
-        raise PortError("Normal unforced language instrumentation completion is unverified")
+        raise PortError("Normal unforced selected-family instrumentation completion is unverified")
     result = parse_outcomes(transcript, list(request.identities))
-    if result["passed"] != 2 or any(result[key] for key in ("failed", "errors", "skipped")):
-        raise PortError("Language cohort is not all-positive; retain uncertainty and original negative outcomes")
+    if result["passed"] != len(request.identities) or any(result[key] for key in ("failed", "errors", "skipped")):
+        raise PortError("Selected cohort is not all-positive; retain uncertainty and original negative outcomes")
     return {
         **result, "api": request.api, "source_revision": request.binding.source_revision,
+        "family": request.binding.family,
         "native_lane_operation_owner": request.operation_owner,
         "scope": "transcript accounting only; real admitted execution/provenance remains required",
         "acceptance": False,
@@ -166,10 +241,12 @@ def account_outcomes(transcript, request, *, process_exit, forced_termination):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--head", required=True)
+    parser.add_argument("--family", choices=tuple(FAMILIES), default="language")
     args = parser.parse_args(argv)
     try:
-        binding = current_binding(args.head)
-        requests = [request_for(binding, api) for api in (31, 37)]
+        binding = (current_binding(args.head) if args.family == "language"
+                   else current_binding(args.head, family=args.family))
+        requests = [request_for(binding, api) for api in family_spec(binding.family).apis]
         print(json.dumps({
             "binding": asdict(binding), "requests": [
                 {**asdict(request), "identities": request.identities} for request in requests

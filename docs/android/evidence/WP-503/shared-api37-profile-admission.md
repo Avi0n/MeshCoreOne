@@ -951,3 +951,40 @@ SwiftData118973686724 was cancelled and aggregate118974617616 failed.
 Neither the overall run nor this successor is relabeled successful, and no
 second hosted result bundle is retained. Local controller discovery on committed
 5ed90aef passed376/376,0 failures/errors/skips; it is not a successor verdict.
+
+### Software-only current-source diagnostics consumer preparation
+
+The next bounded harness increment, based on reviewed35ee3215/current main
+c9ed1f9b and actual owner scope23, generalizes the existing immutable family
+specification, typed binding/request and single process lifecycle to precisely
+the five original API37 diagnostics methods. No parallel copied runner,
+arbitrary class/method selector, historical default actor or historical-main
+invocation is added. Language still defaults to exactly two original methods
+on each API31/37; diagnostics accepts API37 only.
+
+The specification binds the original fixture blob
+`e31edcf50c08532465ad3254919ff13eefbd8d7f` and shared audit
+`3b81cb7808bebee6bcbb2e15eadd5cb7a77e58b5` atff424766, complete production
+diagnostics subtree `c9f4bfeb12dd02729dbf080e6bb5e513d170e73b` at8a8c6348,
+common assertions `efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c` atf7474bb1,
+and device harness `8768ee9c2b25fc1a7d43d0442980ff4deabb6d81` at7f24b57c.
+Each current/original Git object and producer ancestry is verified; full source
+identity, current published head/main/policy/reservation and truthful replacement
+attribution retain their existing guards.
+
+Declared software-only discovery passes **103 discovered/run/passed,0
+failures/errors/skips**. Tests exercise actual committed source pins, wrong
+family/API/identity/order/count, original/current fixture/helper/production drift,
+stale publication/policy/scope, strict five-method outcome accounting, missing/
+duplicate/foreign outcomes and forced termination. Synthetic transports run the
+shared install/package/profile/uncertainty/lane lifecycle with exactly five
+selectors, without invoking the historical selector or any real device/build.
+The four normal source validators and whitespace check pass. The separate
+committed35ee Windows controller run completed379/379,0 failures/errors/skips;
+that result does not transfer to this local increment.
+
+No Gradle/APK build, ADB/install/instrumentation or native-lane operation occurred
+for this increment. Current reviewed35ee publication is preserved while its exact
+hosted verification is nonterminal. Diagnostics5 is part of original missing27;
+preparation clears none of27, and the separate historicalb2/r21 language2+2
+subtracts zero. All actual failed/recovery/native evidence remains untouched.

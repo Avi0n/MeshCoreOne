@@ -2,7 +2,7 @@
 
 ## Current-owner language source adapter
 
-`language_binding.py` prepares only the unchanged issue238 fixture's two methods
+By default, `language_binding.py` prepares only the unchanged issue238 fixture's two methods
 on each API31/37, against the real PR247 repair and the actual clean committed
 current source. It records canonical identity separately from the replacement
 app/CLI identity, current reservation revision and unique per-API operation owner.
@@ -117,6 +117,36 @@ All pure adapter/cleanup/terminal regressions, with positive discovery:
 ```powershell
 python -m unittest discover -s android\accessibility-tests -p test_*.py -v
 ```
+
+### Fixed diagnostics family: software-only preparation
+
+The same typed binding/request and process lifecycle also accept the explicit
+`--family diagnostics` specification, restricted to API37 and exactly these five
+original `NativeDiagnosticsFlowAccessibilityTest` methods:
+
+- `noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200`
+- `shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200`
+- `disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph`
+- `disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal`
+- `disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection`
+
+Read-only source preparation is
+`python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family diagnostics`.
+There is no arbitrary class/method/producer selection interface or second runner.
+The immutable specification verifies original fixture and diagnostics shared
+audit at `ff424766`, the complete unchanged diagnostics production subtree at
+`8a8c6348`, shared native assertions at `f7474bb1`, and device harness at
+`7f24b57c`, against both their original Git objects and current source.
+Wrong family/API/producer/blob/method count/order, stale published source/main/
+policy/scope, duplicate/missing outcomes or forced completion fail closed.
+The language default remains exactly two methods on each API, not five.
+
+Preparation and synthetic lifecycle/outcome regressions do not authorize or
+perform a diagnostics native run, build, install or device operation. API37
+diagnostics represents five of the original missing27; all27 remain missing
+until genuinely executed with original identities. The separate language2+2
+subtracts zero. Historical shared-runner selectors/default actor and all prior
+evidence retain their original source bindings.
 
 The sections below retain historical source-bound entrypoints and results.
 In particular, the old `shared_device_runner.py` missing-only27 source/default
