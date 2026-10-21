@@ -640,6 +640,152 @@ class LanguageBindingTest(unittest.TestCase):
         self.assertEqual(0, result["native_starts"])
         self.assertFalse(result["apks_built"])
 
+    def test_traz_exact_two_api37_original_binding_and_unique_owner_do_not_admit_arbitrary_locales(self):
+        bound = self.prepare("traz")
+        self.assertEqual(source("traz"), bound)
+        first, second = [binding.request_for(bound, 37) for _ in range(2)]
+        self.assertEqual(binding.TRAZ.identities, first.identities)
+        self.assertEqual(2, len(first.identities))
+        self.assertNotEqual(first.operation_owner, second.operation_owner)
+        self.assertTrue(first.operation_owner.startswith(binding.CANONICAL + ":traz:"))
+        for api in (30, 31, 33, 34, 36, 38, True, "37", 37.0):
+            with self.subTest(api=api), self.assertRaises(binding.PortError):
+                binding.request_for(bound, api)
+        for family in ("tr", "az", "tr-TR", "az-AZ", "comparator-tr-az", "TRAZ", None):
+            with self.subTest(family=family), patch.object(binding, "source_identity") as identity:
+                with self.assertRaises(binding.PortError):
+                    binding.prepare_binding(HEAD, self.claim, family=family)
+                identity.assert_not_called()
+        for changes in ({"producer_revision": "0" * 40}, {"production_blob": "0" * 40},
+                        {"fixture_blob": "0" * 40}, {"replacement_app_session": "retired"},
+                        {"replacement_cli_session": "retired"}, {"canonical_session": "retired"}):
+            with self.subTest(changes=changes), self.assertRaises(binding.PortError):
+                binding.request_for(replace(bound, **changes), 37)
+        for family in ("language", "diagnostics", "nodes", "comparator"):
+            with self.subTest(family=family), self.assertRaises(binding.PortError):
+                binding.request_for(replace(source(family), family="traz"), 37)
+            with self.assertRaises(binding.PortError):
+                binding.LanguageRequest(bound, 37, binding.CANONICAL + ":" + family + ":" + "a" * 32)
+
+    def test_traz_original_current_git_vectors_and_helpers_are_producer_preservation_not_us_oracle(self):
+        spec = binding.TRAZ
+        for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            with self.subTest(path=path):
+                self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
+                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
+        for revision in (spec.producer, "HEAD"):
+            body = binding.git("show", revision + ":" + spec.fixture)
+            self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
+            self.assertIn('assertProducerCases("tr-TR")', body)
+            self.assertIn('assertProducerCases("az-AZ")', body)
+            self.assertIn("newInstance(Locale.forLanguageTag(tag))", body)
+            self.assertIn("independentFoundationOracle=false", body)
+            self.assertNotIn("Locale.US", body)
+        helper, producer, _ = spec.source_pins[1]
+        vectors = binding.git("show", producer + ":" + helper)
+        self.assertIn('for (tag in listOf("tr-TR", "az-AZ"))', vectors)
+        self.assertIn('"I" to "\u0131"', vectors)
+        self.assertIn('"\u0130" to "i"', vectors)
+        self.assertFalse(any("oracle-output" in path or "oracle.swift" in path for path, _, _ in spec.source_pins))
+        self.assertTrue(set(spec.identities).isdisjoint(binding.COMPARATOR.identities))
+
+    def test_traz_current_original_pin_ancestor_method_count_identity_and_order_drift_fail_closed(self):
+        spec = binding.TRAZ
+        for path, producer, _ in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            for revision in (HEAD, producer):
+                def changed(*args):
+                    if args == ("rev-parse", revision + ":" + path):
+                        return "0" * 40
+                    return self.family_git(*args, family="traz")
+                with self.subTest(path=path, revision=revision), \
+                        patch.object(binding, "source_identity", return_value="b" * 64), \
+                        patch.object(binding, "git", side_effect=changed):
+                    with self.assertRaisesRegex(binding.PortError, "drifted"):
+                        binding.prepare_binding(HEAD, self.claim, family="traz")
+            def missing(*args):
+                if args == ("merge-base", "--is-ancestor", producer, HEAD):
+                    raise subprocess.CalledProcessError(1, "missing supplemental ancestor")
+                return self.family_git(*args, family="traz")
+            with self.subTest(producer=producer), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=missing):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    binding.prepare_binding(HEAD, self.claim, family="traz")
+        for methods in (spec.methods[:1], (*spec.methods, "extra"), spec.methods[::-1],
+                        (spec.methods[0], spec.methods[0]), binding.METHODS, binding.COMPARATOR.methods[:2]):
+            def changed_methods(*args):
+                if args[0] == "show":
+                    return "\n".join("@Test fun " + method + "() {}" for method in methods)
+                return self.family_git(*args, family="traz")
+            with self.subTest(methods=methods), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "git", side_effect=changed_methods):
+                with self.assertRaisesRegex(binding.PortError, "two original"):
+                    binding.prepare_binding(HEAD, self.claim, family="traz")
+
+    def test_traz_reuses_current_source_policy_scope_family_and_publication_guards(self):
+        bound = source("traz")
+        request = binding.request_for(bound, 37)
+        with patch.object(binding, "current_binding", return_value=bound) as current, \
+                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF), \
+                patch.object(binding, "trusted_execution_policy", return_value={"paused": True}):
+            self.assertEqual({"paused": True}, binding.verify_current_request(request))
+        current.assert_called_once_with(HEAD, family="traz")
+        for actual in (replace(bound, reservation_revision=15), replace(bound, policy_revision="e" * 64),
+                       replace(bound, source_revision="e" * 40), source(), source("comparator"),
+                       source("nodes"), source("diagnostics")):
+            with self.subTest(binding=actual), patch.object(binding, "current_binding", return_value=actual), \
+                    patch.object(binding, "git") as git:
+                with self.assertRaisesRegex(binding.PortError, "changed before"):
+                    binding.verify_current_request(request)
+                git.assert_not_called()
+        for published in ("", "e" * 40 + "\t" + binding.PUBLIC_REF, HEAD + "\trefs/heads/other"):
+            with self.subTest(published=published), patch.object(binding, "current_binding", return_value=bound), \
+                    patch.object(binding, "git", return_value=published):
+                with self.assertRaisesRegex(binding.PortError, "exact currently published"):
+                    binding.verify_current_request(request)
+
+    def test_traz_exact_positive_two_cannot_substitute_language_us_or_partial_locale_outcomes(self):
+        request = binding.request_for(source("traz"), 37)
+        positive = transcript(family="traz")
+        result = binding.account_outcomes(positive, request, process_exit=0, forced_termination=False)
+        self.assertEqual((2, 2, 2, 2, 0, 0, 0), tuple(result[key] for key in (
+            "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+        self.assertEqual("traz", result["family"])
+        self.assertEqual(request.operation_owner, result["native_lane_operation_owner"])
+        self.assertFalse(result["acceptance"])
+        for code in (-1, -2, -3, -4):
+            with self.subTest(code=code), self.assertRaises(binding.PortError):
+                binding.account_outcomes(transcript(code, family="traz"), request,
+                                         process_exit=0, forced_termination=False)
+        for process_exit, forced in ((1, False), (True, False), (0, True), (0, None)):
+            with self.subTest(process_exit=process_exit, forced=forced), self.assertRaises(binding.PortError):
+                binding.account_outcomes(positive, request, process_exit=process_exit, forced_termination=forced)
+        missing = completed(record(request.identities[0], 1, 2) + record(request.identities[0], 0, 2), 2)
+        for value in ("", missing, transcript(), transcript(family="comparator"),
+                      transcript(family="nodes"), transcript(family="diagnostics"),
+                      positive.replace("numtests=2", "numtests=13"),
+                      positive.replace(binding.TRAZ.methods[0], binding.TRAZ.methods[1]),
+                      positive.replace("NativeLocalizedCompareLocalePreservationTest", "NativeLocalizedCompareParityTest"),
+                      positive.replace("INSTRUMENTATION_CODE: -1", "")):
+            with self.subTest(value=value), self.assertRaises(RuntimeError):
+                binding.account_outcomes(value, request, process_exit=0, forced_termination=False)
+
+    def test_traz_preparation_cli_selects_two_fixed_methods_on_api37_without_locale_input_or_live_authority(self):
+        output = io.StringIO()
+        with patch.object(binding, "current_binding", return_value=source("traz")) as current, \
+                patch("sys.stdout", output):
+            self.assertEqual(0, binding.main(["--head", HEAD, "--family", "traz"]))
+        current.assert_called_once_with(HEAD, family="traz")
+        result = json.loads(output.getvalue())
+        self.assertEqual([37], [request["api"] for request in result["requests"]])
+        self.assertEqual(list(binding.TRAZ.identities), result["requests"][0]["identities"])
+        self.assertFalse(result["authority"])
+        self.assertEqual(0, result["native_starts"])
+        self.assertFalse(result["apks_built"])
+        with patch("sys.stderr", io.StringIO()), self.assertRaises(SystemExit) as caught:
+            binding.main(["--head", HEAD, "--family", "traz", "--locale", "en-US"])
+        self.assertEqual(2, caught.exception.code)
+
     def utf8_git_output(self, raw_for_command):
         check_output = subprocess.check_output
 

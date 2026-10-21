@@ -1183,3 +1183,69 @@ occurred. Neither prepared family support nor historical language2+2 subtracts
 anything: all27 remain unexecuted in the current-source missing-only cohort.
 This is not native comparator/Nodes/diagnostics execution, goldens, source/native
 acceptance or whole-WP completion.
+
+### Local supplemental tr/az2 software-only successor to reviewed2064
+
+Based on reviewed local
+`2064b52517a70b4e6fd4df29660cf21ca5611ff6`, above reviewedad and unchanged
+publishedf3. Actual main remainsdbb37206; source referencedb14559/manifest977b9e91/
+semantic policye8afe067/canonical scope24 are unchanged. Trusted `wp-owned`
+modify/test/record-evidence admission already covers the five changed Python/
+tests/README/WP503 evidence paths. No new scope, actor, authorization prose,
+reservation release/reacquire or ledger editing was required.
+
+Original and current Git inventory agrees on exactly two ordered methods:
+`turkishProducerCasesPreserveLocaleTailoringOnAndroid`, then
+`azeriProducerCasesPreserveLocaleTailoringOnAndroid`. The fixed `traz` family
+pins current/original objects and producer ancestry:
+
+| Path under repository root | Producer | Exact object |
+| --- | --- | --- |
+| `android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareLocalePreservationTest.kt` | `6c81bad084f27c1a6501e1296eec93f160fb517e` | `41a1e4046f96aeb0c725a1344e7f420dfd142be4` |
+| `android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text` (complete subtree) | `8a8c6348af1c98b3f11f21769800308cf302b8f9` | `b1fde2e38d54bb945364bbf27abd3c0c66f012b8` |
+| `android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt` | `8a8c6348af1c98b3f11f21769800308cf302b8f9` | `58af4467a85422c8d53cee7001a159cf56f31642` |
+
+The fixture hardcodes only `tr-TR` and `az-AZ`, calls the installed production
+class and retains its original scalar/reflection/ErrorCollector/pair helpers,
+four equivalent and three unequal pairs per locale, both comparison directions
+and stable ordering for both equivalent-pair input orders. These vector families
+come from the unchanged producer parity test, not an independent Foundation
+Turkish/Azeri oracle. The original fixture explicitly reports
+`independentFoundationOracle=false`; no US oracle substitution or new oracle is
+made. Pinning the whole producer parity file does not select its US tests.
+
+Only immutable family/API37/original ordered2 metadata is added to the existing
+typed binding/request. No runner implementation change is necessary:
+`CANONICAL:traz:UUID`, purpose `traz-api37-2-original-methods` and the same real
+shared selection/process/preservation lifecycle are reused. Language2/API31+37,
+diagnostics5/Nodes7/comparator11 API37, all prior pins/defaults/strict UTF-8,
+source/main/policy/scope/publication and cleanup/uncertainty fences are retained.
+There is no arbitrary locale/class/method argument or historical actor/default
+selection.
+
+`python -m unittest discover -s android\accessibility-tests -p test_*.py -v`
+passes **144 discovered/run/passed,0 failures/errors/skips**, including12 new
+supplemental regressions. Real Git tests establish original/current pins, exact
+two identities/order and producer-only vector qualification. Negatives cover
+each pin/ancestor, family/API/producer/attribution/count/identity/order, stale
+source/policy/scope/publication, wrong same-count language or US fixture,
+missing/duplicate/failure/skip/terminal outcomes and forced completion. Synthetic
+real shared lifecycle tests cover positive2 with originally present AND absent
+packages, exact cleanup/release, wrong outcomes retaining uncertainty/lane,
+forced host cleanup and effective-profile uncertainty despite equal raw values.
+Both CLIs reject an arbitrary locale argument.
+
+`python tools\android-port\controller\verification_config.py --check`,
+`python tools\android-port\controller\validate.py`,
+`python tools\android-port\controller\workflows.py`, and
+`python tools\android-port\portmap.py` each pass/exit0; whitespace passes.
+The containing commit and immutable handoff SHA identify the local successor.
+Publishedf3/39529850037 remains unchanged while healthy verification runs and
+this increment awaits comparison; no cancel/rerun/dispatch/CI bundle is created.
+
+No Kotlin/production/shared helper/vector/oracle/native evidence bytes change.
+No real Gradle/APK/build/ADB/install/instrumentation/native-lane operation or
+new native authorization occurs. Historical US/tr/az andb2/r21 language/failed
+cleanup/separate recovery retain their exact bindings. All27 remain unexecuted
+in the current missing-only cohort; neither prepared family support nor separate
+language2+2 clears anything. No native/golden/whole-WP acceptance is inferred.

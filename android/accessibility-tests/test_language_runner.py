@@ -523,6 +523,139 @@ class LanguageRunnerTest(unittest.TestCase):
         self.package.assert_not_called()
         self.spawn.assert_not_called()
 
+    def configure_traz(self, suffix="operation", *, present=True):
+        self.request = runner.request_for(source("traz"), 37)
+        self.device = SyntheticDevice(self.packaging["original"] if present else None, 37)
+        self.config = replace(self.config, output=self.root / ("traz-" + suffix))
+
+    def test_traz_same_shared_lifecycle_selects_both_original_methods_and_preserves_present_or_absent_packages(self):
+        for present in (True, False):
+            self.configure_traz(str(present), present=present)
+            self.ledger.reset_mock()
+            with self.subTest(present=present), \
+                    patch("shared_device_runner.selected_methods", side_effect=AssertionError("Historical selector forbidden")):
+                result = self.execute()
+            self.assertEqual((2, 2, 2, 2, 0, 0, 0), tuple(result["cohort"][key] for key in (
+                "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+            self.assertEqual("traz", result["family"])
+            self.assertEqual("traz", result["cohort"]["cohort"])
+            self.assertFalse(result["acceptance"])
+            command = self.commands[-1]
+            self.assertEqual(",".join(runner.FAMILIES["traz"].identities), command[command.index("class") + 1])
+            self.assertEqual("37", command[command.index("expectedApi") + 1])
+            self.assertEqual("traz-api37-2-original-methods",
+                             self.ledger.acquire_hard_lock.call_args.args[2]["purpose"])
+            self.assertTrue(self.request.operation_owner.startswith(self.request.binding.canonical_session + ":traz:"))
+            self.assertEqual({APP: sha256(self.packaging["original"])} if present else {}, self.device.packages)
+            self.ledger.release_hard_lock.assert_called_once_with("native-execution", self.request.operation_owner)
+            receipt = json.loads((self.config.output / "device-traz37-recovery.json").read_text())
+            self.assertEqual(list(self.request.identities), receipt["original_identities"])
+            self.assertEqual(self.request.operation_owner, receipt["native_lane_operation_owner"])
+            self.assertEqual("VERIFIED_NORMAL_ALL_POSITIVE_COMPLETION", receipt["status"])
+            self.assertFalse(self.device.application_state_uncertain)
+
+    def test_traz_stale_source_policy_scope_or_pause_blocks_before_device_build_or_lane(self):
+        self.configure_traz()
+        for changed in ("source", "policy", "scope"):
+            self.verify.side_effect = runner.PortError("traz " + changed + " stale")
+            with self.subTest(changed=changed), self.assertRaisesRegex(runner.PortError, "stale"):
+                self.execute()
+        self.verify.side_effect = None
+        self.policy["paused"] = True
+        with self.assertRaisesRegex(runner.PortError, "paused=true"):
+            self.execute()
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+        self.ledger.acquire_hard_lock.assert_not_called()
+        self.assertEqual([], self.device.calls)
+
+    def test_traz_wrong_family_missing_duplicate_failed_skip_or_count_outcomes_keep_lane_after_package_cleanup(self):
+        positive = transcript(family="traz")
+        identities = runner.FAMILIES["traz"].identities
+        missing = completed(record(identities[0], 1, 2) + record(identities[0], 0, 2), 2)
+        values = (
+            transcript(), transcript(family="comparator"), transcript(family="diagnostics"),
+            transcript(family="nodes"), missing,
+            positive.replace(identities[0].partition("#")[2], identities[1].partition("#")[2]),
+            positive.replace("NativeLocalizedCompareLocalePreservationTest", "NativeLocalizedCompareParityTest"),
+            positive.replace("numtests=2", "numtests=13"),
+            transcript(-2, family="traz"), transcript(-3, family="traz"),
+        )
+        spawn = self.spawn.side_effect
+        for index, value in enumerate(values):
+            self.configure_traz("negative-" + str(index))
+            self.ledger.reset_mock()
+
+            def wrong(command, **kwargs):
+                process = spawn(command, **kwargs)
+                if command[1] != "logcat":
+                    kwargs["stdout"].seek(0)
+                    kwargs["stdout"].truncate()
+                    kwargs["stdout"].write(value.encode())
+                return process
+
+            self.spawn.side_effect = wrong
+            with self.subTest(index=index), self.assertRaises(BaseExceptionGroup):
+                self.execute()
+            self.assert_original_restored()
+            self.assertTrue(self.device.application_state_uncertain)
+            self.ledger.release_hard_lock.assert_not_called()
+            receipt = json.loads((self.config.output / "device-traz37-recovery.json").read_text())
+            self.assertEqual(list(self.request.identities), receipt["original_identities"])
+            self.assertIn("UNCERTAIN", receipt["status"])
+
+    def test_traz_positive_transcript_cannot_release_lane_after_forced_termination(self):
+        self.configure_traz()
+        self.process.wait.side_effect = [subprocess.TimeoutExpired("synthetic supplemental", 600), 0]
+        with self.assertRaises(BaseExceptionGroup):
+            self.execute()
+        self.process.kill.assert_called_once()
+        self.assertEqual([600, 15], [call.kwargs["timeout"] for call in self.process.wait.call_args_list])
+        self.assert_original_restored()
+        self.assertTrue(self.device.application_state_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_traz_retains_unknown_effective_profile_even_after_positive_two_and_raw_profile_equality(self):
+        self.configure_traz()
+
+        def unresolved(original, record):
+            self.assertEqual(original, self.device.capture_profile())
+            self.device.profile_restoration_uncertain = True
+
+        self.device.restore_profile = unresolved
+        with self.assertRaises(BaseExceptionGroup) as caught:
+            self.execute()
+        self.assertIn("Original effective runtime profile unresolved", repr(caught.exception))
+        self.assert_original_restored()
+        self.assertFalse(self.device.application_state_uncertain)
+        self.assertTrue(self.device.profile_restoration_uncertain)
+        self.ledger.release_hard_lock.assert_not_called()
+
+    def test_traz_cli_uses_shared_readiness_and_rejects_api31_before_readiness_without_locale_option(self):
+        with patch.object(runner, "current_binding", return_value=source("traz")) as current, \
+                patch.object(runner, "Ledger", return_value=self.ledger), \
+                patch.object(runner, "shared_ledger", return_value=self.root / "synthetic-ledger"), \
+                patch.object(runner, "readiness") as readiness:
+            self.assertEqual(0, runner.main(["--head", source().source_revision, "--family", "traz",
+                                           "--api", "37", "--readiness"]))
+            result = json.loads(self.print.call_args.args[0])
+            self.assertEqual(list(runner.FAMILIES["traz"].identities), result["identities"])
+            self.assertEqual(0, result["native_starts"])
+            self.assertFalse(result["acceptance"])
+            readiness.assert_called_once()
+            readiness.reset_mock()
+            with patch("sys.stderr", io.StringIO()):
+                self.assertEqual(2, runner.main(["--head", source().source_revision, "--family", "traz",
+                                               "--api", "31", "--readiness"]))
+            readiness.assert_not_called()
+        current.assert_called_with(source().source_revision, family="traz")
+        with patch("sys.stderr", io.StringIO()), self.assertRaises(SystemExit) as caught:
+            runner.main(["--head", source().source_revision, "--family", "traz",
+                         "--api", "37", "--readiness", "--locale", "en-US"])
+        self.assertEqual(2, caught.exception.code)
+        self.package.assert_not_called()
+        self.spawn.assert_not_called()
+
     def test_real_pause_fails_before_config_device_lane_or_build(self):
         self.policy["paused"] = True
         with patch.object(runner.RunConfig, "validate") as validate, self.assertRaisesRegex(runner.PortError, "paused=true"):

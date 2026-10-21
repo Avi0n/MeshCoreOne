@@ -147,18 +147,38 @@ COMPARATOR = FamilySpec(
          "d4cc34496decfa3b57c588cf208a9dc160ddf317", "0064656ced61ca93fc541c3e3b070c3f2076263d"),
     ),
 )
+TRAZ = FamilySpec(
+    "traz", (37,),
+    "com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest",
+    (
+        "turkishProducerCasesPreserveLocaleTailoringOnAndroid",
+        "azeriProducerCasesPreserveLocaleTailoringOnAndroid",
+    ),
+    "6c81bad084f27c1a6501e1296eec93f160fb517e",
+    "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text",
+    "b1fde2e38d54bb945364bbf27abd3c0c66f012b8",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareLocalePreservationTest.kt",
+    "41a1e4046f96aeb0c725a1344e7f420dfd142be4",
+    (
+        ("android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text",
+         "8a8c6348af1c98b3f11f21769800308cf302b8f9", "b1fde2e38d54bb945364bbf27abd3c0c66f012b8"),
+        ("android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+         "8a8c6348af1c98b3f11f21769800308cf302b8f9", "58af4467a85422c8d53cee7001a159cf56f31642"),
+    ),
+)
 FAMILIES = MappingProxyType({
     "language": FamilySpec("language", (31, 37), CLASS, METHODS, PRODUCER,
                            PRODUCTION, PRODUCTION_BLOB, FIXTURE, FIXTURE_BLOB),
     "diagnostics": DIAGNOSTICS,
     "nodes": NODES,
     "comparator": COMPARATOR,
+    "traz": TRAZ,
 })
 
 
 def family_spec(name):
     if not isinstance(name, str) or name not in FAMILIES:
-        raise PortError("Only the immutable language, diagnostics, nodes or comparator family is admitted")
+        raise PortError("Only the immutable language, diagnostics, nodes, comparator or traz family is admitted")
     return FAMILIES[name]
 
 
@@ -217,6 +237,7 @@ def prepare_binding(revision, claim, *, family="language"):
             "diagnostics": "Diagnostics cohort must retain exactly the five original method identities",
             "nodes": "Nodes cohort must retain exactly the seven original method identities",
             "comparator": "Comparator cohort must retain exactly the eleven original method identities",
+            "traz": "Supplemental tr/az cohort must retain exactly the two original method identities",
         }[family])
     manifest = load_manifest(ROOT)
     policy = load_json(ROOT / "docs" / "android" / "automation-policy.json")

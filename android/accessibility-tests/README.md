@@ -230,6 +230,41 @@ comparator11 and supplemental tr/az2 remain part of missing27; local support and
 separate language2+2 subtract zero. Keep the published candidate unchanged while
 healthy CI runs, and obtain local source review before publishing this successor.
 
+### Fixed supplemental Turkish/Azeri family: software-only preparation
+
+`--family traz` is restricted to API37 and exactly the original two
+`NativeLocalizedCompareLocalePreservationTest` identities, in fixture order:
+
+- `turkishProducerCasesPreserveLocaleTailoringOnAndroid`
+- `azeriProducerCasesPreserveLocaleTailoringOnAndroid`
+
+Read-only source preparation:
+`python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family traz`.
+The immutable original/current fixture at `6c81bad0` invokes the installed
+production class with only its hardcoded `tr-TR`/`az-AZ` tags. Its pair, scalar,
+reflection, equality, reverse-comparison and stable-input-order helpers remain
+inside that unchanged fixture. The full production `diagnostics/text` subtree
+and `SwiftTextParityTest` at `8a8c6348` bind the original producer's four
+equivalent/three unequal pairs per locale. Both current and original objects
+and producer ancestry are checked; changed vectors or production fail closed.
+
+These are **supplemental producer-preservation cases**, explicitly not an
+independent Foundation locale oracle. The US comparator's retained oracle is
+not used as Turkish/Azeri evidence or added to this family's provenance.
+No Swift oracle, parameter-family proxy or extra comparator11 method is added.
+There is no locale argument or arbitrary selector; `traz` selects both original
+methods together, with `CANONICAL:traz:UUID` and the existing shared lifecycle
+purpose `traz-api37-2-original-methods`. Exact positive2, current source/main/
+policy/scope/publication, normal unforced completion, original packages/profile
+and retained uncertainty are required. The language two-method default,
+diagnostics5, Nodes7, comparator11 and strict UTF-8 remain unchanged.
+
+Synthetic regressions and preparation do not execute Turkish/Azeri cases on a
+device or authorize a build/native lane. All27 remain unexecuted in the current
+missing-only cohort; language2+2 and prepared families subtract zero. Historical
+US/tr/az native outcomes keep their own immutable source/APK/evidence bindings.
+Keep this successor local for review while the published candidate verifies.
+
 The current consumer's Git helper explicitly decodes UTF-8 with strict errors
 for both fixture source and trusted policy JSON. It never uses the Windows
 default code page, replacement characters or a fallback; malformed Git output
