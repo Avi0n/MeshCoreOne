@@ -177,6 +177,7 @@ process death, API37/hardware, BLE circuit-breaker execution or later slot
 history/rollback acceptance. The later nine bodies were not credited to
 this channel execution. The separate [contact-family evidence](batch-contact-originals.md)
 now accounts for its four originals/three new executions without replaying
-these six; five history/rollback originals remain assigned software work.
+these six; the later [five history/rollback originals](batch-slot-history-originals.md)
+now have separate complete inputs/results and post-staging native fault evidence.
 Independent full source review, exact successor hosted checks, reviewed
 merge and broader assigned WP501 software/feature/resource work remain open.

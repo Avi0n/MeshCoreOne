@@ -130,8 +130,9 @@ hosted cancellation/rerun, new worker or provider gate.
 | Native `RadioMappings.kt` | `adae49dfd32681ef7ff1801e9c08fd2572107016` |
 
 This covers the four contact originals by three new executions/one existing
-empty witness, not the whole16-case source file. Five slot-history/rollback
-originals remain assigned software work; channel6/6 and incoming6/6 retain
+empty witness, not the whole16-case source file. The later
+[five slot-history/rollback originals](batch-slot-history-originals.md)
+now have separate complete inputs/results; channel6/6 and incoming6/6 retain
 their actual separate local execution bindings. This is native in-memory
 persistence, not physical process death/API37/hardware/Swift or backup
 interoperability/full-WP acceptance. Full independent source comparison,
