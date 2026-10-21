@@ -19,6 +19,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -37,6 +38,8 @@ import com.meshcoreone.android.core.designsystem.ColorScheme
 import com.meshcoreone.android.core.designsystem.LocalMeshTheme
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.designsystem.ThemeRegistry
+import com.meshcoreone.android.core.designsystem.readableGlyph
+import com.meshcoreone.android.core.designsystem.toComposeColor
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings as Chats
 import com.meshcoreone.android.core.l10n.generated.AppLocalizableStrings as Strings
 import com.meshcoreone.android.core.l10n.generated.AppRemoteNodesStrings as Rooms
@@ -798,6 +801,177 @@ class RoomsComposeTest {
         compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
         compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
         return descriptions.single()
+    }
+
+    @Test fun liveSamePrefixBurstMovesTheRenderedAvatarAndPreservesTheFirstBubbleGutter() {
+        val first = liveMessage(1, 100u, "msg", Bytes.of(0xaa), "Alice")
+        val second = liveMessage(2, 160u, "msg", Bytes.of(0xaa), "Alice")
+        val third = liveMessage(3, 220u, "msg", Bytes.of(0xaa), "Alice")
+        val expected = listOf(first, second, third)
+        val fixture = Fixture()
+        fixture.stored = listOf(first)
+        mountRoute(fixture)
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        compose.onAllNodesWithText("A", useUnmergedTree = true).assertCountEquals(1)[0].assertIsDisplayed()
+        val initialBubble = compose.onNodeWithTag("room-bubble:${first.id}", useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        val initialAvatar = compose.onNodeWithTag("room-avatar:${first.id}", useUnmergedTree = true)
+            .assertIsDisplayed().assertWidthIsEqualTo(56.dp).assertHeightIsEqualTo(56.dp)
+            .fetchSemanticsNode().boundsInRoot
+        assertEquals(initialBubble.bottom, initialAvatar.bottom, 0f)
+        assertEquals(6f, initialBubble.left - initialAvatar.right, 0f)
+        val load = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+        assertEquals(load, fixture.loads)
+        val held = CompletableDeferred<Unit>()
+        compose.runOnIdle {
+            fixture.fetchGate = held
+            fixture.stored = expected
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageReceived(session.id, second)))
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageReceived(session.id, third)))
+        }
+        compose.waitUntil { fixture.holder.state.value.messages == expected }
+        fun assertRenderedBookends() {
+            val state = fixture.holder.state.value
+            assertEquals(expected, state.messages)
+            assertEquals(
+                listOf(
+                    RoomMessageRow(first, true, true, false), RoomMessageRow(second, false, false, false),
+                    RoomMessageRow(third, false, false, true),
+                ),
+                state.rows,
+            )
+            compose.onNodeWithTag("room-avatar:${first.id}", useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithTag("room-avatar:${second.id}", useUnmergedTree = true).assertDoesNotExist()
+            val avatar = compose.onNodeWithTag("room-avatar:${third.id}", useUnmergedTree = true)
+                .assertIsDisplayed().assertWidthIsEqualTo(56.dp).assertHeightIsEqualTo(56.dp)
+                .fetchSemanticsNode().boundsInRoot
+            val bubbles = expected.map {
+                compose.onNodeWithTag("room-bubble:${it.id}", useUnmergedTree = true).assertIsDisplayed()
+                    .fetchSemanticsNode().boundsInRoot
+            }
+            assertEquals(initialBubble.left, bubbles.first().left, 0f)
+            assertTrue(bubbles.all { it.left == initialBubble.left })
+            assertEquals(bubbles.last().bottom, avatar.bottom, 0f)
+            assertEquals(6f, bubbles.last().left - avatar.right, 0f)
+            val name = compose.onAllNodesWithText("Alice", useUnmergedTree = true).assertCountEquals(1)[0]
+                .assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+            assertEquals(bubbles.first().left, name.left, 0f)
+            compose.onAllNodesWithText("A", useUnmergedTree = true).assertCountEquals(1)[0].assertIsDisplayed()
+            compose.onAllNodesWithContentDescription("Alice: msg").assertCountEquals(3)
+            compose.onAllNodesWithContentDescription("Alice").assertCountEquals(0)
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            assertNull(state.failure)
+        }
+        assertRenderedBookends()
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
+        compose.waitUntil { fixture.loads.count { it == "fetch" } == 2 }
+        assertTrue(fixture.holder.state.value.isLoading)
+        assertEquals(load + "fetch", fixture.loads)
+        assertRenderedBookends()
+        compose.runOnIdle { assertTrue(held.complete(Unit)) }
+        compose.waitUntil { !fixture.holder.state.value.isLoading && fixture.loads.count { it == "changed" } == 2 }
+        assertRenderedBookends()
+        assertEquals(load + load, fixture.loads)
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        assertTrue(fixture.posts.isEmpty())
+        assertTrue(fixture.joins.isEmpty())
+        assertTrue(fixture.retries.isEmpty())
+        assertTrue(fixture.reported.isEmpty())
+    }
+
+    @Test fun incomingAvatarFramesMatchSharedIdentityThemeAndScaledGutterAcrossCurrentWindows() {
+        val first = liveMessage(1, 100u, "msg", Bytes.of(0xaa), "Alice")
+        val second = liveMessage(2, 160u, "msg", Bytes.of(0xaa), "Alice")
+        val self = liveMessage(3, 220u, "hello", Bytes.of(0x42), "Me").copy(isFromSelf = true)
+        val messages = listOf(first, second, self)
+        val rows = listOf(
+            RoomMessageRow(first, false, true, false), RoomMessageRow(second, false, false, true),
+            RoomMessageRow(self, false, false, false),
+        )
+        mount {
+            RoomConversationContent(
+                RoomConversationState(session, messages, rows, draft = body, hasLoadedOnce = true),
+                onDraftChanged = { error("Unexpected avatar-frame draft mutation") },
+                onSend = { error("Unexpected avatar-frame send") }, onRetry = { error("Unexpected avatar-frame retry") },
+                onLink = { error("Unexpected avatar-frame link") }, onReconnect = { error("Unexpected avatar-frame auth") },
+                onDismissError = { error("Unexpected avatar-frame failure") },
+                failureText = { throw AssertionError("Unexpected avatar-frame error", it) },
+            )
+        }
+        val inputs = CoverageMatrix.themeWindowFontCases
+        CoverageMatrix.assertThemeWindowFontCoverage()
+        assertEquals(57, inputs.size)
+        val captures = ConversationScreenCases(compose, host.get(), setContent = { host.get().setContent(content = it) })
+        val output = File(requireNotNull(System.getProperty("wp502ScreenshotDirectory")), "sdk31/room-avatars")
+        for (case in inputs) {
+            compose.runOnIdle { frame.value = case.copy(heightDp = 1000) }
+            compose.waitForIdle()
+            assertEquals(case.expectedScheme, effectiveScheme)
+            val diameter = 28f * case.fontScale.coerceAtLeast(1f)
+            val avatar = compose.onNodeWithTag("room-avatar:${second.id}", useUnmergedTree = true)
+                .assertIsDisplayed().assertWidthIsEqualTo(diameter.dp).assertHeightIsEqualTo(diameter.dp)
+                .fetchSemanticsNode().boundsInRoot
+            compose.onNodeWithTag("room-avatar:${first.id}", useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithTag("room-avatar:${self.id}", useUnmergedTree = true).assertDoesNotExist()
+            val bubbles = listOf(first, second).map {
+                compose.onNodeWithTag("room-bubble:${it.id}", useUnmergedTree = true).assertIsDisplayed()
+                    .fetchSemanticsNode().boundsInRoot
+            }
+            val name = compose.onNodeWithText("Alice", useUnmergedTree = true).assertIsDisplayed()
+                .fetchSemanticsNode().boundsInRoot
+            if (case.rtl) {
+                assertEquals(bubbles[0].right, bubbles[1].right, 0f)
+                assertEquals(6f, avatar.left - bubbles[1].right, 0f)
+                assertEquals(bubbles[0].right, name.right, 0f)
+            } else {
+                assertEquals(bubbles[0].left, bubbles[1].left, 0f)
+                assertEquals(6f, bubbles[1].left - avatar.right, 0f)
+                assertEquals(bubbles[0].left, name.left, 0f)
+            }
+            assertEquals(bubbles[1].bottom, avatar.bottom, 0f)
+            val theme = requireNotNull(ThemeRegistry.theme(case.theme)).resolve(case.expectedScheme, false)
+            val fill = theme.identityColor("Alice")
+            val expectedGlyph = readableGlyph(theme.avatarGlyphColor(fill, false), fill).toComposeColor()
+            val layouts = mutableListOf<TextLayoutResult>()
+            compose.onNodeWithText("A", useUnmergedTree = true).assertIsDisplayed()
+                .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
+            val layout = layouts.single()
+            assertEquals(expectedGlyph, layout.layoutInput.style.color)
+            assertFalse(layout.didOverflowWidth)
+            assertFalse(layout.didOverflowHeight)
+            compose.onAllNodesWithContentDescription("Alice: msg").assertCountEquals(2)
+            compose.onAllNodesWithContentDescription("Alice").assertCountEquals(0)
+            compose.onNodeWithContentDescription("hello, ${text(Rooms.remoteNodesRoomMessageStatusDeliveredLabel)}")
+                .assertIsDisplayed()
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            captures.captureMountedScreen("room-avatar-${case.id}", output, tag = "wp502-rooms")
+            val root = compose.onNodeWithTag("wp502-rooms").fetchSemanticsNode().boundsInRoot
+            val bitmap = requireNotNull(android.graphics.BitmapFactory.decodeFile(File(output, "room-avatar-${case.id}.png").path))
+            try {
+                val x = (avatar.left - root.left + avatar.width * 0.15f).toInt()
+                val y = (avatar.center.y - root.top).toInt()
+                assertEquals("${case.id}: actual avatar fill differs from shared identity/theme", fill.toComposeColor().toArgb(), bitmap.getPixel(x, y))
+            } finally {
+                bitmap.recycle()
+            }
+        }
+    }
+
+    @Test fun selfRoomRowsNeverRenderAnIncomingAvatarOrReserveAnIncomingColumn() {
+        val message = liveMessage(1, 100u, "hello", Bytes.of(0x42), "Me").copy(isFromSelf = true)
+        mountOriginalRoomBubble(RoomMessageRow(message, false, false, false))
+        for (fontScale in listOf(1f, 2f)) {
+            compose.runOnIdle { frame.value = frame.value.copy(fontScale = fontScale) }
+            assertOriginalBubbleLabel(message, "hello, ${text(Rooms.remoteNodesRoomMessageStatusDeliveredLabel)}")
+            compose.onNodeWithTag("room-avatar:${message.id}", useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithText("M", useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithText("Me", useUnmergedTree = true).assertDoesNotExist()
+            val bubble = compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true)
+                .fetchSemanticsNode().boundsInRoot
+            val root = compose.onNodeWithTag("wp502-rooms").fetchSemanticsNode().boundsInRoot
+            assertEquals(root.right - 16f, bubble.right, 0f)
+        }
     }
 
     private fun liveMessage(
