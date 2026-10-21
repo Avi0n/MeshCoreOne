@@ -122,6 +122,7 @@ combined/re-executed as a claimed45-case result in this resumption.
 | `roomBadgeFailureKeepsRowsAndDefersConversationChangeUntilRecovery` | Supplementary Android-only defensive port fault: frozen badge update is async, nonthrowing. Injected native fault leaves change callback untouched until recovery; actual row/label/draft remain. |
 | `roomConversationChangeFailureRemainsVisibleUntilDismissalAndSuccessfulReload` | Supplementary Android-only defensive port fault: frozen notifyConversationsChanged is nonthrowing. Injected native failure remains typed/visible once; dismissal cannot reload, and real live-event recovery completes the next sequence. |
 | `failedRoomRetryKeepsTheOriginalRowAndDraftThenReplacesOnlyThatRowAfterRecovery` | Mounted visible Retry reaches a held service port and source-reachable SessionNotFound; explicit localized-error dismissal then actual bubble custom Retry reaches held success. Original UUID/session, failed/delivered full row values, unchanged other row, once-labels/draft and no extra read/post/join/auth effects; callback removal and zero-subscriber teardown. Not a new frozen original or real service/store/ACK policy. |
+| `selfMentionAndMissingDeviceNameUseDistinctMountedStatusSheetsWithoutLosingTheRoomDraft` | One real route/bubble-action/modal consumer with two frozen predicates: mydevice/MyDevice/contacts[Alice] is self; Me/nil/contacts[] is not self. Actual localized self/not-saved title/subtitle/negative section/Done; fresh controlled ports and independently specified room rows/draft/effects/lifetime retained. Not all eight mention originals, real offline/contact-store refresh or primary accounting. |
 
 Historical five-selector code
 **ece2fa06182d7f6b2d28144ee30408ab9fdeb4a2** on ec0 passes installed
@@ -626,8 +627,63 @@ keeps independent row literals/other object/keyed once-labels/draft, removes
 visible/custom Retry and cannot post/join/authenticate or replay read effects.
 Owning-scope cancellation removes the subscriber; later changed event cannot
 mutate settled rows/effects. No new frame/device/golden/actual service/DB/radio
-or whole-WP claim; new source/results stay LOCAL for bounded comparison.
-Remote06a automatic39533421332 remains unchanged while healthy.
+or whole-WP claim. Full local883/fc50 source comparison is subsequently CLEAR,
+not approval. Fresh exact06a automatic39533421332 completesSUCCESS/all6;
+authoritative Linux119004929990 reports App820 discovered/run/PASS0FES at
+02:59:34.203167Z, not883 evidence. Ordinary installed06a->reviewed883 push
+then succeeds; Python/preflightPASS, unchanged180s advisoryUNVERIFIED with only
+owned cleanup/no App count credited. Actual main/base dbb/reservation30/draft
+retained. New automatic39537138016/883 is IN_PROGRESS; no dispatch/cancel/rerun,
+result transfer or second CI-result bundle. New mention increment stays LOCAL.
+
+#### Mounted mention self-status versus absent device name
+
+Read all eight frozen ResolveMentionTap tests in
+MC1Tests/Views/Chats/ChatConversationViewTests.swift, RoomConversationView's
+mentionTapHandling consumer, complete MentionTapEvaluator/Handler/Picker,
+actual route/dispatcher/shared sheet and existing33/WP503 separate single-match
+test. Self/not-saved modal status has no existing mounted witness; this is not
+another single-Alice navigation or retry/load-fault duplicate.
+
+Selected original vectors are exact: `mydevice` with connected `MyDevice` and
+contacts[Alice] must show self/no matches; `Me` with nil connected name and
+contacts[] must show not-saved/not-self, not a fallback-Me identity inference.
+These are the bodies named `Zero matches with self-name returns picker outcome
+with isSelfMention true (case-insensitive)` and `Offline localNodeName fallback
+Me does NOT mark inbound @[Me] as self`, not all eight evaluator originals.
+Fresh controlled callbacks are read on each actual mounted incoming message
+custom action, not direct evaluator/dispatcher calls. The real localized modal
+title/subtitle, opposite/matching-section absence and Done dismissal/reentry
+are checked. Independent full expected RoomConversationState/row literals/
+DTOs/once-labels/keyed bubbles and200% CJK/Hebrew draft remain unchanged.
+Unexpected router/external/navigation callbacks throw; no post/join/retry/
+read/diagnostic mutation, one subscriber then zero on owning-scope cancellation.
+This proves controlled optional-name/snapshot consumers, not actual App contact
+registry refresh, device disconnection, navigation destination or spoken output.
+
+Source **6949d5f1ea4ae9f544697c37d12b55a81a078faa/basedbb** adds107 lines,
+zero deletions: one method/four source-reference headers. All33 incumbent
+bodies/helpers/Fixture, Region7, product/core/build/policy/manifest untouched;
+same canonical owner/attempt actual owned reconciliation returns30 idempotently.
+
+```text
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit 6949d5f1ea4ae9f544697c37d12b55a81a078faa --stages preflight
+:app:testDebugUnitTest
+--tests com.meshcoreone.android.uitests.RoomsComposeTest.selfMentionAndMissingDeviceNameUseDistinctMountedStatusSheetsWithoutLosingTheRoomDraft
+--console=plain --dependency-verification strict --build-cache
+--no-parallel --max-workers=4 -PscaffoldTestHeap=512m
+```
+
+Exact installed preflight **PASS0.61s**. One strict affected-selector invocation
+actually discovers/runs/passes **1,0 failures/errors/skips,33s build**, exact
+classname/method XML **2026-10-21T03:15:32.778Z**,6.359s case. Supported
+read-only wait preserves foreign WP501 owner until normal release; actual
+Ledger Gradle context/ext4 flock/native absence and only-own release enforced.
+Portmap/controller/diff **PASS**. No healthy/old cohort replay, native device
+operation, golden/frame or original-case accounting. Source34 is not a
+combined34/33+1/two-case execution or all eight mention-original acceptance.
+Keep local source/results for comparison before publication; published883/
+39537138016 remains immutable while healthy, no06a/883 verdict transfer.
 
 ### com.meshcoreone.android.app.platform.DraftInitializationComposeTest
 
@@ -948,7 +1004,7 @@ Primary WP-307 ownership is unchanged; notification integration remains open.
 
 | Remaining row | Disposition |
 | --- | --- |
-| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six original label/action consumers, three actual-renderer consumers with57 new host frames, three Swift-reachable load-failure plus three Android-only defensive port-fault consumers ata9a6, and one mounted retry failure/recovery consumer actually passing1/1 atf4. Source33 is not combined33 execution or primary equivalence approval; renderer results stay8PASS/1FAIL atacec then failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 exact52e review5594110568 has no additional bounded blocker; its hosted result, new6 classification and new retry review are separate. Full Rooms sync/history/actions/store/radio, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse actual primary-owner fixtures/contracts, not decorative placeholders. |
+| Full deterministic production-feature matrix | Open software work: existing127 conversation/local-content inputs, bounded57-input/four-method Rooms history, thirteen witnesses for twelve ordering originals, six label/action consumers, three renderer consumers/57 new host frames, three Swift-reachable load faults plus three Android-only defensive faults ata9a6, mounted retry passing1/1 atf4 and one mention-status consumer passing1/1 at6949. Source34 is not combined34 or primary equivalence approval; renderer results stay8PASS/1FAIL atacec then failed frame1PASS at1e5. Three WiFi, seven pairing and seven Region/preset methods pass at their own bindings. Renderer253 exact52e review5594110568, clear boundedfc50/883 comparisons and new local mention review stay separate. Full Rooms sync/history/actions/store/radio, remaining mention families/app contact refresh, primary grouping/action equivalence, pairing OS/raw-failure/registry/foreground, demo transport, remaining Region/preset locale/full invalid-ID/reentry and actual radio application, reactions/path, nodes/discovery, full map, remote admin, tools and settings remain unfinished. Reuse primary-owner fixtures/contracts, not decorative placeholders. |
 |126 cross-reference test-file families | Unfinished behavioral inventory/equivalence reconciliation with primary owners/WP-501; no blanket pass/exclusion. |
 | Formal verification entry | WP-003 PR246 is merged/deployed at main9c430cb0; its exact-inverse amendment declares actual controller/App/scaffold software commands. Full `configured:false` intentionally retains unfinished acceptance. No new WP-502 catalog edit, approval or dependency unlock is claimed. |
 | Current API31/37 and targeted33/34/36 | Matching candidate/device observation still required for full acceptance; no device rerun authorized in this resumption. |

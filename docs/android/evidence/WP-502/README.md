@@ -46,6 +46,7 @@ dispatch_mode=off/activation_approved=false. Policy bytes equal actual maindbb,
 including normally merged259's bounded renderer capability, not candidate policy
 edits. The same typed reservation is now actual revision30: the owned retry
 test/evidence reconciliation genuinely returned30 after the renderer's29.
+The subsequent owned mention-status reconciliation is idempotent at actual30.
 Earlier six-pathdbb
 reconciliation returned28, then the exact named renderer operation returned29.
 An initial expected27 renderer request correctly rejected stale revision before
@@ -90,7 +91,7 @@ coordinator integration.
 | `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
 | `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
 | `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
-| `RoomsComposeTest` | Original four route/render methods, thirteen mounted ordering witnesses, six original label/action consumers and three actual-renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure plus three Android-only defensive port-fault consumers pass together ata9a6be400. Next one mounted retry failure/recovery consumer passes1/1 atf4fedec11; all32 incumbents/helpers/Fixture remain. Source33 is not combined33 execution or primary original-case approval. No actual RoomServerService/history sync/Room-database/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
+| `RoomsComposeTest` | Original four route/render methods, thirteen ordering witnesses, six label/action consumers and three renderer consumers remain. Renderer results stay8PASS/1FAIL atacec then only failed frame1PASS at1e5. Three Swift-reachable load-failure plus three Android-only defensive faults pass ata9a6; mounted retry passes1/1 atf4. Next one mounted mention-status consumer passes1/1 at6949, preserving all33 incumbents/helpers/Fixture. Source34 is not combined34 execution or primary original-case approval. No actual service/history/Room-store/radio/browser/spoken-TalkBack/golden/device/full-WP claim. |
 | `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Three earlier methods executed on API31; newer wrappers and hardware-key families require their own exact-binary observation. |
 | `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
@@ -108,6 +109,38 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+### Mounted mention self-status versus absent device name
+
+After full bounded883/fc50 source comparison CLEAR (not approval), read all
+eight frozen ResolveMentionTap bodies, RoomConversationView.mentionTapHandling,
+MentionTapEvaluator/Handler/Picker and actual native route/dispatcher/sheet.
+Existing33 have no mention-status-sheet consumer; WP503's separate mounted
+single saved Alice navigation does not cover self/not-saved explanations.
+Code **6949d5f1ea4ae9f544697c37d12b55a81a078faa/basedbb** adds107 lines,
+zero deletions: one method/four reference headers, every33 incumbent line/
+helper/Fixture preserved. No product/core/build/policy/manifest/primary edit.
+
+Actual mounted incoming bubble custom actions use the exact selected originals:
+raw `mydevice`, device `MyDevice`, contacts[Alice] gives self with no matches;
+raw `Me`, absent device name, contacts[] must not infer self from fallback Me.
+The route's real modal presents the respective localized title/subtitle,
+excludes the opposite explanation/matching-contact section, and Done dismisses.
+Two actual taps read fresh controlled snapshots/name/current-radio ports;
+independent full room state/DTOs/row flags, once-labels/keyed bubbles and200%
+CJK/RTL draft survive both sheets/closures. No URL/navigation/send/join/retry/
+read/error side effect; scope cancellation reaches zero subscribers.
+
+Exact installed preflight **PASS0.61s**; one strict new-selector invocation
+discovers/runs/passes **1,0 failures/errors/skips,33s build**. Fresh exact
+classname/method XML **2026-10-21T03:15:32.778Z**,6.359s case. Supported wait
+preserves foreign WP501 Gradle owner until normal release, then real Ledger/
+ext4/native-absence/only-own normal release. Portmap/controller/diff **PASS**.
+[Exact selector and scope](software-verification.md#mounted-mention-self-status-versus-absent-device-name).
+Source34/two input vectors are not combined34/two executed cases, all eight
+mention originals, primary equivalence approval, actual contact-store refresh/
+offline-device observation, navigation destination, golden/device/TalkBack or
+full-WP acceptance. This new increment stays LOCAL for bounded comparison.
 
 ### Mounted Rooms retry failure and targeted recovery
 
@@ -141,8 +174,16 @@ released. Portmap/controller validation/diff checks **PASS**. No incumbent repla
 [Exact selector and source boundaries](software-verification.md#mounted-rooms-retry-failure-and-targeted-recovery).
 Source33 is not combined33 execution, another frozen original, actual
 RoomServerService/store/retry/ACK/radio evidence, a frame/golden/device/spoken
-TalkBack or full-WP pass. Local-only source/results need bounded comparison
-before publication; published06a/39533421332 is not superseded while healthy.
+TalkBack or full-WP pass. Full bounded local883/fc50 comparison subsequently
+finds no additional blocker. After actual06a/39533421332 terminalSUCCESS/all6,
+ordinary installed push06a->reviewed883 succeeds; Python/preflightPASS, unchanged
+180s App advisoryUNVERIFIED/only owned cleanup, no completed App count credited.
+Fresh main/base dbb/reservation30/draft249 guarded. New automatic exact883
+[39537138016](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39537138016)
+is IN_PROGRESS, not a06a verdict transfer. Authoritative06a Linux119004929990
+reports App820 discovered/run/PASS0FES at02:59:34.203167Z; full06a workflow has
+all six jobs SUCCESS. Read in memory, no second CI-result bundle.
+Published883 remains immutable while healthy; new6949 is local-only.
 
 ### Rooms load failures: three Swift-reachable and three Android-only consumers
 
