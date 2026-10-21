@@ -1,10 +1,12 @@
 """AndroidOnly: WP-504 Real test-owned lane/launcher, pending binding and descendant cleanup."""
 
 import contextlib
+import ctypes
 import io
 import json
 import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
 import tempfile
@@ -13,20 +15,21 @@ import time
 import unittest
 from unittest.mock import patch
 
-import check
+if __package__ == "local":
+    from . import check
+else:
+    import check
+runtime = Path(check.__file__).resolve().parent
+sys.path.insert(0, str(runtime.parent if runtime.name == "local"
+                       else runtime.parents[1] / "meshcore-reservations"))
+from controller.ledger import Ledger
 
 
 class AdvisoryLauncherTests(unittest.TestCase):
     def native(self):
-        if os.name != "nt":
+        if sys.platform.startswith("linux"):
             return False
-        prefix = check.transport("Ubuntu-22.04")
-        source = check.linux_path(Path(__file__).resolve(), prefix)
-        python = check.capture([*prefix, "bash", "-c",
-                                'printf "%s" "$HOME/meshcoreone-work/venv312/bin/python"'])
-        subprocess.run([*prefix, python, source, self.id().split(".", 1)[-1]],
-                       check=True, timeout=45)
-        return True
+        raise ValueError("Real process fixtures require isolated Linux; no automatic WSL fallback")
 
     @contextlib.contextmanager
     def fixture(self, fast_source):
@@ -48,11 +51,13 @@ class AdvisoryLauncherTests(unittest.TestCase):
                     Path(check.__file__).with_name(name).read_bytes().replace(b"\r\n", b"\n"))
             (control / "fast.py").write_text(fast_source, encoding="utf-8")
             commit, tree = check.binding(repo, "HEAD")
+            ledger = Ledger(root / "ledger.sqlite3", "fixture/repository")
             with patch.dict(os.environ, {"ANDROID_LOCAL_HOME": str(work),
                                         "ANDROID_LOCAL_PYTHON": sys.executable}), \
                  patch.object(check, "__file__", str(control / "check.py")), \
                  patch.object(check, "ADVISORY_QUEUE_SECONDS", 0.2), \
                  patch.object(check, "ADVISORY_FAST_SECONDS", 0.3), \
+                 patch.object(check, "execution_runtime", return_value=ledger), \
                  patch.object(check, "transport", return_value=[]):
                 previous = Path.cwd()
                 os.chdir(repo)
@@ -105,6 +110,7 @@ class AdvisoryLauncherTests(unittest.TestCase):
                 self.assertIn("queued beyond", record["reason"])
                 self.assertFalse((work / "local-checks/repos").exists())
                 self.assertIsNone(holder.poll())
+                self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
                 with (work / "local-checks/gradle.lock").open() as lock:
                     with self.assertRaises(BlockingIOError):
                         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -133,6 +139,7 @@ class AdvisoryLauncherTests(unittest.TestCase):
             record = json.loads(check.pending_file(repo).read_text())
             self.assertEqual((record["commit"], record["tree"]), (commit, tree))
             self.assertIn("owned work cleaned", record["reason"])
+            self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
             pid = int((work / "child.pid").read_text())
             with self.assertRaises(ProcessLookupError):
                 os.kill(pid, 0)
@@ -147,7 +154,7 @@ class AdvisoryLauncherTests(unittest.TestCase):
             "assert '--advisory' not in sys.argv\n"
             "pathlib.Path(os.environ['ANDROID_LOCAL_HOME'],'manual-ran').touch()\n"
         )
-        with self.fixture(fast_source) as (_, _, work, _, _):
+        with self.fixture(fast_source) as (_, repo, work, _, _):
             results = []
             with self.holder(work):
                 thread = threading.Thread(target=lambda: results.append(check.main([])))
@@ -159,6 +166,9 @@ class AdvisoryLauncherTests(unittest.TestCase):
             self.assertFalse(thread.is_alive())
             self.assertEqual(results, [0])
             self.assertTrue((work / "manual-ran").exists())
+            self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
+            self.assertEqual(check.main([]), 0)
+            self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
 
     def test_manual_failure_remains_failure_without_pending_success(self):
         if self.native():
@@ -168,6 +178,90 @@ class AdvisoryLauncherTests(unittest.TestCase):
                 self.assertEqual(check.main([]), 1)
             self.assertIn("BLOCKED", errors.getvalue())
             self.assertFalse(check.pending_file(repo).exists())
+            self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
+
+    def test_native_cannot_enter_during_actual_owned_fixture_execution(self):
+        if self.native():
+            return
+        fast_source = (
+            "import pathlib,os,time\n"
+            "work=pathlib.Path(os.environ['ANDROID_LOCAL_HOME'])\n"
+            "(work/'active').touch()\n"
+            "while not (work/'finish').exists(): time.sleep(.02)\n"
+        )
+        with self.fixture(fast_source) as (_, repo, work, _, _):
+            ledger = check.execution_runtime(repo)
+            results = []
+            thread = threading.Thread(target=lambda: results.append(check.main([])))
+            thread.start()
+            try:
+                deadline = time.monotonic() + 10
+                while not (work / "active").exists() and time.monotonic() < deadline:
+                    time.sleep(0.02)
+                self.assertTrue((work / "active").exists())
+                before = ledger.hard_lock_records()
+                self.assertEqual(len(before), 1)
+                from controller.errors import PortError
+                with self.assertRaises(PortError):
+                    ledger.acquire_hard_lock("native-execution", "unrelated-native", {}, 1.0)
+                self.assertEqual(ledger.hard_lock_records(), before)
+            finally:
+                (work / "finish").touch()
+                thread.join(timeout=10)
+            self.assertFalse(thread.is_alive())
+            self.assertEqual(results, [0])
+            self.assertEqual(ledger.hard_lock_records(), [])
+
+    def test_owned_persistent_manual_child_retains_until_fixture_owner_reaps_it(self):
+        if self.native():
+            return
+        if __package__ == "local":
+            from . import advisory
+        else:
+            import advisory
+        libc = ctypes.CDLL(None, use_errno=True)
+        previous = ctypes.c_int()
+        self.assertEqual(libc.prctl(37, ctypes.byref(previous), 0, 0, 0), 0)
+        self.assertEqual(libc.prctl(36, 1, 0, 0, 0), 0)
+        fast_source = (
+            "import os,pathlib,subprocess,sys,time\n"
+            "work=pathlib.Path(os.environ['ANDROID_LOCAL_HOME'])\n"
+            "code=\"import os,pathlib,sys,time; pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); time.sleep(60)\"\n"
+            "subprocess.Popen([sys.executable,'-c',code,str(work/'persistent.pid')],start_new_session=True)\n"
+            "while not (work/'persistent.pid').exists(): time.sleep(.02)\n"
+        )
+        try:
+            with self.fixture(fast_source) as (_, repo, work, _, _):
+                ledger = check.execution_runtime(repo)
+                pid = None
+                try:
+                    with contextlib.redirect_stderr(io.StringIO()):
+                        self.assertEqual(check.main([]), 1)
+                    pid = int((work / "persistent.pid").read_text())
+                    before = ledger.hard_lock_records()
+                    self.assertEqual(len(before), 1)
+                    self.assertFalse(Path(before[0]["payload"]["completion"]).exists())
+                    with contextlib.redirect_stderr(io.StringIO()):
+                        self.assertEqual(check.main([]), 1)
+                    self.assertEqual(ledger.hard_lock_records(), before)
+                finally:
+                    if pid is None and (work / "persistent.pid").is_file():
+                        pid = int((work / "persistent.pid").read_text())
+                    if pid is not None:
+                        descriptor = advisory.pidfd_open(pid)
+                        try:
+                            self.assertTrue(advisory.is_owned(pid))
+                            advisory.pidfd_signal(descriptor, signal.SIGKILL)
+                            os.waitpid(pid, 0)
+                        finally:
+                            os.close(descriptor)
+                lock, = ledger.hard_lock_records()
+                ledger.release_hard_lock("gradle-execution", lock["owner"])
+                import shutil
+
+                shutil.rmtree(Path(lock["payload"]["completion"]).parent)
+        finally:
+            self.assertEqual(libc.prctl(36, previous.value, 0, 0, 0), 0)
 
     def test_owned_lock_mode_cannot_skip_real_lane_ownership(self):
         if self.native():
@@ -177,7 +271,7 @@ class AdvisoryLauncherTests(unittest.TestCase):
             result = subprocess.run(["bash", str(launcher), "", "", "", "", "", "", "owned-lock"],
                                     capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("did not inherit its actual lane lock", result.stderr)
+            self.assertIn("did not inherit actual shared execution admission", result.stderr)
 
 
 if __name__ == "__main__":

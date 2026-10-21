@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 
 from controller.ci_environment import candidate_environment
 from controller.errors import PortError
-from controller.workflows import parse_yaml, validate_boundary
+from controller.workflows import parse_yaml, validate_boundary, validate_candidate
 from oracle.foundation_ci import EXPECTED_TESTS, PACKAGE, verify_junit
 from oracle.identity import evidence_identity
 from oracle.reference import OracleError, REPO, SOURCE_SHA
@@ -144,8 +144,35 @@ class FoundationWorkflowTests(unittest.TestCase):
                         "oracle/run_tests.py", "controller/ci.py provision",
                         "controller/ci.py run --stage scaffold", "oracle/codec_harness.py run"):
             self.assertIn(command, runs)
-        self.assertEqual(runs.count("controller/test_runner.py"), 1)
+        validate_candidate(self.workflow, self.text)
         self.assertEqual(runs.count("controller/ci.py run --stage scaffold"), 1)
+
+    def test_scope_selector_and_strict_runner_cannot_be_removed_duplicated_or_bypassed(self):
+        for job in ("scope", "controller"):
+            for mutation in ("missing", "duplicate", "conditional", "ignored", "synthetic", "unbound"):
+                with self.subTest(job=job, mutation=mutation):
+                    value = copy.deepcopy(self.workflow)
+                    steps = value["jobs"][job]["steps"]
+                    step = next(step for step in steps if "controller/test_runner.py" in step.get("run", ""))
+                    if mutation == "missing":
+                        steps.remove(step)
+                    elif mutation == "duplicate":
+                        steps.append(copy.deepcopy(step))
+                    elif mutation == "conditional":
+                        step["if"] = "${{ always() }}"
+                    elif mutation == "ignored":
+                        step["continue-on-error"] = "true"
+                    elif mutation == "synthetic":
+                        step["run"] = step["run"].replace(
+                            "python tools/android-port/controller/test_runner.py",
+                            "echo tools/android-port/controller/test_runner.py",
+                        )
+                    else:
+                        step["run"] = step["run"].replace(
+                            '--candidate-event-path "${{ github.event_path }}"', "",
+                        )
+                    with self.assertRaises(PortError):
+                        validate_candidate(value, self.text)
 
     def test_auxiliary_conditions_are_job_level_and_preserve_complete_chains(self):
         expected = {"external-oracle": "external-oracle", "backup-oracle": "backup"}

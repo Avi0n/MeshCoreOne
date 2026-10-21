@@ -25,6 +25,11 @@ class RuntimeInputTests(unittest.TestCase):
         for path in ("tools/android-port/controller/toolchain-pins.json",
                      "tools/android-port/controller/requirements-ci.txt",
                      "tools/android-port/controller/ci_evidence.py",
+                     "tools/android-port/controller/disposable.py",
+                     "tools/android-port/controller/windows_guest.py",
+                     "tools/android-port/tests/test_disposable.py",
+                     "tools/android-port/tests/test_windows_guest.py",
+                     "tools/android-port/tests/test_runner.py",
                      "docs/android/evidence/WP-201/collect_evidence.py",
                      "tools/android-port/tests/test_domain_room_evidence.py"):
             changed = copy.deepcopy(entries)

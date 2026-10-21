@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -19,14 +20,105 @@ sys.path.insert(0, str(MODULE_ROOT))
 from controller.errors import PortError
 from controller.gates import policy_revision
 from controller.ledger import Identity, Ledger
-from controller.model import SHA, load_manifest
-from controller.schema import load_json
+from controller.model import Manifest, REFERENCE_SHA, SHA, load_manifest, tree, validate_dag
+from controller.paths import git_path
+from controller.schema import check_schema, decode_json, load_json
 
 
 def git(repo: Path, *arguments):
     return subprocess.check_output(
-        ["git", "-C", str(repo), *arguments], text=True
+        ["git", "-C", str(repo), *arguments], encoding="utf-8", errors="strict"
     ).strip()
+
+
+def repository_identity(value, label):
+    repository = value.get("repository") if isinstance(value, dict) else None
+    if not isinstance(repository, str) or re.fullmatch(r"[\w.-]+/[\w.-]+", repository) is None:
+        raise PortError(f"{label} requires an explicit valid repository identity")
+    return repository
+
+
+def trusted_default_policy(repo):
+    try:
+        reference = git(repo, "symbolic-ref", "--quiet", "refs/remotes/origin/HEAD")
+        if not reference.startswith("refs/remotes/origin/"):
+            raise PortError("Trusted origin default-branch reference is unavailable")
+        revision = git(repo, "rev-parse", "--verify", reference + "^{commit}")
+        if SHA.fullmatch(revision) is None:
+            raise PortError("Trusted default-base revision is not immutable")
+        policy = decode_json(git(repo, "show", revision + ":docs/android/automation-policy.json"))
+    except subprocess.CalledProcessError as error:
+        raise PortError("Trusted origin default-base policy unavailable; no candidate namespace fallback") from error
+    repository_identity(policy, "Trusted default-base policy")
+    return revision, policy
+
+
+def verify_installed_repository(repo, repository):
+    target = runtime_target(repo)
+    if target.exists():
+        manifest = verify_runtime(target, allow_legacy=True)
+        if manifest["schema_version"] == 2 and repository_identity(
+            manifest, "Installed runtime"
+        ) != repository:
+            raise PortError("Installed runtime repository differs from trusted default-base authority")
+
+
+def trusted_install_repository(repo):
+    _, policy = trusted_default_policy(repo)
+    repository = repository_identity(policy, "Trusted default-base policy")
+    verify_installed_repository(repo, repository)
+    return repository
+
+
+def trusted_capability_authority(repo, *, expected_revision=None):
+    from controller.capabilities import CapabilityEngine
+    from controller.staging import object_bytes
+
+    revision, policy = trusted_default_policy(repo)
+    if expected_revision is not None and revision != expected_revision:
+        raise PortError("Trusted default-base changed during capability authority binding")
+    repository = repository_identity(policy, "Trusted default-base policy")
+    verify_installed_repository(repo, repository)
+    CapabilityEngine(policy)
+    entries = tree(repo, revision)
+
+    def read(name):
+        path = "docs/android/" + name
+        if path not in entries:
+            raise PortError(f"Trusted default-base input unavailable: {path}")
+        return decode_json(object_bytes(repo, entries[path]).decode("utf-8"))
+
+    data, exclusions = read("port-manifest.json"), read("not-ported.json")
+    for value, schema_name in ((data, "port-manifest.schema.json"), (exclusions, "not-ported.schema.json")):
+        schema = read(schema_name)
+        if not isinstance(schema, dict) or schema.get("type") != "object":
+            raise PortError(f"Malformed trusted default-base schema: {schema_name}")
+        try:
+            check_schema(value, schema)
+        except (KeyError, TypeError) as error:
+            raise PortError(f"Malformed trusted default-base input/schema: {schema_name}") from error
+    if (
+        not isinstance(data, dict) or not isinstance(data.get("reference"), dict)
+        or not isinstance(data.get("work_packages"), list)
+        or data["reference"].get("commit") != REFERENCE_SHA
+        or not isinstance(exclusions, dict) or exclusions.get("reference_sha") != REFERENCE_SHA
+    ):
+        raise PortError("Trusted capability authority has malformed manifest or changed source pin")
+    if any(
+        not isinstance(wp, dict) or not isinstance(wp.get("id"), str)
+        or re.fullmatch(r"WP-[0-9]{3}", wp["id"]) is None
+        or not isinstance(wp.get("depends_on"), list)
+        or not all(isinstance(dependency, str) for dependency in wp["depends_on"])
+        or not isinstance(wp.get("write_paths"), list) or not wp["write_paths"]
+        or not all(isinstance(path, str) for path in wp["write_paths"])
+        for wp in data["work_packages"]
+    ):
+        raise PortError("Malformed trusted capability work-package authority")
+    validate_dag(data["work_packages"])
+    for wp in data["work_packages"]:
+        for path in wp["write_paths"]:
+            git_path(path, subtree=True)
+    return Manifest(data, exclusions, repo), policy
 
 
 def shared_ledger(repo: Path):
@@ -67,7 +159,8 @@ def file_sha256(path: Path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def write_runtime(directory: Path):
+def write_runtime(directory: Path, repository: str):
+    repository_identity({"repository": repository}, "Runtime installation")
     manifest = {}
     for relative, source in runtime_sources().items():
         destination = directory / relative
@@ -75,23 +168,34 @@ def write_runtime(directory: Path):
         destination.write_bytes(source.read_bytes().replace(b"\r\n", b"\n"))
         manifest[relative] = file_sha256(destination)
     (directory / "runtime-manifest.json").write_text(
-        json.dumps({"schema_version": 1, "files": manifest}, indent=2) + "\n",
+        json.dumps({"schema_version": 2, "repository": repository, "files": manifest}, indent=2) + "\n",
         encoding="utf-8", newline="\n",
     )
     return manifest
 
 
-def verify_runtime(directory: Path):
+def verify_runtime(directory: Path, *, allow_legacy=False):
     manifest_path = directory / "runtime-manifest.json"
-    if not manifest_path.is_file() or manifest_path.is_symlink():
+    if directory.is_symlink() or not manifest_path.is_file() or manifest_path.is_symlink():
         raise PortError("Installed reservation runtime manifest is missing or unsafe")
     manifest = load_json(manifest_path)
-    if set(manifest) != {"schema_version", "files"} or manifest["schema_version"] != 1:
+    if not isinstance(manifest, dict) or type(manifest.get("schema_version")) is not int:
         raise PortError("Malformed installed reservation runtime manifest")
+    legacy = allow_legacy and manifest["schema_version"] == 1
+    if legacy:
+        if set(manifest) != {"schema_version", "files"}:
+            raise PortError("Malformed legacy runtime manifest; no namespace fallback")
+    elif set(manifest) != {"schema_version", "repository", "files"} or manifest["schema_version"] != 2:
+        raise PortError("Malformed installed reservation runtime manifest")
+    else:
+        repository_identity(manifest, "Installed runtime")
     files = manifest["files"]
     if not isinstance(files, dict) or not files:
         raise PortError("Installed reservation runtime has no files")
     for relative, expected in files.items():
+        if (not isinstance(relative, str) or not relative or "\\" in relative or ":" in relative
+                or relative.startswith("/") or any(part in ("", ".", "..") for part in relative.split("/"))):
+            raise PortError("Unsafe installed reservation runtime manifest path")
         path = directory / relative
         if (not path.is_file() or path.is_symlink() or not isinstance(expected, str)
                 or len(expected) != 64 or file_sha256(path) != expected):
@@ -109,7 +213,7 @@ def install_runtime(target: Path, ledger: Ledger, owner: str, now: float):
         stage = Path(tempfile.mkdtemp(prefix=target.name + ".stage-", dir=target.parent))
         backup = target.with_name(target.name + ".previous")
         try:
-            write_runtime(stage)
+            write_runtime(stage, ledger.repository)
             expected = verify_runtime(stage)
             if backup.exists():
                 raise PortError(f"Stale runtime backup requires reconciliation: {backup}")
@@ -220,9 +324,18 @@ def main(argv=None):
         from controller.capabilities import CapabilityEngine
 
         repo = Path(git(args.repo, "rev-parse", "--show-toplevel"))
-        policy = load_json(repo / "docs/android/automation-policy.json")
-        manifest = load_manifest(repo)
-        ledger = Ledger(shared_ledger(repo), policy["repository"])
+        if args.command == "install-runtime":
+            policy = load_json(repo / "docs/android/automation-policy.json")
+            repository = repository_identity(policy, "Candidate policy")
+            trusted = trusted_install_repository(repo)
+            if repository != trusted:
+                raise PortError("Candidate repository differs from trusted default-base authority")
+            repository = trusted
+            manifest = load_manifest(repo)
+        else:
+            manifest, policy = trusted_capability_authority(repo)
+            repository = repository_identity(policy, "Trusted default-base policy")
+        ledger = Ledger(shared_ledger(repo), repository)
         if args.command == "install-runtime":
             result = install_runtime(runtime_target(repo), ledger, args.owner, time.time())
         elif args.command == "status":
