@@ -6,7 +6,8 @@
 - Implementation/execution parent: `6155fb43879e2d79bc423c792e010023bef11b64`;
   actual main/base: `85871f40b1520a89ced6b9bec74aa8eec2f4f4de`.
 - Manifest: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`;
-  semantic policy: `7f757bb6dbde98ab8af6da189f6e9273d4bc45ddb8e903703bee8b43c9b372f6`.
+  semantic policy, read through the trusted `gates.policy_revision`:
+  `50da0ea302772250097011b32987cba6418f3587f6e1f78ac8ed9eb8a3e94024`.
 - Same WP-501 attempt/stored session
   `d6056690-3a5d-453e-b67e-36866c676ac5`, reservation75->76;
   existing issue134/PR165. No new actor, reservation replacement or scope change.
@@ -148,3 +149,47 @@ merge and broader assigned software/helper/consumer/resource work remain
 separate. Parent6155's automatic CI39522320785 was still in progress during
 local implementation; neither that pending result nor the older67df quiet
 command timeout is reinterpreted as this family passing or failing.
+
+## Actual current-main reconciliation
+
+After the local six-case execution, actual main became
+`c9ed1f9b78bcc322fb1ec281d211f99852cfec3b`, user-merged PR258,
+parents85871f40/producer27947068ebf03a9fb5cedcba7a9d0b000cbbec0f.
+Four incoming support paths were read in full. The same reservation's
+`reconcile-current-base` evolution is idempotent at revision76: all four
+paths were already admitted; no new owner or authorization prose.
+
+Merge `10e48ae6c49f13b6ae9639b6873e44457f054251` has parents
+`31dc0a2200b97c81bc9422e3d20028cbba2df26f`/actualc9ed main.
+CI README, WP003 deviation and test_ci.py exactly equal producer/main.
+The fourth file, ci.py, has an actual disjoint semantic merge rather than
+whole-blob equality: the incoming timeout-diagnostic helper/execute delta
+is byte-for-byte preserved, while the three pre-existing WP501 parity
+execution/accounting hooks remain byte-for-byte unchanged. Normalized
+zero-context deltas verify both parent contributions independently.
+Reconciled ci.py blob: `40de8da41646db40b9d7798af3cda0d500737aae`;
+producer blob: `c25f9346a3e077934a8f9e5a2804d0c61667398b`.
+An initial whole-path equality guard correctly did not accept that shared
+file; the bounded delta comparison resolves it, not a producer discrepancy.
+All151 other candidate-only paths match31dc exactly. The complete Android
+tree, frozen inputs, manifest and policy are unchanged across integration;
+the six-case local execution remains actual6155/base858, not a c9ed replay.
+The trusted semantic-policy calculation above corrects this new evidence's
+initial draft value; no policy file changed or pin advanced.
+
+Independently observed predecessor6155/run39522320785 terminal **SUCCESS**:
+classifier118968822400, controller118968876704, codec118969559859,
+Linux118969559971, SwiftData118977145141 and aggregate118979432789 all
+completed successfully. No full-job case count was inferred here.
+That successful result and COMMENTED5593585294's bounded unsigned-original
+source review remain6155/base858 evidence, not acceptance of this successor
+or its six new originals. Incoming258 diagnostics do not retroactively
+turn67df's1800s timeout into an assertion diagnosis or success. No deadline,
+scope policy, source predicate or result was weakened, and no old automatic
+run was manually canceled/rerun or duplicated into a second result bundle.
+
+The documented `python .\tools\android-port\controller\test_runner.py --quiet`
+then **PASS379/379**, zero failures/errors/skips,268.453s, on the actual
+merged executor. Expected negative-fixture stderr is not a runner failure.
+This is controller software-fixture verification of the disjoint merge,
+not an Android cohort replay or the original timed-out hosted command.
