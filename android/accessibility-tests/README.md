@@ -139,8 +139,14 @@ import/allocation it requires the reviewed producer bytes in actual trusted main
 and the actual checkout, and trusted capability/pause policy. The real factory
 then requires the existing canonical session/attempt, evolved disposable receipt
 and eligible claim state; it allocates a new private guest with independent
-transport plus disposable and global Gradle receipts. Current trusted main lacks
-that producer; this consumer therefore cannot currently execute.
+transport plus disposable and global Gradle receipts. The original LOCAL
+preparation predated trusted producer admission; merged main
+`ea67cd867e7fc178046ee2829ff059b1734ef1b3` now contains the reviewed interface.
+Actual source/runtime/claim/resource guards still run; merge is not guest readiness.
+The consumer accepts the installed base-image spelling `37.0` as API37
+(likewise integer base API plus `.0`), but rejects nonzero/ambiguous minor versions.
+The merged producer still requires the integer spelling: its installed-image
+check must be corrected by its owner before this actual image can start.
 
 The consumer packages with `installed_apk=None, guest=guest` before boot, verifies
 concrete producer/Ledger identity, checks fresh package absence and the inherited
@@ -165,6 +171,11 @@ not real receipts, Windows Jobs/Linux supervision, provisioning or native tests.
 There is no runtime backend/availability override or alternate ledger/endpoint.
 This LOCAL implementation does not authorize execution or publication; see the
 [source-only evidence](../../docs/android/evidence/WP-503/shared-api37-profile-admission.md).
+
+For the current source-approved continuation, use the existing whole `nodes`
+family; its seven original assertions include both unresolved failures. There is
+no added method-selector/control feature. The reviewed clipboard fixture is now
+bound to actual producer `1440142b`/blob `469f756f`; no old native result is rebound.
 
 The authorized pair actually passed2/2 on each API at immutable source
 `b2d9a00368432c04ccc40676417b2576bf472218`/reservation21. API31's initial cleanup

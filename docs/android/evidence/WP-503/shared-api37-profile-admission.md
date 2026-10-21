@@ -1814,3 +1814,52 @@ independent future gates. Historical473/66bd,25 starts/23PASS/2FAIL/2unstarted a
 unknown old Nodes host exit are unchanged. No source publication, local Gradle/
 WSL/native/guest/device-resource/recovery/deployment/dispatch/rerun/merge action
 or snapshot/restart/wipe request accompanies this candidate.
+
+### Merged disposable prerequisite and actual installed-image incompatibility
+
+Trusted PR260 merged as `ea67cd867e7fc178046ee2829ff059b1734ef1b3`.
+Ordinary merge `bd0f65031af32bdb8fad196b92bf29524e75b5b6` retains reviewed
+clipboard producer144 unchanged. Supported same-owner source admission27-to28
+covered the31 incoming paths under `merge-integration`; the subsequent owned
+binding/support admission was idempotent28-to28. Stored identity/authorization
+history and original473/66bd were preserved.
+
+The Nodes shared-fixture pin now identifies the actual reviewed144 producer and
+blob469f, while its production source, native launcher, seven original methods,
+assertions and all other family/helper pins are unchanged. All four349
+disposable API blobs exactly match merged trusted main; no producer repin was
+needed. The coordinator explicitly directed the existing seven-case Nodes
+family, rather than adding a two-method selector. No selector was implemented.
+
+Before allocation/build/guest access, actual `DisposableConfig.validate(37)`
+against the retained `wp503-current-local-inputs/environment.json`, installed
+emulator/ADB, existing default debug-home metadata and installed
+`system-images/android-37.0/google_apis_playstore/x86_64` failed with:
+`PortError: Installed image API differs from the immutable selected family request`
+at the original consumer line115. Actual source.properties declares
+`AndroidVersion.ApiLevel=37.0`, revision6. The other installed image declares
+37.2; it is not substituted. Trusted producer `disposable.py:226` independently
+accepts only literal31/37, so it would reject this genuine base image too.
+
+The owned consumer now accepts only the selected integer API or its exact `.0`
+base spelling. Existing regressions additionally reject37.2,37.00, malformed,
+empty and wrong-API declarations; its existing seven-case model uses37.0.
+No tests/methods/families were added. This is source/model evidence, not a
+producer/backend/native verdict. The exact producer correction was routed to
+the existing WP003 owner; no image metadata is rewritten and no producer gate
+is bypassed. The concrete remedy is supported base37.0 image admission in that
+trusted implementation, retaining its provenance/private-process checks.
+
+The first integrated231-test run had230PASS/1FAIL: the former missing/foreign
+checkout regression assumed the real checkout lacked producer files. Merged
+main legitimately supplies them, so the test reached a later synthetic policy
+error instead. That existing test now uses explicit temporary missing/foreign
+checkout bytes, rather than relying on ambient absence or weakening the guard.
+Its original failure log is retained separately from the corrected run.
+
+Existing user `.android/debug.keystore` was confirmed by metadata only, without
+reading/exporting/copying its bytes. No new key, vendor bridge, snapshot,
+restart or wipe is required. Exact checks and subsequent source/publication
+results accompany the successor. No fresh allocation, build, boot or native
+start occurred at this configuration failure; both historical Nodes failures,
+25 original outcomes, two unstarted flows and retained66bd remain unchanged.

@@ -293,13 +293,20 @@ class DisposableConsumerTest(unittest.TestCase):
 
     def test_missing_or_foreign_checkout_bytes_fail_before_import_and_allocation(self):
         self.loader.side_effect = self.real_loader
-        with patch.object(runner, "git", return_value=AUTHORITY), \
-                patch.object(runner, "trusted_execution_policy", return_value=self.policy), \
-                patch.object(runner, "tree", return_value=dict(runner.PRODUCER_INPUTS)), \
-                patch.object(runner, "import_module") as importing:
-            with self.assertRaisesRegex(runner.PortError, "actual trusted-main checkout"):
-                self.execute()
-            importing.assert_not_called()
+        path = self.root / runner.GUEST_ADAPTER
+        for contents in (None, b"foreign source bytes"):
+            if contents is not None:
+                path.parent.mkdir(parents=True)
+                path.write_bytes(contents)
+            with self.subTest(contents=contents), patch.object(runner, "ROOT", self.root), \
+                    patch.object(runner, "git", return_value=AUTHORITY), \
+                    patch.object(runner, "trusted_execution_policy", return_value=self.policy), \
+                    patch.object(runner, "tree", return_value=dict(runner.PRODUCER_INPUTS)), \
+                    patch.object(runner, "object_bytes", return_value=b"reviewed source bytes"), \
+                    patch.object(runner, "import_module") as importing:
+                with self.assertRaisesRegex(runner.PortError, "actual trusted-main checkout"):
+                    self.execute()
+                importing.assert_not_called()
         self.factory.assert_not_called()
 
     def test_trusted_pause_and_missing_resource_reject_before_import_or_factory(self):
@@ -336,9 +343,11 @@ class DisposableConsumerTest(unittest.TestCase):
         self.package.assert_not_called()
 
     def test_wrong_image_api_stops_before_factory(self):
-        (self.config.image / "source.properties").write_text("AndroidVersion.ApiLevel=31\n")
-        with self.assertRaisesRegex(runner.PortError, "image API"):
-            self.execute()
+        for api in ("31", "37.2", "37.00", "37.0invalid", ""):
+            with self.subTest(api=api):
+                (self.config.image / "source.properties").write_text(f"AndroidVersion.ApiLevel={api}\n")
+                with self.assertRaisesRegex(runner.PortError, "image API"):
+                    self.execute()
         self.factory.assert_not_called()
 
     def test_existing_output_cannot_be_adopted_or_overwritten(self):
@@ -447,6 +456,8 @@ class DisposableConsumerTest(unittest.TestCase):
         self.assertFalse(self.config.output.exists())
 
     def test_success_uses_exact_original_nodes_selection_and_owned_disposal_not_restoration(self):
+        (self.config.image / "source.properties").write_text(
+            "AndroidVersion.ApiLevel=37.0\nSystemImage.Abi=x86_64\n")
         result = self.execute()
         self.assertEqual(7, result["cohort"]["passed"])
         self.assertEqual([APP, TEST], result["mutation_attempts"])

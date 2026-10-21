@@ -111,7 +111,7 @@ class DisposableConfig:
         values = dict(line.split("=", 1) for line in properties.read_text(encoding="utf-8").splitlines()
                       if "=" in line and not line.lstrip().startswith("#"))
         values = {key.strip(): value.strip() for key, value in values.items()}
-        if values.get("AndroidVersion.ApiLevel", "").strip() != str(api):
+        if values.get("AndroidVersion.ApiLevel", "").strip() not in (str(api), f"{api}.0"):
             raise PortError("Installed image API differs from the immutable selected family request")
         return state
 
