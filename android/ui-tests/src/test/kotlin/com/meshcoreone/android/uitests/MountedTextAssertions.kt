@@ -1,4 +1,4 @@
-// AndroidOnly: WP-502 Strict mounted text/content/viewport oracle for Compose 1.10.6 semantics; not a pixel/font oracle.
+// AndroidOnly: WP-502 Mounted full-text/UTF16-line/native-ink/viewport oracle for Compose 1.10.6; not physical/font acceptance.
 package com.meshcoreone.android.uitests
 
 import android.app.Activity
@@ -174,14 +174,26 @@ internal fun assertMountedText(
         println("$characterDiagnostic|semanticsCharacters=${actual.indices.associateWith { layout.getBoundingBox(it) }}")
     }
     for ((offset, bounds) in characters) {
+        val line = paint.getLineForOffset(offset)
+        val unitDiagnostic = "UTF16=$offset|unit=${actual[offset].code}|bounds=$bounds|allocation=$size|line=$line|$context"
+        assertTrue("$unitDiagnostic|missing logical UTF16 line", line in 0 until paint.lineCount &&
+            offset in paint.getLineStart(line) until paint.getLineEnd(line))
+        assertTrue("$unitDiagnostic|invalid native caret rectangle",
+            listOf(bounds.left, bounds.top, bounds.right, bounds.bottom).all { it.isFinite() } &&
+                bounds.left <= bounds.right && bounds.top <= bounds.bottom)
+        assertEquals("$unitDiagnostic|caret line top", paint.getLineTop(line), bounds.top, 0f)
+        assertEquals("$unitDiagnostic|caret line bottom", paint.getLineBottom(line), bounds.bottom, 0f)
+        for (boundary in offset..offset + 1) {
+            assertTrue("$unitDiagnostic|invalid primary caret at=$boundary", paint.getHorizontalPosition(boundary, true).isFinite())
+            assertTrue("$unitDiagnostic|invalid secondary caret at=$boundary", paint.getHorizontalPosition(boundary, false).isFinite())
+        }
         if (!contains(size, bounds)) {
-            val line = paint.getLineForOffset(offset)
-            println("WP502_CARET_REJECT|$context|UTF16=$offset|unit=${actual[offset].code}" +
+            println("WP502_CARET_EXTENT|$context|UTF16=$offset|unit=${actual[offset].code}|meaning=caret-not-ink" +
                 "|bounds=$bounds|allocation=$size|line=$line|lineBounds=${paintLines[line]}" +
                 "|paragraphDirection=${paint.getParagraphDirection(offset)}|runDirection=${paint.getBidiRunDirection(offset)}")
         }
-        assertTrue("character outside measured text UTF16=$offset|bounds=$bounds|allocation=$size|$context|$characterDiagnostic",
-            contains(size, bounds))
     }
+    // Native UTF16 boxes are bidi caret intervals, not glyph ink. Keep their coverage; test paint separately.
+    compose.runOnIdle { assertNativeTextInkContained(paint, "$context|everyUtf16=${characters.size}|text=$actual") }
     return layout
 }

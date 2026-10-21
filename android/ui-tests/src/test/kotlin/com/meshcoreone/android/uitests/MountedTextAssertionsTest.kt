@@ -236,6 +236,11 @@ class MountedTextAssertionsTest {
             assertFalse(layout.didOverflowHeight)
             assertFalse(layout.isLineEllipsized(0))
             observeMountedNativePaint(compose, compose.onNodeWithTag(tag), layout, text, tag, requireClippingWitness = true)
+            val inkFailure = assertThrows(AssertionError::class.java) {
+                compose.runOnIdle { assertNativeTextInkContained(layout, "$tag genuine clipping negative") }
+            }
+            assertTrue("Native ink oracle must reject actual clipping: ${inkFailure.message}",
+                inkFailure.message.orEmpty().contains("painted ink outside measured text"))
             rejects(tag, text, "line outside measured text")
         }
     }

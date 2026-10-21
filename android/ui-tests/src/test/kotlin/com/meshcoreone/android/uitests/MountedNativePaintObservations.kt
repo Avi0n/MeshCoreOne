@@ -1,4 +1,4 @@
-// AndroidOnly: WP-502 Diagnostic native paragraph raster versus mounted owning-view draw; never a replacement text/geometry oracle.
+// AndroidOnly: WP-502 Strict unclipped native-ink containment and separate mounted owning-view paint observations; not physical/font acceptance.
 package com.meshcoreone.android.uitests
 
 import android.graphics.Bitmap
@@ -17,6 +17,74 @@ import androidx.compose.ui.text.style.TextDecoration
 import org.junit.Assert.*
 import kotlin.math.ceil
 
+private data class NativePaintProbe(val width: Int, val height: Int, val margin: Int)
+
+private fun nativePaintProbe(native: TextLayoutResult, context: String): NativePaintProbe {
+    val style = native.layoutInput.style
+    assertTrue("$context|observed explicit native color required", style.color.isSpecified)
+    assertNull("$context|controlled fixtures require the observed solid-color paint path", style.brush)
+    assertTrue("$context|diagnostic paragraph must be finite and bounded",
+        native.multiParagraph.width.isFinite() && native.multiParagraph.height.isFinite() &&
+            native.multiParagraph.width in 1f..4096f && native.multiParagraph.height in 1f..4096f)
+    val margin = native.size.height
+    assertTrue("$context|nonempty native allocation required", native.size.width > 0 && margin > 0)
+    return NativePaintProbe(
+        maxOf(native.size.width, ceil(native.multiParagraph.width).toInt()) + 2 * margin,
+        maxOf(native.size.height, ceil(native.multiParagraph.height).toInt()) + 2 * margin,
+        margin,
+    )
+}
+
+private fun paintNativeParagraph(canvas: Canvas, native: TextLayoutResult) {
+    val style = native.layoutInput.style
+    native.multiParagraph.paint(
+        canvas = canvas, color = style.color, shadow = style.shadow ?: Shadow.None,
+        decoration = style.textDecoration ?: TextDecoration.None, drawStyle = style.drawStyle ?: Fill,
+    )
+}
+
+internal fun assertNativeTextInkContained(native: TextLayoutResult, context: String) {
+    val (width, height, margin) = nativePaintProbe(native, context)
+    assertFalse("$context|native ink cannot certify truncated lines", native.multiParagraph.didExceedMaxLines)
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    try {
+        val canvas = Canvas(bitmap.asImageBitmap())
+        canvas.save()
+        try {
+            canvas.translate(margin.toFloat(), margin.toFloat())
+            paintNativeParagraph(canvas, native)
+        } finally {
+            canvas.restore()
+        }
+        var ink = 0
+        var outside = 0
+        var left = width
+        var top = height
+        var right = -1
+        var bottom = -1
+        for (y in 0 until height) for (x in 0 until width) {
+            if (bitmap.getPixel(x, y) ushr 24 == 0) continue
+            ink++
+            if (x !in margin until margin + native.size.width || y !in margin until margin + native.size.height) outside++
+            left = minOf(left, x)
+            top = minOf(top, y)
+            right = maxOf(right, x)
+            bottom = maxOf(bottom, y)
+        }
+        val diagnostic = "WP502_TEXT_INK|source=native-paragraph-unclipped" +
+            "|allocation=${native.size}|ink=$ink|outside=$outside" +
+            "|extents=${left - margin},${top - margin}..${right - margin},${bottom - margin}" +
+            "|probe=${width}x$height|probeOrigin=$margin,$margin|$context"
+        println(diagnostic)
+        assertTrue("$diagnostic|blank native paint cannot establish complete visible copy", ink > 1 && left < right && top < bottom)
+        assertTrue("$diagnostic|probe edge reached; ink observation incomplete",
+            left > 0 && top > 0 && right < width - 1 && bottom < height - 1)
+        assertEquals("painted ink outside measured text|$diagnostic", 0, outside)
+    } finally {
+        bitmap.recycle()
+    }
+}
+
 internal fun observeMountedNativePaint(
     compose: ComposeTestRule,
     text: SemanticsNodeInteraction,
@@ -31,16 +99,7 @@ internal fun observeMountedNativePaint(
         assertEquals(context, expected, native.layoutInput.text.text)
         assertEquals("$context|actual measured text width", native.size.width, node.size.width)
         assertEquals("$context|actual measured text height", native.size.height, node.size.height)
-        val style = native.layoutInput.style
-        assertTrue("$context|observed explicit native color required", style.color.isSpecified)
-        assertNull("$context|controlled fixtures require the observed solid-color paint path", style.brush)
-        assertTrue("$context|diagnostic paragraph must be finite and bounded",
-            native.multiParagraph.width.isFinite() && native.multiParagraph.height.isFinite() &&
-                native.multiParagraph.width in 1f..4096f && native.multiParagraph.height in 1f..4096f)
-        val margin = native.size.height
-        assertTrue("$context|nonempty native allocation required", native.size.width > 0 && margin > 0)
-        val width = maxOf(native.size.width, ceil(native.multiParagraph.width).toInt()) + 2 * margin
-        val height = maxOf(native.size.height, ceil(native.multiParagraph.height).toInt()) + 2 * margin
+        val (width, height, margin) = nativePaintProbe(native, context)
         val bitmaps = mutableListOf<Bitmap>()
         fun allocate(width: Int, height: Int): Bitmap =
             Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { bitmaps.add(it) }
@@ -53,10 +112,7 @@ internal fun observeMountedNativePaint(
                 try {
                     canvas.translate(margin.toFloat(), margin.toFloat())
                     if (clip) canvas.clipRect(0f, 0f, native.size.width.toFloat(), native.size.height.toFloat())
-                    native.multiParagraph.paint(
-                        canvas = canvas, color = style.color, shadow = style.shadow ?: Shadow.None,
-                        decoration = style.textDecoration ?: TextDecoration.None, drawStyle = style.drawStyle ?: Fill,
-                    )
+                    paintNativeParagraph(canvas, native)
                 } finally {
                     canvas.restore()
                 }
