@@ -170,13 +170,14 @@ class PrivateDevice(ProcessDevice):
                 arguments = (*arguments[:3], "--user", user, *arguments[3:])
         try:
             result = self.guest.adb(self.ledger, list(arguments), timeout=timeout)
-        except subprocess.CalledProcessError as failure:
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as failure:
             if on_exit is not None:
-                on_exit(failure.returncode, failure.output, failure)
+                code = failure.returncode if isinstance(failure, subprocess.CalledProcessError) else None
+                on_exit(code, failure.output, failure.stderr, failure)
             raise
         require(type(result.returncode) is int and isinstance(result.stdout, bytes), "Malformed actual guest command result")
         if on_exit is not None:
-            on_exit(result.returncode, result.stdout)
+            on_exit(result.returncode, result.stdout, result.stderr)
         result.check_returncode()
         return result
 
@@ -220,14 +221,24 @@ def save_operations(path, result):
 
 def instrument(device, request, output, result, save):
     raw_path = output / f"device-{request.binding.family}{request.api}.txt"
-    require(not raw_path.exists(), "Never overwrite an existing native transcript")
+    stderr_path = output / f"device-{request.binding.family}{request.api}-stderr.txt"
+    require(not raw_path.exists() and not stderr_path.exists(), "Never overwrite an existing native transcript")
 
-    def retain_exit(code, raw, primary=None):
+    def retain_exit(code, raw, stderr, primary=None):
         result["host_instrumentation_process_exit"] = code
         errors = []
-        for action in (save, lambda: raw_path.write_bytes(raw) if isinstance(raw, bytes) else None):
+        try:
+            save()
+        except OSError as failure:
+            errors.append(failure)
+        for path, value in ((raw_path, raw), (stderr_path, stderr)):
+            if value is None:
+                continue
+            if not isinstance(value, bytes):
+                errors.append(PortError("Actual instrumentation stream is not bytes: " + str(path)))
+                continue
             try:
-                action()
+                path.write_bytes(value)
             except OSError as failure:
                 errors.append(failure)
         if errors:
@@ -256,7 +267,7 @@ def execute_disposable(request, config):
         ROOT, config.parent, owner=request.operation_owner, revision=request.binding.source_revision,
         session_id=request.binding.canonical_session, attempt=request.binding.canonical_session,
     )
-    owned = False
+    owned, output_owned = False, False
     result = {
         "binding": asdict(request.binding), "api": request.api, "family": request.binding.family,
         "original_identities": request.identities, "reviewed_producer": PRODUCER, "trusted_revision": authority,
@@ -267,6 +278,7 @@ def execute_disposable(request, config):
     operations = config.output / "operations.json"
 
     def save():
+        require(output_owned, "Receipt writes require this attempt's exclusively created output directory")
         save_operations(operations, result)
 
     def record(key, value):
@@ -278,6 +290,7 @@ def execute_disposable(request, config):
         owned = True
         guest.assert_held(ledger, request.operation_owner)
         config.output.mkdir()
+        output_owned = True
         result["disposable_guest"] = {"root": str(guest.root), "token": guest.token, "owner": guest.owner}
         save()
         packaging = packaging_module.assemble_debug_pair(
@@ -318,7 +331,8 @@ def execute_disposable(request, config):
             result["execution_error"] = repr(primary)
         if owned:
             try:
-                save()
+                if output_owned:
+                    save()
             except OSError as failure:
                 errors.append(failure)
             try:
@@ -329,7 +343,8 @@ def execute_disposable(request, config):
                 result["disposal_error"] = repr(failure)
                 errors.append(failure)
             try:
-                save()
+                if output_owned:
+                    save()
             except OSError as failure:
                 errors.append(failure)
         if errors:

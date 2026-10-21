@@ -347,6 +347,47 @@ class DisposableConsumerTest(unittest.TestCase):
             self.execute()
         self.factory.assert_not_called()
 
+    def test_raced_output_creation_preserves_foreign_receipt_and_disposes_only_the_owned_guest(self):
+        sentinel = b"foreign operations.json: \x00\xff unchanged"
+
+        def race(guest):
+            self.config.output.mkdir()
+            (self.config.output / "operations.json").write_bytes(sentinel)
+
+        self.alter_guest = race
+        with patch.object(runner, "save_operations", wraps=runner.save_operations) as saving:
+            with self.assertRaises(FileExistsError) as raised:
+                self.execute()
+            saving.assert_not_called()
+        self.assertEqual(str(self.config.output), raised.exception.filename)
+        self.assertEqual(sentinel, (self.config.output / "operations.json").read_bytes())
+        self.assertEqual(["operations.json"], sorted(p.name for p in self.config.output.iterdir()))
+        self.package.assert_not_called()
+        self.assertEqual(["dispose"], self.ledger.events)
+        self.assert_disposed()
+
+    def test_raced_output_and_disposal_failure_preserve_both_errors_without_foreign_writes(self):
+        sentinel = b"foreign receipt must survive cleanup failure"
+        cleanup = runner.PortError("model owned disposal failed")
+
+        def race(guest):
+            self.config.output.mkdir()
+            (self.config.output / "operations.json").write_bytes(sentinel)
+            guest.dispose_error = cleanup
+
+        self.alter_guest = race
+        with patch.object(runner, "save_operations", wraps=runner.save_operations) as saving:
+            with self.assertRaises(BaseExceptionGroup) as raised:
+                self.execute()
+            saving.assert_not_called()
+        self.assertEqual(2, len(raised.exception.exceptions))
+        self.assertIsInstance(raised.exception.exceptions[0], FileExistsError)
+        self.assertIs(cleanup, raised.exception.exceptions[1])
+        self.assertEqual(sentinel, (self.config.output / "operations.json").read_bytes())
+        self.package.assert_not_called()
+        self.assertEqual(["dispose"], self.ledger.events)
+        self.assertTrue(self.guest.held)
+
     def test_command_line_cannot_choose_a_historical_endpoint_or_alternate_ledger(self):
         args = ["--head", "0" * 40, "--api", "37", "--family", "nodes", "--execute"]
         for key in ("parent", "state", "debug_home", "output", "emulator", "adb", "image"):
@@ -528,6 +569,24 @@ class DisposableConsumerTest(unittest.TestCase):
         self.assertTrue(result["disposal_verified"])
         self.assert_disposed()
 
+    def test_nonzero_host_failure_retains_exact_stdout_and_stderr_before_rejecting_proof(self):
+        stdout, stderr = b"partial native stdout\x00\xff", b"native failure stderr\r\n\xfe"
+        failure = subprocess.CalledProcessError(7, ["model-instrumentation"], output=stdout, stderr=stderr)
+        self.alter_guest = lambda guest: setattr(guest, "instrumentation_error", failure)
+        with patch.object(runner, "parse_outcomes") as parsing:
+            with self.assertRaises(subprocess.CalledProcessError) as raised:
+                self.execute()
+            parsing.assert_not_called()
+        self.assertIs(failure, raised.exception)
+        self.assertEqual(stdout, (self.config.output / "device-nodes37.txt").read_bytes())
+        self.assertEqual(stderr, (self.config.output / "device-nodes37-stderr.txt").read_bytes())
+        result = self.operations()
+        self.assertEqual(7, result["host_instrumentation_process_exit"])
+        self.assertNotIn("cohort", result)
+        self.assertFalse(result["acceptance"])
+        self.assertTrue(result["disposal_verified"])
+        self.assert_disposed()
+
     def test_pre_instrumentation_user_probe_exit_is_not_the_host_instrumentation_exit(self):
         old_adb = GuestModel.adb
         checks = 0
@@ -540,7 +599,8 @@ class DisposableConsumerTest(unittest.TestCase):
         def guard_failure(guest, ledger, arguments, **kwargs):
             if checks == 4 and arguments == ["shell", "am", "get-current-user"]:
                 guest.phase = "uncertain"
-                raise subprocess.CalledProcessError(9, ["model-user-proof"], output=b"not instrumentation")
+                raise subprocess.CalledProcessError(
+                    9, ["model-user-proof"], output=b"not instrumentation", stderr=b"not instrumentation stderr")
             return old_adb(guest, ledger, arguments, **kwargs)
 
         self.verify.side_effect = current
@@ -549,6 +609,7 @@ class DisposableConsumerTest(unittest.TestCase):
                 self.execute()
         self.assertIsNone(self.operations()["host_instrumentation_process_exit"])
         self.assertFalse((self.config.output / "device-nodes37.txt").exists())
+        self.assertFalse((self.config.output / "device-nodes37-stderr.txt").exists())
         self.assert_disposed()
 
     def test_timeout_keeps_unknown_exit_and_still_disposes_through_the_producer(self):
@@ -558,6 +619,85 @@ class DisposableConsumerTest(unittest.TestCase):
             self.execute()
         self.assertIsNone(self.operations()["host_instrumentation_process_exit"])
         self.assertTrue(self.operations()["disposal_verified"])
+        self.assertFalse((self.config.output / "device-nodes37.txt").exists())
+        self.assertFalse((self.config.output / "device-nodes37-stderr.txt").exists())
+        self.assert_disposed()
+
+    def test_timeout_retains_available_partial_stdout_and_stderr_with_unknown_host_exit(self):
+        stdout, stderr = b"partial timeout stdout\x00\xff", b"partial timeout stderr\r\n\xfe"
+        failure = subprocess.TimeoutExpired(["model-instrumentation"], 180, output=stdout, stderr=stderr)
+        self.alter_guest = lambda guest: setattr(guest, "instrumentation_error", failure)
+        with patch.object(runner, "parse_outcomes") as parsing:
+            with self.assertRaises(subprocess.TimeoutExpired) as raised:
+                self.execute()
+            parsing.assert_not_called()
+        self.assertIs(failure, raised.exception)
+        self.assertEqual(stdout, (self.config.output / "device-nodes37.txt").read_bytes())
+        self.assertEqual(stderr, (self.config.output / "device-nodes37-stderr.txt").read_bytes())
+        result = self.operations()
+        self.assertIsNone(result["host_instrumentation_process_exit"])
+        self.assertNotIn("cohort", result)
+        self.assertFalse(result["acceptance"])
+        self.assertTrue(result["disposal_verified"])
+        self.assert_disposed()
+
+    def test_timeout_stderr_only_does_not_invent_stdout_or_an_exit(self):
+        stderr = b"stderr without stdout\x00\xff"
+        failure = subprocess.TimeoutExpired(["model-instrumentation"], 180, stderr=stderr)
+        self.alter_guest = lambda guest: setattr(guest, "instrumentation_error", failure)
+        with self.assertRaises(subprocess.TimeoutExpired) as raised:
+            self.execute()
+        self.assertIs(failure, raised.exception)
+        self.assertIsNone(self.operations()["host_instrumentation_process_exit"])
+        self.assertFalse((self.config.output / "device-nodes37.txt").exists())
+        self.assertEqual(stderr, (self.config.output / "device-nodes37-stderr.txt").read_bytes())
+        self.assertNotIn("cohort", self.operations())
+        self.assert_disposed()
+
+    def test_timeout_receipt_failure_does_not_lose_either_stream_or_primary_exception(self):
+        stdout, stderr = b"partial timeout stdout", b"partial timeout stderr"
+        failure = subprocess.TimeoutExpired(["model-instrumentation"], 180, output=stdout, stderr=stderr)
+        self.alter_guest = lambda guest: setattr(guest, "instrumentation_error", failure)
+        save = runner.save_operations
+
+        def fail_uncertain_receipt(path, result):
+            if self.guest.phase == "uncertain":
+                raise OSError("model timeout receipt failed")
+            save(path, result)
+
+        with patch.object(runner, "save_operations", side_effect=fail_uncertain_receipt), \
+                patch.object(runner, "parse_outcomes") as parsing:
+            with self.assertRaises(BaseExceptionGroup) as raised:
+                self.execute()
+            parsing.assert_not_called()
+        inner = raised.exception.exceptions[0]
+        self.assertIsInstance(inner, BaseExceptionGroup)
+        self.assertIs(failure, inner.exceptions[0])
+        self.assertIn("model timeout receipt failed", str(inner.exceptions[1]))
+        self.assertEqual(stdout, (self.config.output / "device-nodes37.txt").read_bytes())
+        self.assertEqual(stderr, (self.config.output / "device-nodes37-stderr.txt").read_bytes())
+        self.assertIsNone(self.operations()["host_instrumentation_process_exit"])
+        self.assert_disposed()
+
+    def test_nonzero_stdout_retention_failure_preserves_stderr_and_primary_exception(self):
+        stdout, stderr = b"failed native stdout", b"retained native stderr"
+        failure = subprocess.CalledProcessError(7, ["model-instrumentation"], output=stdout, stderr=stderr)
+        self.alter_guest = lambda guest: setattr(guest, "instrumentation_error", failure)
+        write_bytes = Path.write_bytes
+
+        def fail_stdout(path, value):
+            if path == self.config.output / "device-nodes37.txt":
+                raise OSError("model stdout retention failed")
+            return write_bytes(path, value)
+
+        with patch.object(Path, "write_bytes", fail_stdout):
+            with self.assertRaises(BaseExceptionGroup) as raised:
+                self.execute()
+        self.assertIs(failure, raised.exception.exceptions[0])
+        self.assertIn("model stdout retention failed", str(raised.exception.exceptions[1]))
+        self.assertEqual(stderr, (self.config.output / "device-nodes37-stderr.txt").read_bytes())
+        self.assertEqual(7, self.operations()["host_instrumentation_process_exit"])
+        self.assertNotIn("cohort", self.operations())
         self.assert_disposed()
 
     def test_missing_or_malformed_terminal_proof_fails_without_erasing_actual_host_exit(self):

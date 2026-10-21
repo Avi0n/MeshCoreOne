@@ -148,6 +148,13 @@ user0/profile/source guards, and routes every command through `guest.adb`.
 Only the existing fixed family requests are accepted. Instrumentation uses the
 producer's explicit180s transport bound (the shared runner's600s is unchanged).
 Actual host exit and raw output are retained before terminal-proof rejection.
+Only a successful exclusive output-directory creation permits receipt writes;
+a raced or failed creation never adopts that destination, including in cleanup.
+Available instrumentation stdout and stderr are retained separately as exact
+bytes (`device-FAMILYAPI.txt` and `device-FAMILYAPI-stderr.txt`). Nonzero exits
+and timeouts retain both available streams; absent streams create no file.
+Timeouts keep the host exit unknown and cannot earn a complete cohort. A failed
+pre-instrumentation user probe is neither an instrumentation exit nor transcript.
 Every owned exit independently attempts `guest.dispose`/`verify_disposed`;
 failed cleanup/evidence is an error, never restoration or acceptance. No old
 snapshot reconstruction is needed for a genuinely new disposable guest.

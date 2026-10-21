@@ -1707,3 +1707,58 @@ occurred. Published8b9/its CI binding, rejected IME history and retained473/66bd
 evidence remain untouched: original25 started are23PASS/2FAIL/0E/S, two unstarted,
 old Nodes host exit unknown. Clipboard/Save causes remain unresolved. Historical
 snapshot reconstruction is not the disposable delivery path.
+
+### LOCAL consumer output-ownership and failure-stream correction
+
+Direct parent `d482bfbbca62e97c7c5c565f6043d1b836192704` and its actual
+committed224/224 result remain historical. Source review identified two missed
+consumer behaviors, not producer or native failures: cleanup could overwrite a
+raced output directory that this attempt never created, and instrumentation
+exceptions discarded available stderr or timeout stdout/stderr.
+
+Seven new deterministic unit witnesses against unchanged d482 consumer code
+discovered231 tests:224 passed,3 failed and4 errored. The race witnesses observed
+two foreign receipt writes; the stream witnesses observed missing byte files
+and missing grouped retention failure. That negative log remains separate.
+
+The forward correction sets output ownership only after exclusive `mkdir`
+returns successfully, checks it before every receipt write, and conditions
+cleanup receipt writes on that ownership. A failed/raced creation preserves the
+original exception and foreign receipt bytes while independently disposing only
+the actual owned guest. Cleanup failure remains grouped with the creation error;
+no alternate evidence directory is adopted.
+
+Only exceptions from the actual producer `guest.adb` instrumentation command
+enter stream retention. `CalledProcessError` retains its actual exit and both
+available byte streams; `TimeoutExpired` retains available partial stdout/output
+and stderr with host exitNone. Raw stdout uses the existing transcript path;
+stderr uses `device-FAMILYAPI-stderr.txt`. Absent streams create no file, and
+available bytes are never decoded/replaced/combined into a fabricated transcript.
+Receipt and stream writes are independently attempted, preserving the original
+exception with any retention failure. Failure paths never parse a completed
+cohort or claim acceptance. Current-user proof still runs outside that callback:
+its own stdout/stderr cannot become instrumentation evidence.
+
+The same four paths remain inside existing same-owner revision26 `wp-owned`
+modify/test/record-evidence scope; no live scope evolution or resource action
+was performed. All four reviewed349 producer API/runtime pins are unchanged.
+Shared600s/fence, consumer180s, factory/transport/disposal calls, fixed original
+requests/assertions, historical473/66bd and published8b9 are unchanged.
+
+Precommit declared discovery passed231/231 (all224 existing +7 new),0 failures/
+errors/skips. The new witnesses cover foreign-output races with successful and
+failed disposal, nonzero stdout+stderr, timeout partial stdout+stderr, stderr-only
+timeout, and independent receipt/stream failures preserving the original error
+and remaining bytes. The existing no-stream timeout and pre-instrumentation
+user-failure tests now also require no invented transcript/stderr file.
+
+`python -B -m unittest discover -s android\accessibility-tests -p test_*.py -v`,
+`python -B tools\android-port\controller\verification_config.py --check`,
+`python -B tools\android-port\controller\validate.py`,
+`python -B tools\android-port\controller\workflows.py`,
+`python -B tools\android-port\portmap.py` and `git diff --check` each passed/exit0.
+Exact committed checks accompany the forward candidate separately. These are
+temporary consumer models only, not Linux/Windows backend or native proof.
+Publication remains held for source comparison; trusted-main producer/deployed
+receipt/eligible claim remain unresolved live prerequisites. No native/Gradle/
+guest/lease/recovery/deployment/dispatch/rerun operation occurred.
