@@ -148,6 +148,13 @@ until genuinely executed with original identities. The separate language2+2
 subtracts zero. Historical shared-runner selectors/default actor and all prior
 evidence retain their original source bindings.
 
+The current consumer's Git helper explicitly decodes UTF-8 with strict errors
+for both fixture source and trusted policy JSON. It never uses the Windows
+default code page, replacement characters or a fallback; malformed Git output
+raises a visible failure. The same immutable policy bytes interpreted as CP1252
+can remain parseable JSON but produce the wrong semantic fingerprint, so
+matching a loaded source file alone is not sufficient.
+
 The sections below retain historical source-bound entrypoints and results.
 In particular, the old `shared_device_runner.py` missing-only27 source/default
 selection is **not** the current-owner language entrypoint. Its shared lifecycle

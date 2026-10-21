@@ -1005,8 +1005,9 @@ actual semantic revision
 `e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3`
 (payload10516 bytes, policy-semantics digest0780e523). Both loaded hashing
 functions' bytecode exactly matches freshly compiled source, and both sources
-match immutable trusted main. The historical one-off discrepancy is not
-reproduced; its cause is not claimed. Raw policy SHA256 and Git blob identifiers
+match immutable trusted main. At that stage the earlier discrepancy had not
+been reproduced; the subsequent decoding investigation below establishes its
+cause. Raw policy SHA256 and Git blob identifiers
 are distinct, not competing semantic revisions. A separate correction receipt
 supersedes the initial fingerprint without changing its original bytes.
 
@@ -1018,3 +1019,36 @@ source pins and current canonical/replacement attribution. This is not published
 host readiness or native admission. No original authorization, nativeb2/r21
 outcome or captured fixture/helper/production evidence is rebound to the new
 policy/scope.
+
+### Confirmed Windows Git-decoding correction before publication
+
+The existing current consumer's `language_binding.git` used `text=True` without
+an encoding. On a CP1252-default Windows process, the exact immutabledbb policy
+bytes decode to different yet parseable JSON: actual semantic revisiona657babf
+instead of correct UTF-8e8afe067. This reproduces the earlier mismatch without
+changing a policy, hashing rule, source pin or authority. The unknown-cause
+diagnostic/correction receipts remain historical bytes; this reproducible root
+cause supersedes that uncertainty. Earlier actualb2/r21 native commands explicitly
+set per-process UTF-8 and their retained outcomes are not reinterpreted.
+
+The bounded fix makes the current consumer Git helper use explicit
+`encoding="utf-8", errors="strict"` for all of its source/policy reads. The only
+other directly used packaging source-identity Git path returns bytes and decodes
+with Python's strict UTF-8 default; no analogous locale-dependent Git decoding
+was found in that direct consumer path. Historical runner/default entrypoints,
+generic cleanup, global environment and producer-owned modules are unchanged.
+
+Declared software-only discovery passes **106 discovered/run/passed,0
+failures/errors/skips**. New regressions pass real em-dash/CJK UTF-8 bytes through
+the actual helper and real Python output subprocesses under a mocked CP1252
+default; trusted-policy consumption equals literal canonical hashing/e8afe067,
+while explicit CP1252 decoding reproducesa657babf. Malformed UTF-8 raises in the
+helper/policy path and produces a visible CLI failure, with no replacement or
+fallback. The103/379 results remain scoped to302, and actual integrated608
+Windows controller discovery separately passed385/385,0 failures/errors/skips.
+
+The previous reviewed35ee hosted run39526195999 is now terminal **SUCCESS**,
+including its Linux/SwiftData/aggregate jobs. This clears only the planned
+serialization hold before ordinary feature-branch publication; none of its
+hosted/native evidence transfers to the diagnostics/decoding successor, and no
+CI result bundle or successful native cohort is duplicated.

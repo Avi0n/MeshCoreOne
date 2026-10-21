@@ -1,10 +1,12 @@
 """AndroidOnly: WP-503 Pure language source/publication guards, not native acceptance."""
 
 from dataclasses import replace
+import hashlib
 import io
 import json
 import re
 import subprocess
+import sys
 import unittest
 from unittest.mock import Mock, patch
 
@@ -356,6 +358,78 @@ class LanguageBindingTest(unittest.TestCase):
         self.assertFalse(result["authority"])
         self.assertEqual(0, result["native_starts"])
         self.assertFalse(result["apks_built"])
+
+    def utf8_git_output(self, raw_for_command):
+        check_output = subprocess.check_output
+
+        def emit(command, **kwargs):
+            self.assertEqual(["git", "-C", str(binding.ROOT)], command[:3])
+            return check_output(
+                [sys.executable, "-c", "import sys; sys.stdout.buffer.write(bytes.fromhex(sys.argv[1]))",
+                 raw_for_command(tuple(command[3:])).hex()],
+                **kwargs,
+            )
+
+        return emit
+
+    def test_actual_git_helper_decodes_em_dash_and_cjk_strictly_despite_cp1252_default(self):
+        text = "// \u2014 \u4e2d\u6587\n@Test fun originalFixture() {}\n"
+        with patch.object(binding.subprocess, "_text_encoding", return_value="cp1252") as default, \
+                patch.object(binding.subprocess, "check_output",
+                             side_effect=self.utf8_git_output(lambda command: text.encode("utf-8"))) as output:
+            self.assertEqual(text.strip(), binding.git("show", "original-fixture"))
+        default.assert_not_called()
+        output.assert_called_once_with(
+            ["git", "-C", str(binding.ROOT), "show", "original-fixture"],
+            text=True, encoding="utf-8", errors="strict",
+        )
+
+    def test_actual_trusted_policy_git_consumer_matches_literal_utf8_hash_under_cp1252_default(self):
+        main = "dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c"
+        raw = subprocess.check_output(
+            ["git", "-C", str(binding.ROOT), "show", main + ":docs/android/automation-policy.json"],
+        )
+        commands = {
+            ("rev-parse", "refs/remotes/origin/main"): main.encode(),
+            ("ls-remote", "origin", binding.MAIN_REF): (main + "\t" + binding.MAIN_REF).encode(),
+            ("diff", "--exit-code", "--quiet", main, "--",
+             "docs/android/automation-policy.json", "docs/android/port-manifest.json"): b"",
+            ("show", main + ":docs/android/automation-policy.json"): raw,
+        }
+        manifest = Mock(sha256="977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8")
+        manifest.data = {"reference": {"commit": "db14559b39d32322b06477c6ae676112f583db50"}}
+        with patch.object(binding.subprocess, "_text_encoding", return_value="cp1252") as default, \
+                patch.object(binding.subprocess, "check_output", side_effect=self.utf8_git_output(commands.__getitem__)):
+            actual = binding.trusted_execution_policy()
+        default.assert_not_called()
+        self.assertEqual(json.loads(raw.decode("utf-8", errors="strict")), actual)
+        self.assertEqual("e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3",
+                         binding.policy_revision(manifest, actual))
+        semantics = {key: value for key, value in actual.items() if key not in {
+            "dispatch_mode", "paused", "activation_approved", "pending_capabilities",
+        }}
+        payload = {"manifest": manifest.sha256, "policy": semantics, "source": manifest.data["reference"]["commit"]}
+        literal = hashlib.sha256(json.dumps(
+            payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True,
+        ).encode()).hexdigest()
+        self.assertEqual(literal, binding.policy_revision(manifest, actual))
+        self.assertEqual("a657babfe74c12d1f5631e9ee1c306a0084d56badd5c48fe1dba7b3443dcfc1a",
+                         binding.policy_revision(manifest, json.loads(raw.decode("cp1252", errors="strict"))))
+
+    def test_malformed_git_utf8_raises_in_helper_policy_consumer_and_cli_without_fallback(self):
+        with patch.object(binding.subprocess, "_text_encoding", return_value="cp1252"), \
+                patch.object(binding.subprocess, "check_output",
+                             side_effect=self.utf8_git_output(lambda command: b"\xff")):
+            with self.assertRaises(UnicodeDecodeError):
+                binding.git("show", "malformed-fixture")
+            with self.assertRaises(UnicodeDecodeError):
+                binding.trusted_execution_policy()
+            with patch.object(binding, "current_binding",
+                              side_effect=lambda *args, **kwargs: binding.git("show", "malformed-fixture")), \
+                    patch("sys.stderr", io.StringIO()) as error:
+                self.assertEqual(2, binding.main(["--head", HEAD, "--family", "diagnostics"]))
+            self.assertIn("BLOCKED:", error.getvalue())
+            self.assertIn("utf-8", error.getvalue())
 
 
 if __name__ == "__main__":

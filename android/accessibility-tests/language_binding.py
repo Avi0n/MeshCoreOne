@@ -99,7 +99,9 @@ def family_spec(name):
 
 
 def git(*arguments):
-    return subprocess.check_output(["git", "-C", str(ROOT), *arguments], text=True).strip()
+    return subprocess.check_output(
+        ["git", "-C", str(ROOT), *arguments], text=True, encoding="utf-8", errors="strict",
+    ).strip()
 
 
 @dataclass(frozen=True)
