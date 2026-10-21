@@ -1685,6 +1685,163 @@ class RoomsComposeTest {
         assertRetainedRoom(1)
     }
 
+    @Test fun pointerOnRenderedCharlieLinkOpensTheProductionNotSavedSheetWithoutChangingTheRoom() {
+        val alice = ContactDTO(
+            id = UUID(0, 391), radioId = radio, publicKey = Bytes(ByteArray(32) { 0x11 }),
+            name = "Alice", typeRawValue = 0u, flags = 0u, outPathLength = 0u, outPath = Bytes.EMPTY,
+            lastAdvertTimestamp = 0u, latitude = 0.0, longitude = 0.0, lastModified = 0u,
+            lastHeardTimestamp = null, nickname = null, isBlocked = false, isMuted = false,
+            isFavorite = false, lastMessageDate = null, unreadCount = 0, unreadMentionCount = 0,
+            ocvPreset = null, customOCVArrayString = null, avatarImageData = null,
+        )
+        val savedContacts = listOf(alice)
+        val mention = liveMessage(1, 100u, "@[Charlie]", Bytes.of(0xaa), "Sender")
+        val fixture = Fixture().apply { stored = listOf(mention) }
+        val navigation = NavigationCoordinator(NavigationState(radioId = radio))
+        navigation.navigateToRoom(session)
+        val beforeNavigation = navigation.state.value
+        val contactReads = mutableListOf<List<ContactDTO>>()
+        val deviceNameReads = mutableListOf<String>()
+        val radioReads = mutableListOf<RadioId>()
+        val navigated = mutableListOf<ContactDTO>()
+        val redraw = mutableStateOf(false)
+        val links = ConversationLinkActions(
+            contacts = { savedContacts.also { contactReads.add(it) } },
+            connectedDeviceName = { "Me".also { deviceNameReads.add(it) } },
+            radioId = { radio.also { radioReads.add(it) } },
+            route = { error("Pointer mention must resolve locally") },
+            openExternal = { error("Pointer mention must not open an external URL") },
+            navigateToContact = {
+                navigated += it
+                navigation.navigateToContactDetail(it)
+            },
+        )
+        mount {
+            RoomConversationRoute(
+                fixture.holder, links, modifier = Modifier.testTag("pointer-mention-route:${redraw.value}"),
+                failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.waitUntil { fixture.holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val retained = RoomConversationState(
+            session, messages = listOf(mention), rows = listOf(RoomMessageRow(mention, true, true, true)),
+            draft = body, hasLoadedOnce = true,
+        )
+        fun assertRetainedRoom(expectedReads: Int) {
+            assertEquals(retained, fixture.holder.state.value)
+            assertEquals(listOf(mention), fixture.stored)
+            assertSame(mention, fixture.holder.state.value.messages.single())
+            assertEquals("@[Charlie]", fixture.stored.single().text)
+            assertEquals(listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed"), fixture.loads)
+            assertTrue(fixture.posts.isEmpty())
+            assertTrue(fixture.joins.isEmpty())
+            assertTrue(fixture.retries.isEmpty())
+            assertTrue(fixture.reported.isEmpty())
+            assertTrue(navigated.isEmpty())
+            assertEquals(beforeNavigation, navigation.state.value)
+            assertEquals(List(expectedReads) { savedContacts }, contactReads)
+            assertEquals(List(expectedReads) { "Me" }, deviceNameReads)
+            assertEquals(List(expectedReads) { radio }, radioReads)
+        }
+        fun assertVisibleRoom(): TextLayoutResult {
+            compose.onAllNodesWithContentDescription("Sender: @[Charlie]").assertCountEquals(1)[0].assertIsDisplayed()
+            val layout = assertMountedText(
+                compose, compose.onNodeWithTag("room-bubble:${mention.id}", useUnmergedTree = true),
+                "@Charlie", 2f, LayoutDirection.Ltr, "pointer Charlie raw Room text",
+            )
+            assertEquals(listOf(64, 67, 104, 97, 114, 108, 105, 101), layout.layoutInput.text.text.map { it.code })
+            val range = layout.layoutInput.text.getLinkAnnotations(0, 8).single()
+            assertEquals(0, range.start)
+            assertEquals(8, range.end)
+            when (val annotation = range.item) {
+                is androidx.compose.ui.text.LinkAnnotation.Clickable ->
+                    assertEquals("meshcoreone://mention/Charlie", annotation.tag)
+                else -> fail("Expected the production Charlie Clickable")
+            }
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            compose.onNodeWithText(text(Chats.chatsInputSendMessage))
+                .assertIsEnabled().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+            return layout
+        }
+        val title = "Mention: Charlie"
+        val notSaved = "Not a saved contact"
+        val subtitle = "@Charlie doesn't match any contact on this radio."
+        assertEquals(title, Chats.chatsMentionPickerTitle(host.get().resources, "Charlie"))
+        assertEquals(notSaved, text(Chats.chatsMentionPickerNotSavedTitle))
+        assertEquals(subtitle, Chats.chatsMentionPickerNotSavedSubtitle(host.get().resources, "Charlie"))
+        assertEquals("Done", text(Chats.chatsCommonDone))
+        fun assertStatusSheet() {
+            compose.onNode(isDialog()).assertExists()
+            compose.onNodeWithText(title).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            for (copy in listOf(title, notSaved, subtitle, "Done")) {
+                assertMountedText(
+                    compose, compose.onNodeWithText(copy), copy, 2f, LayoutDirection.Ltr,
+                    "pointer Charlie production sheet copy=$copy",
+                )
+            }
+            compose.onNodeWithText(text(Chats.chatsMentionPickerSelfTitle)).assertDoesNotExist()
+            compose.onNodeWithText(text(Chats.chatsMentionPickerMatchingContacts)).assertDoesNotExist()
+            compose.onNodeWithText("Alice", useUnmergedTree = true).assertDoesNotExist()
+            compose.onAllNodesWithContentDescription(
+                Chats.chatsMentionAccessibilityLabel(host.get().resources, "Alice"),
+            ).assertCountEquals(0)
+            compose.onNodeWithText("Done").assertHasClickAction().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+        }
+        val layout = assertVisibleRoom()
+        compose.onNode(isDialog()).assertDoesNotExist()
+        assertRetainedRoom(0)
+        val renderedText = compose.onNode(
+            hasText("@Charlie") and SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult),
+            useUnmergedTree = true,
+        ).assertIsDisplayed()
+        val textNode = renderedText.fetchSemanticsNode()
+        assertEquals(layout.size, textNode.size)
+        assertEquals(1, layout.lineCount)
+        val range = layout.layoutInput.text.getLinkAnnotations(0, 8).single()
+        val bounds = requireNotNull(renderedText.getFirstLinkBounds { it == range })
+        assertTrue("Observed link bounds must be finite, nonempty and inside the full text allocation: $bounds",
+            listOf(bounds.left, bounds.top, bounds.right, bounds.bottom).all { it.isFinite() } &&
+                bounds.width > 0f && bounds.height > 0f && bounds.left >= 0f && bounds.top >= 0f &&
+                bounds.right <= layout.size.width && bounds.bottom <= layout.size.height)
+        val point = bounds.center
+        assertTrue(layout.getPathForRange(range.start, range.end).getBounds().contains(point))
+        assertTrue(layout.getOffsetForPosition(point) in range.start until range.end)
+        val linkNode = renderedText.onChildren().filter(hasClickAction()).assertCountEquals(1)[0]
+            .assertIsDisplayed().fetchSemanticsNode()
+        compose.runOnIdle {
+            assertMountedViewport(textNode, "pointer Charlie text target")
+            assertMountedViewport(linkNode, "pointer Charlie actual link child")
+        }
+        assertEquals(textNode.positionInRoot, textNode.boundsInRoot.topLeft)
+        val rootPoint = textNode.boundsInRoot.topLeft + point
+        assertTrue("Measured pointer must fall inside the actual production link child", linkNode.boundsInRoot.contains(rootPoint))
+        println("WP502_MENTION_POINTER|text=${layout.layoutInput.text.text}|range=${range.start}..${range.end}" +
+            "|linkBounds=$bounds|textNode=${mountedFullBounds(textNode)}|linkNode=${mountedFullBounds(linkNode)}" +
+            "|localPoint=$point|rootPoint=$rootPoint|input=touch-down-move-up")
+        renderedText.performTouchInput { click(point) }
+        assertStatusSheet()
+        assertRetainedRoom(1)
+        assertSame(savedContacts, contactReads.single())
+        assertSame(alice, contactReads.single().single())
+        compose.runOnIdle { redraw.value = true }
+        compose.onNodeWithTag("pointer-mention-route:true").assertExists()
+        assertStatusSheet()
+        assertRetainedRoom(1)
+        compose.onNodeWithText("Done").performTouchInput { click() }
+        compose.onNode(isDialog()).assertDoesNotExist()
+        for (copy in listOf(title, notSaved, subtitle, "Done")) compose.onNodeWithText(copy).assertDoesNotExist()
+        assertVisibleRoom()
+        assertRetainedRoom(1)
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        compose.runOnIdle {
+            scope.cancel()
+            assertEquals(0, fixture.events.subscriptionCount.value)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageChanged(session.id, mention.id)))
+        }
+        assertRetainedRoom(1)
+    }
+
     private fun mountOriginalRoomBubble(
         row: RoomMessageRow,
         onRetry: (UUID) -> Unit = { error("Unexpected original bubble retry") },
