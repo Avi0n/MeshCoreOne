@@ -280,7 +280,7 @@ class PrivateGuest:
         self.log = (self.root / "process.log").open("xb")
         deadline = time.monotonic() + timeout
         try:
-            self.server = self._spawn([str(adb), "-L", self.environment["ADB_SERVER_SOCKET"], "nodaemon", "server"])
+            self.server = self._spawn([str(adb), "-L", f"tcp:{self.server_port}", "nodaemon", "server"])
             while not self._owns_listener(self.server, self.server_port):
                 self._wait(deadline)
             # Hold both ports until launch. A collision during handoff fails identity checks, never selects another guest.
