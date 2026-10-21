@@ -986,6 +986,137 @@ class RoomsComposeTest {
         }
     }
 
+    @Test fun initialRoomFetchFailureShowsTheTypedErrorThenRestoresHistoryOnTheNextLiveReload() =
+        assertRoomLoadStageFailure("fetch")
+
+    @Test fun roomReadFailureKeepsFetchedRowsThenRepeatsAllReadEffectsOnRecovery() =
+        assertRoomLoadStageFailure("read")
+
+    @Test fun roomFailedSendSeenFailureStopsLaterReadEffectsUntilRecovery() =
+        assertRoomLoadStageFailure("failed-seen")
+
+    @Test fun roomNotificationRemovalFailureKeepsRowsAndDefersBadgeAndChangeUntilRecovery() =
+        assertRoomLoadStageFailure("notifications")
+
+    @Test fun roomBadgeFailureKeepsRowsAndDefersConversationChangeUntilRecovery() =
+        assertRoomLoadStageFailure("badge")
+
+    @Test fun roomConversationChangeFailureRemainsVisibleUntilDismissalAndSuccessfulReload() =
+        assertRoomLoadStageFailure("changed")
+
+    private fun assertRoomLoadStageFailure(failingStage: String) {
+        val stages = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+        assertTrue(failingStage in stages)
+        val cached = liveMessage(1, 100u, "cached", Bytes.of(0xaa), "Alice")
+        val arrival = liveMessage(2, 160u, "arrived", Bytes.of(0xaa), "Alice")
+        val fixture = Fixture()
+        val failure = RoomServerError.PermissionDenied()
+        val calls = mutableListOf<String>()
+        var failureStage: String? = failingStage
+        var stored = listOf(cached)
+        var gate = CompletableDeferred<Unit>()
+        fun failIfSelected(stage: String) {
+            if (failureStage == stage) throw failure
+        }
+        fun step(stage: String) {
+            calls += stage
+            failIfSelected(stage)
+        }
+        val dependencies = object : RoomConversationDependencies by fixture {
+            override val data = object : RoomConversationDataSource by fixture.data {
+                override suspend fun fetchMessages(session: RemoteNodeSessionDTO): List<RoomMessageDTO> {
+                    calls += "fetch"
+                    gate.await()
+                    failIfSelected("fetch")
+                    return stored
+                }
+                override suspend fun markAsRead(session: RemoteNodeSessionDTO) = step("read")
+                override suspend fun markFailedSendsSeen(session: RemoteNodeSessionDTO) = step("failed-seen")
+                override suspend fun refreshSession(session: RemoteNodeSessionDTO): RemoteNodeSessionDTO? =
+                    error("Load must not refresh authentication")
+                override suspend fun contactFor(session: RemoteNodeSessionDTO): ContactDTO? =
+                    error("Load must not look up authentication")
+            }
+            override suspend fun removeDeliveredNotifications(session: RemoteNodeSessionDTO) = step("notifications")
+            override suspend fun updateBadgeCount() = step("badge")
+            override fun conversationsChanged() = step("changed")
+        }
+        val holder = RoomConversationStateHolder(session, dependencies, scope)
+        mount {
+            RoomConversationRoute(
+                holder, fixture.links, failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.waitUntil { calls == listOf("fetch") && fixture.events.subscriptionCount.value == 1 }
+        assertTrue(holder.state.value.isLoading)
+        assertFalse(holder.state.value.hasLoadedOnce)
+        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertIsDisplayed()
+        compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        compose.runOnIdle { assertTrue(gate.complete(Unit)) }
+        compose.waitUntil { holder.state.value.failure === failure }
+        val failedCalls = stages.take(stages.indexOf(failingStage) + 1)
+        assertEquals(failedCalls, calls)
+        assertEquals(listOf("load room" to failure), fixture.reported)
+        assertTrue(holder.state.value.hasLoadedOnce)
+        assertFalse(holder.state.value.isLoading)
+        val cachedBeforeRecovery = if (failingStage == "fetch") emptyList() else listOf(cached)
+        fun assertVisibleMessages(expected: List<RoomMessageDTO>) {
+            assertEquals(expected, holder.state.value.messages)
+            assertEquals(expected, holder.state.value.rows.map { it.message })
+            for (message in expected) {
+                compose.onAllNodesWithContentDescription("${message.authorDisplayName}: ${message.text}")
+                    .assertCountEquals(1)[0].assertIsDisplayed()
+                compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true).assertIsDisplayed()
+            }
+            if (expected.isEmpty()) compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertIsDisplayed()
+            else compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
+            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+        }
+        assertVisibleMessages(cachedBeforeRecovery)
+        if (cachedBeforeRecovery.isEmpty()) {
+            compose.onNodeWithTag("room-bubble:${cached.id}", useUnmergedTree = true).assertDoesNotExist()
+        }
+        compose.onNodeWithText(text(Strings.errorRoomServerPermissionDenied)).assertIsDisplayed().performClick()
+        assertNull(holder.state.value.failure)
+        assertEquals(failedCalls, calls)
+        val recoveryGate = CompletableDeferred<Unit>()
+        compose.runOnIdle {
+            failureStage = null
+            gate = recoveryGate
+            stored = listOf(cached, arrival)
+            assertTrue(fixture.events.tryEmit(RoomConversationEvent.MessageReceived(session.id, arrival)))
+        }
+        val optimistic = cachedBeforeRecovery + arrival
+        compose.waitUntil { holder.state.value.messages == optimistic }
+        assertVisibleMessages(optimistic)
+        assertEquals(failedCalls, calls)
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(50))
+        compose.waitUntil { calls == failedCalls + "fetch" }
+        assertTrue(holder.state.value.isLoading)
+        assertTrue(holder.state.value.hasLoadedOnce)
+        assertVisibleMessages(optimistic)
+        compose.onNodeWithText(text(Strings.errorRoomServerPermissionDenied)).assertDoesNotExist()
+        compose.runOnIdle { assertTrue(recoveryGate.complete(Unit)) }
+        compose.waitUntil { !holder.state.value.isLoading && calls == failedCalls + stages }
+        assertVisibleMessages(listOf(cached, arrival))
+        assertEquals(
+            listOf(RoomMessageRow(cached, true, true, false), RoomMessageRow(arrival, false, false, true)),
+            holder.state.value.rows,
+        )
+        assertNull(holder.state.value.failure)
+        assertEquals(listOf("load room" to failure), fixture.reported)
+        assertEquals(failedCalls + stages, calls)
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        assertEquals(body, holder.state.value.draft)
+        assertTrue(fixture.posts.isEmpty())
+        assertTrue(fixture.joins.isEmpty())
+        assertTrue(fixture.retries.isEmpty())
+        assertFalse(holder.state.value.isSending)
+        assertFalse(holder.state.value.isAuthenticating)
+    }
+
     private fun liveMessage(
         id: Long,
         timestamp: UInt,
