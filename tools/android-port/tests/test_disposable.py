@@ -343,6 +343,145 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(self.rows(), before)
         guest.dispose(self.ledger)
 
+    def test_installed_base_api_metadata_reaches_private_data_copy_without_process_execution(self):
+        image = self.root / "image"
+        image.mkdir()
+        (image / "userdata.img").write_bytes(b"fixture initial userdata")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        for level in ("31", "37", "37.0"):
+            with self.subTest(level=level):
+                (image / "source.properties").write_text(
+                    f"AndroidVersion.ApiLevel={level}\nSystemImage.Abi=x86_64\nPkg.Revision=6\n",
+                    encoding="utf-8",
+                )
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                with patch.object(guest, "_prepare_supervisor"), \
+                        patch("controller.disposable.shutil.copyfile", side_effect=OSError("fixture stops before data copy")) as copyfile, \
+                        patch.object(guest, "_spawn") as spawn:
+                    with self.assertRaisesRegex(OSError, "fixture stops before data copy"):
+                        guest.start(self.ledger, emulator=emulator, adb=adb, image=image)
+                    copyfile.assert_called_once()
+                    self.assertEqual(copyfile.call_args.args[0], image / "userdata.img")
+                    spawn.assert_not_called()
+                self.assertEqual(self.rows(), before)
+                guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_minor_malformed_unselected_api_and_invalid_abi_fail_before_data_copy_or_process(self):
+        image = self.root / "image"
+        image.mkdir()
+        (image / "userdata.img").write_bytes(b"fixture initial userdata")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        for level, abi in [
+            *[(level, "x86_64") for level in
+              ("37.2", "37.1", "37.00", "37.0.0", "37.", "037", "+37", "3.7e1", "NaN", "", "32", "38", "31.2")],
+            ("37.0", "x86"), ("37.0", ""), ("37.0", "unknown"),
+        ]:
+            with self.subTest(level=level, abi=abi):
+                (image / "source.properties").write_text(
+                    f"AndroidVersion.ApiLevel={level}\nSystemImage.Abi={abi}\n", encoding="utf-8",
+                )
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                with patch.object(guest, "_prepare_supervisor"), \
+                        patch("controller.disposable.shutil.copyfile") as copyfile, \
+                        patch.object(guest, "_spawn") as spawn:
+                    with self.assertRaisesRegex(PortError, "image provenance"):
+                        guest.start(self.ledger, emulator=emulator, adb=adb, image=image)
+                    copyfile.assert_not_called()
+                    spawn.assert_not_called()
+                self.assertFalse((guest.root / "avds").exists())
+                self.assertEqual(self.rows(), before)
+                guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_modern_empty_data_and_legacy_image_prepare_only_fresh_private_outputs_and_dispose(self):
+        image = self.root / "image"
+        image.mkdir()
+        (image / "source.properties").write_text(
+            "AndroidVersion.ApiLevel=37.0\nSystemImage.Abi=x86_64\nPkg.Revision=6\n", encoding="utf-8",
+        )
+        initial = image / "data"
+        initial.mkdir()
+        marker = initial / "empty_data_disk"
+        marker.write_text(
+            "This special file tells the host side to keep the data partition empty.\n\n"
+            "See b/326479561 for more details.\n", encoding="utf-8",
+        )
+        (initial / "misc").mkdir()
+        (initial / "local.prop").write_bytes(b"fixture immutable package defaults")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        source_bytes = {p: p.read_bytes() for p in image.rglob("*") if p.is_file()}
+        for legacy in (False, True):
+            with self.subTest(legacy=legacy):
+                if legacy:
+                    (image / "userdata.img").write_bytes(b"legacy initial image")
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                with patch.object(guest, "_prepare_supervisor"), \
+                        patch("controller.disposable.time.monotonic", side_effect=RuntimeError("fixture before launch")), \
+                        patch.object(guest, "_spawn") as spawn:
+                    with self.assertRaisesRegex(RuntimeError, "fixture before launch"):
+                        guest.start(self.ledger, emulator=emulator, adb=adb, image=image)
+                    spawn.assert_not_called()
+                data = guest.root / "avds" / (guest.token + ".avd")
+                output = data / "userdata-qemu.img"
+                self.assertEqual(output.exists(), legacy)
+                if legacy:
+                    self.assertEqual(output.read_bytes(), b"legacy initial image")
+                self.assertIn(f"image.sysdir.1={image}{os.sep}", (data / "config.ini").read_text())
+                self.assertEqual({p: p.read_bytes() for p in source_bytes}, source_bytes)
+                guest.dispose(self.ledger)
+                self.assertEqual(guest.phase, "disposed")
+                self.assertEqual(self.rows(), self.legacy)
+                self.assert_legacy()
+
+    def test_modern_layout_missing_or_nonregular_marker_and_preexisting_avd_fail_closed(self):
+        image = self.root / "image"
+        image.mkdir()
+        (image / "source.properties").write_text(
+            "AndroidVersion.ApiLevel=37.0\nSystemImage.Abi=x86_64\n", encoding="utf-8",
+        )
+        initial = image / "data"
+        initial.mkdir()
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        marker = initial / "empty_data_disk"
+        for mode in ("missing", "directory", "existing-avd", "invalid-userdata"):
+            with self.subTest(mode=mode):
+                if mode == "directory":
+                    marker.mkdir()
+                elif mode == "existing-avd":
+                    marker.rmdir()
+                    marker.write_bytes(b"package marker")
+                elif mode == "invalid-userdata":
+                    (image / "userdata.img").mkdir()
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                if mode == "existing-avd":
+                    (guest.root / "avds").mkdir()
+                    (guest.root / "avds" / "retained.txt").write_bytes(b"never reuse")
+                with patch.object(guest, "_prepare_supervisor"), patch.object(guest, "_spawn") as spawn:
+                    with self.assertRaises(FileExistsError if mode == "existing-avd" else PortError):
+                        guest.start(self.ledger, emulator=emulator, adb=adb, image=image)
+                    spawn.assert_not_called()
+                self.assertEqual(self.rows(), before)
+                if mode == "existing-avd":
+                    self.assertEqual((guest.root / "avds" / "retained.txt").read_bytes(), b"never reuse")
+                guest.dispose(self.ledger)
+                self.assert_legacy()
+
     def test_unsupported_live_entrance_refuses_before_ledger_runtime_or_allocation(self):
         with patch("controller.disposable.sys.platform", "darwin"), \
                 patch.object(PrivateGuest, "allocate") as allocate, \
