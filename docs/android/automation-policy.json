@@ -130,6 +130,14 @@
         "validation": ["debug-packaging regression tests", "actual source-build-output hashes", "public certificate verification before any separately guarded install"]
       },
       {
+        "id": "rooms-incoming-avatar-repair",
+        "work_packages": ["WP-502"],
+        "path_rules": ["android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt"],
+        "operations": ["repair-room-incoming-avatar-bookends"],
+        "invariants": ["issue-253-renderer-only", "pinned-source-db14559b39d32322b06477c6ae676112f583db50", "WP-310-primary-provenance-unchanged", "existing-WP-502-owner-same-reservation", "incoming-gutter-and-showAvatar-bookends-no-self-avatar", "reuse-shared-native-identity-and-theme", "once-only-spoken-message-label", "no-auth-service-state-ordering-or-activation-change", "semantic-collisions-serialize-or-transfer-current-producer", "trusted-main-admission-before-product-edit", "no-main-policy-landing-during-held-native-or-gradle-operation"],
+        "validation": ["mounted Rooms renderer regression including same-prefix burst, retained-row reconfiguration and self rows", "once-only accessibility label and shared identity/theme assertions", "affected manifest-declared software verification", "trusted ownership and traceability validators", "exact-head/current-base protected merge review after verified native cleanup"]
+      },
+      {
         "id": "merge-integration",
         "path_rules": ["**"],
         "operations": ["reconcile-current-base", "merge-disjoint-semantic-edits", "transfer-current-producer"],
