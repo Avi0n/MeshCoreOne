@@ -1556,7 +1556,11 @@ bundle occurred. This is a local source/software candidate for source review,
 not native acceptance. Genuine-history-backed fixture recovery/unknown-state
 disposition remains an explicit maintainer blocker.
 
-### Native harness IME-inset parity (LOCAL only)
+### REJECTED native harness IME-inset proposal (LOCAL history only)
+
+The following records the rejected local experiment, not an established
+correction. The pinned-library finding and forward restoration below supersede
+its missing-IME inference and proposed fixture pins.
 
 Local comparison base: `8b9ecad8b37e431613eb4f042c7b9c7a511ca64e`. At that source,
 `NativeNavigationShell.kt:252-263` (blob
@@ -1609,3 +1613,29 @@ No provenance guard was weakened. This entire local candidate, including its new
 fixture producer pins, awaits source review before publication or native
 admission. Native validation awaits the separately owned WP-003 disposable-resource
 contract; reconstructing the old guest's snapshots is not this delivery path.
+
+### Pinned-contract rejection and forward restoration (LOCAL only)
+
+Source review rejected local `ad9a4486`/`b29713f2` as an established repair. The
+coordinator independently read the actual pinned foundation-layout-android1.10.6
+sources in memory: `WindowInsets.android.kt:378` defines safeDrawing as
+`systemBars.union(ime).union(displayCutout)`; `WindowInsetsPadding.android.kt:143-144`
+delegates imePadding to windowInsetsPadding(ime); common
+`WindowInsetsPadding.kt:467-503` consumes ancestor insets and pads only the
+remaining difference. Therefore safeDrawing already includes IME, and adding
+outer imePadding does not establish a missing inset or changed final size.
+The syntactic app/harness difference was insufficient evidence of a defect.
+
+An ordinary forward commit restores only this worker's redundant modifier/import
+and four coupled harness pins, byte-identical to published8b9. Rejected commits
+and actual failed/passing software logs remain historical evidence; there is no
+reset, amendment or publication. Same-owner trusted scope admission was
+idempotent25-to25. No different layout/scroll/clipboard fix is inferred: both
+native causes remain unresolved, original473 outcomes/native66bd are untouched,
+and WP-003's independently owned disposable contract remains the prerequisite.
+
+The coordinator reports exact8b9 automatic CI39630823752 completed all six jobs
+SUCCESS, but its official controller/Linux logs did not run the186 Python runner
+tests. Those local results are not hosted proof. WP-003 owns that CI integration
+gap. Committed checks of this forward candidate are recorded separately; no
+compile, native/Gradle/device action or new native acceptance accompanies it.
