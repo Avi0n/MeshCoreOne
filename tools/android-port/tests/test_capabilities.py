@@ -11,6 +11,14 @@ from controller.ledger import HARD_LOCK_RESOURCES, Identity, Ledger
 from portmap import capability_support_admitted
 
 
+ROOM_RENDERER = (
+    "android/feature/chats/src/main/kotlin/com/meshcoreone/android/"
+    "feature/chats/rooms/RoomConversationScreen.kt"
+)
+ROOM_REPAIR = "repair-room-incoming-avatar-bookends"
+ROOM_CAPABILITY = "rooms-incoming-avatar-repair"
+
+
 class CapabilityReservationTests(unittest.TestCase):
     def setUp(self):
         self.rules = policy()
@@ -24,6 +32,133 @@ class CapabilityReservationTests(unittest.TestCase):
         with self.assertRaisesRegex(PortError, r"WP WP-101.*secrets/key.*export"):
             self.engine.admit("WP-101", self.manifest.wp("WP-101")["write_paths"],
                               "secrets/key", "export")
+
+    def test_rooms_repair_admits_only_exact_wp_path_and_specific_operation(self):
+        manifest = test_manifest("WP-502")
+        assigned = manifest.wp("WP-502")["write_paths"]
+        admission = self.engine.admit("WP-502", assigned, ROOM_RENDERER, ROOM_REPAIR)
+        self.assertEqual(admission.capability_id, ROOM_CAPABILITY)
+        self.assertEqual((admission.path, admission.operation), (ROOM_RENDERER, ROOM_REPAIR))
+        self.assertNotIn(ROOM_RENDERER, assigned)
+        self.assertTrue(any(ROOM_RENDERER.startswith(path) for path in manifest.wp("WP-310")["write_paths"]))
+        for wp, path, operation in (
+            ("WP-003", ROOM_RENDERER, ROOM_REPAIR),
+            ("WP-501", ROOM_RENDERER, ROOM_REPAIR),
+            ("WP-503", ROOM_RENDERER, ROOM_REPAIR),
+            ("WP-310", ROOM_RENDERER, ROOM_REPAIR),
+            ("WP-502", ROOM_RENDERER.replace("Screen.kt", "StateHolder.kt"), ROOM_REPAIR),
+            ("WP-502", ROOM_RENDERER.replace("chats/rooms/", "chats/channels/"), ROOM_REPAIR),
+            ("WP-502", ROOM_RENDERER.rsplit("/", 1)[0], ROOM_REPAIR),
+            ("WP-502", ROOM_RENDERER + ".backup", ROOM_REPAIR),
+            *[("WP-502", ROOM_RENDERER, operation) for operation in
+              ("modify", "create", "delete", "add-direct-support-wiring", "unknown-operation")],
+        ):
+            with self.subTest(wp=wp, path=path, operation=operation):
+                with self.assertRaisesRegex(PortError, r"no trusted path\+operation rule"):
+                    self.engine.admit(wp, manifest.wp(wp)["write_paths"], path, operation)
+
+    def test_rooms_repair_retains_product_invariants_and_does_not_deploy_candidate(self):
+        rule = next(rule for rule in self.rules["reservation_policy"]["capabilities"]
+                    if rule["id"] == ROOM_CAPABILITY)
+        self.assertEqual(rule["work_packages"], ["WP-502"])
+        self.assertEqual(rule["path_rules"], [ROOM_RENDERER])
+        self.assertEqual(rule["operations"], [ROOM_REPAIR])
+        self.assertEqual(set(rule["invariants"]), {
+            "issue-253-renderer-only",
+            "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+            "WP-310-primary-provenance-unchanged", "existing-WP-502-owner-same-reservation",
+            "incoming-gutter-and-showAvatar-bookends-no-self-avatar",
+            "reuse-shared-native-identity-and-theme", "once-only-spoken-message-label",
+            "no-auth-service-state-ordering-or-activation-change",
+            "semantic-collisions-serialize-or-transfer-current-producer",
+            "trusted-main-admission-before-product-edit",
+            "no-main-policy-landing-during-held-native-or-gradle-operation",
+        })
+        self.assertEqual(len(rule["validation"]), 5)
+        trusted = copy.deepcopy(self.rules)
+        trusted["reservation_policy"]["capabilities"].remove(rule)
+        trusted_engine = CapabilityEngine(trusted)
+        self.engine.admit("WP-502", [], ROOM_RENDERER, ROOM_REPAIR)
+        with self.assertRaisesRegex(PortError, r"no trusted path\+operation rule"):
+            trusted_engine.admit("WP-502", [], ROOM_RENDERER, ROOM_REPAIR)
+        for operation in ("transfer-current-producer", "reconcile-current-base"):
+            admission = trusted_engine.admit("WP-502", [], ROOM_RENDERER, operation)
+            self.assertEqual(admission.capability_id, "merge-integration")
+            self.assertNotEqual(admission.operation, ROOM_REPAIR)
+        self.assertNotEqual(trusted_engine.revision, self.engine.revision)
+        for key in ("paused", "dispatch_mode", "activation_approved", "merge_gate_policy",
+                    "review_policy", "protected_paths", "admin_bypass"):
+            self.assertEqual(trusted[key], self.rules[key])
+
+    def test_rooms_repair_scope_evolution_preserves_identity_and_rejects_stale_or_foreign_owner(self):
+        manifest = test_manifest("WP-502")
+        wp = manifest.wp("WP-502")
+        binding = {
+            "repository": self.rules["repository"], "work_package": "WP-502",
+            "base_sha": BASE, "head_sha": "2" * 40, "source_sha": "d" * 40,
+            "manifest_sha256": manifest.sha256, "policy_revision": "f" * 64,
+        }
+        context = {"session_id": "existing-502", "branch": "existing-branch", "worktree": "C:\\existing"}
+        record, acquired = self.ledger.claim(
+            wp, binding, "local", "existing-attempt", NOW, 1800, 5, 0, 100, 5,
+            initial_identity=Identity(session_id=context["session_id"]),
+            branch=context["branch"], worktree=context["worktree"],
+            authorization_context={"authorization": "immutable original authorization"},
+        )
+        self.assertTrue(acquired)
+        record = self.ledger.get("WP-502")
+        admission = self.engine.admit("WP-502", wp["write_paths"], ROOM_RENDERER, ROOM_REPAIR)
+        capabilities = {admission.capability_id: [admission.path]}
+        for attempt, revision, owner in (
+            ("foreign-attempt", record["revision"], context),
+            ("existing-attempt", record["revision"], {**context, "session_id": "replacement"}),
+            ("existing-attempt", record["revision"], {**context, "branch": "foreign"}),
+            ("existing-attempt", record["revision"], {**context, "worktree": "C:\\foreign"}),
+        ):
+            with self.subTest(attempt=attempt, owner=owner), self.assertRaises(PortError):
+                self.ledger.evolve_scope(
+                    "WP-502", attempt, revision, capabilities, [ROOM_REPAIR], [ROOM_RENDERER],
+                    owner_context=owner,
+                )
+            self.assertEqual(self.ledger.get("WP-502"), record)
+        evolved = self.ledger.evolve_scope(
+            "WP-502", record["attempt"], record["revision"], capabilities,
+            [ROOM_REPAIR], [ROOM_RENDERER], owner_context=context,
+        )
+        for key in ("identity", "binding", "authorization_context", "attempt", "branch",
+                    "worktree", "state", "repairs"):
+            self.assertEqual(evolved[key], record[key])
+        self.assertEqual(evolved["revision"], record["revision"] + 1)
+        self.assertEqual(evolved["capabilities"][ROOM_CAPABILITY], [ROOM_RENDERER])
+        with self.assertRaisesRegex(PortError, "Stale capability reservation revision"):
+            self.ledger.evolve_scope(
+                "WP-502", record["attempt"], record["revision"], capabilities,
+                [ROOM_REPAIR], [ROOM_RENDERER], owner_context=context,
+            )
+        self.assertEqual(self.ledger.get("WP-502"), evolved)
+        self.assertEqual(self.ledger.evolve_scope(
+            "WP-502", record["attempt"], evolved["revision"], capabilities,
+            [ROOM_REPAIR], [ROOM_RENDERER], owner_context=context,
+        ), evolved)
+
+    def test_rooms_repair_keeps_semantic_collision_and_current_producer_transfer_checks(self):
+        intent = {"owner": "WP-502", "semantic_key": "incoming-gutter",
+                  "value_digest": "a" * 64, "evidence": "mounted-rooms"}
+        with self.assertRaisesRegex(PortError, "Current base changed"):
+            self.engine.reconcile_intents(BASE, "9" * 40, ROOM_RENDERER, ROOM_CAPABILITY, [intent])
+        with self.assertRaisesRegex(PortError, "Unresolved semantic ownership collision"):
+            self.engine.reconcile_intents(BASE, BASE, ROOM_RENDERER, ROOM_CAPABILITY, [
+                intent, {**intent, "owner": "WP-310", "value_digest": "b" * 64},
+            ])
+        origin = {"wp": "WP-310", "session": "historical-producer", "evidence": "primary-provenance"}
+        producer = {"wp": "WP-502", "session": "existing-502", "evidence": "mounted-rooms"}
+        transfer = self.engine.transfer_intent(origin, producer, ROOM_RENDERER, ROOM_CAPABILITY)
+        self.assertEqual(transfer["origin"], origin)
+        self.assertEqual(transfer["producer"], producer)
+        self.assertTrue(transfer["advisory"])
+        with self.assertRaisesRegex(PortError, "distinct owner sessions"):
+            self.engine.transfer_intent(origin, {**producer, "session": origin["session"]},
+                                        ROOM_RENDERER, ROOM_CAPABILITY)
 
     def test_assigned_path_with_unsupported_operation_fails_closed(self):
         assigned_path = self.manifest.wp("WP-101")["write_paths"][0]
