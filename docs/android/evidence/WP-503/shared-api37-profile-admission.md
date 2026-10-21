@@ -1762,3 +1762,55 @@ temporary consumer models only, not Linux/Windows backend or native proof.
 Publication remains held for source comparison; trusted-main producer/deployed
 receipt/eligible claim remain unresolved live prerequisites. No native/Gradle/
 guest/lease/recovery/deployment/dispatch/rerun operation occurred.
+
+### LOCAL clipboard observation synchronization (source only)
+
+Direct input `e60eba372f688fc6ff4ab63162b9e4ad4e0beeca` already contains the
+231 local Python regressions, including all45 consumer models; this is a new
+fixture-only successor, not another consumer/model family. Before editing, the
+actual CLI/app session resolved to `b531305a-0513-4731-896f-2b470f8879cd` in the
+replacement worktree/branch. The stored app alias `df52b3d0` resolves to that
+same active session; it is not a second actor. Supported same-canonical-owner
+`wp-owned` source evolution26-to27 admitted this fixture and evidence only,
+preserving the original reservation identity/branch/worktree audit context.
+The real replacement branch differs from PR205's historical head ref; no
+retarget/publication is performed or inferred.
+
+At e60, `NodesListScreen.kt:492-495` calls `holder.copyPublicKey()` before
+`clipboard.setPrimaryClip`. `ContactQrShareStateHolder.kt:60-62` triggers copy
+feedback before returning the key; its feedback coroutine reaches the fixture's
+clock sleep independently of proof of a clipboard result. Therefore the existing
+`waits == 1` assertion is feedback evidence, not a clipboard-completion barrier.
+This ordering does not establish the cause of the historical native failure:
+focus and external clipboard replacement remain unresolved.
+
+The shared Nodes fixture keeps that original feedback wait, then uses the
+existing Compose `waitUntil` with an explicit5000ms bound to observe one actual
+Android primary clip containing BOTH the original contact display name
+U+4E2D and the exact uppercase32-byte `AA` key. Each observation reads the actual
+clipboard, with no fixture write, injected payload, sleep, focus change or
+suppression of another writer. After the wait returns, both original exact
+assertions use a separate FRESH primary-clip snapshot, not the transient matching
+observation. A timeout or changed final snapshot remains a failure. Original
+feedback/reset/share-intent assertions, all method identities, selections,
+inline Save/font200 behavior and production Nodes code are unchanged.
+
+The existing JVM `NativeNodesAccessibilityTest` already invokes this shared
+fixture, but no new focused JVM seam/helper/test family is introduced for this
+direct framework observation. Kotlin compilation, that JVM case and native
+execution are NOT RUN under this source-only assignment. Only the four existing
+declared Python source validators and committed whitespace checks are used;
+their exact results accompany the local commit, not a clipboard-behavior claim.
+The earlier231/231 result remains e60-only, not this successor's test result.
+
+The strict Nodes runner still pins the historical shared fixture at
+`9101b45f`/`29a0f83d`; those immutable bindings are deliberately not weakened or
+rebound to an unreviewed self-referential commit. A future admitted run must bind
+the actual reviewed successor through a separate provenance update before it
+can pass that unchanged source guard. This does not block this local fixture
+commit or constitute native authority. The four349 disposable producer pins
+remain unchanged; trusted-main/runtime/eligible-claim/typed live receipts remain
+independent future gates. Historical473/66bd,25 starts/23PASS/2FAIL/2unstarted and
+unknown old Nodes host exit are unchanged. No source publication, local Gradle/
+WSL/native/guest/device-resource/recovery/deployment/dispatch/rerun/merge action
+or snapshot/restart/wipe request accompanies this candidate.

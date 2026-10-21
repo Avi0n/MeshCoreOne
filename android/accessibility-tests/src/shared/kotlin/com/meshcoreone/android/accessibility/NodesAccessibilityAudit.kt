@@ -173,8 +173,14 @@ internal class NodesAccessibilityAudit(
         copy.performClick()
         compose.waitUntil { waits == 1 }
         val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        assertEquals(contact.displayName, clipboard.primaryClip?.description?.label)
-        assertEquals("AA".repeat(32), clipboard.primaryClip?.getItemAt(0)?.text?.toString())
+        compose.waitUntil(timeoutMillis = 5_000) {
+            val clip = clipboard.primaryClip
+            clip != null && clip.description.label == contact.displayName &&
+                clip.itemCount > 0 && clip.getItemAt(0).text?.toString() == "AA".repeat(32)
+        }
+        val copiedClip = clipboard.primaryClip
+        assertEquals(contact.displayName, copiedClip?.description?.label)
+        assertEquals("AA".repeat(32), copiedClip?.getItemAt(0)?.text?.toString())
         val copied = compose.onNodeWithText(activity.getString(C.contactsQrCopied)).assertIsDisplayed().assertIsNotEnabled()
         assertFont200Unclipped(copied)
         compose.runOnIdle { reset.complete(Unit) }
