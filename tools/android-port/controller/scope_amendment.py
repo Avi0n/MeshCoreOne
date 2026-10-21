@@ -96,6 +96,62 @@ ROOMS_MESSAGE_ACTIONS_CAPABILITY = {
 }
 
 
+MENTION_PICKER_CAPABILITY = {
+    "id": "mention-picker-contact-metadata",
+    "work_packages": ["WP-502"],
+    "path_rules": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ui/MentionSuggestions.kt",
+    ],
+    "operations": ["repair-mention-picker-contact-metadata"],
+    "invariants": [
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+        "WP-308-picker-and-WP-306-match-row-primary-provenance-unchanged",
+        "existing-WP-502-owner-same-reservation", "reuse-real-ContactMatchRow-Tap-for-matching-picker-rows",
+        "original-ordered-contact-identities-selection-dismiss-self-unknown-Done-focus",
+        "source-scroll-and-large-font-reachability", "existing-theme-localization-identity-48dp-Tap-semantics",
+        "editor-MentionSuggestionList-and-MentionSuggestionRow-byte-and-behavior-unchanged",
+        "no-fabricated-location-distance-or-clock-no-full-location-parity-from-nil",
+        "no-auth-service-radio-state-activation-or-provider-change",
+        "rooms-actions-and-avatar-capabilities-unchanged",
+        "semantic-collisions-serialize-or-transfer-current-producer",
+        "trusted-main-admission-before-product-edit",
+        "no-main-policy-landing-during-held-native-or-gradle-operation",
+    ],
+    "validation": [
+        "mounted picker real contact-row LAST_ADVERT, localized type, spaced key and location-marker metadata assertions",
+        "ordered callback identities, self/unknown/Done/dismiss/focus and scroll/large-font reachability assertions",
+        "editor suggestion source/behavior unchanged and no fabricated optional location/distance/time assertions",
+        "affected manifest-declared software verification and trusted ownership/traceability validators",
+        "exact-head/current-base protected merge review after verified native cleanup",
+    ],
+}
+
+
+def mention_picker_predecessor(policy):
+    """Remove only the exact independent picker rule, retaining the Room action preimage."""
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result.get("reservation_policy")
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Mention picker amendment requires the canonical capability catalog")
+    selected = [index for index, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == MENTION_PICKER_CAPABILITY["id"]]
+    if not selected:
+        return result
+    if (
+        len(selected) != 1 or rules[selected[0]] != MENTION_PICKER_CAPABILITY
+        or selected[0] == 0 or rules[selected[0] - 1] != ROOMS_MESSAGE_ACTIONS_CAPABILITY
+        or selected[0] + 1 >= len(rules)
+        or not isinstance(rules[selected[0] + 1], dict)
+        or rules[selected[0] + 1].get("id") != "merge-integration"
+    ):
+        raise PortError("Mention picker capability changed outside the exact authorized amendment")
+    rules.pop(selected[0])
+    return result
+
+
 def rooms_message_actions_predecessor(policy):
     """Project the complete exact action-support delta, never historical result identities."""
     result = copy.deepcopy(policy)
@@ -170,7 +226,8 @@ def debug_packaging_predecessor(policy):
 
 def review_policy_predecessor(policy):
     """Reverse exact authorized process deltas; historical policy receipts stay immutable."""
-    result = debug_packaging_predecessor(rooms_avatar_predecessor(rooms_message_actions_predecessor(policy)))
+    result = debug_packaging_predecessor(rooms_avatar_predecessor(
+        rooms_message_actions_predecessor(mention_picker_predecessor(policy))))
     if "review_policy" not in result:
         return result
     if result.pop("review_policy") != REVIEW_POLICY:

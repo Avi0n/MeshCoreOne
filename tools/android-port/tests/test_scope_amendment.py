@@ -21,6 +21,7 @@ from controller.scope_amendment import (
     debug_packaging_predecessor, DEBUG_PACKAGING_CAPABILITY,
     rooms_avatar_predecessor, ROOMS_AVATAR_CAPABILITY,
     rooms_message_actions_predecessor, ROOMS_MESSAGE_ACTIONS_CAPABILITY,
+    mention_picker_predecessor, MENTION_PICKER_CAPABILITY,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -46,7 +47,7 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
     def test_debug_support_projection_is_exact_reversible_and_never_rebinds_history(self):
         manifest = base_manifest()
         current = rooms_avatar_predecessor(rooms_message_actions_predecessor(
-            load_json(REPO / "docs/android/automation-policy.json")))
+            mention_picker_predecessor(load_json(REPO / "docs/android/automation-policy.json"))))
         before = copy.deepcopy(current)
         previous = debug_packaging_predecessor(current)
         self.assertEqual(current, before)
@@ -88,7 +89,8 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
 
     def test_rooms_support_projection_matches_real_predecessor_and_preserves_historical_binding(self):
         manifest = base_manifest()
-        current = rooms_message_actions_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
+        current = rooms_message_actions_predecessor(mention_picker_predecessor(
+            load_json(REPO / "docs/android/automation-policy.json")))
         before = copy.deepcopy(current)
         previous = rooms_avatar_predecessor(current)
         historical = json.loads(subprocess.check_output([
@@ -149,7 +151,7 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
 
     def test_rooms_actions_projection_is_exact_reversible_and_keeps_actual_and_historical_bindings(self):
         manifest = base_manifest()
-        current = load_json(REPO / "docs/android/automation-policy.json")
+        current = mention_picker_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
         before = copy.deepcopy(current)
         previous = rooms_message_actions_predecessor(current)
         historical = json.loads(subprocess.check_output([
@@ -211,6 +213,76 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         for malformed in (None, {}, {"capabilities": None}):
             with self.subTest(malformed=malformed), self.assertRaises(PortError):
                 rooms_message_actions_predecessor({"reservation_policy": malformed})
+
+    def test_picker_projection_restores_exact_reviewed_candidate_then_real_trusted_policy(self):
+        manifest = base_manifest()
+        current = load_json(REPO / "docs/android/automation-policy.json")
+        before = copy.deepcopy(current)
+        previous = mention_picker_predecessor(current)
+        candidate = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "ae583338feee3b8ad266280c01261d5c8c9ecba1:docs/android/automation-policy.json",
+        ]))
+        deployed = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c:docs/android/automation-policy.json",
+        ]))
+        self.assertEqual(previous, candidate)
+        self.assertEqual(rooms_message_actions_predecessor(previous), deployed)
+        self.assertEqual(policy_revision(manifest, deployed),
+                         "e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3")
+        self.assertEqual(current, before)
+        self.assertEqual(mention_picker_predecessor(previous), previous)
+        restored = copy.deepcopy(previous)
+        rules = restored["reservation_policy"]["capabilities"]
+        rules.insert(next(i for i, rule in enumerate(rules) if rule["id"] == "merge-integration"),
+                     copy.deepcopy(MENTION_PICKER_CAPABILITY))
+        self.assertEqual(restored, current)
+        self.assertNotEqual(policy_revision(manifest, current), policy_revision(manifest, previous))
+        self.assertEqual(content_scope_revisions(manifest, current), {
+            "manifest_sha256": manifest.sha256, "policy_revision": policy_revision(manifest, current),
+        })
+        self.assertEqual(review_policy_predecessor(current), review_policy_predecessor(candidate))
+        self.assertEqual(review_policy_predecessor(current), review_policy_predecessor(deployed))
+
+    def test_picker_projection_rejects_any_rule_drift_or_unrelated_semantic_change(self):
+        current = load_json(REPO / "docs/android/automation-policy.json")
+        for mode in ("owner", "path", "operation", "invariant", "validation", "duplicate",
+                     "reordered", "unknown", "malformed-neighbor", "rooms", "gate"):
+            changed = copy.deepcopy(current)
+            rules = changed["reservation_policy"]["capabilities"]
+            rule = next(r for r in rules if r["id"] == MENTION_PICKER_CAPABILITY["id"])
+            if mode == "owner":
+                rule["work_packages"].append("WP-308")
+            elif mode == "path":
+                rule["path_rules"].append("android/feature/chats/**")
+            elif mode == "operation":
+                rule["operations"].append("modify")
+            elif mode == "invariant":
+                rule["invariants"].remove("no-fabricated-location-distance-or-clock-no-full-location-parity-from-nil")
+            elif mode == "validation":
+                rule["validation"] = []
+            elif mode == "duplicate":
+                rules.append(copy.deepcopy(rule))
+            elif mode == "reordered":
+                rules.remove(rule)
+                rules.insert(0, rule)
+            elif mode == "unknown":
+                rule["id"] = "unknown-picker-support"
+            elif mode == "malformed-neighbor":
+                rules[rules.index(rule) + 1] = None
+            elif mode == "rooms":
+                next(r for r in rules if r["id"] == "rooms-message-actions")["operations"].append("modify")
+            else:
+                changed["branch_rules_proven"] = True
+            before = copy.deepcopy(changed)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                content_scope_revisions(base_manifest(), changed)
+            self.assertEqual(changed, before)
+        self.assertEqual(mention_picker_predecessor({"historical": True}), {"historical": True})
+        for malformed in (None, {}, {"capabilities": None}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                mention_picker_predecessor({"reservation_policy": malformed})
 
     def test_all_three_complete_catalog_stages_round_trip_without_mutation(self):
         generated, _ = build_inventory(REPO)

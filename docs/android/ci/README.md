@@ -639,6 +639,39 @@ fast-forward push are unchanged. This is locally **UNVERIFIED**, never a success
 fast check or waived merge gate; exact isolated hosted CI and protected review
 remain required. No runtime installation or native acceptance follows from admission.
 
+### Mention picker contact metadata: local support successor
+
+The independent `mention-picker-contact-metadata` rule admits WP-502 only,
+operation `repair-mention-picker-contact-metadata` only, and exactly
+`android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ui/MentionSuggestions.kt`.
+It does not expand either Room capability, App/core/location propagation or
+the shared `ContactMatchRow` implementation. Primary picker WP-308 and match-row
+WP-306 provenance stay unchanged at frozen `db14559`.
+
+Use the real Tap-style `ContactMatchRow` for matching picker rows: actual on-air
+LAST_ADVERT (not recency), localized contact type, spaced key and location marker.
+Preserve original contact order/identities, callbacks, dismissal, self/unknown/Done
+and focus behavior, and source scrolling/large-font reachability with existing
+theme/localization/identity/48dp semantics. Editor `MentionSuggestionList` and
+`MentionSuggestionRow` bytes and behavior must remain unchanged. No fabricated
+user location, distance or time; nil location does not establish full location
+parity. No auth/service/radio/state/activation/provider change is admitted.
+
+**Local and unpublished:** hold the successor for the actual WP-502 consumer
+report tracing optional-location/caller needs and bounded comparison/current
+guards. No additional path is inferred; an actual newly required path needs
+its own exact trusted mapping. Neither the existing seven Room paths nor generic
+reconciliation/transfer admits this renderer. Candidate registration is not live
+authority; reviewed deployment then fresh same-owner admission/evolution remain
+required. Retained native/Gradle holds block all landing and local Gradle.
+
+The exact picker-only reverse projection recovers the previous `ae583338`
+candidate policy, and then reversing the unchanged Room-actions delta recovers
+the entire actual dbb/e8 trusted policy. Current semantic bindings still hash all
+rules; historical acceptance is never refreshed. Unknown/malformed/broad/
+duplicate/reordered rules or unrelated semantic changes fail closed. Prior source
+clearance and CI for ae583338 do not transfer to this successor.
+
 ### Narrow WP-503 standard debug packaging support
 
 The `debug-test-packaging` typed capability admits exactly the support adapter
