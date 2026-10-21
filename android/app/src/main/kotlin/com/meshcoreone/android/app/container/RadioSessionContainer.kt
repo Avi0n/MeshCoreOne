@@ -185,7 +185,7 @@ class RadioSessionContainer private constructor(
     val roomAdminService = RoomAdminService(remoteNodeService, adminStore)
     val roomServerService = RoomServerService(session, remoteNodeService, adminStore, radioId, scope)
     val chatSendQueueService = ChatSendQueueService(
-        token, dataStore, messageService, MessagingChannelQuery { index -> session.getChannel(index) },
+        token, dataStore, messageService, MessagingChannelQuery { index -> channelService.fetchChannel(index) },
         OutgoingChannelReactionIndexer { id, channelIndex, senderName, text, timestamp ->
             reactionService.indexMessage(id, channelIndex, senderName, text, timestamp)
         },
