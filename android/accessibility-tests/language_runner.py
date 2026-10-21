@@ -131,7 +131,7 @@ class ProcessDevice(Device):
 
     def confirm_original_absence(self, package):
         require(package in (APP, TEST), "Absence verification is restricted to the debug App/Test")
-        lines = self.run("shell", "pm", "list", "packages", "-u", package).splitlines()
+        lines = self.run("shell", "pm", "list", "packages", "--user", "all", "-u", package).splitlines()
         require(all(re.fullmatch(r"package:[A-Za-z0-9_.]+", line) for line in lines),
                 "Package registration probe is unrecognized, not proven absence")
         require("package:" + package not in lines,
@@ -344,14 +344,14 @@ def execute_language(request, config, ledger, *, device=None):
         canonical=request.binding.canonical_session, endpoint=config.endpoint,
         purpose=f"language-api{request.api}-two-original-methods", source=request.binding.source_revision,
     ):
-        original_profile = device.capture_profile()
-        device.original_runtime_profile = original_profile
         before = device.installed(APP)
         require(device.installed(TEST) is None, "Existing test package must not be overwritten")
         device.confirm_original_absence(TEST)
         device.original_test_absent = True
         if before is None:
             device.confirm_original_absence(APP)
+        original_profile = device.capture_profile()
+        device.original_runtime_profile = original_profile
         device.original_target_digest = before["sha256"] if before is not None else None
         device.original_target_absent = before is None
         config.output.mkdir()

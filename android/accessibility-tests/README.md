@@ -73,6 +73,11 @@ and preserves exact build/source hashes. Public APK copies are verified before
 installation; an originally present target APK and compatible Room schema are
 preserved, and an existing test package is never replaced. A genuinely absent
 target is distinct from a failed probe or retained package registration/data.
+The public inventory explicitly uses `pm list packages --user all -u PACKAGE`
+before private/profile capture and build, and again after packaging. On API31,
+omitting `--user all` queries user0 rather than all known packages; owner0 alone
+does not establish global absence. This inventory never reads another user's
+private data or admits non-owner execution.
 Only this run's verified newly introduced packages may be removed to restore
 original absence; an originally present target is never uninstalled or cleared.
 

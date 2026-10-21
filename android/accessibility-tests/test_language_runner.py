@@ -44,6 +44,12 @@ class SyntheticDevice(FakeDevice):
             raise failure
 
     def run(self, *command, **kwargs):
+        if command[:4] == ("shell", "pm", "list", "packages"):
+            self.calls.append(command)
+            registered = set(self.packages)
+            if command[4:6] == ("--user", "all"):
+                registered.update(self.retained_registrations)
+            return "\n".join("package:" + name for name in sorted(registered) if name.startswith(command[-1]))
         if command[0] == "pull":
             self.calls.append(command)
             shutil.copyfile(self.original, command[2])
@@ -61,8 +67,7 @@ class SyntheticDevice(FakeDevice):
         return self.profile()
 
     def confirm_original_absence(self, package):
-        if package in self.packages or package in self.retained_registrations:
-            raise RuntimeError("Synthetic package is not absent")
+        runner.ProcessDevice.confirm_original_absence(self, package)
 
     def prepare_profile(self, original, record):
         if original != self.observed_profile:
@@ -239,6 +244,27 @@ class LanguageRunnerTest(unittest.TestCase):
             device.run.return_value = value
             with self.subTest(value=value), self.assertRaises(RuntimeError):
                 device.confirm_original_absence(APP)
+        for package in (APP, TEST):
+            device.run = Mock(side_effect=lambda *command:
+                "package:" + package if command[4:6] == ("--user", "all") else "")
+            with self.subTest(package=package), self.assertRaisesRegex(RuntimeError, "existing registration"):
+                device.confirm_original_absence(package)
+            device.run.assert_called_once_with("shell", "pm", "list", "packages", "--user", "all", "-u", package)
+
+    def test_all_users_only_original_registration_blocks_before_private_profile_or_build(self):
+        for package in (APP, TEST):
+            self.device = SyntheticDevice(None, 31)
+            self.device.retained_registrations.add(package)
+            self.device.capture_profile = Mock(wraps=self.device.capture_profile)
+            self.device.prepare_profile = Mock(wraps=self.device.prepare_profile)
+            self.config = replace(self.config, output=self.root / ("known-before-build-" + package))
+            with self.subTest(package=package), self.assertRaisesRegex(RuntimeError, "existing registration"):
+                self.execute()
+            self.device.capture_profile.assert_not_called()
+            self.device.prepare_profile.assert_not_called()
+            self.package.assert_not_called()
+            self.spawn.assert_not_called()
+            self.assertFalse(any(call[0] in ("install", "uninstall") for call in self.device.calls))
 
     def test_packaging_public_certificate_failure_cannot_install_a_fallback(self):
         self.package.side_effect = runner.PortError("Public App/Test/installed certificates differ")

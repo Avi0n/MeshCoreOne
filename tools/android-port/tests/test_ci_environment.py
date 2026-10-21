@@ -219,6 +219,19 @@ class EnvironmentTests(unittest.TestCase):
             })
         verify_wrapper()
 
+    def test_full_assembly_selects_only_local_heap_without_changing_default_profiles(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state = self.state(Path(temporary))
+            before = copy.deepcopy(state)
+            local = candidate_environment(state, {}, local=True)
+            assembly = candidate_environment(state, {}, local=True, full_assembly=True)
+            self.assertEqual(assembly, {
+                **local, "GRADLE_OPTS": local["GRADLE_OPTS"].replace("-Xmx768m", "-Xmx2048m"),
+            })
+            self.assertEqual(candidate_environment(state, {}, full_assembly=True),
+                             candidate_environment(state, {}))
+            self.assertEqual(state, before)
+
     def test_archive_digest_and_size_are_verified_before_extracting(self):
         content = b"publisher-fixture-bytes"
         record = {

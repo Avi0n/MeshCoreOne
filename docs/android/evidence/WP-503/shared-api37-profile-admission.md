@@ -813,3 +813,48 @@ certificate was `000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b
 the package was correct, original target/profile remained untouched and the
 actual lane was released. That concrete packaging source repair belongs to the
 existing WP003 producer, not a new provider, key or user-installation gate.
+
+### All-users registration correction before native retry
+
+The earlier6271a8e5 read-only API31 observation did **not** establish global
+registration/data absence. Its `pm list packages -u PACKAGE` inventory defaulted
+to user0 on the pinned Android12 shell implementation; the retained original
+observation and its overbroad field remain historical, not authority for a new
+run. The [pinned public PackageManager shell source](https://android.googlesource.com/platform/frameworks/base/+/android-12.0.0_r1/services/core/java/com/android/server/pm/PackageManagerShellCommand.java)
+adds known-package matching for explicit `--user all`.
+
+The repaired consumer uses `pm list packages --user all -u PACKAGE` for both
+App/Test, retaining strict parsing and failure handling. Initial registration
+checks precede private/profile capture and build; the same all-users checks run
+again after packaging, before any temporary profile or package mutation.
+Owner0 remains mandatory for private/package execution and cleanup; this is
+public registration inventory, not general multi-user access.
+
+The fake transport now distinguishes user0-visible packages from registration
+visible only with `--user all`, invoking the real consumer inventory method.
+App/Test regressions prove initial global registration blocks private/profile
+capture, build, installs and instrumentation, and packaging-time registration
+drift blocks profile/package mutations without deleting foreign state.
+Declared discovery passes **82 discovered/run/passed,0 failures/errors/skips**.
+The separate Windows controller command completed **375 discovered/run/passed,0
+failures/errors/skips** onb30f218a; it is not a new-head or native verdict.
+
+The actualb30f218a assembly passed public signer verification and reached
+`:app:mergeExtDexDebug`, then failed with D8/daemon Java heap exhaustion under
+the helper's768MiB local fast-check profile. The process exited2 normally;
+original API37 target/profile checks passed and both lanes released, with zero
+installs/instrumentation. The existing WP003 producer owns the per-invocation
+full-assembly heap correction; no SDK/key replacement, global settings change,
+fallback APK or claimed native pass is introduced.
+
+The independently reviewed PR257 is now deployed as actual main
+`85871f40b1520a89ced6b9bec74aa8eec2f4f4de` (parents `bfd7551565de3c5b1e5a71f3f16df1b72c7af00f`
+and `ce908230972a5504e913591c72f65e427735dae0`). Its six disjoint support paths
+were reconciled with this consumer repair through the same canonical owner's
+supported scope API, returning actual revision **21** from20; immutable
+identity/authorization/history were retained. Local debug packaging now selects
+the full-assembly2048MiB child heap while preserving actual local provenance,
+the allowlist, existing debug identity, fixed strict tasks and exclusive lanes.
+Trusted policy remains `paused=false`, `dispatch_mode=off`,
+`activation_approved=false`. No previous hosted or native verdict transfers to
+this integrated candidate.

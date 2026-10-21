@@ -61,7 +61,8 @@ def toolchain_lock():
     return value
 
 
-def candidate_environment(state: dict, inherited=None, *, standalone=False, local=False):
+def candidate_environment(state: dict, inherited=None, *, standalone=False, local=False,
+                          full_assembly=False):
     fields(state, {"schema_version", "host", "java_home", "android_home", "private_root", "provenance"}, label="build inputs")
     if state["schema_version"] != 1 or state["host"] != host_name():
         raise PortError("Build-input schema/host mismatch")
@@ -94,7 +95,8 @@ def candidate_environment(state: dict, inherited=None, *, standalone=False, loca
     jvm = "-Xms64m -Xmx2048m -XX:MaxMetaspaceSize=768m -Dfile.encoding=UTF-8"
     if local:
         environment["JAVA_OPTS"] += " -XX:+UseSerialGC -XX:ActiveProcessorCount=2 -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=32m"
-        jvm = "-Xms64m -Xmx768m -XX:MaxMetaspaceSize=512m -XX:+UseSerialGC -XX:ActiveProcessorCount=2 -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=96m -Dfile.encoding=UTF-8"
+        heap = 2048 if full_assembly else 768
+        jvm = f"-Xms64m -Xmx{heap}m -XX:MaxMetaspaceSize=512m -XX:+UseSerialGC -XX:ActiveProcessorCount=2 -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=96m -Dfile.encoding=UTF-8"
     environment["GRADLE_OPTS"] = f'-Dorg.gradle.jvmargs="{jvm}"'
     if any(name.casefold() not in allowed for name in environment):
         raise PortError("CI launcher attempted to extend the parent environment allowlist")
