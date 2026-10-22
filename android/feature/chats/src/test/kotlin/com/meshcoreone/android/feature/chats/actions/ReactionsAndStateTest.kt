@@ -16,13 +16,77 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.junit.Test
 
 class ReactionsAndStateTest {
+    @Test
+    fun `pending empty failure retry and cancellation remain distinct`() = runBlocking {
+        val source = FakeActionsSource()
+        val target = message()
+        val holder = MessageActionsStateHolder(source, CoroutineScope(coroutineContext))
+        val pending = CompletableDeferred<List<ReactionDTO>>()
+        source.reactionRead = { pending.await() }
+        holder.loadReactions(target.id, null)
+        assertTrue(holder.state.value.isLoadingReactions)
+        yield()
+        assertTrue(holder.state.value.isLoadingReactions)
+        pending.complete(emptyList())
+        yield()
+        assertEquals(false, holder.state.value.isLoadingReactions)
+        assertEquals(null, holder.state.value.reactionFailure)
+        assertTrue(holder.state.value.reactionGroups.isEmpty())
+
+        source.reactionRead = { throw IllegalStateException("private") }
+        holder.loadReactions(target.id, null)
+        yield()
+        assertEquals(MessageActionsFailure.ReactionsLoadFailed, holder.state.value.reactionFailure)
+        assertEquals(false, holder.state.value.isLoadingReactions)
+        source.reactionRead = { listOf(reaction(target.id, "X", "Sender")) }
+        holder.loadReactions(target.id, "X")
+        assertEquals(null, holder.state.value.reactionFailure)
+        yield()
+        assertEquals("X", holder.state.value.selectedEmoji)
+        assertEquals(null, holder.state.value.failure)
+
+        source.reactionRead = { throw CancellationException("cancel") }
+        holder.loadReactions(target.id, null)
+        yield()
+        assertTrue(holder.state.value.isReactionLoadCancelled)
+        assertEquals(false, holder.state.value.isLoadingReactions)
+        assertEquals(null, holder.state.value.reactionFailure)
+    }
+
+    @Test
+    fun `late previous read cannot replace a newer message selection`() = runBlocking {
+        val source = FakeActionsSource()
+        val old = message()
+        val current = message()
+        val late = CompletableDeferred<List<ReactionDTO>>()
+        source.reactionRead = { id ->
+            if (id == old.id) withContext(NonCancellable) { late.await() }
+            else listOf(reaction(current.id, "New", "Current"))
+        }
+        val holder = MessageActionsStateHolder(source, CoroutineScope(coroutineContext))
+        holder.loadReactions(old.id, "Old")
+        yield()
+        holder.loadReactions(current.id, "New")
+        yield()
+        late.complete(listOf(reaction(old.id, "Old", "Previous")))
+        yield()
+        yield()
+        assertEquals("New", holder.state.value.selectedEmoji)
+        assertEquals(listOf(current.id), holder.state.value.reactionGroups.single().reactions.map { it.messageID })
+        assertEquals(false, holder.state.value.isLoadingReactions)
+        assertEquals(false, holder.state.value.isReactionLoadCancelled)
+    }
+
     @Test
     fun `reaction selection uses preferred or first`() {
         assertEquals("❤️", resolvedReactionSelection("❤️", listOf("👍", "❤️", "😂")))
@@ -124,6 +188,7 @@ private class FakeActionsSource : MessageActionsDataSource {
     var discovered: List<DiscoveredNodeDTO> = emptyList()
     var repeats: List<MessageRepeatDTO> = emptyList()
     var reactions: List<ReactionDTO> = emptyList()
+    var reactionRead: (suspend (UUID) -> List<ReactionDTO>)? = null
     var failure: Exception? = null
     var blockedSender: String? = null
     var blockedContacts: Set<UUID> = emptySet()
@@ -149,6 +214,7 @@ private class FakeActionsSource : MessageActionsDataSource {
     }
 
     override suspend fun reactions(messageId: UUID): List<ReactionDTO> {
+        reactionRead?.let { return it(messageId) }
         fail()
         return reactions
     }

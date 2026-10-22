@@ -29,6 +29,22 @@ class RunnerDiscoveryTests(unittest.TestCase):
                 suite = discover_suites([first, second])
             self.assertEqual(suite.countTestCases(), 2)
             self.assertEqual(discover.call_count, 2)
+            for call in discover.call_args_list:
+                self.assertEqual(call.kwargs, {"pattern": "*test*.py"})
+
+    def test_suffix_named_mandatory_cases_are_executed_not_omitted(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "mandatory_suffix_test.py").write_text(
+                "import unittest\n"
+                "class Required(unittest.TestCase):\n"
+                " def test_required(self): self.assertEqual(2 + 2, 4)\n",
+                encoding="utf-8",
+            )
+            suite = discover_suites([root])
+            self.assertEqual(suite.countTestCases(), 1)
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(run_suite(suite, 0), 0)
 
     def test_missing_empty_or_duplicate_additional_directory_fails_closed(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -25,6 +25,41 @@ sys.path.insert(0, str(runtime.parent if runtime.name == "local"
 from controller.ledger import Ledger
 
 
+def fixture_class(host):
+    if host.startswith("linux"):
+        return AdvisoryLauncherTests
+    if host == "win32":
+        return WindowsAdvisoryGuardTests
+    raise ValueError("Local advisory fixtures require Linux or native Windows")
+
+
+def load_tests(loader, tests, pattern):
+    selected = fixture_class(sys.platform)
+    print(json.dumps({
+        "local_advisory_fixture_host": sys.platform,
+        "selected": selected.__name__,
+        "linux_process_proof": "SELECTED" if sys.platform.startswith("linux") else "NOT SELECTED",
+        "reason": "Linux process fixtures and native Windows rejection are distinct host scopes",
+    }), flush=True)
+    return loader.loadTestsFromTestCase(selected)
+
+
+class WindowsAdvisoryGuardTests(unittest.TestCase):
+    def test_actual_windows_rejects_linux_supervision_before_any_launch(self):
+        if sys.platform != "win32":
+            raise ValueError("Native Windows rejection fixture requires actual Windows")
+        if __package__ == "local":
+            from . import advisory
+        else:
+            import advisory
+        with patch.object(advisory.subprocess, "Popen") as launch, \
+                patch.object(advisory.ctypes, "CDLL") as libc:
+            with self.assertRaisesRegex(ValueError, "supported Linux pidfd runner"):
+                advisory.supervise(["must-not-launch"])
+        launch.assert_not_called()
+        libc.assert_not_called()
+
+
 class AdvisoryLauncherTests(unittest.TestCase):
     def native(self):
         if sys.platform.startswith("linux"):
