@@ -12,6 +12,7 @@ import com.meshcoreone.android.core.model.ReactionDTO
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,6 +51,9 @@ data class MessageActionsState(
     val failure: MessageActionsFailure? = null,
     val blockedSender: String? = null,
     val mutedContactIds: Set<UUID> = emptySet(),
+    val isLoadingReactions: Boolean = false,
+    val reactionFailure: MessageActionsFailure.ReactionsLoadFailed? = null,
+    val isReactionLoadCancelled: Boolean = false,
 )
 
 class MessageActionsStateHolder(
@@ -58,6 +62,8 @@ class MessageActionsStateHolder(
 ) {
     private val mutableState = MutableStateFlow(MessageActionsState())
     val state: StateFlow<MessageActionsState> = mutableState.asStateFlow()
+    private var reactionJob: Job? = null
+    private var reactionRequest = 0L
 
     fun loadDetails(message: MessageDTO) {
         if (!MessageActionAvailability.forMessage(message).showsPathDetail) return
@@ -89,22 +95,41 @@ class MessageActionsStateHolder(
     }
 
     fun loadReactions(messageId: UUID, preferredEmoji: String?) {
-        scope.launch {
+        val request = ++reactionRequest
+        reactionJob?.cancel()
+        mutableState.value = mutableState.value.copy(
+            isLoadingReactions = true,
+            reactionGroups = emptyList(),
+            selectedEmoji = null,
+            reactionFailure = null,
+            isReactionLoadCancelled = false,
+            failure = mutableState.value.failure.takeUnless { it == MessageActionsFailure.ReactionsLoadFailed },
+        )
+        reactionJob = scope.launch {
             try {
                 val groups = reactionGroups(dataSource.reactions(messageId))
+                if (request != reactionRequest) return@launch
                 mutableState.value = mutableState.value.copy(
                     reactionGroups = groups,
                     selectedEmoji = resolvedReactionSelection(preferredEmoji, groups.map { it.emoji }),
-                    failure = null,
                 )
             } catch (cancelled: CancellationException) {
+                if (request == reactionRequest) {
+                    mutableState.value = mutableState.value.copy(isReactionLoadCancelled = true)
+                }
                 throw cancelled
             } catch (_: Exception) {
+                if (request != reactionRequest) return@launch
                 mutableState.value = mutableState.value.copy(
                     reactionGroups = emptyList(),
                     selectedEmoji = null,
                     failure = MessageActionsFailure.ReactionsLoadFailed,
+                    reactionFailure = MessageActionsFailure.ReactionsLoadFailed,
                 )
+            } finally {
+                if (request == reactionRequest) {
+                    mutableState.value = mutableState.value.copy(isLoadingReactions = false)
+                }
             }
         }
     }
