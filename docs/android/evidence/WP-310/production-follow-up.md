@@ -34,7 +34,7 @@ App consumer and reactive preference contract are reused.
 
 `WP-310-source-test-parity`: existing ordering and accessibility original families are retained.
 New regressions are supplemental behavioral cases, not a claim that all original WP cases are ported:
-10 deterministic scheduler/send methods, one exhaustive availability parameter-family method,
+11 deterministic scheduler/send methods, one exhaustive availability parameter-family method,
 and 11 mounted room action methods configured for API 31/37, including Chinese resource coverage,
 anonymous-author availability and unsigned round-trip milliseconds.
 These are authored cases, not discovered/passed counts. The standard localized Details click action

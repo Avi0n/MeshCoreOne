@@ -186,7 +186,7 @@ class RoomConversationStateHolder(
             mutableState.update {
                 it.copy(draft = if (clearDraft && it.draft == text) "" else it.draft, isSending = false)
             }
-            scheduleReload()
+            if (mutableState.value.isLoading) scheduleReload()
             true
         } catch (cancelled: CancellationException) {
             mutableState.update { it.copy(isSending = false) }
@@ -205,7 +205,7 @@ class RoomConversationStateHolder(
                 val messages = current.messages.map { if (it.id == messageId) updated else it }
                 current.copy(messages = messages, rows = rows(messages), failure = null)
             }
-            scheduleReload()
+            if (mutableState.value.isLoading) scheduleReload()
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {

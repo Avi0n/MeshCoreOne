@@ -227,6 +227,20 @@ class RoomReloadSchedulerTest {
         assertEquals(MessageStatus.DELIVERED, holder.state.value.messages.single().status)
     }
 
+    @Test fun `retry without an active fetch preserves original read side effect count`() = runBlocking {
+        val failed = message(100u, self = true)
+        stored = listOf(failed)
+        holder.start()
+        holder.load()
+
+        holder.retry(failed.id)
+
+        assertEquals(MessageStatus.DELIVERED, holder.state.value.messages.single().status)
+        assertEquals(0, debounceCalls)
+        assertEquals(1, fetchCalls)
+        assertEquals(1, readCalls)
+    }
+
     @Test fun `send again posts exact original text once without consuming an unrelated draft`() = runBlocking {
         val original = message(100u, self = true, text = "原文 👩‍🚀 e\u0301")
         holder.updateDraft("keep draft")
