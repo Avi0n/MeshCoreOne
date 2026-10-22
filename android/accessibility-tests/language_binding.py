@@ -249,6 +249,36 @@ CACHED_CHAT = FamilySpec(
         "controlledPrimaryAndLateRestorationPreserveBothActualFailures",
     ),
 )
+COLD_PLATFORM_SOURCE_PINS = (
+    ("android/app/src/main",
+     "ee1104b097899ab08f3f82227d8cde354bc92602", "d16548e5b9ad79248c0c1e8289e01fb83514c035"),
+    ("android/app/build.gradle.kts",
+     "ee1104b097899ab08f3f82227d8cde354bc92602", "a0752382e0c641e417b6c92297bc5018f0ace2b0"),
+    ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityServiceSnapshot.kt",
+     "cc360e7bd8797bdb0847faadec5187862c093f8e", "3dee4f40c5aec6fb0adb1bb406a233fb223b43a4"),
+)
+PLATFORM_SERVICE_CONTROL = FamilySpec(
+    "platform-service-control", (37,),
+    "com.meshcoreone.android.accessibility.NativePlatformServiceControlTest",
+    ("actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule",),
+    "d977bce7658a83c5df7d7dcc88b20eeaaeecf85d",
+    "android/app/src/main",
+    "d16548e5b9ad79248c0c1e8289e01fb83514c035",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativePlatformServiceControlTest.kt",
+    "14bb0ea56959ea52e4b5d65d232f9a8c98a9b6ca",
+    COLD_PLATFORM_SOURCE_PINS,
+)
+PLATFORM_CALLBACK_CONTROL = FamilySpec(
+    "platform-callback-control", (37,),
+    "com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest",
+    ("actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations",),
+    "d977bce7658a83c5df7d7dcc88b20eeaaeecf85d",
+    "android/app/src/main",
+    "d16548e5b9ad79248c0c1e8289e01fb83514c035",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativePlatformCallbackDeliveryTest.kt",
+    "5f5913207d6ccc23121bc20e99159062e8622ae6",
+    COLD_PLATFORM_SOURCE_PINS,
+)
 FAMILIES = MappingProxyType({
     "language": FamilySpec("language", (31, 37), CLASS, METHODS, PRODUCER,
                            PRODUCTION, PRODUCTION_BLOB, FIXTURE, FIXTURE_BLOB),
@@ -258,12 +288,14 @@ FAMILIES = MappingProxyType({
     "traz": TRAZ,
     "los": LOS,
     "cached-chat": CACHED_CHAT,
+    "platform-service-control": PLATFORM_SERVICE_CONTROL,
+    "platform-callback-control": PLATFORM_CALLBACK_CONTROL,
 })
 
 
 def family_spec(name):
     if not isinstance(name, str) or name not in FAMILIES:
-        raise PortError("Only the immutable language, diagnostics, nodes, comparator, traz, los or cached-chat family is admitted")
+        raise PortError("Only an immutable fixed family is admitted: " + ", ".join(FAMILIES))
     return FAMILIES[name]
 
 
@@ -331,6 +363,8 @@ def prepare_binding(revision, claim, *, family="language"):
             "traz": "Supplemental tr/az cohort must retain exactly the two original method identities",
             "los": "LoS cohort must retain the one original selected method and full two-method fixture inventory",
             "cached-chat": "Cached-chat cohort must retain the one original selected method and full ten-method fixture inventory",
+            "platform-service-control": "Platform service control must retain exactly the one original zero-Activity method",
+            "platform-callback-control": "Platform callback control must retain exactly the one original zero-Activity method",
         }[family])
     manifest = load_manifest(ROOT)
     policy = load_json(ROOT / "docs" / "android" / "automation-policy.json")

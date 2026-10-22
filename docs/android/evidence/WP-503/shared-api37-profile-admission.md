@@ -3578,3 +3578,65 @@ now has positive bounded observations across473/728/ee1104, not a single current
 candidate27/27 run or whole-WP acceptance. Concrete remaining cold controls,
 state/context, physical TalkBack, theme/golden, old-state and review gates are in
 the current [execution matrix](../../accessibility/execution-matrix.md#current-source-bound-observations-and-remaining-acceptance).
+
+### Fixed original cold controls: source-only successor to ff087166
+
+After reviewing all four ff087166 evidence paths and exact unchanged Android/
+controller trees, parent COMMENTED5618710976 assigns only bounded source
+preparation/selection for the two existing cold controls. There is no fresh
+native handoff, admission, guest, build, instrumentation or case observation.
+Actual main1ec4c1dc36b9f65cb969f95295f414878d274423 is observed, not integrated.
+The prior sole body CAS3d4411f28a78 remains the separate verified ff publication
+snapshot; all254 lines/247 protected rows are retained.
+
+The existing immutable `FamilySpec`/request/parser and supported disposable
+interface represent both controls without producer/controller changes:
+
+| Fixed API37-only family | Original method | Unchanged full fixture blob |
+|---|---|---|
+| `platform-service-control` | `NativePlatformServiceControlTest#actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule` | `14bb0ea56959ea52e4b5d65d232f9a8c98a9b6ca` |
+| `platform-callback-control` | `NativePlatformCallbackDeliveryTest#actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations` | `5f5913207d6ccc23121bc20e99159062e8622ae6` |
+
+Each full fixture matches original d977bce7658a83c5df7d7dcc88b20eeaaeecf85d.
+The independently pinned real compiled-ee1104 App main tree is
+`d16548e5b9ad79248c0c1e8289e01fb83514c035`, App Gradle
+`a0752382e0c641e417b6c92297bc5018f0ace2b0`; neither is falsely equated
+with d977's older App/build. The original public diagnostic collector is
+`3dee4f40c5aec6fb0adb1bb406a233fb223b43a4` at cc360e7b. Exact original/
+candidate fixture/App/build/helper objects and all ancestors fail closed on drift.
+Same-owner trusted admission is idempotentr34-to34 for the five source/test/
+README/evidence paths; original executionr33 and all identity/binding/
+authorization/history remain unchanged.
+
+Both family requests retain one exact original identity, API37 only and a
+separate canonical:family:UUID owner. No arbitrary selector or combined cohort
+is introduced. The fixed read-only CLI reports authorityfalse/native_starts0/
+apks_builtfalse; the generic disposable path needs no implementation change.
+Original zero-Activity/noCompose/noTestDispatcher, flags/restoration,1000ms
+activation/restoration/late-success rejection and actual callback/heartbeat/
+Looper/snapshot diagnostics remain byte-identical. No container-await warmup,
+Activity launch, extra timeout, runtime install, global-harness/product change
+or66bd/shared5556 action is made. Prior family definitions and pins stay exact.
+
+Nine new existing-suite regression methods exercise fixed identities/API/
+owner attribution; actual Git provenance and unchanged original fixture
+invariants; every original/current pin and ancestry failure; malformed/
+duplicated/substituted inventory; stale source/scope/policy/publication;
+strict LF/CRLF count/host/terminal/error/failure/skip accounting; no arbitrary
+CLI selector; and consumer-only one-instrument/no-Activity plus negative modeled
+outcome/raw/host-exit retention with independent modeled disposal.
+The nine methods against actual immutable ff087166 binding genuinely reject
+the absent families:9 methods/12 error occurrences, not native outcomes.
+
+Initial declared258-method discovery has2 subtestERRORs in the new negative
+consumer model because that test expects PortError while the unchanged runner
+correctly raises its existing RuntimeError for nonpositive instrumentation.
+Only that expected exception type is corrected; no runner/error behavior changes.
+Corrected `python -B -m unittest discover -s android\accessibility-tests -p test_*.py -q`
+is **258/258PASS,0F/E/S,16.597s**. All four declared verification-config,
+manifest/controller, workflow and portmap validators plus whitespace pass.
+These are pure source/accounting/consumer models, not real disposable backend,
+new cold readiness, historical failure clearance or native/whole-WP acceptance.
+All ff087166/ee1104 LoS/cached positives, b899 negative/unknown cause,325/PURE/
+728 and protected66bd evidence remain unchanged. A new exact-source parent
+review and explicit fresh handoff remain prerequisites to any native attempt.

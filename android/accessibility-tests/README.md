@@ -661,7 +661,52 @@ flows, not cold-start latency or touch-exploration delivery during initializatio
 The independent cold platform controls do not inherit this prerequisite; all
 their recorded failures remain.
 
-`--scenario platform-service-control` selects one new
+### Fixed original cold platform controls: source-only preparation
+
+The current binding exposes two separate immutable API37-only families for
+the remaining cold-control observations, not a combined cohort or a replay of
+the successful historical API31 controls:
+
+| Fixed family | Exactly one original identity |
+|---|---|
+| `platform-service-control` | `NativePlatformServiceControlTest#actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule` |
+| `platform-callback-control` | `NativePlatformCallbackDeliveryTest#actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations` |
+
+Read-only preparation uses the existing interface:
+
+```text
+python -B android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family platform-service-control
+python -B android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family platform-callback-control
+```
+
+Each reports exactly one API37 request, `authority=false`, `native_starts=0`
+and `apks_built=false`. No arbitrary class/method/cohort/scenario override is
+accepted. Future execution requires a fresh exact-source parent handoff and
+every existing supported disposable/source/API/actor/pause/policy/owner/tool/
+image/memory guard. Adding a family is not live authorization, runtime
+installation or eligibility to adopt the historical66bd/shared5556 guest.
+The unavailable-original/recovery shared-device fence remains unchanged.
+
+Both full fixtures remain byte-identical to original d977bce7:
+service `14bb0ea56959ea52e4b5d65d232f9a8c98a9b6ca`, callback
+`5f5913207d6ccc23121bc20e99159062e8622ae6`. Current real App main tree
+`d16548e5b9ad79248c0c1e8289e01fb83514c035` and App Gradle object
+`a0752382e0c641e417b6c92297bc5018f0ace2b0` are pinned independently at
+compiled ee1104, not falsely equated with d977's older App/build bytes.
+The genuine diagnostic helper remains `3dee4f40` at cc360e7b. Candidate and
+original objects plus ancestry must all match before preparation succeeds.
+
+No fixture, Application/graph, global harness, snapshot diagnostic or
+disposable runtime changes. Preserve zero initial Activities/no Activity
+events, no Compose rule/test dispatcher/container-await warmup, actual flags
+and restoration, original1000ms activation/restoration and late-success
+rejection. Existing callback/heartbeat/Looper and after-deadline diagnostics
+are not readiness substitutes. Existing boot120s/instrumentation180s and
+supported optional4CPU selection remain unchanged. Pure transcript/consumer
+models prove selection and failure retention only; no new native pass, cause,
+historical cold-failure clearance or whole-WP acceptance follows.
+
+The historical session runner's `--scenario platform-service-control` selects one new
 `NativePlatformServiceControlTest` method. Unlike the preceding service control,
 it has no Activity/Compose rule or test dispatcher. It verifies zero initial
 Activities and observes lifecycle callbacks throughout the control. Actual

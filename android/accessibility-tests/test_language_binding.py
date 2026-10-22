@@ -1191,6 +1191,193 @@ class LanguageBindingTest(unittest.TestCase):
                 binding.main(["--head", HEAD, "--family", "cached-chat", option, "arbitrary"])
             self.assertEqual(2, caught.exception.code)
 
+    def test_cold_platform_controls_bind_one_original_api37_method_and_distinct_truthful_owners(self):
+        for name, klass, method in (
+            ("platform-service-control", "NativePlatformServiceControlTest",
+             "actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule"),
+            ("platform-callback-control", "NativePlatformCallbackDeliveryTest",
+             "actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations"),
+        ):
+            with self.subTest(family=name):
+                bound = self.prepare(name)
+                self.assertEqual(source(name), bound)
+                first, second = [binding.request_for(bound, 37) for _ in range(2)]
+                self.assertEqual(("com.meshcoreone.android.accessibility." + klass + "#" + method,),
+                                 first.identities)
+                self.assertNotEqual(first.operation_owner, second.operation_owner)
+                self.assertTrue(first.operation_owner.startswith(binding.CANONICAL + ":" + name + ":"))
+                for api in (30, 31, 33, 34, 36, 38, True, "37", 37.0):
+                    with self.subTest(api=api), self.assertRaises(binding.PortError):
+                        binding.request_for(bound, api)
+                for changes in ({"producer_revision": "0" * 40}, {"production_blob": "0" * 40},
+                                {"fixture_blob": "0" * 40}, {"replacement_app_session": "retired"},
+                                {"replacement_cli_session": "retired"}, {"canonical_session": "retired"}):
+                    with self.subTest(changes=changes), self.assertRaises(binding.PortError):
+                        binding.request_for(replace(bound, **changes), 37)
+                for other in binding.FAMILIES:
+                    if other != name:
+                        with self.subTest(other=other), self.assertRaises(binding.PortError):
+                            binding.request_for(replace(source(other), family=name), 37)
+                        with self.assertRaises(binding.PortError):
+                            binding.LanguageRequest(bound, 37, binding.CANONICAL + ":" + other + ":" + "a" * 32)
+
+    def test_cold_platform_actual_original_fixtures_deadlines_flags_diagnostics_and_app_provenance_are_unchanged(self):
+        previous = binding.git("show", "ff0871665b6b071194684a72489fefa0af3810f5:android/accessibility-tests/language_binding.py")
+        current = binding.Path(binding.__file__).read_text(encoding="utf-8")
+        self.assertEqual(previous[previous.index("DIAGNOSTICS ="):previous.index("FAMILIES =")],
+                         current[current.index("DIAGNOSTICS ="):current.index("COLD_PLATFORM_SOURCE_PINS =")])
+        for name in ("platform-service-control", "platform-callback-control"):
+            spec = binding.family_spec(name)
+            with self.subTest(family=name):
+                for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+                    self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
+                    self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                    self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
+                body = binding.git("show", "HEAD:" + spec.fixture)
+                self.assertEqual(body, binding.git("show", spec.producer + ":" + spec.fixture))
+                self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
+                for fixed in ("Stage.values().sumOf", "monitor.addLifecycleCallback",
+                              "monitor.removeLifecycleCallback", "originalFlags",
+                              "FLAG_REQUEST_TOUCH_EXPLORATION_MODE", "CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION",
+                              "info.flags = originalFlags", "automation.serviceInfo = info",
+                              "elapsed <= 1000L", "elapsed >= 1000L",
+                              "Thread.sleep(minOf(10L, 1000L - elapsed))",
+                              "afterOriginalDeadline = true", "snapshotNativeServiceState",
+                              "composeRule=false|testDispatcher=false"):
+                    self.assertIn(fixed, body)
+                for forbidden in ("DeviceAccessibilityHarness", "ActivityScenario", "createAndroidComposeRule",
+                                  "runTest", "StandardTestDispatcher", "container.await", "launchActivity"):
+                    self.assertNotIn(forbidden, body)
+                if name == "platform-callback-control":
+                    for fixed in ("addTouchExplorationStateChangeListener(callback, main)",
+                                  "removeTouchExplorationStateChangeListener(callback)",
+                                  "main.removeCallbacksAndMessages(token)", "Heartbeat",
+                                  "main.looper.dump", "afterOriginalDeadline=${sampleEnd > 1000L}"):
+                        self.assertIn(fixed, body)
+                else:
+                    self.assertIn("activityEvents.isEmpty()", body)
+                self.assertEqual("android/app/src/main", spec.production)
+                self.assertIn((spec.production, "ee1104b097899ab08f3f82227d8cde354bc92602",
+                               "d16548e5b9ad79248c0c1e8289e01fb83514c035"), spec.source_pins)
+                self.assertIn(("android/app/build.gradle.kts", "ee1104b097899ab08f3f82227d8cde354bc92602",
+                               "a0752382e0c641e417b6c92297bc5018f0ace2b0"), spec.source_pins)
+
+    def test_cold_platform_each_current_original_fixture_app_helper_and_ancestor_rejects_drift(self):
+        for name in ("platform-service-control", "platform-callback-control"):
+            spec = binding.family_spec(name)
+            for path, producer, _ in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+                for revision in (HEAD, producer):
+                    def changed(*args):
+                        if args == ("rev-parse", revision + ":" + path):
+                            return "0" * 40
+                        return self.family_git(*args, family=name)
+                    with self.subTest(family=name, path=path, revision=revision), \
+                            patch.object(binding, "source_identity", return_value="b" * 64), \
+                            patch.object(binding, "git", side_effect=changed):
+                        with self.assertRaisesRegex(binding.PortError, "drifted"):
+                            binding.prepare_binding(HEAD, self.claim, family=name)
+                def missing(*args):
+                    if args == ("merge-base", "--is-ancestor", producer, HEAD):
+                        raise subprocess.CalledProcessError(1, "missing cold-control ancestor")
+                    return self.family_git(*args, family=name)
+                with self.subTest(family=name, producer=producer), \
+                        patch.object(binding, "source_identity", return_value="b" * 64), \
+                        patch.object(binding, "git", side_effect=missing):
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        binding.prepare_binding(HEAD, self.claim, family=name)
+
+    def test_cold_platform_inventory_cannot_be_empty_duplicated_extended_or_substituted(self):
+        for name in ("platform-service-control", "platform-callback-control"):
+            spec = binding.family_spec(name)
+            for methods in ((), spec.methods * 2, (*spec.methods, "extra"), ("warmFeatureProxy",)):
+                def changed(*args):
+                    if args[0] == "show":
+                        return "\n".join("@Test fun " + method + "() {}" for method in methods)
+                    return self.family_git(*args, family=name)
+                with self.subTest(family=name, methods=methods), \
+                        patch.object(binding, "source_identity", return_value="b" * 64), \
+                        patch.object(binding, "git", side_effect=changed):
+                    with self.assertRaisesRegex(binding.PortError, "one original"):
+                        binding.prepare_binding(HEAD, self.claim, family=name)
+
+    def test_cold_platform_reuses_current_source_policy_scope_and_exact_publication_guards(self):
+        for name in ("platform-service-control", "platform-callback-control"):
+            bound = source(name)
+            request = binding.request_for(bound, 37)
+            with self.subTest(family=name), patch.object(binding, "current_binding", return_value=bound) as current, \
+                    patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF), \
+                    patch.object(binding, "trusted_execution_policy", return_value={"paused": True}):
+                self.assertEqual({"paused": True}, binding.verify_current_request(request))
+            current.assert_called_once_with(HEAD, family=name)
+            for actual in (replace(bound, reservation_revision=15), replace(bound, policy_revision="e" * 64),
+                           replace(bound, source_revision="e" * 40),
+                           *(source(other) for other in binding.FAMILIES if other != name)):
+                with self.subTest(family=name, binding=actual), \
+                        patch.object(binding, "current_binding", return_value=actual), \
+                        patch.object(binding, "git") as git:
+                    with self.assertRaisesRegex(binding.PortError, "changed before"):
+                        binding.verify_current_request(request)
+                    git.assert_not_called()
+            for published in ("", "e" * 40 + "\t" + binding.PUBLIC_REF, HEAD + "\trefs/heads/other"):
+                with self.subTest(family=name, published=published), \
+                        patch.object(binding, "current_binding", return_value=bound), \
+                        patch.object(binding, "git", return_value=published):
+                    with self.assertRaisesRegex(binding.PortError, "exact currently published"):
+                        binding.verify_current_request(request)
+
+    def test_cold_platform_only_one_exact_positive_with_normal_host_terminal_and_strict_counts_is_accounted(self):
+        for name in ("platform-service-control", "platform-callback-control"):
+            request = binding.request_for(source(name), 37)
+            positive = transcript(family=name)
+            for value in (positive, positive.replace("\n", "\r\n")):
+                result = binding.account_outcomes(value, request, process_exit=0, forced_termination=False)
+                self.assertEqual((1, 1, 1, 1, 0, 0, 0), tuple(result[key] for key in (
+                    "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+                self.assertEqual(name, result["family"])
+                self.assertFalse(result["acceptance"])
+            for code in (-1, -2, -3, -4):
+                with self.subTest(family=name, code=code), self.assertRaises(binding.PortError):
+                    binding.account_outcomes(transcript(code, family=name), request,
+                                             process_exit=0, forced_termination=False)
+            for process_exit, forced in ((1, False), (True, False), (None, False), (0, True), (0, None)):
+                with self.subTest(family=name, process_exit=process_exit, forced=forced), \
+                        self.assertRaises(binding.PortError):
+                    binding.account_outcomes(positive, request, process_exit=process_exit, forced_termination=forced)
+            for value in ("", *(transcript(family=other) for other in binding.FAMILIES if other != name),
+                          positive.replace("numtests=1", "numtests=0"),
+                          positive.replace("numtests=1", "numtests=2"),
+                          positive.replace(request.identities[0].split("#")[1], "warmFeatureProxy"),
+                          completed(record(request.identities[0], 1, 1), 1),
+                          completed(record(request.identities[0], 1, 1) + record(request.identities[0], 0, 1) * 2, 1),
+                          positive.replace("INSTRUMENTATION_CODE: -1", ""),
+                          positive.replace("INSTRUMENTATION_CODE: -1", "INSTRUMENTATION_CODE: 0"),
+                          positive + "\nINSTRUMENTATION_CODE: -1\n"):
+                with self.subTest(family=name, value=value), self.assertRaises(RuntimeError):
+                    binding.account_outcomes(value, request, process_exit=0, forced_termination=False)
+
+    def test_cold_platform_preparation_cli_has_no_live_authority_or_arbitrary_selector(self):
+        for name in ("platform-service-control", "platform-callback-control"):
+            output = io.StringIO()
+            with patch.object(binding, "current_binding", return_value=source(name)) as current, \
+                    patch("sys.stdout", output):
+                self.assertEqual(0, binding.main(["--head", HEAD, "--family", name]))
+            current.assert_called_once_with(HEAD, family=name)
+            result = json.loads(output.getvalue())
+            self.assertEqual([37], [request["api"] for request in result["requests"]])
+            self.assertEqual(list(binding.family_spec(name).identities), result["requests"][0]["identities"])
+            self.assertFalse(result["authority"])
+            self.assertEqual(0, result["native_starts"])
+            self.assertFalse(result["apks_built"])
+            for option in ("--class", "--method", "--cohort", "--scenario"):
+                with self.subTest(family=name, option=option), patch("sys.stderr", io.StringIO()), \
+                        patch.object(binding, "current_binding") as current, self.assertRaises(SystemExit) as caught:
+                    binding.main(["--head", HEAD, "--family", name, option, "arbitrary"])
+                self.assertEqual(2, caught.exception.code)
+                current.assert_not_called()
+        for name in ("platform", "service-control", "callback-control", "full", "PLATFORM-SERVICE-CONTROL", None):
+            with self.subTest(family=name), self.assertRaises(binding.PortError):
+                binding.family_spec(name)
+
     def utf8_git_output(self, raw_for_command):
         check_output = subprocess.check_output
 

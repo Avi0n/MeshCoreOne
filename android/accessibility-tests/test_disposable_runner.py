@@ -361,6 +361,49 @@ class DisposableConsumerTest(unittest.TestCase):
                 self.execute()
         self.factory.assert_not_called()
 
+    def test_fixed_cold_controls_use_one_original_instrumentation_and_no_activity_or_warmup_model(self):
+        for name in ("platform-service-control", "platform-callback-control"):
+            with self.subTest(family=name):
+                self.config = replace(self.config, parent=self.root / ("private-" + name),
+                                      output=self.root / name, cpu_cores=4)
+                self.config.parent.mkdir()
+                self.request = runner.request_for(source(name), 37)
+                self.ledger.events.clear()
+                result = self.execute()
+                commands = [event for event in self.ledger.events if isinstance(event, tuple)]
+                instruments = [event for event in commands if event[:3] == ("shell", "am", "instrument")]
+                self.assertEqual(1, len(instruments))
+                self.assertEqual(",".join(self.request.identities), instruments[0][instruments[0].index("class") + 1])
+                self.assertEqual("37", instruments[0][instruments[0].index("expectedApi") + 1])
+                self.assertFalse(any(event[:3] == ("shell", "am", "start") for event in commands))
+                self.assertEqual(list(self.request.identities), list(result["original_identities"]))
+                self.assertEqual((1, 1, 1, 1), tuple(result["cohort"][key] for key in (
+                    "discovered", "started", "matching_outcomes", "passed")))
+                self.assertFalse(result["acceptance"])
+                self.assertEqual(0, result["host_instrumentation_process_exit"])
+                self.assertTrue(result["disposal_verified"])
+                self.assertEqual(4, self.guest.requested_cpu_cores)
+                self.assert_disposed()
+
+    def test_fixed_cold_control_failures_keep_original_outcome_raw_host_exit_and_independent_disposal_model(self):
+        self.alter_guest = lambda guest: setattr(guest, "method_code", -2)
+        for name in ("platform-service-control", "platform-callback-control"):
+            with self.subTest(family=name):
+                self.config = replace(self.config, parent=self.root / ("private-" + name), output=self.root / name)
+                self.config.parent.mkdir()
+                self.request = runner.request_for(source(name), 37)
+                with self.assertRaisesRegex(RuntimeError, "Normal all-positive"):
+                    self.execute()
+                actual = self.operations()
+                self.assertEqual(0, actual["host_instrumentation_process_exit"])
+                self.assertEqual((1, 1, 1, 0, 1, 0, 0), tuple(actual["cohort"][key] for key in (
+                    "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+                self.assertEqual(transcript(-2, family=name).encode(),
+                                 (self.config.output / ("device-" + name + "37.txt")).read_bytes())
+                self.assertTrue(actual["disposal_verified"])
+                self.assertFalse(actual["acceptance"])
+                self.assert_disposed()
+
     def test_stale_request_stops_before_factory_and_package(self):
         self.verify.side_effect = runner.PortError("stale request")
         with self.assertRaisesRegex(runner.PortError, "stale request"):
