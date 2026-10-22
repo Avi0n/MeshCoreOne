@@ -84,7 +84,10 @@ class ChannelQueryAccountingTest {
                     advanceTimeBy(1); runCurrent()
                     val failure = assertIs<ChannelServiceError.SessionError>(queryFailures(h, a.id).single().cause)
                     assertIs<MeshCoreException.ConnectionLost>(failure.error)
-                    val unresolved = assertIs<SessionCorrelationException.UnresolvedReply>(failure.error.cause)
+                    val chain = generateSequence<Throwable>(failure.error) { it.cause }.take(16).toList()
+                    val unresolved = assertIs<SessionCorrelationException.UnresolvedReply>(
+                        chain.dropWhile { it is MeshCoreException.ConnectionLost }.firstOrNull())
+                    assertEquals(1L, unresolved.generation)
                     assertEquals("channel:0", unresolved.responseFamily)
                     assertEquals(1, h.sends(CommandCode.GET_CHANNEL).size)
                     if (index == 1) {
