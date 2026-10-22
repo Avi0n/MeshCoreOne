@@ -153,7 +153,6 @@ class ChatSendQueueService(
             hydration ?: ownership.scope.async(start = CoroutineStart.LAZY) {
                 val rows = dataStore.fetchPendingSends(token.radioId)
                 checkQueueLifetime("hydrateSendQueue.read")
-                channelProgress.reconcile(rows)
                 var malformed: PersistenceStoreException? = null
                 for (row in rows) {
                     checkQueueLifetime("hydrateSendQueue.enqueue")
@@ -179,6 +178,7 @@ class ChatSendQueueService(
                     }
                 }
                 malformed?.let { throw it }
+                channelProgress.reconcile(rows)
                 synchronized(lock) { hydrated = true }
                 recovered("hydrate")
             }.also { hydration = it; it.start() }

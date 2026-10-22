@@ -5,6 +5,9 @@ Managed branch: `cbattlegear-friendly-garbanzo`.
 App session: `9133a4cd-906c-4b8b-aa7c-ef39bbf78dd8`.
 Runtime session: `0c0f91a9-098a-40b7-8220-71e582a39c8d`.
 Base: `0a7a84e388393557e4b66ac7fd322248e28611fd`.
+Necessary current-main integration:
+`f81d2f56d897b022b6f6c4cf38551448691eae02` (the already approved WP-003
+bounded CI budget update; no CI/tooling edits authored by this WP).
 Frozen source: `db14559b39d32322b06477c6ae676112f583db50`.
 Trusted manifest SHA-256:
 `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`.
@@ -44,6 +47,25 @@ send-attempt persistence, disambiguation threshold three, query-failure cap
 sixteen, direct/flood retry policy and protocol correlation fences are unchanged.
 WP-501's existing real App edge regression must run after actual producer and
 consumer adoption. No whole-bug completion claim is made here.
+
+### Combined runtime ordering remains unverified
+
+The lower-level cases intentionally do not include ConnectionManager.
+SessionCore emits CorrelationUncertain in the query's finally block, before its
+caller necessarily observes the thrown outcome. WP-207 PR277 dispatches physical
+recovery on Default, so teardown can potentially retire/cancel the queue before
+its query catch records that genuine outcome. A diagnostic is also emitted for
+written-query cancellation, so it must not be relabeled as a genuine timeout or
+used to manufacture a failure count.
+
+WP-501/WP-207 must establish the actual combined ordering with the real App
+graph, fresh generations and the original A/B outcome after WP-303 injection.
+If the race is confirmed, the owner of the failure/recovery handoff must provide
+an exact outcome-ordering contract; retaining memory alone cannot supply a
+missing outcome. This producer does not relax cancellation or stale-result
+guards, add scheduler sleeps, or claim its real-session service tests prove
+that combined boundary. Coordinator source review identified this prerequisite;
+it is not hidden by a lower-level test pass or a guessed App adaptation.
 
 ## Authorship and coverage
 
@@ -87,6 +109,29 @@ run locally: WP-503 holds the actual disposable/native and gradle-execution
 guards. No new emulator, native/hardware lane, tool installation, resource-lock
 bypass, signing, privileged CI dispatch or merge was attempted. Publication
 remains an explicitly unverified candidate until actual hosted execution.
+
+Actual initial publication:
+`git push --set-upstream origin cbattlegear-friendly-garbanzo` **succeeded** at
+`9ce95617f242e2db4b72a98ed473aab545069893`. The installed unchanged hook
+explicitly reported `UNVERIFIED CANDIDATE` because the shared local Gradle lane
+was queued beyond ten seconds. No lock was bypassed.
+
+Initial exact-head hosted run
+[39812741210](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39812741210)
+**failed** on that head. Readiness, source disposition/provenance and frozen-input
+validation passed. Actual command
+`python tools/android-port/controller/ci.py run --stage scaffold --scope scaffold`
+selected `verifyScaffoldTests verifyRoomSchema` and stopped at
+`:app:testDebugUnitTest`: 1,225 discovered, 1,224 passed, one failed, zero
+errors/skips. The failure was the existing App-owned
+`IncomingReactionSyncTest.meshCoreOpenV3UsesTheStoredChannelTargetWithoutSavingAnOrdinaryMessage`.
+The `:core:services:test` task and new regression discovery were **not reached**;
+no services-test execution/pass is claimed. The hosted job/log is authoritative;
+no second log/XML bundle is retained here.
+
+The successor also moves progress pruning after successful row validation, so
+malformed/failed hydration cannot erase retained progress. That real source
+refinement and current-main integration are not an unchanged CI rerun.
 
 ## Advisory reservation trace
 
