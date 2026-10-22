@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-403",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1Widgets/MC1RadioControl.swift",
+      "blob_sha": "bdaba83676e0a9f7f52799cea8ef461766f997e9",
+      "kind": "production",
+      "owner": "WP-403",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/platform/widgets/src/main/kotlin/com/meshcoreone/android/platform/widgets/MeshStatusWidget.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/platform/widgets/src/main/kotlin/com/meshcoreone/android/platform/widgets/MeshStatusWidget.kt",
+          "sha256": "50f11d8dd8aa31b7361aa6d5450d20546310a95f85e3acf109e7609705524e06",
+          "source_references": [
+            "MC1Widgets/MC1RadioControl.swift"
+          ],
+          "methods": [
+            {
+              "name": "provideGlance",
+              "line": 44,
+              "end_line": 47
+            },
+            {
+              "name": "onAction",
+              "line": 55,
+              "end_line": 58
+            },
+            {
+              "name": "StatusContent",
+              "line": 63,
+              "end_line": 103
+            },
+            {
+              "name": "statusText",
+              "line": 105,
+              "end_line": 113
+            },
+            {
+              "name": "render",
+              "line": 118,
+              "end_line": 138
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Widgets/MC1WidgetsBundle.swift",
+      "blob_sha": "9ffa7323b76ad91701d951919f6d06a045e29afb",
+      "kind": "production",
+      "owner": "WP-403",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": []
+}

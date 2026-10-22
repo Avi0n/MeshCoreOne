@@ -21,11 +21,15 @@ class PendingSendPersistenceTest : RepositoryTest() {
 
     @Test @OriginalCase("PendingSendPersistenceTests::Pending sends are scoped by radioID()")
     fun equalRowIDsDoNotCrossRadios() = runTest {
-        val a = pending()
+        val a = pending(sequence = 1)
+        val b = pending(RADIO_B, sequence = 1)
         store.upsertPendingSend(a)
-        store.upsertPendingSend(a.copy(radioId = RADIO_B))
+        store.upsertPendingSend(b)
         assertEquals(RADIO_A, store.fetchPendingSends(RADIO_A).single().radioId)
         assertEquals(RADIO_B, store.fetchPendingSends(RADIO_B).single().radioId)
+        store.upsertPendingSend(a.copy(radioId = RADIO_B))
+        assertEquals(a.id, store.fetchPendingSends(RADIO_A).single().id)
+        assertEquals(setOf(a.id, b.id), store.fetchPendingSends(RADIO_B).map { it.id }.toSet())
     }
 
     @Test @OriginalCase("PendingSendPersistenceTests::fetchPendingSends returns rows in sequence order()")
@@ -36,7 +40,7 @@ class PendingSendPersistenceTest : RepositoryTest() {
 
     @Test @OriginalCase("PendingSendPersistenceTests::deletePendingSend removes the row()")
     fun deletePendingRowCommitsAndIsRadioScoped() = runTest {
-        val dto = pending()
+        val dto = pending(sequence = 1)
         store.upsertPendingSend(dto)
         store.upsertPendingSend(dto.copy(radioId = RADIO_B))
         store.deletePendingSend(entity(id = dto.id))
@@ -46,9 +50,11 @@ class PendingSendPersistenceTest : RepositoryTest() {
 
     @Test @OriginalCase("PendingSendPersistenceTests::insertPendingSendAssigningSequence returns 1 on an empty table()")
     fun firstAssignedSequenceIgnoresTheDTOSequence() = runTest {
-        val dto = pending(sequence = 99)
+        val dto = pending(sequence = 0)
         assertEquals(1L, store.insertPendingSendAssigningSequence(dto))
         assertEquals(1L, store.fetchPendingSends(RADIO_A).single().sequence)
+        assertEquals(1L, store.insertPendingSendAssigningSequence(pending(RADIO_B, sequence = 99)))
+        assertEquals(1L, store.fetchPendingSends(RADIO_B).single().sequence)
     }
 
     @Test @OriginalCase("PendingSendPersistenceTests::insertPendingSendAssigningSequence assigns per-radio monotonic sequences()")
@@ -68,16 +74,21 @@ class PendingSendPersistenceTest : RepositoryTest() {
 
     @Test @OriginalCase("PendingSendPersistenceTests::attemptCount round-trips through insertPendingSendAssigningSequence and fetchPendingSends()")
     fun nilZeroAndPositiveAttemptsRemainDifferent() = runTest {
-        for (attempt in listOf(null, 0L, 4L)) store.insertPendingSendAssigningSequence(pending(attempt = attempt))
-        assertEquals(listOf(null, 0L, 4L), store.fetchPendingSends(RADIO_A).map { it.attemptCount })
+        val dtos = listOf(null, 0L, 4L).map { pending(attempt = it) }
+        for (dto in dtos) store.insertPendingSendAssigningSequence(dto)
+        val rows = store.fetchPendingSends(RADIO_A)
+        assertEquals(listOf(null, 0L, 4L), rows.map { it.attemptCount })
+        for (dto in dtos) {
+            assertEquals(dto.attemptCount, assertNotNull(rows.singleOrNull { it.messageID == dto.messageID }).attemptCount)
+        }
     }
 
     @Test @OriginalCase("PendingSendPersistenceTests::deletePendingSendsForMessage removes every row matching the messageID()", "radio-key-adaptation")
     fun deletingMessagePendingRowsRetainsTheOtherRadio() = runTest {
         val id = UUID.randomUUID()
-        store.upsertPendingSend(pending(messageID = id))
-        store.upsertPendingSend(pending(messageID = id))
-        store.upsertPendingSend(pending(RADIO_B, id))
+        store.upsertPendingSend(pending(messageID = id, sequence = 1))
+        store.upsertPendingSend(pending(messageID = id, sequence = 1))
+        store.upsertPendingSend(pending(RADIO_B, id, sequence = 1))
         val unrelated = pending(sequence = 2)
         store.upsertPendingSend(unrelated)
         store.deletePendingSendsForMessage(entity(id = id))
@@ -87,7 +98,7 @@ class PendingSendPersistenceTest : RepositoryTest() {
 
     @Test @OriginalCase("PendingSendPersistenceTests::deletePendingSendsForMessage is a no-op when no rows match()")
     fun absentMessageDeleteDoesNotTouchOtherRows() = runTest {
-        val kept = pending()
+        val kept = pending(sequence = 1)
         store.upsertPendingSend(kept)
         store.deletePendingSendsForMessage(entity(id = UUID.randomUUID()))
         assertEquals(listOf(kept), store.fetchPendingSends(RADIO_A))
@@ -97,7 +108,7 @@ class PendingSendPersistenceTest : RepositoryTest() {
     fun unknownFutureKindIsReportedAndPreservedOnDisk() = runTest {
         val kept = pending(sequence = 1)
         store.upsertPendingSend(kept)
-        val unknown = pending(sequence = 2).toEntity().copy(kindRawValue = 99)
+        val unknown = pending(sequence = 2).toEntity().copy(kindRawValue = 99, contactID = null, attemptCount = null)
         db.pendingSends().insert(unknown)
         assertEquals(listOf(kept), store.fetchPendingSends(RADIO_A))
         assertEquals(99L, db.pendingSends().forRadio(RADIO_A.value).last().kindRawValue)
@@ -106,10 +117,10 @@ class PendingSendPersistenceTest : RepositoryTest() {
 
     @Test @OriginalCase("PendingSendPersistenceTests::replacePendingSendForRetry flips status and inserts a new PendingSend row()")
     fun retryReplacementCommitsStatusAndAuthoritativeEnvelopeTogether() = runTest {
-        val m = message(status = MessageStatus.FAILED)
+        val m = message(text = "retry me", status = MessageStatus.FAILED).copy(isRead = true)
         store.saveMessage(m)
         store.upsertPendingSend(pending(messageID = m.id, sequence = 1))
-        val replacement = pending(messageID = m.id)
+        val replacement = PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT)
         val assigned = store.replacePendingSendForRetry(m.id, replacement)
         assertEquals(1L, assigned)
         assertEquals(MessageStatus.PENDING, assertNotNull(store.fetchMessage(entity(id = m.id))).status)
@@ -118,34 +129,37 @@ class PendingSendPersistenceTest : RepositoryTest() {
 
     @Test @OriginalCase("PendingSendPersistenceTests::replacePendingSendForRetry preserves .delivered status()")
     fun lateDeliveryWinsOverManualRetry() = runTest {
-        val m = message(status = MessageStatus.DELIVERED)
+        val m = message(text = "retry me", status = MessageStatus.DELIVERED).copy(isRead = true)
         store.saveMessage(m)
-        store.replacePendingSendForRetry(m.id, pending(messageID = m.id))
+        store.replacePendingSendForRetry(m.id,
+            PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT))
         assertEquals(MessageStatus.DELIVERED, assertNotNull(store.fetchMessage(entity(id = m.id))).status)
         assertEquals(1, store.fetchPendingSends(RADIO_A).size)
     }
 
     @Test @OriginalCase("PendingSendPersistenceTests::replacePendingSendForRetry removes every existing PendingSend row for the messageID()")
     fun replacementReapsAllPriorRowsAndRetainsUnrelatedSequence() = runTest {
-        val m = message(status = MessageStatus.FAILED)
+        val m = message(text = "retry me", status = MessageStatus.FAILED).copy(isRead = true)
         store.saveMessage(m)
         store.upsertPendingSend(pending(messageID = m.id, sequence = 1))
         store.upsertPendingSend(pending(messageID = m.id, sequence = 2))
         val unrelated = pending(sequence = 3)
         store.upsertPendingSend(unrelated)
-        val replacement = pending(messageID = m.id)
+        val replacement = PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT)
         assertEquals(4L, store.replacePendingSendForRetry(m.id, replacement))
         assertEquals(listOf(unrelated, replacement.copy(sequence = 4)), store.fetchPendingSends(RADIO_A))
     }
 
     @Test @OriginalCase("PendingSendPersistenceTests::replacePendingSendForRetry assigns the next per-radio sequence()")
     fun otherRadioSequenceCannotAdvanceThisRadio() = runTest {
-        val m = message(status = MessageStatus.FAILED)
+        val m = message(text = "retry me", status = MessageStatus.FAILED).copy(isRead = true)
         store.saveMessage(m)
         store.upsertPendingSend(pending(sequence = 7))
         store.upsertPendingSend(pending(RADIO_B, sequence = 99))
-        val replacement = pending(messageID = m.id)
+        val replacement = PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT)
         assertEquals(8L, store.replacePendingSendForRetry(m.id, replacement))
-        assertEquals(8L, store.fetchPendingSends(RADIO_A).last().sequence)
+        val rows = store.fetchPendingSends(RADIO_A)
+        val inserted = assertNotNull(rows.firstOrNull { it.messageID == m.id })
+        assertEquals(8L, inserted.sequence)
     }
 }

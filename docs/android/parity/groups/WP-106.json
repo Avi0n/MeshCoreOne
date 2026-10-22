@@ -1,0 +1,4410 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-106",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/ChannelPayloads.swift",
+      "blob_sha": "0dc4660ec42e563d18a2927899addc894be4ff5c",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ChannelPayloads.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ChannelPayloads.kt",
+          "sha256": "ba0fbc4f1cfd108e47f8187424e7b1f98aa10cb9ec6de68a3b45a806fe3f7fbc",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/ChannelPayloads.swift"
+          ],
+          "methods": []
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/ConnectionState.swift",
+      "blob_sha": "19aff6bafb6d58666d71606f460c0fac654e1d44",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ConnectionState.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ConnectionState.kt",
+          "sha256": "4b72fe1bd4ef642656560fa828887eb09a299b688a3e864acf9bf5166d458eb3",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/ConnectionState.swift"
+          ],
+          "methods": []
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/ContactPayloads.swift",
+      "blob_sha": "9f1f729d740c9de873fe303c52b906131e2cf663",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ContactPayloads.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ContactPayloads.kt",
+          "sha256": "0494d63c6bb44f777d56c147d0a6c2c8af8c14f9f16c03eb4f88d0bd705c2c02",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/ContactPayloads.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 16,
+              "end_line": 16
+            },
+            {
+              "name": "hashCode",
+              "line": 17,
+              "end_line": 17
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/DevicePayloads.swift",
+      "blob_sha": "4665fb3ebfb56ba6590506d334ef4bed7e105fa8",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/DevicePayloads.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/AutoAddConfig.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/DevicePayloads.kt",
+          "sha256": "c91bafb8844435bec792c8b1764f5586ce16f4738bbdb72d3de4eb019ff2307a",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/DevicePayloads.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 39,
+              "end_line": 39
+            },
+            {
+              "name": "hashCode",
+              "line": 40,
+              "end_line": 40
+            },
+            {
+              "name": "equals",
+              "line": 46,
+              "end_line": 46
+            },
+            {
+              "name": "hashCode",
+              "line": 47,
+              "end_line": 47
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/AutoAddConfig.kt",
+          "sha256": "f2eccd7b65a8fcbd49a7422389bd989db68a122d5712029bf4dde7b392baa9a4",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/DevicePayloads.swift"
+          ],
+          "methods": []
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+      "blob_sha": "64b8e6d8f1649acac7cfe02d519fc79bc13de40c",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/DiagnosticsPayloads.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/DiagnosticsPayloads.kt",
+          "sha256": "e5f0d5166332e28eb3615d6951b7936e3a693098fb6b4ce8f8f34196dc0bc259",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift"
+          ],
+          "methods": [
+            {
+              "name": "fromHash",
+              "line": 22,
+              "end_line": 23
+            },
+            {
+              "name": "equals",
+              "line": 26,
+              "end_line": 26
+            },
+            {
+              "name": "hashCode",
+              "line": 27,
+              "end_line": 27
+            },
+            {
+              "name": "matches",
+              "line": 48,
+              "end_line": 49
+            },
+            {
+              "name": "equals",
+              "line": 54,
+              "end_line": 54
+            },
+            {
+              "name": "hashCode",
+              "line": 55,
+              "end_line": 55
+            },
+            {
+              "name": "equals",
+              "line": 59,
+              "end_line": 59
+            },
+            {
+              "name": "hashCode",
+              "line": 60,
+              "end_line": 60
+            },
+            {
+              "name": "equals",
+              "line": 70,
+              "end_line": 70
+            },
+            {
+              "name": "hashCode",
+              "line": 71,
+              "end_line": 71
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+          "sha256": "441644376420ac0337aad7a3f2a3103fa9fc7f9008eb667a241548625c045778",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+            "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+            "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "statusResponse",
+              "line": 22,
+              "end_line": 28
+            },
+            {
+              "name": "All six firmware subcodes retain original typed and raw error accessors",
+              "line": 32,
+              "end_line": 44
+            },
+            {
+              "name": "Every unknown byte has null typed error but unchanged raw value",
+              "line": 47,
+              "end_line": 54
+            },
+            {
+              "name": "A missing subcode retains its attribute entry and null typed code",
+              "line": 57,
+              "end_line": 62
+            },
+            {
+              "name": "Nonerror cases never gain a device error code",
+              "line": 65,
+              "end_line": 70
+            },
+            {
+              "name": "Attribute maps preserve exact source keys types absent fields and nulls",
+              "line": 73,
+              "end_line": 85
+            },
+            {
+              "name": "Message receipt attributes use raw type and channel bytes without enum ordinals",
+              "line": 88,
+              "end_line": 99
+            },
+            {
+              "name": "Case name never includes payload text keys or diagnostics",
+              "line": 102,
+              "end_line": 108
+            },
+            {
+              "name": "Telemetry retains valid prefix plus malformed suffix diagnostic and raw bytes",
+              "line": 111,
+              "end_line": 123
+            },
+            {
+              "name": "Empty telemetry is complete and malformed-only telemetry is not success shaped empty",
+              "line": 126,
+              "end_line": 132
+            },
+            {
+              "name": "Collection snapshots and generated copies cannot acquire mutable caller state",
+              "line": 135,
+              "end_line": 152
+            },
+            {
+              "name": "Every Double payload preserves signed-zero equality and hash agreement",
+              "line": 155,
+              "end_line": 174
+            },
+            {
+              "name": "PathInfo validates encoded byte widths preserves reserved null hops and rejects empty match",
+              "line": 177,
+              "end_line": 192
+            },
+            {
+              "name": "Trace legacy hash accessor and constructor preserve absent empty and wide hash bytes",
+              "line": 195,
+              "end_line": 201
+            },
+            {
+              "name": "RF metadata preserves transport flags unknown raw nibble and independent SHA prefix",
+              "line": 204,
+              "end_line": 217
+            },
+            {
+              "name": "Status layout and optional room counters retain source defaults and unsigned widths",
+              "line": 220,
+              "end_line": 231
+            },
+            {
+              "name": "Transport errors and connection associated values have structural source equality",
+              "line": 234,
+              "end_line": 240
+            },
+            {
+              "name": "Message results hold actual message payloads and all four source variants",
+              "line": 243,
+              "end_line": 251
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/EventDispatcher.swift",
+      "blob_sha": "8ef8521faf4bbada2c366681dd34f190594f4101",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
+          "sha256": "83683b4f22616e5e1e10d54bcb85aa13c0661b2d3e53679315b9692098ca0381",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventDispatcher.swift"
+          ],
+          "methods": [
+            {
+              "name": "offer",
+              "line": 47,
+              "end_line": 56
+            },
+            {
+              "name": "next",
+              "line": 58,
+              "end_line": 73
+            },
+            {
+              "name": "finish",
+              "line": 75,
+              "end_line": 81
+            },
+            {
+              "name": "subscribe",
+              "line": 93,
+              "end_line": 93
+            },
+            {
+              "name": "subscribe",
+              "line": 94,
+              "end_line": 94
+            },
+            {
+              "name": "subscribe",
+              "line": 95,
+              "end_line": 95
+            },
+            {
+              "name": "subscribeTracked",
+              "line": 97,
+              "end_line": 102
+            },
+            {
+              "name": "subscribeTracked",
+              "line": 104,
+              "end_line": 104
+            },
+            {
+              "name": "dispatch",
+              "line": 106,
+              "end_line": 117
+            },
+            {
+              "name": "finishAllSubscriptions",
+              "line": 119,
+              "end_line": 124
+            },
+            {
+              "name": "finishSubscription",
+              "line": 126,
+              "end_line": 128
+            },
+            {
+              "name": "removeSubscription",
+              "line": 130,
+              "end_line": 132
+            },
+            {
+              "name": "logDrop",
+              "line": 137,
+              "end_line": 139
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
+          "sha256": "fbbb1ec45b9b6ffaf1749c2eb318b0e2b5e9c83c21f0a6fa7ced0b7d3b7c2ef5",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventDispatcher.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherDropTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Slow consumer preserves latest 100 with exact counted and observed oldest drops",
+              "line": 27,
+              "end_line": 37
+            },
+            {
+              "name": "Filtered subscription receives only matching events",
+              "line": 40,
+              "end_line": 49
+            },
+            {
+              "name": "Filtered subscription survives 500 nonmatching events without ACK eviction",
+              "line": 52,
+              "end_line": 61
+            },
+            {
+              "name": "Registration is eager before collection or the first dispatch",
+              "line": 64,
+              "end_line": 72
+            },
+            {
+              "name": "Each subscriber gets an independent complete broadcast and filter",
+              "line": 75,
+              "end_line": 86
+            },
+            {
+              "name": "Drop accounting is per subscription and filtering happens before capacity",
+              "line": 89,
+              "end_line": 102
+            },
+            {
+              "name": "Finish specific subscription drains its existing queue and excludes later events",
+              "line": 105,
+              "end_line": 117
+            },
+            {
+              "name": "Finish all terminates suspended receivers and supports a new connection subscription",
+              "line": 120,
+              "end_line": 131
+            },
+            {
+              "name": "Consumer cancellation unregisters immediately and does not count discarded queue as overflow",
+              "line": 134,
+              "end_line": 143
+            },
+            {
+              "name": "Taking a subset cleans up remaining buffered values without false drops",
+              "line": 146,
+              "end_line": 153
+            },
+            {
+              "name": "A subscriber has exactly one consumer rather than accidentally splitting broadcast",
+              "line": 156,
+              "end_line": 162
+            },
+            {
+              "name": "Concurrent buffer consumption and overflow preserve order conservation and complete termination",
+              "line": 165,
+              "end_line": 187
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+      "blob_sha": "73af44edf66baec35ce409d7c36ceaf023f1a065",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/PinnedEventVocabularyTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+          "sha256": "b378a2349d81a471bf4f2e98639133fe340618bcbba49b7fb33e663882ebb3a4",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventFilter.swift"
+          ],
+          "methods": [
+            {
+              "name": "matches",
+              "line": 7,
+              "end_line": 7
+            },
+            {
+              "name": "or",
+              "line": 8,
+              "end_line": 8
+            },
+            {
+              "name": "and",
+              "line": 9,
+              "end_line": 9
+            },
+            {
+              "name": "acknowledgement",
+              "line": 25,
+              "end_line": 26
+            },
+            {
+              "name": "contactMessage",
+              "line": 28,
+              "end_line": 30
+            },
+            {
+              "name": "channelMessage",
+              "line": 32,
+              "end_line": 33
+            },
+            {
+              "name": "statusResponse",
+              "line": 35,
+              "end_line": 37
+            },
+            {
+              "name": "telemetryResponse",
+              "line": 39,
+              "end_line": 41
+            },
+            {
+              "name": "advertisement",
+              "line": 43,
+              "end_line": 45
+            },
+            {
+              "name": "pathUpdate",
+              "line": 47,
+              "end_line": 49
+            },
+            {
+              "name": "eventType",
+              "line": 51,
+              "end_line": 51
+            },
+            {
+              "name": "startsWith",
+              "line": 52,
+              "end_line": 52
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+          "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "contactMessage",
+              "line": 12,
+              "end_line": 13
+            },
+            {
+              "name": "channelMessage",
+              "line": 15,
+              "end_line": 16
+            },
+            {
+              "name": "Any acknowledgement matches regardless of code",
+              "line": 20,
+              "end_line": 23
+            },
+            {
+              "name": "Any acknowledgement rejects all unrelated cases",
+              "line": 26,
+              "end_line": 30
+            },
+            {
+              "name": "RF log filter matches only RF logs",
+              "line": 33,
+              "end_line": 41
+            },
+            {
+              "name": "Any advertisement matches all senders and rejects unrelated events",
+              "line": 44,
+              "end_line": 49
+            },
+            {
+              "name": "Any contact message matches only direct receipts",
+              "line": 52,
+              "end_line": 56
+            },
+            {
+              "name": "Any channel message matches only channel text receipts",
+              "line": 59,
+              "end_line": 66
+            },
+            {
+              "name": "Any login success matches only successful login",
+              "line": 69,
+              "end_line": 73
+            },
+            {
+              "name": "Any login failure matches absent and present prefix only",
+              "line": 76,
+              "end_line": 81
+            },
+            {
+              "name": "Acknowledgement code matching is exact and not prefix or object identity",
+              "line": 84,
+              "end_line": 90
+            },
+            {
+              "name": "Contact prefix matching preserves source starts-with behavior including empty prefix",
+              "line": 93,
+              "end_line": 100
+            },
+            {
+              "name": "Channel index matching includes the full unsigned byte range",
+              "line": 103,
+              "end_line": 109
+            },
+            {
+              "name": "Advertisement and path update filters preserve prefix and event type",
+              "line": 112,
+              "end_line": 119
+            },
+            {
+              "name": "Telemetry prefix filter does not require successful LPP parsing",
+              "line": 122,
+              "end_line": 128
+            },
+            {
+              "name": "Status response prefix matching uses original prefix without arbitrary padding",
+              "line": 131,
+              "end_line": 137
+            },
+            {
+              "name": "Response and indicator filters never mix event variants",
+              "line": 140,
+              "end_line": 149
+            },
+            {
+              "name": "Combinators preserve short-circuit and negation",
+              "line": 152,
+              "end_line": 161
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/PinnedEventVocabularyTest.kt",
+          "sha256": "2ac321705ad4226fc6c2016d4582ee54d5e21c9db60ba021f31ff68119390c05",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+            "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+            "MeshCore/Sources/MeshCore/Protocol/RxLogTypes.swift"
+          ],
+          "methods": [
+            {
+              "name": "Every pinned event has a real typed payload and exact low-cardinality case name",
+              "line": 22,
+              "end_line": 75
+            },
+            {
+              "name": "Every pinned filter factory and combinator is represented in the native contract",
+              "line": 78,
+              "end_line": 92
+            },
+            {
+              "name": "All original route and payload names wire values and reserved mappings match",
+              "line": 95,
+              "end_line": 111
+            },
+            {
+              "name": "table",
+              "line": 97,
+              "end_line": 101
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+      "blob_sha": "6c2040124256a279aaabff082fc34e854c21d431",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/PinnedEventVocabularyTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+          "sha256": "1e1452e78a4b4bff820b38792f41332bceea6936736bc9497526d34cbb391517",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/MeshEvent.swift"
+          ],
+          "methods": []
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+          "sha256": "441644376420ac0337aad7a3f2a3103fa9fc7f9008eb667a241548625c045778",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+            "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+            "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "statusResponse",
+              "line": 22,
+              "end_line": 28
+            },
+            {
+              "name": "All six firmware subcodes retain original typed and raw error accessors",
+              "line": 32,
+              "end_line": 44
+            },
+            {
+              "name": "Every unknown byte has null typed error but unchanged raw value",
+              "line": 47,
+              "end_line": 54
+            },
+            {
+              "name": "A missing subcode retains its attribute entry and null typed code",
+              "line": 57,
+              "end_line": 62
+            },
+            {
+              "name": "Nonerror cases never gain a device error code",
+              "line": 65,
+              "end_line": 70
+            },
+            {
+              "name": "Attribute maps preserve exact source keys types absent fields and nulls",
+              "line": 73,
+              "end_line": 85
+            },
+            {
+              "name": "Message receipt attributes use raw type and channel bytes without enum ordinals",
+              "line": 88,
+              "end_line": 99
+            },
+            {
+              "name": "Case name never includes payload text keys or diagnostics",
+              "line": 102,
+              "end_line": 108
+            },
+            {
+              "name": "Telemetry retains valid prefix plus malformed suffix diagnostic and raw bytes",
+              "line": 111,
+              "end_line": 123
+            },
+            {
+              "name": "Empty telemetry is complete and malformed-only telemetry is not success shaped empty",
+              "line": 126,
+              "end_line": 132
+            },
+            {
+              "name": "Collection snapshots and generated copies cannot acquire mutable caller state",
+              "line": 135,
+              "end_line": 152
+            },
+            {
+              "name": "Every Double payload preserves signed-zero equality and hash agreement",
+              "line": 155,
+              "end_line": 174
+            },
+            {
+              "name": "PathInfo validates encoded byte widths preserves reserved null hops and rejects empty match",
+              "line": 177,
+              "end_line": 192
+            },
+            {
+              "name": "Trace legacy hash accessor and constructor preserve absent empty and wide hash bytes",
+              "line": 195,
+              "end_line": 201
+            },
+            {
+              "name": "RF metadata preserves transport flags unknown raw nibble and independent SHA prefix",
+              "line": 204,
+              "end_line": 217
+            },
+            {
+              "name": "Status layout and optional room counters retain source defaults and unsigned widths",
+              "line": 220,
+              "end_line": 231
+            },
+            {
+              "name": "Transport errors and connection associated values have structural source equality",
+              "line": 234,
+              "end_line": 240
+            },
+            {
+              "name": "Message results hold actual message payloads and all four source variants",
+              "line": 243,
+              "end_line": 251
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/PinnedEventVocabularyTest.kt",
+          "sha256": "2ac321705ad4226fc6c2016d4582ee54d5e21c9db60ba021f31ff68119390c05",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+            "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+            "MeshCore/Sources/MeshCore/Protocol/RxLogTypes.swift"
+          ],
+          "methods": [
+            {
+              "name": "Every pinned event has a real typed payload and exact low-cardinality case name",
+              "line": 22,
+              "end_line": 75
+            },
+            {
+              "name": "Every pinned filter factory and combinator is represented in the native contract",
+              "line": 78,
+              "end_line": 92
+            },
+            {
+              "name": "All original route and payload names wire values and reserved mappings match",
+              "line": 95,
+              "end_line": 111
+            },
+            {
+              "name": "table",
+              "line": 97,
+              "end_line": 101
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/MeshTransportError.swift",
+      "blob_sha": "0dbc3a42b30bf3b521bb8acafafd3f9485e150d3",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshTransportError.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshTransportError.kt",
+          "sha256": "bc20c3fc06834a52b323d2ba21f8107bc5f7e386c72a0bab4835626fd488e1eb",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/MeshTransportError.swift"
+          ],
+          "methods": []
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/MessagingPayloads.swift",
+      "blob_sha": "1dc29145cef04d6f67a0d0b901c00d505b424c6f",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MessagingPayloads.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MessagingPayloads.kt",
+          "sha256": "b5e8ed86c7edd117877c344a01d320db4027291a46f47ab74ef90f8beb7e7a66",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/MessagingPayloads.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 19,
+              "end_line": 19
+            },
+            {
+              "name": "hashCode",
+              "line": 20,
+              "end_line": 20
+            },
+            {
+              "name": "equals",
+              "line": 32,
+              "end_line": 32
+            },
+            {
+              "name": "hashCode",
+              "line": 33,
+              "end_line": 33
+            },
+            {
+              "name": "equals",
+              "line": 44,
+              "end_line": 44
+            },
+            {
+              "name": "hashCode",
+              "line": 45,
+              "end_line": 45
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/NeighboursResponse+Pagination.swift",
+      "blob_sha": "54a9e50ada7d0b25e4b0584e4888529434f95264",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/NeighboursPaginationTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt",
+          "sha256": "78ff241e0e5306d34f21b8d2c96800a58e67a20e8a83dddb336bd44b8f55ac3b",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/NeighboursResponse+Pagination.swift",
+            "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 40,
+              "end_line": 40
+            },
+            {
+              "name": "hashCode",
+              "line": 41,
+              "end_line": 41
+            },
+            {
+              "name": "collectingAllPages",
+              "line": 64,
+              "end_line": 84
+            },
+            {
+              "name": "equals",
+              "line": 90,
+              "end_line": 90
+            },
+            {
+              "name": "hashCode",
+              "line": 91,
+              "end_line": 91
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/NeighboursPaginationTest.kt",
+          "sha256": "3c36e2e24d3ad0cfc30ec91b9b04bdcabc472004e99ad9aee1eedf9dcb48e784",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/NeighboursResponse+Pagination.swift"
+          ],
+          "methods": [
+            {
+              "name": "neighbour",
+              "line": 19,
+              "end_line": 19
+            },
+            {
+              "name": "Pages advance by accumulated rows preserving order first-page metadata and latest total",
+              "line": 22,
+              "end_line": 37
+            },
+            {
+              "name": "Empty first page still retains actual metadata and advertised total",
+              "line": 40,
+              "end_line": 50
+            },
+            {
+              "name": "An empty later page stops stalled firmware without claiming complete count",
+              "line": 53,
+              "end_line": 62
+            },
+            {
+              "name": "Pathological changing totals stop at the actual 512-page cap",
+              "line": 65,
+              "end_line": 76
+            },
+            {
+              "name": "Wire offsets saturate at UInt16 maximum without wrapping or hidden row loss",
+              "line": 79,
+              "end_line": 88
+            },
+            {
+              "name": "Fetch failure propagates unchanged without a partial success substitute",
+              "line": 91,
+              "end_line": 103
+            },
+            {
+              "name": "Cancelling a suspended fetch ends aggregation rather than continuing or fabricating rows",
+              "line": 106,
+              "end_line": 118
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+      "blob_sha": "136efd1734cf84c6aef0b085c9d1c31181e869a0",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt",
+          "sha256": "78ff241e0e5306d34f21b8d2c96800a58e67a20e8a83dddb336bd44b8f55ac3b",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/NeighboursResponse+Pagination.swift",
+            "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 40,
+              "end_line": 40
+            },
+            {
+              "name": "hashCode",
+              "line": 41,
+              "end_line": 41
+            },
+            {
+              "name": "collectingAllPages",
+              "line": 64,
+              "end_line": 84
+            },
+            {
+              "name": "equals",
+              "line": 90,
+              "end_line": 90
+            },
+            {
+              "name": "hashCode",
+              "line": 91,
+              "end_line": 91
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+          "sha256": "441644376420ac0337aad7a3f2a3103fa9fc7f9008eb667a241548625c045778",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+            "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+            "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "statusResponse",
+              "line": 22,
+              "end_line": 28
+            },
+            {
+              "name": "All six firmware subcodes retain original typed and raw error accessors",
+              "line": 32,
+              "end_line": 44
+            },
+            {
+              "name": "Every unknown byte has null typed error but unchanged raw value",
+              "line": 47,
+              "end_line": 54
+            },
+            {
+              "name": "A missing subcode retains its attribute entry and null typed code",
+              "line": 57,
+              "end_line": 62
+            },
+            {
+              "name": "Nonerror cases never gain a device error code",
+              "line": 65,
+              "end_line": 70
+            },
+            {
+              "name": "Attribute maps preserve exact source keys types absent fields and nulls",
+              "line": 73,
+              "end_line": 85
+            },
+            {
+              "name": "Message receipt attributes use raw type and channel bytes without enum ordinals",
+              "line": 88,
+              "end_line": 99
+            },
+            {
+              "name": "Case name never includes payload text keys or diagnostics",
+              "line": 102,
+              "end_line": 108
+            },
+            {
+              "name": "Telemetry retains valid prefix plus malformed suffix diagnostic and raw bytes",
+              "line": 111,
+              "end_line": 123
+            },
+            {
+              "name": "Empty telemetry is complete and malformed-only telemetry is not success shaped empty",
+              "line": 126,
+              "end_line": 132
+            },
+            {
+              "name": "Collection snapshots and generated copies cannot acquire mutable caller state",
+              "line": 135,
+              "end_line": 152
+            },
+            {
+              "name": "Every Double payload preserves signed-zero equality and hash agreement",
+              "line": 155,
+              "end_line": 174
+            },
+            {
+              "name": "PathInfo validates encoded byte widths preserves reserved null hops and rejects empty match",
+              "line": 177,
+              "end_line": 192
+            },
+            {
+              "name": "Trace legacy hash accessor and constructor preserve absent empty and wide hash bytes",
+              "line": 195,
+              "end_line": 201
+            },
+            {
+              "name": "RF metadata preserves transport flags unknown raw nibble and independent SHA prefix",
+              "line": 204,
+              "end_line": 217
+            },
+            {
+              "name": "Status layout and optional room counters retain source defaults and unsigned widths",
+              "line": 220,
+              "end_line": 231
+            },
+            {
+              "name": "Transport errors and connection associated values have structural source equality",
+              "line": 234,
+              "end_line": 240
+            },
+            {
+              "name": "Message results hold actual message payloads and all four source variants",
+              "line": 243,
+              "end_line": 251
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Events/StatsPayloads.swift",
+      "blob_sha": "a71157008437f628b6004721570e21caee43001c",
+      "kind": "production",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/StatsPayloads.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/StatsPayloads.kt",
+          "sha256": "42f369f822db5e2d1f88bd1700bf77382010b29114f1bb506f9a14c1caccf47e",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/StatsPayloads.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 19,
+              "end_line": 19
+            },
+            {
+              "name": "hashCode",
+              "line": 20,
+              "end_line": 20
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherDropTests.swift",
+      "blob_sha": "c9bfec91329df22624041f50496a63f86ad45e3d",
+      "kind": "test",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
+          "sha256": "fbbb1ec45b9b6ffaf1749c2eb318b0e2b5e9c83c21f0a6fa7ced0b7d3b7c2ef5",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventDispatcher.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherDropTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Slow consumer preserves latest 100 with exact counted and observed oldest drops",
+              "line": 27,
+              "end_line": 37
+            },
+            {
+              "name": "Filtered subscription receives only matching events",
+              "line": 40,
+              "end_line": 49
+            },
+            {
+              "name": "Filtered subscription survives 500 nonmatching events without ACK eviction",
+              "line": 52,
+              "end_line": 61
+            },
+            {
+              "name": "Registration is eager before collection or the first dispatch",
+              "line": 64,
+              "end_line": 72
+            },
+            {
+              "name": "Each subscriber gets an independent complete broadcast and filter",
+              "line": 75,
+              "end_line": 86
+            },
+            {
+              "name": "Drop accounting is per subscription and filtering happens before capacity",
+              "line": 89,
+              "end_line": 102
+            },
+            {
+              "name": "Finish specific subscription drains its existing queue and excludes later events",
+              "line": 105,
+              "end_line": 117
+            },
+            {
+              "name": "Finish all terminates suspended receivers and supports a new connection subscription",
+              "line": 120,
+              "end_line": 131
+            },
+            {
+              "name": "Consumer cancellation unregisters immediately and does not count discarded queue as overflow",
+              "line": 134,
+              "end_line": 143
+            },
+            {
+              "name": "Taking a subset cleans up remaining buffered values without false drops",
+              "line": 146,
+              "end_line": 153
+            },
+            {
+              "name": "A subscriber has exactly one consumer rather than accidentally splitting broadcast",
+              "line": 156,
+              "end_line": 162
+            },
+            {
+              "name": "Concurrent buffer consumption and overflow preserve order conservation and complete termination",
+              "line": 165,
+              "end_line": 187
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+      "blob_sha": "c87c405ef976ed64ad8ec544dc061ed31cd767ab",
+      "kind": "test",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
+          "sha256": "fbbb1ec45b9b6ffaf1749c2eb318b0e2b5e9c83c21f0a6fa7ced0b7d3b7c2ef5",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventDispatcher.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherDropTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Slow consumer preserves latest 100 with exact counted and observed oldest drops",
+              "line": 27,
+              "end_line": 37
+            },
+            {
+              "name": "Filtered subscription receives only matching events",
+              "line": 40,
+              "end_line": 49
+            },
+            {
+              "name": "Filtered subscription survives 500 nonmatching events without ACK eviction",
+              "line": 52,
+              "end_line": 61
+            },
+            {
+              "name": "Registration is eager before collection or the first dispatch",
+              "line": 64,
+              "end_line": 72
+            },
+            {
+              "name": "Each subscriber gets an independent complete broadcast and filter",
+              "line": 75,
+              "end_line": 86
+            },
+            {
+              "name": "Drop accounting is per subscription and filtering happens before capacity",
+              "line": 89,
+              "end_line": 102
+            },
+            {
+              "name": "Finish specific subscription drains its existing queue and excludes later events",
+              "line": 105,
+              "end_line": 117
+            },
+            {
+              "name": "Finish all terminates suspended receivers and supports a new connection subscription",
+              "line": 120,
+              "end_line": 131
+            },
+            {
+              "name": "Consumer cancellation unregisters immediately and does not count discarded queue as overflow",
+              "line": 134,
+              "end_line": 143
+            },
+            {
+              "name": "Taking a subset cleans up remaining buffered values without false drops",
+              "line": 146,
+              "end_line": 153
+            },
+            {
+              "name": "A subscriber has exactly one consumer rather than accidentally splitting broadcast",
+              "line": 156,
+              "end_line": 162
+            },
+            {
+              "name": "Concurrent buffer consumption and overflow preserve order conservation and complete termination",
+              "line": 165,
+              "end_line": 187
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+          "sha256": "db48d4f4aacf899348680200ec1b5296e57f0c42b203701a81e5f0fa5c44eefb",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "testContact",
+              "line": 24,
+              "end_line": 29
+            },
+            {
+              "name": "originalSeams",
+              "line": 34,
+              "end_line": 184
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "d5c56b96060c560964766dd169e4bb9c82e39e9a045242f24132780493bc3618",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "publicSessionFiltersBeforeCollectionAndEndsOnStop",
+              "line": 29,
+              "end_line": 45
+            },
+            {
+              "name": "publicSessionRetainsAcknowledgementAfterFiveHundredNonmatchingEvents",
+              "line": 48,
+              "end_line": 63
+            },
+            {
+              "name": "originalLoginFiltersRetainCompleteSixBytePrefixes",
+              "line": 67,
+              "end_line": 76
+            },
+            {
+              "name": "originalErrorFrameReachesTheTypedFirmwareAccessor",
+              "line": 79,
+              "end_line": 84
+            },
+            {
+              "name": "startWireSession",
+              "line": 86,
+              "end_line": 100
+            },
+            {
+              "name": "advertisement",
+              "line": 102,
+              "end_line": 103
+            },
+            {
+              "name": "acknowledgement",
+              "line": 105,
+              "end_line": 108
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+      "blob_sha": "cbf5470fc9f3b4ed91f8941ea06149925f589030",
+      "kind": "test",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+          "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "contactMessage",
+              "line": 12,
+              "end_line": 13
+            },
+            {
+              "name": "channelMessage",
+              "line": 15,
+              "end_line": 16
+            },
+            {
+              "name": "Any acknowledgement matches regardless of code",
+              "line": 20,
+              "end_line": 23
+            },
+            {
+              "name": "Any acknowledgement rejects all unrelated cases",
+              "line": 26,
+              "end_line": 30
+            },
+            {
+              "name": "RF log filter matches only RF logs",
+              "line": 33,
+              "end_line": 41
+            },
+            {
+              "name": "Any advertisement matches all senders and rejects unrelated events",
+              "line": 44,
+              "end_line": 49
+            },
+            {
+              "name": "Any contact message matches only direct receipts",
+              "line": 52,
+              "end_line": 56
+            },
+            {
+              "name": "Any channel message matches only channel text receipts",
+              "line": 59,
+              "end_line": 66
+            },
+            {
+              "name": "Any login success matches only successful login",
+              "line": 69,
+              "end_line": 73
+            },
+            {
+              "name": "Any login failure matches absent and present prefix only",
+              "line": 76,
+              "end_line": 81
+            },
+            {
+              "name": "Acknowledgement code matching is exact and not prefix or object identity",
+              "line": 84,
+              "end_line": 90
+            },
+            {
+              "name": "Contact prefix matching preserves source starts-with behavior including empty prefix",
+              "line": 93,
+              "end_line": 100
+            },
+            {
+              "name": "Channel index matching includes the full unsigned byte range",
+              "line": 103,
+              "end_line": 109
+            },
+            {
+              "name": "Advertisement and path update filters preserve prefix and event type",
+              "line": 112,
+              "end_line": 119
+            },
+            {
+              "name": "Telemetry prefix filter does not require successful LPP parsing",
+              "line": 122,
+              "end_line": 128
+            },
+            {
+              "name": "Status response prefix matching uses original prefix without arbitrary padding",
+              "line": 131,
+              "end_line": 137
+            },
+            {
+              "name": "Response and indicator filters never mix event variants",
+              "line": 140,
+              "end_line": 149
+            },
+            {
+              "name": "Combinators preserve short-circuit and negation",
+              "line": 152,
+              "end_line": 161
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "kind": "test",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+          "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "contactMessage",
+              "line": 12,
+              "end_line": 13
+            },
+            {
+              "name": "channelMessage",
+              "line": 15,
+              "end_line": 16
+            },
+            {
+              "name": "Any acknowledgement matches regardless of code",
+              "line": 20,
+              "end_line": 23
+            },
+            {
+              "name": "Any acknowledgement rejects all unrelated cases",
+              "line": 26,
+              "end_line": 30
+            },
+            {
+              "name": "RF log filter matches only RF logs",
+              "line": 33,
+              "end_line": 41
+            },
+            {
+              "name": "Any advertisement matches all senders and rejects unrelated events",
+              "line": 44,
+              "end_line": 49
+            },
+            {
+              "name": "Any contact message matches only direct receipts",
+              "line": 52,
+              "end_line": 56
+            },
+            {
+              "name": "Any channel message matches only channel text receipts",
+              "line": 59,
+              "end_line": 66
+            },
+            {
+              "name": "Any login success matches only successful login",
+              "line": 69,
+              "end_line": 73
+            },
+            {
+              "name": "Any login failure matches absent and present prefix only",
+              "line": 76,
+              "end_line": 81
+            },
+            {
+              "name": "Acknowledgement code matching is exact and not prefix or object identity",
+              "line": 84,
+              "end_line": 90
+            },
+            {
+              "name": "Contact prefix matching preserves source starts-with behavior including empty prefix",
+              "line": 93,
+              "end_line": 100
+            },
+            {
+              "name": "Channel index matching includes the full unsigned byte range",
+              "line": 103,
+              "end_line": 109
+            },
+            {
+              "name": "Advertisement and path update filters preserve prefix and event type",
+              "line": 112,
+              "end_line": 119
+            },
+            {
+              "name": "Telemetry prefix filter does not require successful LPP parsing",
+              "line": 122,
+              "end_line": 128
+            },
+            {
+              "name": "Status response prefix matching uses original prefix without arbitrary padding",
+              "line": 131,
+              "end_line": 137
+            },
+            {
+              "name": "Response and indicator filters never mix event variants",
+              "line": 140,
+              "end_line": 149
+            },
+            {
+              "name": "Combinators preserve short-circuit and negation",
+              "line": 152,
+              "end_line": 161
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "d5c56b96060c560964766dd169e4bb9c82e39e9a045242f24132780493bc3618",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "publicSessionFiltersBeforeCollectionAndEndsOnStop",
+              "line": 29,
+              "end_line": 45
+            },
+            {
+              "name": "publicSessionRetainsAcknowledgementAfterFiveHundredNonmatchingEvents",
+              "line": 48,
+              "end_line": 63
+            },
+            {
+              "name": "originalLoginFiltersRetainCompleteSixBytePrefixes",
+              "line": 67,
+              "end_line": 76
+            },
+            {
+              "name": "originalErrorFrameReachesTheTypedFirmwareAccessor",
+              "line": 79,
+              "end_line": 84
+            },
+            {
+              "name": "startWireSession",
+              "line": 86,
+              "end_line": 100
+            },
+            {
+              "name": "advertisement",
+              "line": 102,
+              "end_line": 103
+            },
+            {
+              "name": "acknowledgement",
+              "line": 105,
+              "end_line": 108
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "kind": "test",
+      "owner": "WP-106",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+          "sha256": "441644376420ac0337aad7a3f2a3103fa9fc7f9008eb667a241548625c045778",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+            "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+            "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "statusResponse",
+              "line": 22,
+              "end_line": 28
+            },
+            {
+              "name": "All six firmware subcodes retain original typed and raw error accessors",
+              "line": 32,
+              "end_line": 44
+            },
+            {
+              "name": "Every unknown byte has null typed error but unchanged raw value",
+              "line": 47,
+              "end_line": 54
+            },
+            {
+              "name": "A missing subcode retains its attribute entry and null typed code",
+              "line": 57,
+              "end_line": 62
+            },
+            {
+              "name": "Nonerror cases never gain a device error code",
+              "line": 65,
+              "end_line": 70
+            },
+            {
+              "name": "Attribute maps preserve exact source keys types absent fields and nulls",
+              "line": 73,
+              "end_line": 85
+            },
+            {
+              "name": "Message receipt attributes use raw type and channel bytes without enum ordinals",
+              "line": 88,
+              "end_line": 99
+            },
+            {
+              "name": "Case name never includes payload text keys or diagnostics",
+              "line": 102,
+              "end_line": 108
+            },
+            {
+              "name": "Telemetry retains valid prefix plus malformed suffix diagnostic and raw bytes",
+              "line": 111,
+              "end_line": 123
+            },
+            {
+              "name": "Empty telemetry is complete and malformed-only telemetry is not success shaped empty",
+              "line": 126,
+              "end_line": 132
+            },
+            {
+              "name": "Collection snapshots and generated copies cannot acquire mutable caller state",
+              "line": 135,
+              "end_line": 152
+            },
+            {
+              "name": "Every Double payload preserves signed-zero equality and hash agreement",
+              "line": 155,
+              "end_line": 174
+            },
+            {
+              "name": "PathInfo validates encoded byte widths preserves reserved null hops and rejects empty match",
+              "line": 177,
+              "end_line": 192
+            },
+            {
+              "name": "Trace legacy hash accessor and constructor preserve absent empty and wide hash bytes",
+              "line": 195,
+              "end_line": 201
+            },
+            {
+              "name": "RF metadata preserves transport flags unknown raw nibble and independent SHA prefix",
+              "line": 204,
+              "end_line": 217
+            },
+            {
+              "name": "Status layout and optional room counters retain source defaults and unsigned widths",
+              "line": 220,
+              "end_line": 231
+            },
+            {
+              "name": "Transport errors and connection associated values have structural source equality",
+              "line": 234,
+              "end_line": 240
+            },
+            {
+              "name": "Message results hold actual message payloads and all four source variants",
+              "line": 243,
+              "end_line": 251
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "v112",
+              "line": 26,
+              "end_line": 26
+            },
+            {
+              "name": "roundTrip",
+              "line": 27,
+              "end_line": 27
+            },
+            {
+              "name": "v112ParserCases",
+              "line": 30,
+              "end_line": 55
+            },
+            {
+              "name": "deviceAndContactRoundTrips",
+              "line": 58,
+              "end_line": 118
+            },
+            {
+              "name": "contactMessage",
+              "line": 120,
+              "end_line": 121
+            },
+            {
+              "name": "messagesAndChannels",
+              "line": 124,
+              "end_line": 163
+            },
+            {
+              "name": "statusStatsAndVariables",
+              "line": 166,
+              "end_line": 193
+            },
+            {
+              "name": "packetStats",
+              "line": 195,
+              "end_line": 202
+            },
+            {
+              "name": "originalLppSeams",
+              "line": 205,
+              "end_line": 240
+            },
+            {
+              "name": "wp106RouterSeam",
+              "line": 243,
+              "end_line": 248
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "d5c56b96060c560964766dd169e4bb9c82e39e9a045242f24132780493bc3618",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "publicSessionFiltersBeforeCollectionAndEndsOnStop",
+              "line": 29,
+              "end_line": 45
+            },
+            {
+              "name": "publicSessionRetainsAcknowledgementAfterFiveHundredNonmatchingEvents",
+              "line": 48,
+              "end_line": 63
+            },
+            {
+              "name": "originalLoginFiltersRetainCompleteSixBytePrefixes",
+              "line": 67,
+              "end_line": 76
+            },
+            {
+              "name": "originalErrorFrameReachesTheTypedFirmwareAccessor",
+              "line": 79,
+              "end_line": 84
+            },
+            {
+              "name": "startWireSession",
+              "line": 86,
+              "end_line": 100
+            },
+            {
+              "name": "advertisement",
+              "line": 102,
+              "end_line": 103
+            },
+            {
+              "name": "acknowledgement",
+              "line": 105,
+              "end_line": 108
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherDropTests.swift",
+      "source_blob_sha": "c9bfec91329df22624041f50496a63f86ad45e3d",
+      "case_id": "EventDispatcherDropTests::droppedEventCount increments when a slow consumer overflows the buffer()",
+      "parameter_family": "single",
+      "line": 8,
+      "end_line": 23,
+      "declaration_sha256": "96ae49590cb8581c0f1362f668b0f296c78ec80681c7cfeffa63e9566b7bffdb",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 18,
+          "expression": "#expect(await dispatcher.droppedEventCount >= 100)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`droppedEventCount increments when a slow consumer overflows the buffer`",
+          "line": 8,
+          "expression": "`droppedEventCount increments when a slow consumer overflows the buffer`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "EventDispatcher",
+          "line": 9,
+          "expression": "EventDispatcher()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let",
+          "line": 10,
+          "expression": "let (_, stream)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "dispatcher.subscribeTracked",
+          "line": 10,
+          "expression": "dispatcher.subscribeTracked(filter: nil)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "dispatcher.dispatch",
+          "line": 14,
+          "expression": "dispatcher.dispatch(.advertisement(publicKey: Data([UInt8(i % 256)])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 14,
+          "expression": "advertisement(publicKey: Data([UInt8(i % 256)]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 14,
+          "expression": "Data([UInt8(i % 256)])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt8",
+          "line": 14,
+          "expression": "UInt8(i % 256)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+      "source_blob_sha": "c87c405ef976ed64ad8ec544dc061ed31cd767ab",
+      "case_id": "EventDispatcherFilteredSubscriptionTests::filtered subscription receives only matching events()",
+      "parameter_family": "single",
+      "line": 8,
+      "end_line": 27,
+      "declaration_sha256": "30dd26b5d2ec19da3c1a60a95479dcbf8b104337e2016529668b1552c1819d5b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 22,
+          "expression": "Issue.record(\"Expected acknowledgement, got \\(String(describing: first))\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 25,
+          "expression": "#expect(code == Data([0x10, 0x20, 0x30, 0x40]))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 26,
+          "expression": "#expect(tripTime == 500)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`filtered subscription receives only matching events`",
+          "line": 8,
+          "expression": "`filtered subscription receives only matching events`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MockTransport",
+          "line": 9,
+          "expression": "MockTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshCoreSession",
+          "line": 10,
+          "expression": "MeshCoreSession(transport: transport)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "session.events",
+          "line": 12,
+          "expression": "session.events(filter: .anyAcknowledgement)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "session.dispatchForTesting",
+          "line": 14,
+          "expression": "session.dispatchForTesting(.advertisement(publicKey: Data([0x01])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 14,
+          "expression": "advertisement(publicKey: Data([0x01]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 14,
+          "expression": "Data([0x01])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "session.dispatchForTesting",
+          "line": 15,
+          "expression": "session.dispatchForTesting(.acknowledgement(code: Data([0x10, 0x20, 0x30, 0x40]), tripTime: 500))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "acknowledgement",
+          "line": 15,
+          "expression": "acknowledgement(code: Data([0x10, 0x20, 0x30, 0x40]), tripTime: 500)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 15,
+          "expression": "Data([0x10, 0x20, 0x30, 0x40])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "session.dispatchForTesting",
+          "line": 16,
+          "expression": "session.dispatchForTesting(.advertisement(publicKey: Data([0x02])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 16,
+          "expression": "advertisement(publicKey: Data([0x02]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 16,
+          "expression": "Data([0x02])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "stream.makeAsyncIterator",
+          "line": 18,
+          "expression": "stream.makeAsyncIterator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "iterator.next",
+          "line": 19,
+          "expression": "iterator.next()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .acknowledgement",
+          "line": 21,
+          "expression": "let .acknowledgement(code, tripTime)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 25,
+          "expression": "Data([0x10, 0x20, 0x30, 0x40])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+          "sha256": "db48d4f4aacf899348680200ec1b5296e57f0c42b203701a81e5f0fa5c44eefb",
+          "class": "com.meshcoreone.android.core.protocol.session.CrossComponentSessionCasesTest",
+          "method_or_family_name": "filtered subscription receives only matching events",
+          "line": 145,
+          "end_line": 156,
+          "factory_method": "originalSeams",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "5c5b732628be1232ce5f7d8cf7e66b89f9b866c03b2bd74f06e5944997e43997",
+          "registration": "original(\"EventDispatcherFilteredSubscriptionTests\", \"filtered subscription receives only matching events\")",
+          "assertions": [
+            {
+              "name": "assertIs",
+              "line": 152,
+              "expression": "assertIs<MeshEvent.Acknowledgement>(stream.first())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 153,
+              "expression": "assertEquals(hex(\"10203040\"), event.code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 154,
+              "expression": "assertEquals(500u, event.tripTime)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "fixture",
+              "line": 146,
+              "expression": "fixture()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.events",
+              "line": 147,
+              "expression": "f.session.events(EventFilter.anyAcknowledgement)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "start",
+              "line": 148,
+              "expression": "start(f)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 149,
+              "expression": "f.transport.receive(raw(0x80, filled(1, 32)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "raw",
+              "line": 149,
+              "expression": "raw(0x80, filled(1, 32))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "filled",
+              "line": 149,
+              "expression": "filled(1, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 150,
+              "expression": "f.transport.receive(ackPacket(hex(\"10203040\"), 500))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ackPacket",
+              "line": 150,
+              "expression": "ackPacket(hex(\"10203040\"), 500)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 150,
+              "expression": "hex(\"10203040\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 151,
+              "expression": "f.transport.receive(raw(0x80, filled(2, 32)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "raw",
+              "line": 151,
+              "expression": "raw(0x80, filled(2, 32))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "filled",
+              "line": 151,
+              "expression": "filled(2, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 151,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "stream.first",
+              "line": 152,
+              "expression": "stream.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 153,
+              "expression": "hex(\"10203040\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.stop",
+              "line": 155,
+              "expression": "f.session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "EventDispatcherFilteredSubscriptionTests::filtered subscription receives only matching events()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "d5c56b96060c560964766dd169e4bb9c82e39e9a045242f24132780493bc3618",
+          "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+          "method_or_family_name": "publicSessionFiltersBeforeCollectionAndEndsOnStop",
+          "line": 29,
+          "end_line": 45,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "d9dfc12760d05e0570afd2c9e7004844ed9fa03b9ba3d19ba5681a86422d7805",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 40,
+              "expression": "assertEquals(listOf(MeshEvent.Acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500u)), stream.toList())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(\"Filtering must not trigger extra commands\", 1, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MockTransport",
+              "line": 30,
+              "expression": "MockTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshCoreSession",
+              "line": 31,
+              "expression": "MeshCoreSession(transport, clock = publicSessionClock(), coroutineContext = backgroundScope.coroutineContext)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "publicSessionClock",
+              "line": 31,
+              "expression": "publicSessionClock()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.events",
+              "line": 32,
+              "expression": "session.events(EventFilter.anyAcknowledgement)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "startWireSession",
+              "line": 34,
+              "expression": "startWireSession(session, transport)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 35,
+              "expression": "transport.simulateReceive(advertisement(1))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advertisement",
+              "line": 35,
+              "expression": "advertisement(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 36,
+              "expression": "transport.simulateReceive(acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "acknowledgement",
+              "line": 36,
+              "expression": "acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 36,
+              "expression": "Bytes.of(0x10, 0x20, 0x30, 0x40)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 37,
+              "expression": "transport.simulateReceive(advertisement(2))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advertisement",
+              "line": 37,
+              "expression": "advertisement(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 38,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 39,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 40,
+              "expression": "listOf(MeshEvent.Acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.Acknowledgement",
+              "line": 40,
+              "expression": "MeshEvent.Acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 40,
+              "expression": "Bytes.of(0x10, 0x20, 0x30, 0x40)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "stream.toList",
+              "line": 40,
+              "expression": "stream.toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 43,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "EventDispatcherFilteredSubscriptionTests::filtered subscription receives only matching events()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+      "source_blob_sha": "c87c405ef976ed64ad8ec544dc061ed31cd767ab",
+      "case_id": "EventDispatcherFilteredSubscriptionTests::filtered subscription survives flood of non-matching events()",
+      "parameter_family": "single",
+      "line": 30,
+      "end_line": 54,
+      "declaration_sha256": "b95d8958d60936a2ad96422e0583b3cf999850bd782d2d8cff2e92b6743b5f66",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 49,
+          "expression": "Issue.record(\"filter not applied \u2014 iterator yielded a non-ACK event first. Got: \\(String(describing: event))\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 52,
+          "expression": "#expect(code == expectedCode)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 53,
+          "expression": "#expect(tripTime == 1234)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`filtered subscription survives flood of non-matching events`",
+          "line": 30,
+          "expression": "`filtered subscription survives flood of non-matching events`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MockTransport",
+          "line": 31,
+          "expression": "MockTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshCoreSession",
+          "line": 32,
+          "expression": "MeshCoreSession(transport: transport)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "session.events",
+          "line": 34,
+          "expression": "session.events(filter: .anyAcknowledgement)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "session.dispatchForTesting",
+          "line": 39,
+          "expression": "session.dispatchForTesting(.advertisement(publicKey: Data([UInt8(i % 256)])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 39,
+          "expression": "advertisement(publicKey: Data([UInt8(i % 256)]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 39,
+          "expression": "Data([UInt8(i % 256)])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt8",
+          "line": 39,
+          "expression": "UInt8(i % 256)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 42,
+          "expression": "Data([0xAB, 0xCD, 0xEF, 0x12])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "session.dispatchForTesting",
+          "line": 43,
+          "expression": "session.dispatchForTesting(.acknowledgement(code: expectedCode, tripTime: 1234))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "acknowledgement",
+          "line": 43,
+          "expression": "acknowledgement(code: expectedCode, tripTime: 1234)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "stream.makeAsyncIterator",
+          "line": 45,
+          "expression": "stream.makeAsyncIterator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "iterator.next",
+          "line": 46,
+          "expression": "iterator.next()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .acknowledgement",
+          "line": 48,
+          "expression": "let .acknowledgement(code, tripTime)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+          "sha256": "db48d4f4aacf899348680200ec1b5296e57f0c42b203701a81e5f0fa5c44eefb",
+          "class": "com.meshcoreone.android.core.protocol.session.CrossComponentSessionCasesTest",
+          "method_or_family_name": "filtered subscription survives flood of non-matching events",
+          "line": 157,
+          "end_line": 168,
+          "factory_method": "originalSeams",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "0656f66a3a4606bf66450ff8f6c8ef62efef257716cb2010089251962182c381",
+          "registration": "original(\"EventDispatcherFilteredSubscriptionTests\", \"filtered subscription survives flood of non-matching events\")",
+          "assertions": [
+            {
+              "name": "assertIs",
+              "line": 163,
+              "expression": "assertIs<MeshEvent.Acknowledgement>(stream.first())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 164,
+              "expression": "assertEquals(hex(\"abcdef12\"), event.code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 165,
+              "expression": "assertEquals(1234u, event.tripTime)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 166,
+              "expression": "assertEquals(0L, f.session.core.generation().dispatcher.droppedEventCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "fixture",
+              "line": 158,
+              "expression": "fixture()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.events",
+              "line": 159,
+              "expression": "f.session.events(EventFilter.anyAcknowledgement)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "start",
+              "line": 160,
+              "expression": "start(f)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeat",
+              "line": 161,
+              "expression": "repeat(500)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 161,
+              "expression": "f.transport.receive(raw(0x80, filled(it % 256, 32)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "raw",
+              "line": 161,
+              "expression": "raw(0x80, filled(it % 256, 32))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "filled",
+              "line": 161,
+              "expression": "filled(it % 256, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 162,
+              "expression": "f.transport.receive(ackPacket(hex(\"abcdef12\"), 1234))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ackPacket",
+              "line": 162,
+              "expression": "ackPacket(hex(\"abcdef12\"), 1234)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 162,
+              "expression": "hex(\"abcdef12\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 162,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "stream.first",
+              "line": 163,
+              "expression": "stream.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 164,
+              "expression": "hex(\"abcdef12\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.core.generation",
+              "line": 166,
+              "expression": "f.session.core.generation()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.stop",
+              "line": 167,
+              "expression": "f.session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "EventDispatcherFilteredSubscriptionTests::filtered subscription survives flood of non-matching events()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "d5c56b96060c560964766dd169e4bb9c82e39e9a045242f24132780493bc3618",
+          "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+          "method_or_family_name": "publicSessionRetainsAcknowledgementAfterFiveHundredNonmatchingEvents",
+          "line": 48,
+          "end_line": 63,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ec7ec3e3c868dadf04f75e383de6768b1f21100c8516a9ee0d457bd3d73128b3",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 58,
+              "expression": "assertEquals(listOf(MeshEvent.Acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234u)), stream.toList())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 59,
+              "expression": "assertEquals(\"Receiving the flood must not write or refresh contacts\", 1, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MockTransport",
+              "line": 49,
+              "expression": "MockTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshCoreSession",
+              "line": 50,
+              "expression": "MeshCoreSession(transport, clock = publicSessionClock(), coroutineContext = backgroundScope.coroutineContext)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "publicSessionClock",
+              "line": 50,
+              "expression": "publicSessionClock()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.events",
+              "line": 51,
+              "expression": "session.events(EventFilter.anyAcknowledgement)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "startWireSession",
+              "line": 53,
+              "expression": "startWireSession(session, transport)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeat",
+              "line": 54,
+              "expression": "repeat(500)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 54,
+              "expression": "transport.simulateReceive(advertisement(it % 256))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advertisement",
+              "line": 54,
+              "expression": "advertisement(it % 256)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 55,
+              "expression": "transport.simulateReceive(acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "acknowledgement",
+              "line": 55,
+              "expression": "acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 55,
+              "expression": "Bytes.of(0xab, 0xcd, 0xef, 0x12)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 56,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 57,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 58,
+              "expression": "listOf(MeshEvent.Acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.Acknowledgement",
+              "line": 58,
+              "expression": "MeshEvent.Acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 58,
+              "expression": "Bytes.of(0xab, 0xcd, 0xef, 0x12)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "stream.toList",
+              "line": 58,
+              "expression": "stream.toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 61,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "EventDispatcherFilteredSubscriptionTests::filtered subscription survives flood of non-matching events()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+      "source_blob_sha": "cbf5470fc9f3b4ed91f8941ea06149925f589030",
+      "case_id": "EventFilterAnyAcknowledgementTests::matches .acknowledgement regardless of code()",
+      "parameter_family": "single",
+      "line": 8,
+      "end_line": 16,
+      "declaration_sha256": "83fb7fcc5a5062c6548e84efe795f713613ac6f82cbd3e12a1a78160becad505",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 14,
+          "expression": "#expect(filter.matches(a))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 15,
+          "expression": "#expect(filter.matches(b))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`matches .acknowledgement regardless of code`",
+          "line": 8,
+          "expression": "`matches .acknowledgement regardless of code`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshEvent.acknowledgement",
+          "line": 11,
+          "expression": "MeshEvent.acknowledgement(code: Data([0x01, 0x02, 0x03, 0x04]), tripTime: 100)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 11,
+          "expression": "Data([0x01, 0x02, 0x03, 0x04])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshEvent.acknowledgement",
+          "line": 12,
+          "expression": "MeshEvent.acknowledgement(code: Data([0xFF, 0xEE, 0xDD, 0xCC]), tripTime: nil)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 12,
+          "expression": "Data([0xFF, 0xEE, 0xDD, 0xCC])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 14,
+          "expression": "filter.matches(a)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 15,
+          "expression": "filter.matches(b)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+      "source_blob_sha": "cbf5470fc9f3b4ed91f8941ea06149925f589030",
+      "case_id": "EventFilterAnyAcknowledgementTests::does not match non-acknowledgement events()",
+      "parameter_family": "single",
+      "line": 19,
+      "end_line": 25,
+      "declaration_sha256": "68dcea6ed76f8b3a4467dbfd0fea70547dbdb0d8f36ef5f8419a373159479fd9",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 22,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 23,
+          "expression": "#expect(!filter.matches(.error(code: 42)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 24,
+          "expression": "#expect(!filter.matches(.advertisement(publicKey: Data([0xAA]))))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`does not match non-acknowledgement events`",
+          "line": 19,
+          "expression": "`does not match non-acknowledgement events`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 22,
+          "expression": "filter.matches(.ok(value: nil))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ok",
+          "line": 22,
+          "expression": "ok(value: nil)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 23,
+          "expression": "filter.matches(.error(code: 42))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "error",
+          "line": 23,
+          "expression": "error(code: 42)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 24,
+          "expression": "filter.matches(.advertisement(publicKey: Data([0xAA])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 24,
+          "expression": "advertisement(publicKey: Data([0xAA]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 24,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::rxLogData matches .rxLogData and rejects unrelated events()",
+      "parameter_family": "single",
+      "line": 10,
+      "end_line": 29,
+      "declaration_sha256": "3980058782875065baba2056d9cb243fc4cc6e0f3e19a9ea0f4091c0a94e32a8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 26,
+          "expression": "#expect(filter.matches(.rxLogData(log)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 27,
+          "expression": "#expect(!filter.matches(.advertisement(publicKey: Data([0xAA]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 28,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`rxLogData matches .rxLogData and rejects unrelated events`",
+          "line": 10,
+          "expression": "`rxLogData matches .rxLogData and rejects unrelated events`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ParsedRxLogData",
+          "line": 12,
+          "expression": "ParsedRxLogData(\n      snr: 6.0,\n      rssi: -72,\n      rawPayload: Data([0x00]),\n      routeType: .flood,\n      payloadType: .textMessage,\n      payloadVersion: 0,\n      payloadTypeBits: 2,\n      transportCode: nil,\n      pathLength: 0,\n      pathNodes: [],\n      packetPayload: Data()\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 15,
+          "expression": "Data([0x00])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 23,
+          "expression": "Data()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 26,
+          "expression": "filter.matches(.rxLogData(log))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "rxLogData",
+          "line": 26,
+          "expression": "rxLogData(log)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 27,
+          "expression": "filter.matches(.advertisement(publicKey: Data([0xAA])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 27,
+          "expression": "advertisement(publicKey: Data([0xAA]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 27,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 28,
+          "expression": "filter.matches(.ok(value: nil))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ok",
+          "line": 28,
+          "expression": "ok(value: nil)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyAdvertisement matches .advertisement and rejects unrelated events()",
+      "parameter_family": "single",
+      "line": 34,
+      "end_line": 41,
+      "declaration_sha256": "a3232d8b10701df32cb16fae015692fd64d725fe78944c05e23d73e633368c29",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 37,
+          "expression": "#expect(filter.matches(.advertisement(publicKey: Data([0xAA, 0xBB]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 38,
+          "expression": "#expect(filter.matches(.advertisement(publicKey: Data([0xFF]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 39,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 40,
+          "expression": "#expect(!filter.matches(.error(code: 1)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`anyAdvertisement matches .advertisement and rejects unrelated events`",
+          "line": 34,
+          "expression": "`anyAdvertisement matches .advertisement and rejects unrelated events`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 37,
+          "expression": "filter.matches(.advertisement(publicKey: Data([0xAA, 0xBB])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 37,
+          "expression": "advertisement(publicKey: Data([0xAA, 0xBB]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 37,
+          "expression": "Data([0xAA, 0xBB])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 38,
+          "expression": "filter.matches(.advertisement(publicKey: Data([0xFF])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 38,
+          "expression": "advertisement(publicKey: Data([0xFF]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 38,
+          "expression": "Data([0xFF])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 39,
+          "expression": "filter.matches(.ok(value: nil))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ok",
+          "line": 39,
+          "expression": "ok(value: nil)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 40,
+          "expression": "filter.matches(.error(code: 1))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "error",
+          "line": 40,
+          "expression": "error(code: 1)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyContactMessage matches .contactMessageReceived and rejects unrelated events()",
+      "parameter_family": "single",
+      "line": 46,
+      "end_line": 61,
+      "declaration_sha256": "b0249be10bf2ba66da93e5478722a5791e766c6c0c4787624292aabedfd10cb4",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 58,
+          "expression": "#expect(filter.matches(.contactMessageReceived(msg)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 59,
+          "expression": "#expect(!filter.matches(.advertisement(publicKey: Data([0xAA]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 60,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`anyContactMessage matches .contactMessageReceived and rejects unrelated events`",
+          "line": 46,
+          "expression": "`anyContactMessage matches .contactMessageReceived and rejects unrelated events`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ContactMessage",
+          "line": 48,
+          "expression": "ContactMessage(\n      senderPublicKeyPrefix: Data([0x01, 0x02]),\n      pathLength: 0,\n      textType: 0,\n      senderTimestamp: Date(),\n      signature: nil,\n      text: \"hello\",\n      snr: nil\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 49,
+          "expression": "Data([0x01, 0x02])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Date",
+          "line": 52,
+          "expression": "Date()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 58,
+          "expression": "filter.matches(.contactMessageReceived(msg))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "contactMessageReceived",
+          "line": 58,
+          "expression": "contactMessageReceived(msg)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 59,
+          "expression": "filter.matches(.advertisement(publicKey: Data([0xAA])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 59,
+          "expression": "advertisement(publicKey: Data([0xAA]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 59,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 60,
+          "expression": "filter.matches(.ok(value: nil))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ok",
+          "line": 60,
+          "expression": "ok(value: nil)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyChannelMessage matches .channelMessageReceived and rejects unrelated events()",
+      "parameter_family": "single",
+      "line": 66,
+      "end_line": 80,
+      "declaration_sha256": "ae59ab85ec75772a76e7505269aebda6c2b4e9d1dc7aae4ffc1485bd1e03d0af",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 77,
+          "expression": "#expect(filter.matches(.channelMessageReceived(msg)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 78,
+          "expression": "#expect(!filter.matches(.advertisement(publicKey: Data([0xAA]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 79,
+          "expression": "#expect(!filter.matches(.noMoreMessages))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`anyChannelMessage matches .channelMessageReceived and rejects unrelated events`",
+          "line": 66,
+          "expression": "`anyChannelMessage matches .channelMessageReceived and rejects unrelated events`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelMessage",
+          "line": 68,
+          "expression": "ChannelMessage(\n      channelIndex: 3,\n      pathLength: 0,\n      textType: 0,\n      senderTimestamp: Date(),\n      text: \"hi\",\n      snr: nil\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Date",
+          "line": 72,
+          "expression": "Date()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 77,
+          "expression": "filter.matches(.channelMessageReceived(msg))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "channelMessageReceived",
+          "line": 77,
+          "expression": "channelMessageReceived(msg)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 78,
+          "expression": "filter.matches(.advertisement(publicKey: Data([0xAA])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "advertisement",
+          "line": 78,
+          "expression": "advertisement(publicKey: Data([0xAA]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 78,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 79,
+          "expression": "filter.matches(.noMoreMessages)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyLoginSuccess matches .loginSuccess and rejects unrelated events()",
+      "parameter_family": "single",
+      "line": 85,
+      "end_line": 96,
+      "declaration_sha256": "f7474a7193006f90fddc2085adcf69b99ffaa4030a44f0b761671016ef601c5e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 93,
+          "expression": "#expect(filter.matches(.loginSuccess(info)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 94,
+          "expression": "#expect(!filter.matches(.loginFailed(publicKeyPrefix: nil)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 95,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`anyLoginSuccess matches .loginSuccess and rejects unrelated events`",
+          "line": 85,
+          "expression": "`anyLoginSuccess matches .loginSuccess and rejects unrelated events`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LoginInfo",
+          "line": 87,
+          "expression": "LoginInfo(\n      permissions: 0x01,\n      isAdmin: false,\n      publicKeyPrefix: Data([0xDE, 0xAD, 0xBE, 0xEF, 0x01, 0x02])\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 90,
+          "expression": "Data([0xDE, 0xAD, 0xBE, 0xEF, 0x01, 0x02])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 93,
+          "expression": "filter.matches(.loginSuccess(info))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "loginSuccess",
+          "line": 93,
+          "expression": "loginSuccess(info)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 94,
+          "expression": "filter.matches(.loginFailed(publicKeyPrefix: nil))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "loginFailed",
+          "line": 94,
+          "expression": "loginFailed(publicKeyPrefix: nil)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 95,
+          "expression": "filter.matches(.ok(value: nil))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ok",
+          "line": 95,
+          "expression": "ok(value: nil)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "d5c56b96060c560964766dd169e4bb9c82e39e9a045242f24132780493bc3618",
+          "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+          "method_or_family_name": "originalLoginFiltersRetainCompleteSixBytePrefixes",
+          "line": 67,
+          "end_line": 76,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "c92f107eb4639387aef8b8be27d45fd6b47c1d5aecf60aa789baaaabcd8d4e0e",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 69,
+              "expression": "assertTrue(EventFilter.anyLoginSuccess.matches(MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix))))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 70,
+              "expression": "assertFalse(EventFilter.anyLoginSuccess.matches(MeshEvent.LoginFailed(null)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 71,
+              "expression": "assertFalse(EventFilter.anyLoginSuccess.matches(MeshEvent.Ok(null)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 72,
+              "expression": "assertTrue(EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb))))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 73,
+              "expression": "assertTrue(EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(null)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 74,
+              "expression": "assertFalse(EventFilter.anyLoginFailed.matches(MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix))))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 75,
+              "expression": "assertFalse(EventFilter.anyLoginFailed.matches(MeshEvent.Ok(null)))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 68,
+              "expression": "Bytes.of(0xde, 0xad, 0xbe, 0xef, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginSuccess.matches",
+              "line": 69,
+              "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginSuccess",
+              "line": 69,
+              "expression": "MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LoginInfo",
+              "line": 69,
+              "expression": "LoginInfo(1u, false, prefix)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginSuccess.matches",
+              "line": 70,
+              "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.LoginFailed(null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginFailed",
+              "line": 70,
+              "expression": "MeshEvent.LoginFailed(null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginSuccess.matches",
+              "line": 71,
+              "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.Ok(null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.Ok",
+              "line": 71,
+              "expression": "MeshEvent.Ok(null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginFailed.matches",
+              "line": 72,
+              "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginFailed",
+              "line": 72,
+              "expression": "MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 72,
+              "expression": "Bytes.of(0xaa, 0xbb)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginFailed.matches",
+              "line": 73,
+              "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginFailed",
+              "line": 73,
+              "expression": "MeshEvent.LoginFailed(null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginFailed.matches",
+              "line": 74,
+              "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginSuccess",
+              "line": 74,
+              "expression": "MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LoginInfo",
+              "line": 74,
+              "expression": "LoginInfo(0u, false, prefix)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginFailed.matches",
+              "line": 75,
+              "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.Ok(null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.Ok",
+              "line": 75,
+              "expression": "MeshEvent.Ok(null)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "EventFilterFactoryTests::anyLoginSuccess matches .loginSuccess and rejects unrelated events()",
+            "EventFilterFactoryTests::anyLoginFailed matches .loginFailed and rejects unrelated events()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyLoginFailed matches .loginFailed and rejects unrelated events()",
+      "parameter_family": "single",
+      "line": 101,
+      "end_line": 113,
+      "declaration_sha256": "26fe7181c21b17bebfdd75ace7143865d8260aff2b596f32a1b150963bdbe83c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 109,
+          "expression": "#expect(filter.matches(.loginFailed(publicKeyPrefix: Data([0xAA, 0xBB]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 110,
+          "expression": "#expect(filter.matches(.loginFailed(publicKeyPrefix: nil)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 111,
+          "expression": "#expect(!filter.matches(.loginSuccess(info)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 112,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`anyLoginFailed matches .loginFailed and rejects unrelated events`",
+          "line": 101,
+          "expression": "`anyLoginFailed matches .loginFailed and rejects unrelated events`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LoginInfo",
+          "line": 103,
+          "expression": "LoginInfo(\n      permissions: 0x00,\n      isAdmin: false,\n      publicKeyPrefix: Data([0xDE, 0xAD, 0xBE, 0xEF, 0x01, 0x02])\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 106,
+          "expression": "Data([0xDE, 0xAD, 0xBE, 0xEF, 0x01, 0x02])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 109,
+          "expression": "filter.matches(.loginFailed(publicKeyPrefix: Data([0xAA, 0xBB])))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "loginFailed",
+          "line": 109,
+          "expression": "loginFailed(publicKeyPrefix: Data([0xAA, 0xBB]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 109,
+          "expression": "Data([0xAA, 0xBB])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 110,
+          "expression": "filter.matches(.loginFailed(publicKeyPrefix: nil))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "loginFailed",
+          "line": 110,
+          "expression": "loginFailed(publicKeyPrefix: nil)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 111,
+          "expression": "filter.matches(.loginSuccess(info))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "loginSuccess",
+          "line": 111,
+          "expression": "loginSuccess(info)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "filter.matches",
+          "line": 112,
+          "expression": "filter.matches(.ok(value: nil))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ok",
+          "line": 112,
+          "expression": "ok(value: nil)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "d5c56b96060c560964766dd169e4bb9c82e39e9a045242f24132780493bc3618",
+          "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+          "method_or_family_name": "originalLoginFiltersRetainCompleteSixBytePrefixes",
+          "line": 67,
+          "end_line": 76,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "c92f107eb4639387aef8b8be27d45fd6b47c1d5aecf60aa789baaaabcd8d4e0e",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 69,
+              "expression": "assertTrue(EventFilter.anyLoginSuccess.matches(MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix))))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 70,
+              "expression": "assertFalse(EventFilter.anyLoginSuccess.matches(MeshEvent.LoginFailed(null)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 71,
+              "expression": "assertFalse(EventFilter.anyLoginSuccess.matches(MeshEvent.Ok(null)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 72,
+              "expression": "assertTrue(EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb))))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 73,
+              "expression": "assertTrue(EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(null)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 74,
+              "expression": "assertFalse(EventFilter.anyLoginFailed.matches(MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix))))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 75,
+              "expression": "assertFalse(EventFilter.anyLoginFailed.matches(MeshEvent.Ok(null)))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 68,
+              "expression": "Bytes.of(0xde, 0xad, 0xbe, 0xef, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginSuccess.matches",
+              "line": 69,
+              "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginSuccess",
+              "line": 69,
+              "expression": "MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LoginInfo",
+              "line": 69,
+              "expression": "LoginInfo(1u, false, prefix)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginSuccess.matches",
+              "line": 70,
+              "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.LoginFailed(null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginFailed",
+              "line": 70,
+              "expression": "MeshEvent.LoginFailed(null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginSuccess.matches",
+              "line": 71,
+              "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.Ok(null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.Ok",
+              "line": 71,
+              "expression": "MeshEvent.Ok(null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginFailed.matches",
+              "line": 72,
+              "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginFailed",
+              "line": 72,
+              "expression": "MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 72,
+              "expression": "Bytes.of(0xaa, 0xbb)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginFailed.matches",
+              "line": 73,
+              "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginFailed",
+              "line": 73,
+              "expression": "MeshEvent.LoginFailed(null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginFailed.matches",
+              "line": 74,
+              "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.LoginSuccess",
+              "line": 74,
+              "expression": "MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LoginInfo",
+              "line": 74,
+              "expression": "LoginInfo(0u, false, prefix)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EventFilter.anyLoginFailed.matches",
+              "line": 75,
+              "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.Ok(null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.Ok",
+              "line": 75,
+              "expression": "MeshEvent.Ok(null)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "EventFilterFactoryTests::anyLoginSuccess matches .loginSuccess and rejects unrelated events()",
+            "EventFilterFactoryTests::anyLoginFailed matches .loginFailed and rejects unrelated events()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::All six firmware sub-codes map to the matching ErrorCode(raw : UInt8 , expected : ErrorCode)",
+      "parameter_family": "arguments-sha256:86b5653d13992e0aea1818b3d611fe6ecc53cfb16e2b4aa2f2f76268ba9ed13c",
+      "line": 15,
+      "end_line": 19,
+      "declaration_sha256": "fdea800c0ac50af87cf6b0b04d4966bad4f80214f3eb18b1b58843b2f924cab2",
+      "inputs": {
+        "declaration": "@Test(arguments: [\n    (UInt8(1), ErrorCode.unsupportedCommand),\n    (UInt8(2), ErrorCode.notFound),\n    (UInt8(3), ErrorCode.tableFull),\n    (UInt8(4), ErrorCode.badState),\n    (UInt8(5), ErrorCode.fileIOError),\n    (UInt8(6), ErrorCode.illegalArgument)\n  ])",
+        "axes": [
+          {
+            "expression": "[ ( UInt8 ( 1 ) , ErrorCode . unsupportedCommand ) , ( UInt8 ( 2 ) , ErrorCode . notFound ) , ( UInt8 ( 3 ) , ErrorCode . tableFull ) , ( UInt8 ( 4 ) , ErrorCode . badState ) , ( UInt8 ( 5 ) , ErrorCode . fileIOError ) , ( UInt8 ( 6 ) , ErrorCode . illegalArgument ) ]",
+            "kind": "literal-collection",
+            "declared_rows": [
+              "( UInt8 ( 1 ) , ErrorCode . unsupportedCommand )",
+              "( UInt8 ( 2 ) , ErrorCode . notFound )",
+              "( UInt8 ( 3 ) , ErrorCode . tableFull )",
+              "( UInt8 ( 4 ) , ErrorCode . badState )",
+              "( UInt8 ( 5 ) , ErrorCode . fileIOError )",
+              "( UInt8 ( 6 ) , ErrorCode . illegalArgument )"
+            ],
+            "declared_count": 6,
+            "definition": null
+          }
+        ],
+        "combination": "collection",
+        "declared_count": 6
+      },
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 16,
+          "expression": "#expect(ErrorCode(rawValue: raw) == expected)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 17,
+          "expression": "#expect(MeshEvent.error(code: raw).errorCode == expected)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 18,
+          "expression": "#expect(MeshCoreError.deviceError(code: raw).deviceErrorCode == expected)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`All six firmware sub-codes map to the matching ErrorCode`",
+          "line": 15,
+          "expression": "`All six firmware sub-codes map to the matching ErrorCode`(raw: UInt8, expected: ErrorCode)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ErrorCode",
+          "line": 16,
+          "expression": "ErrorCode(rawValue: raw)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshEvent.error",
+          "line": 17,
+          "expression": "MeshEvent.error(code: raw)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshCoreError.deviceError",
+          "line": 18,
+          "expression": "MeshCoreError.deviceError(code: raw)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::Unknown or out-of-range bytes yield a nil typed code but keep the raw value()",
+      "parameter_family": "single",
+      "line": 22,
+      "end_line": 32,
+      "declaration_sha256": "aeba98cae36f0250c1b698f75551460f705e3b3a89d97add2c5e8547e2ae075c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 24,
+          "expression": "#expect(event.errorCode == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 26,
+          "expression": "#expect(event99.errorCode == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 28,
+          "expression": "#expect(code == 99)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 30,
+          "expression": "Issue.record(\"Expected .error case to preserve the raw byte\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Unknown or out-of-range bytes yield a nil typed code but keep the raw value`",
+          "line": 22,
+          "expression": "`Unknown or out-of-range bytes yield a nil typed code but keep the raw value`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshEvent.error",
+          "line": 23,
+          "expression": "MeshEvent.error(code: 0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshEvent.error",
+          "line": 25,
+          "expression": "MeshEvent.error(code: 99)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .error",
+          "line": 27,
+          "expression": "let .error(code)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::A missing sub-code byte yields a nil typed code()",
+      "parameter_family": "single",
+      "line": 35,
+      "end_line": 37,
+      "declaration_sha256": "bdabd253c0bb025ea00c0ff515df183b8ac550a8317c7910b91a9dc38a2f77d9",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 36,
+          "expression": "#expect(MeshEvent.error(code: nil).errorCode == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`A missing sub-code byte yields a nil typed code`",
+          "line": 35,
+          "expression": "`A missing sub-code byte yields a nil typed code`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshEvent.error",
+          "line": 36,
+          "expression": "MeshEvent.error(code: nil)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::Non-error events have no typed error code()",
+      "parameter_family": "single",
+      "line": 40,
+      "end_line": 43,
+      "declaration_sha256": "cf64fa5703ab7f8c54699c63e0bfb76e03413427f8c72f251638aa2f22d5d1be",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 41,
+          "expression": "#expect(MeshEvent.ok(value: nil).errorCode == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 42,
+          "expression": "#expect(MeshEvent.noMoreMessages.errorCode == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Non-error events have no typed error code`",
+          "line": 40,
+          "expression": "`Non-error events have no typed error code`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshEvent.ok",
+          "line": 41,
+          "expression": "MeshEvent.ok(value: nil)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code()",
+      "parameter_family": "single",
+      "line": 46,
+      "end_line": 50,
+      "declaration_sha256": "9851572eb6967d8fb1ff936f36501b8ddc7f5c7e9680ea184919fc9e24fcf4de",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 49,
+          "expression": "#expect(event.errorCode == .illegalArgument)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code`",
+          "line": 46,
+          "expression": "`PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 47,
+          "expression": "Data([ResponseCode.error.rawValue, ErrorCode.illegalArgument.rawValue])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "PacketParser.parse",
+          "line": 48,
+          "expression": "PacketParser.parse(frame)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
+          "sha256": "7d6a424f53fb5d41caa4badf04e8727c60eb3bc96cc32650463f49f9f49ccb96",
+          "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
+          "method_or_family_name": "PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code",
+          "line": 244,
+          "end_line": 247,
+          "factory_method": "wp106RouterSeam",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "cc0ec73e2e9a8af133313751df46e45a9b101a9192aa22b800829c5cf71f35f1",
+          "registration": "original(\"MeshEventErrorCodeTests\", \"PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 245,
+              "expression": "assertEquals(ErrorCode.ILLEGAL_ARGUMENT, event.errorCode)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 246,
+              "expression": "assertEquals(6u.toUByte(), assertIs<MeshEvent.Error>(event).code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 246,
+              "expression": "assertIs<MeshEvent.Error>(event)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "PacketParser.parse",
+              "line": 245,
+              "expression": "PacketParser.parse(hex(\"0106\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 245,
+              "expression": "hex(\"0106\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 246,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "MeshEventErrorCodeTests::PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "d5c56b96060c560964766dd169e4bb9c82e39e9a045242f24132780493bc3618",
+          "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+          "method_or_family_name": "originalErrorFrameReachesTheTypedFirmwareAccessor",
+          "line": 79,
+          "end_line": 84,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "7c00ab4ba63ddde42c2ef83fd6668eb240ad5a5975e143490a3046009b5857c0",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 81,
+              "expression": "assertTrue(parsed is MeshEvent.Error)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 82,
+              "expression": "assertEquals(ErrorCode.ILLEGAL_ARGUMENT, parsed.errorCode)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 83,
+              "expression": "assertEquals(6u.toUByte(), (parsed as MeshEvent.Error).code)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "PacketParser.parse",
+              "line": 80,
+              "expression": "PacketParser.parse(Bytes.of(1, 6))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 80,
+              "expression": "Bytes.of(1, 6)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 83,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "MeshEventErrorCodeTests::PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::deviceErrorCode is nil for non-deviceError MeshCoreError cases()",
+      "parameter_family": "single",
+      "line": 53,
+      "end_line": 56,
+      "declaration_sha256": "5c1dd123aa1fb85a4ceb53d36298a00bc91d527d24c76bcdb768c390efa28a7d",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 54,
+          "expression": "#expect(MeshCoreError.timeout.deviceErrorCode == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 55,
+          "expression": "#expect(MeshCoreError.deviceError(code: 7).deviceErrorCode == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`deviceErrorCode is nil for non-deviceError MeshCoreError cases`",
+          "line": 53,
+          "expression": "`deviceErrorCode is nil for non-deviceError MeshCoreError cases`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshCoreError.deviceError",
+          "line": 55,
+          "expression": "MeshCoreError.deviceError(code: 7)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    }
+  ]
+}

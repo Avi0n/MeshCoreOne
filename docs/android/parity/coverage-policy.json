@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "accounting": "all-manifest-paths-and-all-original-path-case-parameter-families",
+  "passing_counts_are_not_parity": true,
+  "headers_and_case_markers_are_traceability_only": true,
+  "historical_results_are_not_candidate_execution": true,
+  "missing_independent_evidence_blocks_acceptance": true,
+  "mandatory_skips_allowed": false,
+  "new_exclusions_allowed": false,
+  "exclusions_sha256": "e6798fef0e87f30aa176b432111bc4c89b48b2ec4f3dc68130bb771c26614d73",
+  "review_requirement": "trusted-independent-exact-candidate-behavior-and-family-review"
+}

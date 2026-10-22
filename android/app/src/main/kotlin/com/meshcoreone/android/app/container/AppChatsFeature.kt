@@ -31,8 +31,22 @@ import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import com.meshcoreone.android.core.contracts.domain.SessionToken
+import com.meshcoreone.android.core.services.contacts.ChannelFloodScopeResolver
 
 class AppChatsFeature internal constructor(private val container: AppContainer) {
+    private data class PushedFloodScope(
+        val session: SessionToken,
+        val preference: ChannelFloodScope,
+        val deviceDefault: String?,
+        val supportsUnscoped: Boolean,
+    )
+    private val floodScopeMutex = Mutex()
+    private var lastPushedScope: PushedFloodScope? = null
     private val store get() = container.processStore
     private val scope get() = container.uiScope
     private val app get() = container.appState
@@ -313,6 +327,33 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
 
     fun timeline(conversation: TimelineConversation): ChatTimelineDependencies = object : ChatTimelineDependencies {
         private val radio = conversation.id.radioId
+        override val content get() = this@AppChatsFeature.content
+        override fun admissionIdentity() = container.sessions.current?.takeIf { it.token.radioId == radio }?.token
+        override fun isCurrentAdmission(identity: SessionToken?) =
+            identity != null && container.sessions.current?.token == identity &&
+                app.connectionState == com.meshcoreone.android.core.contracts.domain.DeviceConnectionState.READY
+        override suspend fun syncChannelFloodScope(channel: ChannelDTO) = floodScopeMutex.withLock {
+            val current = container.sessions.current?.takeIf {
+                it.token.radioId == channel.radioId && it.token.radioId == radio &&
+                    app.connectionState == com.meshcoreone.android.core.contracts.domain.DeviceConnectionState.READY
+            } ?: return@withLock
+            val device = container.connectionManager.connectedDevice?.takeIf { it.radioId == radio }
+                ?: return@withLock
+            val selected = store.fetchChannel(radio, channel.index) ?: channel
+            val desired = PushedFloodScope(
+                current.token, selected.floodScope, device.defaultFloodScopeName, device.supportsUnscopedFloodSend,
+            )
+            if (desired == lastPushedScope) return@withLock
+            lastPushedScope = null
+            current.applyChannelFloodScope(ChannelFloodScopeResolver.resolve(
+                selected.floodScope, device.defaultFloodScopeName, device.supportsUnscopedFloodSend,
+            ))
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
+            if (!isCurrentAdmission(current.token)) {
+                throw CancellationException("Channel scope session superseded")
+            }
+            lastPushedScope = desired
+        }
         override val draftStore get() = drafts
         override val data = object : TimelineDataSource {
             override suspend fun fetchMessages(conversation: TimelineConversation, limit: Int, offset: Int) =

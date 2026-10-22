@@ -4,6 +4,7 @@
 // Navigation coordinates are the WP-302 owner's reviewed proposal; incumbent catalog pins remain unchanged.
 import org.gradle.api.tasks.testing.TestDescriptor
 import org.gradle.api.tasks.testing.TestListener
+import org.gradle.api.tasks.testing.TestOutputEvent
 import org.gradle.api.tasks.testing.TestResult
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -62,6 +63,7 @@ dependencies {
     implementation("androidx.compose.material3.adaptive:adaptive:1.3.0")
     implementation("androidx.compose.material3.adaptive:adaptive-layout:1.3.0")
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(project(":core:testing"))
     androidTestImplementation(libs.androidx.room.runtime)
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -98,6 +100,8 @@ android {
     sourceSets.getByName("test").kotlin.srcDir(
         "src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases",
     )
+    // AndroidOnly: WP-501 Test-only cross-component acceptance; never an APK source set.
+    sourceSets.getByName("test").kotlin.srcDir("../parity-tests/src/test/kotlin")
     // AndroidOnly: WP-502 Test-only external sources; no product dependency or parity-runner change.
     sourceSets.getByName("test").kotlin.srcDirs(
         "../ui-tests/src/shared/kotlin",
@@ -168,6 +172,9 @@ val prepareAppPlatformSdks = tasks.register<Sync>("prepareAppPlatformSdks") {
     into(layout.buildDirectory.dir("platform-sdks"))
 }
 tasks.withType<Test>().configureEach {
+    inputs.dir(rootProject.layout.projectDirectory.dir("core/testing/fixtures/reference-codec"))
+    systemProperty("referenceCodecFixtures",
+        rootProject.layout.projectDirectory.dir("core/testing/fixtures/reference-codec").asFile.absolutePath)
     dependsOn(prepareAppPlatformSdks)
     systemProperty("wp502ScreenshotDirectory", rootProject.file("screenshot-tests/build/screens").absolutePath)
     forkEvery = 1
@@ -298,6 +305,13 @@ tasks.withType<Test>().configureEach {
 // exact same local pattern already used by core/designsystem/build.gradle.kts for the same
 // reason: no behavior change, no new dependency/config; `logger.error` always prints regardless
 // of the configured Gradle log level, so this is the one reliable way to see which test failed.
+// AndroidOnly: WP-501 Quiet-visible path-recency observation; no task or test outcome changes.
+tasks.configureEach {
+    if (name == "compileDebugKotlin" || name == "compileDebugUnitTestKotlin") {
+        doFirst { logger.quiet("WP501_PATH_RECENCY|TASK|$path|START") }
+        doLast { logger.quiet("WP501_PATH_RECENCY|TASK|$path|END") }
+    }
+}
 tasks.withType<Test>().configureEach {
     testLogging.quiet {
         events(TestLogEvent.FAILED)
@@ -307,11 +321,50 @@ tasks.withType<Test>().configureEach {
         showStackTraces = true
     }
     val failureLogger = logger
+    val pathRecencyClass = "com.meshcoreone.android.parity.AdvertisementPathRecencyOriginalPredicateTest"
+    val rollbackClass = "com.meshcoreone.android.parity.AdvertisementRollbackOriginalPredicateTest"
+    val rollbackTestNames = setOf(
+        "originalSuccessfulCommitRemovesTheRealResurrectedRowWithoutDiscoverOrNotification",
+        "originalReAdvertClearsTheDeleteAndKeepsTheReaddedRoomContactAndNewHistory",
+        "originalFailedCommitRollsBackItsRealEarlyWriteAndCannotRequeueTheDeletedKey",
+        "originalCancelledTeardownStillRollsBackTheRealCommitLandingAfterStop",
+    ).flatMap { method -> listOf(method, "$method()", "$method[31]", "$method[31]()") }.toSet()
+    val pathRecencyPhases = setOf(
+        "room-open", "room-close", "room-seed", "room-contact-check", "room-final-check",
+        "session-start", "session-stop", "service-monitor-start", "service-initial-drain",
+        "body", "predicate", "service-monitor-stop", "owner-cancel-join",
+        "service-events-finish", "service-listener-join", "protocol-listener-join",
+    )
+    val pathRecencyMarkers = pathRecencyPhases.flatMap { phase ->
+        listOf("WP501_PATH_RECENCY_PHASE|$phase|START", "WP501_PATH_RECENCY_PHASE|$phase|END")
+    }.toSet()
+    val pathRecencyOutput = mutableMapOf<String, StringBuilder>()
+    val pathRecencyMarkerLimit = pathRecencyMarkers.maxOf { it.length }
+    doFirst { logger.quiet("WP501_PATH_RECENCY|TASK|$path|START") }
+    doLast { logger.quiet("WP501_PATH_RECENCY|TASK|$path|END") }
     addTestListener(object : TestListener {
         override fun beforeSuite(suite: TestDescriptor) = Unit
         override fun afterSuite(suite: TestDescriptor, result: TestResult) = Unit
-        override fun beforeTest(testDescriptor: TestDescriptor) = Unit
+        override fun beforeTest(testDescriptor: TestDescriptor) {
+            if (testDescriptor.className == pathRecencyClass) {
+                failureLogger.quiet("WP501_PATH_RECENCY|TEST|${testDescriptor.className}|${testDescriptor.name}|START")
+            }
+            if (testDescriptor.className == rollbackClass && testDescriptor.name in rollbackTestNames) {
+                failureLogger.quiet("WP501_ADVERT_ROLLBACK|TEST|${testDescriptor.className}|${testDescriptor.name}|START")
+            }
+        }
         override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {
+            if (testDescriptor.className == pathRecencyClass) {
+                synchronized(pathRecencyOutput) { pathRecencyOutput.remove(testDescriptor.name) }
+                failureLogger.quiet(
+                    "WP501_PATH_RECENCY|TEST|${testDescriptor.className}|${testDescriptor.name}|END|${result.resultType}",
+                )
+            }
+            if (testDescriptor.className == rollbackClass && testDescriptor.name in rollbackTestNames) {
+                failureLogger.quiet(
+                    "WP501_ADVERT_ROLLBACK|TEST|${testDescriptor.className}|${testDescriptor.name}|END|${result.resultType}",
+                )
+            }
             if (result.resultType == TestResult.ResultType.FAILURE) {
                 failureLogger.error("WP218_NATIVE_FAILURE|${testDescriptor.className}|${testDescriptor.name}")
                 result.exceptions.forEach { failure ->
@@ -320,4 +373,25 @@ tasks.withType<Test>().configureEach {
             }
         }
     })
+    addTestOutputListener { descriptor, event ->
+        if (descriptor.className == pathRecencyClass && event.destination == TestOutputEvent.Destination.StdOut) {
+            synchronized(pathRecencyOutput) {
+                val pending = pathRecencyOutput.getOrPut(descriptor.name) { StringBuilder() }
+                event.message.forEach { character ->
+                    if (character == '\n' || character == '\r') {
+                        val marker = pending.toString()
+                        pending.setLength(0)
+                        if (marker in pathRecencyMarkers) {
+                            failureLogger.quiet(
+                                "WP501_PATH_RECENCY|PHASE|${descriptor.className}|${descriptor.name}|" +
+                                    marker.removePrefix("WP501_PATH_RECENCY_PHASE|"),
+                            )
+                        }
+                    } else if (pending.length <= pathRecencyMarkerLimit) {
+                        pending.append(character)
+                    }
+                }
+            }
+        }
+    }
 }

@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-109",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MeshCore/README.md",
+      "blob_sha": "2a6c1784107c22bbbee29cd36a69b08946a7130c",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/BinaryProtocol.md",
+      "blob_sha": "77c263d7bb49b18c2f15ba8a2d8fde5612428f08",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/CustomTransports.md",
+      "blob_sha": "534a93dfaed45c8f21b6e364a4a7581711d156b2",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/DeviceConfiguration.md",
+      "blob_sha": "f0b8752c98b93fd9420444a73a1394ba972cc7d8",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/EventHandling.md",
+      "blob_sha": "bd8351d2399c4d6b28ce47bc5c89f4e9e5835cb5",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/GettingStarted.md",
+      "blob_sha": "3bbfca5fb2eb5443fa50d88913e24898d411dd09",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/ManagingContacts.md",
+      "blob_sha": "cfa92f56e8308ebe17e5ee993c5ec9eff5cc0865",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/ProtocolInternals.md",
+      "blob_sha": "f1982a7f732bfad8eaf92e1a627aaa2821bb1590",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/ReceivingMessages.md",
+      "blob_sha": "e25d2aea81c52c38f4c675bfadc05e4fcf46a005",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/SendingMessages.md",
+      "blob_sha": "83542ac431427f1d94bed59a53147fc12c6d4b9d",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/SessionLifecycle.md",
+      "blob_sha": "20172ad3c37ed8b36e80a8ec58fc6185ebd9b5d6",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Articles/Telemetry.md",
+      "blob_sha": "3be2e62e7d51a8b2e972225c07a6f625b53a9ea5",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Extensions/MeshCoreSession.md",
+      "blob_sha": "c535ead9f248bf65193ec24c72574a8c4df82713",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/Extensions/MeshEvent.md",
+      "blob_sha": "c209089c4bcbe59529325e1657aa7a92ed54a46f",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/MeshCore.docc/MeshCore.md",
+      "blob_sha": "4591ba3327482fd3191ae718dfbbb78e18d7ff48",
+      "kind": "reference",
+      "owner": "WP-109",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": []
+}

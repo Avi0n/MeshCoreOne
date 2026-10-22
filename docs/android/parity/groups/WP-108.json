@@ -1,0 +1,5070 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-108",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+      "blob_sha": "7fdb35adf502d7fab575316fb996a1b84b49b16e",
+      "kind": "production",
+      "owner": "WP-108",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiAppErrorReference.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiAppErrorReference.kt",
+          "sha256": "d66bc74a7619ef139d000ef56d1e2fc623f5995d7d827be7daac0802f02c8507",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift"
+          ],
+          "methods": [
+            {
+              "name": "description",
+              "line": 7,
+              "end_line": 16
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Initial state is disconnected",
+              "line": 34,
+              "end_line": 39
+            },
+            {
+              "name": "Advertises pipelined reads without a Write-Without-Response characteristic",
+              "line": 42,
+              "end_line": 50
+            },
+            {
+              "name": "Connect without configuration throws notConfigured",
+              "line": 53,
+              "end_line": 58
+            },
+            {
+              "name": "Connection to invalid host fails",
+              "line": 61,
+              "end_line": 71
+            },
+            {
+              "name": "Send without connection throws notConnected",
+              "line": 74,
+              "end_line": 87
+            },
+            {
+              "name": "Disconnect when not connected is safe",
+              "line": 90,
+              "end_line": 98
+            },
+            {
+              "name": "connectionInfo returns configured host and port",
+              "line": 101,
+              "end_line": 108
+            },
+            {
+              "name": "Disconnection handler not called on user-initiated disconnect",
+              "line": 111,
+              "end_line": 129
+            },
+            {
+              "name": "Disconnection handler not called on initial connect failure",
+              "line": 132,
+              "end_line": 140
+            },
+            {
+              "name": "connect is idempotent second call does not create new TCP connection",
+              "line": 143,
+              "end_line": 168
+            },
+            {
+              "name": "Peer close finishes the stream and fires the disconnection handler",
+              "line": 171,
+              "end_line": 197
+            },
+            {
+              "name": "Precancelled connect cannot create a connection or leave a parked job",
+              "line": 200,
+              "end_line": 212
+            },
+            {
+              "name": "Invalid hosts and ports fail explicitly before allocating a socket",
+              "line": 215,
+              "end_line": 236
+            },
+            {
+              "name": "JVM hostname resolution reaches the real loopback listener",
+              "line": 239,
+              "end_line": 253
+            },
+            {
+              "name": "Network-scoped resolver reaches a real peer without replacing the configured hostname",
+              "line": 256,
+              "end_line": 276
+            },
+            {
+              "name": "Real socket one-byte reads reassemble all headers and raw unknown payloads",
+              "line": 279,
+              "end_line": 297
+            },
+            {
+              "name": "Coalesced input and concurrent writes keep every complete frame in order",
+              "line": 300,
+              "end_line": 325
+            },
+            {
+              "name": "Maximum frame reaches a real peer and oversize rejection leaves connection usable",
+              "line": 328,
+              "end_line": 351
+            },
+            {
+              "name": "Truncated peer EOF surfaces typed failure after delivering every preceding frame",
+              "line": 354,
+              "end_line": 382
+            },
+            {
+              "name": "Real peer reset surfaces read failure and notifies only once",
+              "line": 385,
+              "end_line": 413
+            },
+            {
+              "name": "Reconnect changes streams retains configuration and clears partial old framing",
+              "line": 416,
+              "end_line": 443
+            },
+            {
+              "name": "Cleared disconnection handler stays cleared on real peer EOF",
+              "line": 446,
+              "end_line": 464
+            },
+            {
+              "name": "All eight error cases retain typed metadata and native diagnostics separate from app prose",
+              "line": 467,
+              "end_line": 487
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Transport/MockTransport.swift",
+      "blob_sha": "c970cfc66be77cfccfc2c2d8835155aeb4a1be7f",
+      "kind": "production",
+      "owner": "WP-108",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/MockTransportTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+          "sha256": "30dad0d2211e873fb22d2e2c523b1004b8278e71479ac6a2001fdb56cb462ac0",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Transport/MockTransport.swift"
+          ],
+          "methods": [
+            {
+              "name": "connect",
+              "line": 31,
+              "end_line": 41
+            },
+            {
+              "name": "disconnect",
+              "line": 43,
+              "end_line": 49
+            },
+            {
+              "name": "send",
+              "line": 51,
+              "end_line": 60
+            },
+            {
+              "name": "isConnected",
+              "line": 62,
+              "end_line": 62
+            },
+            {
+              "name": "receivedData",
+              "line": 64,
+              "end_line": 64
+            },
+            {
+              "name": "supportsWriteWithoutResponse",
+              "line": 66,
+              "end_line": 66
+            },
+            {
+              "name": "setSupportsWriteWithoutResponse",
+              "line": 68,
+              "end_line": 70
+            },
+            {
+              "name": "failSends",
+              "line": 72,
+              "end_line": 74
+            },
+            {
+              "name": "simulateReceive",
+              "line": 76,
+              "end_line": 82
+            },
+            {
+              "name": "simulateOK",
+              "line": 84,
+              "end_line": 88
+            },
+            {
+              "name": "simulateError",
+              "line": 90,
+              "end_line": 92
+            },
+            {
+              "name": "clearSentData",
+              "line": 94,
+              "end_line": 96
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/MockTransportTest.kt",
+          "sha256": "46b012171a86b1cd7db6415867517b518e15533a8a2dce28e1053855b197f940",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Transport/MockTransport.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Mock begins disconnected with an empty history and opt-in capabilities",
+              "line": 26,
+              "end_line": 32
+            },
+            {
+              "name": "Capability setter controls both write commands and pipelined reads",
+              "line": 35,
+              "end_line": 42
+            },
+            {
+              "name": "Both send paths require a connection and append exact immutable payloads",
+              "line": 45,
+              "end_line": 62
+            },
+            {
+              "name": "Failure threshold is based on successful sends and remains armed",
+              "line": 65,
+              "end_line": 79
+            },
+            {
+              "name": "Failure threshold preserves source signed Int behavior and large indices",
+              "line": 82,
+              "end_line": 94
+            },
+            {
+              "name": "Raw input can be buffered before connect and retains repeated empty and unknown packets",
+              "line": 97,
+              "end_line": 106
+            },
+            {
+              "name": "OK and error simulation use pinned codes optional fields and UInt32 little endian",
+              "line": 109,
+              "end_line": 124
+            },
+            {
+              "name": "Disconnect is idempotent finishes existing and late collectors and rejects closed injection",
+              "line": 127,
+              "end_line": 139
+            },
+            {
+              "name": "Reconnect uses a fresh stream without leaking old queued packets or losing send history",
+              "line": 142,
+              "end_line": 157
+            },
+            {
+              "name": "Collectors share a single ingestion queue rather than broadcasting or conflating ACKs",
+              "line": 160,
+              "end_line": 172
+            },
+            {
+              "name": "Cancelled collection does not close the connection or discard future input",
+              "line": 175,
+              "end_line": 186
+            },
+            {
+              "name": "Precancelled commands do not mutate history state or input",
+              "line": 189,
+              "end_line": 198
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Transport/WiFiFrameCodec.swift",
+      "blob_sha": "d959cc96b8b379bcb9aec372724850176190b37b",
+      "kind": "production",
+      "owner": "WP-108",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiFrameCodec.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiFrameCodec.kt",
+          "sha256": "edbe3c9175e72e095020888d17a6741e1c5d4d4ddc992eff0b0cce226701b5df",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Transport/WiFiFrameCodec.swift"
+          ],
+          "methods": [
+            {
+              "name": "encode",
+              "line": 14,
+              "end_line": 23
+            },
+            {
+              "name": "decode",
+              "line": 45,
+              "end_line": 73
+            },
+            {
+              "name": "finish",
+              "line": 75,
+              "end_line": 82
+            },
+            {
+              "name": "reset",
+              "line": 84,
+              "end_line": 87
+            },
+            {
+              "name": "clearPartialFrame",
+              "line": 89,
+              "end_line": 93
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Transport/WiFiTransport.swift",
+      "blob_sha": "706a09f7ef7fb2ce872ad7ef34d4d08186954822",
+      "kind": "production",
+      "owner": "WP-108",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransportError.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportIoTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransport.kt",
+          "sha256": "508f1721926aaa50eb849140c95b324a47d2916d1dd3402c4703985837319c7e",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Transport/WiFiTransport.swift",
+            "docs/guides/WiFi_Transport.md"
+          ],
+          "methods": [
+            {
+              "name": "closeSocket",
+              "line": 60,
+              "end_line": 70
+            },
+            {
+              "name": "setConnectionInfo",
+              "line": 89,
+              "end_line": 91
+            },
+            {
+              "name": "setDisconnectionHandler",
+              "line": 93,
+              "end_line": 95
+            },
+            {
+              "name": "clearDisconnectionHandler",
+              "line": 97,
+              "end_line": 99
+            },
+            {
+              "name": "receivedData",
+              "line": 101,
+              "end_line": 101
+            },
+            {
+              "name": "isConnected",
+              "line": 103,
+              "end_line": 103
+            },
+            {
+              "name": "supportsPipelinedReads",
+              "line": 105,
+              "end_line": 105
+            },
+            {
+              "name": "connect",
+              "line": 107,
+              "end_line": 170
+            },
+            {
+              "name": "disconnect",
+              "line": 172,
+              "end_line": 188
+            },
+            {
+              "name": "send",
+              "line": 190,
+              "end_line": 224
+            },
+            {
+              "name": "receiveLoop",
+              "line": 226,
+              "end_line": 255
+            },
+            {
+              "name": "socketIo",
+              "line": 257,
+              "end_line": 298
+            },
+            {
+              "name": "isCurrent",
+              "line": 300,
+              "end_line": 301
+            },
+            {
+              "name": "terminate",
+              "line": 303,
+              "end_line": 306
+            },
+            {
+              "name": "takeTermination",
+              "line": 308,
+              "end_line": 314
+            },
+            {
+              "name": "completeTermination",
+              "line": 316,
+              "end_line": 327
+            },
+            {
+              "name": "awaitClosedGeneration",
+              "line": 329,
+              "end_line": 336
+            },
+            {
+              "name": "reason",
+              "line": 347,
+              "end_line": 348
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransportError.kt",
+          "sha256": "b3425ed81e654d68b0ec0ded3773c631d20000d8250b4bee19f7b830a2774341",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Transport/WiFiTransport.swift"
+          ],
+          "methods": []
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportIoTest.kt",
+          "sha256": "078ecd6681e76af77b28aa0c89fce8f19819fd331ee9cc5f12c4b4e1fed3c744",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Transport/WiFiTransport.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Cancelling pending connect does not leave it parked or leak its socket",
+              "line": 31,
+              "end_line": 59
+            },
+            {
+              "name": "Connection timeout is exactly ten seconds and closes and joins blocked IO",
+              "line": 62,
+              "end_line": 85
+            },
+            {
+              "name": "Native socket timeout keeps typed timeout and original cause",
+              "line": 88,
+              "end_line": 102
+            },
+            {
+              "name": "Cancelling an interruptible resolver closes the socket and never starts a late connect",
+              "line": 105,
+              "end_line": 138
+            },
+            {
+              "name": "Connection deadline includes interruptible address resolution",
+              "line": 141,
+              "end_line": 169
+            },
+            {
+              "name": "Connect failure exposes reason cause and any cleanup failure without fake success",
+              "line": 172,
+              "end_line": 188
+            },
+            {
+              "name": "Disconnect interrupts and joins a pending connect without invoking the loss handler",
+              "line": 191,
+              "end_line": 214
+            },
+            {
+              "name": "Queued connect requests from before disconnect cannot reopen the connection",
+              "line": 217,
+              "end_line": 240
+            },
+            {
+              "name": "New connection waits for old connect cleanup and uses only its fresh real socket",
+              "line": 243,
+              "end_line": 275
+            },
+            {
+              "name": "Whole write operation remains serialized while the first write is suspended",
+              "line": 278,
+              "end_line": 304
+            },
+            {
+              "name": "Write timeout is exactly five seconds terminates the generation and notifies once",
+              "line": 307,
+              "end_line": 338
+            },
+            {
+              "name": "Cancelling an active write closes the socket propagates cancellation and fails queued writes",
+              "line": 341,
+              "end_line": 371
+            },
+            {
+              "name": "Cancelling a queued write does not close the live connection or send its bytes",
+              "line": 374,
+              "end_line": 398
+            },
+            {
+              "name": "Send failure preserves reason and cause and closes the established generation",
+              "line": 401,
+              "end_line": 421
+            },
+            {
+              "name": "Disconnect drains blocked write and read jobs before returning",
+              "line": 424,
+              "end_line": 445
+            },
+            {
+              "name": "Late old-generation send failure cannot close or notify the new real generation",
+              "line": 448,
+              "end_line": 480
+            },
+            {
+              "name": "Read failure preserves the original IO cause in both stream and handler",
+              "line": 483,
+              "end_line": 503
+            },
+            {
+              "name": "Close failure is surfaced to disconnect and stream instead of being silently discarded",
+              "line": 506,
+              "end_line": 521
+            },
+            {
+              "name": "Transport rejects invalid timer configuration and socket factory IO failure is typed",
+              "line": 524,
+              "end_line": 536
+            },
+            {
+              "name": "Cancelling only the consumer does not close the live socket and next raw packet remains available",
+              "line": 539,
+              "end_line": 561
+            },
+            {
+              "name": "assertOriginalCause",
+              "line": 563,
+              "end_line": 568
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift",
+      "blob_sha": "e770a173454318c5180f249f5941738dc0e47dbe",
+      "kind": "test",
+      "owner": "WP-108",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",
+          "sha256": "df69d2ed249c052b013d5c113b28f5ba491900caf874429a778b0fada62b980a",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Encodes frame with correct delimiter and length",
+              "line": 17,
+              "end_line": 22
+            },
+            {
+              "name": "Encodes empty frame",
+              "line": 25,
+              "end_line": 27
+            },
+            {
+              "name": "Decodes single complete frame",
+              "line": 30,
+              "end_line": 35
+            },
+            {
+              "name": "Decodes multiple frames in one chunk",
+              "line": 38,
+              "end_line": 43
+            },
+            {
+              "name": "Buffers incomplete frame",
+              "line": 46,
+              "end_line": 53
+            },
+            {
+              "name": "Handles frame split across chunks",
+              "line": 56,
+              "end_line": 61
+            },
+            {
+              "name": "Pinned Python device query payload has independently specified outbound frame",
+              "line": 64,
+              "end_line": 66
+            },
+            {
+              "name": "All splits of pinned inbound multi-frame vector retain exact ordered payloads",
+              "line": 69,
+              "end_line": 79
+            },
+            {
+              "name": "Byte by byte input preserves empty repeated high-bit and delimiter payloads",
+              "line": 82,
+              "end_line": 90
+            },
+            {
+              "name": "Lengths use unsigned little endian at byte and high-bit boundaries",
+              "line": 93,
+              "end_line": 104
+            },
+            {
+              "name": "Maximum inbound length is valid and partial state never exceeds wire bound",
+              "line": 107,
+              "end_line": 118
+            },
+            {
+              "name": "Oversized outbound payload is rejected without truncating or wrapping length",
+              "line": 121,
+              "end_line": 129
+            },
+            {
+              "name": "Source delimiter resynchronization records discarded noise without buffering it",
+              "line": 132,
+              "end_line": 140
+            },
+            {
+              "name": "Empty decode does not consume or clear a partial frame",
+              "line": 143,
+              "end_line": 149
+            },
+            {
+              "name": "EOF distinguishes incomplete header from incomplete payload",
+              "line": 152,
+              "end_line": 165
+            },
+            {
+              "name": "Complete frames preceding a truncated suffix are returned unchanged",
+              "line": 168,
+              "end_line": 173
+            },
+            {
+              "name": "Reset discards only the old generation partial frame and diagnostics",
+              "line": 176,
+              "end_line": 184
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "kind": "test",
+      "owner": "WP-108",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportIoTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportIoTest.kt",
+          "sha256": "078ecd6681e76af77b28aa0c89fce8f19819fd331ee9cc5f12c4b4e1fed3c744",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Transport/WiFiTransport.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Cancelling pending connect does not leave it parked or leak its socket",
+              "line": 31,
+              "end_line": 59
+            },
+            {
+              "name": "Connection timeout is exactly ten seconds and closes and joins blocked IO",
+              "line": 62,
+              "end_line": 85
+            },
+            {
+              "name": "Native socket timeout keeps typed timeout and original cause",
+              "line": 88,
+              "end_line": 102
+            },
+            {
+              "name": "Cancelling an interruptible resolver closes the socket and never starts a late connect",
+              "line": 105,
+              "end_line": 138
+            },
+            {
+              "name": "Connection deadline includes interruptible address resolution",
+              "line": 141,
+              "end_line": 169
+            },
+            {
+              "name": "Connect failure exposes reason cause and any cleanup failure without fake success",
+              "line": 172,
+              "end_line": 188
+            },
+            {
+              "name": "Disconnect interrupts and joins a pending connect without invoking the loss handler",
+              "line": 191,
+              "end_line": 214
+            },
+            {
+              "name": "Queued connect requests from before disconnect cannot reopen the connection",
+              "line": 217,
+              "end_line": 240
+            },
+            {
+              "name": "New connection waits for old connect cleanup and uses only its fresh real socket",
+              "line": 243,
+              "end_line": 275
+            },
+            {
+              "name": "Whole write operation remains serialized while the first write is suspended",
+              "line": 278,
+              "end_line": 304
+            },
+            {
+              "name": "Write timeout is exactly five seconds terminates the generation and notifies once",
+              "line": 307,
+              "end_line": 338
+            },
+            {
+              "name": "Cancelling an active write closes the socket propagates cancellation and fails queued writes",
+              "line": 341,
+              "end_line": 371
+            },
+            {
+              "name": "Cancelling a queued write does not close the live connection or send its bytes",
+              "line": 374,
+              "end_line": 398
+            },
+            {
+              "name": "Send failure preserves reason and cause and closes the established generation",
+              "line": 401,
+              "end_line": 421
+            },
+            {
+              "name": "Disconnect drains blocked write and read jobs before returning",
+              "line": 424,
+              "end_line": 445
+            },
+            {
+              "name": "Late old-generation send failure cannot close or notify the new real generation",
+              "line": 448,
+              "end_line": 480
+            },
+            {
+              "name": "Read failure preserves the original IO cause in both stream and handler",
+              "line": 483,
+              "end_line": 503
+            },
+            {
+              "name": "Close failure is surfaced to disconnect and stream instead of being silently discarded",
+              "line": 506,
+              "end_line": 521
+            },
+            {
+              "name": "Transport rejects invalid timer configuration and socket factory IO failure is typed",
+              "line": 524,
+              "end_line": 536
+            },
+            {
+              "name": "Cancelling only the consumer does not close the live socket and next raw packet remains available",
+              "line": 539,
+              "end_line": 561
+            },
+            {
+              "name": "assertOriginalCause",
+              "line": 563,
+              "end_line": 568
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Initial state is disconnected",
+              "line": 34,
+              "end_line": 39
+            },
+            {
+              "name": "Advertises pipelined reads without a Write-Without-Response characteristic",
+              "line": 42,
+              "end_line": 50
+            },
+            {
+              "name": "Connect without configuration throws notConfigured",
+              "line": 53,
+              "end_line": 58
+            },
+            {
+              "name": "Connection to invalid host fails",
+              "line": 61,
+              "end_line": 71
+            },
+            {
+              "name": "Send without connection throws notConnected",
+              "line": 74,
+              "end_line": 87
+            },
+            {
+              "name": "Disconnect when not connected is safe",
+              "line": 90,
+              "end_line": 98
+            },
+            {
+              "name": "connectionInfo returns configured host and port",
+              "line": 101,
+              "end_line": 108
+            },
+            {
+              "name": "Disconnection handler not called on user-initiated disconnect",
+              "line": 111,
+              "end_line": 129
+            },
+            {
+              "name": "Disconnection handler not called on initial connect failure",
+              "line": 132,
+              "end_line": 140
+            },
+            {
+              "name": "connect is idempotent second call does not create new TCP connection",
+              "line": 143,
+              "end_line": 168
+            },
+            {
+              "name": "Peer close finishes the stream and fires the disconnection handler",
+              "line": 171,
+              "end_line": 197
+            },
+            {
+              "name": "Precancelled connect cannot create a connection or leave a parked job",
+              "line": 200,
+              "end_line": 212
+            },
+            {
+              "name": "Invalid hosts and ports fail explicitly before allocating a socket",
+              "line": 215,
+              "end_line": 236
+            },
+            {
+              "name": "JVM hostname resolution reaches the real loopback listener",
+              "line": 239,
+              "end_line": 253
+            },
+            {
+              "name": "Network-scoped resolver reaches a real peer without replacing the configured hostname",
+              "line": 256,
+              "end_line": 276
+            },
+            {
+              "name": "Real socket one-byte reads reassemble all headers and raw unknown payloads",
+              "line": 279,
+              "end_line": 297
+            },
+            {
+              "name": "Coalesced input and concurrent writes keep every complete frame in order",
+              "line": 300,
+              "end_line": 325
+            },
+            {
+              "name": "Maximum frame reaches a real peer and oversize rejection leaves connection usable",
+              "line": 328,
+              "end_line": 351
+            },
+            {
+              "name": "Truncated peer EOF surfaces typed failure after delivering every preceding frame",
+              "line": 354,
+              "end_line": 382
+            },
+            {
+              "name": "Real peer reset surfaces read failure and notifies only once",
+              "line": 385,
+              "end_line": 413
+            },
+            {
+              "name": "Reconnect changes streams retains configuration and clears partial old framing",
+              "line": 416,
+              "end_line": 443
+            },
+            {
+              "name": "Cleared disconnection handler stays cleared on real peer EOF",
+              "line": 446,
+              "end_line": 464
+            },
+            {
+              "name": "All eight error cases retain typed metadata and native diagnostics separate from app prose",
+              "line": 467,
+              "end_line": 487
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+          "sha256": "cac7289f79f806892ed8b900add8984aecc639414a4fff8418949239b00e3f5c",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
+              "line": 35,
+              "end_line": 94
+            },
+            {
+              "name": "connect",
+              "line": 44,
+              "end_line": 53
+            },
+            {
+              "name": "close",
+              "line": 55,
+              "end_line": 59
+            },
+            {
+              "name": "originalFirstAcceptCompletesWithinTwoSecondsWithoutDuplicateConnection",
+              "line": 97,
+              "end_line": 138
+            },
+            {
+              "name": "close",
+              "line": 102,
+              "end_line": 105
+            },
+            {
+              "name": "originalPeerCloseAcceptHandlerAndStreamEachCompleteWithinTwoSeconds",
+              "line": 141,
+              "end_line": 195
+            },
+            {
+              "name": "close",
+              "line": 148,
+              "end_line": 151
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 197,
+              "end_line": 205
+            },
+            {
+              "name": "awaitRealCompletion",
+              "line": 207,
+              "end_line": 218
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "docs/guides/WiFi_Transport.md",
+      "blob_sha": "8ed65b12f955755f7197e5e2126203c7771cdebc",
+      "kind": "reference",
+      "owner": "WP-108",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransport.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransport.kt",
+          "sha256": "508f1721926aaa50eb849140c95b324a47d2916d1dd3402c4703985837319c7e",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Transport/WiFiTransport.swift",
+            "docs/guides/WiFi_Transport.md"
+          ],
+          "methods": [
+            {
+              "name": "closeSocket",
+              "line": 60,
+              "end_line": 70
+            },
+            {
+              "name": "setConnectionInfo",
+              "line": 89,
+              "end_line": 91
+            },
+            {
+              "name": "setDisconnectionHandler",
+              "line": 93,
+              "end_line": 95
+            },
+            {
+              "name": "clearDisconnectionHandler",
+              "line": 97,
+              "end_line": 99
+            },
+            {
+              "name": "receivedData",
+              "line": 101,
+              "end_line": 101
+            },
+            {
+              "name": "isConnected",
+              "line": 103,
+              "end_line": 103
+            },
+            {
+              "name": "supportsPipelinedReads",
+              "line": 105,
+              "end_line": 105
+            },
+            {
+              "name": "connect",
+              "line": 107,
+              "end_line": 170
+            },
+            {
+              "name": "disconnect",
+              "line": 172,
+              "end_line": 188
+            },
+            {
+              "name": "send",
+              "line": 190,
+              "end_line": 224
+            },
+            {
+              "name": "receiveLoop",
+              "line": 226,
+              "end_line": 255
+            },
+            {
+              "name": "socketIo",
+              "line": 257,
+              "end_line": 298
+            },
+            {
+              "name": "isCurrent",
+              "line": 300,
+              "end_line": 301
+            },
+            {
+              "name": "terminate",
+              "line": 303,
+              "end_line": 306
+            },
+            {
+              "name": "takeTermination",
+              "line": 308,
+              "end_line": 314
+            },
+            {
+              "name": "completeTermination",
+              "line": 316,
+              "end_line": 327
+            },
+            {
+              "name": "awaitClosedGeneration",
+              "line": 329,
+              "end_line": 336
+            },
+            {
+              "name": "reason",
+              "line": 347,
+              "end_line": 348
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift",
+      "source_blob_sha": "e770a173454318c5180f249f5941738dc0e47dbe",
+      "case_id": "WiFiFrameCodecTests::Encodes frame with correct delimiter and length()",
+      "parameter_family": "single",
+      "line": 8,
+      "end_line": 20,
+      "declaration_sha256": "df48fd31b4fffffb37931e87f22d7bca621f7085065fcd3d07a2fbc275103ba2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 13,
+          "expression": "#expect(encoded.count == 6)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 14,
+          "expression": "#expect(encoded[0] == 0x3C)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 15,
+          "expression": "#expect(encoded[1] == 0x03)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 16,
+          "expression": "#expect(encoded[2] == 0x00)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 17,
+          "expression": "#expect(encoded[3] == 0x01)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 18,
+          "expression": "#expect(encoded[4] == 0x02)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 19,
+          "expression": "#expect(encoded[5] == 0x03)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Encodes frame with correct delimiter and length`",
+          "line": 8,
+          "expression": "`Encodes frame with correct delimiter and length`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 9,
+          "expression": "Data([0x01, 0x02, 0x03])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiFrameCodec.encode",
+          "line": 10,
+          "expression": "WiFiFrameCodec.encode(payload)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",
+          "sha256": "df69d2ed249c052b013d5c113b28f5ba491900caf874429a778b0fada62b980a",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiFrameCodecTest",
+          "method_or_family_name": "Encodes frame with correct delimiter and length",
+          "line": 17,
+          "end_line": 22,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "cf7a0dd7d94e590cf42764ec39b5354915ac7c987129835983c47c1c550feece",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 18,
+              "expression": "assertEquals(Bytes.fromHex(\"3c0300010203\"), WiFiFrameCodec.encode(Bytes.fromHex(\"010203\")))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 19,
+              "expression": "assertEquals(0x3cu, WiFiFrameCodec.outboundDelimiter)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 20,
+              "expression": "assertEquals(0x3eu, WiFiFrameCodec.inboundDelimiter)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 21,
+              "expression": "assertEquals(3, WiFiFrameCodec.headerSize)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.fromHex",
+              "line": 18,
+              "expression": "Bytes.fromHex(\"3c0300010203\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiFrameCodec.encode",
+              "line": 18,
+              "expression": "WiFiFrameCodec.encode(Bytes.fromHex(\"010203\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 18,
+              "expression": "Bytes.fromHex(\"010203\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift",
+      "source_blob_sha": "e770a173454318c5180f249f5941738dc0e47dbe",
+      "case_id": "WiFiFrameCodecTests::Encodes empty frame()",
+      "parameter_family": "single",
+      "line": 23,
+      "end_line": 31,
+      "declaration_sha256": "85c45eb4cc7956dce743f05c02539697a889af3e68bc7173183fbc98a849a062",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 27,
+          "expression": "#expect(encoded.count == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 28,
+          "expression": "#expect(encoded[0] == 0x3C)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 29,
+          "expression": "#expect(encoded[1] == 0x00)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 30,
+          "expression": "#expect(encoded[2] == 0x00)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Encodes empty frame`",
+          "line": 23,
+          "expression": "`Encodes empty frame`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 24,
+          "expression": "Data()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiFrameCodec.encode",
+          "line": 25,
+          "expression": "WiFiFrameCodec.encode(payload)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",
+          "sha256": "df69d2ed249c052b013d5c113b28f5ba491900caf874429a778b0fada62b980a",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiFrameCodecTest",
+          "method_or_family_name": "Encodes empty frame",
+          "line": 25,
+          "end_line": 27,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5f32eae3507ba5aee0b2c8b8a93cab15ee03dc41dcb71a31e8d3c852983a2ba6",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 26,
+              "expression": "assertEquals(Bytes.fromHex(\"3c0000\"), WiFiFrameCodec.encode(Bytes.EMPTY))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.fromHex",
+              "line": 26,
+              "expression": "Bytes.fromHex(\"3c0000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiFrameCodec.encode",
+              "line": 26,
+              "expression": "WiFiFrameCodec.encode(Bytes.EMPTY)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift",
+      "source_blob_sha": "e770a173454318c5180f249f5941738dc0e47dbe",
+      "case_id": "WiFiFrameCodecTests::Decodes single complete frame()",
+      "parameter_family": "single",
+      "line": 34,
+      "end_line": 43,
+      "declaration_sha256": "dc8f03c065285900f116d44d20d5bf6be1e6a07b3603030cc6e10608e9b3e055",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 41,
+          "expression": "#expect(frames.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 42,
+          "expression": "#expect(frames[0] == Data([0x01, 0x02, 0x03]))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decodes single complete frame`",
+          "line": 34,
+          "expression": "`Decodes single complete frame`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 36,
+          "expression": "Data([0x3E, 0x03, 0x00, 0x01, 0x02, 0x03])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiFrameDecoder",
+          "line": 37,
+          "expression": "WiFiFrameDecoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "decoder.decode",
+          "line": 39,
+          "expression": "decoder.decode(data)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 42,
+          "expression": "Data([0x01, 0x02, 0x03])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",
+          "sha256": "df69d2ed249c052b013d5c113b28f5ba491900caf874429a778b0fada62b980a",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiFrameCodecTest",
+          "method_or_family_name": "Decodes single complete frame",
+          "line": 30,
+          "end_line": 35,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "878c35d44f1d61f0ce9ac9d4a55e2c40d5639cdc598b4b049ea1df9e7d01c31f",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(listOf(Bytes.fromHex(\"010203\")), decoder.decode(Bytes.fromHex(\"3e0300010203\")))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(0, decoder.bufferedByteCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiFrameDecoder",
+              "line": 31,
+              "expression": "WiFiFrameDecoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 32,
+              "expression": "listOf(Bytes.fromHex(\"010203\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 32,
+              "expression": "Bytes.fromHex(\"010203\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "decoder.decode",
+              "line": 32,
+              "expression": "decoder.decode(Bytes.fromHex(\"3e0300010203\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 32,
+              "expression": "Bytes.fromHex(\"3e0300010203\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "decoder.finish",
+              "line": 34,
+              "expression": "decoder.finish()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift",
+      "source_blob_sha": "e770a173454318c5180f249f5941738dc0e47dbe",
+      "case_id": "WiFiFrameCodecTests::Decodes multiple frames in one chunk()",
+      "parameter_family": "single",
+      "line": 46,
+      "end_line": 58,
+      "declaration_sha256": "89c10555b177fb3662ef9fb8ff278d7f4c350d7900e075015083d229f7132f0c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 55,
+          "expression": "#expect(frames.count == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 56,
+          "expression": "#expect(frames[0] == Data([0xAA, 0xBB]))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 57,
+          "expression": "#expect(frames[1] == Data([0xCC]))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decodes multiple frames in one chunk`",
+          "line": 46,
+          "expression": "`Decodes multiple frames in one chunk`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 47,
+          "expression": "Data([\n      0x3E, 0x02, 0x00, 0xAA, 0xBB, // frame 1\n      0x3E, 0x01, 0x00, 0xCC // frame 2\n    ])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiFrameDecoder",
+          "line": 51,
+          "expression": "WiFiFrameDecoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "decoder.decode",
+          "line": 53,
+          "expression": "decoder.decode(data)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 56,
+          "expression": "Data([0xAA, 0xBB])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 57,
+          "expression": "Data([0xCC])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",
+          "sha256": "df69d2ed249c052b013d5c113b28f5ba491900caf874429a778b0fada62b980a",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiFrameCodecTest",
+          "method_or_family_name": "Decodes multiple frames in one chunk",
+          "line": 38,
+          "end_line": 43,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "d134649536360aaf0d4feaa1083b843206ec69e4f1321c158e23a42a79b1fc22",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(\n            listOf(Bytes.fromHex(\"aabb\"), Bytes.fromHex(\"cc\")),\n            WiFiFrameDecoder().decode(Bytes.fromHex(\"3e0200aabb3e0100cc\")),\n        )",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "listOf",
+              "line": 40,
+              "expression": "listOf(Bytes.fromHex(\"aabb\"), Bytes.fromHex(\"cc\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 40,
+              "expression": "Bytes.fromHex(\"aabb\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 40,
+              "expression": "Bytes.fromHex(\"cc\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiFrameDecoder",
+              "line": 41,
+              "expression": "WiFiFrameDecoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "decode",
+              "line": 41,
+              "expression": "decode(Bytes.fromHex(\"3e0200aabb3e0100cc\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 41,
+              "expression": "Bytes.fromHex(\"3e0200aabb3e0100cc\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift",
+      "source_blob_sha": "e770a173454318c5180f249f5941738dc0e47dbe",
+      "case_id": "WiFiFrameCodecTests::Buffers incomplete frame()",
+      "parameter_family": "single",
+      "line": 61,
+      "end_line": 76,
+      "declaration_sha256": "f467b774859e81255c0b84a805828d203d463c43a3d2077f2341b9d92a887dad",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 66,
+          "expression": "#expect(frames1.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 70,
+          "expression": "#expect(frames2.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 74,
+          "expression": "#expect(frames3.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 75,
+          "expression": "#expect(frames3[0] == Data([0x01, 0x02, 0x03, 0x04, 0x05]))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Buffers incomplete frame`",
+          "line": 61,
+          "expression": "`Buffers incomplete frame`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiFrameDecoder",
+          "line": 62,
+          "expression": "WiFiFrameDecoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "decoder.decode",
+          "line": 65,
+          "expression": "decoder.decode(Data([0x3E, 0x05, 0x00]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 65,
+          "expression": "Data([0x3E, 0x05, 0x00])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "decoder.decode",
+          "line": 69,
+          "expression": "decoder.decode(Data([0x01, 0x02]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 69,
+          "expression": "Data([0x01, 0x02])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "decoder.decode",
+          "line": 73,
+          "expression": "decoder.decode(Data([0x03, 0x04, 0x05]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 73,
+          "expression": "Data([0x03, 0x04, 0x05])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 75,
+          "expression": "Data([0x01, 0x02, 0x03, 0x04, 0x05])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",
+          "sha256": "df69d2ed249c052b013d5c113b28f5ba491900caf874429a778b0fada62b980a",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiFrameCodecTest",
+          "method_or_family_name": "Buffers incomplete frame",
+          "line": 46,
+          "end_line": 53,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "7197bc1b7502b952ff6aa8ef72bcc7b8d3e0c52d3d353c5ed364346efd27d2a3",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 48,
+              "expression": "assertTrue(decoder.decode(Bytes.fromHex(\"3e0500\")).isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 49,
+              "expression": "assertEquals(3, decoder.bufferedByteCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 50,
+              "expression": "assertTrue(decoder.decode(Bytes.fromHex(\"0102\")).isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 51,
+              "expression": "assertEquals(5, decoder.bufferedByteCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 52,
+              "expression": "assertEquals(listOf(Bytes.fromHex(\"0102030405\")), decoder.decode(Bytes.fromHex(\"030405\")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiFrameDecoder",
+              "line": 47,
+              "expression": "WiFiFrameDecoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "decoder.decode",
+              "line": 48,
+              "expression": "decoder.decode(Bytes.fromHex(\"3e0500\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 48,
+              "expression": "Bytes.fromHex(\"3e0500\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 48,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "decoder.decode",
+              "line": 50,
+              "expression": "decoder.decode(Bytes.fromHex(\"0102\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 50,
+              "expression": "Bytes.fromHex(\"0102\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 50,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 52,
+              "expression": "listOf(Bytes.fromHex(\"0102030405\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 52,
+              "expression": "Bytes.fromHex(\"0102030405\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "decoder.decode",
+              "line": 52,
+              "expression": "decoder.decode(Bytes.fromHex(\"030405\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 52,
+              "expression": "Bytes.fromHex(\"030405\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift",
+      "source_blob_sha": "e770a173454318c5180f249f5941738dc0e47dbe",
+      "case_id": "WiFiFrameCodecTests::Handles frame split across chunks()",
+      "parameter_family": "single",
+      "line": 79,
+      "end_line": 94,
+      "declaration_sha256": "9ded3008992ffefdbab29a5dbbb68bd7ac6bf6dcfb2ab5c3bda15774a4ea4af2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 84,
+          "expression": "#expect(frames1.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 88,
+          "expression": "#expect(frames2.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 92,
+          "expression": "#expect(frames3.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 93,
+          "expression": "#expect(frames3[0] == Data([0xAA, 0xBB, 0xCC]))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Handles frame split across chunks`",
+          "line": 79,
+          "expression": "`Handles frame split across chunks`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiFrameDecoder",
+          "line": 80,
+          "expression": "WiFiFrameDecoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "decoder.decode",
+          "line": 83,
+          "expression": "decoder.decode(Data([0x3E]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 83,
+          "expression": "Data([0x3E])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "decoder.decode",
+          "line": 87,
+          "expression": "decoder.decode(Data([0x03, 0x00, 0xAA]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 87,
+          "expression": "Data([0x03, 0x00, 0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "decoder.decode",
+          "line": 91,
+          "expression": "decoder.decode(Data([0xBB, 0xCC]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 91,
+          "expression": "Data([0xBB, 0xCC])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 93,
+          "expression": "Data([0xAA, 0xBB, 0xCC])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",
+          "sha256": "df69d2ed249c052b013d5c113b28f5ba491900caf874429a778b0fada62b980a",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiFrameCodecTest",
+          "method_or_family_name": "Handles frame split across chunks",
+          "line": 56,
+          "end_line": 61,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "b830bdbae1d97be706577ee6e9260ed00c2ab890142b185609273a4a87611f2c",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 58,
+              "expression": "assertTrue(decoder.decode(Bytes.fromHex(\"3e\")).isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 59,
+              "expression": "assertTrue(decoder.decode(Bytes.fromHex(\"0300aa\")).isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(listOf(Bytes.fromHex(\"aabbcc\")), decoder.decode(Bytes.fromHex(\"bbcc\")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiFrameDecoder",
+              "line": 57,
+              "expression": "WiFiFrameDecoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "decoder.decode",
+              "line": 58,
+              "expression": "decoder.decode(Bytes.fromHex(\"3e\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 58,
+              "expression": "Bytes.fromHex(\"3e\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 58,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "decoder.decode",
+              "line": 59,
+              "expression": "decoder.decode(Bytes.fromHex(\"0300aa\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 59,
+              "expression": "Bytes.fromHex(\"0300aa\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 59,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 60,
+              "expression": "listOf(Bytes.fromHex(\"aabbcc\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 60,
+              "expression": "Bytes.fromHex(\"aabbcc\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "decoder.decode",
+              "line": 60,
+              "expression": "decoder.decode(Bytes.fromHex(\"bbcc\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 60,
+              "expression": "Bytes.fromHex(\"bbcc\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Initial state is disconnected()",
+      "parameter_family": "single",
+      "line": 11,
+      "end_line": 15,
+      "declaration_sha256": "1eae00855d98d5a374e12efcd343f37fc2257ac2131c79c5d91c57e6cb5d4911",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 14,
+          "expression": "#expect(!isConnected)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Initial state is disconnected`",
+          "line": 11,
+          "expression": "`Initial state is disconnected`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 12,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "Initial state is disconnected",
+          "line": 34,
+          "end_line": 39,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "35d072112e458900ca666d83eb19d8434e345a964f9fc7f8c3376bcfb7265fcf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 36,
+              "expression": "assertFalse(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertSame",
+              "line": 37,
+              "expression": "assertSame(transport.receivedData(), transport.receivedData())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiTransport",
+              "line": 35,
+              "expression": "WiFiTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 36,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 37,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 37,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 38,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Advertises pipelined reads without a Write-Without-Response characteristic()",
+      "parameter_family": "single",
+      "line": 18,
+      "end_line": 24,
+      "declaration_sha256": "f71b831c75a1a513a8840cf85433f82dc06bf4ae73249bcc724f7d23ae22f77d",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 22,
+          "expression": "#expect(pipelined)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 23,
+          "expression": "#expect(!writeWithoutResponse)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Advertises pipelined reads without a Write-Without-Response characteristic`",
+          "line": 18,
+          "expression": "`Advertises pipelined reads without a Write-Without-Response characteristic`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 19,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "Advertises pipelined reads without a Write-Without-Response characteristic",
+          "line": 42,
+          "end_line": 50,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "7be9a84f2b940b78500c11da7b52281426bc937a77534a24f069a12dd9b91ded",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 44,
+              "expression": "assertTrue(transport.supportsPipelinedReads())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 45,
+              "expression": "assertFalse(transport.supportsWriteWithoutResponse())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(10_000, WiFiTransport.CONNECTION_TIMEOUT_MILLIS)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 47,
+              "expression": "assertEquals(5_000, WiFiTransport.WRITE_TIMEOUT_MILLIS)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 48,
+              "expression": "assertEquals(65_536, WiFiTransport.RECEIVE_CHUNK_SIZE)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiTransport",
+              "line": 43,
+              "expression": "WiFiTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.supportsPipelinedReads",
+              "line": 44,
+              "expression": "transport.supportsPipelinedReads()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.supportsWriteWithoutResponse",
+              "line": 45,
+              "expression": "transport.supportsWriteWithoutResponse()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 49,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Connect without configuration throws notConfigured()",
+      "parameter_family": "single",
+      "line": 27,
+      "end_line": 33,
+      "declaration_sha256": "f5e55c80b556bcb2a42d76613e46baad96247d35b864001497366715db934adf",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 30,
+          "expression": "#expect(throws: WiFiTransportError.notConfigured) {\n      try await transport.connect()\n    }",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Connect without configuration throws notConfigured`",
+          "line": 27,
+          "expression": "`Connect without configuration throws notConfigured`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 28,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.connect",
+          "line": 31,
+          "expression": "transport.connect()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "Connect without configuration throws notConfigured",
+          "line": 53,
+          "end_line": 58,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ec88a7ff4cf989988cffcb7783faea13df11dcbe5bdcf78f457cfef13a0d266d",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFailsWith",
+              "line": 55,
+              "expression": "assertFailsWith<WiFiTransportException> { transport.connect() }",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 56,
+              "expression": "assertEquals(WiFiTransportError.NotConfigured, failure.error)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiTransport",
+              "line": 54,
+              "expression": "WiFiTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 55,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 57,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Connection to invalid host fails()",
+      "parameter_family": "single",
+      "line": 36,
+      "end_line": 43,
+      "declaration_sha256": "6fc82539727604104ae48ed405d2f8cfe88faf0df64a0f1d1dc99f797899a888",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 40,
+          "expression": "#expect(throws: WiFiTransportError.self) {\n      try await transport.connect()\n    }",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Connection to invalid host fails`",
+          "line": 36,
+          "expression": "`Connection to invalid host fails`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 37,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.setConnectionInfo",
+          "line": 38,
+          "expression": "transport.setConnectionInfo(host: \"999.999.999.999\", port: 5000)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.connect",
+          "line": 41,
+          "expression": "transport.connect()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "Connection to invalid host fails",
+          "line": 61,
+          "end_line": 71,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "94a0b45d7b978697e5401157643d3321add10b358f45c31d627da24e2b76cd6f",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFailsWith",
+              "line": 65,
+              "expression": "assertFailsWith<WiFiTransportException> { transport.connect() }",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 66,
+              "expression": "assertTrue(failure.error is WiFiTransportError.ConnectionFailed)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 67,
+              "expression": "assertTrue(failure.cause is IOException)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 68,
+              "expression": "assertFalse(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 69,
+              "expression": "assertEquals(1, socket.closeCalls.get())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "TrackingSocket",
+              "line": 62,
+              "expression": "TrackingSocket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport",
+              "line": 63,
+              "expression": "WiFiTransport(socketFactory = { socket })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 64,
+              "expression": "transport.setConnectionInfo(\"999.999.999.999\", 5000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 65,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 68,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "socket.closeCalls.get",
+              "line": 69,
+              "expression": "socket.closeCalls.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 70,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Send without connection throws notConnected()",
+      "parameter_family": "single",
+      "line": 46,
+      "end_line": 52,
+      "declaration_sha256": "950a37552b378c96c8574a9b1a30bdf2e807c4606b2b10575bf81ec9edb432d6",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 49,
+          "expression": "#expect(throws: WiFiTransportError.notConnected) {\n      try await transport.send(Data([0x01, 0x02, 0x03]))\n    }",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Send without connection throws notConnected`",
+          "line": 46,
+          "expression": "`Send without connection throws notConnected`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 47,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.send",
+          "line": 50,
+          "expression": "transport.send(Data([0x01, 0x02, 0x03]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 50,
+          "expression": "Data([0x01, 0x02, 0x03])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "Send without connection throws notConnected",
+          "line": 74,
+          "end_line": 87,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "51984b3c9829f29a2457c107e7bb5bf07db13ec1f34d28f45d8dfde8310a9772",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 77,
+              "expression": "assertEquals(\n                WiFiTransportError.NotConnected,\n                assertFailsWith<WiFiTransportException> { transport.send(payload) }.error,\n            )",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFailsWith",
+              "line": 79,
+              "expression": "assertFailsWith<WiFiTransportException> { transport.send(payload) }",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 81,
+              "expression": "assertEquals(\n                WiFiTransportError.NotConnected,\n                assertFailsWith<WiFiTransportException> { transport.sendWithoutResponse(payload) }.error,\n            )",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFailsWith",
+              "line": 83,
+              "expression": "assertFailsWith<WiFiTransportException> { transport.sendWithoutResponse(payload) }",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiTransport",
+              "line": 75,
+              "expression": "WiFiTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 76,
+              "expression": "for (payload in listOf(Bytes.EMPTY, Bytes.fromHex(\"010203\")))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 76,
+              "expression": "listOf(Bytes.EMPTY, Bytes.fromHex(\"010203\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 76,
+              "expression": "Bytes.fromHex(\"010203\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.send",
+              "line": 79,
+              "expression": "transport.send(payload)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sendWithoutResponse",
+              "line": 83,
+              "expression": "transport.sendWithoutResponse(payload)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 86,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Disconnect when not connected is safe()",
+      "parameter_family": "single",
+      "line": 55,
+      "end_line": 61,
+      "declaration_sha256": "bdac05717a7d016d0d00a660212b90e4610fc34ebdb94f92f01508597fc44c79",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 60,
+          "expression": "#expect(!isConnected)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Disconnect when not connected is safe`",
+          "line": 55,
+          "expression": "`Disconnect when not connected is safe`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 56,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.disconnect",
+          "line": 57,
+          "expression": "transport.disconnect()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "Disconnect when not connected is safe",
+          "line": 90,
+          "end_line": 98,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "89bb30ac3db30b4c2b71d3f9544e339eba5764bb1a3b3d2de0c747420f0ac868",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 95,
+              "expression": "assertFalse(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 96,
+              "expression": "assertTrue(stream.toList().isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 97,
+              "expression": "assertTrue(transport.receivedData().toList().isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiTransport",
+              "line": 91,
+              "expression": "WiFiTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 92,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 93,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 94,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 95,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "stream.toList",
+              "line": 96,
+              "expression": "stream.toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 96,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 97,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 97,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 97,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::connectionInfo returns configured host and port()",
+      "parameter_family": "single",
+      "line": 64,
+      "end_line": 76,
+      "declaration_sha256": "5d71d9430d5eff915e000c75c7081b355c24844a0a7cdf0a0b4de58ae245b413",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 69,
+          "expression": "#expect(initialInfo == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 74,
+          "expression": "#expect(info?.host == \"192.168.1.50\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 75,
+          "expression": "#expect(info?.port == 5000)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`connectionInfo returns configured host and port`",
+          "line": 64,
+          "expression": "`connectionInfo returns configured host and port`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 65,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.setConnectionInfo",
+          "line": 72,
+          "expression": "transport.setConnectionInfo(host: \"192.168.1.50\", port: 5000)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "connectionInfo returns configured host and port",
+          "line": 101,
+          "end_line": 108,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "0598b4223d25d481d4a29c299aa0ce1594a9e2ffa82519ed82cb195489d73b02",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 103,
+              "expression": "assertNull(transport.connectionInfo)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 105,
+              "expression": "assertEquals(WiFiTransport.ConnectionInfo(\"192.168.1.50\", 5000), transport.connectionInfo)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 107,
+              "expression": "assertEquals(WiFiTransport.ConnectionInfo(\"192.168.1.50\", 5000), transport.connectionInfo)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiTransport",
+              "line": 102,
+              "expression": "WiFiTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 104,
+              "expression": "transport.setConnectionInfo(\"192.168.1.50\", 5000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport.ConnectionInfo",
+              "line": 105,
+              "expression": "WiFiTransport.ConnectionInfo(\"192.168.1.50\", 5000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 106,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport.ConnectionInfo",
+              "line": 107,
+              "expression": "WiFiTransport.ConnectionInfo(\"192.168.1.50\", 5000)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Disconnection handler not called on user-initiated disconnect()",
+      "parameter_family": "single",
+      "line": 79,
+      "end_line": 94,
+      "declaration_sha256": "1f0b9d30a3985f7616fca0d0d32505d83f934158b39281f32d590f58c71b0dc9",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 93,
+          "expression": "#expect(!callTracker.wasCalled, \"Handler should not be called on user disconnect\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Disconnection handler not called on user-initiated disconnect`",
+          "line": 79,
+          "expression": "`Disconnection handler not called on user-initiated disconnect`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 80,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "CallTracker",
+          "line": 81,
+          "expression": "CallTracker()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "callTracker.markCalled",
+          "line": 84,
+          "expression": "callTracker.markCalled()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.disconnect",
+          "line": 88,
+          "expression": "transport.disconnect()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Task.sleep",
+          "line": 91,
+          "expression": "Task.sleep(for: .milliseconds(100))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "milliseconds",
+          "line": 91,
+          "expression": "milliseconds(100)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "Disconnection handler not called on user-initiated disconnect",
+          "line": 111,
+          "end_line": 129,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "51b1c9ad25e4b49e3127da69891263b12c7045d254330a164c952c47ce948160",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 124,
+              "expression": "assertTrue(consumed.await().isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 125,
+              "expression": "assertEquals(-1, server.readEOF())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 126,
+              "expression": "assertEquals(0, calls.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 127,
+              "expression": "assertEquals(1, socket.closeCalls.get())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "AtomicInteger",
+              "line": 112,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "TrackingSocket",
+              "line": 113,
+              "expression": "TrackingSocket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport",
+              "line": 114,
+              "expression": "WiFiTransport(socketFactory = { socket })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LoopbackPeer",
+              "line": 115,
+              "expression": "LoopbackPeer()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.incrementAndGet",
+              "line": 116,
+              "expression": "calls.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 117,
+              "expression": "transport.setConnectionInfo(\"127.0.0.1\", peer.port)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 118,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "peer.accept",
+              "line": 119,
+              "expression": "peer.accept()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "socket.readStarted.await",
+              "line": 120,
+              "expression": "socket.readStarted.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 121,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 121,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 122,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 123,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "consumed.await",
+              "line": 124,
+              "expression": "consumed.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 124,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.readEOF",
+              "line": 125,
+              "expression": "server.readEOF()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.get",
+              "line": 126,
+              "expression": "calls.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "socket.closeCalls.get",
+              "line": 127,
+              "expression": "socket.closeCalls.get()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Disconnection handler not called on initial connect failure()",
+      "parameter_family": "single",
+      "line": 97,
+      "end_line": 118,
+      "declaration_sha256": "02c235dd321672855a23e7e7b7f0531a729c04eb27aa77f859e25a1ca49895d2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 117,
+          "expression": "#expect(!callTracker.wasCalled, \"Handler should not be called on initial connect failure\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Disconnection handler not called on initial connect failure`",
+          "line": 97,
+          "expression": "`Disconnection handler not called on initial connect failure`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 98,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "CallTracker",
+          "line": 99,
+          "expression": "CallTracker()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "callTracker.markCalled",
+          "line": 102,
+          "expression": "callTracker.markCalled()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.setConnectionInfo",
+          "line": 106,
+          "expression": "transport.setConnectionInfo(host: \"999.999.999.999\", port: 5000)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.connect",
+          "line": 110,
+          "expression": "transport.connect()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Task.sleep",
+          "line": 115,
+          "expression": "Task.sleep(for: .milliseconds(100))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "milliseconds",
+          "line": 115,
+          "expression": "milliseconds(100)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "Disconnection handler not called on initial connect failure",
+          "line": 132,
+          "end_line": 140,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "7d451129f56f8b78c4c80a3b4c548fed93f6020bb07bc84e5e1d76b4dacefd99",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFailsWith",
+              "line": 137,
+              "expression": "assertFailsWith<WiFiTransportException> { transport.connect() }",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 139,
+              "expression": "assertEquals(0, calls.get())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "WiFiTransport",
+              "line": 133,
+              "expression": "WiFiTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 134,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.incrementAndGet",
+              "line": 135,
+              "expression": "calls.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 136,
+              "expression": "transport.setConnectionInfo(\"999.999.999.999\", 5000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 137,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 138,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.get",
+              "line": 139,
+              "expression": "calls.get()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::connect() is idempotent \u2014 second call does not create new TCP connection()",
+      "parameter_family": "single",
+      "line": 121,
+      "end_line": 183,
+      "declaration_sha256": "ad32cc7db0117524f1ff67471a44031f0002c72fd3c3722855d69119807b618e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 140,
+          "expression": "Issue.record(\"Listener failed to start\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 145,
+          "expression": "Issue.record(\"Listener has no port\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 155,
+          "expression": "#expect(connected, \"Transport should be connected after first connect()\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 165,
+          "expression": "#expect(stillConnected, \"Transport should still be connected after second connect()\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 173,
+          "expression": "#expect(finalCount == 1, \"Expected 1 TCP accept, got \\(finalCount) \u2014 second connect() should be a no-op\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [
+        {
+          "method": "waitUntil",
+          "line": 4,
+          "assertions": [
+            {
+              "kind": "eventual-condition/WaitTimeoutError",
+              "line": 19
+            }
+          ],
+          "provenance": {
+            "path": "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift",
+            "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+            "blob_sha": "c75d9666d88e4e993012d832ec34a38e93640869",
+            "utf8_bytes": 669,
+            "sha256": "54bd288d695433427854f346a153a7d64e66e3363defc65269d57499987ede14"
+          },
+          "invocation_lines": [
+            158
+          ]
+        }
+      ],
+      "actions_and_helper_calls": [
+        {
+          "name": "`connect() is idempotent \u2014 second call does not create new TCP connection`",
+          "line": 121,
+          "expression": "`connect() is idempotent \u2014 second call does not create new TCP connection`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NWListener",
+          "line": 122,
+          "expression": "NWListener(using: .tcp)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OSAllocatedUnfairLock",
+          "line": 123,
+          "expression": "OSAllocatedUnfairLock(initialState: 0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OSAllocatedUnfairLock",
+          "line": 124,
+          "expression": "OSAllocatedUnfairLock<[NWConnection]>(initialState: [])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "append",
+          "line": 128,
+          "expression": "append(conn)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "conn.start",
+          "line": 129,
+          "expression": "conn.start(queue: .global())",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "global",
+          "line": 129,
+          "expression": "global()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "makeStream",
+          "line": 132,
+          "expression": "makeStream()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "listenerReady.continuation.yield",
+          "line": 134,
+          "expression": "listenerReady.continuation.yield(state)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "listener.start",
+          "line": 136,
+          "expression": "listener.start(queue: .global(qos: .userInitiated))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "global",
+          "line": 136,
+          "expression": "global(qos: .userInitiated)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "listenerReady.continuation.finish",
+          "line": 142,
+          "expression": "listenerReady.continuation.finish()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 149,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.setConnectionInfo",
+          "line": 150,
+          "expression": "transport.setConnectionInfo(host: \"127.0.0.1\", port: port)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.connect",
+          "line": 153,
+          "expression": "transport.connect()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "waitUntil",
+          "line": 158,
+          "expression": "waitUntil(timeout: .seconds(2), \"First connection should be accepted\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 158,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.connect",
+          "line": 163,
+          "expression": "transport.connect()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Task.sleep",
+          "line": 170,
+          "expression": "Task.sleep(for: .milliseconds(500))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "milliseconds",
+          "line": 170,
+          "expression": "milliseconds(500)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.disconnect",
+          "line": 176,
+          "expression": "transport.disconnect()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "conn.cancel",
+          "line": 179,
+          "expression": "conn.cancel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "listener.cancel",
+          "line": 182,
+          "expression": "listener.cancel()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+          "sha256": "cac7289f79f806892ed8b900add8984aecc639414a4fff8418949239b00e3f5c",
+          "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+          "method_or_family_name": "originalFirstAcceptCompletesWithinTwoSecondsWithoutDuplicateConnection",
+          "line": 97,
+          "end_line": 138,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "e24426b4c01d542b200bce361322f15919921d50af4d81861a5fe2794384ae38",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 114,
+              "expression": "assertTrue(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 122,
+              "expression": "assertTrue(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 123,
+              "expression": "assertEquals(1, creations.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 124,
+              "expression": "assertTrue(socket.tcpNoDelay)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 127,
+              "expression": "assertEquals(Bytes.fromHex(\"3c02001603\"), Bytes(frame))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 129,
+              "expression": "assertTrue(observeWithinTwoSeconds(\"Disconnected stream completion\") { waiting.await() }.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 130,
+              "expression": "assertTrue(socket.isClosed)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 131,
+              "expression": "assertEquals(1, closes.get())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "withTimeout",
+              "line": 98,
+              "expression": "withTimeout(15_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 99,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 100,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Socket",
+              "line": 101,
+              "expression": "Socket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "close",
+              "line": 102,
+              "expression": "close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.incrementAndGet",
+              "line": 103,
+              "expression": "closes.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "super.close",
+              "line": 104,
+              "expression": "super.close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport",
+              "line": 107,
+              "expression": "WiFiTransport(socketFactory = { creations.incrementAndGet(); socket })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "creations.incrementAndGet",
+              "line": 107,
+              "expression": "creations.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ServerSocket",
+              "line": 108,
+              "expression": "ServerSocket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listener.bind",
+              "line": 109,
+              "expression": "listener.bind(InetSocketAddress(\"127.0.0.1\", 0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "InetSocketAddress",
+              "line": 109,
+              "expression": "InetSocketAddress(\"127.0.0.1\", 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 112,
+              "expression": "transport.setConnectionInfo(\"127.0.0.1\", listener.localPort)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 113,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 114,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 115,
+              "expression": "observeWithinTwoSeconds(\"First connection acceptance\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 116,
+              "expression": "withContext(Dispatchers.IO)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listener.accept",
+              "line": 116,
+              "expression": "listener.accept()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 119,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 119,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "List",
+              "line": 120,
+              "expression": "List(8)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 120,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "it.await",
+              "line": 121,
+              "expression": "it.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 122,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "creations.get",
+              "line": 123,
+              "expression": "creations.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.send",
+              "line": 125,
+              "expression": "transport.send(Bytes.fromHex(\"1603\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 125,
+              "expression": "Bytes.fromHex(\"1603\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 126,
+              "expression": "withContext(Dispatchers.IO)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.getInputStream",
+              "line": 126,
+              "expression": "server.getInputStream()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "readNBytes",
+              "line": 126,
+              "expression": "readNBytes(5)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 127,
+              "expression": "Bytes.fromHex(\"3c02001603\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 127,
+              "expression": "Bytes(frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 128,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 129,
+              "expression": "observeWithinTwoSeconds(\"Disconnected stream completion\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "waiting.await",
+              "line": 129,
+              "expression": "waiting.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 129,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.get",
+              "line": 131,
+              "expression": "closes.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 134,
+              "expression": "withContext(NonCancellable)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 134,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "WiFiTransportTests::connect() is idempotent \u2014 second call does not create new TCP connection()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Peer close finishes the stream and fires the disconnection handler()",
+      "parameter_family": "single",
+      "line": 186,
+      "end_line": 242,
+      "declaration_sha256": "837b11661aa605b19bd06bbebbd58d5f8b203061460ded6f43a313174257fdc8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 201,
+          "expression": "Issue.record(\"Listener has no port\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 238,
+          "expression": "#expect(await transport.isConnected == false, \"Peer close should mark the transport disconnected\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [
+        {
+          "method": "waitUntil",
+          "line": 4,
+          "assertions": [
+            {
+              "kind": "eventual-condition/WaitTimeoutError",
+              "line": 19
+            }
+          ],
+          "provenance": {
+            "path": "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift",
+            "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+            "blob_sha": "c75d9666d88e4e993012d832ec34a38e93640869",
+            "utf8_bytes": 669,
+            "sha256": "54bd288d695433427854f346a153a7d64e66e3363defc65269d57499987ede14"
+          },
+          "invocation_lines": [
+            219,
+            232,
+            235
+          ]
+        }
+      ],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Peer close finishes the stream and fires the disconnection handler`",
+          "line": 186,
+          "expression": "`Peer close finishes the stream and fires the disconnection handler`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OSAllocatedUnfairLock",
+          "line": 187,
+          "expression": "OSAllocatedUnfairLock<[NWConnection]>(initialState: [])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "append",
+          "line": 189,
+          "expression": "append(conn)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "conn.cancel",
+          "line": 194,
+          "expression": "conn.cancel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "listener.cancel",
+          "line": 197,
+          "expression": "listener.cancel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 205,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "CallTracker",
+          "line": 206,
+          "expression": "CallTracker()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "disconnectionTracker.markCalled",
+          "line": 208,
+          "expression": "disconnectionTracker.markCalled()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.setConnectionInfo",
+          "line": 210,
+          "expression": "transport.setConnectionInfo(host: \"127.0.0.1\", port: port)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.connect",
+          "line": 211,
+          "expression": "transport.connect()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "CallTracker",
+          "line": 213,
+          "expression": "CallTracker()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "streamEnded.markCalled",
+          "line": 216,
+          "expression": "streamEnded.markCalled()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "waitUntil",
+          "line": 219,
+          "expression": "waitUntil(timeout: .seconds(2), \"Server should accept the connection\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 219,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "send",
+          "line": 225,
+          "expression": "send(\n      content: nil,\n      contentContext: .finalMessage,\n      isComplete: true,\n      completion: .contentProcessed { _ in }\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "waitUntil",
+          "line": 232,
+          "expression": "waitUntil(timeout: .seconds(2), \"Peer close should fire the disconnection handler\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 232,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "waitUntil",
+          "line": 235,
+          "expression": "waitUntil(timeout: .seconds(2), \"Peer close should finish the receivedData stream\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 235,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "consumeTask.cancel",
+          "line": 240,
+          "expression": "consumeTask.cancel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.disconnect",
+          "line": 241,
+          "expression": "transport.disconnect()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+          "sha256": "547442b327862c8b3e88f09cb44406879ccefcd1b0b5519b057912e46f70d21f",
+          "class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+          "method_or_family_name": "Peer close finishes the stream and fires the disconnection handler",
+          "line": 171,
+          "end_line": 197,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ac75c8ea49e2fae85c5e7ed67ae1684ca4dbdd1af73aaf6fbd31751ddd590140",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 185,
+              "expression": "assertNull(disconnected.await())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 186,
+              "expression": "assertEquals(listOf(Bytes.fromHex(\"80ff\"), Bytes.fromHex(\"80ff\"), Bytes.EMPTY), received.await())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 187,
+              "expression": "assertFalse(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 188,
+              "expression": "assertEquals(-1, server.readEOF())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 190,
+              "expression": "assertEquals(1, calls.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 191,
+              "expression": "assertEquals(1, socket.closeCalls.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 192,
+              "expression": "assertTrue(transport.receivedData().toList().isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "TrackingSocket",
+              "line": 172,
+              "expression": "TrackingSocket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport",
+              "line": 173,
+              "expression": "WiFiTransport(socketFactory = { socket })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CompletableDeferred",
+              "line": 174,
+              "expression": "CompletableDeferred<Throwable?>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 175,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LoopbackPeer",
+              "line": 176,
+              "expression": "LoopbackPeer()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.incrementAndGet",
+              "line": 178,
+              "expression": "calls.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "disconnected.complete",
+              "line": 178,
+              "expression": "disconnected.complete(it)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 179,
+              "expression": "transport.setConnectionInfo(\"127.0.0.1\", peer.port)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 180,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "peer.accept",
+              "line": 181,
+              "expression": "peer.accept()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 182,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 182,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.writeWire",
+              "line": 183,
+              "expression": "server.writeWire(Bytes.fromHex(\"3e020080ff3e020080ff3e0000\").toByteArray())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 183,
+              "expression": "Bytes.fromHex(\"3e020080ff3e020080ff3e0000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByteArray",
+              "line": 183,
+              "expression": "toByteArray()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.shutdownOutput",
+              "line": 184,
+              "expression": "server.shutdownOutput()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "disconnected.await",
+              "line": 185,
+              "expression": "disconnected.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 186,
+              "expression": "listOf(Bytes.fromHex(\"80ff\"), Bytes.fromHex(\"80ff\"), Bytes.EMPTY)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 186,
+              "expression": "Bytes.fromHex(\"80ff\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 186,
+              "expression": "Bytes.fromHex(\"80ff\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "received.await",
+              "line": 186,
+              "expression": "received.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 187,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.readEOF",
+              "line": 188,
+              "expression": "server.readEOF()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 189,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.get",
+              "line": 190,
+              "expression": "calls.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "socket.closeCalls.get",
+              "line": 191,
+              "expression": "socket.closeCalls.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 192,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 192,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 192,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 194,
+              "expression": "withContext(NonCancellable)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 194,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Errors/WiFiTransportError+LocalizedError.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+          "sha256": "cac7289f79f806892ed8b900add8984aecc639414a4fff8418949239b00e3f5c",
+          "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+          "method_or_family_name": "originalPeerCloseAcceptHandlerAndStreamEachCompleteWithinTwoSeconds",
+          "line": 141,
+          "end_line": 195,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "324645b183008c3a26b94da1eefa1bd43bef32850739cb9148ad9342d83536a6",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 177,
+              "expression": "assertNull(observeWithinTwoSeconds(\"Peer-close disconnection handler\") { disconnected.await() })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 181,
+              "expression": "assertEquals(expected, frames)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 182,
+              "expression": "assertFalse(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 184,
+              "expression": "assertEquals(1, calls.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 185,
+              "expression": "assertEquals(1, closes.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 186,
+              "expression": "assertTrue(socket.isClosed)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 187,
+              "expression": "assertTrue(transport.receivedData().toList().isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "withTimeout",
+              "line": 142,
+              "expression": "withTimeout(15_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 143,
+              "expression": "for (wire in listOf(\"\", \"3e020080ff3e020080ff3e0000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 143,
+              "expression": "listOf(\"\", \"3e020080ff3e020080ff3e0000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 144,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 145,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CompletableDeferred",
+              "line": 146,
+              "expression": "CompletableDeferred<Throwable?>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Socket",
+              "line": 147,
+              "expression": "Socket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "close",
+              "line": 148,
+              "expression": "close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.incrementAndGet",
+              "line": 149,
+              "expression": "closes.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "super.close",
+              "line": 150,
+              "expression": "super.close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport",
+              "line": 153,
+              "expression": "WiFiTransport(socketFactory = { socket })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ServerSocket",
+              "line": 154,
+              "expression": "ServerSocket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listener.bind",
+              "line": 155,
+              "expression": "listener.bind(InetSocketAddress(\"127.0.0.1\", 0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "InetSocketAddress",
+              "line": 155,
+              "expression": "InetSocketAddress(\"127.0.0.1\", 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.incrementAndGet",
+              "line": 159,
+              "expression": "calls.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "disconnected.complete",
+              "line": 160,
+              "expression": "disconnected.complete(it)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 162,
+              "expression": "transport.setConnectionInfo(\"127.0.0.1\", listener.localPort)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 163,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 164,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 164,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 165,
+              "expression": "observeWithinTwoSeconds(\"Peer-close connection acceptance\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 166,
+              "expression": "withContext(Dispatchers.IO)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listener.accept",
+              "line": 166,
+              "expression": "listener.accept()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 168,
+              "expression": "if (wire.isNotEmpty())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "wire.isNotEmpty",
+              "line": 168,
+              "expression": "wire.isNotEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 169,
+              "expression": "withContext(Dispatchers.IO)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.getOutputStream",
+              "line": 170,
+              "expression": "server.getOutputStream()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "write",
+              "line": 171,
+              "expression": "write(Bytes.fromHex(wire).toByteArray())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 171,
+              "expression": "Bytes.fromHex(wire)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByteArray",
+              "line": 171,
+              "expression": "toByteArray()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "flush",
+              "line": 172,
+              "expression": "flush()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.shutdownOutput",
+              "line": 176,
+              "expression": "server.shutdownOutput()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 177,
+              "expression": "observeWithinTwoSeconds(\"Peer-close disconnection handler\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "disconnected.await",
+              "line": 177,
+              "expression": "disconnected.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 178,
+              "expression": "observeWithinTwoSeconds(\"Peer-close received stream completion\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "received.await",
+              "line": 178,
+              "expression": "received.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 179,
+              "expression": "if (wire.isEmpty())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "wire.isEmpty",
+              "line": 179,
+              "expression": "wire.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "emptyList",
+              "line": 179,
+              "expression": "emptyList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 180,
+              "expression": "listOf(Bytes.fromHex(\"80ff\"), Bytes.fromHex(\"80ff\"), Bytes.EMPTY)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 180,
+              "expression": "Bytes.fromHex(\"80ff\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 180,
+              "expression": "Bytes.fromHex(\"80ff\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 182,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 183,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.get",
+              "line": 184,
+              "expression": "calls.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.get",
+              "line": 185,
+              "expression": "closes.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 187,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 187,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 187,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 190,
+              "expression": "withContext(NonCancellable)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 190,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "WiFiTransportTests::Peer close finishes the stream and fires the disconnection handler()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "source_blob_sha": "68c021bf46d8fcd241cb68fec52fa5dd8b3d10af",
+      "case_id": "WiFiTransportTests::Cancelling connect() does not leave it parked()",
+      "parameter_family": "single",
+      "line": 245,
+      "end_line": 266,
+      "declaration_sha256": "f95e575f0a2eb16a7a4ac46356db5bc977d6a1e9cb9429ba3f4ddb9f7ff33de3",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 264,
+          "expression": "#expect(throws: (any Error).self) { try await connectTask.value }",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 265,
+          "expression": "#expect(await transport.isConnected == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [
+        {
+          "method": "waitUntil",
+          "line": 4,
+          "assertions": [
+            {
+              "kind": "eventual-condition/WaitTimeoutError",
+              "line": 19
+            }
+          ],
+          "provenance": {
+            "path": "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift",
+            "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+            "blob_sha": "c75d9666d88e4e993012d832ec34a38e93640869",
+            "utf8_bytes": 669,
+            "sha256": "54bd288d695433427854f346a153a7d64e66e3363defc65269d57499987ede14"
+          },
+          "invocation_lines": [
+            260
+          ]
+        }
+      ],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Cancelling connect() does not leave it parked`",
+          "line": 245,
+          "expression": "`Cancelling connect() does not leave it parked`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "WiFiTransport",
+          "line": 246,
+          "expression": "WiFiTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.setConnectionInfo",
+          "line": 249,
+          "expression": "transport.setConnectionInfo(host: \"192.0.2.1\", port: 9)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "transport.connect",
+          "line": 251,
+          "expression": "transport.connect()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Task.sleep",
+          "line": 252,
+          "expression": "Task.sleep(for: .milliseconds(200))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "milliseconds",
+          "line": 252,
+          "expression": "milliseconds(200)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "connectTask.cancel",
+          "line": 253,
+          "expression": "connectTask.cancel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "CallTracker",
+          "line": 255,
+          "expression": "CallTracker()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "completed.markCalled",
+          "line": 258,
+          "expression": "completed.markCalled()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "waitUntil",
+          "line": 260,
+          "expression": "waitUntil(timeout: .seconds(3), \"connect() should return promptly after cancellation\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 260,
+          "expression": "seconds(3)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+          "sha256": "cac7289f79f806892ed8b900add8984aecc639414a4fff8418949239b00e3f5c",
+          "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+          "method_or_family_name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
+          "line": 35,
+          "end_line": 94,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "1f5cf7bd585364e5db1a04c84882e7977eebee44db419b30f4dc7d85348a771e",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 67,
+              "expression": "assertEquals(0L, testScheduler.currentTime)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 68,
+              "expression": "assertEquals(InetSocketAddress(\"192.0.2.1\", 9), endpoint.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 69,
+              "expression": "assertEquals(10_000, timeout.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 72,
+              "expression": "assertEquals(200L, testScheduler.currentTime)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 73,
+              "expression": "assertFalse(\"Original 200ms pending interval must not become a precancelled call\", connect.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 74,
+              "expression": "assertFalse(exited.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 75,
+              "expression": "assertEquals(0, closes.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 82,
+              "expression": "fail(\"A cancelled connection cannot return success\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 84,
+              "expression": "assertEquals(cancellation.message, failure.message)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 86,
+              "expression": "assertTrue(exited.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 87,
+              "expression": "assertTrue(socket.isClosed)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 88,
+              "expression": "assertFalse(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 89,
+              "expression": "assertEquals(1, closes.get())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CompletableDeferred",
+              "line": 36,
+              "expression": "CompletableDeferred<Unit>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CompletableDeferred",
+              "line": 37,
+              "expression": "CompletableDeferred<Unit>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CountDownLatch",
+              "line": 38,
+              "expression": "CountDownLatch(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicReference",
+              "line": 39,
+              "expression": "AtomicReference<SocketAddress>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 40,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 41,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Socket",
+              "line": 43,
+              "expression": "Socket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "connect",
+              "line": 44,
+              "expression": "connect(target: SocketAddress, timeoutMillis: Int)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "endpoint.set",
+              "line": 45,
+              "expression": "endpoint.set(target)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "timeout.set",
+              "line": 46,
+              "expression": "timeout.set(timeoutMillis)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "started.complete",
+              "line": 47,
+              "expression": "started.complete(Unit)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "release.await",
+              "line": 49,
+              "expression": "release.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "exited.complete",
+              "line": 51,
+              "expression": "exited.complete(Unit)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "close",
+              "line": 55,
+              "expression": "close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.incrementAndGet",
+              "line": 56,
+              "expression": "closes.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "release.countDown",
+              "line": 57,
+              "expression": "release.countDown()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "super.close",
+              "line": 58,
+              "expression": "super.close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport",
+              "line": 61,
+              "expression": "WiFiTransport(socketFactory = { socket })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 63,
+              "expression": "transport.setConnectionInfo(\"192.0.2.1\", 9)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 64,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 65,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "awaitRealCompletion",
+              "line": 66,
+              "expression": "awaitRealCompletion(started)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "InetSocketAddress",
+              "line": 68,
+              "expression": "InetSocketAddress(\"192.0.2.1\", 9)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "endpoint.get",
+              "line": 68,
+              "expression": "endpoint.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "timeout.get",
+              "line": 69,
+              "expression": "timeout.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 70,
+              "expression": "advanceTimeBy(200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 71,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.get",
+              "line": 75,
+              "expression": "closes.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CancellationException",
+              "line": 76,
+              "expression": "CancellationException(\"original pending connect cancelled\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "connect.cancel",
+              "line": 77,
+              "expression": "connect.cancel(cancellation)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 78,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "awaitRealCompletion",
+              "line": 79,
+              "expression": "awaitRealCompletion(connect)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "connect.await",
+              "line": 81,
+              "expression": "connect.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 83,
+              "expression": "catch (failure: CancellationException)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 88,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.get",
+              "line": 89,
+              "expression": "closes.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 91,
+              "expression": "withContext(NonCancellable)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 91,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "release.countDown",
+              "line": 92,
+              "expression": "release.countDown()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "WiFiTransportTests::Cancelling connect() does not leave it parked()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    }
+  ]
+}

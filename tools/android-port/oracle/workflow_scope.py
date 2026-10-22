@@ -75,6 +75,7 @@ RULES = {
             "docs/android/adr/",
             "docs/android/build/",
             "docs/android/ci/",
+            "android/parity-tests/", "docs/android/parity/",
         ),
     },
     "scaffold": {
@@ -98,6 +99,7 @@ RULES = {
             "android/core/runtime/", "android/core/ui/",
             "android/core/services/",
             "android/feature/", "android/platform/",
+            "android/parity-tests/",
         ),
     },
     "external-oracle": {"exact": codec_inputs(), "prefix": ()},

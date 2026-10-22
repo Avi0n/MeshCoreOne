@@ -28,6 +28,85 @@ MIXED = PORTED + (
 
 
 class SourceDispositionTests(unittest.TestCase):
+    def test_timeout_retains_fixed_observations_before_tail_without_inventing_method_completion(self):
+        markers = ["WP501_PATH_RECENCY|TASK|:app:compileDebugUnitTestKotlin|END"]
+        for (tag, name), methods in ci.WP501_OBSERVATION_METHODS.items():
+            markers.extend(f"{tag}|TEST|{name}|{method}|START" for method in methods)
+        content = "\n".join(markers) + "\n" + ("later unrelated output\n" * 2000) + "last actual progress\n"
+        failure = ci.subprocess.TimeoutExpired(["fixture-gradle"], 1800)
+        with tempfile.TemporaryDirectory() as temporary:
+            def timeout(command, **kwargs):
+                self.assertEqual(kwargs["timeout"], 1800)
+                kwargs["stdout"].write(content)
+                raise failure
+            with patch.object(ci.subprocess, "run", side_effect=timeout), \
+                    patch.object(Path, "read_text", side_effect=AssertionError("Whole-log reads forbidden")), \
+                    contextlib.redirect_stdout(io.StringIO()), \
+                    contextlib.redirect_stderr(io.StringIO()) as diagnostics:
+                with self.assertRaises(ci.subprocess.TimeoutExpired) as observed:
+                    ci.execute(["fixture-gradle"], {}, Path(temporary) / "timeout.log")
+            self.assertIs(observed.exception, failure)
+            output = diagnostics.getvalue()
+            for marker in markers:
+                self.assertNotIn(marker, content[-12000:])
+                self.assertEqual(output.count(marker), 1)
+            self.assertNotIn("|END|", output)
+            self.assertIn("truncated=False|not-test-evidence", output)
+            self.assertTrue(output.rstrip().endswith("last actual progress"))
+
+    def test_observation_replay_rejects_nonwhitelisted_names_phases_payloads_and_overlong_lines(self):
+        (tag, name), methods = next(iter(ci.WP501_OBSERVATION_METHODS.items()))
+        start = f"{tag}|TEST|{name}|{methods[0]}|START"
+        invalid = (
+            start.replace(name, "com.meshcoreone.android.UnrelatedTest"),
+            start.replace(methods[0], "unknownMethod"),
+            start.replace(methods[0], methods[0] + "[37]"),
+            start + "|PRIVATE_PAYLOAD",
+            f"{tag}|PHASE|{name}|{methods[0]}|unknown-phase|END",
+            start.replace("|START", "|END|MADE_UP_RESULT"),
+            start + "PRIVATE_PAYLOAD" + "x" * 70000,
+        )
+        content = "\n".join(invalid) + "\n" + ("later unrelated output\n" * 2000) + "last actual progress\n"
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / "invalid-observations.log"
+            log.write_text(content, encoding="utf-8")
+            with contextlib.redirect_stderr(io.StringIO()) as diagnostics:
+                ci.print_failed_command_log(log)
+        output = diagnostics.getvalue()
+        self.assertNotIn("WP501_", output)
+        self.assertNotIn("PRIVATE_PAYLOAD", output)
+        self.assertEqual(output.count("identity extraction is incomplete"), 1)
+        self.assertTrue(output.rstrip().endswith("last actual progress"))
+
+    def test_observation_replay_is_bounded_and_reports_truncation_in_original_order(self):
+        markers = sorted(ci.WP501_OBSERVATION_MARKERS)[:ci.WP501_OBSERVATION_LIMIT + 1]
+        self.assertEqual(len(markers), ci.WP501_OBSERVATION_LIMIT + 1)
+        content = "\n".join(markers) + "\n" + ("later unrelated output\n" * 2000) + "last actual progress\n"
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / "bounded-observations.log"
+            log.write_text(content, encoding="utf-8")
+            with contextlib.redirect_stderr(io.StringIO()) as diagnostics:
+                ci.print_failed_command_log(log)
+        output = diagnostics.getvalue()
+        self.assertNotIn(markers[0], output)
+        observed = output.splitlines()
+        self.assertEqual(observed[1:ci.WP501_OBSERVATION_LIMIT + 1], markers[1:])
+        self.assertIn("retained=128|seen=129|truncated=True|not-test-evidence", output)
+        self.assertTrue(output.rstrip().endswith("last actual progress"))
+
+    def test_observation_whitelist_matches_app_rollback_names_and_existing_phase_protocol(self):
+        source = (ci.REPO / "android" / "app" / "build.gradle.kts").read_text(encoding="utf-8")
+        rollback = source.split("val rollbackTestNames = setOf(", 1)[1].split(").flatMap", 1)[0]
+        names = tuple(line.strip().strip('",') for line in rollback.splitlines() if line.strip())
+        key = ("WP501_ADVERT_ROLLBACK", "com.meshcoreone.android.parity.AdvertisementRollbackOriginalPredicateTest")
+        self.assertEqual(names, ci.WP501_OBSERVATION_METHODS[key])
+        phases = source.split("val pathRecencyPhases = setOf(", 1)[1].split(")", 1)[0]
+        self.assertEqual(tuple(ci.re.findall(r'"([^"]+)"', phases)), ci.WP501_PATH_RECENCY_PHASES)
+        for method in names:
+            for suffix in ("", "()", "[31]", "[31]()"):
+                for ending in ("START", "END|SUCCESS", "END|FAILURE", "END|SKIPPED"):
+                    self.assertIn(f"{key[0]}|TEST|{key[1]}|{method}{suffix}|{ending}", ci.WP501_OBSERVATION_MARKERS)
+
     def test_overlong_failure_log_lines_report_incomplete_and_keep_later_identities(self):
         identity = "com.meshcoreone.android.FixtureTest > laterCase[37] FAILED"
         content = "x" * 140000 + "\n" + identity + "\nBUILD FAILED\n"

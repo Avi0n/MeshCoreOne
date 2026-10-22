@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-001",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "docs/Architecture.md",
+      "blob_sha": "ce4d6834248bd9793e8849c8408bd765b05ad740",
+      "kind": "reference",
+      "owner": "WP-001",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "docs/Glossary.md",
+      "blob_sha": "99957d3cff9db3689c7fca7b4733da697c4a9158",
+      "kind": "reference",
+      "owner": "WP-001",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": []
+}

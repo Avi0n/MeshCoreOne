@@ -1,0 +1,1544 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-004",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/Helpers/TestClock.swift",
+      "blob_sha": "a48b8e9253bcf5901edaaffca84ca3764ae86560",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestClock.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestClock.kt",
+          "sha256": "b67f5d021feccaf4175d3ff73396c66884f251ff8ec4937b35f6d163c89c4ae7",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestClock.swift",
+            "MC1Tests/Helpers/TestClock.swift"
+          ],
+          "methods": [
+            {
+              "name": "sleepFor",
+              "line": 16,
+              "end_line": 16
+            },
+            {
+              "name": "sleepUntil",
+              "line": 38,
+              "end_line": 58
+            },
+            {
+              "name": "advanceBy",
+              "line": 60,
+              "end_line": 70
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/Helpers/TestClockTests.swift",
+      "blob_sha": "58414ed8a6faa09a25c1b9934cb0929969868537",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestClockTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestClockTest.kt",
+          "sha256": "6aed8df861b5573eb956facd7653da7226238aedd90547029f7de556e1e90a0c",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestClockTests.swift",
+            "MC1Tests/Helpers/TestClockTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "alreadyCancelledSleepThrowsAndDoesNotPark",
+              "line": 27,
+              "end_line": 38
+            },
+            {
+              "name": "cancellingAfterParkThrowsAndClearsSleeperCount",
+              "line": 41,
+              "end_line": 49
+            },
+            {
+              "name": "advancingWakesAnUncancelledSleeper",
+              "line": 52,
+              "end_line": 62
+            },
+            {
+              "name": "pastAndCurrentDeadlinesReturnWithoutParking",
+              "line": 65,
+              "end_line": 72
+            },
+            {
+              "name": "onlyDueSleepersWakeAndCancelledSleeperDoesNotAffectAnother",
+              "line": 75,
+              "end_line": 90
+            },
+            {
+              "name": "wakingConsumerCanRegisterAnotherSleep",
+              "line": 93,
+              "end_line": 106
+            },
+            {
+              "name": "negativeAndZeroAdvancesKeepPinnedSourceBehavior",
+              "line": 109,
+              "end_line": 120
+            },
+            {
+              "name": "cancellationRacingAdvanceNeverDoubleResumesOrLeaks",
+              "line": 123,
+              "end_line": 137
+            },
+            {
+              "name": "infiniteTimeIsAnExplicitInvalidInput",
+              "line": 140,
+              "end_line": 146
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/Helpers/TestPolling.swift",
+      "blob_sha": "68e37d91e78676a2ee7f1a7eeded430accd1a6a0",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestPolling.kt",
+        "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestPollingTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestPolling.kt",
+          "sha256": "726a95d10fef92ef5260cc72fc3f80935b80b3f4f0dd00c30703be92bcdae925",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestPolling.swift",
+            "MC1Tests/Helpers/TestPolling.swift",
+            "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
+          ],
+          "methods": [
+            {
+              "name": "sleepUntil",
+              "line": 22,
+              "end_line": 26
+            },
+            {
+              "name": "waitUntil",
+              "line": 29,
+              "end_line": 50
+            }
+          ]
+        },
+        {
+          "path": "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestPollingTest.kt",
+          "sha256": "1d2dcf87be5476a7951091ff1abfc1347f55ae7c1a4fa5540f2de55754956f27",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestPolling.swift",
+            "MC1Tests/Helpers/TestPolling.swift",
+            "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
+          ],
+          "methods": [
+            {
+              "name": "initiallyTrueConditionDoesNotAdvanceTime",
+              "line": 22,
+              "end_line": 27
+            },
+            {
+              "name": "conditionCanBecomeTrueOnTheFinalDeadlineCheck",
+              "line": 30,
+              "end_line": 37
+            },
+            {
+              "name": "intervalOvershootStillPerformsThePinnedFinalCheck",
+              "line": 40,
+              "end_line": 50
+            },
+            {
+              "name": "zeroAndNegativeTimeoutsCheckOnceWithoutSleeping",
+              "line": 53,
+              "end_line": 62
+            },
+            {
+              "name": "defaultTimeoutAndIntervalUseOnlyInjectedVirtualTime",
+              "line": 65,
+              "end_line": 72
+            },
+            {
+              "name": "cancellationPropagatesAndRemovesTheClockSleeper",
+              "line": 75,
+              "end_line": 83
+            },
+            {
+              "name": "conditionFailureIsNotConvertedToTimeoutOrSuccess",
+              "line": 86,
+              "end_line": 93
+            },
+            {
+              "name": "invalidPollingIntervalsFailRatherThanSpinForever",
+              "line": 96,
+              "end_line": 103
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/Helpers/TestClock.swift",
+      "blob_sha": "a48b8e9253bcf5901edaaffca84ca3764ae86560",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestClock.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestClock.kt",
+          "sha256": "b67f5d021feccaf4175d3ff73396c66884f251ff8ec4937b35f6d163c89c4ae7",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestClock.swift",
+            "MC1Tests/Helpers/TestClock.swift"
+          ],
+          "methods": [
+            {
+              "name": "sleepFor",
+              "line": 16,
+              "end_line": 16
+            },
+            {
+              "name": "sleepUntil",
+              "line": 38,
+              "end_line": 58
+            },
+            {
+              "name": "advanceBy",
+              "line": 60,
+              "end_line": 70
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/Helpers/TestClockTests.swift",
+      "blob_sha": "58414ed8a6faa09a25c1b9934cb0929969868537",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestClockTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestClockTest.kt",
+          "sha256": "6aed8df861b5573eb956facd7653da7226238aedd90547029f7de556e1e90a0c",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestClockTests.swift",
+            "MC1Tests/Helpers/TestClockTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "alreadyCancelledSleepThrowsAndDoesNotPark",
+              "line": 27,
+              "end_line": 38
+            },
+            {
+              "name": "cancellingAfterParkThrowsAndClearsSleeperCount",
+              "line": 41,
+              "end_line": 49
+            },
+            {
+              "name": "advancingWakesAnUncancelledSleeper",
+              "line": 52,
+              "end_line": 62
+            },
+            {
+              "name": "pastAndCurrentDeadlinesReturnWithoutParking",
+              "line": 65,
+              "end_line": 72
+            },
+            {
+              "name": "onlyDueSleepersWakeAndCancelledSleeperDoesNotAffectAnother",
+              "line": 75,
+              "end_line": 90
+            },
+            {
+              "name": "wakingConsumerCanRegisterAnotherSleep",
+              "line": 93,
+              "end_line": 106
+            },
+            {
+              "name": "negativeAndZeroAdvancesKeepPinnedSourceBehavior",
+              "line": 109,
+              "end_line": 120
+            },
+            {
+              "name": "cancellationRacingAdvanceNeverDoubleResumesOrLeaks",
+              "line": 123,
+              "end_line": 137
+            },
+            {
+              "name": "infiniteTimeIsAnExplicitInvalidInput",
+              "line": 140,
+              "end_line": 146
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/Helpers/TestHelpers.swift",
+      "blob_sha": "84719505dd5582a3c943984c9256f4551c95c883",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/MutableBox.kt",
+        "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestSupportTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/MutableBox.kt",
+          "sha256": "04c268e2a5faab385610d0a61616253528841ee93b7762f51a72d41a9a832196",
+          "source_references": [
+            "MC1Tests/Helpers/TestHelpers.swift"
+          ],
+          "methods": []
+        },
+        {
+          "path": "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestSupportTest.kt",
+          "sha256": "f297f0b7dde88ed879e2f1e7487b16e91c18169dd6d28c22312693f737996187",
+          "source_references": [
+            "MC1Tests/Helpers/TestHelpers.swift",
+            "MeshCore/Tests/MeshCoreTestSupport/CallTracker.swift"
+          ],
+          "methods": [
+            {
+              "name": "trackerStartsEmptyAndRecordsEveryInvocation",
+              "line": 16,
+              "end_line": 24
+            },
+            {
+              "name": "trackerDoesNotLoseCallsFromConcurrentCallbacks",
+              "line": 27,
+              "end_line": 35
+            },
+            {
+              "name": "mutableBoxCapturesNullableValuesWithoutAnUnsafeCast",
+              "line": 38,
+              "end_line": 44
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/Helpers/TestPolling.swift",
+      "blob_sha": "30bc26e23bad42a41b803d05f14dac1388f739e0",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestPolling.kt",
+        "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestPollingTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestPolling.kt",
+          "sha256": "726a95d10fef92ef5260cc72fc3f80935b80b3f4f0dd00c30703be92bcdae925",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestPolling.swift",
+            "MC1Tests/Helpers/TestPolling.swift",
+            "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
+          ],
+          "methods": [
+            {
+              "name": "sleepUntil",
+              "line": 22,
+              "end_line": 26
+            },
+            {
+              "name": "waitUntil",
+              "line": 29,
+              "end_line": 50
+            }
+          ]
+        },
+        {
+          "path": "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestPollingTest.kt",
+          "sha256": "1d2dcf87be5476a7951091ff1abfc1347f55ae7c1a4fa5540f2de55754956f27",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestPolling.swift",
+            "MC1Tests/Helpers/TestPolling.swift",
+            "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
+          ],
+          "methods": [
+            {
+              "name": "initiallyTrueConditionDoesNotAdvanceTime",
+              "line": 22,
+              "end_line": 27
+            },
+            {
+              "name": "conditionCanBecomeTrueOnTheFinalDeadlineCheck",
+              "line": 30,
+              "end_line": 37
+            },
+            {
+              "name": "intervalOvershootStillPerformsThePinnedFinalCheck",
+              "line": 40,
+              "end_line": 50
+            },
+            {
+              "name": "zeroAndNegativeTimeoutsCheckOnceWithoutSleeping",
+              "line": 53,
+              "end_line": 62
+            },
+            {
+              "name": "defaultTimeoutAndIntervalUseOnlyInjectedVirtualTime",
+              "line": 65,
+              "end_line": 72
+            },
+            {
+              "name": "cancellationPropagatesAndRemovesTheClockSleeper",
+              "line": 75,
+              "end_line": 83
+            },
+            {
+              "name": "conditionFailureIsNotConvertedToTimeoutOrSuccess",
+              "line": 86,
+              "end_line": 93
+            },
+            {
+              "name": "invalidPollingIntervalsFailRatherThanSpinForever",
+              "line": 96,
+              "end_line": 103
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTestSupport/CallTracker.swift",
+      "blob_sha": "e6c3687e9bfd1dd55c1bdec714b2835c081e2448",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/CallTracker.kt",
+        "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestSupportTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/CallTracker.kt",
+          "sha256": "4e86a72d508affd2ad3c07c3e601c9408beaa87c52fcc05c4c4950909f5673fc",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTestSupport/CallTracker.swift"
+          ],
+          "methods": [
+            {
+              "name": "markCalled",
+              "line": 16,
+              "end_line": 18
+            }
+          ]
+        },
+        {
+          "path": "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestSupportTest.kt",
+          "sha256": "f297f0b7dde88ed879e2f1e7487b16e91c18169dd6d28c22312693f737996187",
+          "source_references": [
+            "MC1Tests/Helpers/TestHelpers.swift",
+            "MeshCore/Tests/MeshCoreTestSupport/CallTracker.swift"
+          ],
+          "methods": [
+            {
+              "name": "trackerStartsEmptyAndRecordsEveryInvocation",
+              "line": 16,
+              "end_line": 24
+            },
+            {
+              "name": "trackerDoesNotLoseCallsFromConcurrentCallbacks",
+              "line": 27,
+              "end_line": 35
+            },
+            {
+              "name": "mutableBoxCapturesNullableValuesWithoutAnUnsafeCast",
+              "line": 38,
+              "end_line": 44
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+      "blob_sha": "6535c34bed8e45a5ba9f8cf5b7dbb3b72a244832",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/PacketReferenceTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPGoldenVectors.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/PythonLPPReferenceBytes.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalPythonReferenceCasesTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/SessionReferenceVectorsTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/PacketReferenceTest.kt",
+          "sha256": "91e4fea5c049e15e585538db49dca0c74c57767fb336856f48abf04591a586ea",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift"
+          ],
+          "methods": [
+            {
+              "name": "read",
+              "line": 17,
+              "end_line": 24
+            },
+            {
+              "name": "expect",
+              "line": 32,
+              "end_line": 32
+            },
+            {
+              "name": "appStart",
+              "line": 35,
+              "end_line": 35
+            },
+            {
+              "name": "deviceQuery",
+              "line": 37,
+              "end_line": 37
+            },
+            {
+              "name": "getBattery",
+              "line": 39,
+              "end_line": 39
+            },
+            {
+              "name": "getTime",
+              "line": 41,
+              "end_line": 41
+            },
+            {
+              "name": "setTime",
+              "line": 43,
+              "end_line": 43
+            },
+            {
+              "name": "setName",
+              "line": 45,
+              "end_line": 45
+            },
+            {
+              "name": "setCoordinates",
+              "line": 47,
+              "end_line": 47
+            },
+            {
+              "name": "setTxPower",
+              "line": 49,
+              "end_line": 49
+            },
+            {
+              "name": "setRadio",
+              "line": 51,
+              "end_line": 51
+            },
+            {
+              "name": "sendAdvertisement",
+              "line": 53,
+              "end_line": 53
+            },
+            {
+              "name": "sendAdvertisementFlood",
+              "line": 55,
+              "end_line": 55
+            },
+            {
+              "name": "reboot",
+              "line": 57,
+              "end_line": 57
+            },
+            {
+              "name": "getContacts",
+              "line": 59,
+              "end_line": 59
+            },
+            {
+              "name": "getMessage",
+              "line": 61,
+              "end_line": 61
+            },
+            {
+              "name": "sendMessage",
+              "line": 63,
+              "end_line": 63
+            },
+            {
+              "name": "sendCommand",
+              "line": 65,
+              "end_line": 65
+            },
+            {
+              "name": "sendChannelMessage",
+              "line": 67,
+              "end_line": 67
+            },
+            {
+              "name": "sendLogin",
+              "line": 69,
+              "end_line": 69
+            },
+            {
+              "name": "sendLogout",
+              "line": 71,
+              "end_line": 71
+            },
+            {
+              "name": "sendStatusRequest",
+              "line": 73,
+              "end_line": 73
+            },
+            {
+              "name": "getChannel",
+              "line": 75,
+              "end_line": 75
+            },
+            {
+              "name": "setChannel",
+              "line": 77,
+              "end_line": 80
+            },
+            {
+              "name": "getStatsCore",
+              "line": 82,
+              "end_line": 82
+            },
+            {
+              "name": "getStatsRadio",
+              "line": 84,
+              "end_line": 84
+            },
+            {
+              "name": "getStatsPackets",
+              "line": 86,
+              "end_line": 86
+            },
+            {
+              "name": "getSelfTelemetry",
+              "line": 88,
+              "end_line": 88
+            },
+            {
+              "name": "exportPrivateKey",
+              "line": 90,
+              "end_line": 90
+            },
+            {
+              "name": "signStart",
+              "line": 92,
+              "end_line": 92
+            },
+            {
+              "name": "signFinish",
+              "line": 94,
+              "end_line": 94
+            },
+            {
+              "name": "pathDiscovery",
+              "line": 96,
+              "end_line": 96
+            },
+            {
+              "name": "sendTrace",
+              "line": 98,
+              "end_line": 98
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPGoldenVectors.kt",
+          "sha256": "909b83a3d1b878c9a38a84d288a9d6c7327aa8865f5f2032064484bc167edb9a",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift"
+          ],
+          "methods": []
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Temperature 25_5 matches Python",
+              "line": 16,
+              "end_line": 20
+            },
+            {
+              "name": "Temperature negative round trip",
+              "line": 23,
+              "end_line": 30
+            },
+            {
+              "name": "Humidity 65 matches Python",
+              "line": 33,
+              "end_line": 37
+            },
+            {
+              "name": "Analog input 3_3 matches Python",
+              "line": 40,
+              "end_line": 44
+            },
+            {
+              "name": "GPS SF matches Python",
+              "line": 47,
+              "end_line": 51
+            },
+            {
+              "name": "GPS decode round trip",
+              "line": 54,
+              "end_line": 65
+            },
+            {
+              "name": "Barometer 1013 matches Python",
+              "line": 68,
+              "end_line": 72
+            },
+            {
+              "name": "Accelerometer 1g matches Python",
+              "line": 75,
+              "end_line": 79
+            },
+            {
+              "name": "Accelerometer decode round trip",
+              "line": 82,
+              "end_line": 93
+            },
+            {
+              "name": "Multi-sensor payload",
+              "line": 96,
+              "end_line": 113
+            },
+            {
+              "name": "Voltage encoding",
+              "line": 116,
+              "end_line": 124
+            },
+            {
+              "name": "Illuminance encoding",
+              "line": 127,
+              "end_line": 134
+            },
+            {
+              "name": "Digital IO encoding",
+              "line": 137,
+              "end_line": 146
+            },
+            {
+              "name": "Gyrometer encoding",
+              "line": 149,
+              "end_line": 159
+            },
+            {
+              "name": "Load positive decodes as 3-byte signed divided by 1000",
+              "line": 162,
+              "end_line": 168
+            },
+            {
+              "name": "Load negative round trips through 24-bit sign extension",
+              "line": 171,
+              "end_line": 176
+            },
+            {
+              "name": "Load consumes three bytes so the next datum stays aligned",
+              "line": 179,
+              "end_line": 186
+            },
+            {
+              "name": "Generic sensor decodes high bit set as a large positive integer",
+              "line": 189,
+              "end_line": 194
+            },
+            {
+              "name": "Pinned Python frames decode without using the Kotlin encoder",
+              "line": 197,
+              "end_line": 211
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/PythonLPPReferenceBytes.kt",
+          "sha256": "2e076c3db40ebc376dc99cf37d779f21f933032c900f806f5c76eac6f79b0108",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift"
+          ],
+          "methods": []
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalPythonReferenceCasesTest.kt",
+          "sha256": "ac4e02a171e84ddafe1af58164f5700f395997e55ffcc719e1fd23253edfc8c1",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/PythonReferenceTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "expect",
+              "line": 30,
+              "end_line": 30
+            },
+            {
+              "name": "reference",
+              "line": 31,
+              "end_line": 31
+            },
+            {
+              "name": "originalReferenceCases",
+              "line": 34,
+              "end_line": 67
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/SessionReferenceVectorsTest.kt",
+          "sha256": "618282ed192e239e4233e8ab33a3904a40b8b9154ee955de0402cb2b0007761e",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift"
+          ],
+          "methods": [
+            {
+              "name": "independentSessionPackets",
+              "line": 13,
+              "end_line": 65
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",
+          "sha256": "df69d2ed249c052b013d5c113b28f5ba491900caf874429a778b0fada62b980a",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Encodes frame with correct delimiter and length",
+              "line": 17,
+              "end_line": 22
+            },
+            {
+              "name": "Encodes empty frame",
+              "line": 25,
+              "end_line": 27
+            },
+            {
+              "name": "Decodes single complete frame",
+              "line": 30,
+              "end_line": 35
+            },
+            {
+              "name": "Decodes multiple frames in one chunk",
+              "line": 38,
+              "end_line": 43
+            },
+            {
+              "name": "Buffers incomplete frame",
+              "line": 46,
+              "end_line": 53
+            },
+            {
+              "name": "Handles frame split across chunks",
+              "line": 56,
+              "end_line": 61
+            },
+            {
+              "name": "Pinned Python device query payload has independently specified outbound frame",
+              "line": 64,
+              "end_line": 66
+            },
+            {
+              "name": "All splits of pinned inbound multi-frame vector retain exact ordered payloads",
+              "line": 69,
+              "end_line": 79
+            },
+            {
+              "name": "Byte by byte input preserves empty repeated high-bit and delimiter payloads",
+              "line": 82,
+              "end_line": 90
+            },
+            {
+              "name": "Lengths use unsigned little endian at byte and high-bit boundaries",
+              "line": 93,
+              "end_line": 104
+            },
+            {
+              "name": "Maximum inbound length is valid and partial state never exceeds wire bound",
+              "line": 107,
+              "end_line": 118
+            },
+            {
+              "name": "Oversized outbound payload is rejected without truncating or wrapping length",
+              "line": 121,
+              "end_line": 129
+            },
+            {
+              "name": "Source delimiter resynchronization records discarded noise without buffering it",
+              "line": 132,
+              "end_line": 140
+            },
+            {
+              "name": "Empty decode does not consume or clear a partial frame",
+              "line": 143,
+              "end_line": 149
+            },
+            {
+              "name": "EOF distinguishes incomplete header from incomplete payload",
+              "line": 152,
+              "end_line": 165
+            },
+            {
+              "name": "Complete frames preceding a truncated suffix are returned unchanged",
+              "line": 168,
+              "end_line": 173
+            },
+            {
+              "name": "Reset discards only the old generation partial frame and diagnostics",
+              "line": 176,
+              "end_line": 184
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift",
+      "blob_sha": "c75d9666d88e4e993012d832ec34a38e93640869",
+      "kind": "support",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestPolling.kt",
+        "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestPollingTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/testing/src/main/kotlin/com/meshcoreone/android/core/testing/TestPolling.kt",
+          "sha256": "726a95d10fef92ef5260cc72fc3f80935b80b3f4f0dd00c30703be92bcdae925",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestPolling.swift",
+            "MC1Tests/Helpers/TestPolling.swift",
+            "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
+          ],
+          "methods": [
+            {
+              "name": "sleepUntil",
+              "line": 22,
+              "end_line": 26
+            },
+            {
+              "name": "waitUntil",
+              "line": 29,
+              "end_line": 50
+            }
+          ]
+        },
+        {
+          "path": "android/core/testing/src/test/kotlin/com/meshcoreone/android/core/testing/TestPollingTest.kt",
+          "sha256": "1d2dcf87be5476a7951091ff1abfc1347f55ae7c1a4fa5540f2de55754956f27",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Helpers/TestPolling.swift",
+            "MC1Tests/Helpers/TestPolling.swift",
+            "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
+          ],
+          "methods": [
+            {
+              "name": "initiallyTrueConditionDoesNotAdvanceTime",
+              "line": 22,
+              "end_line": 27
+            },
+            {
+              "name": "conditionCanBecomeTrueOnTheFinalDeadlineCheck",
+              "line": 30,
+              "end_line": 37
+            },
+            {
+              "name": "intervalOvershootStillPerformsThePinnedFinalCheck",
+              "line": 40,
+              "end_line": 50
+            },
+            {
+              "name": "zeroAndNegativeTimeoutsCheckOnceWithoutSleeping",
+              "line": 53,
+              "end_line": 62
+            },
+            {
+              "name": "defaultTimeoutAndIntervalUseOnlyInjectedVirtualTime",
+              "line": 65,
+              "end_line": 72
+            },
+            {
+              "name": "cancellationPropagatesAndRemovesTheClockSleeper",
+              "line": 75,
+              "end_line": 83
+            },
+            {
+              "name": "conditionFailureIsNotConvertedToTimeoutOrSuccess",
+              "line": 86,
+              "end_line": 93
+            },
+            {
+              "name": "invalidPollingIntervalsFailRatherThanSpinForever",
+              "line": 96,
+              "end_line": 103
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "docs/Testing.md",
+      "blob_sha": "85dd96e915fecd1fff5865621aeff58e9c2bfc2e",
+      "kind": "reference",
+      "owner": "WP-004",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Helpers/TestClockTests.swift",
+      "source_blob_sha": "58414ed8a6faa09a25c1b9934cb0929969868537",
+      "case_id": "TestClockTests::already-cancelled sleep throws and does not park()",
+      "parameter_family": "single",
+      "line": 7,
+      "end_line": 23,
+      "declaration_sha256": "4e06063de320bb5388bc309f65b5fdeb79918cbce8ddd3c4725e63a6e272a0d3",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 19,
+          "expression": "Issue.record(\"expected CancellationError, got \\(error)\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 21,
+          "expression": "#expect(threwCancellation)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 22,
+          "expression": "#expect(clock.sleeperCount == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`already-cancelled sleep throws and does not park`",
+          "line": 7,
+          "expression": "`already-cancelled sleep throws and does not park`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "TestClock",
+          "line": 8,
+          "expression": "TestClock()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "clock.sleep",
+          "line": 10,
+          "expression": "clock.sleep(for: .seconds(2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 10,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "task.cancel",
+          "line": 12,
+          "expression": "task.cancel()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Helpers/TestClockTests.swift",
+      "source_blob_sha": "58414ed8a6faa09a25c1b9934cb0929969868537",
+      "case_id": "TestClockTests::cancel after park throws and clears sleeperCount()",
+      "parameter_family": "single",
+      "line": 26,
+      "end_line": 45,
+      "declaration_sha256": "33aa69bf4a00f2457661e944d09dc5f63c4e4bf13330c7e510ea2195fda895f6",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 41,
+          "expression": "Issue.record(\"expected CancellationError, got \\(error)\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 43,
+          "expression": "#expect(threwCancellation)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 44,
+          "expression": "#expect(clock.sleeperCount == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [
+        {
+          "method": "waitUntil",
+          "line": 11,
+          "assertions": [
+            {
+              "kind": "eventual-condition/WaitTimeoutError",
+              "line": 26
+            }
+          ],
+          "provenance": {
+            "path": "MC1Services/Tests/MC1ServicesTests/Helpers/TestPolling.swift",
+            "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+            "blob_sha": "68e37d91e78676a2ee7f1a7eeded430accd1a6a0",
+            "utf8_bytes": 1049,
+            "sha256": "8dfc2ac026c8d2512216d93c16547ea14c02a2fba18ca09f35b499302d6a08d0"
+          },
+          "invocation_lines": [
+            31
+          ]
+        }
+      ],
+      "actions_and_helper_calls": [
+        {
+          "name": "`cancel after park throws and clears sleeperCount`",
+          "line": 26,
+          "expression": "`cancel after park throws and clears sleeperCount`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "TestClock",
+          "line": 27,
+          "expression": "TestClock()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "clock.sleep",
+          "line": 29,
+          "expression": "clock.sleep(for: .seconds(2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 29,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "waitUntil",
+          "line": 31,
+          "expression": "waitUntil(\"sleep should park\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "task.cancel",
+          "line": 34,
+          "expression": "task.cancel()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Helpers/TestClockTests.swift",
+      "source_blob_sha": "58414ed8a6faa09a25c1b9934cb0929969868537",
+      "case_id": "TestClockTests::advance still wakes an uncancelled sleeper()",
+      "parameter_family": "single",
+      "line": 48,
+      "end_line": 59,
+      "declaration_sha256": "53c1c2b656bd5baba28284f264fcb7c42c5b9a47e4549f1a898e7566e59acab2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 58,
+          "expression": "#expect(clock.sleeperCount == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [
+        {
+          "method": "waitUntil",
+          "line": 11,
+          "assertions": [
+            {
+              "kind": "eventual-condition/WaitTimeoutError",
+              "line": 26
+            }
+          ],
+          "provenance": {
+            "path": "MC1Services/Tests/MC1ServicesTests/Helpers/TestPolling.swift",
+            "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+            "blob_sha": "68e37d91e78676a2ee7f1a7eeded430accd1a6a0",
+            "utf8_bytes": 1049,
+            "sha256": "8dfc2ac026c8d2512216d93c16547ea14c02a2fba18ca09f35b499302d6a08d0"
+          },
+          "invocation_lines": [
+            53
+          ]
+        }
+      ],
+      "actions_and_helper_calls": [
+        {
+          "name": "`advance still wakes an uncancelled sleeper`",
+          "line": 48,
+          "expression": "`advance still wakes an uncancelled sleeper`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "TestClock",
+          "line": 49,
+          "expression": "TestClock()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "clock.sleep",
+          "line": 51,
+          "expression": "clock.sleep(for: .seconds(2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 51,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "waitUntil",
+          "line": 53,
+          "expression": "waitUntil(\"sleep should park\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "clock.advance",
+          "line": 56,
+          "expression": "clock.advance(by: .seconds(2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 56,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Helpers/TestClockTests.swift",
+      "source_blob_sha": "58414ed8a6faa09a25c1b9934cb0929969868537",
+      "case_id": "TestClockTests::already-cancelled sleep throws and does not park()",
+      "parameter_family": "single",
+      "line": 7,
+      "end_line": 23,
+      "declaration_sha256": "4e06063de320bb5388bc309f65b5fdeb79918cbce8ddd3c4725e63a6e272a0d3",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 19,
+          "expression": "Issue.record(\"expected CancellationError, got \\(error)\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 21,
+          "expression": "#expect(threwCancellation)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 22,
+          "expression": "#expect(clock.sleeperCount == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`already-cancelled sleep throws and does not park`",
+          "line": 7,
+          "expression": "`already-cancelled sleep throws and does not park`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "TestClock",
+          "line": 8,
+          "expression": "TestClock()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "clock.sleep",
+          "line": 10,
+          "expression": "clock.sleep(for: .seconds(2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 10,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "task.cancel",
+          "line": 12,
+          "expression": "task.cancel()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Helpers/TestClockTests.swift",
+      "source_blob_sha": "58414ed8a6faa09a25c1b9934cb0929969868537",
+      "case_id": "TestClockTests::cancel after park throws and clears sleeperCount()",
+      "parameter_family": "single",
+      "line": 26,
+      "end_line": 45,
+      "declaration_sha256": "33aa69bf4a00f2457661e944d09dc5f63c4e4bf13330c7e510ea2195fda895f6",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 41,
+          "expression": "Issue.record(\"expected CancellationError, got \\(error)\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 43,
+          "expression": "#expect(threwCancellation)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 44,
+          "expression": "#expect(clock.sleeperCount == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [
+        {
+          "method": "waitUntil",
+          "line": 4,
+          "assertions": [
+            {
+              "kind": "eventual-condition/WaitTimeoutError",
+              "line": 22
+            }
+          ],
+          "provenance": {
+            "path": "MC1Tests/Helpers/TestPolling.swift",
+            "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+            "blob_sha": "30bc26e23bad42a41b803d05f14dac1388f739e0",
+            "utf8_bytes": 652,
+            "sha256": "d08c9f1a3185f9b9ecbb35e35e9857dfe8215d836a3f2bd036bcb1e75c9eac9f"
+          },
+          "invocation_lines": [
+            31
+          ]
+        }
+      ],
+      "actions_and_helper_calls": [
+        {
+          "name": "`cancel after park throws and clears sleeperCount`",
+          "line": 26,
+          "expression": "`cancel after park throws and clears sleeperCount`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "TestClock",
+          "line": 27,
+          "expression": "TestClock()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "clock.sleep",
+          "line": 29,
+          "expression": "clock.sleep(for: .seconds(2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 29,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "waitUntil",
+          "line": 31,
+          "expression": "waitUntil(\"sleep should park\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "task.cancel",
+          "line": 34,
+          "expression": "task.cancel()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Helpers/TestClockTests.swift",
+      "source_blob_sha": "58414ed8a6faa09a25c1b9934cb0929969868537",
+      "case_id": "TestClockTests::advance still wakes an uncancelled sleeper()",
+      "parameter_family": "single",
+      "line": 48,
+      "end_line": 59,
+      "declaration_sha256": "53c1c2b656bd5baba28284f264fcb7c42c5b9a47e4549f1a898e7566e59acab2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 58,
+          "expression": "#expect(clock.sleeperCount == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [
+        {
+          "method": "waitUntil",
+          "line": 4,
+          "assertions": [
+            {
+              "kind": "eventual-condition/WaitTimeoutError",
+              "line": 22
+            }
+          ],
+          "provenance": {
+            "path": "MC1Tests/Helpers/TestPolling.swift",
+            "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+            "blob_sha": "30bc26e23bad42a41b803d05f14dac1388f739e0",
+            "utf8_bytes": 652,
+            "sha256": "d08c9f1a3185f9b9ecbb35e35e9857dfe8215d836a3f2bd036bcb1e75c9eac9f"
+          },
+          "invocation_lines": [
+            53
+          ]
+        }
+      ],
+      "actions_and_helper_calls": [
+        {
+          "name": "`advance still wakes an uncancelled sleeper`",
+          "line": 48,
+          "expression": "`advance still wakes an uncancelled sleeper`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "TestClock",
+          "line": 49,
+          "expression": "TestClock()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "clock.sleep",
+          "line": 51,
+          "expression": "clock.sleep(for: .seconds(2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 51,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "waitUntil",
+          "line": 53,
+          "expression": "waitUntil(\"sleep should park\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "clock.advance",
+          "line": 56,
+          "expression": "clock.advance(by: .seconds(2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seconds",
+          "line": 56,
+          "expression": "seconds(2)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    }
+  ]
+}

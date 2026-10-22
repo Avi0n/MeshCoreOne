@@ -1,0 +1,2738 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-215",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1Services/Sources/MC1Services/Protocols/NotificationStringProvider.swift",
+      "blob_sha": "80d98ccaf80b4c5cdf31f5cfe2c71838b1558922",
+      "kind": "production",
+      "owner": "WP-215",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/PlatformPorts.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/PlatformPorts.kt",
+          "sha256": "146645df0e9f38bd0fcd54f865b55e1aa488b5aca2da818ba842c0bb05db2134",
+          "source_references": [
+            "MC1/State/NavigationCoordinator.swift",
+            "MC1Services/Sources/MC1Services/Protocols/NotificationStringProvider.swift"
+          ],
+          "methods": [
+            {
+              "name": "cancel",
+              "line": 58,
+              "end_line": 63
+            }
+          ]
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt",
+          "sha256": "acb6502c0638cbb01ea05e6a86d9f1b86b3c360ed1b0eb62ab700748aae86376",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Protocols/NotificationStringProvider.swift",
+            "MC1Services/Sources/MC1Services/Services/NotificationService.swift"
+          ],
+          "methods": [
+            {
+              "name": "setStringProvider",
+              "line": 85,
+              "end_line": 87
+            },
+            {
+              "name": "setActiveConversation",
+              "line": 141,
+              "end_line": 148
+            },
+            {
+              "name": "setup",
+              "line": 162,
+              "end_line": 165
+            },
+            {
+              "name": "requestAuthorization",
+              "line": 168,
+              "end_line": 172
+            },
+            {
+              "name": "checkAuthorizationStatus",
+              "line": 175,
+              "end_line": 178
+            },
+            {
+              "name": "postDirectMessageNotification",
+              "line": 182,
+              "end_line": 202
+            },
+            {
+              "name": "postChannelMessageNotification",
+              "line": 204,
+              "end_line": 228
+            },
+            {
+              "name": "postRoomMessageNotification",
+              "line": 230,
+              "end_line": 251
+            },
+            {
+              "name": "postNewContactNotification",
+              "line": 254,
+              "end_line": 274
+            },
+            {
+              "name": "defaultDiscoveryTitle",
+              "line": 277,
+              "end_line": 281
+            },
+            {
+              "name": "postReactionNotification",
+              "line": 284,
+              "end_line": 312
+            },
+            {
+              "name": "postLowBatteryNotification",
+              "line": 315,
+              "end_line": 329
+            },
+            {
+              "name": "postQuickReplyFailedNotification",
+              "line": 332,
+              "end_line": 333
+            },
+            {
+              "name": "postQuickReplyFailedNotification",
+              "line": 336,
+              "end_line": 348
+            },
+            {
+              "name": "postChannelQuickReplyFailedNotification",
+              "line": 351,
+              "end_line": 363
+            },
+            {
+              "name": "saveDraft",
+              "line": 371,
+              "end_line": 373
+            },
+            {
+              "name": "consumeDraft",
+              "line": 376,
+              "end_line": 376
+            },
+            {
+              "name": "updateBadgeCount",
+              "line": 386,
+              "end_line": 397
+            },
+            {
+              "name": "performBadgeUpdate",
+              "line": 399,
+              "end_line": 413
+            },
+            {
+              "name": "removeDeliveredNotification",
+              "line": 418,
+              "end_line": 420
+            },
+            {
+              "name": "removeDeliveredNotifications",
+              "line": 423,
+              "end_line": 423
+            },
+            {
+              "name": "removeDeliveredNotifications",
+              "line": 426,
+              "end_line": 429
+            },
+            {
+              "name": "removeDeliveredNotifications",
+              "line": 432,
+              "end_line": 433
+            },
+            {
+              "name": "removeDeliveredNotificationsForRoom",
+              "line": 436,
+              "end_line": 437
+            },
+            {
+              "name": "removeDeliveredMatching",
+              "line": 439,
+              "end_line": 444
+            },
+            {
+              "name": "removeIds",
+              "line": 446,
+              "end_line": 448
+            },
+            {
+              "name": "preferences",
+              "line": 452,
+              "end_line": 452
+            },
+            {
+              "name": "nextBadge",
+              "line": 454,
+              "end_line": 454
+            },
+            {
+              "name": "senderBody",
+              "line": 456,
+              "end_line": 457
+            },
+            {
+              "name": "timeSuffix",
+              "line": 460,
+              "end_line": 463
+            },
+            {
+              "name": "deliver",
+              "line": 470,
+              "end_line": 480
+            },
+            {
+              "name": "contained",
+              "line": 483,
+              "end_line": 491
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Services/NotificationActionHandler.swift",
+      "blob_sha": "576a8fe553a08363d5861fc2b28e460d84a623f2",
+      "kind": "production",
+      "owner": "WP-215",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandler.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandler.kt",
+          "sha256": "05db77206f088ea5aa37f18dd5f85db91a45d0de9aa37bb5abb6ad623121a405",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Services/NotificationActionHandler.swift"
+          ],
+          "methods": [
+            {
+              "name": "configure",
+              "line": 45,
+              "end_line": 47
+            },
+            {
+              "name": "connectionReady",
+              "line": 53,
+              "end_line": 56
+            },
+            {
+              "name": "handleQuickReply",
+              "line": 60,
+              "end_line": 89
+            },
+            {
+              "name": "replyNotSent",
+              "line": 91,
+              "end_line": 94
+            },
+            {
+              "name": "handleChannelQuickReply",
+              "line": 96,
+              "end_line": 126
+            },
+            {
+              "name": "channelDisplayName",
+              "line": 129,
+              "end_line": 130
+            },
+            {
+              "name": "handleMarkAsRead",
+              "line": 134,
+              "end_line": 137
+            },
+            {
+              "name": "handleChannelMarkAsRead",
+              "line": 139,
+              "end_line": 143
+            },
+            {
+              "name": "handleRoomMarkAsRead",
+              "line": 145,
+              "end_line": 147
+            },
+            {
+              "name": "markRead",
+              "line": 153,
+              "end_line": 162
+            },
+            {
+              "name": "handleReactionNotification",
+              "line": 167,
+              "end_line": 216
+            },
+            {
+              "name": "contained",
+              "line": 218,
+              "end_line": 226
+            },
+            {
+              "name": "reactionPreview",
+              "line": 236,
+              "end_line": 241
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Services/NotificationService.swift",
+      "blob_sha": "f7691637affc5aa1d656c0a6e1471e89d47f4df1",
+      "kind": "production",
+      "owner": "WP-215",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/notifications/NotificationDelivery.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationResponses.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/notifications/NotificationDelivery.kt",
+          "sha256": "9e95f9b87aa70fdaa61278b51903d14e622657f9ea6f97bd2dd1d24dc28b1638",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Services/NotificationService.swift"
+          ],
+          "methods": []
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationResponses.kt",
+          "sha256": "367587fe5f7d236dd77df808f5845743ec1d8d766afd7497420fc9757380888a",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Services/NotificationService.swift"
+          ],
+          "methods": [
+            {
+              "name": "of",
+              "line": 28,
+              "end_line": 45
+            },
+            {
+              "name": "shouldPresentWhileForeground",
+              "line": 53,
+              "end_line": 62
+            },
+            {
+              "name": "didReceive",
+              "line": 69,
+              "end_line": 86
+            },
+            {
+              "name": "routeMarkRead",
+              "line": 88,
+              "end_line": 97
+            },
+            {
+              "name": "routeTap",
+              "line": 99,
+              "end_line": 113
+            },
+            {
+              "name": "notificationCategoryDefinitions",
+              "line": 116,
+              "end_line": 133
+            }
+          ]
+        },
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt",
+          "sha256": "acb6502c0638cbb01ea05e6a86d9f1b86b3c360ed1b0eb62ab700748aae86376",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Protocols/NotificationStringProvider.swift",
+            "MC1Services/Sources/MC1Services/Services/NotificationService.swift"
+          ],
+          "methods": [
+            {
+              "name": "setStringProvider",
+              "line": 85,
+              "end_line": 87
+            },
+            {
+              "name": "setActiveConversation",
+              "line": 141,
+              "end_line": 148
+            },
+            {
+              "name": "setup",
+              "line": 162,
+              "end_line": 165
+            },
+            {
+              "name": "requestAuthorization",
+              "line": 168,
+              "end_line": 172
+            },
+            {
+              "name": "checkAuthorizationStatus",
+              "line": 175,
+              "end_line": 178
+            },
+            {
+              "name": "postDirectMessageNotification",
+              "line": 182,
+              "end_line": 202
+            },
+            {
+              "name": "postChannelMessageNotification",
+              "line": 204,
+              "end_line": 228
+            },
+            {
+              "name": "postRoomMessageNotification",
+              "line": 230,
+              "end_line": 251
+            },
+            {
+              "name": "postNewContactNotification",
+              "line": 254,
+              "end_line": 274
+            },
+            {
+              "name": "defaultDiscoveryTitle",
+              "line": 277,
+              "end_line": 281
+            },
+            {
+              "name": "postReactionNotification",
+              "line": 284,
+              "end_line": 312
+            },
+            {
+              "name": "postLowBatteryNotification",
+              "line": 315,
+              "end_line": 329
+            },
+            {
+              "name": "postQuickReplyFailedNotification",
+              "line": 332,
+              "end_line": 333
+            },
+            {
+              "name": "postQuickReplyFailedNotification",
+              "line": 336,
+              "end_line": 348
+            },
+            {
+              "name": "postChannelQuickReplyFailedNotification",
+              "line": 351,
+              "end_line": 363
+            },
+            {
+              "name": "saveDraft",
+              "line": 371,
+              "end_line": 373
+            },
+            {
+              "name": "consumeDraft",
+              "line": 376,
+              "end_line": 376
+            },
+            {
+              "name": "updateBadgeCount",
+              "line": 386,
+              "end_line": 397
+            },
+            {
+              "name": "performBadgeUpdate",
+              "line": 399,
+              "end_line": 413
+            },
+            {
+              "name": "removeDeliveredNotification",
+              "line": 418,
+              "end_line": 420
+            },
+            {
+              "name": "removeDeliveredNotifications",
+              "line": 423,
+              "end_line": 423
+            },
+            {
+              "name": "removeDeliveredNotifications",
+              "line": 426,
+              "end_line": 429
+            },
+            {
+              "name": "removeDeliveredNotifications",
+              "line": 432,
+              "end_line": 433
+            },
+            {
+              "name": "removeDeliveredNotificationsForRoom",
+              "line": 436,
+              "end_line": 437
+            },
+            {
+              "name": "removeDeliveredMatching",
+              "line": 439,
+              "end_line": 444
+            },
+            {
+              "name": "removeIds",
+              "line": 446,
+              "end_line": 448
+            },
+            {
+              "name": "preferences",
+              "line": 452,
+              "end_line": 452
+            },
+            {
+              "name": "nextBadge",
+              "line": 454,
+              "end_line": 454
+            },
+            {
+              "name": "senderBody",
+              "line": 456,
+              "end_line": 457
+            },
+            {
+              "name": "timeSuffix",
+              "line": 460,
+              "end_line": 463
+            },
+            {
+              "name": "deliver",
+              "line": 470,
+              "end_line": 480
+            },
+            {
+              "name": "contained",
+              "line": 483,
+              "end_line": 491
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift",
+      "blob_sha": "653b34e750617c32fbed646bfe29b010f604f253",
+      "kind": "test",
+      "owner": "WP-215",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt",
+          "sha256": "d67ae5149af98c19b26ad43eca5a4efa26ef93e105f574b2c6ebd5d5d90a4e34",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "case",
+              "line": 16,
+              "end_line": 17
+            },
+            {
+              "name": "configureGuard",
+              "line": 20,
+              "end_line": 29
+            },
+            {
+              "name": "reactionPreviewTruncation",
+              "line": 32,
+              "end_line": 45
+            },
+            {
+              "name": "channelDisplayNameFallback",
+              "line": 48,
+              "end_line": 62
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "kind": "test",
+      "owner": "WP-215",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "case",
+              "line": 19,
+              "end_line": 20
+            },
+            {
+              "name": "suppression",
+              "line": 23,
+              "end_line": 43
+            },
+            {
+              "name": "reactionCallbacks",
+              "line": 46,
+              "end_line": 68
+            },
+            {
+              "name": "roomNotifications",
+              "line": 71,
+              "end_line": 151
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationStringProviderTests.swift",
+      "blob_sha": "65a91bb18ab51931990885165ecb022510628e2f",
+      "kind": "test",
+      "owner": "WP-215",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationStringProviderTests.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationStringProviderTests.kt",
+          "sha256": "fb3e430b867e92bc8c376207d1ac86ad342b6334bb504126906357b69f129e76",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationStringProviderTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "defaults",
+              "line": 11,
+              "end_line": 18
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift",
+      "source_blob_sha": "653b34e750617c32fbed646bfe29b010f604f253",
+      "case_id": "NotificationActionHandlerTests::Handler is not configured before configure() is called()",
+      "parameter_family": "single",
+      "line": 70,
+      "end_line": 73,
+      "declaration_sha256": "4f85f95b920a962f8ab91947764abe5879a1e83b5c0df095db7f977502c0f701",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 72,
+          "expression": "#expect(handler.isConfigured == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Handler is not configured before configure() is called`",
+          "line": 70,
+          "expression": "`Handler is not configured before configure() is called`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "makeHandler",
+          "line": 71,
+          "expression": "makeHandler()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt",
+          "sha256": "d67ae5149af98c19b26ad43eca5a4efa26ef93e105f574b2c6ebd5d5d90a4e34",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationActionHandlerTests",
+          "method_or_family_name": "Handler is not configured before configure() is called",
+          "line": 21,
+          "end_line": 23,
+          "factory_method": "configureGuard",
+          "registration_identity_resolution": null,
+          "body_sha256": "7913f4f50a68cc61bb8e958aec39b8edd32e82ae3e46710ba9bbde8222a225e1",
+          "registration": "case(\"Handler is not configured before configure() is called\")",
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 22,
+              "expression": "assertFalse(NotificationHarness(this).handler.isConfigured)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 22,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift",
+      "source_blob_sha": "653b34e750617c32fbed646bfe29b010f604f253",
+      "case_id": "NotificationActionHandlerTests::Handler is configured after configure() is called()",
+      "parameter_family": "single",
+      "line": 77,
+      "end_line": 81,
+      "declaration_sha256": "8c6d92fa465c3d8810b2b54c84b705b0d85f695c8132df8fa467b7f820814b86",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 80,
+          "expression": "#expect(handler.isConfigured == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Handler is configured after configure() is called`",
+          "line": 77,
+          "expression": "`Handler is configured after configure() is called`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "makeHandler",
+          "line": 78,
+          "expression": "makeHandler()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "handler.configure",
+          "line": 79,
+          "expression": "handler.configure(isConnectionReady: { true }, localNodeName: { nil })",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt",
+          "sha256": "d67ae5149af98c19b26ad43eca5a4efa26ef93e105f574b2c6ebd5d5d90a4e34",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationActionHandlerTests",
+          "method_or_family_name": "Handler is configured after configure() is called",
+          "line": 24,
+          "end_line": 28,
+          "factory_method": "configureGuard",
+          "registration_identity_resolution": null,
+          "body_sha256": "7cdbda54370f9c4e246fa4fa728eced86a7b976879830e7d043ba741b4639079",
+          "registration": "case(\"Handler is configured after configure() is called\")",
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 27,
+              "expression": "assertTrue(handler.isConfigured)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 25,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "handler.configure",
+              "line": 26,
+              "expression": "handler.configure(isConnectionReady = { true }, localNodeName = { null })",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift",
+      "source_blob_sha": "653b34e750617c32fbed646bfe29b010f604f253",
+      "case_id": "NotificationActionHandlerTests::Text at 49 characters is returned unchanged()",
+      "parameter_family": "single",
+      "line": 86,
+      "end_line": 89,
+      "declaration_sha256": "99a968271881e7b8203640f4572071444c565334200d2ebed78358ab726ba17a",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 88,
+          "expression": "#expect(NotificationActionHandler.reactionPreview(for: text) == text)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Text at 49 characters is returned unchanged`",
+          "line": 86,
+          "expression": "`Text at 49 characters is returned unchanged`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "String",
+          "line": 87,
+          "expression": "String(repeating: \"a\", count: 49)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationActionHandler.reactionPreview",
+          "line": 88,
+          "expression": "NotificationActionHandler.reactionPreview(for: text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt",
+          "sha256": "d67ae5149af98c19b26ad43eca5a4efa26ef93e105f574b2c6ebd5d5d90a4e34",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationActionHandlerTests",
+          "method_or_family_name": "Text at 49 characters is returned unchanged",
+          "line": 33,
+          "end_line": 36,
+          "factory_method": "reactionPreviewTruncation",
+          "registration_identity_resolution": null,
+          "body_sha256": "5cb43008f294dcd064cdf9c16c6b4d60963767dd4e7b63d7b9cc9b0adc08eb23",
+          "registration": "case(\"Text at 49 characters is returned unchanged\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(text, NotificationActionHandler.reactionPreview(text))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "repeat",
+              "line": 34,
+              "expression": "repeat(49)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "NotificationActionHandler.reactionPreview",
+              "line": 35,
+              "expression": "NotificationActionHandler.reactionPreview(text)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift",
+      "source_blob_sha": "653b34e750617c32fbed646bfe29b010f604f253",
+      "case_id": "NotificationActionHandlerTests::Text at exactly 50 characters is returned unchanged()",
+      "parameter_family": "single",
+      "line": 92,
+      "end_line": 95,
+      "declaration_sha256": "d190357cec4a6b94ac7cab50ca41fa27f94e43719e716b5313f5b651eb20de27",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 94,
+          "expression": "#expect(NotificationActionHandler.reactionPreview(for: text) == text)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Text at exactly 50 characters is returned unchanged`",
+          "line": 92,
+          "expression": "`Text at exactly 50 characters is returned unchanged`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "String",
+          "line": 93,
+          "expression": "String(repeating: \"b\", count: 50)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationActionHandler.reactionPreview",
+          "line": 94,
+          "expression": "NotificationActionHandler.reactionPreview(for: text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt",
+          "sha256": "d67ae5149af98c19b26ad43eca5a4efa26ef93e105f574b2c6ebd5d5d90a4e34",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationActionHandlerTests",
+          "method_or_family_name": "Text at exactly 50 characters is returned unchanged",
+          "line": 37,
+          "end_line": 40,
+          "factory_method": "reactionPreviewTruncation",
+          "registration_identity_resolution": null,
+          "body_sha256": "f831c5c43c24fbf8e1274741a9a42548d64a402e6dc3ba175cc44cd61aa6522d",
+          "registration": "case(\"Text at exactly 50 characters is returned unchanged\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(text, NotificationActionHandler.reactionPreview(text))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "repeat",
+              "line": 38,
+              "expression": "repeat(50)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "NotificationActionHandler.reactionPreview",
+              "line": 39,
+              "expression": "NotificationActionHandler.reactionPreview(text)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift",
+      "source_blob_sha": "653b34e750617c32fbed646bfe29b010f604f253",
+      "case_id": "NotificationActionHandlerTests::Text at 51 characters is truncated to 47 plus ellipsis()",
+      "parameter_family": "single",
+      "line": 98,
+      "end_line": 102,
+      "declaration_sha256": "b82037988a8098f7b90c93b695279f9f06fb9eb55cab048996aad4d3202d3ff5",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 101,
+          "expression": "#expect(NotificationActionHandler.reactionPreview(for: text) == expected)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Text at 51 characters is truncated to 47 plus ellipsis`",
+          "line": 98,
+          "expression": "`Text at 51 characters is truncated to 47 plus ellipsis`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "String",
+          "line": 99,
+          "expression": "String(repeating: \"c\", count: 51)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "String",
+          "line": 100,
+          "expression": "String(repeating: \"c\", count: 47)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationActionHandler.reactionPreview",
+          "line": 101,
+          "expression": "NotificationActionHandler.reactionPreview(for: text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt",
+          "sha256": "d67ae5149af98c19b26ad43eca5a4efa26ef93e105f574b2c6ebd5d5d90a4e34",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationActionHandlerTests",
+          "method_or_family_name": "Text at 51 characters is truncated to 47 plus ellipsis",
+          "line": 41,
+          "end_line": 44,
+          "factory_method": "reactionPreviewTruncation",
+          "registration_identity_resolution": null,
+          "body_sha256": "e5255d66751a6bc057af91baa9c977d0f1d8b59fd5cafc85b97f6f98daf79925",
+          "registration": "case(\"Text at 51 characters is truncated to 47 plus ellipsis\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 43,
+              "expression": "assertEquals(\"c\".repeat(47) + \"...\", NotificationActionHandler.reactionPreview(text))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "repeat",
+              "line": 42,
+              "expression": "repeat(51)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeat",
+              "line": 43,
+              "expression": "repeat(47)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "NotificationActionHandler.reactionPreview",
+              "line": 43,
+              "expression": "NotificationActionHandler.reactionPreview(text)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift",
+      "source_blob_sha": "653b34e750617c32fbed646bfe29b010f604f253",
+      "case_id": "NotificationActionHandlerTests::Stored channel name wins over the localized fallback()",
+      "parameter_family": "single",
+      "line": 108,
+      "end_line": 111,
+      "declaration_sha256": "ca9a177a64c5a6c8706c4889003812e7f55d44ecdd79c6bd236c651c2271082f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 110,
+          "expression": "#expect(handler.channelDisplayName(name: \"Rescue Net\", index: 2) == \"Rescue Net\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Stored channel name wins over the localized fallback`",
+          "line": 108,
+          "expression": "`Stored channel name wins over the localized fallback`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "makeHandler",
+          "line": 109,
+          "expression": "makeHandler()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "handler.channelDisplayName",
+          "line": 110,
+          "expression": "handler.channelDisplayName(name: \"Rescue Net\", index: 2)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt",
+          "sha256": "d67ae5149af98c19b26ad43eca5a4efa26ef93e105f574b2c6ebd5d5d90a4e34",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationActionHandlerTests",
+          "method_or_family_name": "Stored channel name wins over the localized fallback",
+          "line": 49,
+          "end_line": 53,
+          "factory_method": "channelDisplayNameFallback",
+          "registration_identity_resolution": null,
+          "body_sha256": "238f33935b379599595509311d614971062e9a51f2107a6be690380b934b379a",
+          "registration": "case(\"Stored channel name wins over the localized fallback\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 52,
+              "expression": "assertEquals(\"Rescue Net\", harness.handler.channelDisplayName(\"Rescue Net\", 2u))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 50,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "harness.service.setStringProvider",
+              "line": 51,
+              "expression": "harness.service.setStringProvider(MockStringProvider())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MockStringProvider",
+              "line": 51,
+              "expression": "MockStringProvider()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "harness.handler.channelDisplayName",
+              "line": 52,
+              "expression": "harness.handler.channelDisplayName(\"Rescue Net\", 2u)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift",
+      "source_blob_sha": "653b34e750617c32fbed646bfe29b010f604f253",
+      "case_id": "NotificationActionHandlerTests::Missing name falls back to the string provider()",
+      "parameter_family": "single",
+      "line": 115,
+      "end_line": 121,
+      "declaration_sha256": "37f42514ee0535ea82f38385d263ea08d678c1baec6805228d5137893dcb9baf",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 120,
+          "expression": "#expect(handler.channelDisplayName(name: nil, index: 3) == \"Localized Channel 3\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Missing name falls back to the string provider`",
+          "line": 115,
+          "expression": "`Missing name falls back to the string provider`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshCoreSession",
+          "line": 116,
+          "expression": "MeshCoreSession(transport: SimulatorMockTransport())",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "SimulatorMockTransport",
+          "line": 116,
+          "expression": "SimulatorMockTransport()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ServiceContainer.forTesting",
+          "line": 117,
+          "expression": "ServiceContainer.forTesting(session: session)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "services.notificationService.setStringProvider",
+          "line": 118,
+          "expression": "services.notificationService.setStringProvider(MockStringProvider())",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MockStringProvider",
+          "line": 118,
+          "expression": "MockStringProvider()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "handler.channelDisplayName",
+          "line": 120,
+          "expression": "handler.channelDisplayName(name: nil, index: 3)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt",
+          "sha256": "d67ae5149af98c19b26ad43eca5a4efa26ef93e105f574b2c6ebd5d5d90a4e34",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationActionHandlerTests",
+          "method_or_family_name": "Missing name falls back to the string provider",
+          "line": 54,
+          "end_line": 58,
+          "factory_method": "channelDisplayNameFallback",
+          "registration_identity_resolution": null,
+          "body_sha256": "14157b924fcffac0bf85eff531c80ec7cda8d91f2582a7c26a998d41a27d8a34",
+          "registration": "case(\"Missing name falls back to the string provider\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 57,
+              "expression": "assertEquals(\"Localized Channel 3\", harness.handler.channelDisplayName(null, 3u))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 55,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "harness.service.setStringProvider",
+              "line": 56,
+              "expression": "harness.service.setStringProvider(MockStringProvider())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MockStringProvider",
+              "line": 56,
+              "expression": "MockStringProvider()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "harness.handler.channelDisplayName",
+              "line": 57,
+              "expression": "harness.handler.channelDisplayName(null, 3u)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift",
+      "source_blob_sha": "653b34e750617c32fbed646bfe29b010f604f253",
+      "case_id": "NotificationActionHandlerTests::Missing name and provider fall back to the English literal()",
+      "parameter_family": "single",
+      "line": 125,
+      "end_line": 128,
+      "declaration_sha256": "b2db5a80298fc0445299a4960dcea4adb9c64b5346b2c0d96b24f4c4c119dd7d",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 127,
+          "expression": "#expect(handler.channelDisplayName(name: nil, index: 7) == \"Channel 7\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Missing name and provider fall back to the English literal`",
+          "line": 125,
+          "expression": "`Missing name and provider fall back to the English literal`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "makeHandler",
+          "line": 126,
+          "expression": "makeHandler()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "handler.channelDisplayName",
+          "line": 127,
+          "expression": "handler.channelDisplayName(name: nil, index: 7)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationActionHandlerTests.kt",
+          "sha256": "d67ae5149af98c19b26ad43eca5a4efa26ef93e105f574b2c6ebd5d5d90a4e34",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationActionHandlerTests",
+          "method_or_family_name": "Missing name and provider fall back to the English literal",
+          "line": 59,
+          "end_line": 61,
+          "factory_method": "channelDisplayNameFallback",
+          "registration_identity_resolution": null,
+          "body_sha256": "dd0b53b40b3121e531ffbe416d32588e2a16534559a24d93f661dc2c9ff44803",
+          "registration": "case(\"Missing name and provider fall back to the English literal\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(\"Channel 7\", NotificationHarness(this).handler.channelDisplayName(null, 7u))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 60,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "handler.channelDisplayName",
+              "line": 60,
+              "expression": "handler.channelDisplayName(null, 7u)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationActionHandlerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::Suppression flag defaults to false()",
+      "parameter_family": "single",
+      "line": 10,
+      "end_line": 13,
+      "declaration_sha256": "2f5ce0ad359f02e5a50cf2e663fb0a50bf629965eb52fdabeaf869c180e8c52c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 12,
+          "expression": "#expect(service.isSuppressingNotifications == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Suppression flag defaults to false`",
+          "line": 10,
+          "expression": "`Suppression flag defaults to false`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 11,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "Suppression flag defaults to false",
+          "line": 24,
+          "end_line": 26,
+          "factory_method": "suppression",
+          "registration_identity_resolution": null,
+          "body_sha256": "804b1e9a0d6c24a9d272d704c0d7f2395d8ee5b03807da27b761e2d627c6cfa8",
+          "registration": "case(\"Suppression flag defaults to false\")",
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 25,
+              "expression": "assertFalse(NotificationHarness(this).service.isSuppressingNotifications)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 25,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::Suppression flag can be set and cleared()",
+      "parameter_family": "single",
+      "line": 17,
+      "end_line": 25,
+      "declaration_sha256": "e5d46cea16c45417218355cdbd7822b8d5d3603987f90c482eef767e2bd31d5c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 21,
+          "expression": "#expect(service.isSuppressingNotifications == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 24,
+          "expression": "#expect(service.isSuppressingNotifications == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Suppression flag can be set and cleared`",
+          "line": 17,
+          "expression": "`Suppression flag can be set and cleared`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 18,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "Suppression flag can be set and cleared",
+          "line": 27,
+          "end_line": 33,
+          "factory_method": "suppression",
+          "registration_identity_resolution": null,
+          "body_sha256": "b00a5a183e17bb09e76945898a074e49f09d14b3e275c0a0e3927c023ade5b78",
+          "registration": "case(\"Suppression flag can be set and cleared\")",
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 30,
+              "expression": "assertTrue(service.isSuppressingNotifications)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 32,
+              "expression": "assertFalse(service.isSuppressingNotifications)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 28,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::Suppression flag can be toggled multiple times()",
+      "parameter_family": "single",
+      "line": 29,
+      "end_line": 40,
+      "declaration_sha256": "5e10da092f5aefb54a090ea648c9891d8dff7c7fba8a60e511f52b4735f6c384",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 39,
+          "expression": "#expect(service.isSuppressingNotifications == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Suppression flag can be toggled multiple times`",
+          "line": 29,
+          "expression": "`Suppression flag can be toggled multiple times`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 30,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "Suppression flag can be toggled multiple times",
+          "line": 34,
+          "end_line": 42,
+          "factory_method": "suppression",
+          "registration_identity_resolution": null,
+          "body_sha256": "27d81885546d2ef5bd0d5b702744f0b14083c9f599d64a01165d6e5b0adac5a7",
+          "registration": "case(\"Suppression flag can be toggled multiple times\")",
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 41,
+              "expression": "assertFalse(service.isSuppressingNotifications)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 35,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::onReactionNotificationTapped callback can be set()",
+      "parameter_family": "single",
+      "line": 46,
+      "end_line": 60,
+      "declaration_sha256": "875480164011ec356d915134dce677075653b8f0fda1af8c1ff1ed9674a5bd3f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 55,
+          "expression": "#expect(service.onReactionNotificationTapped != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 59,
+          "expression": "#expect(callbackInvoked)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`onReactionNotificationTapped callback can be set`",
+          "line": 46,
+          "expression": "`onReactionNotificationTapped callback can be set`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 47,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 58,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 58,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "onReactionNotificationTapped callback can be set",
+          "line": 47,
+          "end_line": 54,
+          "factory_method": "reactionCallbacks",
+          "registration_identity_resolution": null,
+          "body_sha256": "6b0d8374d98cf3233ce4a66ee3ee0b7041bcfcb6bfa418a0f7bdc70e220a9349",
+          "registration": "case(\"onReactionNotificationTapped callback can be set\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 51,
+              "expression": "assertNotNull(service.onReactionNotificationTapped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 53,
+              "expression": "assertTrue(callbackInvoked)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 48,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.onReactionNotificationTapped?.invoke",
+              "line": 52,
+              "expression": "service.onReactionNotificationTapped?.invoke(EntityKey(RADIO_A, UUID.randomUUID()), null, null, UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 52,
+              "expression": "EntityKey(RADIO_A, UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 52,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 52,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::onReactionNotificationTapped receives all parameters()",
+      "parameter_family": "single",
+      "line": 64,
+      "end_line": 94,
+      "declaration_sha256": "e8a520ab9260d26a416a4cd7c16c3c62aec5e5378c50590d30d33840a22c2c30",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 90,
+          "expression": "#expect(receivedContactID == expectedContactID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 91,
+          "expression": "#expect(receivedChannelIndex == expectedChannelIndex)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 92,
+          "expression": "#expect(receivedDeviceID == expectedDeviceID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 93,
+          "expression": "#expect(receivedMessageID == expectedMessageID)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`onReactionNotificationTapped receives all parameters`",
+          "line": 64,
+          "expression": "`onReactionNotificationTapped receives all parameters`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 65,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 66,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 68,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 69,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "onReactionNotificationTapped receives all parameters",
+          "line": 55,
+          "end_line": 67,
+          "factory_method": "reactionCallbacks",
+          "registration_identity_resolution": null,
+          "body_sha256": "232b63b4af0f197f371ad5517265fd6a759385f95452ce4a3985c2b098840df3",
+          "registration": "case(\"onReactionNotificationTapped receives all parameters\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 66,
+              "expression": "assertEquals(listOf(expectedContact, expectedChannelIndex, expectedRadio, expectedMessageID), received)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 56,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 57,
+              "expression": "EntityKey(RADIO_A, UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 57,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 59,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 59,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 60,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 63,
+              "expression": "listOf(contact, channelIndex, radioId, messageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.onReactionNotificationTapped?.invoke",
+              "line": 65,
+              "expression": "service.onReactionNotificationTapped?.invoke(expectedContact, expectedChannelIndex, expectedRadio, expectedMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 66,
+              "expression": "listOf(expectedContact, expectedChannelIndex, expectedRadio, expectedMessageID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::Room message notification is suppressed when isSuppressingNotifications is true()",
+      "parameter_family": "single",
+      "line": 98,
+      "end_line": 114,
+      "declaration_sha256": "852e8eb6d21f0fdd2a8fdb2ee4a451c001213590c15e779e385c7fce4f6bf31b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 113,
+          "expression": "#expect(service.badgeCount == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Room message notification is suppressed when isSuppressingNotifications is true`",
+          "line": 98,
+          "expression": "`Room message notification is suppressed when isSuppressingNotifications is true`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 99,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "service.postRoomMessageNotification",
+          "line": 103,
+          "expression": "service.postRoomMessageNotification(\n      roomName: \"TestRoom\",\n      sessionID: UUID(),\n      senderName: \"Alice\",\n      messageText: \"Hello\",\n      messageID: UUID(),\n      notificationLevel: .all\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 105,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 108,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "Room message notification is suppressed when isSuppressingNotifications is true",
+          "line": 72,
+          "end_line": 85,
+          "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
+          "body_sha256": "ed1ca789ad5549c485b46f1574b248421b7ee5e1b6895c305bebb8c6cd1217eb",
+          "registration": "case(\"Room message notification is suppressed when isSuppressingNotifications is true\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 81,
+              "expression": "assertEquals(emptyList(), harness.delivery.posted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 83,
+              "expression": "assertEquals(0L, service.badgeCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 84,
+              "expression": "assertEquals(emptyList(), harness.delivery.badgeSets)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 74,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "authorize",
+              "line": 74,
+              "expression": "authorize()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.postRoomMessageNotification",
+              "line": 77,
+              "expression": "service.postRoomMessageNotification(\n                roomName = \"TestRoom\", sessionID = UUID.randomUUID(), senderName = \"Alice\", messageText = \"Hello\",\n                messageID = UUID.randomUUID(), notificationLevel = NotificationLevel.ALL,\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 78,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 79,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "emptyList",
+              "line": 81,
+              "expression": "emptyList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "emptyList",
+              "line": 84,
+              "expression": "emptyList()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::Notification category includes reaction()",
+      "parameter_family": "single",
+      "line": 117,
+      "end_line": 121,
+      "declaration_sha256": "78376a8a6d0a8905449f4607ba2746ad4f99d3b110f2b576bbad61e4f15685f3",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 120,
+          "expression": "#expect(category.rawValue == \"REACTION\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Notification category includes reaction`",
+          "line": 117,
+          "expression": "`Notification category includes reaction`()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "Notification category includes reaction",
+          "line": 86,
+          "end_line": 88,
+          "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
+          "body_sha256": "23e568d6e8806aee0434d7fd3ee964fe61c904c628c8a67aa900b98a3f9e1e1f",
+          "registration": "case(\"Notification category includes reaction\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 87,
+              "expression": "assertEquals(\"REACTION\", NotificationCategory.REACTION.rawValue)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::Active room session tracking can be set and cleared()",
+      "parameter_family": "single",
+      "line": 127,
+      "end_line": 138,
+      "declaration_sha256": "027129f18ef1d10858d42345888f0ac311dfdc1fefd96193f23800c3a31e7e6a",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 131,
+          "expression": "#expect(service.activeRoomSessionID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 134,
+          "expression": "#expect(service.activeRoomSessionID == sessionID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 137,
+          "expression": "#expect(service.activeRoomSessionID == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Active room session tracking can be set and cleared`",
+          "line": 127,
+          "expression": "`Active room session tracking can be set and cleared`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 128,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 129,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "Active room session tracking can be set and cleared",
+          "line": 89,
+          "end_line": 97,
+          "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
+          "body_sha256": "c99b9f8b479b959007aea96be01bcdc95af18b212010d41b670c2c29e5aa78d9",
+          "registration": "case(\"Active room session tracking can be set and cleared\")",
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 92,
+              "expression": "assertNull(service.activeRoomSessionID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 94,
+              "expression": "assertEquals(sessionID, service.activeRoomSessionID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 96,
+              "expression": "assertNull(service.activeRoomSessionID)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 90,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 91,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::setActiveConversation populates only the passed slot and clears the rest()",
+      "parameter_family": "single",
+      "line": 142,
+      "end_line": 174,
+      "declaration_sha256": "32d867bc6ae0b8185e6568026be5276abbabcb303165bec8e329817ffc794385",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 156,
+          "expression": "#expect(service.activeContactID == contactID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 157,
+          "expression": "#expect(service.activeChannelIndex == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 158,
+          "expression": "#expect(service.activeChannelRadioID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 159,
+          "expression": "#expect(service.activeRoomSessionID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 163,
+          "expression": "#expect(service.activeContactID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 164,
+          "expression": "#expect(service.activeChannelIndex == 5)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 165,
+          "expression": "#expect(service.activeChannelRadioID == channelRadioID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 166,
+          "expression": "#expect(service.activeRoomSessionID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 170,
+          "expression": "#expect(service.activeContactID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 171,
+          "expression": "#expect(service.activeChannelIndex == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 172,
+          "expression": "#expect(service.activeChannelRadioID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 173,
+          "expression": "#expect(service.activeRoomSessionID == roomSessionID)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`setActiveConversation populates only the passed slot and clears the rest`",
+          "line": 142,
+          "expression": "`setActiveConversation populates only the passed slot and clears the rest`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 143,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 144,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 145,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 146,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "service.setActiveConversation",
+          "line": 155,
+          "expression": "service.setActiveConversation(contactID: contactID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "service.setActiveConversation",
+          "line": 162,
+          "expression": "service.setActiveConversation(channelIndex: 5, channelRadioID: channelRadioID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "service.setActiveConversation",
+          "line": 169,
+          "expression": "service.setActiveConversation(roomSessionID: roomSessionID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "setActiveConversation populates only the passed slot and clears the rest",
+          "line": 98,
+          "end_line": 131,
+          "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
+          "body_sha256": "6b011ad16b85d7e3884cc469f8684a6d13441493ccbef924e16a962cd3bdc3ca",
+          "registration": "case(\"setActiveConversation populates only the passed slot and clears the rest\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 112,
+              "expression": "assertEquals(ActiveConversation(contactID = contactID), service.activeConversation)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 113,
+              "expression": "assertEquals(contactID, service.activeContactID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 114,
+              "expression": "assertNull(service.activeChannelIndex)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 115,
+              "expression": "assertNull(service.activeChannelRadioId)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 116,
+              "expression": "assertNull(service.activeRoomSessionID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 120,
+              "expression": "assertNull(service.activeContactID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 121,
+              "expression": "assertEquals(5.toUByte(), service.activeChannelIndex)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 122,
+              "expression": "assertEquals(channelRadio, service.activeChannelRadioId)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 123,
+              "expression": "assertNull(service.activeRoomSessionID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 127,
+              "expression": "assertNull(service.activeContactID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 128,
+              "expression": "assertNull(service.activeChannelIndex)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 129,
+              "expression": "assertNull(service.activeChannelRadioId)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 130,
+              "expression": "assertEquals(roomSessionID, service.activeRoomSessionID)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 99,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 100,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 101,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 101,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 102,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.setActiveConversation",
+              "line": 111,
+              "expression": "service.setActiveConversation(contactID = contactID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ActiveConversation",
+              "line": 112,
+              "expression": "ActiveConversation(contactID = contactID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.setActiveConversation",
+              "line": 119,
+              "expression": "service.setActiveConversation(channelIndex = 5u, channelRadioId = channelRadio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 121,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.setActiveConversation",
+              "line": 126,
+              "expression": "service.setActiveConversation(roomSessionID = roomSessionID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::onRoomMarkAsRead callback can be set and receives parameters()",
+      "parameter_family": "single",
+      "line": 178,
+      "end_line": 197,
+      "declaration_sha256": "0c1359ff86d766fb442c55b4665513872de85f8e26c8a2bf32bc0300512f18d1",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 191,
+          "expression": "#expect(service.onRoomMarkAsRead != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 195,
+          "expression": "#expect(receivedSessionID == expectedSessionID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 196,
+          "expression": "#expect(receivedMessageID == expectedMessageID)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`onRoomMarkAsRead callback can be set and receives parameters`",
+          "line": 178,
+          "expression": "`onRoomMarkAsRead callback can be set and receives parameters`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 179,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 180,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 181,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "onRoomMarkAsRead callback can be set and receives parameters",
+          "line": 132,
+          "end_line": 141,
+          "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
+          "body_sha256": "1a128bca6fa42f1c32fb3a010414fb25e3897713b11520745a04ed7feca1d8a1",
+          "registration": "case(\"onRoomMarkAsRead callback can be set and receives parameters\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 138,
+              "expression": "assertNotNull(service.onRoomMarkAsRead)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 140,
+              "expression": "assertEquals(expectedSession to expectedMessageID, received)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 133,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 134,
+              "expression": "EntityKey(RADIO_A, UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 134,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 135,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.onRoomMarkAsRead?.invoke",
+              "line": 139,
+              "expression": "service.onRoomMarkAsRead?.invoke(expectedSession, expectedMessageID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift",
+      "source_blob_sha": "da8d3ddd30f3fd4848f913b8120734586bc624c0",
+      "case_id": "NotificationServiceTests::onRoomNotificationTapped callback can be set and receives the session ID()",
+      "parameter_family": "single",
+      "line": 201,
+      "end_line": 216,
+      "declaration_sha256": "38beb809ccc462f17ab748d0bc5f2cf45acda22a3e97bd847d07b077e1491d31",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 211,
+          "expression": "#expect(service.onRoomNotificationTapped != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 215,
+          "expression": "#expect(receivedSessionID == expectedSessionID)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`onRoomNotificationTapped callback can be set and receives the session ID`",
+          "line": 201,
+          "expression": "`onRoomNotificationTapped callback can be set and receives the session ID`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 202,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 203,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/notifications/NotificationServiceTests.kt",
+          "sha256": "d642677994a94356f34b5d13e198aa8cc178f609f96f289aff39bd1e937728c8",
+          "class": "com.meshcoreone.android.core.services.notifications.NotificationServiceTests",
+          "method_or_family_name": "onRoomNotificationTapped callback can be set and receives the session ID",
+          "line": 142,
+          "end_line": 150,
+          "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
+          "body_sha256": "ea9b2a7be7c716cc9b61daccf17bded882a0cf88e2763f2c547167d8e8b4a6c6",
+          "registration": "case(\"onRoomNotificationTapped callback can be set and receives the session ID\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 147,
+              "expression": "assertNotNull(service.onRoomNotificationTapped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 149,
+              "expression": "assertEquals(expectedSession, received)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "NotificationHarness",
+              "line": 143,
+              "expression": "NotificationHarness(this)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 144,
+              "expression": "EntityKey(RADIO_A, UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 144,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.onRoomNotificationTapped?.invoke",
+              "line": 148,
+              "expression": "service.onRoomNotificationTapped?.invoke(expectedSession)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Services/NotificationServiceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NotificationStringProviderTests.swift",
+      "source_blob_sha": "65a91bb18ab51931990885165ecb022510628e2f",
+      "case_id": "NotificationStringProviderTests::Default fallback titles are English()",
+      "parameter_family": "single",
+      "line": 8,
+      "end_line": 13,
+      "declaration_sha256": "518cacb4364aaa062581cf809642df7ef86997d4d623da5dd0cc79732d5bf311",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 10,
+          "expression": "#expect(service.defaultDiscoveryTitle(for: .chat) == \"New Contact Discovered\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 11,
+          "expression": "#expect(service.defaultDiscoveryTitle(for: .repeater) == \"New Repeater Discovered\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 12,
+          "expression": "#expect(service.defaultDiscoveryTitle(for: .room) == \"New Room Discovered\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Default fallback titles are English`",
+          "line": 8,
+          "expression": "`Default fallback titles are English`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 9,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "service.defaultDiscoveryTitle",
+          "line": 10,
+          "expression": "service.defaultDiscoveryTitle(for: .chat)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "service.defaultDiscoveryTitle",
+          "line": 11,
+          "expression": "service.defaultDiscoveryTitle(for: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "service.defaultDiscoveryTitle",
+          "line": 12,
+          "expression": "service.defaultDiscoveryTitle(for: .room)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    }
+  ]
+}

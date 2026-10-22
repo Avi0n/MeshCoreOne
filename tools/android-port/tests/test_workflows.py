@@ -91,6 +91,41 @@ class WorkflowTests(unittest.TestCase):
             with self.subTest(mode=mode), self.assertRaises(PortError):
                 validate_candidate(changed, text)
 
+    def test_merged_controller_keeps_parity_and_native_event_discovery_in_one_execution(self):
+        original, text = self.read("android-ci.yml")
+        runner = next(step for step in original["jobs"]["controller"]["steps"]
+                      if "controller/test_runner.py" in step.get("run", ""))
+        current = next(line for line in runner["run"].splitlines() if "controller/test_runner.py" in line)
+        self.assertEqual(current.count("--include-tests android/parity-tests"), 1)
+        self.assertEqual(current.count("--include-tests tools/android-port/local"), 1)
+        self.assertEqual(current.count("--candidate-event-name"), 1)
+        self.assertEqual(current.count("--candidate-event-path"), 1)
+        for command in (current, current.replace(" --include-tests android/parity-tests", "", 1)):
+            changed = copy.deepcopy(original)
+            step = next(step for step in changed["jobs"]["controller"]["steps"]
+                        if "controller/test_runner.py" in step.get("run", ""))
+            step["run"] = step["run"].replace(current, command)
+            validate_candidate(changed, text)
+
+    def test_combined_controller_discovery_rejects_duplicates_and_unknown_families(self):
+        original, text = self.read("android-ci.yml")
+        runner = next(step for step in original["jobs"]["controller"]["steps"]
+                      if "controller/test_runner.py" in step.get("run", ""))
+        command = next(line for line in runner["run"].splitlines() if "controller/test_runner.py" in line)
+        for bad in (
+            command + "\n" + command,
+            command + " --include-tests android/parity-tests",
+            command.replace("android/parity-tests", "synthetic-tests"),
+            command.replace("--candidate-event-name", "--include-tests synthetic-tests --candidate-event-name"),
+            command + " || true",
+        ):
+            changed = copy.deepcopy(original)
+            step = next(step for step in changed["jobs"]["controller"]["steps"]
+                        if "controller/test_runner.py" in step.get("run", ""))
+            step["run"] = step["run"].replace(command, bad)
+            with self.subTest(command=bad), self.assertRaises(PortError):
+                validate_candidate(changed, text)
+
     def test_protocol_workflow_executes_the_real_nonzero_jvm_suite_on_linux(self):
         from controller.ci import TASKS
 
