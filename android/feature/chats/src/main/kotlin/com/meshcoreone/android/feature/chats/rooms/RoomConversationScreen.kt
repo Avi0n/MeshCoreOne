@@ -5,6 +5,7 @@
 package com.meshcoreone.android.feature.chats.rooms
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -48,6 +52,7 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meshcoreone.android.core.l10n.R
@@ -57,6 +62,11 @@ import com.meshcoreone.android.core.designsystem.WCAGContrast
 import com.meshcoreone.android.core.designsystem.accessibleForeground
 import com.meshcoreone.android.core.designsystem.toComposeColor
 import com.meshcoreone.android.core.model.MessageStatus
+import com.meshcoreone.android.core.model.ContactDTO
+import com.meshcoreone.android.core.model.RoomMessageDTO
+import com.meshcoreone.android.core.l10n.generated.AppChatsStrings
+import com.meshcoreone.android.feature.chats.actions.MessageAction
+import com.meshcoreone.android.feature.chats.composer.MentionUtilities
 import com.meshcoreone.android.core.ui.ContactAvatar
 import com.meshcoreone.android.core.ui.sharedTouchTarget
 import com.meshcoreone.android.feature.chats.composer.MentionPickerContext
@@ -72,6 +82,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 
 @Composable
 fun RoomConversationRoute(
@@ -79,11 +90,17 @@ fun RoomConversationRoute(
     links: ConversationLinkActions,
     modifier: Modifier = Modifier,
     failureText: @Composable (Throwable) -> String = { it.message ?: it.javaClass.simpleName },
+    replyWithQuote: Boolean = false,
+    onSendDirectMessage: (ContactDTO) -> Unit = { error("Room direct-message navigation is not registered") },
 ) {
     val state by holder.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     var authenticate by remember { mutableStateOf(false) }
     var pickerContext by remember { mutableStateOf<MentionPickerContext?>(null) }
+    var selectedMessage by remember(holder) { mutableStateOf<RoomMessageDTO?>(null) }
+    var sendDirectMessage by remember(holder) { mutableStateOf<RoomMessageDTO?>(null) }
+    var inputFocusRequest by remember(holder) { mutableStateOf(0) }
+    val clipboard = LocalClipboardManager.current
     val dispatcher = remember(links) {
         MessageLinkDispatcher(
             links.contacts, links.radioId, links.connectedDeviceName,
@@ -111,7 +128,51 @@ fun RoomConversationRoute(
         onDismissError = holder::clearFailure,
         failureText = failureText,
         modifier = modifier,
+        onShowActions = { selectedMessage = it },
+        inputFocusRequest = inputFocusRequest,
     )
+    selectedMessage?.let { message ->
+        val availability = remember(message.id) {
+            RoomMessageActionAvailability.forMessage(message, state.session)
+        }
+        RoomMessageActionsSheet(
+            message, availability, replyWithQuote,
+            onAction = { action ->
+                selectedMessage = null
+                when (action) {
+                    MessageAction.Copy -> clipboard.setText(AnnotatedString(message.text))
+                    MessageAction.Reply -> {
+                        holder.updateDraft(
+                            if (replyWithQuote) MentionUtilities.buildReplyText(message.authorDisplayName, message.text)
+                            else MentionUtilities.appendMention(message.authorDisplayName, holder.state.value.draft),
+                        )
+                        inputFocusRequest++
+                    }
+                    MessageAction.SendDirectMessage -> sendDirectMessage = message
+                    MessageAction.SendAgain -> scope.launch { holder.sendAgain(message) }
+                    else -> error("Unsupported room message action: $action")
+                }
+            },
+            onDismiss = { selectedMessage = null },
+        )
+    }
+    sendDirectMessage?.let { message ->
+        RoomSendDirectMessageSheet(
+            message.authorDisplayName, state.session.radioId, links.contacts(),
+            onSelect = { contact ->
+                try {
+                    onSendDirectMessage(contact)
+                    sendDirectMessage = null
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (failure: Exception) {
+                    holder.reportActionFailure(failure)
+                    sendDirectMessage = null
+                }
+            },
+            onDismiss = { sendDirectMessage = null },
+        )
+    }
     if (authenticate) {
         RoomAuthenticationSheet(
             state,
@@ -144,8 +205,14 @@ fun RoomConversationContent(
     onDismissError: () -> Unit,
     failureText: @Composable (Throwable) -> String,
     modifier: Modifier = Modifier,
+    onShowActions: ((RoomMessageDTO) -> Unit)? = null,
+    inputFocusRequest: Int = 0,
 ) {
     val frame = LocalMeshTheme.current.frame
+    val inputFocus = remember { FocusRequester() }
+    LaunchedEffect(inputFocusRequest, state.session.canPost, state.session.isConnected) {
+        if (inputFocusRequest > 0 && state.session.canPost && state.session.isConnected) inputFocus.requestFocus()
+    }
     Column(modifier.fillMaxSize().background(frame.canvas.toComposeColor()).imePadding()) {
         Text(
             state.session.name,
@@ -173,7 +240,7 @@ fun RoomConversationContent(
             }
             else -> LazyColumn(Modifier.weight(1f).fillMaxWidth(), reverseLayout = false) {
                 items(state.rows, key = { it.message.id }) { row ->
-                    RoomMessageRowContent(row, onRetry, onLink)
+                    RoomMessageRowContent(row, onRetry, onLink, onShowActions)
                 }
             }
         }
@@ -194,7 +261,7 @@ fun RoomConversationContent(
                 OutlinedTextField(
                     state.draft,
                     onDraftChanged,
-                    Modifier.weight(1f).sharedTouchTarget(),
+                    Modifier.weight(1f).sharedTouchTarget().focusRequester(inputFocus),
                     placeholder = { Text(androidx.compose.ui.res.stringResource(R.string.l10n_app_chats_chats_input_accessibilitylabel)) },
                 )
                 Button(
@@ -215,7 +282,12 @@ fun RoomConversationContent(
 }
 
 @Composable
-private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID) -> Unit, onLink: (String) -> Boolean) {
+private fun RoomMessageRowContent(
+    row: RoomMessageRow,
+    onRetry: (java.util.UUID) -> Unit,
+    onLink: (String) -> Boolean,
+    onShowActions: ((RoomMessageDTO) -> Unit)?,
+) {
     val message = row.message
     val avatarSize = 28.dp
     val avatarGap = 6.dp
@@ -242,6 +314,7 @@ private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID)
     )
     val label = if (message.isFromSelf) "${message.text}, $statusLabel" else "${message.authorDisplayName}: ${message.text}"
     val retryLabel = stringResource(R.string.l10n_app_chats_chats_message_action_retry)
+    val actionsLabel = stringResource(AppChatsStrings.chatsMessageActionDetails)
     val names = rememberLinkActionNames()
     val formatted = remember(message.text, message.isFromSelf) {
         MessageTextFormatter.format(message.text, message.isFromSelf, currentUserName = null)
@@ -257,13 +330,20 @@ private fun RoomMessageRowContent(row: RoomMessageRow, onRetry: (java.util.UUID)
             )
         }
         // Replace child speech, not rendering/taps: one original-body label with the source's actions.
-        Column(Modifier.fillMaxWidth().clearAndSetSemantics {
+        val actionsModifier = if (onShowActions == null) Modifier else Modifier.combinedClickable(
+            onClick = { onShowActions(message) },
+            onLongClick = { onShowActions(message) },
+        )
+        Column(Modifier.fillMaxWidth().then(actionsModifier).clearAndSetSemantics {
             contentDescription = label
             customActions = buildList {
                 if (message.status == MessageStatus.FAILED) {
                     add(CustomAccessibilityAction(retryLabel) { onRetry(message.id); true })
                 }
                 addAll(linkActions.map { action -> CustomAccessibilityAction(action.name) { onLink(action.url) } })
+                if (onShowActions != null) {
+                    add(CustomAccessibilityAction(actionsLabel) { onShowActions(message); true })
+                }
             }
         }, horizontalAlignment = if (message.isFromSelf) Alignment.End else Alignment.Start) {
             if (!message.isFromSelf && row.showSenderName) {
