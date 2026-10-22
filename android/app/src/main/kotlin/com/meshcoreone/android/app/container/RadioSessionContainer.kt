@@ -304,6 +304,10 @@ class RadioSessionContainer private constructor(
 
     // region RuntimeServices
 
+    override suspend fun awaitChannelQueryAccounting() {
+        chatSendQueueService.awaitChannelQueryAccounting()
+    }
+
     override suspend fun hydrate() {
         chatSendQueueService.hydrate()
     }
