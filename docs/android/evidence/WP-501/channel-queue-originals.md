@@ -314,6 +314,28 @@ the prepared patch in comment6348026374 and awaits that producer's published
 source for independent review. This local candidate is not a competing PR or
 an accepted result; no new session, closed PR272 edit or native action follows.
 
+### Exact consumer dependency: concrete compiler failure
+
+Published `0ecfb10d0f48f25254316bd8d1062602046f8ac6` automatic
+[39828296502](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39828296502)
+completed FAILURE. Official Linux119997708685 reports
+`CorrelationRecoveryTest.kt:136:25` at18:31:02.1703672Z:
+`:core:runtime:compileTestKotlin` fails because the replacement test supplies
+`forceReconnect` without the required `forceFullSync` argument.
+The build failed in23m36s/exit1, not at the command limit or an A/B assertion.
+Available reports contain2672 passes and no failures/errors/skips, but mandatory
+runtime/services/later reports are missing; this is incomplete evidence.
+
+The source-proven test-only repair is
+`manager.connect(platform.target, forceFullSync = false, forceReconnect = true)`.
+It matches the existing ordinary overload's false value and preserves the
+replacement test's intent and assertions without changing production defaults.
+This inherited path belongs to current WP-207 e75682; the concrete repair was
+transferred to PR277 comment6348297775 and WP-303 comment6348297825 for ordinary
+producer publication/integration. No foreign branch edit or unchanged rerun.
+The official terminal log was inspected in memory, not retained as a CI bundle.
+This failure is not execution of the new local positive test absent from0ec.
+
 ## Explicit native fixture substitutions
 
 The source channel helper connects transport but does NOT install
