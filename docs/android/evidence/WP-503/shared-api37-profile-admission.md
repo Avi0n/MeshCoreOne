@@ -2274,3 +2274,24 @@ Corrected integrated source passed
 `python -B tools\android-port\portmap.py`, and `git diff --check`.
 Neither this integration nor its source models have a current-head Windows
 pair, guest boot or original native result yet.
+
+### Prepared93: real unmerged-source admission still fails closed
+
+While reviewed PR266 remained unmerged, the consumer prepared exactly two
+literal updates to producer `93ae678595ee3efc874f5e9eb223a715563ac601`
+and disposable blob `b2695d378ef06aafe5d741c3d736ed16ee14cbad`.
+The other three API inputs were independently compared with actual immutable93
+objects and remain unchanged. The producer's only execution change is supported
+`-show-kernel` output through the existing owned process log; no boot/config,
+CPU, selected command, deadline or cleanup rule changes.
+
+Supported owned admission stayed31 to31 with unchanged authorization context.
+Invoking the actual prepared `trusted_producer` against real main514 explicitly
+raised the missing/different trusted-main contract error for disposable.py
+before any producer import or factory call. Observed producer imports0,
+factory false and native starts0; no execution CLI, allocation or new guest
+was used for this negative witness. The declared full consumer suite with
+these prepared pins passed234/234 in44.820s. These source models and negative
+admission do not supply runtime availability or new native proof. Publication
+and the next changed diagnostic execution remain conditioned on actual trusted
+integration, current-source pairing and all existing live guards.
