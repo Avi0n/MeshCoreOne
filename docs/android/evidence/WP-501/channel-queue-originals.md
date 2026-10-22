@@ -268,6 +268,43 @@ Timeouts or assert the counter original accepted. Actual focused
 execution must first confirm/refute the diagnostic; retain the original
 scenario open regardless of whether the diagnostic itself passes.
 
+## New ungated App counter candidate: execution pending
+
+`ChannelQueueCounterAppOriginalPredicateTest.originalAReachesTerminalAndBRetainsItsRowForLiteralThreeSecondsThroughTheUngatedApp`
+now implements the previously absent positive predicate in the admitted parity
+source set. Implementation commit `f4d4d8c504d5ddc919b761984a71499b919aa99b`
+is locally integrated with published WP-303 `0ecfb10d0f48f25254316bd8d1062602046f8ac6`,
+including WP-207 e75682 and WP-208 f2ce014f. This is new source, not an
+unchanged previously passing method or a relabelled negative diagnostic.
+
+The actual AppContainer, factory, per-connection services, public session and
+Room queries receive same-radio Aattempt7/resendtrue/sequence1 and
+Battempt2/resendfalse/sequence2. Default-preserving App configuration wiring
+supplies the original failurecap2, poolcap2/base0.01 and session timeout0.2s.
+FirmwareRadio returns raw ERROR2 frames for real sends and channel queries;
+it does not inject a service exception or null. A 50ms transport-open loop
+uses the current real queue without resetting its generation or progress.
+
+The fixture uses Bluetooth, production Default recovery and real clocks.
+A row must be deleted and FAILED within the original monotonic30-second
+deadline; B's row must survive a literal three-second real delay afterward.
+No stable Bstatus/final attempt count is required. Genuine typed query
+failures and B consumption additionally exclude cancellation or a disconnected,
+never-consumed B as counter-isolation proof. No recovery gate, manual reconnect
+acceleration, watchdog change or observation shortening is present. The original
+Swift simulator has no physical reconnect/watchdog; the native30-second initial
+BLE watchdog remains a real compatibility risk, not an approved timing exception.
+
+Relevant declared execution is `:app:testDebugUnitTest` with both selectors
+`--tests com.meshcoreone.android.parity.ChannelQueueCounterAppOriginalPredicateTest`
+and `--tests com.meshcoreone.android.app.container.QueueChannelConsumerIntegrationTest`.
+Read-only configuration, ownership, portmap, audit, semantic and whitespace checks
+pass on the coherent local integration. Kotlin compilation, positive discovery
+and execution remain UNVERIFIED: the actual shared native-execution guard is
+still held. It is not bypassed or released by this WP. The four-path source
+transfer is in PR281 comment6347740262; source execution must bind to a candidate
+that actually contains the new test, not borrow the incumbent producer's CI.
+
 ## Explicit native fixture substitutions
 
 The source channel helper connects transport but does NOT install
