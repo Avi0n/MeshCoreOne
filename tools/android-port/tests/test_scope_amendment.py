@@ -26,6 +26,7 @@ from controller.scope_amendment import (
     disposable_predecessor,
     parity_support_predecessor, REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY,
     receive_prefetch_predecessor, RECEIVE_PREFETCH_ADMISSION_CAPABILITY,
+    room_cleanup_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -37,8 +38,22 @@ from controller.software_verification import project as project_software
 
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
+    def policy_before_room_cleanup_text(self):
+        text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp303-room-cleanup-companion",')
+        end = text.index('      {\n        "id": "traceability-validation",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "a5dd0fc6c521d09d59d28ca75169e4bdbd56a6cd:docs/android/automation-policy.json",
+        ]).strip())
+        self.assertEqual(json.loads(previous), room_cleanup_predecessor(json.loads(text)))
+        return previous
+
     def test_receive_prefetch_single_rule_inverse_restores_entire_b677_object_and_raw_git_blob(self):
-        current = load_json(REPO / "docs/android/automation-policy.json")
+        current = room_cleanup_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
         before = copy.deepcopy(current)
         previous = json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",
@@ -50,7 +65,7 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         restored = copy.deepcopy(previous)
         restored["reservation_policy"]["capabilities"].append(copy.deepcopy(RECEIVE_PREFETCH_ADMISSION_CAPABILITY))
         self.assertEqual(restored, current)
-        text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        text = self.policy_before_room_cleanup_text()
         start = text.index(',\n      {\n        "id": "receive-prefetch-admission",')
         end = text.index("\n    ]", start)
         reversed_text = text[:start] + text[end:]
@@ -119,7 +134,7 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
             copy.deepcopy(REPEAT_ROW_FALLBACK_CAPABILITY), copy.deepcopy(CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY),
         ])
         self.assertEqual(restored, current)
-        text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        text = self.policy_before_room_cleanup_text()
         start = text.index(',\n      {\n        "id": "repeat-row-fallback-affordance",')
         end = text.index("\n    ]", start)
         reversed_text = text[:start] + text[end:]

@@ -145,6 +145,58 @@ class LiveReportTests(unittest.TestCase):
             with self.assertRaisesRegex(PortError, "lint contains actual errors"):
                 lint_evidence(report)
 
+    def test_pinned_lint_informational_description_is_hint(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            report = Path(temporary) / "lint-results-debug.xml"
+            report.write_text(
+                '<issues format="6" by="lint 9.4.1">'
+                '<issue id="FixtureInformational" severity="Hint" message="Informational finding"/>'
+                '</issues>', encoding="utf-8",
+            )
+            result = lint_evidence(report)
+            self.assertEqual(result["warnings"], 1)
+            self.assertEqual(len(result["sha256"]), 64)
+
+    def test_lint_unknown_severity_and_missing_fields_remain_distinct_failures(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            report = Path(temporary) / "lint-results-debug.xml"
+            for severity in ("Warning", "Information", "Hint"):
+                for field in ("id", "message"):
+                    for value in (None, ""):
+                        with self.subTest(severity=severity, field=field, value=value):
+                            attributes = {"id": "Fixture", "severity": severity, "message": "finding"}
+                            if value is None:
+                                del attributes[field]
+                            else:
+                                attributes[field] = value
+                            root = ET.Element("issues", {"format": "6", "by": "lint 9.4.1"})
+                            ET.SubElement(root, "issue", attributes)
+                            ET.ElementTree(root).write(report, encoding="utf-8")
+                            with self.assertRaisesRegex(PortError, "Missing lint issue id/message"):
+                                lint_evidence(report)
+            for severity in (None, "", "Ignore", "hint", "Unknown"):
+                with self.subTest(severity=severity):
+                    attributes = {"id": "Fixture", "message": "finding"}
+                    if severity is not None:
+                        attributes["severity"] = severity
+                    root = ET.Element("issues", {"format": "6", "by": "lint 9.4.1"})
+                    ET.SubElement(root, "issue", attributes)
+                    ET.ElementTree(root).write(report, encoding="utf-8")
+                    with self.assertRaisesRegex(PortError, "Unknown/missing lint severity") as raised:
+                        lint_evidence(report)
+                    self.assertIn(str(report), str(raised.exception))
+            for severity in ("Error", "Fatal"):
+                with self.subTest(severity=severity):
+                    report.write_text(
+                        f'<issues format="6" by="lint 9.4.1"><issue id="Fixture" '
+                        f'severity="{severity}" message="finding"/></issues>', encoding="utf-8",
+                    )
+                    with self.assertRaisesRegex(PortError, "lint contains actual errors"):
+                        lint_evidence(report)
+            report.write_text('<issues format="6" by="lint 9.4.1"><unexpected/></issues>', encoding="utf-8")
+            with self.assertRaisesRegex(PortError, "Malformed Android Lint XML"):
+                lint_evidence(report)
+
     def test_malformed_junit_rejects(self):
         with tempfile.TemporaryDirectory() as temporary:
             report = Path(temporary) / "TEST-suite.xml"
