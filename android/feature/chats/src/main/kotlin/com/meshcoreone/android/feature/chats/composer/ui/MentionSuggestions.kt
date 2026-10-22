@@ -40,6 +40,9 @@ import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.ui.ContactAvatar
 import com.meshcoreone.android.core.ui.sharedTouchTarget
 import com.meshcoreone.android.feature.chats.composer.MentionPickerContext
+import com.meshcoreone.android.feature.chats.list.ui.ContactMatchRow
+import com.meshcoreone.android.feature.chats.list.ui.ContactMatchSelection
+import java.time.Clock
 
 private val MAX_LIST_HEIGHT = 200.dp
 private val ROW_AVATAR = 32.dp
@@ -90,27 +93,50 @@ private fun MentionSuggestionRow(contact: ContactDTO, onSelect: (ContactDTO) -> 
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MentionPickerSheet(context: MentionPickerContext, onSelect: (ContactDTO) -> Unit, onDismiss: () -> Unit) {
+fun MentionPickerSheet(
+    context: MentionPickerContext,
+    onSelect: (ContactDTO) -> Unit,
+    onDismiss: () -> Unit,
+    clock: Clock = Clock.systemDefaultZone(),
+) {
     val resources = LocalResources.current
     ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                AppChatsStrings.chatsMentionPickerTitle(resources, context.name),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.semantics { heading() },
-            )
-            when {
-                context.isSelfMention -> {
-                    Text(stringResource(AppChatsStrings.chatsMentionPickerSelfTitle), style = MaterialTheme.typography.titleSmall)
-                    Text(AppChatsStrings.chatsMentionPickerSelfSubtitle(resources, context.name))
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            LazyColumn(
+                Modifier.weight(1f, fill = false),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                item {
+                    Text(
+                        AppChatsStrings.chatsMentionPickerTitle(resources, context.name),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.semantics { heading() },
+                    )
                 }
-                context.matches.isEmpty() -> {
-                    Text(stringResource(AppChatsStrings.chatsMentionPickerNotSavedTitle), style = MaterialTheme.typography.titleSmall)
-                    Text(AppChatsStrings.chatsMentionPickerNotSavedSubtitle(resources, context.name))
-                }
-                else -> {
-                    Text(stringResource(AppChatsStrings.chatsMentionPickerMatchingContacts), style = MaterialTheme.typography.titleSmall)
-                    context.matches.forEach { match -> MentionSuggestionRow(match, onSelect) }
+                when {
+                    context.isSelfMention -> item {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(stringResource(AppChatsStrings.chatsMentionPickerSelfTitle), style = MaterialTheme.typography.titleSmall)
+                            Text(AppChatsStrings.chatsMentionPickerSelfSubtitle(resources, context.name))
+                        }
+                    }
+                    context.matches.isEmpty() -> item {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(stringResource(AppChatsStrings.chatsMentionPickerNotSavedTitle), style = MaterialTheme.typography.titleSmall)
+                            Text(AppChatsStrings.chatsMentionPickerNotSavedSubtitle(resources, context.name))
+                        }
+                    }
+                    else -> {
+                        item {
+                            Text(stringResource(AppChatsStrings.chatsMentionPickerMatchingContacts), style = MaterialTheme.typography.titleSmall)
+                        }
+                        items(context.matches, key = { it.id }) { match ->
+                            ContactMatchRow(match, ContactMatchSelection.Tap, clock, onClick = { onSelect(match) })
+                        }
+                    }
                 }
             }
             TextButton(onClick = onDismiss, modifier = Modifier.sharedTouchTarget()) {
