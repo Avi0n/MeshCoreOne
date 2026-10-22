@@ -1,7 +1,7 @@
 # WP-207 correlation recovery successor
 
 Repository: `cbattlegear/MeshCoreOne-Android`; owner: `services-porter`.
-Base/trusted main: `0a7a84e388393557e4b66ac7fd322248e28611fd`.
+Initial base/trusted main: `0a7a84e388393557e4b66ac7fd322248e28611fd`.
 Source pin: `db14559b39d32322b06477c6ae676112f583db50` (unchanged).
 Manifest semantic digest:
 `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`.
@@ -19,6 +19,21 @@ or made. The original prerequisite implementation merge commits for WP-107
 (`#19`), WP-202 (`#23`), WP-204 (`#21`) and WP-205 (`#18`) are ancestors of base.
 Diagnosis context is existing issue #261, not a claim to close its remaining
 cross-WP integration work.
+
+## Normally merged CI budget integration
+
+At the coordinator's direction, the branch ordinarily merged actual main
+`f81d2f56d897b022b6f6c4cf38551448691eae02`, whose parents are the initial base
+and WP-003 producer `e138ac0fe27c501604a98ba4c6dfadefc686d584`.
+WP-003's merged implementation supplies the 3,600-second selected Gradle batch
+and 75-minute hosted job budget. This worker did not independently change those
+shared build/workflow surfaces. The integration preserves original candidate
+`8b555dfe3e371d97a0ea7fc8b4cbe522884a9c15` and its failed hosted history; it
+does not rerun or relabel that head as successful.
+
+The App-edge assertion repair remains with its assigned WP-501 producer.
+The exact-candidate hosted job/log, not this scope record, determines whether
+the runtime regressions have actually executed.
 
 ## Behavior and acceptance
 
@@ -61,7 +76,7 @@ hosted exact-head job/log remains authoritative without retaining another CI
 result bundle here.
 
 WP-503's existing native execution reservation remains untouched. No emulator,
-hardware, signing, release, settings, schedules or repository merge action was
+hardware, signing, release, settings, schedules or merge-to-main action was
 performed. Merge remains serialized behind the coordinator's native END/cleanup.
 
 WP-208 owns persistent per-envelope channel-query failure progress across graph
