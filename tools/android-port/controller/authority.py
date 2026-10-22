@@ -55,10 +55,26 @@ class GitHubGateAuthority:
             commit.get("sha") != receipt["merge_sha"]
             or not isinstance(parents, list) or len(parents) not in (1, 2)
             or any(not isinstance(parent, dict) for parent in parents)
-            or parents[0].get("sha") != expected_base_sha
+            or any(not isinstance(parent.get("sha"), str) or SHA.fullmatch(parent["sha"]) is None
+                   for parent in parents)
             or len(parents) == 2 and parents[1].get("sha") != receipt["head_sha"]
         ):
             raise PortError("Merged terminal commit does not bind the exact predecessor base and head")
+        if parents[0]["sha"] != expected_base_sha:
+            for descendant in dict.fromkeys((parents[0]["sha"], receipt["head_sha"])):
+                comparison = self.backend.api.request(
+                    "GET", f"{prefix}/compare/{expected_base_sha}...{descendant}",
+                )
+                if (
+                    not isinstance(comparison, dict)
+                    or comparison.get("status") not in ("ahead", "identical")
+                    or not isinstance(comparison.get("base_commit"), dict)
+                    or not isinstance(comparison.get("merge_base_commit"), dict)
+                    or comparison.get("base_commit", {}).get("sha") != expected_base_sha
+                    or comparison.get("merge_base_commit", {}).get("sha") != expected_base_sha
+                    or type(comparison.get("behind_by")) is not int or comparison["behind_by"] != 0
+                ):
+                    raise PortError("Merged terminal commit does not bind the exact predecessor base and head ancestry")
         changed = set()
         for item in self.backend.pages(f"{prefix}/pulls/{number}/files"):
             filename = item.get("filename")
