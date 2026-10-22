@@ -2382,3 +2382,41 @@ The existing producer owner is separately repairing bounded natural owned
 quiescence with actual emptiness required; no producer-owned implementation,
 native retry or isolated publication is made by this consumer change.
 The same four declared source validators and `git diff --check` also passed.
+
+### Actuald708: normal quiescence-producer integration for a new candidate
+
+PR267 actually normally merged as
+`d708b2724d28ba675017514e3f125db982070f6f`, independently refreshed with
+parents423 and06bf598d7a2eabbd8eebcfd31f0e3df3eaff36d2.
+Supported merge7c3166b0f89d457253d83e15b39b3cd6b78b96ce admitted exactly
+the same three producer paths through merge-integration31 to31, with original
+authorization context unchanged and all six owned consumer/regression/binding/
+README/evidence files byte-preserved. Localbeb regression and retained actual7949
+failure remain part of this coupled candidate; the235 model result is not
+public7949 source proof.
+
+Only two executable literals advance: reviewed producer06bf and disposable
+8a538d47b22507765418d30ea546da100066254e. The other three API inputs,
+original Nodes7/144, cached e8/698/current514 bindings, CPU configuration,
+strict boot120s and instrumentation180s remain unchanged. Producer quiescence
+observes natural emptiness within2s/20ms polls, requires a unique retained
+JSON report, records actual Windows count/PIDs unknown or full Linux owned
+PIDs/reaping, and retains primary/independent failures. No kill-to-pass,
+descendant exclusion, native-cause inference or old-guest action is added.
+Official producer controller119581638193 actually ran626/OK in113.148s;
+trusted aggregate119582563378 records CONTROLLER_RESULTsuccess. These are
+producer software results, not this successor's CI/pair/native evidence.
+
+Public7949's own39701515172 subsequently completed FAILURE: official
+Linux119572387812 full declared Gradle command timed out after
+1799.9999866549997s at01:18:23Z; aggregate119582571605 failed and
+SwiftData119582572378 skipped. Controller853/79.919s and Swift codec success
+remain distinct. Bounded in-memory inspection of the official full log found
+the command timeout, not a reported assertion/heap/daemon failure; cause is
+not inferred. No hosted result bundle is copied, rehashed or revalidated,
+and no rerun/dispatch/deadline change is made.
+Actual post-integration consumer suite passed235/235 in17.034s, including the
+packaging exception preservation case; the same four declared source checks
+and whitespace check passed. Advisory local Gradle fast verification remains
+NOT RUN/UNVERIFIED. The successor needs its own exact-head hosted result and
+fresh source-bound App/Test pair/native attempt, not inherited7949/c9 proof.
