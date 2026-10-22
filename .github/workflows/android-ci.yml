@@ -87,7 +87,7 @@ jobs:
         needs.scope.outputs.backup == 'true'
       }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 55
+    timeout-minutes: 75
     defaults:
       run:
         shell: pwsh
