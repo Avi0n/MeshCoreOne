@@ -42,6 +42,7 @@ import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
 import com.meshcoreone.android.core.services.diagnostics.RxLogService
 import com.meshcoreone.android.core.services.diagnostics.RxLogServiceStore
 import com.meshcoreone.android.core.services.diagnostics.persistentRxLogDiagnostics
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueService
 import com.meshcoreone.android.core.services.messaging.MessagePollingService
 import com.meshcoreone.android.core.services.messaging.MessageService
@@ -105,6 +106,7 @@ class RadioSessionContainer private constructor(
     private val logger: Logger = Logger.getLogger("com.mc1.RadioSessionContainer")
     private val lock = Any()
     private var closed = false
+    internal val chatSendQueueProgress: ChatSendQueueProgress = env.chatSendQueueProgress
     private val session: MeshCoreSession = inputs.connection.session
     private val radioId: RadioId = token.radioId
     private val gaps = GapReporter { message -> logger.info(message) }
@@ -201,6 +203,7 @@ class RadioSessionContainer private constructor(
         inputs.connection.signals, scope,
         config = env.chatSendQueueConfig,
         reporter = env.messagingReporter,
+        progress = chatSendQueueProgress,
     )
     override val notificationActionHandler = NotificationActionHandler(
         dataStore, NotificationMessageSender(messageService), notificationService,
@@ -302,6 +305,10 @@ class RadioSessionContainer private constructor(
     )
 
     // region RuntimeServices
+
+    override suspend fun awaitChannelQueryAccounting() {
+        chatSendQueueService.awaitChannelQueryAccounting()
+    }
 
     override suspend fun hydrate() {
         chatSendQueueService.hydrate()
