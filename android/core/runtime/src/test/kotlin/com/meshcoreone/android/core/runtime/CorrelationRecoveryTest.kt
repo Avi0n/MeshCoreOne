@@ -133,7 +133,7 @@ class CorrelationRecoveryTest {
                 unmatchedChannelQuery()
                 recovery.open(); runCurrent()
                 assertEquals(1, old.channelQueryAccountingCalls)
-                manager.connect(platform.target, forceReconnect = true)
+                manager.connect(platform.target, forceFullSync = false, forceReconnect = true)
                 runCurrent()
                 assertTrue(observationCancelled.isCompleted)
                 assertEquals(DeviceConnectionState.READY, manager.connectionState)
