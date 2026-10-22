@@ -123,9 +123,10 @@ class RoomMessageActionsComposeTest {
     }
 
     private fun openActions() {
-        val label = if (holder.state.value.messages.first().isFromSelf) {
-            "${original.text}, ${text(com.meshcoreone.android.core.l10n.generated.AppRemoteNodesStrings.remoteNodesRoomMessageStatusDeliveredLabel)}"
-        } else "Alice: ${original.text}"
+        val message = holder.state.value.messages.first()
+        val label = if (message.isFromSelf) {
+            "${message.text}, ${text(com.meshcoreone.android.core.l10n.generated.AppRemoteNodesStrings.remoteNodesRoomMessageStatusDeliveredLabel)}"
+        } else "${message.authorDisplayName}: ${message.text}"
         val row = compose.onNodeWithContentDescription(label)
         val action = row.fetchSemanticsNode().config[SemanticsActions.OnClick]
         assertEquals(text(Chats.chatsMessageActionDetails), action.label)
@@ -241,6 +242,27 @@ class RoomMessageActionsComposeTest {
         assertSame(failure, holder.state.value.failure)
         compose.onNodeWithText("Disconnected fixture").assertExists()
         assertEquals("keep draft", holder.state.value.draft)
+        assertTrue(sent.isEmpty())
+    }
+
+    @Test fun anonymousIncomingAuthorCanBeMentionedButCannotOpenSendDM() {
+        show(message = original.copy(authorName = null))
+        openActions()
+        compose.onNodeWithText(text(Chats.chatsMessageActionSendDM)).assertDoesNotExist()
+        perform(Chats.chatsMessageActionMention)
+        assertEquals("@[02] ", holder.state.value.draft)
+        assertTrue(sent.isEmpty())
+        assertTrue(navigated.isEmpty())
+    }
+
+    @Test fun outgoingMetadataKeepsUnsignedRoundTripMillisecondsWithoutNarrowing() {
+        show(message = original.copy(isFromSelf = true, roundTripTime = UInt.MAX_VALUE))
+        openActions()
+        val expected = host.get().getString(
+            com.meshcoreone.android.core.l10n.R.string.l10n_app_chats_chats_message_info_roundtrip,
+            4294967295L,
+        )
+        compose.onNodeWithText(expected).assertExists()
         assertTrue(sent.isEmpty())
     }
 
