@@ -54,11 +54,19 @@ consumer adoption. No whole-bug completion claim is made here.
 ### Real-query accounting completion before recovery
 
 The queue now exposes the concrete public method
-`suspend fun awaitChannelQueryAccounting(): Unit`. It observes the actual
-currently in-flight disambiguation query of this queue generation. The flight
+`suspend fun awaitChannelQueryAccounting(): Unit`. It atomically seals new send
+and query admissions, then observes the actual currently in-flight
+disambiguation query of this queue generation. The flight
 is registered with its message UUID and preflight pending-row UUID before
 calling the real query. No active query means there is nothing to await; a
-retired/not-current queue is rejected, not reported as completed.
+retired/not-current queue is rejected, not reported as completed. An empty
+snapshot still seals admission. Sealing is monotonic for this generation,
+including if the recovery observer is cancelled. Both drains stop after their
+current envelope without cancelling it; durable enqueues remain accepted for
+the successor. Checks before/after preflight prevent a suspended old preflight
+from later submitting a new send. Query registration and preparation share the
+same lock, so an admitted query is either observed or refused before invocation.
+Terminal completion cannot admit the next envelope before recovery resumes.
 
 An observer waits through the query's actual return/throw and either pending
 status remapping plus recorded park, or the terminal persistence/deletion
@@ -78,7 +86,7 @@ persistence checks require the current token. No default-success graph hook,
 arbitrary grace delay or non-cancellable whole query is an acceptable adapter.
 The process-owned progress injection and its no-close lifetime are unchanged.
 
-Seven additional ChannelQueryAccountingTest cases exercise the completion
+Nine additional ChannelQueryAccountingTest cases exercise the completion
 contract. The early-recovery case uses the actual ChannelService over the real
 MeshCoreSession and raw firmware ERROR2. Recovery starts during the real first
 timeout retry sleep, BEFORE the queue catch, and is held by the producer
@@ -88,7 +96,12 @@ checked at its last millisecond; the retry then encounters the unchanged
 ConnectionLost/UnresolvedReply(channel:0) fence. Two replacement generations
 spend two genuine query outcomes, failing/deleting A while preserving B.
 A blocked real terminal-deletion operation proves the token stays current
-until cleanup completes. Other cases cover manual cancellation without credit,
+until cleanup completes. The same-channel B retains its exact original attempt
+count of two even before recovery's continuation can retire the graph. Idle
+preparation followed by competing channel/direct enqueues preserves both durable
+rows without send/query admission; preparation during suspended preflight
+allows its already-admitted persistence to finish but prevents a new wire send.
+Other cases cover manual cancellation without credit,
 observer-only cancellation, failed terminal storage with retained exhaustion,
 a real unconfigured-channel result, non-cooperative late replacement and an
 actually empty in-flight set. These cases are authored pending exact-candidate

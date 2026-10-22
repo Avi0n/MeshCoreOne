@@ -97,6 +97,7 @@ class ChannelQueryAccountingTest {
                     assertNotNull(recovery).await()
                     assertTrue(store.hasPendingSend(EntityKey(RADIO, b.id)))
                     assertEquals(MessageStatus.PENDING, h.stored(b.id).status)
+                    assertEquals(2L, store.fetchPendingSendsForMessage(EntityKey(RADIO, b.id)).single().attemptCount)
                     assertEquals(0, h.signals.subscriberCount)
                     h.close()
                 } finally {
@@ -213,6 +214,52 @@ class ChannelQueryAccountingTest {
             assertFailsWith<com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException> {
                 queue.awaitChannelQueryAccounting()
             }
+        },
+        native("idle recovery seals later direct and channel envelopes without dropping durable submissions") {
+            val h = connection()
+            val queue = h.queue()
+            queue.awaitChannelQueryAccounting()
+            val channel = h.message(MessageStatus.PENDING, 0u)
+            val direct = h.message(MessageStatus.PENDING)
+            queue.enqueueChannel(ChannelMessageEnvelope(channel.id, 0u, false, channel.text, channel.timestamp, "Test"))
+            queue.enqueueDM(DirectMessageEnvelope(direct.id, CONTACT, false))
+            runCurrent()
+            queue.transportDidOpen()
+            start(h, queue)
+            queue.awaitChannelQueryAccounting()
+            assertTrue(h.sends(CommandCode.GET_CHANNEL).isEmpty())
+            assertTrue(h.sends(CommandCode.SEND_CHANNEL_MESSAGE).isEmpty())
+            assertTrue(h.sends(CommandCode.SEND_MESSAGE).isEmpty())
+            for (id in listOf(channel.id, direct.id)) {
+                assertEquals(0L, h.store.fetchPendingSendsForMessage(EntityKey(RADIO, id)).single().attemptCount)
+                assertEquals(MessageStatus.PENDING, h.stored(id).status)
+            }
+            assertEquals(2, queue.queuedEnvelopeCount)
+        },
+        native("preparation racing preflight prevents a later wire send or query without cancelling persistence") {
+            val h = connection()
+            val m = h.message(MessageStatus.PENDING, 0u); h.pending(m, 2)
+            val entered = CompletableDeferred<Unit>()
+            val release = CompletableDeferred<Unit>()
+            h.store.before = { operation ->
+                if (operation == "incrementPendingSendAttemptCount") {
+                    entered.complete(Unit)
+                    release.await()
+                }
+            }
+            try {
+                val queue = h.queue(query = MessagingChannelQuery { h.session.getChannel(it) })
+                start(h, queue)
+                assertTrue(entered.isCompleted)
+                queue.awaitChannelQueryAccounting()
+                assertEquals(h.token, h.signals.snapshot.value.token)
+                release.complete(Unit); runCurrent()
+                assertTrue(h.sends(CommandCode.SEND_CHANNEL_MESSAGE).isEmpty())
+                assertTrue(h.sends(CommandCode.GET_CHANNEL).isEmpty())
+                assertTrue(queryFailures(h, m.id).isEmpty())
+                assertEquals(3L, h.store.fetchPendingSendsForMessage(EntityKey(RADIO, m.id)).single().attemptCount)
+                assertEquals(MessageStatus.PENDING, h.stored(m.id).status)
+            } finally { release.complete(Unit); h.store.before = null }
         },
     )
 
