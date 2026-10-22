@@ -2796,3 +2796,17 @@ rerun occurred in this preparation. Public8f/ordinary39711397373 remains
 untouched while its genuine run finishes; no successor publication before
 that actual terminal outcome. Full-WP and original native acceptance remain
 incomplete; this is not an unchanged8f retry or a transport/CPU fix claim.
+
+Own8f ordinary39711397373 subsequently reached its genuine terminal outcome:
+FAILURE, not cancellation or a pass. Official Linux119604475922 reports at
+2026-10-22T03:01:54.608059Z that the full declared Gradle command timed out
+after1799.999986114s, then exit1. The tail contains completed localization
+evidence but does not identify a specific failing assertion, task cause,
+heap/CPU cause or native verdict. Controller873/120.100s/OK and codec remain
+SUCCESS; SwiftData119613641756 is SKIPPED, aggregate119613641032 FAILURE.
+The actual aggregate log consumes CONTROLLER_RESULT=success,
+BUILD_RESULT=failure, EXTERNAL_RESULT=success and BACKUP_RESULT=skipped.
+Official exact-job logs were read in memory only: no second CI-result bundle,
+dispatch, rerun, cancellation or deadline change. This terminal result removes
+only the prior preserve-running8f publication hold; it is not merge/native
+acceptance, does not transfer to the new source and grants no live admission.
