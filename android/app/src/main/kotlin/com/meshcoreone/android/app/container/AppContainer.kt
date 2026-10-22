@@ -54,6 +54,7 @@ import com.meshcoreone.android.core.services.device.RadioPresets
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueConfig
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
+import com.meshcoreone.android.core.services.messaging.ChannelQueryAccountingEvent
 import com.meshcoreone.android.core.services.messaging.LoggingMessagingIssueReporter
 import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
 import com.meshcoreone.android.core.services.rendering.ChatCoordinatorRegistry
@@ -146,6 +147,8 @@ class AppContainerDependencies(
     internal val chatContent: AppChatContent? = null,
     val newBootstrapDebugLog: (CoroutineScope) -> DebugLogBuffer? = { null },
     val runtimeRecoveryDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    /** Passive pre-barrier persistence observer; must not block, throw or perform lifecycle work. */
+    val onChannelQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null,
     /** Releases process-owned resources (database, storage) once the runtime has closed. */
     val onClose: suspend () -> Unit = {},
 )
@@ -194,6 +197,7 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
         syncClock = dependencies.syncClock,
         logSink = dependencies.logSink,
         messagingReporter = dependencies.messagingReporter,
+        onChannelQueryAccounting = dependencies.onChannelQueryAccounting,
         messageServiceConfig = dependencies.messageServiceConfig,
         chatSendQueueConfig = dependencies.chatSendQueueConfig,
         onSessionLifecycle = dependencies.sessionLifecycle,

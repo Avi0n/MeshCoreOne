@@ -20,11 +20,14 @@ import com.meshcoreone.android.core.protocol.config.MeshCoreException
 import com.meshcoreone.android.core.protocol.session.SessionCorrelationException
 import com.meshcoreone.android.core.runtime.ConnectionRetryPolicy
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
+import com.meshcoreone.android.core.runtime.RuntimeDiagnostic
 import com.meshcoreone.android.core.runtime.SystemRuntimeClock
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
 import com.meshcoreone.android.core.services.contacts.ChannelServiceError
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueConfig
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueService
+import com.meshcoreone.android.core.services.messaging.ChannelQueryAccountingEvent
+import com.meshcoreone.android.core.services.messaging.ChannelQueryAccountingOutcome
 import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
 import com.meshcoreone.android.core.services.messaging.PoolBackoffConfig
 import java.util.UUID
@@ -145,7 +148,9 @@ class SessionLifecycleTest : RoomProcessTest() {
         val pendingAId = UUID.fromString("A0000000-0000-0000-0000-000000000005")
         val messageBId = UUID.fromString("A0000000-0000-0000-0000-000000000006")
         val pendingBId = UUID.fromString("A0000000-0000-0000-0000-000000000007")
-        val h = ContainerHarness(
+        val accountingReceipts = ConcurrentLinkedQueue<Pair<ChannelQueryAccountingEvent, SessionToken?>>()
+        lateinit var h: ContainerHarness
+        h = ContainerHarness(
             this,
             store,
             runtimeClock = SystemRuntimeClock(),
@@ -156,6 +161,9 @@ class SessionLifecycleTest : RoomProcessTest() {
             ),
             chatSendQueueConfig = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = QUERY_FAILURE_CAP),
             mainScope = CoroutineScope(backgroundScope.coroutineContext + Dispatchers.Default.limitedParallelism(1)),
+            onChannelQueryAccounting = { event ->
+                accountingReceipts += event to h.manager.snapshot.value.token
+            },
         )
         val activeRadio = AtomicReference<FirmwareRadio?>()
         val bootstrapChannelRequests = ConcurrentLinkedQueue<Pair<SessionToken, UByte>>()
@@ -264,6 +272,45 @@ class SessionLifecycleTest : RoomProcessTest() {
                     .filter { it.token.radioId == radioId && it.operation == "$phase.$messageID" }
             }
 
+        fun receipts(messageID: UUID): List<Pair<ChannelQueryAccountingEvent, SessionToken?>> =
+            accountingReceipts.filter { it.first.token.radioId == radioId && it.first.messageID == messageID }
+
+        fun assertPersistenceReceipt(
+            observed: Pair<ChannelQueryAccountingEvent, SessionToken?>,
+            query: MessagingDiagnostic.Failure,
+            messageID: UUID,
+            pendingID: UUID,
+            count: Long,
+            outcome: ChannelQueryAccountingOutcome,
+        ) {
+            val (receipt, tokenAtArrival) = observed
+            assertEquals(query.token, receipt.token)
+            assertEquals(receipt.token, tokenAtArrival, "Persistence receipt must arrive while its runtime token is current")
+            assertEquals(messageID, receipt.messageID)
+            assertEquals(pendingID, receipt.pendingID)
+            assertEquals(count, receipt.failureCount)
+            assertEquals(QUERY_FAILURE_CAP, receipt.failureCap)
+            assertEquals(outcome, receipt.outcome)
+            assertSame(query.cause, receipt.queryFailure)
+        }
+
+        fun assertNoAccountingOrTeardownFailure(description: String) {
+            val runtime = synchronized(h.diagnostics) { h.diagnostics.toList() }
+            val fallbacks = runtime.filterIsInstance<RuntimeDiagnostic.Failure>().filter {
+                it.operation == "session.channelQueryAccounting.cancelled" ||
+                    it.operation == "session.channelQueryAccounting"
+            }
+            assertTrue(fallbacks.isEmpty(), "$description must not use accounting fallback: $fallbacks")
+            val teardown = runtime.filterIsInstance<RuntimeDiagnostic.Teardown>().filter { !it.report.isComplete }
+            assertTrue(teardown.isEmpty(), "$description must finish without teardown issues: $teardown")
+            val storage = synchronized(h.messagingDiagnostics) {
+                h.messagingDiagnostics.filterIsInstance<MessagingDiagnostic.Failure>().filter {
+                    it.operation.startsWith("remap.") || it.operation.startsWith("terminalPersistence.")
+                }
+            }
+            assertTrue(storage.isEmpty(), "$description must not mask failed persistence: $storage")
+        }
+
         fun assertGenuineQueryFailure(failure: MessagingDiagnostic.Failure) {
             val wrapped = assertIs<ChannelServiceError.SessionError>(failure.cause)
             assertIs<MeshCoreException.ConnectionLost>(wrapped.error)
@@ -303,7 +350,8 @@ class SessionLifecycleTest : RoomProcessTest() {
                     withContext(Dispatchers.Default) { delay(50.milliseconds) }
                 }
                 throw AssertionError("$description within $NATIVE_QUERY_RECOVERY_WINDOW; " +
-                    "A queries=${failures("channelQuery", messageAId)}, B queries=${failures("channelQuery", messageBId)}")
+                    "A queries=${failures("channelQuery", messageAId)}, B queries=${failures("channelQuery", messageBId)}, " +
+                    "receipts=${accountingReceipts.toList()}")
             }
             suspend fun awaitGenerationRetired(token: SessionToken, description: String) {
                 awaitNativeRecovery(description) {
@@ -323,23 +371,28 @@ class SessionLifecycleTest : RoomProcessTest() {
                 bootstrapChannelRequests.filter { it.first == live.token }.map { it.second }.toSet(),
                 "Initial foreground sync must read every real advertised channel slot with matching-index replies")
 
-            awaitNativeRecovery("Envelope A's first real channel-query failure must be accounted and parked") {
-                failures("channelQuery", messageAId).isNotEmpty() && failures("park", messageAId).isNotEmpty()
+            awaitNativeRecovery("Envelope A's first real channel-query failure must persist its park") {
+                failures("channelQuery", messageAId).isNotEmpty() &&
+                    failures("park", messageAId).isNotEmpty() && receipts(messageAId).isNotEmpty()
             }
             val firstAQuery = failures("channelQuery", messageAId).single()
             assertGenuineQueryFailure(firstAQuery)
             assertSame(firstAQuery.cause, failures("park", messageAId).single().cause)
+            assertPersistenceReceipt(receipts(messageAId).single(), firstAQuery, messageAId, pendingAId,
+                1L, ChannelQueryAccountingOutcome.PARKED)
             assertEquals(
                 pendingAId,
                 store.fetchPendingSends(radioId).firstOrNull { it.messageID == messageAId }?.id,
                 "A's first query failure must retain its original durable pending identity",
             )
             awaitGenerationRetired(firstAQuery.token, "A's first quarantined generation must finish accounting before retirement")
+            assertNoAccountingOrTeardownFailure("A's first retired generation")
 
             awaitNativeRecovery("Envelope A must genuinely exhaust its query cap, be deleted and become FAILED") {
                 val pending = store.fetchPendingSends(radioId).any { it.messageID == messageAId }
                 val status = store.fetchMessage(EntityKey(radioId, messageAId))?.status
-                !pending && status == MessageStatus.FAILED && failures("terminal", messageAId).isNotEmpty()
+                !pending && status == MessageStatus.FAILED && failures("terminal", messageAId).isNotEmpty() &&
+                    receipts(messageAId).size >= QUERY_FAILURE_CAP.toInt()
             }
             val aQueries = failures("channelQuery", messageAId)
             assertEquals(QUERY_FAILURE_CAP.toInt(), aQueries.size, "Only genuine query failures may exhaust A's cap")
@@ -347,23 +400,36 @@ class SessionLifecycleTest : RoomProcessTest() {
             assertEquals(QUERY_FAILURE_CAP.toInt(), aQueries.map { it.token }.distinct().size,
                 "A must cross real physical generation retirement and automatic reconnect")
             assertSame(aQueries.last().cause, failures("terminal", messageAId).single().cause)
-            assertEquals(MessageStatus.FAILED, store.fetchMessage(EntityKey(radioId, messageAId))?.status)
+            val aReceipts = receipts(messageAId)
+            assertEquals(listOf(1L, 2L), aReceipts.map { it.first.failureCount })
+            assertPersistenceReceipt(aReceipts[0], aQueries[0], messageAId, pendingAId,
+                1L, ChannelQueryAccountingOutcome.PARKED)
+            assertPersistenceReceipt(aReceipts[1], aQueries[1], messageAId, pendingAId,
+                2L, ChannelQueryAccountingOutcome.TERMINAL_DELETED)
             awaitGenerationRetired(aQueries.last().token, "A's terminal query accounting must finish before its generation retires")
+            assertNoAccountingOrTeardownFailure("A's terminal retired generation")
+            assertEquals(MessageStatus.FAILED, store.fetchMessage(EntityKey(radioId, messageAId))?.status)
+            assertFalse(store.fetchPendingSends(radioId).any { it.messageID == messageAId })
 
-            awaitNativeRecovery("Envelope B must reach its own genuine query failure and park") {
-                failures("channelQuery", messageBId).isNotEmpty() && failures("park", messageBId).isNotEmpty()
+            awaitNativeRecovery("Envelope B must reach its own genuine query failure and persisted park") {
+                failures("channelQuery", messageBId).isNotEmpty() &&
+                    failures("park", messageBId).isNotEmpty() && receipts(messageBId).isNotEmpty()
             }
             val bQuery = failures("channelQuery", messageBId).first()
             assertGenuineQueryFailure(bQuery)
             assertSame(bQuery.cause, failures("park", messageBId).first().cause)
+            assertPersistenceReceipt(receipts(messageBId).first(), bQuery, messageBId, pendingBId,
+                1L, ChannelQueryAccountingOutcome.PARKED)
             assertTrue(bQuery.token.generation.value > aQueries.last().token.generation.value,
                 "B cannot be credited while A's quarantined generation is disconnected")
+            assertTrue(h.container.foreground.isForeground)
+            val foregroundCalls = synchronized(h.foregroundCalls) { h.foregroundCalls.toList() }
+            assertTrue(foregroundCalls.isNotEmpty() && foregroundCalls.all { it },
+                "Initial foreground and its ordinary scheduled reconciliation remain enabled without background stimuli")
+            awaitGenerationRetired(bQuery.token, "B's first query must finish park accounting before physical retirement")
+            assertNoAccountingOrTeardownFailure("B's first retired generation")
             val parkedB = assertNotNull(store.fetchPendingSends(radioId).firstOrNull { it.messageID == messageBId })
             assertEquals(pendingBId, parkedB.id)
-            assertTrue(h.container.foreground.isForeground)
-            assertEquals(listOf(true), h.foregroundCalls,
-                "Only the initial foreground hook is invoked; its scheduled automatic reconciliation remains enabled")
-            awaitGenerationRetired(bQuery.token, "B's first query must finish park accounting before physical retirement")
 
             withContext(Dispatchers.Default) { delay(3.seconds) }
             val statusB = store.fetchMessage(EntityKey(radioId, messageBId))?.status
@@ -379,8 +445,9 @@ class SessionLifecycleTest : RoomProcessTest() {
             errorDispatcher?.cancel()
             transportOpenTrigger?.cancel()
             withContext(NonCancellable) {
-                queue?.shutdown()
-                h.container.close()
+                val queueReport = try { queue?.shutdown() } finally { h.container.close() }
+                assertTrue(queueReport?.isComplete != false, "Queue cleanup must not hide teardown issues: $queueReport")
+                assertNoAccountingOrTeardownFailure("Final cleanup")
             }
         }
     }
@@ -469,7 +536,7 @@ class SessionLifecycleTest : RoomProcessTest() {
 
     private companion object {
         const val QUERY_FAILURE_CAP = 2L
-        // Two retired A generations precede B's own query; each normal BLE watchdog first waits 30 seconds.
+        // Conservative budget for two watchdog delays; ordinary foreground reconciliation may reconnect sooner.
         val NATIVE_QUERY_RECOVERY_WINDOW =
             ConnectionRetryPolicy.watchdogDelay(1) * QUERY_FAILURE_CAP.toInt() + 30.seconds
         val FIRST: UUID = UUID.fromString("00000000-0000-0000-0000-0000000000a1")

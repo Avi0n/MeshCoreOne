@@ -204,6 +204,7 @@ class RadioSessionContainer private constructor(
         config = env.chatSendQueueConfig,
         reporter = env.messagingReporter,
         progress = chatSendQueueProgress,
+        onQueryAccounting = env.onChannelQueryAccounting,
     )
     override val notificationActionHandler = NotificationActionHandler(
         dataStore, NotificationMessageSender(messageService), notificationService,

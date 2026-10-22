@@ -31,6 +31,7 @@ import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueConfig
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
+import com.meshcoreone.android.core.services.messaging.ChannelQueryAccountingEvent
 import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
 import com.meshcoreone.android.core.services.rendering.DraftDefaults
 import com.meshcoreone.android.core.services.rendering.DraftStore
@@ -95,16 +96,17 @@ internal class ContainerHarness(
     messageServiceConfig: MessageServiceConfig = MessageServiceConfig(),
     chatSendQueueConfig: ChatSendQueueConfig = ChatSendQueueConfig(),
     mainScope: CoroutineScope = test.backgroundScope,
+    onChannelQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null,
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
     val delivery = deliveryOverride ?: RecordingDelivery()
     val pairing = HarnessPairingService()
-    val foregroundCalls = mutableListOf<Boolean>()
+    val foregroundCalls = java.util.Collections.synchronizedList(mutableListOf<Boolean>())
     val preferences = MemoryConnectionPreferences()
     val lifecycle = RecordingLifecycle()
     val chatSendQueueProgress = ChatSendQueueProgress()
-    val diagnostics = mutableListOf<RuntimeDiagnostic>()
+    val diagnostics = java.util.Collections.synchronizedList(mutableListOf<RuntimeDiagnostic>())
     val messagingDiagnostics = java.util.Collections.synchronizedList(mutableListOf<com.meshcoreone.android.core.contracts.domain.MessagingDiagnostic>())
     val draftStore = DraftStore(MemoryDraftDefaults())
     val container = AppContainer(
@@ -133,6 +135,7 @@ internal class ContainerHarness(
             sessionLifecycle = lifecycle,
             runtimeReporter = RuntimeIssueReporter { diagnostics += it },
             messagingReporter = com.meshcoreone.android.core.contracts.domain.MessagingIssueReporter { messagingDiagnostics += it },
+            onChannelQueryAccounting = onChannelQueryAccounting,
             newBootstrapDebugLog = { DebugLogBuffer(store, it) },
             primerFactory = primerFactory,
             chatContent = chatContent,

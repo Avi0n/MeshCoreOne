@@ -40,6 +40,7 @@ class RadioSessionContainerFactory(
             bootstrapDebugLog,
             messageServiceConfig = messageServiceConfig,
             chatSendQueueConfig = chatSendQueueConfig,
+            onChannelQueryAccounting = onChannelQueryAccounting,
         )
     }
 }
