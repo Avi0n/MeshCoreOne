@@ -1,7 +1,7 @@
 """AndroidOnly: WP-003 Private disposable guests; fixtures never start Android tools."""
 
 import copy
-from contextlib import closing
+from contextlib import closing, contextmanager
 import json
 import os
 from pathlib import Path
@@ -888,6 +888,108 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual((guest.root / "process.log").read_bytes(), b"raw startup output")
         self.assert_legacy()
 
+    def test_windows_returned_nonzero_exit_survives_wait_returned_diagnostic_failures(self):
+        from unittest.mock import Mock
+
+        original_open = Path.open
+        for failure in ("none", "write", "flush", "clock", "cancelled"):
+            with self.subTest(failure=failure):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                guest.phase = "running"
+                guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+                guest.server_port = 41234
+                before = self.rows()
+                command = [str(guest.adb_tool), "-s", "emulator-5558", "wait-for-device"]
+                process, job = Mock(pid=7123), Mock()
+                process.wait.return_value = 7
+                guest.job = job
+                primary_diagnostic = KeyboardInterrupt("wait-returned cancelled") if failure == "cancelled" \
+                    else OSError("wait-returned diagnostic " + failure + " failed")
+                clock = [10.0]
+                returned = [False]
+                opened = []
+
+                def spawn(argv, environment, log):
+                    self.assertEqual(argv, command)
+                    self.assertIs(environment, guest.environment)
+                    log.write(b"actual-model exit7 raw bytes\n")
+                    return process
+
+                def wait(timeout):
+                    self.assertEqual(timeout, 120)
+                    returned[0] = True
+                    return 7
+
+                def monotonic():
+                    if failure == "clock" and returned[0]:
+                        returned[0] = False
+                        raise primary_diagnostic
+                    clock[0] += 0.01
+                    return clock[0]
+
+                def open_path(path, *args, **kwargs):
+                    stream = original_open(path, *args, **kwargs)
+                    if not path.name.startswith("transport-timing-"):
+                        return stream
+                    wrapped = Mock(wraps=stream)
+                    waiting_flush = [False]
+
+                    def write(data):
+                        record = json.loads(data)
+                        waiting_flush[0] = record["stage"] == "wait-returned"
+                        if waiting_flush[0] and failure in ("write", "cancelled"):
+                            raise primary_diagnostic
+                        return stream.write(data)
+
+                    def flush():
+                        if waiting_flush[0] and failure == "flush":
+                            waiting_flush[0] = False
+                            raise primary_diagnostic
+                        return stream.flush()
+
+                    wrapped.write.side_effect, wrapped.flush.side_effect = write, flush
+                    opened.append(stream)
+                    return wrapped
+
+                job.spawn.side_effect, process.wait.side_effect = spawn, wait
+                try:
+                    with patch.object(guest, "verify_transport"), \
+                            patch.object(Path, "open", open_path), \
+                            patch("controller.disposable.time.monotonic", side_effect=monotonic):
+                        with self.assertRaises(subprocess.CalledProcessError if failure == "none"
+                                               else BaseExceptionGroup) as raised:
+                            guest.adb(self.ledger, ["wait-for-device"], timeout=120)
+                    if failure == "none":
+                        primary = raised.exception
+                    else:
+                        self.assertEqual(len(raised.exception.exceptions), 2)
+                        primary = raised.exception.exceptions[0]
+                        self.assertIs(raised.exception.exceptions[1], primary_diagnostic)
+                    self.assertIsInstance(primary, subprocess.CalledProcessError)
+                    self.assertEqual(primary.returncode, 7)
+                    self.assertEqual(primary.cmd, command)
+                    self.assertEqual(primary.output, b"actual-model exit7 raw bytes\n")
+                    process.wait.assert_called_once_with(120)
+                    job.spawn.assert_called_once()
+                    self.assertEqual(guest.phase, "uncertain")
+                    self.assertEqual(self.rows(), before)
+                    raw = next(guest.root.glob("adb-*.log"))
+                    self.assertEqual(raw.read_bytes(), primary.output)
+                    with patch.object(guest, "_cleanup", side_effect=PortError("independent disposal failed")):
+                        with self.assertRaisesRegex(PortError, "independent disposal failed"):
+                            guest.dispose(self.ledger)
+                    self.assertEqual(self.rows(), before)
+                    job.cleanup.assert_not_called()
+                    self.assert_legacy()
+                finally:
+                    for stream in opened:
+                        stream.close()
+                    guest.job = None
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
+                self.assertEqual(raw.read_bytes(), b"actual-model exit7 raw bytes\n")
+
     def test_timing_receipt_creation_failure_never_launches_or_accepts_selected_command(self):
         original_open = Path.open
         guest = self.allocate()
@@ -912,6 +1014,61 @@ class DisposableGuestTests(unittest.TestCase):
         with patch.object(guest, "_cleanup"):
             guest.dispose(self.ledger)
         self.assert_legacy()
+
+    def test_windows_returned_nonzero_and_raw_read_failure_preserve_all_independent_errors(self):
+        from unittest.mock import Mock
+
+        original_read = Path.read_bytes
+        for diagnostic_failed in (False, True):
+            with self.subTest(diagnostic_failed=diagnostic_failed):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                guest.phase = "running"
+                guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+                guest.job = Mock()
+                process = Mock(pid=7123)
+                process.wait.return_value = 7
+                before = self.rows()
+                diagnostic, read_error = OSError("post-wait observation failed"), OSError("raw read failed")
+
+                def spawn(argv, environment, log):
+                    log.write(b"retained exit7 bytes")
+                    return process
+
+                def read(path):
+                    if path.name.startswith("adb-"):
+                        raise read_error
+                    return original_read(path)
+
+                original_timing = guest._timing
+
+                @contextmanager
+                def timing(*args, **kwargs):
+                    with original_timing(*args, **kwargs) as observe:
+                        def record(stage, **fields):
+                            if diagnostic_failed and stage == "wait-returned":
+                                raise diagnostic
+                            return observe(stage, **fields)
+                        yield record
+
+                guest.job.spawn.side_effect = spawn
+                with patch.object(guest, "verify_transport"), patch.object(guest, "_timing", timing), \
+                        patch.object(Path, "read_bytes", read):
+                    with self.assertRaises(ExceptionGroup) as raised:
+                        guest.adb(self.ledger, ["wait-for-device"], timeout=120)
+                failures = raised.exception.exceptions
+                self.assertIsInstance(failures[0], subprocess.CalledProcessError)
+                self.assertEqual(failures[0].returncode, 7)
+                self.assertIsNone(failures[0].output)
+                self.assertEqual(failures[1:], (diagnostic, read_error) if diagnostic_failed else (read_error,))
+                self.assertEqual(guest.phase, "uncertain")
+                self.assertEqual(self.rows(), before)
+                process.wait.assert_called_once_with(120)
+                self.assertEqual(next(guest.root.glob("adb-*.log")).read_bytes(), b"retained exit7 bytes")
+                guest.job = None
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assert_legacy()
 
     def test_exact_selected_wait_uses_private_endpoint_serial_and_finite_timeout_on_both_backends(self):
         from unittest.mock import Mock

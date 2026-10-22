@@ -510,15 +510,37 @@ class PrivateGuest:
                 )
             else:
                 output = self.root / ("adb-" + uuid.uuid4().hex + ".log")
-                with output.open("xb") as log:
-                    observe("launch-begin", output=output)
-                    process = self.job.spawn(command, self.environment, log)
-                    observe("wait-begin", process=process)
-                    code = process.wait(timeout)
-                    observe("wait-returned", process=process, returncode=code)
-                if code:
-                    raise subprocess.CalledProcessError(code, command, output=output.read_bytes())
-                result = subprocess.CompletedProcess(command, code, stdout=output.read_bytes(), stderr=b"")
+                returned_failure = None
+                try:
+                    with output.open("xb") as log:
+                        observe("launch-begin", output=output)
+                        process = self.job.spawn(command, self.environment, log)
+                        observe("wait-begin", process=process)
+                        code = process.wait(timeout)
+                        if code:
+                            returned_failure = subprocess.CalledProcessError(code, command)
+                        observe("wait-returned", process=process, returncode=code)
+                except BaseException as error:
+                    if returned_failure is None:
+                        raise
+                    failures = [returned_failure, error]
+                    try:
+                        returned_failure.output = output.read_bytes()
+                    except BaseException as read_error:
+                        failures.append(read_error)
+                    raise BaseExceptionGroup("Owned nonzero command and post-wait observation/retention failed", failures)
+                try:
+                    data = output.read_bytes()
+                except BaseException as error:
+                    if returned_failure is not None:
+                        raise BaseExceptionGroup("Owned nonzero command and raw-output retention failed", [
+                            returned_failure, error,
+                        ])
+                    raise
+                if returned_failure is not None:
+                    returned_failure.output = data
+                    raise returned_failure
+                result = subprocess.CompletedProcess(command, code, stdout=data, stderr=b"")
             if self.job is None:
                 observe("wait-returned", returncode=result.returncode)
             self.verify_transport()
