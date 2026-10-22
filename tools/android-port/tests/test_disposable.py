@@ -86,8 +86,12 @@ class DisposableGuestTests(unittest.TestCase):
         from controller.disposable import BootReadinessOffline
 
         self.status_boundary.stop()
-        for windows in (False, True):
-            with self.subTest(windows=windows):
+        for windows, diagnostic in (
+            (False, b"adb: device offline\n"),
+            (True, b"adb.exe: device offline\n"),
+            (True, b"adb.exe: device offline\r\n"),
+        ):
+            with self.subTest(windows=windows, diagnostic=diagnostic):
                 guest = self.boot_fixture(windows)
                 before, commands, budgets = self.rows(), [], []
                 property_commands = [["shell", "getprop", name] for name in ("sys.boot_completed", "init.svc.bootanim")]
@@ -101,11 +105,11 @@ class DisposableGuestTests(unittest.TestCase):
                         process = Mock(pid=803)
                         process.poll.return_value = 1 if data == b"offline" else 0
                         process.wait.return_value = 1 if data == b"offline" else 0
-                        log.write(b"adb.exe: device offline\n" if data == b"offline" else data)
+                        log.write(diagnostic if data == b"offline" else data)
                         process.wait.side_effect = lambda passed: self.assertEqual(passed, timeout) or process.wait.return_value
                         return process
                     if data == b"offline":
-                        raise subprocess.CalledProcessError(1, command, output=b"", stderr=b"adb: device offline\n")
+                        raise subprocess.CalledProcessError(1, command, output=b"", stderr=diagnostic)
                     return subprocess.CompletedProcess(command, 0, stdout=data, stderr=b"")
 
                 def spawn(command, environment, log):
@@ -123,6 +127,12 @@ class DisposableGuestTests(unittest.TestCase):
                             guest.adb(self.ledger, property_commands[1], timeout=17)
                         self.assertEqual(guest.phase, "boot-offline")
                         self.assertEqual(raised.exception.returncode, 1)
+                        self.assertEqual(raised.exception.cmd, [str(guest.adb_tool), "-s", "emulator-5558",
+                                                               *property_commands[1]])
+                        self.assertEqual((raised.exception.output, raised.exception.stderr),
+                                         (diagnostic, None) if windows else (b"", diagnostic))
+                        if windows:
+                            self.assertIn(diagnostic, [p.read_bytes() for p in guest.root.glob("adb-*.log")])
                         with self.assertRaises(PortError):
                             guest.adb(self.ledger, property_commands[0], timeout=17)
                         guest.reattach_boot(self.ledger, timeout=17)
@@ -149,8 +159,11 @@ class DisposableGuestTests(unittest.TestCase):
         from unittest.mock import Mock
 
         for windows in (False, True):
-            for case in ("default", "default-mutation", "extra", "wrong-stream", "wrong-code",
-                         "mutation", "timeout", "ownership"):
+            for case in ("default", "default-mutation", "extra", "missing-newline", "bare-cr",
+                         "double-cr", "double-line", "prefix", "wrong-stream", "wrong-code",
+                         "mutation", "timeout", "ownership", "linux-crlf"):
+                if windows and case == "linux-crlf":
+                    continue
                 with self.subTest(windows=windows, case=case):
                     guest = self.boot_fixture(windows)
                     before = self.rows()
@@ -161,6 +174,18 @@ class DisposableGuestTests(unittest.TestCase):
                     diagnostic = b"adb.exe: device offline\n" if windows else b"adb: device offline\n"
                     if case == "extra":
                         diagnostic += b"unknown context"
+                    if case == "missing-newline":
+                        diagnostic = diagnostic[:-1]
+                    if case == "bare-cr":
+                        diagnostic = diagnostic[:-1] + b"\r"
+                    if case == "double-cr":
+                        diagnostic = diagnostic[:-1] + b"\r\r\n"
+                    if case == "double-line":
+                        diagnostic += b"\n"
+                    if case == "prefix":
+                        diagnostic = b" " + diagnostic
+                    if case == "linux-crlf":
+                        diagnostic = b"adb: device offline\r\n"
                     code = 7 if case == "wrong-code" else 1
                     output, stderr = (diagnostic, None) if windows else (b"", diagnostic)
                     if case == "wrong-stream":
