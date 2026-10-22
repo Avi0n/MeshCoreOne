@@ -66,6 +66,93 @@ class DisposableGuestTests(unittest.TestCase):
     def status_reports(self, guest):
         return [json.loads(path.read_text()) for path in sorted(guest.root.glob("owned-status-*.json"))]
 
+    def test_cpu_selection_rejects_invalid_values_before_ownership_supervisor_files_or_processes(self):
+        for value in (True, False, 0, -1, 1, 2, 3, 5, 8, 4.0, "4", "", [], {}, float("nan"), float("inf")):
+            with self.subTest(value=value):
+                guest = self.allocate()
+                before = self.rows()
+                files = {p.name: p.read_bytes() for p in guest.root.iterdir()}
+                with patch.object(guest, "assert_held") as held, \
+                        patch.object(guest, "_prepare_supervisor") as prepare, \
+                        patch.object(guest, "_spawn") as spawn:
+                    with self.assertRaisesRegex(PortError, "CPU selection"):
+                        guest.start(self.ledger, emulator="not-installed", adb="not-installed",
+                                    image="not-installed", cpu_cores=value)
+                    held.assert_not_called()
+                    prepare.assert_not_called()
+                    spawn.assert_not_called()
+                self.assertEqual({p.name: p.read_bytes() for p in guest.root.iterdir()}, files)
+                self.assertEqual(self.rows(), before)
+                self.assertEqual(guest.phase, "prepared")
+                self.assertFalse(hasattr(guest, "requested_cpu_cores"))
+                self.assert_legacy()
+
+    def test_cpu_default_and_explicit_four_feed_actual_avd_config_and_existing_runtime_provenance(self):
+        from unittest.mock import Mock
+
+        image = self.root / "image"
+        image.mkdir()
+        (image / "source.properties").write_text("AndroidVersion.ApiLevel=37.0\nSystemImage.Abi=x86_64\n")
+        (image / "userdata.img").write_bytes(b"immutable initial data")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        configs = []
+        for selected in ("omitted", None, 4):
+            with self.subTest(selected=selected):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                server, process = Mock(pid=701), Mock(pid=702)
+                server.poll.return_value = process.poll.return_value = None
+
+                def spawn(command):
+                    if command[0] == str(adb):
+                        self.assertEqual(command, [str(adb), "-L", f"tcp:{guest.server_port}", "nodaemon", "server"])
+                        return server
+                    data = guest.root / "avds" / (guest.token + ".avd")
+                    self.assertEqual(command, [
+                        str(emulator), "-avd", guest.token, "-datadir", str(data),
+                        "-data", str(data / "userdata-qemu.img"), "-ports", f"{guest.port},{guest.port + 1}",
+                        "-no-snapshot", "-no-window", "-no-audio", "-show-kernel", "-gpu", "swiftshader_indirect",
+                    ])
+                    config = (data / "config.ini").read_text()
+                    expected = (
+                        f"AvdId={guest.token}\navd.ini.displayname={guest.token}\nabi.type=x86_64\n"
+                        "hw.cpu.arch=x86_64\n"
+                        + ("hw.cpu.ncore=4\n" if selected == 4 else "")
+                        + f"image.sysdir.1={image}{os.sep}\nhw.gpu.enabled=yes\nhw.gpu.mode=swiftshader_indirect\n"
+                        "disk.dataPartition.size=2048M\n"
+                    )
+                    self.assertEqual(config, expected)
+                    configs.append(config.replace(guest.token, "TOKEN"))
+                    return process
+
+                kwargs = {} if selected == "omitted" else {"cpu_cores": selected}
+                with patch.object(guest, "_prepare_supervisor"), \
+                        patch.object(guest, "_spawn", side_effect=spawn), \
+                        patch.object(guest, "_owns_listener", return_value=True), \
+                        patch.object(guest, "verify_transport"):
+                    guest.start(self.ledger, emulator=emulator, adb=adb, image=image, timeout=120, **kwargs)
+                records = self.timing_records(guest)
+                self.assertTrue(all(r["requested_cpu_cores"] == (4 if selected == 4 else None) for r in records))
+                self.assertTrue(all(r["timeout_seconds"] == 120 for r in records))
+                self.assertEqual(guest.phase, "running")
+                self.assertEqual(self.rows(), before)
+                self.assertEqual((image / "userdata.img").read_bytes(), b"immutable initial data")
+                self.status_boundary.stop()
+                try:
+                    guest.phase = "uncertain"
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
+                    status = self.status_reports(guest)[0]
+                    self.assertEqual(status["requested_cpu_cores"], 4 if selected == 4 else None)
+                finally:
+                    self.status_boundary.start()
+                self.assertEqual(self.rows(), self.legacy)
+        self.assertEqual(configs[0], configs[1])
+        self.assertEqual(configs[2].replace("hw.cpu.ncore=4\n", ""), configs[0])
+
     def test_status_snapshot_observes_owned_roots_before_real_windows_cleanup_termination(self):
         from unittest.mock import Mock
         from controller.windows_guest import OwnedProcess, WindowsJob
