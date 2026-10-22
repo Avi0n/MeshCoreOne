@@ -416,9 +416,11 @@ class SessionLifecycleTest : RoomProcessTest() {
                     failures("park", messageBId).isNotEmpty() && receipts(messageBId).isNotEmpty()
             }
             val bQuery = failures("channelQuery", messageBId).first()
+            val bReceipts = receipts(messageBId)
             assertGenuineQueryFailure(bQuery)
             assertSame(bQuery.cause, failures("park", messageBId).first().cause)
-            assertPersistenceReceipt(receipts(messageBId).first(), bQuery, messageBId, pendingBId,
+            assertEquals(1, bReceipts.size, "B must reach exactly its first persisted park before retirement")
+            assertPersistenceReceipt(bReceipts.single(), bQuery, messageBId, pendingBId,
                 1L, ChannelQueryAccountingOutcome.PARKED)
             assertTrue(bQuery.token.generation.value > aQueries.last().token.generation.value,
                 "B cannot be credited while A's quarantined generation is disconnected")
