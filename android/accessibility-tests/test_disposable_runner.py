@@ -1,6 +1,6 @@
 """AndroidOnly: WP-503 Consumer-only protocol doubles; no producer/backend/native verification."""
 
-from contextlib import ExitStack, contextmanager, redirect_stderr, redirect_stdout
+from contextlib import ExitStack, contextmanager, nullcontext, redirect_stderr, redirect_stdout
 from dataclasses import replace
 import io
 import json
@@ -19,6 +19,10 @@ from shared_device_runner import APP, TEST, SCHEMA, sha256
 from test_language_binding import source, transcript
 
 AUTHORITY = "d" * 40
+
+
+class BootOfflineModel(subprocess.CalledProcessError):
+    """Only the trusted producer classifies actual offline diagnostics."""
 
 
 class LedgerModel:
@@ -154,6 +158,22 @@ class GuestModel:
                 raise AssertionError(command)
         return subprocess.CompletedProcess(arguments, 0, stdout=output, stderr=b"")
 
+    @contextmanager
+    def boot_readiness(self, ledger, *, deadline):
+        self.assert_held(ledger, self.owner)
+        assert self.phase == "running"
+        self.boot_deadline = deadline
+        try:
+            yield
+        finally:
+            self.boot_deadline = None
+
+    def reattach_boot(self, ledger, *, timeout):
+        self.assert_held(ledger, self.owner)
+        assert self.boot_deadline is not None
+        ledger.events.append("reattach")
+        return self.adb(ledger, ["wait-for-device"], timeout=timeout)
+
     def dispose(self, ledger):
         ledger.events.append("dispose")
         self.assert_held(ledger, self.owner)
@@ -194,7 +214,8 @@ class DisposableConsumerTest(unittest.TestCase):
         self.alter_guest = lambda guest: None
         self.factory = Mock(side_effect=self.allocate)
         self.package = Mock(side_effect=self.packaging)
-        self.module = SimpleNamespace(PrivateGuest=GuestModel, trusted_guest=self.factory)
+        self.module = SimpleNamespace(PrivateGuest=GuestModel, trusted_guest=self.factory,
+                                      BootReadinessOffline=BootOfflineModel)
         self.packager = SimpleNamespace(assemble_debug_pair=self.package, verify_pair=verify_pair)
         self.real_loader = runner.trusted_producer
         self.loader_patch = patch.object(
@@ -945,19 +966,182 @@ class DisposableConsumerTest(unittest.TestCase):
 
     def test_transport_registration_precedes_framework_probes_with_the_same_boot_deadline(self):
         guest, ledger, observed = Mock(), object(), []
+        guest.boot_readiness.return_value = nullcontext()
         guest.adb.side_effect = [
             subprocess.CompletedProcess(["wait-for-device"], 0, stdout=b"", stderr=b""),
             subprocess.CompletedProcess(["getprop"], 0, stdout=b"1", stderr=b""),
             subprocess.CompletedProcess(["getprop"], 0, stdout=b"stopped", stderr=b""),
         ]
         with patch.object(runner.time, "monotonic", side_effect=[10, 11, 115, 116, 117]):
-            runner.wait_boot(guest, ledger, observed.append)
+            runner.wait_boot(guest, ledger, observed.append, offline_error=BootOfflineModel)
         self.assertEqual([
             call(ledger, ["wait-for-device"], timeout=119),
             call(ledger, ["shell", "getprop", "sys.boot_completed"], timeout=15),
             call(ledger, ["shell", "getprop", "init.svc.bootanim"], timeout=14),
         ], guest.adb.call_args_list)
         self.assertEqual([{"sys.boot_completed": "1", "init.svc.bootanim": "stopped"}], observed)
+
+    def test_scoped_offline_retains_actual_streams_and_requires_fresh_both_properties(self):
+        for output, stderr in ((b"adb.exe: device offline\n", None), (b"", b"error: device offline\n")):
+            with self.subTest(output=output, stderr=stderr):
+                guest, ledger, observed = Mock(), object(), []
+                guest.boot_readiness.return_value = nullcontext()
+                completed = lambda value: subprocess.CompletedProcess(["model"], 0, stdout=value, stderr=b"")
+                failure = BootOfflineModel(1, ["model-getprop"], output=output, stderr=stderr)
+                guest.adb.side_effect = [
+                    completed(b""), completed(b"1\n"), failure,
+                    completed(b"0\n"), completed(b"stopped\n"),
+                    completed(b"1\n"), completed(b"stopped\n"),
+                ]
+                guest.reattach_boot.return_value = completed(b"")
+                with patch.object(runner.time, "monotonic", side_effect=[10, 11, 12, 13, 14, 115, 116, 117, 118, 119, 120]), \
+                        patch.object(runner.time, "sleep") as sleeping:
+                    runner.wait_boot(guest, ledger, observed.append, offline_error=BootOfflineModel)
+                guest.boot_readiness.assert_called_once_with(ledger, deadline=130)
+                guest.reattach_boot.assert_called_once_with(ledger, timeout=116)
+                self.assertEqual([
+                    call(ledger, ["wait-for-device"], timeout=119),
+                    call(ledger, ["shell", "getprop", "sys.boot_completed"], timeout=30),
+                    call(ledger, ["shell", "getprop", "init.svc.bootanim"], timeout=30),
+                    call(ledger, ["shell", "getprop", "sys.boot_completed"], timeout=15),
+                    call(ledger, ["shell", "getprop", "init.svc.bootanim"], timeout=14),
+                    call(ledger, ["shell", "getprop", "sys.boot_completed"], timeout=12),
+                    call(ledger, ["shell", "getprop", "init.svc.bootanim"], timeout=11),
+                ], guest.adb.call_args_list)
+                self.assertEqual({
+                    "failure": "BootReadinessOffline", "property": "init.svc.bootanim", "returncode": 1,
+                    "partial_properties": {"sys.boot_completed": "1"},
+                    "output": output.decode(), "stderr": None if stderr is None else stderr.decode(),
+                }, observed[0])
+                self.assertEqual([
+                    {"sys.boot_completed": "0", "init.svc.bootanim": "stopped"},
+                    {"sys.boot_completed": "1", "init.svc.bootanim": "stopped"},
+                ], observed[1:])
+                sleeping.assert_called_once_with(0.1)
+
+    def test_repeated_offline_exhausts_original_deadline_before_profile_install_or_instrumentation(self):
+        original_adb, clock = GuestModel.adb, [0]
+
+        def offline(guest, ledger, arguments, **kwargs):
+            if arguments == ["shell", "getprop", "init.svc.bootanim"]:
+                ledger.events.append(tuple(arguments))
+                clock[0] = 40 if clock[0] == 0 else 120
+                raise BootOfflineModel(1, arguments, output=b"adb.exe: device offline\n")
+            return original_adb(guest, ledger, arguments, **kwargs)
+
+        with patch.object(GuestModel, "adb", offline), patch.object(runner.time, "monotonic", side_effect=lambda: clock[0]):
+            with self.assertRaisesRegex(RuntimeError, "120s deadline"):
+                self.execute()
+        result = self.operations()
+        self.assertEqual(2, len(result["boot_observations"]))
+        self.assertTrue(all(value["failure"] == "BootReadinessOffline" for value in result["boot_observations"]))
+        self.assertEqual(1, self.ledger.events.count("reattach"))
+        self.assertEqual([], result["profile_setup_attempts"])
+        self.assertEqual([], result["mutation_attempts"])
+        self.assertNotIn("initial_private_profile", result)
+        self.assertNotIn("cohort", result)
+        self.assertIsNone(result["host_instrumentation_process_exit"])
+        self.assertTrue(result["disposal_verified"])
+        self.assert_disposed()
+
+    def test_unclassified_boot_failures_and_malformed_offline_bytes_are_not_reattached(self):
+        original_adb = GuestModel.adb
+        for index, failure in enumerate((
+            subprocess.CalledProcessError(1, ["model"], output=b"adb.exe: device offline\n"),
+            subprocess.CalledProcessError(1, ["model"], output=b"unknown failure"),
+            subprocess.TimeoutExpired(["model"], 30),
+            OSError("model read failure"),
+            BootOfflineModel(1, ["model"], output=b"\xff"),
+            BootOfflineModel(1, ["model"], output="not bytes"),
+        )):
+            with self.subTest(failure=repr(failure)):
+                parent = self.root / ("boot-error-" + str(index))
+                parent.mkdir()
+                self.config = replace(self.config, parent=parent, output=self.root / ("boot-error-output-" + str(index)))
+                self.ledger.events.clear()
+
+                def fail_property(guest, ledger, arguments, **kwargs):
+                    if arguments == ["shell", "getprop", "init.svc.bootanim"]:
+                        raise failure
+                    return original_adb(guest, ledger, arguments, **kwargs)
+
+                expected = UnicodeDecodeError if index == 4 else RuntimeError if index == 5 else type(failure)
+                with patch.object(GuestModel, "adb", fail_property):
+                    with self.assertRaises(expected):
+                        self.execute()
+                result = self.operations()
+                self.assertNotIn("reattach", self.ledger.events)
+                self.assertEqual([], result["profile_setup_attempts"])
+                self.assertEqual([], result["mutation_attempts"])
+                self.assertNotIn("initial_private_profile", result)
+                self.assertNotIn("cohort", result)
+                self.assertIsNone(result["host_instrumentation_process_exit"])
+                self.assertTrue(result["disposal_verified"])
+                self.assert_disposed()
+
+    def test_offline_observation_write_failure_prevents_reattachment_and_independently_disposes(self):
+        original_adb, original_save, written = GuestModel.adb, runner.save_operations, []
+
+        def fail_property(guest, ledger, arguments, **kwargs):
+            if arguments == ["shell", "getprop", "sys.boot_completed"]:
+                raise BootOfflineModel(1, arguments, output=b"adb.exe: device offline\n")
+            return original_adb(guest, ledger, arguments, **kwargs)
+
+        def fail_once(path, result):
+            if result["boot_observations"] and not written:
+                written.append(True)
+                raise OSError("model offline evidence write failure")
+            original_save(path, result)
+
+        with patch.object(GuestModel, "adb", fail_property), patch.object(runner, "save_operations", side_effect=fail_once):
+            with self.assertRaisesRegex(OSError, "offline evidence"):
+                self.execute()
+        self.assertNotIn("reattach", self.ledger.events)
+        self.assertEqual({}, self.operations()["boot_observations"][0]["partial_properties"])
+        self.assertTrue(self.operations()["disposal_verified"])
+        self.assert_disposed()
+
+    def test_reattachment_errors_and_malformed_results_remain_failures(self):
+        for result in (
+            subprocess.CalledProcessError(1, ["model-reattach"], output=b"offline again"),
+            subprocess.TimeoutExpired(["model-reattach"], 10),
+            subprocess.CompletedProcess(["model-reattach"], 1, stdout=b"failed"),
+            subprocess.CompletedProcess(["model-reattach"], 0, stdout="not bytes"),
+        ):
+            with self.subTest(result=repr(result)):
+                guest, ledger, observed = Mock(), object(), []
+                guest.boot_readiness.return_value = nullcontext()
+                guest.adb.side_effect = [
+                    subprocess.CompletedProcess(["model"], 0, stdout=b""),
+                    BootOfflineModel(1, ["model-getprop"], output=b"adb.exe: device offline\n"),
+                ]
+                if isinstance(result, BaseException):
+                    guest.reattach_boot.side_effect = result
+                else:
+                    guest.reattach_boot.return_value = result
+                expected = type(result) if isinstance(result, BaseException) else (
+                    subprocess.CalledProcessError if result.returncode else RuntimeError)
+                with self.assertRaises(expected):
+                    runner.wait_boot(guest, ledger, observed.append, offline_error=BootOfflineModel)
+                self.assertEqual(2, guest.adb.call_count)
+                self.assertEqual(1, len(observed))
+                self.assertEqual("BootReadinessOffline", observed[0]["failure"])
+
+    def test_invalid_first_property_is_not_hidden_by_a_later_offline_diagnostic(self):
+        for value, expected in ((b"unrecognized", RuntimeError), (b"\xff", UnicodeDecodeError)):
+            with self.subTest(value=value):
+                guest, ledger, observed = Mock(), object(), []
+                guest.boot_readiness.return_value = nullcontext()
+                guest.adb.side_effect = [
+                    subprocess.CompletedProcess(["model"], 0, stdout=b""),
+                    subprocess.CompletedProcess(["model"], 0, stdout=value),
+                    BootOfflineModel(1, ["model-getprop"], output=b"adb.exe: device offline\n"),
+                ]
+                with self.assertRaises(expected):
+                    runner.wait_boot(guest, ledger, observed.append, offline_error=BootOfflineModel)
+                self.assertEqual(2, guest.adb.call_count)
+                guest.reattach_boot.assert_not_called()
+                self.assertEqual([], observed)
 
     def test_transport_wait_failures_keep_unknown_instrumentation_exit_and_independent_disposal(self):
         old_adb = GuestModel.adb

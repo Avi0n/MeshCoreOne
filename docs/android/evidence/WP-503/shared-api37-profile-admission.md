@@ -2986,3 +2986,41 @@ wp503-2249-nodes37-postreboot-fourcpu-a1 and private-avd-8vifityr. Existing
 running5556/protected66bd were not adopted/probed/stopped. No second retry,
 publication, dispatch or new worker occurred. This chronology remains LOCAL;
 own2249 hostedFAILURE remains distinct from this negative native result.
+
+### Local consumer preparation for the reviewed scoped boot-offline interface
+
+The retained actual boot1/offline result exposed a consumer readiness
+interruption, not a proven emulator/transport cause. A consumer-only catch was
+initially blocked because c1fbc makes every nonzero command uncertain and
+correctly rejects subsequent normal commands. No phase reset, raw ADB call,
+ownership bypass or fake recovery was introduced. The coordinator assigned
+the existing WP003 producer owner; its reviewed published PR273 source
+d93813cb393780ed4de15f80c5688c1afba4077e defines the concrete supported
+boot_readiness/BootReadinessOffline/reattach_boot interface. At this preparation
+checkpoint that producer is NOT merged or pinned; no publication/live action
+is authorized until its actual merged handoff and new admission.
+
+The consumer enters the supported scope immediately after start, using ONE
+original120s deadline. Only the producer's exact typed boot-property offline
+failure is caught. Actual property/code/available output/stderr and partial
+properties are recorded through existing operations before reattachment;
+malformed/decode/receipt errors fail explicitly. A selected reattachment uses
+only remaining time, then discards the entire partial pair and freshly reads
+BOTH properties. A previous boot1 cannot become current readiness. Arbitrary
+nonzero/timeout/ownership failures still propagate with independent disposal.
+No producer implementation, lifecycle phase or native assertion is changed.
+
+Declared discovery
+`python -B -m unittest discover -s android\accessibility-tests -p test_*.py -q`
+passes246/246,0 failures/errors/skips,14.951s: unchanged240 plus six focused
+consumer methods. Initial five-method preparation passed245/245,15.069s.
+The added cases cover both retained Windows merged bytes and Linux separate
+stderr, exact original deadline/order, stale boot1 rejection, repeatedoffline
+deadline exhaustion before profile/install/instrumentation, arbitrary failures,
+malformed/decode outcomes, evidence-write failure with independent disposal,
+and failed/malformed reattachment. These are consumer protocol models only;
+real producer phase/SQLite/ownership tests remain the producer's evidence.
+The four declared verification_config --check/validate/workflows/portmap
+commands and whitespace check pass. Native result remains0/7; no new factory,
+guest, build, install, instrumentation, publication or dispatch accompanies
+this local preparation.

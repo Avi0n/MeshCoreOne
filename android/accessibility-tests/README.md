@@ -203,6 +203,17 @@ user0/profile/source guards, and routes every command through `guest.adb`.
 After owned listener startup, exact `["wait-for-device"]` must complete before
 framework getprop probes. This uses only the remaining existing120s boot
 deadline; failed registration is propagated, never swallowed or retried.
+The boot-readiness consumer uses the producer's explicit
+`boot_readiness(ledger, deadline=original_deadline)` scope immediately after
+start. Only the producer's typed `BootReadinessOffline` from a boot-property
+read admits `reattach_boot(ledger, timeout=remaining)`. The actual failed
+property, exit, available output/stderr and partial pair are first retained in
+`boot_observations`; a receipt/decode failure stops execution. After successful
+selected reattachment BOTH properties are freshly read, with no reuse of a
+previous boot1 or budget reset. Arbitrary failures and failed reattachment
+propagate; no profile/install/instrumentation begins without fresh1/stopped.
+This source preparation requires the reviewed producer interface from PR273
+to be actually merged and pinned before publication or native execution.
 The pinned producer must preserve the normal boot-animation lifecycle:
 both boot and inherited profile guards still require its observed `stopped`
 state. A suppressed/empty service is not substituted for that observation.

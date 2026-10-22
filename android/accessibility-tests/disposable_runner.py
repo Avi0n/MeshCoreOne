@@ -196,32 +196,52 @@ class PrivateDevice(ProcessDevice):
         return super().installed(package)
 
 
-def wait_boot(guest, ledger, save_observation):
+def wait_boot(guest, ledger, save_observation, *, offline_error):
     deadline = time.monotonic() + 120
-    remaining = deadline - time.monotonic()
-    require(remaining > 0, "Private guest framework boot exceeded its120s deadline")
-    transport = guest.adb(ledger, ["wait-for-device"], timeout=remaining)
-    require(type(transport.returncode) is int and isinstance(transport.stdout, bytes),
-            "Malformed actual private transport wait result")
-    transport.check_returncode()
-    while True:
-        values = {}
-        for name in ("sys.boot_completed", "init.svc.bootanim"):
-            remaining = deadline - time.monotonic()
-            require(remaining > 0, "Private guest framework boot exceeded its120s deadline")
-            observed = guest.adb(ledger, ["shell", "getprop", name], timeout=min(30, remaining))
-            require(type(observed.returncode) is int and isinstance(observed.stdout, bytes),
-                    "Malformed actual private boot command result")
-            observed.check_returncode()
-            values[name] = observed.stdout.decode("utf-8", errors="strict").strip()
-        save_observation(values)
-        require(values["sys.boot_completed"] in ("", "0", "1")
-                and values["init.svc.bootanim"] in ("", "running", "stopped"), "Unrecognized private boot observation")
-        if values == {"sys.boot_completed": "1", "init.svc.bootanim": "stopped"}:
-            require(time.monotonic() <= deadline, "Private guest boot observation exceeded its deadline")
-            return
-        require(time.monotonic() < deadline, "Private guest framework boot exceeded its120s deadline")
-        time.sleep(0.1)
+    properties = {"sys.boot_completed": ("", "0", "1"), "init.svc.bootanim": ("", "running", "stopped")}
+    with guest.boot_readiness(ledger, deadline=deadline):
+        remaining = deadline - time.monotonic()
+        require(remaining > 0, "Private guest framework boot exceeded its120s deadline")
+        transport = guest.adb(ledger, ["wait-for-device"], timeout=remaining)
+        require(type(transport.returncode) is int and isinstance(transport.stdout, bytes),
+                "Malformed actual private transport wait result")
+        transport.check_returncode()
+        while True:
+            values = {}
+            try:
+                for name, allowed in properties.items():
+                    remaining = deadline - time.monotonic()
+                    require(remaining > 0, "Private guest framework boot exceeded its120s deadline")
+                    observed = guest.adb(ledger, ["shell", "getprop", name], timeout=min(30, remaining))
+                    require(type(observed.returncode) is int and isinstance(observed.stdout, bytes),
+                            "Malformed actual private boot command result")
+                    observed.check_returncode()
+                    values[name] = observed.stdout.decode("utf-8", errors="strict").strip()
+                    require(values[name] in allowed, "Unrecognized private boot observation")
+            except offline_error as failure:
+                require(type(failure.returncode) is int and failure.returncode != 0
+                        and all(value is None or isinstance(value, bytes)
+                                for value in (failure.output, failure.stderr)),
+                        "Malformed actual private boot offline failure")
+                save_observation({
+                    "failure": "BootReadinessOffline", "property": name,
+                    "returncode": failure.returncode, "partial_properties": values,
+                    "output": None if failure.output is None else failure.output.decode("utf-8", errors="strict"),
+                    "stderr": None if failure.stderr is None else failure.stderr.decode("utf-8", errors="strict"),
+                })
+                remaining = deadline - time.monotonic()
+                require(remaining > 0, "Private guest framework boot exceeded its120s deadline")
+                transport = guest.reattach_boot(ledger, timeout=remaining)
+                require(type(transport.returncode) is int and isinstance(transport.stdout, bytes),
+                        "Malformed actual private transport reattachment result")
+                transport.check_returncode()
+                continue
+            save_observation(values)
+            if values == {"sys.boot_completed": "1", "init.svc.bootanim": "stopped"}:
+                require(time.monotonic() <= deadline, "Private guest boot observation exceeded its deadline")
+                return
+            require(time.monotonic() < deadline, "Private guest framework boot exceeded its120s deadline")
+            time.sleep(0.1)
 
 
 def save_operations(path, result):
@@ -318,7 +338,8 @@ def execute_disposable(request, config):
         save()
         verify_current_request(request)
         guest.start(ledger, emulator=config.emulator, adb=config.adb, image=config.image, cpu_cores=config.cpu_cores)
-        wait_boot(guest, ledger, lambda value: record("boot_observations", value))
+        wait_boot(guest, ledger, lambda value: record("boot_observations", value),
+                  offline_error=module.BootReadinessOffline)
         device = PrivateDevice(guest, ledger, request, config.parent)
         result["endpoint"] = f"127.0.0.1:{guest.server_port}/emulator-{guest.port}"
         require(device.installed(APP) is None and device.installed(TEST) is None, "Private guest target was not genuinely fresh")
