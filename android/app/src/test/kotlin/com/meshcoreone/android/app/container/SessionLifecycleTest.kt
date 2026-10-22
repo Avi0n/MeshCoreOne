@@ -272,6 +272,7 @@ class SessionLifecycleTest : RoomProcessTest() {
         var transportOpenTrigger: Job? = null
         var queue: ChatSendQueueService? = null
         var initialToken: SessionToken? = null
+        var primaryFailure: Throwable? = null
         val provenReceipts = linkedMapOf<SessionToken, ChannelQueryAccountingEvent>()
         val retiredTokens = linkedSetOf<SessionToken>()
         fun failures(phase: String, messageID: UUID): List<MessagingDiagnostic.Failure> =
@@ -482,18 +483,43 @@ class SessionLifecycleTest : RoomProcessTest() {
             assertEquals(pendingBId, pendingB.id)
             assertEquals(radioId, pendingB.radioId)
             assertEquals(messageBId, pendingB.messageID)
+        } catch (failure: Throwable) {
+            primaryFailure = failure
+            throw failure
         } finally {
-            errorDispatcher?.cancel()
-            transportOpenTrigger?.cancel()
-            withContext(NonCancellable) {
-                val queueReport = try { queue?.shutdown() } finally { h.container.close() }
-                if (queueReport != null) {
-                    val token = assertNotNull(initialToken)
-                    assertEquals(ChannelQueryAccountingOutcome.PARKED, assertNotNull(provenReceipts[token]).outcome)
-                    assertEquals(1, queueReport.issues.size, "Initial queue must return its same single retained park issue")
-                    assertExpectedTeardownIssues(queueReport, setOf(token), "Repeated initial queue shutdown")
+            try {
+                withContext(NonCancellable) {
+                    var cleanupFailure: Throwable? = null
+                    suspend fun cleanupStep(action: suspend () -> Unit) {
+                        try {
+                            action()
+                        } catch (problem: Throwable) {
+                            val previous = cleanupFailure
+                            if (previous == null) cleanupFailure = problem
+                            else if (problem !== previous) previous.addSuppressed(problem)
+                        }
+                    }
+
+                    cleanupStep { errorDispatcher?.cancel() }
+                    cleanupStep { transportOpenTrigger?.cancel() }
+                    var queueReport: TeardownReport? = null
+                    cleanupStep { queueReport = queue?.shutdown() }
+                    cleanupStep { h.container.close() }
+                    cleanupStep {
+                        queueReport?.let { report ->
+                            val token = assertNotNull(initialToken)
+                            assertEquals(ChannelQueryAccountingOutcome.PARKED, assertNotNull(provenReceipts[token]).outcome)
+                            assertEquals(1, report.issues.size, "Initial queue must return its same single retained park issue")
+                            assertExpectedTeardownIssues(report, setOf(token), "Repeated initial queue shutdown")
+                        }
+                    }
+                    cleanupStep { assertNoAccountingOrUnexpectedTeardown("Final cleanup") }
+                    cleanupFailure?.let { throw it }
                 }
-                assertNoAccountingOrUnexpectedTeardown("Final cleanup")
+            } catch (cleanup: Throwable) {
+                val failure = primaryFailure
+                if (failure == null) throw cleanup
+                if (cleanup !== failure) failure.addSuppressed(cleanup)
             }
         }
     }
