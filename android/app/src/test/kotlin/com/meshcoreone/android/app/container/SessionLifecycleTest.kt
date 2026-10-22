@@ -4,6 +4,8 @@ package com.meshcoreone.android.app.container
 import com.meshcoreone.android.core.contracts.domain.ConnectionTarget
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.contracts.domain.EntityKey
+import com.meshcoreone.android.core.contracts.domain.MessagingDiagnostic
+import com.meshcoreone.android.core.contracts.domain.SessionToken
 import com.meshcoreone.android.core.model.ChannelDTO
 import com.meshcoreone.android.core.model.DeviceDTO
 import com.meshcoreone.android.core.model.MessageDTO
@@ -14,20 +16,26 @@ import com.meshcoreone.android.core.model.PendingSendKind
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.config.SessionConfiguration
+import com.meshcoreone.android.core.protocol.config.MeshCoreException
+import com.meshcoreone.android.core.protocol.session.SessionCorrelationException
+import com.meshcoreone.android.core.runtime.ConnectionRetryPolicy
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
 import com.meshcoreone.android.core.runtime.SystemRuntimeClock
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.contacts.ChannelServiceError
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueConfig
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueService
 import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
 import com.meshcoreone.android.core.services.messaging.PoolBackoffConfig
 import java.util.UUID
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
@@ -35,7 +43,9 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
@@ -46,6 +56,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SessionLifecycleTest : RoomProcessTest() {
     private suspend fun ContainerHarness.connect(target: ConnectionTarget = target()) {
         manager.connect(target)
@@ -125,7 +136,9 @@ class SessionLifecycleTest : RoomProcessTest() {
     }
 
     @Test
-    fun sameRadioChannelQueryFailureIsIsolatedToEachPendingEnvelopeInTheAppRoomGraph() = runTest {
+    fun foregroundAppReconnectsAutomaticallyAndIsolatesEachPendingEnvelopeChannelQueryFailure() = runTest(
+        timeout = NATIVE_QUERY_RECOVERY_WINDOW + 3.seconds + 30.seconds,
+    ) {
         val radioId = RadioId(UUID.fromString("A0000000-0000-0000-0000-000000000001"))
         val deviceId = UUID.fromString("A0000000-0000-0000-0000-000000000002")
         val messageAId = UUID.fromString("A0000000-0000-0000-0000-000000000004")
@@ -141,20 +154,38 @@ class SessionLifecycleTest : RoomProcessTest() {
             messageServiceConfig = MessageServiceConfig(
                 poolBackoff = PoolBackoffConfig(attemptCap = 2, baseDelay = 0.01),
             ),
-            chatSendQueueConfig = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 2),
+            chatSendQueueConfig = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = QUERY_FAILURE_CAP),
+            mainScope = CoroutineScope(backgroundScope.coroutineContext + Dispatchers.Default.limitedParallelism(1)),
         )
         val activeRadio = AtomicReference<FirmwareRadio?>()
-        val channelReply = Bytes.fromHex("120054657374" + "00".repeat(28) + "aa".repeat(16))
+        val bootstrapChannelRequests = ConcurrentLinkedQueue<Pair<SessionToken, UByte>>()
+        val queueChannelRequests = ConcurrentLinkedQueue<Pair<SessionToken, UByte>>()
         h.links.configureRadio = { radio ->
             activeRadio.set(radio)
             val sending = AtomicBoolean(false)
             radio.respond = { command ->
                 when (command[0].toInt()) {
                     3 -> {
+                        check(h.manager.connectionState == DeviceConnectionState.READY)
                         sending.set(true)
                         emptyList()
                     }
-                    31 -> if (sending.get()) emptyList() else listOf(channelReply)
+                    31 -> {
+                        val index = command[1]
+                        val token = checkNotNull(h.manager.snapshot.value.token)
+                        if (sending.get() && h.manager.connectionState == DeviceConnectionState.READY) {
+                            check(index == 0.toUByte())
+                            queueChannelRequests += token to index
+                            emptyList()
+                        } else {
+                            bootstrapChannelRequests += token to index
+                            listOf(
+                                Bytes.of(0x12, index.toInt()) +
+                                    Bytes.utf8(if (index == 0.toUByte()) "Test" else "").paddedOrTruncated(32) +
+                                    Bytes(ByteArray(16) { if (index == 0.toUByte()) 0xaa.toByte() else 0 }),
+                            )
+                        }
+                    }
                     else -> null
                 }
             }
@@ -227,7 +258,29 @@ class SessionLifecycleTest : RoomProcessTest() {
         var errorDispatcher: Job? = null
         var transportOpenTrigger: Job? = null
         var queue: ChatSendQueueService? = null
+        fun failures(phase: String, messageID: UUID): List<MessagingDiagnostic.Failure> =
+            synchronized(h.messagingDiagnostics) {
+                h.messagingDiagnostics.filterIsInstance<MessagingDiagnostic.Failure>()
+                    .filter { it.token.radioId == radioId && it.operation == "$phase.$messageID" }
+            }
+
+        fun assertGenuineQueryFailure(failure: MessagingDiagnostic.Failure) {
+            val wrapped = assertIs<ChannelServiceError.SessionError>(failure.cause)
+            assertIs<MeshCoreException.ConnectionLost>(wrapped.error)
+            val chain = generateSequence<Throwable>(wrapped.error) { it.cause }.take(16).toList()
+            val unresolved = assertIs<SessionCorrelationException.UnresolvedReply>(
+                chain.dropWhile { it is MeshCoreException.ConnectionLost }.firstOrNull(),
+            )
+            assertEquals(1L, unresolved.generation, "Each physical generation constructs a fresh protocol session")
+            assertEquals("channel:0", unresolved.responseFamily)
+            assertTrue(queueChannelRequests.any { it.first == failure.token && it.second == 0.toUByte() },
+                "A typed failure must originate from an actual queue GET_CHANNEL in that generation")
+        }
+
         try {
+            assertTrue(h.container.foreground.activityStarted())
+            h.appState.handleBecameActive()
+            h.appState.handleReturnToForeground()
             errorDispatcher = backgroundScope.launch(Dispatchers.Default) {
                 while (isActive) {
                     if (h.manager.connectionState == DeviceConnectionState.READY) {
@@ -243,25 +296,73 @@ class SessionLifecycleTest : RoomProcessTest() {
                 }
             }
 
-            val deadline = System.nanoTime() + 30.seconds.inWholeNanoseconds
+            val started = System.nanoTime()
+            suspend fun awaitNativeRecovery(description: String, predicate: suspend () -> Boolean) {
+                while (System.nanoTime() - started < NATIVE_QUERY_RECOVERY_WINDOW.inWholeNanoseconds) {
+                    if (predicate()) return
+                    withContext(Dispatchers.Default) { delay(50.milliseconds) }
+                }
+                throw AssertionError("$description within $NATIVE_QUERY_RECOVERY_WINDOW; " +
+                    "A queries=${failures("channelQuery", messageAId)}, B queries=${failures("channelQuery", messageBId)}")
+            }
+            suspend fun awaitGenerationRetired(token: SessionToken, description: String) {
+                awaitNativeRecovery(description) {
+                    h.sessions.tornDown > 0 &&
+                        h.sessions.current?.token != token &&
+                        h.manager.connectionState == DeviceConnectionState.DISCONNECTED &&
+                        h.manager.isReconnectionWatchdogRunning
+                }
+            }
+
             h.container.uiScope.async { h.manager.connect(h.target(deviceId)) }.await()
             h.assertReady()
             val live = assertNotNull(h.sessions.current)
             assertEquals(radioId, live.token.radioId)
             queue = live.chatSendQueueService
+            assertEquals((0 until 8).map { it.toUByte() }.toSet(),
+                bootstrapChannelRequests.filter { it.first == live.token }.map { it.second }.toSet(),
+                "Initial foreground sync must read every real advertised channel slot with matching-index replies")
 
-            var aTerminalAndDeleted = false
-            while (System.nanoTime() < deadline) {
+            awaitNativeRecovery("Envelope A's first real channel-query failure must be accounted and parked") {
+                failures("channelQuery", messageAId).isNotEmpty() && failures("park", messageAId).isNotEmpty()
+            }
+            val firstAQuery = failures("channelQuery", messageAId).single()
+            assertGenuineQueryFailure(firstAQuery)
+            assertSame(firstAQuery.cause, failures("park", messageAId).single().cause)
+            assertEquals(
+                pendingAId,
+                store.fetchPendingSends(radioId).firstOrNull { it.messageID == messageAId }?.id,
+                "A's first query failure must retain its original durable pending identity",
+            )
+            awaitGenerationRetired(firstAQuery.token, "A's first quarantined generation must finish accounting before retirement")
+
+            awaitNativeRecovery("Envelope A must genuinely exhaust its query cap, be deleted and become FAILED") {
                 val pending = store.fetchPendingSends(radioId).any { it.messageID == messageAId }
                 val status = store.fetchMessage(EntityKey(radioId, messageAId))?.status
-                if (!pending && status == MessageStatus.FAILED) {
-                    aTerminalAndDeleted = true
-                    break
-                }
-                withContext(Dispatchers.Default) { delay(50.milliseconds) }
+                !pending && status == MessageStatus.FAILED && failures("terminal", messageAId).isNotEmpty()
             }
-            assertTrue(aTerminalAndDeleted, "Envelope A must be deleted and FAILED within the real 30-second deadline")
+            val aQueries = failures("channelQuery", messageAId)
+            assertEquals(QUERY_FAILURE_CAP.toInt(), aQueries.size, "Only genuine query failures may exhaust A's cap")
+            aQueries.forEach(::assertGenuineQueryFailure)
+            assertEquals(QUERY_FAILURE_CAP.toInt(), aQueries.map { it.token }.distinct().size,
+                "A must cross real physical generation retirement and automatic reconnect")
+            assertSame(aQueries.last().cause, failures("terminal", messageAId).single().cause)
             assertEquals(MessageStatus.FAILED, store.fetchMessage(EntityKey(radioId, messageAId))?.status)
+            awaitGenerationRetired(aQueries.last().token, "A's terminal query accounting must finish before its generation retires")
+
+            awaitNativeRecovery("Envelope B must reach its own genuine query failure and park") {
+                failures("channelQuery", messageBId).isNotEmpty() && failures("park", messageBId).isNotEmpty()
+            }
+            val bQuery = failures("channelQuery", messageBId).first()
+            assertGenuineQueryFailure(bQuery)
+            assertSame(bQuery.cause, failures("park", messageBId).first().cause)
+            assertTrue(bQuery.token.generation.value > aQueries.last().token.generation.value,
+                "B cannot be credited while A's quarantined generation is disconnected")
+            val parkedB = assertNotNull(store.fetchPendingSends(radioId).firstOrNull { it.messageID == messageBId })
+            assertEquals(pendingBId, parkedB.id)
+            assertTrue(h.container.foreground.isForeground)
+            assertEquals(listOf(true), h.foregroundCalls, "Only the initial ordinary foreground state may stimulate lifecycle")
+            awaitGenerationRetired(bQuery.token, "B's first query must finish park accounting before physical retirement")
 
             withContext(Dispatchers.Default) { delay(3.seconds) }
             val statusB = store.fetchMessage(EntityKey(radioId, messageBId))?.status
@@ -270,6 +371,7 @@ class SessionLifecycleTest : RoomProcessTest() {
                 pendingB,
                 "Envelope B's same-radio PendingSend row must survive the literal three-second observation; status=$statusB",
             )
+            assertEquals(pendingBId, pendingB.id)
             assertEquals(radioId, pendingB.radioId)
             assertEquals(messageBId, pendingB.messageID)
         } finally {
@@ -365,6 +467,10 @@ class SessionLifecycleTest : RoomProcessTest() {
     }
 
     private companion object {
+        const val QUERY_FAILURE_CAP = 2L
+        // Two retired A generations precede B's own query; each normal BLE watchdog first waits 30 seconds.
+        val NATIVE_QUERY_RECOVERY_WINDOW =
+            ConnectionRetryPolicy.watchdogDelay(1) * QUERY_FAILURE_CAP.toInt() + 30.seconds
         val FIRST: UUID = UUID.fromString("00000000-0000-0000-0000-0000000000a1")
         val SECOND: UUID = UUID.fromString("00000000-0000-0000-0000-0000000000a2")
     }

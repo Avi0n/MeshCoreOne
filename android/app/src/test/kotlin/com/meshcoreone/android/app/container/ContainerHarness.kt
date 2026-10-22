@@ -94,6 +94,7 @@ internal class ContainerHarness(
     sessionConfiguration: SessionConfiguration = SessionConfiguration.DEFAULT,
     messageServiceConfig: MessageServiceConfig = MessageServiceConfig(),
     chatSendQueueConfig: ChatSendQueueConfig = ChatSendQueueConfig(),
+    mainScope: CoroutineScope = test.backgroundScope,
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
@@ -120,7 +121,7 @@ internal class ContainerHarness(
             contactPreferences = MemoryFlags(),
             draftStore = draftStore,
             chatSendQueueProgress = chatSendQueueProgress,
-            mainScope = test.backgroundScope,
+            mainScope = mainScope,
             runtimeClock = runtimeClock,
             syncClock = syncClock,
             runtimeContext = runtimeContext,

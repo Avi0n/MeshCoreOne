@@ -304,7 +304,9 @@ internal suspend fun <Owner> openRoomDatabaseOnIo(
     } finally {
         if (!ownershipTransferred) {
             try {
-                withContext(NonCancellable + Dispatchers.IO) { opened?.close() }
+                withContext(NonCancellable + Dispatchers.IO) {
+                    opened?.let { RoomPersistenceStore.closeUntransferredDatabase(it) }
+                }
             } catch (cleanup: Throwable) {
                 val failure = primaryFailure
                 if (failure == null) throw cleanup
