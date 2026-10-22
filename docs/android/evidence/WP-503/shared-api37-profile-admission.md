@@ -3116,3 +3116,56 @@ timings/status/raw command results remain under session files
 wp503-876-nodes37-scoped-boot-fourcpu-a1 and private-avd-73gsr96j. No unchanged
 retry, doc-only publication, dispatch or new worker occurred. This actual
 negative chronology stays LOCAL; whole-WP/native acceptance remains incomplete.
+
+### Actual merged CRLF producer coupling after the negative876 attempt
+
+The preceding LOCAL-only status records the retention epoch9167dcf202bf5a52cd50341b57bde236734eccf8.
+It is preserved without rewriting the actual negative execution or normalized
+text correction, and is included in this normal coupled source successor.
+Actual main0a7a84e388393557e4b66ac7fd322248e28611fd normally merged PR274,
+with parents2836839744f3e20743aeeea80824ec7e1f5165d2 and
+7c8e8b21a1e52a75a23ca54d063e42dd3839bd16. A normal nonconflicting
+merge into the existing managed branch retains9167 and the original chronology.
+Incoming changes are exactly the existing producer, its tests and WP003
+deviation; all three paths and both merge-integration operations were already
+admitted by the canonical runningr31 reservation. No ledger rewrite/evolution
+or canonical-context substitution was necessary.
+
+Consumer producer pin is now7c8e8b21a1e52a75a23ca54d063e42dd3839bd16,
+and disposable API blobdd40e5677bc7ba41832485595ee328a2aeb2e9ee.
+The other three API objects remain621612bb67e16432692e07a5a1b1056426747777,
+6048cf50b275b85c9028781fd80a473ef06ca6f2 and
+7f8e5e9769c0f8d70a42678738280bf7209c17e9. Producer-owned classification
+accepts only exact Windows LF/CRLF output with stderrNone and preserves the
+unchanged Linux separate stderr diagnostic. The existing consumer model now
+includes actual raw Windows CRLF alongside LF and Linux; it still requires
+exact retained streams, discarded partial properties and fresh BOTH properties
+within the same original120s deadline. It adds no test method/family.
+
+The initial source guard correctly stopped on GitHub PR REST base still
+reporting283 while independent actual main ref was already0a7; no source or
+runtime effects preceded that stop. Independent remote read confirmed exact
+public876/OPENready and main0a7 before normal integration. REST base metadata
+is not substituted for the actual main object or used as a native proof.
+No new native attempt, hold, profile/install/instrumentation, guest adoption,
+CPU/GPU/image change, deadline extension or assertion change accompanies this
+source coupling. Original native src, language binding/tests and AppGradle
+remain byte-identical to876/2249. Actual0of7 and disposal of0694 remain
+negative evidence, not reclassified by a producer source correction.
+
+Actual integrated declared checks before the coupled commit:
+- `python -B -m unittest discover -s android\accessibility-tests -p test_*.py -q`:
+  246 discovered/run/PASS,0failures/errors/skips,15.691s. All existing methods
+  remain; the additional CRLF stream is a subtest of the existing method.
+- `python -B tools\android-port\controller\verification_config.py --check`:
+  PASS/exit0.
+- `python -B tools\android-port\controller\validate.py`: PASS/exit0.
+- `python -B tools\android-port\controller\workflows.py`: PASS/exit0.
+- `python -B tools\android-port\portmap.py`: PASS/exit0.
+- `git diff --check` and `git diff --cached --check`: PASS/exit0.
+
+These are local source/consumer-model checks, not native/backend acceptance.
+No complete local fast Android/Gradle verification is claimed for this source
+successor. Its own exact-candidate hosted result remains authoritative;876 CI
+or the separately reviewed producer CI is not transferred to this candidate.
+No dispatch, rerun, cancellation or duplicate CI-result bundle is authorized.

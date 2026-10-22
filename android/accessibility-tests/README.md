@@ -133,7 +133,12 @@ Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
 
 `disposable_runner.py` is a separate consumer of the reviewed WP-003 private-guest
-interface, updated at `d93813cb393780ed4de15f80c5688c1afba4077e`.
+interface, updated at `7c8e8b21a1e52a75a23ca54d063e42dd3839bd16`.
+The merged Windows producer recognizes only the exact failed boot-query offline
+diagnostic with LF or CRLF, preserving the original merged output bytes.
+The existing consumer stream-retention/fresh-property regression covers both
+Windows forms and the unchanged separate Linux stderr form. This source
+coupling is not a successful native rerun or an explanation of guest offline.
 It does not remove the shared-device fence or adopt an existing guest. Before
 import/allocation it requires the reviewed producer bytes in actual trusted main
 and the actual checkout, and trusted capability/pause policy. The real factory

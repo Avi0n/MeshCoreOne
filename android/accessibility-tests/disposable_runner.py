@@ -28,9 +28,9 @@ from controller.schema import load_json
 from controller.staging import object_bytes
 from local.reserve import shared_ledger
 
-PRODUCER = "d93813cb393780ed4de15f80c5688c1afba4077e"
+PRODUCER = "7c8e8b21a1e52a75a23ca54d063e42dd3839bd16"
 PRODUCER_INPUTS = MappingProxyType({
-    "tools/android-port/controller/disposable.py": "b3d42756e679bfcd285f48eca5529ebb64b79b0e",
+    "tools/android-port/controller/disposable.py": "dd40e5677bc7ba41832485595ee328a2aeb2e9ee",
     "tools/android-port/controller/windows_guest.py": "621612bb67e16432692e07a5a1b1056426747777",
     "tools/android-port/controller/ledger.py": "6048cf50b275b85c9028781fd80a473ef06ca6f2",
     "tools/android-port/local/debug_packaging.py": "7f8e5e9769c0f8d70a42678738280bf7209c17e9",
