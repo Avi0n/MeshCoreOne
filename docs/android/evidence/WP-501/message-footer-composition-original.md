@@ -94,6 +94,14 @@ Source-only results for the four-path implementation:
 - `python tools\android-port\local\check.py --worktree --stages python`:
   BLOCKED before any check stage, exit 1,
   `Working-tree overlays are not supported by the installed merge verifier`.
+- Exact implemented source commit
+  `404f37773bc24da2ccd27dd5c95b20e830c9cbd7`:
+  `python tools\android-port\local\check.py --commit 404f37773 --stages python`
+  returned exit 1 before Python checks:
+  `BLOCKED: Malformed installed reservation runtime manifest`.
+  This does not negate the trusted owned-path scope admission, and it is not
+  permission to reinstall/repair runtime or bypass the verifier. Functional
+  status remains UNVERIFIED; no native or Gradle execution occurred.
 
 Normal branch publication is not performed by pushing superseded integration.
 Before this change, the existing branch already contained unpublished old
@@ -105,3 +113,7 @@ The new bounded four-path commit remains available through shared Git objects;
 coordinator serialization/current-producer reconciliation is needed before
 normal publication. This is a concrete publication/ancestry boundary, not an
 authorization-prose request or a blocker to the implemented owned test.
+Actual three-dot PR-diff inspection against the stated current main identifies
+19 inherited App/runtime/queue consumer paths, including `AppContainer.kt`,
+`ConnectionManager.kt` and `ChatSendQueueService.kt`, outside this new four-path
+commit. The working tree is clean after implementation commit 404f37773.
