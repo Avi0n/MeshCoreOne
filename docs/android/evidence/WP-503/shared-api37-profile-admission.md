@@ -2617,3 +2617,38 @@ Retained hardware-qemu.ini independently confirms2CPU/4096MiB and initial
 320x480/density160. The intended360x900/font200 profile was never reached.
 The coordinator routed the concrete pre-cleanup root-state diagnostic gap
 to the same existing producer; no consumer producer edit or worker wake occurred.
+
+### Actual295: merged owned-root status observations
+
+Actual normal PR269 merge295ebf37de8db1e6b295e6e74dae3efafe71c178 has
+independently read parents2764 and reviewededb9d14a93e37d27de7fae431437b5d03b291206.
+Its disposable input is643200e7b389c62f5bdd2aec4e9ea00c75356091;
+the other three API inputs remain unchanged. Same-owner supported typed
+integration78eb6c586b07ad028986ecc81643a9039c67b7be retained revision31/31,
+immutable identities/authorization context and all1020 tracked owned
+consumer/evidence files byte-for-byte, including LOCALa353's actualea599
+failure chronology. Only the two executable producer/disposable literals
+advance; original Nodes7/144, cached selected1/ten/current514, native source/
+tests/AppGradle, CPU/configuration, strict120/180 budgets and assertions
+remain unchanged.
+
+The reviewed source retains unique owned-status JSON on operation failure
+and before cleanup, using existing owned-handle poll/Job active APIs only.
+Root status is explicitly not whole-guest/descendant exit proof; PID membership
+remains unavailable/null. Actual primary errors and independent observation/
+retention/cleanup failures stay visible; there is no extra guest command,
+transport fix, historical-state proof or weakened disposal requirement.
+Producer source5608543693/execution5608549658 are COMMENTED, not acceptance.
+Producer own39710791051 selected SUCCESS/official638/75.387s/OK/aggregate
+119602051501 are producer software-only evidence, not consumer/native proof;
+other platform scopes were genuinely unselected and no CI bundle is copied.
+
+The actualea599 PR body was updated through the native full-literal tool,
+CAS8091d23df815, and independently read back exactly65367UTF8bytes equal
+to the prepared draft, with all245 historical/template rows unchanged.
+This successor still starts with its own unverified CI/native states and
+requires a genuinely new source-bound pair plus immediate fresh admission.
+Actual integrated declared consumer suite passed235/235 in34.263s with
+positive discovery; verification_config.py --check, validate.py, workflows.py,
+portmap.py and git diff --check passed. Local Gradle fast remains explicitly
+NOT RUN/UNVERIFIED; own exact-successor hosted verification is still required.

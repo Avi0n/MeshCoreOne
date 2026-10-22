@@ -133,7 +133,7 @@ Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
 
 `disposable_runner.py` is a separate consumer of the reviewed WP-003 private-guest
-interface, updated at `96642cf3c90effe4f2c90ef4202ca9d5d7764075`.
+interface, updated at `edb9d14a93e37d27de7fae431437b5d03b291206`.
 It does not remove the shared-device fence or adopt an existing guest. Before
 import/allocation it requires the reviewed producer bytes in actual trusted main
 and the actual checkout, and trusted capability/pause policy. The real factory
@@ -171,6 +171,13 @@ raw kernel lines are not individually host-timestamped. Returned nonzero
 commands and independent observation/retention failures remain visible together.
 These diagnostics establish no transport fix or host/kernel clock alignment,
 and change no original CPU/configuration, strict boot or120/180-second budgets.
+Normal merge `295ebf37de8db1e6b295e6e74dae3efafe71c178` additionally
+contains reviewedEDB's retained failure/before-cleanup owned-root snapshots.
+Existing owned process handles report server/emulator/selected-command
+poll results, with actual Job active count and unavailable PIDs explicitly null.
+These are root-handle observations, not whole-guest/descendant exit proof.
+Observation/retention failures preserve the primary failure and do not prevent
+independent cleanup; no additional guest command, retry or transport fix is implied.
 Actual source/runtime/claim/resource guards still run; merge is not guest readiness.
 The consumer accepts the installed base-image spelling `37.0` as API37
 (likewise integer base API plus `.0`), but rejects nonzero/ambiguous minor versions.
