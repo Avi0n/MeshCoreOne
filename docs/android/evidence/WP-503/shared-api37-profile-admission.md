@@ -3492,3 +3492,26 @@ This repairs an unsynchronized fixture boundary. It does not establish the
 observed timeout's cause or show that the repaired case passes. No native
 execution of this changed fixture is authorized or claimed by this source update;
 the exact published successor requires review and a separate fresh handoff.
+
+Source verification used the declared
+`python -B -m unittest discover -s android\accessibility-tests -p test_*.py -q`.
+The first249-test discovery reported one source-contract assertion failure:
+the existing literal `LineOfSightEntry(dependencies)` did not account for the
+new explicit test-tag modifier argument. That expectation now retains the
+same dependency call prefix, while the new regression checks the exact mounted
+call, synchronization order, unchanged original count-window/assertion/helper
+suffix, original control method and deterministic dependency body.
+The corrected discovery passed249/249,0F/E/S,in16.327s. These are pure runner/
+source-contract tests, not Android execution of the changed fixture.
+
+Each declared command passed/exit0:
+`python -B tools\android-port\controller\verification_config.py --check`,
+`python -B tools\android-port\controller\validate.py`,
+`python -B tools\android-port\controller\workflows.py` and
+`python -B tools\android-port\portmap.py`.
+Whitespace checks passed. The capability-admitted same-owner scope evolved
+fromr32 tor33, retaining original identity, binding, authorization context and
+history; it did not release/reacquire a reservation or touch the protected lease.
+Full local Gradle/Kotlin compilation and changed-source native execution remain
+UNVERIFIED. The automatically triggered exact-successor hosted run, not any
+older producer/candidate verdict, controls reproducible candidate verification.

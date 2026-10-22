@@ -832,7 +832,7 @@ class LanguageBindingTest(unittest.TestCase):
             for fixed in ("UUID(0, 301)", "UUID(0, 302)", "UUID(0, 303)", "latitude = 37.8, longitude = -122.4",
                           "latitude = 37.7, longitude = -122.3", "deviceFrequencyKHz = { 906000u }",
                           "return 100.0", 'error("No terrain analysis requested")',
-                          "LineOfSightEntry(dependencies)", "nativeSavedEndpoint", "assertEndpointState"):
+                          "LineOfSightEntry(dependencies", "nativeSavedEndpoint", "assertEndpointState"):
                 self.assertIn(fixed, body)
         retained = json.loads(binding.git(
             "show", "HEAD:docs/android/evidence/WP-503/device-losendpoints-traversal-integration.json",
