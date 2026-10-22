@@ -43,6 +43,9 @@ class DisposableGuestTests(unittest.TestCase):
             "wp": "WP-503", "endpoint": "canonical:old-guest", "original": ["unchanged", 473],
         }, NOW)
         self.legacy = self.rows()
+        self.status_boundary = patch.object(PrivateGuest, "_status_snapshot")
+        self.status_boundary.start()
+        self.addCleanup(self.status_boundary.stop)
 
     def rows(self):
         with closing(sqlite3.connect(self.ledger.path)) as connection:
@@ -59,6 +62,228 @@ class DisposableGuestTests(unittest.TestCase):
 
     def assert_legacy(self):
         self.assertEqual([row for row in self.rows() if row[2] == "native-execution"], self.legacy)
+
+    def status_reports(self, guest):
+        return [json.loads(path.read_text()) for path in sorted(guest.root.glob("owned-status-*.json"))]
+
+    def test_status_snapshot_observes_owned_roots_before_real_windows_cleanup_termination(self):
+        from unittest.mock import Mock
+        from controller.windows_guest import OwnedProcess, WindowsJob
+
+        self.status_boundary.stop()
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        before = self.rows()
+        guest.phase = "uncertain"
+        state, calls = {"terminated": False}, []
+        job = object.__new__(WindowsJob)
+        job.handle, job.kernel = 99, Mock()
+        job.check = lambda value: None if value else self.fail("fixture API failed")
+
+        def query(handle, kind, buffer, size, returned):
+            calls.append("accounting-after" if state["terminated"] else "accounting-before")
+            buffer._obj.active = 0 if state["terminated"] else 3
+            return 1
+
+        def terminate(handle, code):
+            reports = self.status_reports(guest)
+            self.assertEqual(len(reports), 1)
+            self.assertEqual(reports[0]["job_active_count"], 3)
+            self.assertEqual([r["returncode"] for r in reports[0]["roots"]], [7, None, None])
+            calls.append("terminate")
+            state["terminated"] = True
+            return 1
+
+        def wait(handle, milliseconds):
+            self.assertEqual(milliseconds, 0)
+            calls.append("poll-after" if state["terminated"] else "poll-before")
+            return 0 if handle == 301 or state["terminated"] else 0x102
+
+        def exit_code(handle, target):
+            target._obj.value = 7 if handle == 301 else 125
+            return 1
+
+        job.kernel.WaitForSingleObject.side_effect = wait
+        job.kernel.GetExitCodeProcess.side_effect = exit_code
+        guest.server = OwnedProcess(job, types.SimpleNamespace(process=301, pid=201))
+        guest.emulator = OwnedProcess(job, types.SimpleNamespace(process=302, pid=202))
+        guest.processes = job.processes = [guest.server, guest.emulator]
+        guest.job = job
+        job.kernel.QueryInformationJobObject.side_effect = query
+        job.kernel.TerminateJobObject.side_effect = terminate
+        guest.dispose(self.ledger)
+        report = self.status_reports(guest)[0]
+        self.assertEqual(report["stage"], "before-cleanup")
+        self.assertEqual(report["roots"][0]["status"], "exited")
+        self.assertEqual(report["roots"][1]["status"], "not-exited")
+        self.assertEqual(report["roots"][2]["status"], "unavailable")
+        self.assertIsNone(report["job_pids"])
+        self.assertIn("not whole guest", report["scope"])
+        self.assertLess(calls.index("accounting-before"), calls.index("terminate"))
+        self.assertEqual(report["roots"][0]["returncode"], 7)
+        self.assertEqual(guest.server.poll(), 7)
+        self.assertEqual(guest.emulator.poll(), 125)
+        self.assertEqual(guest.phase, "disposed")
+        self.assertNotEqual(self.rows(), before)
+        self.assertEqual(self.rows(), self.legacy)
+
+    def test_status_failure_snapshots_preserve_timeout_nonzero_cancellation_and_linux_unavailable_membership(self):
+        from unittest.mock import Mock
+
+        self.status_boundary.stop()
+        for windows in (False, True):
+            for outcome in ("timeout", "nonzero", "cancelled"):
+                with self.subTest(windows=windows, outcome=outcome):
+                    guest = self.allocate()
+                    guest.acquire(self.ledger)
+                    guest.phase = "running"
+                    guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+                    guest.server, guest.emulator = Mock(pid=301), Mock(pid=302)
+                    guest.server.poll.return_value = None
+                    guest.emulator.poll.return_value = 9
+                    before = self.rows()
+                    command = [str(guest.adb_tool), "-s", "emulator-5558", "wait-for-device"]
+                    primary = {"timeout": subprocess.TimeoutExpired(command, 120),
+                               "nonzero": subprocess.CalledProcessError(7, command),
+                               "cancelled": KeyboardInterrupt("cancelled")}[outcome]
+                    selected = Mock(pid=303)
+                    selected.poll.return_value = 7 if outcome == "nonzero" else None
+                    selected.wait.side_effect = None if outcome == "nonzero" else primary
+                    selected.wait.return_value = 7
+                    if windows:
+                        guest.job = Mock()
+                        guest.job.spawn.return_value = selected
+                        guest.job.active.return_value = 3
+                    with patch.object(guest, "verify_transport"), \
+                            patch("controller.disposable.subprocess.run", side_effect=primary):
+                        with self.assertRaises(type(primary)) as raised:
+                            guest.adb(self.ledger, ["wait-for-device"], timeout=120)
+                    if not windows or outcome != "nonzero":
+                        self.assertIs(raised.exception, primary)
+                    else:
+                        self.assertEqual(raised.exception.returncode, 7)
+                    report = self.status_reports(guest)[0]
+                    self.assertEqual(report["stage"], "operation-failure")
+                    self.assertEqual(report["job_active_count"], 3 if windows else None)
+                    self.assertEqual(report["roots"][2]["pid"], 303 if windows else None)
+                    self.assertEqual(report["roots"][2]["status"],
+                                     ("exited" if outcome == "nonzero" else "not-exited") if windows else "unavailable")
+                    self.assertEqual(report["roots"][1]["returncode"], 9)
+                    self.assertEqual(report["owner"], guest.owner)
+                    self.assertEqual(report["revision"], guest.revision)
+                    self.assertEqual(self.rows(), before)
+                    guest.job = None
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
+                    self.assertEqual(guest.phase, "disposed")
+                    self.assert_legacy()
+
+    def test_status_observation_retention_and_cleanup_failures_preserve_primary_and_receipts(self):
+        from unittest.mock import Mock
+
+        self.status_boundary.stop()
+        for failure in ("poll", "job", "clock", "write"):
+            with self.subTest(failure=failure):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                guest.phase = "running"
+                guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+                guest.server = Mock(pid=401)
+                guest.server.poll.return_value = None
+                guest.job = Mock()
+                guest.job.active.return_value = 2
+                process = Mock(pid=402)
+                process.poll.return_value = None
+                primary = subprocess.TimeoutExpired(["fixture"], 120)
+                process.wait.side_effect = primary
+                guest.job.spawn.return_value = process
+                before = self.rows()
+                if failure == "poll":
+                    guest.server.poll.side_effect = OSError("owned handle query failed")
+                if failure == "job":
+                    guest.job.active.side_effect = OSError("Job accounting failed")
+                original_open = Path.open
+
+                def open_path(path, *args, **kwargs):
+                    if failure == "write" and path.name.startswith("owned-status-"):
+                        raise OSError("status retention failed")
+                    return original_open(path, *args, **kwargs)
+
+                original_time = __import__("time").time_ns
+                ticks = [0]
+
+                def utc():
+                    ticks[0] += 1
+                    if failure == "clock" and ticks[0] in (4, 5, 6, 7):
+                        raise OSError("status clock unavailable")
+                    return original_time()
+
+                with patch.object(guest, "verify_transport"), patch.object(Path, "open", open_path), \
+                        patch("controller.disposable.time.time_ns", side_effect=utc):
+                    with self.assertRaises(ExceptionGroup) as raised:
+                        guest.adb(self.ledger, ["wait-for-device"], timeout=120)
+                self.assertIs(raised.exception.exceptions[0], primary)
+                self.assertEqual(len(raised.exception.exceptions), 2)
+                self.assertEqual(guest.phase, "uncertain")
+                self.assertEqual(self.rows(), before)
+                with patch.object(guest, "_cleanup", side_effect=PortError("independent cleanup failed")), \
+                        patch.object(Path, "open", open_path):
+                    with self.assertRaises(BaseExceptionGroup if failure != "clock" else PortError) as cleanup:
+                        guest.dispose(self.ledger)
+                self.assertEqual(self.rows(), before)
+                self.assertEqual(guest.phase, "uncertain")
+                if failure != "write":
+                    self.assertTrue(next(r for r in self.status_reports(guest)
+                                         if r["stage"] == "operation-failure")["errors"])
+                guest.server.poll.side_effect = None
+                guest.job = None
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_status_snapshot_failure_never_replaces_return7_or_cancellation(self):
+        from unittest.mock import Mock
+
+        self.status_boundary.stop()
+        for cancelled in (False, True):
+            with self.subTest(cancelled=cancelled):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                guest.phase = "running"
+                guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+                guest.job = Mock()
+                guest.job.active.side_effect = OSError("independent status accounting failure")
+                process = Mock(pid=501)
+                process.poll.return_value = None if cancelled else 7
+                primary = KeyboardInterrupt("actual cancellation")
+                process.wait.side_effect = primary if cancelled else None
+                process.wait.return_value = 7
+                before = self.rows()
+
+                def spawn(command, environment, log):
+                    log.write(b"retained raw exit bytes")
+                    return process
+
+                guest.job.spawn.side_effect = spawn
+                with patch.object(guest, "verify_transport"):
+                    with self.assertRaises(BaseExceptionGroup) as raised:
+                        guest.adb(self.ledger, ["wait-for-device"], timeout=120)
+                first, snapshot = raised.exception.exceptions
+                if cancelled:
+                    self.assertIs(first, primary)
+                else:
+                    self.assertIsInstance(first, subprocess.CalledProcessError)
+                    self.assertEqual(first.returncode, 7)
+                    self.assertEqual(first.output, b"retained raw exit bytes")
+                self.assertIsInstance(snapshot, ExceptionGroup)
+                process.wait.assert_called_once_with(120)
+                self.assertEqual(guest.phase, "uncertain")
+                self.assertEqual(self.rows(), before)
+                guest.job = None
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assertEqual(next(guest.root.glob("adb-*.log")).read_bytes(), b"retained raw exit bytes")
+                self.assert_legacy()
 
     def test_actual_fresh_directories_are_distinct_and_never_adopt_existing_data(self):
         first, second = self.allocate(), self.allocate()
